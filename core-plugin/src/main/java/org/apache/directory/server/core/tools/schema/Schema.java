@@ -23,14 +23,14 @@ public class Schema
     private String[] dependencies;
     private String pkg;
     private String owner;
-    
-    
+
+
     public void setDependencies( String[] dependencies )
     {
         this.dependencies = dependencies;
     }
-    
-    
+
+
     public String[] getDependencies()
     {
         return dependencies;

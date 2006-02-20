@@ -49,18 +49,21 @@ public interface Authenticator
      * <tt>'none'</tt>,...).
      */
     public String getAuthenticatorType();
-    
+
+
     /**
      * Called by {@link AuthenticationService} to indicate that this
      * authenticator is being placed into service.
      */
     public void init( DirectoryServiceConfiguration factoryCfg, AuthenticatorConfiguration cfg ) throws NamingException;
-    
+
+
     /**
      * Called by {@link AuthenticationService} to indicate that this
      * authenticator is being removed from service.
      */
     public void destroy();
+
 
     /**
      * Performs authentication and returns the principal if succeeded.

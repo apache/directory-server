@@ -26,13 +26,14 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 public class NameServers extends AddressListOption
 {
-	public NameServers( byte[] nameServers )
-	{
-		super( 5, nameServers );
-	}
+    public NameServers(byte[] nameServers)
+    {
+        super( 5, nameServers );
+    }
 }
-

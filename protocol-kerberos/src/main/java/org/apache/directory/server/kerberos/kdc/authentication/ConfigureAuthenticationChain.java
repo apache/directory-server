@@ -16,27 +16,30 @@
  */
 package org.apache.directory.server.kerberos.kdc.authentication;
 
+
 import java.util.Map;
 
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
+import org.apache.directory.server.kerberos.shared.crypto.checksum.Crc32Checksum;
+import org.apache.directory.server.kerberos.shared.crypto.checksum.RsaMd4Checksum;
+import org.apache.directory.server.kerberos.shared.crypto.checksum.RsaMd5Checksum;
+import org.apache.directory.server.kerberos.shared.crypto.checksum.Sha1Checksum;
+import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.crypto.checksum.ChecksumType;
-import org.apache.kerberos.crypto.checksum.Crc32Checksum;
-import org.apache.kerberos.crypto.checksum.RsaMd4Checksum;
-import org.apache.kerberos.crypto.checksum.RsaMd5Checksum;
-import org.apache.kerberos.crypto.checksum.Sha1Checksum;
-import org.apache.kerberos.replay.InMemoryReplayCache;
-import org.apache.kerberos.replay.ReplayCache;
-import org.apache.kerberos.service.LockBox;
+
 
 public class ConfigureAuthenticationChain extends CommandBase
 {
     private static final ReplayCache replayCache = new InMemoryReplayCache();
     private static final LockBox lockBox = new LockBox();
 
+
     public boolean execute( Context context ) throws Exception
     {
-        AuthenticationContext authContext = (AuthenticationContext) context;
+        AuthenticationContext authContext = ( AuthenticationContext ) context;
 
         authContext.setReplayCache( replayCache );
         authContext.setLockBox( lockBox );

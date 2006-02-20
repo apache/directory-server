@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 /**
  * A {@link RuntimeException} that is thrown when configuration is not valid.
  *
@@ -28,6 +29,7 @@ public class ConfigurationException extends RuntimeException
 {
     private static final long serialVersionUID = -1439234202862091912L;
 
+
     /**
      * Creates a new instance.
      */
@@ -36,26 +38,29 @@ public class ConfigurationException extends RuntimeException
         super();
     }
 
+
     /**
      * Creates a new instance.
      */
-    public ConfigurationException( String message )
+    public ConfigurationException(String message)
     {
         super( message );
     }
 
-    /**
-     * Creates a new instance.
-     */
-    public ConfigurationException( String message, Throwable cause )
-    {
-        super( message, cause );
-    }
 
     /**
      * Creates a new instance.
      */
-    public ConfigurationException( Throwable cause )
+    public ConfigurationException(String message, Throwable cause)
+    {
+        super( message, cause );
+    }
+
+
+    /**
+     * Creates a new instance.
+     */
+    public ConfigurationException(Throwable cause)
     {
         super( cause );
     }

@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +28,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.authz.support.ACITupleFilter;
 import org.apache.directory.server.core.schema.OidRegistry;
+
 
 /**
  * A mock {@link OidRegistry} to test {@link ACITupleFilter} implementations.
@@ -42,15 +44,18 @@ class DummyOidRegistry implements OidRegistry
         return String.valueOf( name.hashCode() );
     }
 
+
     public boolean hasOid( String id )
     {
         return true;
     }
 
+
     public String getPrimaryName( String oid ) throws NamingException
     {
         return oid;
     }
+
 
     public List getNameSet( String oid ) throws NamingException
     {
@@ -59,16 +64,19 @@ class DummyOidRegistry implements OidRegistry
         return list;
     }
 
+
     public Iterator list()
     {
         // Not used
         return new ArrayList().iterator();
     }
 
+
     public void register( String name, String oid )
     {
         // Not used
     }
+
 
     /**
      * Get the map of all the oids by their name
@@ -76,8 +84,9 @@ class DummyOidRegistry implements OidRegistry
      */
     public Map getOidByName()
     {
-    	return null;
+        return null;
     }
+
 
     /**
      * Get the map of all the oids by their name
@@ -85,7 +94,7 @@ class DummyOidRegistry implements OidRegistry
      */
     public Map getNameByOid()
     {
-    	return null;
+        return null;
     }
-    
+
 }

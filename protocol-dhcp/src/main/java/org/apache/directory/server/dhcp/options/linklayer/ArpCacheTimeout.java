@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.linklayer;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies the timeout in seconds for ARP cache entries.
@@ -29,17 +31,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class ArpCacheTimeout extends DhcpOption
 {
-	private byte[] arpCacheTimeout;
-	
-	public ArpCacheTimeout( byte[] arpCacheTimeout )
-	{
-		super( 35, 4 );
-		this.arpCacheTimeout = arpCacheTimeout;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( arpCacheTimeout );
-	}
-}
+    private byte[] arpCacheTimeout;
 
+
+    public ArpCacheTimeout(byte[] arpCacheTimeout)
+    {
+        super( 35, 4 );
+        this.arpCacheTimeout = arpCacheTimeout;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( arpCacheTimeout );
+    }
+}

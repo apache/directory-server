@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.naming.directory.Attributes;
+
 
 /**
  * A utility class that provides common functionality while validating configuration.
@@ -48,6 +50,7 @@ public class ConfigurationUtil
         return newSet;
     }
 
+
     /**
      * Checks all elements of the specified list is of the specified type,
      * and returns cloned list.
@@ -61,22 +64,22 @@ public class ConfigurationUtil
         return newList;
     }
 
+
     public static void getTypeSafeCollection( Collection collection, Class type, Collection newCollection )
     {
         Iterator i = collection.iterator();
-        while( i.hasNext() )
+        while ( i.hasNext() )
         {
             Object e = i.next();
-            if( !type.isAssignableFrom( e.getClass() ) )
+            if ( !type.isAssignableFrom( e.getClass() ) )
             {
-                throw new ConfigurationException(
-                        "Invalid element type: " + e.getClass() +
-                        " (expected " + type );
+                throw new ConfigurationException( "Invalid element type: " + e.getClass() + " (expected " + type );
             }
             newCollection.add( e );
         }
     }
-    
+
+
     /**
      * Returns the clone of the specified set.
      */
@@ -86,7 +89,8 @@ public class ConfigurationUtil
         newSet.addAll( set );
         return newSet;
     }
-    
+
+
     /**
      * Returns the clone of the specified list.
      */
@@ -96,7 +100,8 @@ public class ConfigurationUtil
         newList.addAll( list );
         return newList;
     }
-    
+
+
     /**
      * Returns the deep clone of the specified {@link Attributes} list.
      */
@@ -104,12 +109,13 @@ public class ConfigurationUtil
     {
         List newList = new ArrayList();
         Iterator i = list.iterator();
-        while( i.hasNext() )
+        while ( i.hasNext() )
         {
             newList.add( ( ( Attributes ) i.next() ).clone() );
         }
         return newList;
     }
+
 
     /**
      * Throws a {@link ConfigurationException} if the specified port number
@@ -117,12 +123,13 @@ public class ConfigurationUtil
      */
     public static void validatePortNumber( int port )
     {
-        if( port < 0 || port > 65535 )
+        if ( port < 0 || port > 65535 )
         {
             throw new ConfigurationException( "Invalid port number: " + port );
         }
     }
-    
+
+
     private ConfigurationUtil()
     {
     }

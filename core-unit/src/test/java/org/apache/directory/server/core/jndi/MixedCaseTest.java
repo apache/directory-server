@@ -40,6 +40,7 @@ public class MixedCaseTest extends AbstractAdminTestCase
 {
     String suffix = "dc=Apache,dc=Org";
 
+
     public void setUp() throws Exception
     {
 
@@ -72,6 +73,7 @@ public class MixedCaseTest extends AbstractAdminTestCase
         super.setUp();
     }
 
+
     public void testSearch() throws NamingException
     {
         SearchControls sc = new SearchControls();
@@ -81,12 +83,13 @@ public class MixedCaseTest extends AbstractAdminTestCase
 
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
-        SearchResult sr = (SearchResult) ne.next();
+        SearchResult sr = ( SearchResult ) ne.next();
 
         assertEquals( "The entry returned should be the root entry.", suffix, sr.getName() );
 
         assertFalse( "Search should return no more entries.", ne.hasMore() );
     }
+
 
     public void testAdd() throws NamingException
     {
@@ -109,12 +112,13 @@ public class MixedCaseTest extends AbstractAdminTestCase
 
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
-        SearchResult sr = (SearchResult) ne.next();
+        SearchResult sr = ( SearchResult ) ne.next();
 
-        assertEquals( "The entry returned should be the entry added earlier.", dn+","+suffix, sr.getName() );
+        assertEquals( "The entry returned should be the entry added earlier.", dn + "," + suffix, sr.getName() );
 
         assertFalse( "Search should return no more entries.", ne.hasMore() );
     }
+
 
     public void testModify() throws NamingException
     {
@@ -133,7 +137,7 @@ public class MixedCaseTest extends AbstractAdminTestCase
         assertNotNull( ctx );
 
         ModificationItem[] mods = new ModificationItem[1];
-        mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "description", description ));
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "description", description ) );
 
         sysRoot.modifyAttributes( dn, mods );
 
@@ -144,9 +148,9 @@ public class MixedCaseTest extends AbstractAdminTestCase
 
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
-        SearchResult sr = (SearchResult) ne.next();
+        SearchResult sr = ( SearchResult ) ne.next();
 
-        assertEquals( "The entry returned should be the entry added earlier.", dn+","+suffix, sr.getName() );
+        assertEquals( "The entry returned should be the entry added earlier.", dn + "," + suffix, sr.getName() );
 
         attributes = sr.getAttributes();
         attribute = attributes.get( "description" );
@@ -155,6 +159,7 @@ public class MixedCaseTest extends AbstractAdminTestCase
 
         assertFalse( "Search should return no more entries.", ne.hasMore() );
     }
+
 
     public void testDelete() throws NamingException
     {
@@ -175,15 +180,17 @@ public class MixedCaseTest extends AbstractAdminTestCase
         SearchControls sc = new SearchControls();
         sc.setSearchScope( SearchControls.OBJECT_SCOPE );
 
-        try {
+        try
+        {
             sysRoot.search( dn, "(objectClass=*)", sc );
 
-            fail( "Search should throw exception.");
+            fail( "Search should throw exception." );
 
-        } catch (LdapNameNotFoundException e) {
+        }
+        catch ( LdapNameNotFoundException e )
+        {
             // ignore
         }
     }
 
 }
-

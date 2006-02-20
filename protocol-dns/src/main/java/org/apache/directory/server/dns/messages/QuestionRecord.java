@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.messages;
 
+
 /**
  * The question section is used to carry the "question" in most queries,
  * i.e., the parameters that define what is being asked.  The section
@@ -57,12 +58,14 @@ public class QuestionRecord
      */
     private RecordClass recordClass;
 
-    public QuestionRecord( String domainName, RecordType recordType, RecordClass recordClass )
+
+    public QuestionRecord(String domainName, RecordType recordType, RecordClass recordClass)
     {
         this.domainName = domainName;
         this.recordType = recordType;
         this.recordClass = recordClass;
     }
+
 
     /**
      * The domain name of this query.
@@ -73,6 +76,7 @@ public class QuestionRecord
         return domainName;
     }
 
+
     /**
      * The type of the query.
      * For example, the type is A for address records.
@@ -82,6 +86,7 @@ public class QuestionRecord
         return recordType;
     }
 
+
     /**
      * The class for this query.
      * For example, the class is IN for the Internet.
@@ -90,6 +95,7 @@ public class QuestionRecord
     {
         return recordClass;
     }
+
 
     public String toString()
     {

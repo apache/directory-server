@@ -18,7 +18,9 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 import org.apache.directory.server.core.authn.Authenticator;
+
 
 /**
  * A configuration for {@link Authenticator}.
@@ -31,12 +33,14 @@ public class AuthenticatorConfiguration
     private String name;
     private Authenticator authenticator;
 
+
     /**
      * Creates a new instance.
      */
     protected AuthenticatorConfiguration()
     {
     }
+
 
     /**
      * Returns the {@link Authenticator} this configuration is configuring.
@@ -46,6 +50,7 @@ public class AuthenticatorConfiguration
         return authenticator;
     }
 
+
     /**
      * Sets the {@link Authenticator} to configure.
      */
@@ -53,6 +58,7 @@ public class AuthenticatorConfiguration
     {
         this.authenticator = authenticator;
     }
+
 
     /**
      * Returns the user-defined name of the {@link Authenticator} that
@@ -63,6 +69,7 @@ public class AuthenticatorConfiguration
         return name;
     }
 
+
     /**
      * Sets the user-defined name of the {@link Authenticator} that
      * this configuration configures.
@@ -72,18 +79,19 @@ public class AuthenticatorConfiguration
         this.name = name.trim();
     }
 
+
     /**
      * Validates all properties of this configuration.
      * @throws ConfigurationException if this configuration is not valid. 
      */
     public void validate()
     {
-        if( name == null )
+        if ( name == null )
         {
             throw new ConfigurationException( "Name is not specified." );
         }
-        
-        if( authenticator == null )
+
+        if ( authenticator == null )
         {
             throw new ConfigurationException( "Authenticator is not specified." );
         }

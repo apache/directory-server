@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server;
 
+
 import java.util.Hashtable;
 
 import javax.naming.NameNotFoundException;
@@ -43,22 +44,24 @@ public class ModifyRdnTest extends AbstractServerTest
 
     private LdapContext ctx = null;
 
+
     /**
      * Create attributes for a person entry.
      */
-    protected Attributes getPersonAttributes(String sn, String cn)
+    protected Attributes getPersonAttributes( String sn, String cn )
     {
         Attributes attributes = new BasicAttributes();
-        Attribute attribute = new BasicAttribute("objectClass");
-        attribute.add("top");
-        attribute.add("person");
-        attributes.put(attribute);
-        attributes.put("cn", cn);
-        attributes.put("sn", sn);
-        attributes.put("description", cn + " is a person.");
+        Attribute attribute = new BasicAttribute( "objectClass" );
+        attribute.add( "top" );
+        attribute.add( "person" );
+        attributes.put( attribute );
+        attributes.put( "cn", cn );
+        attributes.put( "sn", sn );
+        attributes.put( "description", cn + " is a person." );
 
         return attributes;
     }
+
 
     /**
      * Create context
@@ -68,14 +71,15 @@ public class ModifyRdnTest extends AbstractServerTest
         super.setUp();
 
         Hashtable env = new Hashtable();
-        env.put("java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put("java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" ); 
-        env.put("java.naming.security.principal", "uid=admin,ou=system" ); 
-        env.put("java.naming.security.credentials", "secret" );
-        env.put("java.naming.security.authentication", "simple");
-        ctx = new InitialLdapContext(env, null);
-        assertNotNull(ctx);
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", "secret" );
+        env.put( "java.naming.security.authentication", "simple" );
+        ctx = new InitialLdapContext( env, null );
+        assertNotNull( ctx );
     }
+
 
     /**
      * Close context
@@ -88,13 +92,15 @@ public class ModifyRdnTest extends AbstractServerTest
         super.tearDown();
     }
 
+
     /**
      * Just a little test to check wether opening the connection succeeds.
      */
     public void testSetUpTearDown() throws NamingException
     {
-        assertNotNull(ctx);
+        assertNotNull( ctx );
     }
+
 
     /**
      * Modify Rdn of an entry, delete its old rdn value.
@@ -106,37 +112,41 @@ public class ModifyRdnTest extends AbstractServerTest
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
         String oldRdn = "cn=" + oldCn;
-        Attributes attributes = this.getPersonAttributes("Amos", oldCn);
-        ctx.createSubcontext(oldRdn, attributes);
+        Attributes attributes = this.getPersonAttributes( "Amos", oldCn );
+        ctx.createSubcontext( oldRdn, attributes );
 
         // modify Rdn
         String newCn = "Tori Amos";
         String newRdn = "cn=" + newCn;
-        ctx.addToEnvironment("java.naming.ldap.deleteRDN", "true");
-        ctx.rename(oldRdn, newRdn);
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        ctx.rename( oldRdn, newRdn );
 
         // Check, whether old Entry does not exists
-        try {
-            ctx.lookup(oldRdn);
-            fail("Entry must not exist");
-        } catch (NameNotFoundException ignored) {
+        try
+        {
+            ctx.lookup( oldRdn );
+            fail( "Entry must not exist" );
+        }
+        catch ( NameNotFoundException ignored )
+        {
             // expected behaviour
-            assertTrue(true);
+            assertTrue( true );
         }
 
         // Check, whether new Entry exists
-        DirContext tori = (DirContext) ctx.lookup(newRdn);
-        assertNotNull(tori);
+        DirContext tori = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( tori );
 
         // Check values of cn
-        Attribute cn = tori.getAttributes("").get("cn");
-        assertTrue(cn.contains(newCn));
-        assertTrue(!cn.contains(oldCn)); // old value is gone
-        assertEquals(1, cn.size());
+        Attribute cn = tori.getAttributes( "" ).get( "cn" );
+        assertTrue( cn.contains( newCn ) );
+        assertTrue( !cn.contains( oldCn ) ); // old value is gone
+        assertEquals( 1, cn.size() );
 
         // Remove entry (use new rdn)
-        ctx.unbind(newRdn);
+        ctx.unbind( newRdn );
     }
+
 
     /**
      * Modify Rdn of an entry, keep its old rdn value.
@@ -148,37 +158,41 @@ public class ModifyRdnTest extends AbstractServerTest
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
         String oldRdn = "cn=" + oldCn;
-        Attributes attributes = this.getPersonAttributes("Amos", oldCn);
-        ctx.createSubcontext(oldRdn, attributes);
+        Attributes attributes = this.getPersonAttributes( "Amos", oldCn );
+        ctx.createSubcontext( oldRdn, attributes );
 
         // modify Rdn
         String newCn = "Tori Amos";
         String newRdn = "cn=" + newCn;
-        ctx.addToEnvironment("java.naming.ldap.deleteRDN", "false");
-        ctx.rename(oldRdn, newRdn);
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+        ctx.rename( oldRdn, newRdn );
 
         // Check, whether old entry does not exist
-        try {
-            ctx.lookup(oldRdn);
-            fail("Entry must not exist");
-        } catch (NameNotFoundException ignored) {
+        try
+        {
+            ctx.lookup( oldRdn );
+            fail( "Entry must not exist" );
+        }
+        catch ( NameNotFoundException ignored )
+        {
             // expected behaviour
-            assertTrue(true);
+            assertTrue( true );
         }
 
         // Check, whether new entry exists
-        DirContext tori = (DirContext) ctx.lookup(newRdn);
-        assertNotNull(tori);
+        DirContext tori = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( tori );
 
         // Check values of cn
-        Attribute cn = tori.getAttributes("").get("cn");
-        assertTrue(cn.contains(newCn));
-        assertTrue(cn.contains(oldCn)); // old value is still there
-        assertEquals(2, cn.size());
+        Attribute cn = tori.getAttributes( "" ).get( "cn" );
+        assertTrue( cn.contains( newCn ) );
+        assertTrue( cn.contains( oldCn ) ); // old value is still there
+        assertEquals( 2, cn.size() );
 
         // Remove entry (use new rdn)
-        ctx.unbind(newRdn);
+        ctx.unbind( newRdn );
     }
+
 
     /**
      * Modify Rdn of an entry, delete its old rdn value. Here, the rdn attribute
@@ -191,87 +205,95 @@ public class ModifyRdnTest extends AbstractServerTest
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
         String oldRdn = "cn=" + oldCn;
-        Attributes attributes = this.getPersonAttributes("Amos", oldCn);
+        Attributes attributes = this.getPersonAttributes( "Amos", oldCn );
 
         // add a second cn value
         String alternateCn = "Myra E. Amos";
-        Attribute cn = attributes.get("cn");
-        cn.add(alternateCn);
-        assertEquals(2, cn.size());
+        Attribute cn = attributes.get( "cn" );
+        cn.add( alternateCn );
+        assertEquals( 2, cn.size() );
 
-        ctx.createSubcontext(oldRdn, attributes);
+        ctx.createSubcontext( oldRdn, attributes );
 
         // modify Rdn
         String newCn = "Tori Amos";
         String newRdn = "cn=" + newCn;
-        ctx.addToEnvironment("java.naming.ldap.deleteRDN", "true");
-        ctx.rename(oldRdn, newRdn);
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        ctx.rename( oldRdn, newRdn );
 
         // Check, whether old Entry does not exist anymore
-        try {
-            ctx.lookup(oldRdn);
-            fail("Entry must not exist");
-        } catch (NameNotFoundException ignored) {
+        try
+        {
+            ctx.lookup( oldRdn );
+            fail( "Entry must not exist" );
+        }
+        catch ( NameNotFoundException ignored )
+        {
             // expected behaviour
-            assertTrue(true);
+            assertTrue( true );
         }
 
         // Check, whether new Entry exists
-        DirContext tori = (DirContext) ctx.lookup(newRdn);
-        assertNotNull(tori);
+        DirContext tori = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( tori );
 
         // Check values of cn
-        cn = tori.getAttributes("").get("cn");
-        assertTrue(cn.contains(newCn));
-        assertTrue(!cn.contains(oldCn)); // old value is gone
-        assertTrue(cn.contains(alternateCn)); // alternate value is still available
-        assertEquals(2, cn.size());
+        cn = tori.getAttributes( "" ).get( "cn" );
+        assertTrue( cn.contains( newCn ) );
+        assertTrue( !cn.contains( oldCn ) ); // old value is gone
+        assertTrue( cn.contains( alternateCn ) ); // alternate value is still available
+        assertEquals( 2, cn.size() );
 
         // Remove entry (use new rdn)
-        ctx.unbind(newRdn);
+        ctx.unbind( newRdn );
     }
-    
+
+
     /**
      * Modify DN of an entry, changing RDN from cn to sn.
      * 
      * @throws NamingException
      */
-    public void testModifyRdnDifferentAttribute() throws NamingException {
+    public void testModifyRdnDifferentAttribute() throws NamingException
+    {
 
         // Create a person, cn value is rdn
         String cnVal = "Tori Amos";
         String snVal = "Amos";
         String oldRdn = "cn=" + cnVal;
-        Attributes attributes = this.getPersonAttributes(snVal, cnVal);
-        ctx.createSubcontext(oldRdn, attributes);
+        Attributes attributes = this.getPersonAttributes( snVal, cnVal );
+        ctx.createSubcontext( oldRdn, attributes );
 
         // modify Rdn from cn=... to sn=...
         String newRdn = "sn=" + snVal;
-        ctx.addToEnvironment("java.naming.ldap.deleteRDN", "false");
-        ctx.rename(oldRdn, newRdn);
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+        ctx.rename( oldRdn, newRdn );
 
         // Check, whether old Entry does not exists
-        try {
-            ctx.lookup(oldRdn);
-            fail("Entry must not exist");
-        } catch (NameNotFoundException ignored) {
+        try
+        {
+            ctx.lookup( oldRdn );
+            fail( "Entry must not exist" );
+        }
+        catch ( NameNotFoundException ignored )
+        {
             // expected behaviour
         }
 
         // Check, whether new Entry exists
-        DirContext tori = (DirContext) ctx.lookup(newRdn);
-        assertNotNull(tori);
+        DirContext tori = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( tori );
 
         // Check values of cn and sn
         // especially the number of cn and sn occurences
-        Attribute cn = tori.getAttributes("").get("cn");
-        assertTrue(cn.contains(cnVal));
-        assertEquals("Number of cn occurences", 1, cn.size());
-        Attribute sn = tori.getAttributes("").get("sn");
-        assertTrue(sn.contains(snVal));
-        assertEquals("Number of sn occurences", 1, sn.size());
-        
+        Attribute cn = tori.getAttributes( "" ).get( "cn" );
+        assertTrue( cn.contains( cnVal ) );
+        assertEquals( "Number of cn occurences", 1, cn.size() );
+        Attribute sn = tori.getAttributes( "" ).get( "sn" );
+        assertTrue( sn.contains( snVal ) );
+        assertEquals( "Number of sn occurences", 1, sn.size() );
+
         // Remove entry (use new rdn)
-        ctx.unbind(newRdn);
+        ctx.unbind( newRdn );
     }
 }

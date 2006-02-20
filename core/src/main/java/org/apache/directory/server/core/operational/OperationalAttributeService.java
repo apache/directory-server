@@ -65,7 +65,7 @@ public class OperationalAttributeService extends BaseInterceptor
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
-                throws NamingException
+            throws NamingException
         {
             if ( controls.getReturningAttributes() == null )
             {
@@ -107,7 +107,8 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * Adds extra operational attributes to the entry before it is added.
      */
-    public void add( NextInterceptor nextInterceptor, String upName, Name normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor nextInterceptor, String upName, Name normName, Attributes entry )
+        throws NamingException
     {
         String principal = getPrincipal().getName();
 
@@ -123,10 +124,11 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs )
+        throws NamingException
     {
         nextInterceptor.modify( name, modOp, attrs );
-        
+
         // add operational attributes after call in case the operation fails
         Attributes attributes = new BasicAttributes( true );
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
@@ -159,10 +161,11 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn )
+        throws NamingException
     {
         nextInterceptor.modifyRn( name, newRn, deleteOldRn );
-        
+
         // add operational attributes after call in case the operation fails
         Attributes attributes = new BasicAttributes( true );
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
@@ -196,7 +199,8 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor, Name name, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, Name name, Name newParentName, String newRn, boolean deleteOldRn )
+        throws NamingException
     {
         nextInterceptor.move( name, newParentName, newRn, deleteOldRn );
 
@@ -247,9 +251,8 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, 
-            Name base, Map env, ExprNode filter,
-            SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor, Name base, Map env, ExprNode filter,
+        SearchControls searchCtls ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
@@ -293,8 +296,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    private void filter( Name dn, Attributes entry, String[] ids )
-            throws NamingException
+    private void filter( Name dn, Attributes entry, String[] ids ) throws NamingException
     {
         // still need to protect against returning op attrs when ids is null
         if ( ids == null )
@@ -324,7 +326,7 @@ public class OperationalAttributeService extends BaseInterceptor
                 }
             }
         }
-        
+
         // do nothing past here since this explicity specifies which
         // attributes to include - backends will automatically populate
         // with right set of attributes using ids array

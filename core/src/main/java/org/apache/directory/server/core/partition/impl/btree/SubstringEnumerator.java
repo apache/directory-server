@@ -63,9 +63,8 @@ public class SubstringEnumerator implements Enumerator
      * @param db the database
      * @param evaluator a substring evaluator
      */
-    public SubstringEnumerator( BTreeDirectoryPartition db,
-                                AttributeTypeRegistry attributeTypeRegistry,
-                                SubstringEvaluator evaluator )
+    public SubstringEnumerator(BTreeDirectoryPartition db, AttributeTypeRegistry attributeTypeRegistry,
+        SubstringEvaluator evaluator)
     {
         this.db = db;
         this.evaluator = evaluator;
@@ -76,14 +75,12 @@ public class SubstringEnumerator implements Enumerator
     // ------------------------------------------------------------------------
     // SubstringEnumerator Methods
     // ------------------------------------------------------------------------
-    
-    
+
     /**
      * @see Enumerator#enumerate(
      * org.apache.directory.shared.ldap.filter.ExprNode)
      */
-    public NamingEnumeration enumerate( final ExprNode node )
-        throws NamingException
+    public NamingEnumeration enumerate( final ExprNode node ) throws NamingException
     {
         Pattern regex = null;
         Index idx = null;
@@ -97,14 +94,13 @@ public class SubstringEnumerator implements Enumerator
              * Build out regex in this block so we do not do it twice in the
              * evaluator if there is no index on the attribute of the substr ava
              */
-            try 
+            try
             {
                 regex = snode.getRegex( normalizer );
-            } 
-            catch ( PatternSyntaxException e ) 
+            }
+            catch ( PatternSyntaxException e )
             {
-                NamingException ne = new NamingException( "SubstringNode '" 
-                    + node + "' had incorrect syntax" );
+                NamingException ne = new NamingException( "SubstringNode '" + node + "' had incorrect syntax" );
                 ne.setRootCause( e );
                 throw ne;
             }
@@ -118,13 +114,13 @@ public class SubstringEnumerator implements Enumerator
             if ( null == snode.getInitial() )
             {
                 return idx.listIndices( regex );
-            } 
-            else 
+            }
+            else
             {
                 return idx.listIndices( regex, snode.getInitial() );
             }
         }
-        
+
         /*
          * From this point on we are dealing with an enumeration over entries
          * based on an attribute that is not indexed.  We have no choice but

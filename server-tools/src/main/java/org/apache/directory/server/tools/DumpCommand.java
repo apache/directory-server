@@ -50,7 +50,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 
 
-
 /**
  * Simple tool used to dump the contents of a jdbm based partition.
  * 
@@ -63,14 +62,14 @@ public class DumpCommand extends ToolCommand
     private BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
     private Set exclusions = new HashSet();
     private boolean includeOperational = false;
-    
-    
+
+
     public DumpCommand()
     {
         super( "dump" );
     }
-    
-    
+
+
     public void execute( CommandLine cmdline ) throws Exception
     {
         getLayout().verifyInstallation();
@@ -80,7 +79,7 @@ public class DumpCommand extends ToolCommand
         String[] partitions = cmdline.getOptionValues( 'p' );
         String outputFile = cmdline.getOptionValue( 'f' );
         PrintWriter out = null;
-        
+
         String[] excludedAttributes = cmdline.getOptionValues( 'e' );
         if ( excludedAttributes != null )
         {
@@ -91,7 +90,7 @@ public class DumpCommand extends ToolCommand
                 exclusions.add( type.getName() );
             }
         }
-        
+
         if ( outputFile == null )
         {
             out = new PrintWriter( System.out );
@@ -100,7 +99,7 @@ public class DumpCommand extends ToolCommand
         {
             out = new PrintWriter( new FileWriter( outputFile ) );
         }
-        
+
         for ( int ii = 0; ii < partitions.length; ii++ )
         {
             File partitionDirectory = new File( getLayout().getPartitionsDirectory(), partitions[ii] );
@@ -108,20 +107,20 @@ public class DumpCommand extends ToolCommand
             dump( partitionDirectory, out );
         }
     }
-    
-    
+
+
     private void dump( File partitionDirectory, PrintWriter out ) throws Exception
     {
-        if ( ! partitionDirectory.exists() )
+        if ( !partitionDirectory.exists() )
         {
             System.err.println( "Partition directory " + partitionDirectory + " does not exist!" );
             System.exit( 1 );
         }
 
-        out.println( "# ========================================================================");
+        out.println( "# ========================================================================" );
         out.println( "# ApacheDS Tools Version: " + getVersion() );
         out.println( "# Partition Directory: " + partitionDirectory );
-        out.println( "# ========================================================================\n\n");
+        out.println( "# ========================================================================\n\n" );
 
         String path = partitionDirectory.getPath() + File.separator + "master";
         BaseRecordManager base = new BaseRecordManager( path );
@@ -143,8 +142,8 @@ public class DumpCommand extends ToolCommand
             Attributes entry = ( Attributes ) tuple.getValue();
 
             filterAttributes( dn, entry );
-            
-            if ( ! ( entry instanceof LockableAttributesImpl ) )
+
+            if ( !( entry instanceof LockableAttributesImpl ) )
             {
                 Attributes tmp = entry;
                 entry = new LockableAttributesImpl();
@@ -160,7 +159,7 @@ public class DumpCommand extends ToolCommand
                     }
                 }
             }
-            
+
             buf.append( "# Entry: " ).append( id ).append( "\n#---------------------\n\n" );
             buf.append( "dn: " ).append( dn ).append( "\n" ).append( entry );
             if ( list.hasMore() )
@@ -182,19 +181,19 @@ public class DumpCommand extends ToolCommand
         while ( attrs.hasMore() )
         {
             Attribute attr = ( Attribute ) attrs.next();
-            if ( ! registry.hasAttributeType( attr.getID() ) )
+            if ( !registry.hasAttributeType( attr.getID() ) )
             {
-                if ( ! isQuietEnabled() )
+                if ( !isQuietEnabled() )
                 {
-                    System.out.println( "# Cannot properly filter unrecognized attribute " 
-                        + attr.getID() + " in " + dn );
+                    System.out
+                        .println( "# Cannot properly filter unrecognized attribute " + attr.getID() + " in " + dn );
                 }
                 continue;
             }
-            
+
             AttributeType type = registry.lookup( attr.getID() );
             boolean isOperational = type.getUsage() != UsageEnum.USERAPPLICATIONS;
-            if ( exclusions.contains( attr.getID() ) || ( isOperational && ( ! includeOperational ) ) )
+            if ( exclusions.contains( attr.getID() ) || ( isOperational && ( !includeOperational ) ) )
             {
                 toRemove.add( attr.getID() );
             }
@@ -209,15 +208,15 @@ public class DumpCommand extends ToolCommand
             }
         }
     }
-    
-    
+
+
     public Options getOptions()
     {
         Options opts = new Options();
         Option op = new Option( "f", "file", true, "file to output the dump to" );
         op.setRequired( false );
         opts.addOption( op );
-        op = new Option(  "p", "partitions", true, "the partitions to dump" );
+        op = new Option( "p", "partitions", true, "the partitions to dump" );
         op.setRequired( true );
         op.setValueSeparator( File.pathSeparatorChar );
         opts.addOption( op );

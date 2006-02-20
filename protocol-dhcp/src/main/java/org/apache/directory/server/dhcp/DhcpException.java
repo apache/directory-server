@@ -22,6 +22,7 @@ public class DhcpException extends Exception
 {
     private static final long serialVersionUID = 3985748516732135317L;
 
+
     /**
      * This empty constructor is used if no 
      * explanation of the DHCP exception is required.
@@ -31,15 +32,15 @@ public class DhcpException extends Exception
         super();
     }
 
+
     /**
      * This constructor is used if a description of the event
      * that caused the exception is required.
      * 
      * @param description this is a description of the exception
      */
-    public DhcpException( String description )
+    public DhcpException(String description)
     {
         super( description );
     }
 }
-

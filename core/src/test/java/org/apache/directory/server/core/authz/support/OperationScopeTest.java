@@ -18,10 +18,12 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import org.apache.directory.server.core.authz.support.OperationScope;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
 
 /**
  * Tests {@link OperationScope}.
@@ -38,11 +40,13 @@ public class OperationScopeTest extends TestCase
         Assert.assertEquals( "Attribute Type", OperationScope.ATTRIBUTE_TYPE.getName() );
         Assert.assertEquals( "Attribute Type & Value", OperationScope.ATTRIBUTE_TYPE_AND_VALUE.getName() );
     }
-    
+
+
     public void testGetNameAndToStringEquality()
     {
         Assert.assertEquals( OperationScope.ENTRY.getName(), OperationScope.ENTRY.toString() );
         Assert.assertEquals( OperationScope.ATTRIBUTE_TYPE.getName(), OperationScope.ATTRIBUTE_TYPE.toString() );
-        Assert.assertEquals( OperationScope.ATTRIBUTE_TYPE_AND_VALUE.getName(), OperationScope.ATTRIBUTE_TYPE_AND_VALUE.toString() );
+        Assert.assertEquals( OperationScope.ATTRIBUTE_TYPE_AND_VALUE.getName(), OperationScope.ATTRIBUTE_TYPE_AND_VALUE
+            .toString() );
     }
 }

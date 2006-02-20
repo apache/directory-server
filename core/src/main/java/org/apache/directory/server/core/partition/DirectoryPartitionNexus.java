@@ -57,7 +57,8 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      * building the name.  Note that what ever the SUFFIX equals it should be 
      * both the normalized and the user provided form.
      */
-    public static final String SYSTEM_PARTITION_SUFFIX = "ou=system" ;
+    public static final String SYSTEM_PARTITION_SUFFIX = "ou=system";
+
 
     /**
      * Gets the DN for the admin user.
@@ -66,7 +67,7 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
     public static final Name getAdminName()
     {
         Name adminDn = null;
-    
+
         try
         {
             adminDn = new LdapName( ADMIN_PRINCIPAL );
@@ -75,9 +76,10 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
         {
             throw new InternalError();
         }
-    
+
         return adminDn;
     }
+
 
     /**
      * Gets the DN for the base entry under which all groups reside.
@@ -87,7 +89,7 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
     public static final Name getGroupsBaseName()
     {
         Name groupsBaseDn = null;
-    
+
         try
         {
             groupsBaseDn = new LdapName( GROUPS_BASE_NAME );
@@ -96,9 +98,10 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
         {
             throw new InternalError();
         }
-    
+
         return groupsBaseDn;
     }
+
 
     /**
      * Gets the DN for the base entry under which all non-admin users reside.
@@ -108,7 +111,7 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
     public static final Name getUsersBaseName()
     {
         Name usersBaseDn = null;
-    
+
         try
         {
             usersBaseDn = new LdapName( USERS_BASE_NAME );
@@ -117,9 +120,10 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
         {
             throw new InternalError();
         }
-    
+
         return usersBaseDn;
     }
+
 
     /**
      * Gets the LdapContext associated with the calling thread.
@@ -129,12 +133,14 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      */
     public abstract LdapContext getLdapContext();
 
+
     /**
      * Get's the RootDSE entry for the DSA.
      *
      * @return the attributes of the RootDSE
      */
     public abstract Attributes getRootDSE() throws NamingException;
+
 
     /**
      * Performs a comparison check to see if an attribute of an entry has
@@ -148,12 +154,16 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      */
     public abstract boolean compare( Name name, String oid, Object value ) throws NamingException;
 
+
     public abstract void addContextPartition( DirectoryPartitionConfiguration config ) throws NamingException;
-    
+
+
     public abstract void removeContextPartition( Name suffix ) throws NamingException;
 
+
     public abstract DirectoryPartition getSystemPartition();
-    
+
+
     /**
      * Get's the partition corresponding to a distinguished name.  This 
      * name need not be the name of the partition suffix.  When used in 
@@ -165,6 +175,7 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      * @throws NamingException if there is no partition for the dn
      */
     public abstract DirectoryPartition getPartition( Name dn ) throws NamingException;
+
 
     /**
      * Gets the most significant Dn that exists within the server for any Dn.
@@ -179,6 +190,7 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      * @throws NamingException if there are any problems
      */
     public abstract Name getMatchedName( Name name, boolean normalized ) throws NamingException;
+
 
     /**
      * Gets the distinguished name of the suffix that would hold an entry with
@@ -195,6 +207,7 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      */
     public abstract Name getSuffix( Name name, boolean normalized ) throws NamingException;
 
+
     /**
      * Gets an iteration over the Name suffixes of the partitions managed by this
      * {@link DirectoryPartitionNexus}.
@@ -206,6 +219,7 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      * @throws NamingException if there are any problems
      */
     public abstract Iterator listSuffixes( boolean normalized ) throws NamingException;
+
 
     /**
      * Adds a set of supportedExtension (OID Strings) to the RootDSE.

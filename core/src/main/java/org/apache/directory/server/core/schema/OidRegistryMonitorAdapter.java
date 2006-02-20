@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.core.schema;
 
+
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -34,6 +35,7 @@ public class OidRegistryMonitorAdapter implements OidRegistryMonitor
 {
     private static final Logger log = LoggerFactory.getLogger( OidRegistryMonitorAdapter.class );
 
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.OidRegistryMonitor#getOidWithOid(
      * java.lang.String)
@@ -42,7 +44,7 @@ public class OidRegistryMonitorAdapter implements OidRegistryMonitor
     {
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.OidRegistryMonitor#oidResolved(
      * java.lang.String, java.lang.String)
@@ -50,7 +52,7 @@ public class OidRegistryMonitorAdapter implements OidRegistryMonitor
     public void oidResolved( String name, String oid )
     {
     }
-    
+
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.OidRegistryMonitor#oidResolved(
@@ -60,7 +62,7 @@ public class OidRegistryMonitorAdapter implements OidRegistryMonitor
     {
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.OidRegistryMonitor#oidResolutionFailed(
      * java.lang.String, javax.naming.NamingException)
@@ -73,7 +75,7 @@ public class OidRegistryMonitorAdapter implements OidRegistryMonitor
         }
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.OidRegistryMonitor#oidDoesNotExist(
      * java.lang.String, javax.naming.NamingException)
@@ -86,7 +88,7 @@ public class OidRegistryMonitorAdapter implements OidRegistryMonitor
         }
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.OidRegistryMonitor#nameResolved(
      * java.lang.String, java.lang.String)
@@ -95,7 +97,7 @@ public class OidRegistryMonitorAdapter implements OidRegistryMonitor
     {
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.OidRegistryMonitor#namesResolved(
      * java.lang.String, java.util.List)
@@ -104,7 +106,7 @@ public class OidRegistryMonitorAdapter implements OidRegistryMonitor
     {
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.OidRegistryMonitor#registered(
      * java.lang.String, java.lang.String)

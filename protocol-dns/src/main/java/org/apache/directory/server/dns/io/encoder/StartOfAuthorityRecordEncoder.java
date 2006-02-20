@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dns.io.encoder;
 
+
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.common.ByteBuffer;
+
 
 /**
  * 3.3.13. SOA RDATA format
@@ -113,7 +115,7 @@ public class StartOfAuthorityRecordEncoder extends ResourceRecordEncoder
         putUnsignedInt( byteBuffer, minimum );
 
         byteBuffer.flip();
-        byte[] bytes = new byte[ byteBuffer.remaining() ];
+        byte[] bytes = new byte[byteBuffer.remaining()];
         byteBuffer.get( bytes, 0, bytes.length );
 
         return bytes;

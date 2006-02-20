@@ -32,7 +32,8 @@ import org.slf4j.LoggerFactory;
 public class ObjectClassRegistryMonitorAdapter implements ObjectClassRegistryMonitor
 {
     private static final Logger log = LoggerFactory.getLogger( ObjectClassRegistryMonitorAdapter.class );
-    
+
+
     public void registered( ObjectClass objectClass )
     {
     }

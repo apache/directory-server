@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.core.partition;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import javax.naming.directory.ModificationItem;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
 import org.apache.directory.shared.ldap.name.LdapName;
+
 
 /**
  * A {@link DirectoryPartition} that helps users to implement their own partition.
@@ -48,10 +50,12 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
     private DirectoryPartitionConfiguration cfg;
     /** <tt>true</tt> if and only if this partition is initialized. */
     private boolean initialized;
-    
+
+
     protected AbstractDirectoryPartition()
     {
     }
+
 
     /**
      * Sets up default properties(<tt>factoryConfiguration</tt> and <tt>configuration</tt>) and
@@ -60,9 +64,10 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
      * without any errors.  {@link #destroy()} is called automatically as a clean-up process
      * if {@link #doInit()} throws an exception.
      */
-    public final void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
+    public final void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg )
+        throws NamingException
     {
-        if( initialized )
+        if ( initialized )
         {
             // Already initialized.
             return;
@@ -70,18 +75,20 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
 
         this.factoryCfg = factoryCfg;
         this.cfg = cfg;
-        try{
+        try
+        {
             doInit();
             initialized = true;
         }
         finally
         {
-            if( !initialized )
+            if ( !initialized )
             {
                 destroy();
             }
         }
     }
+
 
     /**
      * Override this method to put your initialization code.
@@ -89,7 +96,8 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
     protected void doInit() throws NamingException
     {
     }
-    
+
+
     /**
      * Calls {@link #doDestroy()} where you have to put your destroy code in,
      * and clears default properties.  Once this method is invoked, {@link #isInitialized()}
@@ -97,7 +105,7 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
      */
     public final void destroy()
     {
-        if( cfg == null )
+        if ( cfg == null )
         {
             // Already destroyed.
             return;
@@ -115,12 +123,14 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
         }
     }
 
+
     /**
      * Override this method to put your initialization code.
      */
     protected void doDestroy()
     {
     }
+
 
     /**
      * Returns <tt>true</tt> if this context partition is initialized successfully.
@@ -130,6 +140,7 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
         return initialized;
     }
 
+
     /**
      * Returns {@link DirectoryServiceConfiguration} that is provided from
      * {@link #init(DirectoryServiceConfiguration, DirectoryPartitionConfiguration)}.
@@ -138,7 +149,8 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
     {
         return factoryCfg;
     }
-    
+
+
     /**
      * Returns {@link DirectoryPartitionConfiguration} that is provided from
      * {@link #init(DirectoryServiceConfiguration, DirectoryPartitionConfiguration)}.
@@ -148,12 +160,13 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
         return cfg;
     }
 
+
     public final Name getSuffix( boolean normalized ) throws NamingException
     {
-        if( normalized )
+        if ( normalized )
         {
             return getConfiguration().getNormalizedSuffix(
-                    getFactoryConfiguration().getGlobalRegistries().getMatchingRuleRegistry() );
+                getFactoryConfiguration().getGlobalRegistries().getMatchingRuleRegistry() );
         }
         else
         {
@@ -161,10 +174,12 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
         }
     }
 
+
     public final boolean isSuffix( Name name ) throws NamingException
     {
         return getSuffix( true ).equals( name ) || getSuffix( false ).equals( name );
     }
+
 
     /**
      * This method does nothing by default.
@@ -172,7 +187,8 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
     public void sync() throws NamingException
     {
     }
-    
+
+
     /**
      * This method calls {@link #lookup(Name)} and return <tt>true</tt>
      * if it returns an entry by default.  Please override this method if
@@ -184,11 +200,12 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
         {
             return lookup( name ) != null;
         }
-        catch( NameNotFoundException e )
+        catch ( NameNotFoundException e )
         {
             return false;
         }
     }
+
 
     /**
      * This method calls {@link DirectoryPartition#lookup(Name, String[])}
@@ -199,6 +216,7 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
     {
         return lookup( name, null );
     }
+
 
     /**
      * This method forwards the request to
@@ -211,15 +229,16 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
     {
         List items = new ArrayList( mods.size() );
         NamingEnumeration e = mods.getAll();
-        while( e.hasMore() )
+        while ( e.hasMore() )
         {
             items.add( new ModificationItem( modOp, ( Attribute ) e.next() ) );
         }
-        
-        ModificationItem[] itemsArray = new ModificationItem[ items.size() ];
+
+        ModificationItem[] itemsArray = new ModificationItem[items.size()];
         itemsArray = ( ModificationItem[] ) items.toArray( itemsArray );
         modify( name, itemsArray );
     }
+
 
     /**
      * This method calls {@link DirectoryPartition#move(Name, Name)} and
@@ -234,6 +253,7 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
         move( oldName, newParentName );
         modifyRn( newName, newRn, deleteOldRn );
     }
+
 
     /**
      * This method throws {@link OperationNotSupportedException} by default.

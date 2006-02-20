@@ -42,6 +42,8 @@ import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.kdc.KerberosServer;
+import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapProtocolProvider;
 import org.apache.directory.server.ntp.NtpConfiguration;
@@ -51,8 +53,6 @@ import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.kerberos.store.JndiPrincipalStoreImpl;
-import org.apache.kerberos.store.PrincipalStore;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoFilterChainBuilder;
@@ -92,8 +92,8 @@ public class ServerContextFactory extends CoreContextFactory
     {
         this.directoryService = service;
     }
-    
-    
+
+
     protected ServiceRegistry getMinaRegistry()
     {
         return minaRegistry;
@@ -151,8 +151,8 @@ public class ServerContextFactory extends CoreContextFactory
 
     public void afterStartup( DirectoryService service ) throws NamingException
     {
-        ServerStartupConfiguration cfg =
-            ( ServerStartupConfiguration ) service.getConfiguration().getStartupConfiguration();
+        ServerStartupConfiguration cfg = ( ServerStartupConfiguration ) service.getConfiguration()
+            .getStartupConfiguration();
         Hashtable env = service.getConfiguration().getEnvironment();
 
         loadLdifs( service );
@@ -162,9 +162,9 @@ public class ServerContextFactory extends CoreContextFactory
             setupRegistry( cfg );
             startLDAP( cfg, env );
             startLDAPS( cfg, env );
-            startKerberos(cfg, env);
-            startChangePassword(cfg, env);
-            startNTP(cfg, env);
+            startKerberos( cfg, env );
+            startChangePassword( cfg, env );
+            startNTP( cfg, env );
         }
     }
 
@@ -179,14 +179,18 @@ public class ServerContextFactory extends CoreContextFactory
             root.createSubcontext( LDIF_FILES_DN, entry );
             log.info( "Creating " + LDIF_FILES_DN );
         }
-        catch( NamingException e ) { log.info( LDIF_FILES_DN + " exists" );}
+        catch ( NamingException e )
+        {
+            log.info( LDIF_FILES_DN + " exists" );
+        }
     }
-
 
     private final static String WINDOWSFILE_ATTR = "windowsFilePath";
     private final static String UNIXFILE_ATTR = "unixFilePath";
     private final static String WINDOWSFILE_OC = "windowsFile";
     private final static String UNIXFILE_OC = "unixFile";
+
+
     private void addFileEntry( DirContext root, File ldif ) throws NamingException
     {
         String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
@@ -217,7 +221,8 @@ public class ServerContextFactory extends CoreContextFactory
 
         try
         {
-            return root.getAttributes( buf.toString(), new String[]{ "createTimestamp" });
+            return root.getAttributes( buf.toString(), new String[]
+                { "createTimestamp" } );
         }
         catch ( NamingException e )
         {
@@ -233,20 +238,20 @@ public class ServerContextFactory extends CoreContextFactory
         {
             canonical = file.getCanonicalPath();
         }
-        catch (IOException e)
+        catch ( IOException e )
         {
             log.error( "could not get canonical path", e );
             return null;
         }
-        
+
         return StringUtils.replace( canonical, "\\", "\\\\" );
     }
 
 
     private void loadLdifs( DirectoryService service ) throws NamingException
     {
-        ServerStartupConfiguration cfg =
-            ( ServerStartupConfiguration ) service.getConfiguration().getStartupConfiguration();
+        ServerStartupConfiguration cfg = ( ServerStartupConfiguration ) service.getConfiguration()
+            .getStartupConfiguration();
 
         // log and bail if property not set
         if ( cfg.getLdifDirectory() == null )
@@ -259,7 +264,7 @@ public class ServerContextFactory extends CoreContextFactory
         if ( !cfg.getLdifDirectory().exists() )
         {
             log.warn( "LDIF load directory '" + getCanonical( cfg.getLdifDirectory() )
-                    + "' does not exist.  No LDIF files will be loaded.");
+                + "' does not exist.  No LDIF files will be loaded." );
             return;
         }
 
@@ -275,13 +280,13 @@ public class ServerContextFactory extends CoreContextFactory
         if ( !cfg.getLdifDirectory().isDirectory() )
         {
             log.info( "LDIF load directory '" + getCanonical( cfg.getLdifDirectory() )
-                    + "' is a file.  Will attempt to load as LDIF." );
+                + "' is a file.  Will attempt to load as LDIF." );
             Attributes fileEntry = getLdifFileEntry( root, cfg.getLdifDirectory() );
             if ( fileEntry != null )
             {
                 String time = ( String ) fileEntry.get( "createTimestamp" ).get();
                 log.info( "Load of LDIF file '" + getCanonical( cfg.getLdifDirectory() )
-                        + "' skipped.  It has already been loaded on " + time + "." );
+                    + "' skipped.  It has already been loaded on " + time + "." );
                 return;
             }
             LdifFileLoader loader = new LdifFileLoader( root, cfg.getLdifDirectory(), cfg.getLdifFilters() );
@@ -299,13 +304,13 @@ public class ServerContextFactory extends CoreContextFactory
                 boolean isLdif = pathname.getName().toLowerCase().endsWith( ".ldif" );
                 return pathname.isFile() && pathname.canRead() && isLdif;
             }
-        });
+        } );
 
         // log and bail if we could not find any LDIF files
         if ( ldifFiles == null || ldifFiles.length == 0 )
         {
             log.warn( "LDIF load directory '" + getCanonical( cfg.getLdifDirectory() )
-                    + "' does not contain any LDIF files.  No LDIF files will be loaded.");
+                + "' does not contain any LDIF files.  No LDIF files will be loaded." );
             return;
         }
 
@@ -317,7 +322,7 @@ public class ServerContextFactory extends CoreContextFactory
             {
                 String time = ( String ) fileEntry.get( "createTimestamp" ).get();
                 log.info( "Load of LDIF file '" + getCanonical( ldifFiles[ii] )
-                        + "' skipped.  It has already been loaded on " + time + "." );
+                    + "' skipped.  It has already been loaded on " + time + "." );
                 continue;
             }
             LdifFileLoader loader = new LdifFileLoader( root, ldifFiles[ii], cfg.getLdifFilters() );
@@ -349,14 +354,15 @@ public class ServerContextFactory extends CoreContextFactory
     {
         // Skip if disabled
         int port = cfg.getLdapPort();
-        if( port < 0 )
+        if ( port < 0 )
         {
             return;
         }
-        
+
         Service service = new Service( "LDAP", TransportType.SOCKET, new InetSocketAddress( port ) );
         startLDAP0( cfg, env, service, new DefaultIoFilterChainBuilder() );
     }
+
 
     /**
      * Starts up the LDAPS protocol provider to service LDAPS requests
@@ -366,7 +372,7 @@ public class ServerContextFactory extends CoreContextFactory
     private void startLDAPS( ServerStartupConfiguration cfg, Hashtable env ) throws NamingException
     {
         // Skip if disabled
-        if( !cfg.isEnableLdaps() )
+        if ( !cfg.isEnableLdaps() )
         {
             return;
         }
@@ -375,42 +381,40 @@ public class ServerContextFactory extends CoreContextFactory
         IoFilterChainBuilder chain;
         try
         {
-            chain = ( IoFilterChainBuilder ) Class.forName(
-                    "org.apache.directory.server.ssl.LdapsInitializer",
-                    true,
-                    ServerContextFactory.class.getClassLoader() ).getMethod(
-                            "init", new Class[] { ServerStartupConfiguration.class } ).invoke(
-                                    null, new Object[] { cfg } );
+            chain = ( IoFilterChainBuilder ) Class.forName( "org.apache.directory.server.ssl.LdapsInitializer", true,
+                ServerContextFactory.class.getClassLoader() ).getMethod( "init", new Class[]
+                { ServerStartupConfiguration.class } ).invoke( null, new Object[]
+                { cfg } );
         }
-        catch( InvocationTargetException e )
+        catch ( InvocationTargetException e )
         {
-            if( e.getCause() instanceof NamingException )
+            if ( e.getCause() instanceof NamingException )
             {
                 throw ( NamingException ) e.getCause();
             }
             else
             {
-                throw ( NamingException ) new NamingException(
-                        "Failed to load LDAPS initializer." ).initCause( e.getCause() );
+                throw ( NamingException ) new NamingException( "Failed to load LDAPS initializer." ).initCause( e
+                    .getCause() );
             }
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
-            throw ( NamingException ) new NamingException(
-                    "Failed to load LDAPS initializer." ).initCause( e );
+            throw ( NamingException ) new NamingException( "Failed to load LDAPS initializer." ).initCause( e );
         }
 
         Service service = new Service( "LDAPS", TransportType.SOCKET, new InetSocketAddress( cfg.getLdapsPort() ) );
         startLDAP0( cfg, env, service, chain );
     }
 
-    private void startLDAP0( ServerStartupConfiguration cfg, Hashtable env, Service service, IoFilterChainBuilder chainBuilder )
-            throws LdapNamingException, LdapConfigurationException
+
+    private void startLDAP0( ServerStartupConfiguration cfg, Hashtable env, Service service,
+        IoFilterChainBuilder chainBuilder ) throws LdapNamingException, LdapConfigurationException
     {
         // Register all extended operation handlers.
         LdapProtocolProvider protocolProvider = new LdapProtocolProvider( ( Hashtable ) env.clone() );
-        
-        for( Iterator i = cfg.getExtendedOperationHandlers().iterator(); i.hasNext(); )
+
+        for ( Iterator i = cfg.getExtendedOperationHandlers().iterator(); i.hasNext(); )
         {
             ExtendedOperationHandler h = ( ExtendedOperationHandler ) i.next();
             protocolProvider.addExtendedOperationHandler( h );
@@ -421,17 +425,17 @@ public class ServerContextFactory extends CoreContextFactory
             DirectoryPartitionNexus nexus = directoryService.getConfiguration().getPartitionNexus();
             nexus.registerSupportedExtensions( h.getExtensionOids() );
         }
-        
+
         try
         {
             // Disable the disconnection of the clients on unbind
             IoAcceptor acceptor = minaRegistry.getAcceptor( service.getTransportType() );
             acceptor.setDisconnectClientsOnUnbind( false );
             ( ( SocketAcceptor ) acceptor ).setReuseAddress( true );
-            
+
             minaRegistry.bind( service, protocolProvider.getHandler(), chainBuilder );
             ldapService = service;
-            
+
             if ( log.isInfoEnabled() )
             {
                 log.info( "Successful bind of " + service.getName() + " Service completed: " + ldapService );
@@ -439,15 +443,18 @@ public class ServerContextFactory extends CoreContextFactory
         }
         catch ( IOException e )
         {
-            String msg = "Failed to bind the " + service.getName() + " protocol service to the service registry: " + service;
+            String msg = "Failed to bind the " + service.getName() + " protocol service to the service registry: "
+                + service;
             LdapConfigurationException lce = new LdapConfigurationException( msg );
             lce.setRootCause( e );
             log.error( msg, e );
             throw lce;
         }
     }
-    
-    private void startKerberos(ServerStartupConfiguration cfg, Hashtable env) {
+
+
+    private void startKerberos( ServerStartupConfiguration cfg, Hashtable env )
+    {
         if ( cfg.isEnableKerberos() )
         {
             try
@@ -464,12 +471,14 @@ public class ServerContextFactory extends CoreContextFactory
     }
 
 
-    private void startChangePassword(ServerStartupConfiguration cfg, Hashtable env) {
+    private void startChangePassword( ServerStartupConfiguration cfg, Hashtable env )
+    {
         if ( cfg.isEnableChangePassword() )
         {
             try
             {
-                ChangePasswordConfiguration changePasswordConfiguration = new ChangePasswordConfiguration( env, LoadStrategy.PROPS );
+                ChangePasswordConfiguration changePasswordConfiguration = new ChangePasswordConfiguration( env,
+                    LoadStrategy.PROPS );
                 PrincipalStore store = new JndiPrincipalStoreImpl( changePasswordConfiguration, this );
                 changePasswordServer = new ChangePasswordServer( changePasswordConfiguration, minaRegistry, store );
             }
@@ -481,7 +490,8 @@ public class ServerContextFactory extends CoreContextFactory
     }
 
 
-    private void startNTP(ServerStartupConfiguration cfg, Hashtable env) {
+    private void startNTP( ServerStartupConfiguration cfg, Hashtable env )
+    {
         if ( cfg.isEnableNtp() )
         {
             try
@@ -495,19 +505,20 @@ public class ServerContextFactory extends CoreContextFactory
             }
         }
     }
-    
+
+
     private void stopLDAP0( Service service )
     {
         if ( ldapService != null )
         {
-            
+
             try
             {
                 // we should unbind the service before we begin sending the notice 
                 // of disconnect so new connections are not formed while we process
                 List writeFutures = new ArrayList();
                 IoAcceptor acceptor = minaRegistry.getAcceptor( service.getTransportType() );
-                
+
                 // If the socket has already been unbound as with a successful 
                 // GracefulShutdownRequest then this will complain that the service
                 // is not bound - this is ok because the GracefulShutdown has already
@@ -517,23 +528,23 @@ public class ServerContextFactory extends CoreContextFactory
                 {
                     sessions = new ArrayList( acceptor.getManagedSessions( service.getAddress() ) );
                 }
-                catch( IllegalArgumentException e )
+                catch ( IllegalArgumentException e )
                 {
                     log.warn( "Seems like the LDAP service " + service + " has already been unbound." );
                     return;
                 }
-                
+
                 minaRegistry.unbind( service );
                 if ( log.isInfoEnabled() )
                 {
                     log.info( "Unbind of " + service.getName() + " Service complete: " + ldapService );
                     log.info( "Sending notice of disconnect to existing clients sessions." );
                 }
-                
+
                 // Send Notification of Disconnection messages to all connected clients.
-                if( sessions != null )
+                if ( sessions != null )
                 {
-                    for( Iterator i = sessions.iterator(); i.hasNext(); )
+                    for ( Iterator i = sessions.iterator(); i.hasNext(); )
                     {
                         IoSession session = ( IoSession ) i.next();
                         writeFutures.add( session.write( NoticeOfDisconnect.UNAVAILABLE ) );
@@ -542,14 +553,14 @@ public class ServerContextFactory extends CoreContextFactory
 
                 // And close the connections when the NoDs are sent.
                 Iterator sessionIt = sessions.iterator();
-                for( Iterator i = writeFutures.iterator(); i.hasNext(); )
+                for ( Iterator i = writeFutures.iterator(); i.hasNext(); )
                 {
                     WriteFuture future = ( WriteFuture ) i.next();
                     future.join( 1000 );
                     ( ( IoSession ) sessionIt.next() ).close();
                 }
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 log.warn( "Failed to sent NoD.", e );
             }

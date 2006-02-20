@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.ssl;
 
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
@@ -35,12 +36,13 @@ import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoFilterChainBuilder;
 import org.apache.mina.filter.SSLFilter;
 
+
 /**
  * Loads the certificate file for LDAPS support and creates the appropriate
  * MINA filter chain.
  *
  * @author The Apache Directory Project (dev@directory.apache.org)
- * @version $Rev: 368358 $, $Date: 2006-01-12 12:50:40Z $
+ * @version $Rev$, $Date$
  *
  */
 public class LdapsInitializer
@@ -50,21 +52,22 @@ public class LdapsInitializer
         // Load the certificate
         char[] certPasswdChars = cfg.getLdapsCertificatePassword().toCharArray();
         String storePath = cfg.getLdapsCertificateFile().getPath();
-        
+
         KeyStore ks = null;
         try
         {
             ks = loadKeyStore( storePath, "PKCS12" );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             try
             {
                 ks = loadKeyStore( storePath, "JKS" );
             }
-            catch( Exception e2 )
+            catch ( Exception e2 )
             {
-                throw ( NamingException ) new NamingException( "Failed to load a certificate: " + storePath ).initCause( e );
+                throw ( NamingException ) new NamingException( "Failed to load a certificate: " + storePath )
+                    .initCause( e );
             }
         }
 
@@ -74,23 +77,25 @@ public class LdapsInitializer
             // Set up key manager factory to use our key store
             KeyManagerFactory kmf = KeyManagerFactory.getInstance( "SunX509" );
             kmf.init( ks, certPasswdChars );
-    
+
             // Initialize the SSLContext to work with our key managers.
             sslCtx = SSLContext.getInstance( "TLS" );
-            sslCtx.init( kmf.getKeyManagers(),
-                    new TrustManager[] { new ServerX509TrustManager() }, new SecureRandom() );
+            sslCtx.init( kmf.getKeyManagers(), new TrustManager[]
+                { new ServerX509TrustManager() }, new SecureRandom() );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             throw ( NamingException ) new NamingException( "Failed to create a SSL context." ).initCause( e );
         }
-        
+
         DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();
         chain.addLast( "SSL", new SSLFilter( sslCtx ) );
         return chain;
     }
-    
-    private static KeyStore loadKeyStore( String storePath, String storeType ) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException
+
+
+    private static KeyStore loadKeyStore( String storePath, String storeType ) throws KeyStoreException, IOException,
+        CertificateException, NoSuchAlgorithmException
     {
         FileInputStream in = null;
         // Create keystore
@@ -103,13 +108,13 @@ public class LdapsInitializer
         }
         finally
         {
-            if( in != null )
+            if ( in != null )
             {
                 try
                 {
                     in.close();
                 }
-                catch( IOException ignored )
+                catch ( IOException ignored )
                 {
                 }
             }

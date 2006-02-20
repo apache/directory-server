@@ -111,7 +111,6 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a store based on JDBM B+Trees.
      */
@@ -119,30 +118,30 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     {
     }
 
-    public synchronized void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
+
+    public synchronized void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg )
+        throws NamingException
     {
         this.upSuffix = new LdapName( cfg.getSuffix() );
         this.normSuffix = cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() );
 
-        File workingDirectory = new File(
-                factoryCfg.getStartupConfiguration().getWorkingDirectory().getPath() +
-                File.separator + cfg.getName() );
-        
+        File workingDirectory = new File( factoryCfg.getStartupConfiguration().getWorkingDirectory().getPath()
+            + File.separator + cfg.getName() );
+
         workingDirectory.mkdirs();
-        
+
         this.workingDirectory = workingDirectory;
-            
-        try 
+
+        try
         {
             String path = workingDirectory.getPath() + File.separator + "master";
             BaseRecordManager base = new BaseRecordManager( path );
             base.disableTransactions();
             recMan = new CacheRecordManager( base, new MRU( 1000 ) );
-        } 
+        }
         catch ( IOException e )
         {
-            NamingException ne = new NamingException( 
-                "Could not initialize RecordManager" );
+            NamingException ne = new NamingException( "Could not initialize RecordManager" );
             ne.setRootCause( e );
             throw ne;
         }
@@ -150,12 +149,12 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         master = new JdbmMasterTable( recMan );
         indices = new HashMap();
         sysIndices = new HashMap();
-        
+
         super.init( factoryCfg, cfg );
         initialized = true;
     }
-    
-    
+
+
     public synchronized void destroy()
     {
         if ( !initialized )
@@ -165,12 +164,12 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
 
         ArrayList array = new ArrayList();
         array.addAll( indices.values() );
-        
+
         if ( null != ndnIdx )
         {
             array.add( ndnIdx );
         }
-        
+
         if ( null != updnIdx )
         {
             array.add( updnIdx );
@@ -200,37 +199,37 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         {
             array.add( existanceIdx );
         }
-        
+
         Iterator list = array.iterator();
-        
-        while ( list.hasNext() ) 
+
+        while ( list.hasNext() )
         {
             Index index = ( Index ) list.next();
 
-            try 
+            try
             {
-               index.close();
-            } 
-            catch ( Throwable t ) 
+                index.close();
+            }
+            catch ( Throwable t )
             {
                 log.error( "Failed to close an index.", t );
             }
         }
 
-        try 
+        try
         {
             master.close();
-        } 
-        catch ( Throwable t ) 
+        }
+        catch ( Throwable t )
         {
             log.error( "Failed to close the master.", t );
         }
 
-        try 
+        try
         {
             recMan.close();
-        } 
-        catch ( Throwable t ) 
+        }
+        catch ( Throwable t )
         {
             log.error( "Failed to close the record manager", t );
         }
@@ -247,7 +246,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
 
     public synchronized void sync() throws NamingException
     {
-        if( !initialized )
+        if ( !initialized )
         {
             return;
         }
@@ -261,28 +260,28 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         array.add( subAliasIdx );
         array.add( hierarchyIdx );
         array.add( existanceIdx );
-        
+
         Iterator list = array.iterator();
 
         // Sync all user defined indices
-        while ( list.hasNext() ) 
+        while ( list.hasNext() )
         {
             Index idx = ( Index ) list.next();
 
             idx.sync();
         }
-        
+
         master.sync();
 
-        try 
+        try
         {
             recMan.commit();
         }
-        catch ( Throwable t ) 
+        catch ( Throwable t )
         {
-            throw ( NamingException ) new NamingException(
-                    "Failed to commit changes to the record manager." ).initCause( t );
-        }        
+            throw ( NamingException ) new NamingException( "Failed to commit changes to the record manager." )
+                .initCause( t );
+        }
     }
 
 
@@ -290,19 +289,18 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     // I N D E X   M E T H O D S
     // ------------------------------------------------------------------------
 
-
     public void addIndexOn( AttributeType spec ) throws NamingException
     {
         Index idx = new JdbmIndex( spec, workingDirectory );
         indices.put( spec.getName().toLowerCase(), idx );
     }
 
-    
-    public Index getExistanceIndex() 
+
+    public Index getExistanceIndex()
     {
         return existanceIdx;
     }
-    
+
 
     public void setExistanceIndexOn( AttributeType attrType ) throws NamingException
     {
@@ -316,12 +314,12 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         sysIndices.put( attrType.getName().toLowerCase(), existanceIdx );
     }
 
-    
-    public Index getHierarchyIndex() 
+
+    public Index getHierarchyIndex()
     {
         return hierarchyIdx;
     }
-    
+
 
     public void setHierarchyIndexOn( AttributeType attrType ) throws NamingException
     {
@@ -335,10 +333,10 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         sysIndices.put( attrType.getName().toLowerCase(), hierarchyIdx );
     }
 
-    
+
     public Index getAliasIndex()
     {
-        return aliasIdx;    
+        return aliasIdx;
     }
 
 
@@ -352,8 +350,8 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
 
         aliasIdx = new JdbmIndex( attrType, workingDirectory );
         sysIndices.put( attrType.getName().toLowerCase(), aliasIdx );
-    }    
-    
+    }
+
 
     public Index getOneAliasIndex()
     {
@@ -411,12 +409,12 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         sysIndices.put( attrType.getName().toLowerCase(), updnIdx );
     }
 
-    
-    public Index getNdnIndex() 
+
+    public Index getNdnIndex()
     {
         return ndnIdx;
     }
-    
+
 
     public void setNdnIndexOn( AttributeType attrType ) throws NamingException
     {
@@ -430,7 +428,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         sysIndices.put( attrType.getName().toLowerCase(), ndnIdx );
     }
 
-    
+
     public Iterator getUserIndices()
     {
         return indices.keySet().iterator();
@@ -445,15 +443,13 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
 
     public boolean hasUserIndexOn( String attribute )
     {
-        return indices.containsKey( attribute ) ||
-            indices.containsKey( attribute.toLowerCase() );
+        return indices.containsKey( attribute ) || indices.containsKey( attribute.toLowerCase() );
     }
 
 
     public boolean hasSystemIndexOn( String attribute )
     {
-        return sysIndices.containsKey( attribute ) ||
-            sysIndices.containsKey( attribute.toLowerCase() );
+        return sysIndices.containsKey( attribute ) || sysIndices.containsKey( attribute.toLowerCase() );
     }
 
 
@@ -467,22 +463,21 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     {
         String lowerCased = attribute.toLowerCase();
 
-        if ( indices.containsKey( attribute ) ) 
+        if ( indices.containsKey( attribute ) )
         {
             return ( Index ) indices.get( attribute );
-        } 
-        else if ( indices.containsKey( lowerCased ) ) 
+        }
+        else if ( indices.containsKey( lowerCased ) )
         {
             return ( Index ) indices.get( lowerCased );
-        } 
-        else 
+        }
+        else
         {
-            throw new IndexNotFoundException( "An index on attribute " +
-                attribute + " does not exist!" );
+            throw new IndexNotFoundException( "An index on attribute " + attribute + " does not exist!" );
         }
     }
-    
-    
+
+
     /**
      * @todo replace lookups to use the OID instead of the name.  Also note
      * that the OID registry can be used to go between names and oids.
@@ -493,18 +488,17 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     {
         String lowerCased = indexName.toLowerCase();
 
-        if ( sysIndices.containsKey( indexName ) ) 
+        if ( sysIndices.containsKey( indexName ) )
         {
             return ( Index ) sysIndices.get( indexName );
-        } 
-        else if ( sysIndices.containsKey( lowerCased ) ) 
+        }
+        else if ( sysIndices.containsKey( lowerCased ) )
         {
             return ( Index ) sysIndices.get( lowerCased );
-        } 
-        else 
+        }
+        else
         {
-            throw new IndexNotFoundException( "A system index by the name of " +
-                indexName + " does not exist!" );
+            throw new IndexNotFoundException( "A system index by the name of " + indexName + " does not exist!" );
         }
     }
 
@@ -532,8 +526,8 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     {
         return ( BigInteger ) hierarchyIdx.reverseLookup( childId );
     }
-    
-    
+
+
     public String getEntryUpdn( BigInteger id ) throws NamingException
     {
         return ( String ) updnIdx.reverseLookup( id );
@@ -551,8 +545,8 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     {
         return master.count();
     }
-    
-    
+
+
     /**
      * Removes the index entries for an alias before the entry is deleted from
      * the master table.
@@ -568,7 +562,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         String aliasDn = getEntryDn( aliasId );
         Name ancestorDn = new LdapName( aliasDn ).getPrefix( 1 );
         BigInteger ancestorId = getEntryId( ancestorDn.toString() );
-        
+
         /*
          * We cannot just drop all tuples in the one level and subtree indices
          * linking baseIds to the targetId.  If more than one alias refers to
@@ -582,20 +576,20 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
          */
         oneAliasIdx.drop( ancestorId, targetId );
         subAliasIdx.drop( ancestorId, targetId );
-        
-        while ( ! ancestorDn.equals( upSuffix ) )
+
+        while ( !ancestorDn.equals( upSuffix ) )
         {
             ancestorDn = ancestorDn.getPrefix( 1 );
             ancestorId = getEntryId( ancestorDn.toString() );
-            
+
             subAliasIdx.drop( ancestorId, targetId );
-        }    
+        }
 
         // Drops all alias tuples pointing to the id of the alias to be deleted
         aliasIdx.drop( aliasId );
     }
-    
-    
+
+
     /**
      * Adds indices for an aliasEntry to be added to the database while checking
      * for constrained alias constructs like alias cycles and chaining.
@@ -606,19 +600,18 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
      * @throws NamingException if index addition fails, of the alias is not 
      * allowed due to chaining or cycle formation.
      */
-    private void addAliasIndices( BigInteger aliasId, Name aliasDn, 
-        String aliasTarget ) throws NamingException
+    private void addAliasIndices( BigInteger aliasId, Name aliasDn, String aliasTarget ) throws NamingException
     {
-        Name targetDn = null;            // Name value of aliasedObjectName
-        BigInteger targetId = null;      // Id of the aliasedObjectName
-        Normalizer normalizer = null;    // Temporary handle for Dn's
-        Name ancestorDn = null;          // Name of an alias entry relative
-        BigInteger ancestorId = null;    // Id of an alias entry relative
+        Name targetDn = null; // Name value of aliasedObjectName
+        BigInteger targetId = null; // Id of the aliasedObjectName
+        Normalizer normalizer = null; // Temporary handle for Dn's
+        Name ancestorDn = null; // Name of an alias entry relative
+        BigInteger ancestorId = null; // Id of an alias entry relative
 
         // Access aliasedObjectName, normalize it and generate the Name 
         normalizer = oneAliasIdx.getAttribute().getEquality().getNormalizer();
         targetDn = new LdapName( ( String ) normalizer.normalize( aliasTarget ) );
-           
+
         /*
          * Check For Cycles
          * 
@@ -628,21 +621,19 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
          * relative of the alias entry.  For detection we test if the aliased
          * entry Dn starts with the target Dn.  If it does then we know the 
          * aliased target is a relative and we have a perspecitive cycle.
-         */ 
+         */
         if ( aliasDn.startsWith( targetDn ) )
         {
             if ( aliasDn.equals( targetDn ) )
             {
-                throw new NamingException( "[36] aliasDereferencingProblem - " 
-                    + "attempt to create alias to itself." );
+                throw new NamingException( "[36] aliasDereferencingProblem - " + "attempt to create alias to itself." );
             }
-            
-            throw new NamingException( "[36] aliasDereferencingProblem - " 
-                + "attempt to create alias with cycle to relative " 
-                + aliasTarget + " not allowed from descendent alias " 
-                + aliasDn );
+
+            throw new NamingException( "[36] aliasDereferencingProblem - "
+                + "attempt to create alias with cycle to relative " + aliasTarget
+                + " not allowed from descendent alias " + aliasDn );
         }
-            
+
         /*
          * Check For Aliases External To Naming Context
          * 
@@ -651,13 +642,12 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
          * need to point it out to the user instead of saying the target
          * does not exist when it potentially could outside of this upSuffix.
          */
-        if ( ! targetDn.startsWith( upSuffix ) )
+        if ( !targetDn.startsWith( upSuffix ) )
         {
             // Complain specifically about aliases to outside naming contexts
             throw new NamingException( "[36] aliasDereferencingProblem -"
                 + " the alias points to an entry outside of the " + upSuffix
-                + " namingContext to an object whose existance cannot be"
-                + " determined." );
+                + " namingContext to an object whose existance cannot be" + " determined." );
         }
 
         // L O O K U P   T A R G E T   I D
@@ -672,12 +662,11 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         if ( null == targetId )
         {
             // Complain about target not existing
-            throw new NamingException( "[33] aliasProblem - " 
+            throw new NamingException( "[33] aliasProblem - "
                 + "the alias when dereferenced would not name a known object "
-                + "the aliasedObjectName must be set to a valid existing "
-                + "entry." );
+                + "the aliasedObjectName must be set to a valid existing " + "entry." );
         }
-        
+
         /*
          * Detect Direct Alias Chain Creation
          * 
@@ -691,14 +680,13 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         if ( null != aliasIdx.reverseLookup( targetId ) )
         {
             // Complain about illegal alias chain
-            throw new NamingException( "[36] aliasDereferencingProblem -" 
-                + " the alias points to another alias.  Alias chaining is" 
-                + " not supported by this backend." );
+            throw new NamingException( "[36] aliasDereferencingProblem -"
+                + " the alias points to another alias.  Alias chaining is" + " not supported by this backend." );
         }
-        
+
         // Add the alias to the simple alias index
         aliasIdx.add( aliasTarget, aliasId );
-        
+
         /*
          * Handle One Level Scope Alias Index
          * 
@@ -708,8 +696,8 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
          */
         ancestorDn = aliasDn.getPrefix( 1 );
         ancestorId = getEntryId( ancestorDn.toString() );
-        
-        if ( ! NamespaceTools.isSibling( targetDn, aliasDn ) )
+
+        if ( !NamespaceTools.isSibling( targetDn, aliasDn ) )
         {
             oneAliasIdx.add( ancestorId, targetId );
         }
@@ -724,16 +712,16 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
          * ignored since everything is under its scope.  The first loop 
          * iteration shall handle the parents.
          */
-        while ( ! ancestorDn.equals( upSuffix ) && null != ancestorId )
+        while ( !ancestorDn.equals( upSuffix ) && null != ancestorId )
         {
-            if ( ! NamespaceTools.isDescendant( ancestorDn, targetDn ) )
+            if ( !NamespaceTools.isDescendant( ancestorDn, targetDn ) )
             {
                 subAliasIdx.add( ancestorId, targetId );
             }
-            
+
             ancestorDn = ancestorDn.getPrefix( 1 );
             ancestorId = getEntryId( ancestorDn.toString() );
-        }        
+        }
     }
 
 
@@ -749,12 +737,12 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         // capped off using the zero value which no entry can have since 
         // entry sequences start at 1.
         //
-        
+
         if ( dn.equals( normSuffix ) )
         {
             parentId = BigInteger.ZERO;
         }
-        else 
+        else
         {
             parentId = getEntryId( dn.getPrefix( 1 ).toString() );
         }
@@ -781,23 +769,23 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         {
             addAliasIndices( id, dn, ( String ) entry.get( DirectoryPartition.ALIAS_ATTRIBUTE ).get() );
         }
-        
+
         ndnIdx.add( dn.toString(), id );
         updnIdx.add( updn, id );
         hierarchyIdx.add( parentId, id );
-        
+
         // Now work on the user defined indices
         NamingEnumeration list = entry.getIDs();
-        while ( list.hasMore() ) 
+        while ( list.hasMore() )
         {
             String attribute = ( String ) list.next();
-            
-            if ( hasUserIndexOn( attribute ) ) 
+
+            if ( hasUserIndexOn( attribute ) )
             {
                 Index idx = getUserIndex( attribute );
                 NamingEnumeration values = entry.get( attribute ).getAll();
-                
-                while ( values.hasMore() ) 
+
+                while ( values.hasMore() )
                 {
                     idx.add( values.next(), id );
                 }
@@ -817,12 +805,12 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     }
 
 
-    public void delete( BigInteger id ) throws  NamingException
+    public void delete( BigInteger id ) throws NamingException
     {
         Attributes entry = lookup( id );
         BigInteger parentId = getParentId( id );
         NamingEnumeration attrs = entry.getIDs();
-        
+
         if ( entry.get( "objectClass" ).contains( DirectoryPartition.ALIAS_OBJECT ) )
         {
             dropAliasIndices( id );
@@ -831,14 +819,14 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         ndnIdx.drop( id );
         updnIdx.drop( id );
         hierarchyIdx.drop( id );
-        
+
         // Remove parent's reference to entry only if entry is not the upSuffix
-        if ( ! parentId.equals( BigInteger.ZERO ) )
+        if ( !parentId.equals( BigInteger.ZERO ) )
         {
             hierarchyIdx.drop( parentId, id );
         }
-        
-        while ( attrs.hasMore() ) 
+
+        while ( attrs.hasMore() )
         {
             String attr = ( ( String ) attrs.next() );
 
@@ -846,7 +834,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             {
                 Index index = getUserIndex( attr );
                 NamingEnumeration values = entry.get( attr ).getAll();
-                
+
                 while ( values.hasMore() )
                 {
                     index.drop( values.next(), id );
@@ -860,7 +848,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     }
 
 
-    public NamingEnumeration list( BigInteger id ) throws  NamingException
+    public NamingEnumeration list( BigInteger id ) throws NamingException
     {
         return hierarchyIdx.listIndices( id );
     }
@@ -878,7 +866,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         {
             return normSuffix;
         }
-        
+
         return upSuffix;
     }
 
@@ -896,8 +884,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     }
 
 
-    public void setProperty( String propertyName, String propertyValue )
-        throws NamingException
+    public void setProperty( String propertyName, String propertyValue ) throws NamingException
     {
         master.setProperty( propertyName, propertyValue );
     }
@@ -909,7 +896,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     }
 
 
-    public Attributes getIndices( BigInteger id ) throws  NamingException
+    public Attributes getIndices( BigInteger id ) throws NamingException
     {
         Attributes attributes = new LockableAttributesImpl();
 
@@ -924,13 +911,13 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         {
             Index index = ( Index ) idxList.next();
             NamingEnumeration list = index.listReverseIndices( id );
-            while ( list.hasMore() ) 
+            while ( list.hasMore() )
             {
                 IndexRecord rec = ( IndexRecord ) list.next();
                 Object val = rec.getIndexKey();
                 String attrId = index.getAttribute().getName();
                 Attribute attr = attributes.get( attrId );
-                if ( attr == null)
+                if ( attr == null )
                 {
                     attr = new LockableAttributeImpl( attrId );
                 }
@@ -943,10 +930,10 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         // that looks like so 'existance[attribute]' and the value is set to id
         NamingEnumeration list = existanceIdx.listReverseIndices( id );
         StringBuffer val = new StringBuffer();
-        while ( list.hasMore() ) 
+        while ( list.hasMore() )
         {
             IndexRecord rec = ( IndexRecord ) list.next();
-            val.append( "_existance[" ); 
+            val.append( "_existance[" );
             val.append( rec.getIndexKey() );
             val.append( "]" );
 
@@ -987,8 +974,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
      * @throws NamingException if index alteration or attribute addition
      * fails.
      */
-    private void add( BigInteger id, Attributes entry, Attribute mods )
-        throws NamingException 
+    private void add( BigInteger id, Attributes entry, Attribute mods ) throws NamingException
     {
         if ( hasUserIndexOn( mods.getID() ) )
         {
@@ -996,7 +982,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             idx.add( mods, id );
 
             // If the attr didn't exist for this id add it to existance index
-            if ( ! existanceIdx.hasValue( mods.getID().toLowerCase(), id ) )
+            if ( !existanceIdx.hasValue( mods.getID().toLowerCase(), id ) )
             {
                 existanceIdx.add( mods.getID().toLowerCase(), id );
             }
@@ -1019,12 +1005,11 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         if ( mods.getID().equals( DirectoryPartition.ALIAS_ATTRIBUTE ) )
         {
             String ndnStr = ( String ) ndnIdx.reverseLookup( id );
-            addAliasIndices( id, new LdapName( ndnStr ), 
-                ( String ) mods.get() );
+            addAliasIndices( id, new LdapName( ndnStr ), ( String ) mods.get() );
         }
     }
-    
-    
+
+
     /**
      * Completely removes the set of values for an attribute having the values 
      * supplied while affecting the appropriate indices.  The entry is not 
@@ -1039,14 +1024,13 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
      * @throws NamingException if index alteration or attribute modification 
      * fails.
      */
-    private void remove( BigInteger id, Attributes entry, Attribute mods )
-        throws NamingException
+    private void remove( BigInteger id, Attributes entry, Attribute mods ) throws NamingException
     {
         if ( hasUserIndexOn( mods.getID() ) )
         {
             Index idx = getUserIndex( mods.getID() );
             idx.drop( mods, id );
-    
+
             /* 
              * If no attribute values exist for this entryId in the index then
              * we remove the existance index entry for the removed attribute.
@@ -1071,11 +1055,11 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         {
             Attribute entryAttr = entry.get( mods.getID() );
             NamingEnumeration values = mods.getAll();
-            while ( values.hasMore() ) 
+            while ( values.hasMore() )
             {
                 entryAttr.remove( values.next() );
             }
-            
+
             // if nothing is left just remove empty attribute
             if ( entryAttr.size() == 0 )
             {
@@ -1103,17 +1087,16 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
      * @throws NamingException if index alteration or attribute modification 
      * fails.
      */
-    private void replace( BigInteger id, Attributes entry, Attribute mods )
-        throws NamingException
+    private void replace( BigInteger id, Attributes entry, Attribute mods ) throws NamingException
     {
         if ( hasUserIndexOn( mods.getID() ) )
         {
             Index idx = getUserIndex( mods.getID() );
-            
+
             // Drop all existing attribute value index entries and add new ones
             idx.drop( id );
             idx.add( mods, id );
-    
+
             /* 
              * If no attribute values exist for this entryId in the index then
              * we remove the existance index entry for the removed attribute.
@@ -1128,15 +1111,14 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         {
             dropAliasIndices( id );
         }
-        
+
         // Automatically replaces old attributes with new modified ones
         entry.put( mods );
-        
+
         if ( mods.getID().equals( DirectoryPartition.ALIAS_ATTRIBUTE ) )
         {
             String ndnStr = ( String ) ndnIdx.reverseLookup( id );
-            addAliasIndices( id, new LdapName( ndnStr ), 
-                ( String ) mods.get() );
+            addAliasIndices( id, new LdapName( ndnStr ), ( String ) mods.get() );
         }
     }
 
@@ -1146,77 +1128,75 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         NamingEnumeration attrs = null;
         BigInteger id = getEntryId( dn.toString() );
         Attributes entry = master.get( id );
-        
+
         switch ( modOp )
         {
-            case( DirContext.ADD_ATTRIBUTE ):
+            case ( DirContext.ADD_ATTRIBUTE  ):
                 attrs = mods.getIDs();
-                
+
                 while ( attrs.hasMore() )
                 {
                     String attrId = ( String ) attrs.next();
                     Attribute attr = mods.get( attrId );
                     add( id, entry, attr );
                 }
-                
+
                 break;
-            case( DirContext.REMOVE_ATTRIBUTE ):
+            case ( DirContext.REMOVE_ATTRIBUTE  ):
                 attrs = mods.getIDs();
-                
+
                 while ( attrs.hasMore() )
                 {
                     String attrId = ( String ) attrs.next();
                     Attribute attr = mods.get( attrId );
                     remove( id, entry, attr );
                 }
-                
+
                 break;
-            case( DirContext.REPLACE_ATTRIBUTE ):
+            case ( DirContext.REPLACE_ATTRIBUTE  ):
                 attrs = mods.getIDs();
-                
+
                 while ( attrs.hasMore() )
                 {
                     String attrId = ( String ) attrs.next();
                     Attribute attr = mods.get( attrId );
                     replace( id, entry, attr );
                 }
-                
+
                 break;
             default:
-                throw new NamingException( 
-                    "Unidentified modification operation" );
+                throw new NamingException( "Unidentified modification operation" );
         }
-        
+
         master.put( entry, id );
     }
-    
 
-    public void modify( Name dn, ModificationItem [] mods ) throws NamingException
+
+    public void modify( Name dn, ModificationItem[] mods ) throws NamingException
     {
         BigInteger id = getEntryId( dn.toString() );
         Attributes entry = master.get( id );
-        
+
         for ( int ii = 0; ii < mods.length; ii++ )
         {
             Attribute attrMods = mods[ii].getAttribute();
 
-            switch ( mods[ ii ].getModificationOp() )
+            switch ( mods[ii].getModificationOp() )
             {
-                case( DirContext.ADD_ATTRIBUTE ):
+                case ( DirContext.ADD_ATTRIBUTE  ):
                     add( id, entry, attrMods );
                     break;
-                case( DirContext.REMOVE_ATTRIBUTE ):
+                case ( DirContext.REMOVE_ATTRIBUTE  ):
                     remove( id, entry, attrMods );
                     break;
-                case( DirContext.REPLACE_ATTRIBUTE ):
+                case ( DirContext.REPLACE_ATTRIBUTE  ):
                     replace( id, entry, attrMods );
                     break;
                 default:
-                    throw new NamingException( 
-                        "Unidentified modification operation" );
+                    throw new NamingException( "Unidentified modification operation" );
             }
         }
-        
+
         master.put( entry, id );
     }
 
@@ -1238,8 +1218,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
      * @throws NamingException if there are any errors propagating the name 
      *        changes.
      */
-    public void modifyRn( Name dn, String newRdn, boolean deleteOldRdn )
-        throws NamingException
+    public void modifyRn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
         String newRdnAttr = NamespaceTools.getRdnAttribute( newRdn );
         String newRdnValue = NamespaceTools.getRdnValue( newRdn );
@@ -1263,20 +1242,20 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         }
 
         // add the new Rdn value only if it is not already present in the entry
-        if ( ! rdnAttr.contains( newRdnValue ) )
+        if ( !rdnAttr.contains( newRdnValue ) )
         {
             rdnAttr.add( newRdnValue );
         }
 
         entry.put( rdnAttr );
-        
+
         if ( hasUserIndexOn( newRdnAttr ) )
         {
             Index idx = getUserIndex( newRdnAttr );
             idx.add( newRdnValue, id );
-            
+
             // Make sure the altered entry shows the existance of the new attrib
-            if ( ! existanceIdx.hasValue( newRdnAttr.toLowerCase(), id ) )
+            if ( !existanceIdx.hasValue( newRdnAttr.toLowerCase(), id ) )
             {
                 existanceIdx.add( newRdnAttr.toLowerCase(), id );
             }
@@ -1301,14 +1280,14 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             String oldRdn = updn.get( updn.size() - 1 );
             String oldRdnAttr = NamespaceTools.getRdnAttribute( oldRdn );
             String oldRdnValue = NamespaceTools.getRdnValue( oldRdn );
-            
+
             entry.get( oldRdnAttr ).remove( oldRdnValue );
 
             if ( hasUserIndexOn( oldRdnAttr ) )
             {
                 Index idx = getUserIndex( oldRdnAttr );
                 idx.drop( oldRdnValue, id );
-                
+
                 /*
                  * If there is no value for id in this index due to our
                  * drop above we remove the oldRdnAttr from the existance idx
@@ -1319,7 +1298,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
                 }
             }
         }
-        
+
         /*
          * H A N D L E   D N   C H A N G E
          * ====================================================================
@@ -1331,13 +1310,13 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
          *    entry and its descendants
          */
 
-        Name newUpdn = ( Name ) updn.clone();      // copy da old updn
-        newUpdn.remove( newUpdn.size() - 1 );      // remove old upRdn
-        newUpdn.add( newUpdn.size(), newRdn );   // add da new upRdn
-        modifyDn( id, newUpdn, false );            // propagate dn changes
+        Name newUpdn = ( Name ) updn.clone(); // copy da old updn
+        newUpdn.remove( newUpdn.size() - 1 ); // remove old upRdn
+        newUpdn.add( newUpdn.size(), newRdn ); // add da new upRdn
+        modifyDn( id, newUpdn, false ); // propagate dn changes
     }
-    
-    
+
+
     /*
      * The move operation severs a child from a parent creating a new parent
      * child relationship.  As a consequence the relationships between the 
@@ -1355,18 +1334,17 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
      * which affects alias indices.
      * @throws NamingException if something goes wrong
      */
-    private void modifyDn( BigInteger id, Name updn, boolean isMove )
-        throws  NamingException
+    private void modifyDn( BigInteger id, Name updn, boolean isMove ) throws NamingException
     {
         String aliasTarget = null;
 
         // Now we can handle the appropriate name indices for all cases
         ndnIdx.drop( id );
         ndnIdx.add( ndnIdx.getNormalized( updn.toString() ), id );
-        
+
         updnIdx.drop( id );
         updnIdx.add( updn.toString(), id );
-        
+
         /* 
          * Read Alias Index Tuples
          * 
@@ -1377,32 +1355,31 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
          * aliasTarget is used as a marker to tell us if we're moving an 
          * alias.  If it is null then the moved entry is not an alias.
          */
-        if ( isMove ) 
+        if ( isMove )
         {
             aliasTarget = ( String ) aliasIdx.reverseLookup( id );
-    
+
             if ( null != aliasTarget )
             {
-                addAliasIndices( id, new LdapName( getEntryDn( id ) ), 
-                    aliasTarget );
+                addAliasIndices( id, new LdapName( getEntryDn( id ) ), aliasTarget );
             }
         }
-        
+
         NamingEnumeration children = list( id );
-        while ( children.hasMore() ) 
+        while ( children.hasMore() )
         {
             // Get the child and its id
             IndexRecord rec = ( IndexRecord ) children.next();
             BigInteger childId = rec.getEntryId();
-            
+
             /* 
              * Calculate the Dn for the child's new name by copying the parents
              * new name and adding the child's old upRdn to new name as its Rdn
              */
             Name childUpdn = ( Name ) updn.clone();
             Name oldUpdn = new LdapName( getEntryUpdn( childId ) );
-            String rdn = LdapName.getRdn( oldUpdn ); 
-            childUpdn.add( childUpdn.size(),  rdn );
+            String rdn = LdapName.getRdn( oldUpdn );
+            childUpdn.add( childUpdn.size(), rdn );
 
             // Recursively change the names of the children below
             modifyDn( childId, childUpdn, isMove );
@@ -1410,8 +1387,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     }
 
 
-    public void move( Name oldChildDn, Name newParentDn, String newRdn,
-        boolean deleteOldRdn ) throws NamingException
+    public void move( Name oldChildDn, Name newParentDn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
         BigInteger childId = getEntryId( oldChildDn.toString() );
         modifyRn( oldChildDn, newRdn, deleteOldRdn );
@@ -1444,7 +1420,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         // Get the child and the new parent to be entries and Ids
         BigInteger newParentId = getEntryId( newParentDn.toString() );
         BigInteger oldParentId = getParentId( childId );
-        
+
         /*
          * All aliases including and below oldChildDn, will be affected by
          * the move operation with respect to one and subtree indices since 
@@ -1454,7 +1430,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
          * respective target ids of the aliases.
          */
         dropMovedAliasIndices( oldChildDn );
-        
+
         /*
          * Drop the old parent child relationship and add the new one
          * Set the new parent id for the child replacing the old parent id
@@ -1468,7 +1444,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
          * UpRdn String to the tail of the new parent's Updn Name.
          */
         Name childUpdn = new LdapName( getEntryUpdn( childId ) );
-        String childRdn = childUpdn.get( childUpdn.size() - 1 ); 
+        String childRdn = childUpdn.get( childUpdn.size() - 1 );
         Name newUpdn = new LdapName( getEntryUpdn( newParentId ) );
         newUpdn.add( newUpdn.size(), childRdn );
 
@@ -1490,27 +1466,25 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         // Find all the aliases from movedBase down
         IndexAssertion isBaseDescendant = new IndexAssertion()
         {
-            public boolean assertCandidate( IndexRecord rec )
-                throws NamingException
+            public boolean assertCandidate( IndexRecord rec ) throws NamingException
             {
                 String dn = getEntryDn( rec.getEntryId() );
                 if ( dn.endsWith( movedBase.toString() ) )
                 {
                     return true;
                 }
-                
+
                 return false;
             }
         };
-        
+
         BigInteger movedBaseId = getEntryId( movedBase.toString() );
-        if ( aliasIdx.reverseLookup( movedBaseId ) != null ) 
+        if ( aliasIdx.reverseLookup( movedBaseId ) != null )
         {
             dropAliasIndices( movedBaseId, movedBase );
         }
-        
-        NamingEnumeration aliases = new IndexAssertionEnumeration(
-            aliasIdx.listIndices( movedBase.toString(), true ), 
+
+        NamingEnumeration aliases = new IndexAssertionEnumeration( aliasIdx.listIndices( movedBase.toString(), true ),
             isBaseDescendant );
         while ( aliases.hasMore() )
         {
@@ -1518,8 +1492,8 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             dropAliasIndices( entry.getEntryId(), movedBase );
         }
     }
-    
-    
+
+
     /**
      * For the alias id all ancestor one and subtree alias tuples are moved 
      * above the moved base.
@@ -1528,20 +1502,19 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
      * @param movedBase the base where the move occured
      * @throws NamingException if indices fail
      */
-    private void dropAliasIndices( BigInteger aliasId, Name movedBase )
-        throws NamingException
+    private void dropAliasIndices( BigInteger aliasId, Name movedBase ) throws NamingException
     {
         String targetDn = ( String ) aliasIdx.reverseLookup( aliasId );
         BigInteger targetId = getEntryId( targetDn );
         String aliasDn = getEntryDn( aliasId );
-        
+
         /*
          * Start droping index tuples with the first ancestor right above the 
          * moved base.  This is the first ancestor effected by the move.
          */
         Name ancestorDn = movedBase.getPrefix( 1 );
         BigInteger ancestorId = getEntryId( ancestorDn.toString() );
-        
+
         /*
          * We cannot just drop all tuples in the one level and subtree indices
          * linking baseIds to the targetId.  If more than one alias refers to
@@ -1558,32 +1531,31 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         {
             oneAliasIdx.drop( ancestorId, targetId );
         }
-        
+
         subAliasIdx.drop( ancestorId, targetId );
-        
-        while ( ! ancestorDn.equals( upSuffix ) )
+
+        while ( !ancestorDn.equals( upSuffix ) )
         {
             ancestorDn = ancestorDn.getPrefix( 1 );
             ancestorId = getEntryId( ancestorDn.toString() );
-            
+
             subAliasIdx.drop( ancestorId, targetId );
-        }    
+        }
     }
 
-    
+
     public void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
     {
         // does nothing
-        throw new LdapAuthenticationNotSupportedException( 
-            "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n" +
-            "Check to see if you have correctly configured authenticators for the server.",
+        throw new LdapAuthenticationNotSupportedException(
+            "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n"
+                + "Check to see if you have correctly configured authenticators for the server.",
             ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
     }
 
-    
+
     public void unbind( Name bindDn ) throws NamingException
     {
         // does nothing
     }
 }
-

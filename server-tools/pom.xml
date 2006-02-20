@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC1-SNAPSHOT</version>
+    <version>1.0-RC1</version>
   </parent>
   <artifactId>apacheds-server-tools</artifactId>
   <name>ApacheDS Server Tools</name>
@@ -22,7 +22,7 @@
     <dependency>
       <groupId>org.apache.directory.daemon</groupId>
       <artifactId>daemon-bootstrappers</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-cli</groupId>

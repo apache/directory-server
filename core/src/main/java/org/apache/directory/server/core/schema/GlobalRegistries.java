@@ -64,40 +64,31 @@ public class GlobalRegistries implements Registries
     private GlobalSyntaxRegistry syntaxRegistry;
 
 
-    public GlobalRegistries( BootstrapRegistries bootstrapRegistries )
+    public GlobalRegistries(BootstrapRegistries bootstrapRegistries)
     {
-        oidRegistry = new GlobalOidRegistry(
-                ( BootstrapOidRegistry ) bootstrapRegistries.getOidRegistry() );
-        normalizerRegistry = new GlobalNormalizerRegistry(
-                ( BootstrapNormalizerRegistry ) bootstrapRegistries.getNormalizerRegistry());
-        comparatorRegistry = new GlobalComparatorRegistry(
-                ( BootstrapComparatorRegistry ) bootstrapRegistries.getComparatorRegistry());
-        syntaxCheckerRegistry = new GlobalSyntaxCheckerRegistry(
-                ( BootstrapSyntaxCheckerRegistry ) bootstrapRegistries.getSyntaxCheckerRegistry());
-        syntaxRegistry = new GlobalSyntaxRegistry(
-                ( BootstrapSyntaxRegistry ) bootstrapRegistries.getSyntaxRegistry(),
-                oidRegistry );
-        matchingRuleRegistry = new GlobalMatchingRuleRegistry(
-                ( BootstrapMatchingRuleRegistry ) bootstrapRegistries.getMatchingRuleRegistry(),
-                oidRegistry );
-        attributeTypeRegistry = new GlobalAttributeTypeRegistry(
-                ( BootstrapAttributeTypeRegistry ) bootstrapRegistries.getAttributeTypeRegistry(),
-                oidRegistry );
-        objectClassRegistry = new GlobalObjectClassRegistry(
-                ( BootstrapObjectClassRegistry ) bootstrapRegistries.getObjectClassRegistry(),
-                oidRegistry );
+        oidRegistry = new GlobalOidRegistry( ( BootstrapOidRegistry ) bootstrapRegistries.getOidRegistry() );
+        normalizerRegistry = new GlobalNormalizerRegistry( ( BootstrapNormalizerRegistry ) bootstrapRegistries
+            .getNormalizerRegistry() );
+        comparatorRegistry = new GlobalComparatorRegistry( ( BootstrapComparatorRegistry ) bootstrapRegistries
+            .getComparatorRegistry() );
+        syntaxCheckerRegistry = new GlobalSyntaxCheckerRegistry( ( BootstrapSyntaxCheckerRegistry ) bootstrapRegistries
+            .getSyntaxCheckerRegistry() );
+        syntaxRegistry = new GlobalSyntaxRegistry( ( BootstrapSyntaxRegistry ) bootstrapRegistries.getSyntaxRegistry(),
+            oidRegistry );
+        matchingRuleRegistry = new GlobalMatchingRuleRegistry( ( BootstrapMatchingRuleRegistry ) bootstrapRegistries
+            .getMatchingRuleRegistry(), oidRegistry );
+        attributeTypeRegistry = new GlobalAttributeTypeRegistry( ( BootstrapAttributeTypeRegistry ) bootstrapRegistries
+            .getAttributeTypeRegistry(), oidRegistry );
+        objectClassRegistry = new GlobalObjectClassRegistry( ( BootstrapObjectClassRegistry ) bootstrapRegistries
+            .getObjectClassRegistry(), oidRegistry );
         ditContentRuleRegistry = new GlobalDitContentRuleRegistry(
-                ( BootstrapDitContentRuleRegistry ) bootstrapRegistries.getDitContentRuleRegistry(),
-                oidRegistry );
+            ( BootstrapDitContentRuleRegistry ) bootstrapRegistries.getDitContentRuleRegistry(), oidRegistry );
         ditStructureRuleRegistry = new GlobalDitStructureRuleRegistry(
-                ( BootstrapDitStructureRuleRegistry ) bootstrapRegistries.getDitStructureRuleRegistry(),
-                oidRegistry );
+            ( BootstrapDitStructureRuleRegistry ) bootstrapRegistries.getDitStructureRuleRegistry(), oidRegistry );
         matchingRuleUseRegistry = new GlobalMatchingRuleUseRegistry(
-                ( BootstrapMatchingRuleUseRegistry ) bootstrapRegistries.getMatchingRuleUseRegistry(),
-                oidRegistry );
-        nameFormRegistry = new GlobalNameFormRegistry(
-                ( BootstrapNameFormRegistry ) bootstrapRegistries.getNameFormRegistry(),
-                oidRegistry );
+            ( BootstrapMatchingRuleUseRegistry ) bootstrapRegistries.getMatchingRuleUseRegistry(), oidRegistry );
+        nameFormRegistry = new GlobalNameFormRegistry( ( BootstrapNameFormRegistry ) bootstrapRegistries
+            .getNameFormRegistry(), oidRegistry );
     }
 
 
@@ -106,55 +97,66 @@ public class GlobalRegistries implements Registries
         return attributeTypeRegistry;
     }
 
+
     public ComparatorRegistry getComparatorRegistry()
     {
         return comparatorRegistry;
     }
+
 
     public DITContentRuleRegistry getDitContentRuleRegistry()
     {
         return ditContentRuleRegistry;
     }
 
+
     public DITStructureRuleRegistry getDitStructureRuleRegistry()
     {
         return ditStructureRuleRegistry;
     }
+
 
     public MatchingRuleRegistry getMatchingRuleRegistry()
     {
         return matchingRuleRegistry;
     }
 
+
     public MatchingRuleUseRegistry getMatchingRuleUseRegistry()
     {
         return matchingRuleUseRegistry;
     }
+
 
     public NameFormRegistry getNameFormRegistry()
     {
         return nameFormRegistry;
     }
 
+
     public NormalizerRegistry getNormalizerRegistry()
     {
         return normalizerRegistry;
     }
+
 
     public ObjectClassRegistry getObjectClassRegistry()
     {
         return objectClassRegistry;
     }
 
+
     public OidRegistry getOidRegistry()
     {
         return oidRegistry;
     }
 
+
     public SyntaxCheckerRegistry getSyntaxCheckerRegistry()
     {
         return syntaxCheckerRegistry;
     }
+
 
     public SyntaxRegistry getSyntaxRegistry()
     {
@@ -165,7 +167,6 @@ public class GlobalRegistries implements Registries
     // ------------------------------------------------------------------------
     // Code used to sanity check the resolution of entities in registries
     // ------------------------------------------------------------------------
-
 
     /**
      * Attempts to resolve the dependent schema objects of all entities that
@@ -251,9 +252,8 @@ public class GlobalRegistries implements Registries
             if ( mr.getComparator() == null )
             {
                 String schema = matchingRuleRegistry.getSchemaName( mr.getOid() );
-                errors.add( new NullPointerException( "matchingRule "
-                        + mr.getName() + " in schema " + schema + " with OID "
-                        + mr.getOid() + " has a null comparator" ) );
+                errors.add( new NullPointerException( "matchingRule " + mr.getName() + " in schema " + schema
+                    + " with OID " + mr.getOid() + " has a null comparator" ) );
                 isSuccess = false;
             }
         }
@@ -268,9 +268,8 @@ public class GlobalRegistries implements Registries
             if ( mr.getNormalizer() == null )
             {
                 String schema = matchingRuleRegistry.getSchemaName( mr.getOid() );
-                errors.add( new NullPointerException( "matchingRule "
-                        + mr.getName() + " in schema " + schema + " with OID "
-                        + mr.getOid() + " has a null normalizer" ) );
+                errors.add( new NullPointerException( "matchingRule " + mr.getName() + " in schema " + schema
+                    + " with OID " + mr.getOid() + " has a null normalizer" ) );
                 isSuccess = false;
             }
         }
@@ -287,9 +286,8 @@ public class GlobalRegistries implements Registries
             if ( mr.getSyntax() == null )
             {
                 String schema = matchingRuleRegistry.getSchemaName( mr.getOid() );
-                errors.add( new NullPointerException( "matchingRule "
-                        + mr.getName() + " in schema " + schema + " with OID " + mr.getOid()
-                        + " has a null Syntax" ) );
+                errors.add( new NullPointerException( "matchingRule " + mr.getName() + " in schema " + schema
+                    + " with OID " + mr.getOid() + " has a null Syntax" ) );
                 isSuccess = false;
             }
         }
@@ -375,9 +373,8 @@ public class GlobalRegistries implements Registries
             if ( at.getSyntax() == null )
             {
                 String schema = attributeTypeRegistry.getSchemaName( at.getOid() );
-                errors.add( new NullPointerException( "attributeType "
-                        + at.getName() + " in schema " + schema + " with OID "
-                        + at.getOid() + " has a null Syntax" ) );
+                errors.add( new NullPointerException( "attributeType " + at.getName() + " in schema " + schema
+                    + " with OID " + at.getOid() + " has a null Syntax" ) );
                 isSuccess = false;
             }
         }
@@ -391,22 +388,22 @@ public class GlobalRegistries implements Registries
         {
             // ----
         }
-//        try
-//        {
-//            String schema = attributeTypeRegistry.getSchemaName( at.getOid() );
-//            if ( ! hasMatchingRule && at.getSyntax().isHumanReadible() )
-//            {
-//                errors.add( new NullPointerException( "attributeType "
-//                        + at.getName() + " in schema " + schema + " with OID "
-//                        + at.getOid() + " has a no matchingRules defined" ) );
-//                isSuccess = false;
-//            }
-//        }
-//        catch ( NamingException e )
-//        {
-//            errors.add( e );
-//            isSuccess = false;
-//        }
+        //        try
+        //        {
+        //            String schema = attributeTypeRegistry.getSchemaName( at.getOid() );
+        //            if ( ! hasMatchingRule && at.getSyntax().isHumanReadible() )
+        //            {
+        //                errors.add( new NullPointerException( "attributeType "
+        //                        + at.getName() + " in schema " + schema + " with OID "
+        //                        + at.getOid() + " has a no matchingRules defined" ) );
+        //                isSuccess = false;
+        //            }
+        //        }
+        //        catch ( NamingException e )
+        //        {
+        //            errors.add( e );
+        //            isSuccess = false;
+        //        }
 
         return isSuccess;
     }
@@ -435,7 +432,7 @@ public class GlobalRegistries implements Registries
 
         for ( int ii = 0; ii < superiors.length; ii++ )
         {
-            isSuccess &= resolve( superiors[ii], errors ) ;
+            isSuccess &= resolve( superiors[ii], errors );
         }
 
         AttributeType[] mayList = new AttributeType[0];
@@ -452,9 +449,8 @@ public class GlobalRegistries implements Registries
 
         for ( int ii = 0; ii < mayList.length; ii++ )
         {
-            isSuccess &= resolve( mayList[ii], errors ) ;
+            isSuccess &= resolve( mayList[ii], errors );
         }
-
 
         AttributeType[] mustList = new AttributeType[0];
         try
@@ -470,7 +466,7 @@ public class GlobalRegistries implements Registries
 
         for ( int ii = 0; ii < mustList.length; ii++ )
         {
-            isSuccess &= resolve( mustList[ii], errors ) ;
+            isSuccess &= resolve( mustList[ii], errors );
         }
 
         return isSuccess;

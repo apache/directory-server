@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.core;
 
+
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -77,10 +78,10 @@ class DefaultDirectoryService extends DirectoryService
     private final DirectoryServiceConfiguration configuration = new DefaultDirectoryServiceConfiguration( this );
 
     private DirectoryServiceListener serviceListener;
-    
+
     /** the initial context environment that fired up the backend subsystem */
     private Hashtable environment;
-    
+
     /** the configuration */
     private StartupConfiguration startupConfiguration;
 
@@ -95,28 +96,28 @@ class DefaultDirectoryService extends DirectoryService
 
     /** The interceptor (or interceptor chain) for this service */
     private InterceptorChain interceptorChain;
-    
+
     /** whether or not this instance has been shutdown */
     private boolean started = false;
-    
+
+
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
 
-    
     /**
      * Creates a new instance.
      */
-    public DefaultDirectoryService( String instanceId )
+    public DefaultDirectoryService(String instanceId)
     {
-        if( instanceId == null )
+        if ( instanceId == null )
         {
             throw new NullPointerException( "instanceId" );
         }
         this.instanceId = instanceId;
     }
 
-    
+
     // ------------------------------------------------------------------------
     // BackendSubsystem Interface Method Implemetations
     // ------------------------------------------------------------------------
@@ -126,36 +127,38 @@ class DefaultDirectoryService extends DirectoryService
         return this.getJndiContext( null, null, "none", rootDN );
     }
 
-    public synchronized Context getJndiContext( String principal, byte[] credential, String authentication, String rootDN ) throws NamingException
+
+    public synchronized Context getJndiContext( String principal, byte[] credential, String authentication,
+        String rootDN ) throws NamingException
     {
         checkSecuritySettings( principal, credential, authentication );
-        
+
         if ( !started )
         {
             return new DeadContext();
         }
-        
+
         Hashtable environment = getEnvironment();
         environment.remove( Context.SECURITY_PRINCIPAL );
         environment.remove( Context.SECURITY_CREDENTIALS );
         environment.remove( Context.SECURITY_AUTHENTICATION );
-        
-        if( principal != null )
+
+        if ( principal != null )
         {
             environment.put( Context.SECURITY_PRINCIPAL, principal );
         }
-        
-        if( credential != null )
+
+        if ( credential != null )
         {
             environment.put( Context.SECURITY_CREDENTIALS, credential );
         }
-        
-        if( authentication != null )
+
+        if ( authentication != null )
         {
             environment.put( Context.SECURITY_AUTHENTICATION, authentication );
         }
-        
-        if( rootDN == null )
+
+        if ( rootDN == null )
         {
             rootDN = "";
         }
@@ -164,9 +167,10 @@ class DefaultDirectoryService extends DirectoryService
         return new ServerLdapContext( this, environment );
     }
 
+
     public synchronized void startup( DirectoryServiceListener listener, Hashtable env ) throws NamingException
     {
-        if( started )
+        if ( started )
         {
             return;
         }
@@ -177,37 +181,37 @@ class DefaultDirectoryService extends DirectoryService
 
         if ( cfg.isShutdownHookEnabled() )
         {
-            Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
+            Runtime.getRuntime().addShutdownHook( new Thread( new Runnable()
+            {
                 public void run()
                 {
                     try
                     {
                         shutdown();
                     }
-                    catch( NamingException e )
+                    catch ( NamingException e )
                     {
-                        log.warn(
-                                "Failed to shut down the directory service: " +
-                                DefaultDirectoryService.this.instanceId, e );
+                        log.warn( "Failed to shut down the directory service: "
+                            + DefaultDirectoryService.this.instanceId, e );
                     }
                 }
             }, "ApacheDS Shutdown Hook (" + instanceId + ')' ) );
-            
+
             log.info( "ApacheDS shutdown hook has been registered with the runtime." );
         }
         else if ( log.isWarnEnabled() )
         {
-            log.warn( "ApacheDS shutdown hook has NOT been registered with the runtime." + 
-                "  This default setting for standalone operation has been overriden." );
+            log.warn( "ApacheDS shutdown hook has NOT been registered with the runtime."
+                + "  This default setting for standalone operation has been overriden." );
         }
 
         envCopy.put( Context.PROVIDER_URL, "" );
-        
+
         try
         {
             cfg.validate();
         }
-        catch( ConfigurationException e )
+        catch ( ConfigurationException e )
         {
             NamingException ne = new LdapConfigurationException( "Invalid configuration." );
             ne.initCause( e );
@@ -216,7 +220,7 @@ class DefaultDirectoryService extends DirectoryService
 
         this.environment = envCopy;
         this.startupConfiguration = cfg;
-        
+
         listener.beforeStartup( this );
 
         initialize();
@@ -224,12 +228,13 @@ class DefaultDirectoryService extends DirectoryService
         showSecurityWarnings();
         this.serviceListener = listener;
         started = true;
-        if ( ! startupConfiguration.getTestEntries().isEmpty() )
+        if ( !startupConfiguration.getTestEntries().isEmpty() )
         {
             createTestEntries( env );
         }
         listener.afterStartup( this );
     }
+
 
     public synchronized void sync() throws NamingException
     {
@@ -273,70 +278,81 @@ class DefaultDirectoryService extends DirectoryService
             serviceListener.afterShutdown( this );
         }
     }
-    
+
+
     public String getInstanceId()
     {
         return instanceId;
     }
-    
+
+
     public DirectoryServiceConfiguration getConfiguration()
     {
         return configuration;
     }
-    
-    
+
+
     public Hashtable getEnvironment()
     {
         return ( Hashtable ) environment.clone();
     }
-    
+
+
     public DirectoryServiceListener getServiceListener()
     {
         return serviceListener;
     }
-    
+
+
     public StartupConfiguration getStartupConfiguration()
     {
         return startupConfiguration;
     }
-    
+
+
     public GlobalRegistries getGlobalRegistries()
     {
         return globalRegistries;
     }
 
+
     public DirectoryPartitionNexus getPartitionNexus()
     {
         return partitionNexus;
     }
-    
+
+
     public InterceptorChain getInterceptorChain()
     {
         return interceptorChain;
     }
-    
+
+
     public boolean isFirstStart()
     {
         return firstStart;
     }
-    
+
+
     public boolean isStarted()
     {
         return started;
     }
-    
+
+
     /**
      * Checks to make sure security environment parameters are set correctly.
      *
      * @throws javax.naming.NamingException if the security settings are not correctly configured.
      */
-    private void checkSecuritySettings( String principal, byte[] credential, String authentication ) throws NamingException
+    private void checkSecuritySettings( String principal, byte[] credential, String authentication )
+        throws NamingException
     {
-        if( authentication == null )
+        if ( authentication == null )
         {
             authentication = "";
         }
-        
+
         /*
          * If bind is simple make sure we have the credentials and the
          * principal name set within the environment, otherwise complain
@@ -345,14 +361,14 @@ class DefaultDirectoryService extends DirectoryService
         {
             if ( credential == null )
             {
-                throw new LdapConfigurationException( "missing required "
-                        + Context.SECURITY_CREDENTIALS + " property for simple authentication" );
+                throw new LdapConfigurationException( "missing required " + Context.SECURITY_CREDENTIALS
+                    + " property for simple authentication" );
             }
 
             if ( principal == null )
             {
-                throw new LdapConfigurationException( "missing required "
-                        + Context.SECURITY_PRINCIPAL + " property for simple authentication" );
+                throw new LdapConfigurationException( "missing required " + Context.SECURITY_PRINCIPAL
+                    + " property for simple authentication" );
             }
         }
         /*
@@ -364,17 +380,17 @@ class DefaultDirectoryService extends DirectoryService
             if ( credential != null )
             {
                 throw new LdapConfigurationException( "ambiguous bind "
-                        + "settings encountered where bind is anonymous yet "
-                        + Context.SECURITY_CREDENTIALS + " property is set" );
+                    + "settings encountered where bind is anonymous yet " + Context.SECURITY_CREDENTIALS
+                    + " property is set" );
             }
             if ( principal != null )
             {
                 throw new LdapConfigurationException( "ambiguous bind "
-                        + "settings encountered where bind is anonymous yet "
-                        + Context.SECURITY_PRINCIPAL + " property is set" );
+                    + "settings encountered where bind is anonymous yet " + Context.SECURITY_PRINCIPAL
+                    + " property is set" );
             }
-            
-            if( !startupConfiguration.isAllowAnonymousAccess() )
+
+            if ( !startupConfiguration.isAllowAnonymousAccess() )
             {
                 throw new LdapNoPermissionException( "Anonymous access disabled." );
             }
@@ -385,7 +401,8 @@ class DefaultDirectoryService extends DirectoryService
              * If bind is anything other than simple or none we need to
              * complain because SASL is not a supported auth method yet
              */
-            throw new LdapAuthenticationNotSupportedException( "Unknown authentication type: '" + authentication + "'", ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
+            throw new LdapAuthenticationNotSupportedException( "Unknown authentication type: '" + authentication + "'",
+                ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
         }
     }
 
@@ -428,8 +445,9 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             attributes.put( "displayName", "Directory Superuser" );
-            
-            partitionNexus.add( DirectoryPartitionNexus.ADMIN_PRINCIPAL, DirectoryPartitionNexus.getAdminName(), attributes );
+
+            partitionNexus.add( DirectoryPartitionNexus.ADMIN_PRINCIPAL, DirectoryPartitionNexus.getAdminName(),
+                attributes );
         }
 
         // -------------------------------------------------------------------
@@ -538,8 +556,8 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( "ou=partitions,ou=configuration,ou=system",
-                    new LdapName( "ou=partitions,ou=configuration,ou=system" ), attributes );
+            partitionNexus.add( "ou=partitions,ou=configuration,ou=system", new LdapName(
+                "ou=partitions,ou=configuration,ou=system" ), attributes );
         }
 
         // -------------------------------------------------------------------
@@ -560,8 +578,8 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( "ou=services,ou=configuration,ou=system",
-                    new LdapName( "ou=services,ou=configuration,ou=system" ), attributes );
+            partitionNexus.add( "ou=services,ou=configuration,ou=system", new LdapName(
+                "ou=services,ou=configuration,ou=system" ), attributes );
         }
 
         // -------------------------------------------------------------------
@@ -582,8 +600,8 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( "ou=interceptors,ou=configuration,ou=system",
-                    new LdapName( "ou=interceptors,ou=configuration,ou=system" ), attributes );
+            partitionNexus.add( "ou=interceptors,ou=configuration,ou=system", new LdapName(
+                "ou=interceptors,ou=configuration,ou=system" ), attributes );
         }
 
         // -------------------------------------------------------------------
@@ -612,7 +630,8 @@ class DefaultDirectoryService extends DirectoryService
 
         return firstStart;
     }
-    
+
+
     /**
      * Displays security warning messages if any possible secutiry issue is found.
      */
@@ -620,42 +639,40 @@ class DefaultDirectoryService extends DirectoryService
     {
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword = false;
-        
+
         Attributes adminEntry = partitionNexus.lookup( new LdapName( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) );
         Object userPassword = adminEntry.get( "userPassword" ).get();
-        if( userPassword instanceof byte[] )
+        if ( userPassword instanceof byte[] )
         {
-            needToChangeAdminPassword = DirectoryPartitionNexus.ADMIN_PASSWORD.equals( new String( ( byte[] ) userPassword ) );
+            needToChangeAdminPassword = DirectoryPartitionNexus.ADMIN_PASSWORD.equals( new String(
+                ( byte[] ) userPassword ) );
         }
         else if ( userPassword.toString().equals( DirectoryPartitionNexus.ADMIN_PASSWORD ) )
         {
             needToChangeAdminPassword = DirectoryPartitionNexus.ADMIN_PASSWORD.equals( userPassword.toString() );
         }
-        
-        if( needToChangeAdminPassword )
+
+        if ( needToChangeAdminPassword )
         {
-            log.warn(
-                    "You didn't change the admin password of directory service " +
-                    "instance '" + instanceId + "'.  " +
-                    "Please update the admin password as soon as possible " +
-                    "to prevent a possible security breach." );
+            log.warn( "You didn't change the admin password of directory service " + "instance '" + instanceId + "'.  "
+                + "Please update the admin password as soon as possible " + "to prevent a possible security breach." );
         }
     }
-    
+
+
     private void createTestEntries( Hashtable env ) throws NamingException
     {
         String principal = AbstractContextFactory.getPrincipal( env );
         byte[] credential = AbstractContextFactory.getCredential( env );
         String authentication = AbstractContextFactory.getAuthentication( env );
-        ServerLdapContext ctx = ( ServerLdapContext ) getJndiContext( principal, credential, 
-            authentication, "" );
-        
+        ServerLdapContext ctx = ( ServerLdapContext ) getJndiContext( principal, credential, authentication, "" );
+
         Iterator i = startupConfiguration.getTestEntries().iterator();
-        while( i.hasNext() )
+        while ( i.hasNext() )
         {
             Attributes entry = ( Attributes ) ( ( Attributes ) i.next() ).clone();
             String dn = ( String ) entry.remove( "dn" ).get();
-            
+
             try
             {
                 ctx.createSubcontext( dn, entry );
@@ -667,69 +684,71 @@ class DefaultDirectoryService extends DirectoryService
         }
     }
 
+
     private void setupOidsMap( BootstrapRegistries bootstrapRegistries ) throws NamingException
     {
         Iterator keys = bootstrapRegistries.getOidRegistry().getOidByName().keySet().iterator();
-        
+
         Map oidsMap = new HashMap();
         Map oidName = new HashMap();
-        
+
         while ( keys.hasNext() )
         {
-        	String name = StringTools.deepTrimToLower( (String)keys.next() );
-        	String principal = null;
-        	
-        	if ( OID.isOID( name ) )
-        	{
-        		continue;
-        	}
-        	
-        	String oid =  bootstrapRegistries.getOidRegistry().getOid( name );
-        	
-        	OidNormalizer oidNormalizer = null;
-        	
-        	if ( oidName.containsKey( oid ) )
-        	{
-        		principal = StringTools.deepTrimToLower( (String)oidName.get( oid ) );
-        		
-        		if ( principal.length() > name.length() )
-        		{
-        			OidNormalizer oldOidNormalizer = (OidNormalizer)oidsMap.get( principal );
+            String name = StringTools.deepTrimToLower( ( String ) keys.next() );
+            String principal = null;
 
-        			
-        			oidNormalizer = new OidNormalizer( name, oldOidNormalizer.getNormalizer() );
+            if ( OID.isOID( name ) )
+            {
+                continue;
+            }
 
-        			oidName.remove( oid );
-        			oidName.put( oid, name );
-        			oidsMap.remove( principal );
-        			oidsMap.remove( oid );
-        			oidsMap.put( principal, oidNormalizer );
-        			oidsMap.put( name, oidNormalizer );
-        			oidsMap.put( oid, oidNormalizer );
-        	        continue;
-        		}
-        	}
-        	else
-        	{
-        		principal = name;
-            	oidName.put( oid, principal );
+            String oid = bootstrapRegistries.getOidRegistry().getOid( name );
 
-            	if ( bootstrapRegistries.getNormalizerRegistry().hasNormalizer( oid ) )
-	        	{
-	        		oidNormalizer = new OidNormalizer( principal, bootstrapRegistries.getNormalizerRegistry().lookup( oid ) );
-	        	}
-	        	else
-	        	{
-	        		oidNormalizer = new OidNormalizer( principal, new NoOpNormalizer() );
-	        	}
-	        	
-	        	oidsMap.put( name, oidNormalizer );
-	        	oidsMap.put( oid, oidNormalizer );
-        	}
+            OidNormalizer oidNormalizer = null;
+
+            if ( oidName.containsKey( oid ) )
+            {
+                principal = StringTools.deepTrimToLower( ( String ) oidName.get( oid ) );
+
+                if ( principal.length() > name.length() )
+                {
+                    OidNormalizer oldOidNormalizer = ( OidNormalizer ) oidsMap.get( principal );
+
+                    oidNormalizer = new OidNormalizer( name, oldOidNormalizer.getNormalizer() );
+
+                    oidName.remove( oid );
+                    oidName.put( oid, name );
+                    oidsMap.remove( principal );
+                    oidsMap.remove( oid );
+                    oidsMap.put( principal, oidNormalizer );
+                    oidsMap.put( name, oidNormalizer );
+                    oidsMap.put( oid, oidNormalizer );
+                    continue;
+                }
+            }
+            else
+            {
+                principal = name;
+                oidName.put( oid, principal );
+
+                if ( bootstrapRegistries.getNormalizerRegistry().hasNormalizer( oid ) )
+                {
+                    oidNormalizer = new OidNormalizer( principal, bootstrapRegistries.getNormalizerRegistry().lookup(
+                        oid ) );
+                }
+                else
+                {
+                    oidNormalizer = new OidNormalizer( principal, new NoOpNormalizer() );
+                }
+
+                oidsMap.put( name, oidNormalizer );
+                oidsMap.put( oid, oidNormalizer );
+            }
         }
-        
+
         DnOidContainer.setOids( oidsMap );
     }
+
 
     /**
      * Kicks off the initialization of the entire system.
@@ -738,12 +757,12 @@ class DefaultDirectoryService extends DirectoryService
      */
     private void initialize() throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "---> Initializing the DefaultDirectoryService " );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "---> Initializing the DefaultDirectoryService " );
+        }
 
-    	// --------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Load the schema here and check that it is ok!
         // --------------------------------------------------------------------
 
@@ -776,13 +795,13 @@ class DefaultDirectoryService extends DirectoryService
             {
                 if ( log.isWarnEnabled() )
                 {
-                    log.warn( BINARY_KEY + " in startup environment contains null value.  " +
-                        "Using only schema info to set binary attributeTypes." );
+                    log.warn( BINARY_KEY + " in startup environment contains null value.  "
+                        + "Using only schema info to set binary attributeTypes." );
                 }
             }
             else
             {
-                if ( ! StringTools.isEmpty( binaryIds ) )
+                if ( !StringTools.isEmpty( binaryIds ) )
                 {
                     String[] binaryArray = binaryIds.split( " " );
 
@@ -795,7 +814,7 @@ class DefaultDirectoryService extends DirectoryService
                 if ( log.isInfoEnabled() )
                 {
                     log.info( "Setting binaries to union of schema defined binaries and those provided in "
-                            + BINARY_KEY );
+                        + BINARY_KEY );
                 }
             }
         }
@@ -806,7 +825,7 @@ class DefaultDirectoryService extends DirectoryService
         while ( list.hasNext() )
         {
             AttributeType type = ( AttributeType ) list.next();
-            if ( ! type.getSyntax().isHumanReadible() )
+            if ( !type.getSyntax().isHumanReadible() )
             {
                 // add the OID for the attributeType
                 binaries.add( type.getOid() );
@@ -828,13 +847,13 @@ class DefaultDirectoryService extends DirectoryService
 
         partitionNexus = new DefaultDirectoryPartitionNexus( new LockableAttributesImpl() );
         partitionNexus.init( configuration, null );
-        
+
         interceptorChain = new InterceptorChain();
         interceptorChain.init( configuration );
-        
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "<--- DefaultDirectoryService initialized" );
-    	}
+
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "<--- DefaultDirectoryService initialized" );
+        }
     }
 }

@@ -24,23 +24,26 @@
  */
 package org.apache.directory.server.dhcp.options.perhost;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class IpForwarding extends DhcpOption
 {
-	private byte[] ipForwarding;
-	
-	public IpForwarding( byte[] ipForwarding )
-	{
-		super( 19, 1 );
-		this.ipForwarding = ipForwarding;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( ipForwarding );
-	}
-}
+    private byte[] ipForwarding;
 
+
+    public IpForwarding(byte[] ipForwarding)
+    {
+        super( 19, 1 );
+        this.ipForwarding = ipForwarding;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( ipForwarding );
+    }
+}

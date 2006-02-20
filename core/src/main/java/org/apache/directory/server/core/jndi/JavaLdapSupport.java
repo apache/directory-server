@@ -68,7 +68,6 @@ class JavaLdapSupport
     // Package Friendly & Private Utility Methods 
     // ------------------------------------------------------------------------
 
-
     /**
      * Resusitates an object from a serialized attribute in an entry that 
      * conforms to the specifications for representing Java Objects in an LDAP 
@@ -85,14 +84,14 @@ class JavaLdapSupport
 
         try
         {
-            byte [] data = ( byte [] ) attributes.get( JSERIALDATA_ATTR ).get();
+            byte[] data = ( byte[] ) attributes.get( JSERIALDATA_ATTR ).get();
             in = new ObjectInputStream( new ByteArrayInputStream( data ) );
             return in.readObject();
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( "De-serialization of '"
-                + className + "' instance failed:\n" + e.getMessage() );
+            NamingException ne = new NamingException( "De-serialization of '" + className + "' instance failed:\n"
+                + e.getMessage() );
             ne.setRootCause( e );
             throw ne;
         }
@@ -109,7 +108,7 @@ class JavaLdapSupport
         }
     }
 
-    
+
     /**
      * Serializes an object into a byte array.
      *
@@ -117,7 +116,7 @@ class JavaLdapSupport
      * @return the object's serialized byte array form
      * @throws NamingException of the object cannot be serialized
      */
-    static byte [] serialize( Object obj ) throws NamingException
+    static byte[] serialize( Object obj ) throws NamingException
     {
         ByteArrayOutputStream bytesOut = null;
         ObjectOutputStream out = null;
@@ -131,8 +130,7 @@ class JavaLdapSupport
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( "Serialization of '"
-                + obj + "' failed:\n" + e.getMessage() );
+            NamingException ne = new NamingException( "Serialization of '" + obj + "' failed:\n" + e.getMessage() );
             ne.setRootCause( e );
             throw ne;
         }
@@ -178,7 +176,7 @@ class JavaLdapSupport
         entry.put( JSERIALDATA_ATTR, serialize( obj ) );
 
         // Add all the class names this object can be cast to:
-        Class [] classes = obj.getClass().getClasses();
+        Class[] classes = obj.getClass().getClasses();
         Attribute javaClassNames = new LockableAttributeImpl( JCLASSNAMES_ATTR );
 
         for ( int ii = 0; ii < classes.length; ii++ )

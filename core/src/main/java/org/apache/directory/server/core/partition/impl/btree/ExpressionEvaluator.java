@@ -43,14 +43,13 @@ public class ExpressionEvaluator implements Evaluator
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a top level Evaluator where leaves are delegated to a leaf node
      * evaluator which is already provided.
      *
      * @param leafEvaluator handles leaf node evaluation.
      */
-    public ExpressionEvaluator( LeafEvaluator leafEvaluator )
+    public ExpressionEvaluator(LeafEvaluator leafEvaluator)
     {
         this.leafEvaluator = leafEvaluator;
     }
@@ -64,18 +63,15 @@ public class ExpressionEvaluator implements Evaluator
      * @param oidRegistry the oid reg used for attrID to oid resolution
      * @param attributeTypeRegistry the attribtype reg used for value comparison
      */
-    public ExpressionEvaluator( BTreeDirectoryPartition db,
-                                OidRegistry oidRegistry,
-                                AttributeTypeRegistry attributeTypeRegistry )
+    public ExpressionEvaluator(BTreeDirectoryPartition db, OidRegistry oidRegistry,
+        AttributeTypeRegistry attributeTypeRegistry)
     {
         ScopeEvaluator scopeEvaluator = null;
         SubstringEvaluator substringEvaluator = null;
 
         scopeEvaluator = new ScopeEvaluator( db );
-        substringEvaluator = new SubstringEvaluator( db, oidRegistry,
-            attributeTypeRegistry );
-        leafEvaluator = new LeafEvaluator( db, oidRegistry,
-            attributeTypeRegistry, scopeEvaluator, substringEvaluator );
+        substringEvaluator = new SubstringEvaluator( db, oidRegistry, attributeTypeRegistry );
+        leafEvaluator = new LeafEvaluator( db, oidRegistry, attributeTypeRegistry, scopeEvaluator, substringEvaluator );
     }
 
 
@@ -94,59 +90,56 @@ public class ExpressionEvaluator implements Evaluator
     // Evaluator.evaluate() implementation
     // ------------------------------------------------------------------------
 
-
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, IndexRecord)
      */
-    public boolean evaluate( ExprNode node, IndexRecord record )
-        throws NamingException
+    public boolean evaluate( ExprNode node, IndexRecord record ) throws NamingException
     {
-        if ( node.isLeaf() ) 
+        if ( node.isLeaf() )
         {
             return leafEvaluator.evaluate( node, record );
         }
 
         BranchNode bnode = ( BranchNode ) node;
 
-        switch( bnode.getOperator() )
+        switch ( bnode.getOperator() )
         {
-        case( BranchNode.OR ):
-            Iterator children = bnode.getChildren().iterator();
-            
-            while ( children.hasNext() ) 
-            {
-                ExprNode child = ( ExprNode ) children.next();
-                
-                if ( evaluate( child, record ) ) 
+            case ( BranchNode.OR  ):
+                Iterator children = bnode.getChildren().iterator();
+
+                while ( children.hasNext() )
                 {
-                    return true;
+                    ExprNode child = ( ExprNode ) children.next();
+
+                    if ( evaluate( child, record ) )
+                    {
+                        return true;
+                    }
                 }
-            }
 
-            return false;
-        case( BranchNode.AND ):
-            children = bnode.getChildren().iterator();
-            while ( children.hasNext() ) 
-            {
-                ExprNode child = ( ExprNode ) children.next();
-
-                if ( ! evaluate( child, record ) ) 
+                return false;
+            case ( BranchNode.AND  ):
+                children = bnode.getChildren().iterator();
+                while ( children.hasNext() )
                 {
-                    return false;
+                    ExprNode child = ( ExprNode ) children.next();
+
+                    if ( !evaluate( child, record ) )
+                    {
+                        return false;
+                    }
                 }
-            }
 
-            return true;
-        case( BranchNode.NOT ):
-            if ( null != bnode.getChild() )
-            {
-                return ! evaluate( bnode.getChild(), record );
-            }
+                return true;
+            case ( BranchNode.NOT  ):
+                if ( null != bnode.getChild() )
+                {
+                    return !evaluate( bnode.getChild(), record );
+                }
 
-            throw new NamingException( "Negation has no child: " + node );
-        default:
-            throw new NamingException( "Unrecognized branch node operator: "
-                + bnode.getOperator() );
+                throw new NamingException( "Negation has no child: " + node );
+            default:
+                throw new NamingException( "Unrecognized branch node operator: " + bnode.getOperator() );
         }
     }
 }

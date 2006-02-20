@@ -86,7 +86,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PartitionFrame extends JFrame
 {
-    private static final Logger log = LoggerFactory.getLogger(PartitionFrame.class);
+    private static final Logger log = LoggerFactory.getLogger( PartitionFrame.class );
 
     private static final long serialVersionUID = 4049353102291513657L;
 
@@ -120,8 +120,7 @@ public class PartitionFrame extends JFrame
     /**
      * Creates new form JFrame
      */
-    public PartitionFrame( BTreeDirectoryPartition db, SearchEngine eng )
-        throws NamingException
+    public PartitionFrame(BTreeDirectoryPartition db, SearchEngine eng) throws NamingException
     {
         partition = db;
         this.eng = eng;
@@ -169,9 +168,9 @@ public class PartitionFrame extends JFrame
         // --------------------------------------------------------------------
         // 'Backend' Menu
         // --------------------------------------------------------------------
-        
+
         JMenu backendMenu = new JMenu( "Backend" );
-        backendMenu.setText("Partition");
+        backendMenu.setText( "Partition" );
         backendMenu.setBackground( new java.awt.Color( 205, 205, 205 ) );
         backendMenu.setMnemonic( 'B' );
 
@@ -182,7 +181,7 @@ public class PartitionFrame extends JFrame
         add.setBackground( new java.awt.Color( 205, 205, 205 ) );
         add.addActionListener( new ActionListener()
         {
-            public void actionPerformed( ActionEvent e ) 
+            public void actionPerformed( ActionEvent e )
             {
                 doAddDialog();
             }
@@ -195,7 +194,7 @@ public class PartitionFrame extends JFrame
         importItem.setBackground( new java.awt.Color( 205, 205, 205 ) );
         importItem.addActionListener( new ActionListener()
         {
-            public void actionPerformed( ActionEvent e ) 
+            public void actionPerformed( ActionEvent e )
             {
                 doImport();
             }
@@ -208,7 +207,7 @@ public class PartitionFrame extends JFrame
         exit.setBackground( new java.awt.Color( 205, 205, 205 ) );
         exit.addActionListener( new ActionListener()
         {
-            public void actionPerformed( ActionEvent e ) 
+            public void actionPerformed( ActionEvent e )
             {
                 exitForm();
             }
@@ -219,23 +218,22 @@ public class PartitionFrame extends JFrame
         helpMenu.setMnemonic( 'H' );
         JMenuItem about = new JMenuItem( "About" );
         about.setMnemonic( 'A' );
-        about.setBackground( new java.awt.Color( 205,205,205 ) );
+        about.setBackground( new java.awt.Color( 205, 205, 205 ) );
         about.addActionListener( new ActionListener()
         {
-            public void actionPerformed( ActionEvent e ) 
+            public void actionPerformed( ActionEvent e )
             {
-                AboutDialog aboutDialog = 
-                    new AboutDialog ( PartitionFrame.this, true );
+                AboutDialog aboutDialog = new AboutDialog( PartitionFrame.this, true );
                 PartitionFrame.this.centerOnScreen( aboutDialog );
                 aboutDialog.setVisible( true );
             }
         } );
-        helpMenu.setBackground( new java.awt.Color( 205,205,205 ) );
+        helpMenu.setBackground( new java.awt.Color( 205, 205, 205 ) );
         helpMenu.add( about );
-        
+
         // create Save menu item
         // create Print menu item
-        menuBar.setBackground( new java.awt.Color( 196,197,203 ) );
+        menuBar.setBackground( new java.awt.Color( 196, 197, 203 ) );
         menuBar.add( backendMenu );
         menuBar.add( searchMenu );
         menuBar.add( indices );
@@ -243,26 +241,25 @@ public class PartitionFrame extends JFrame
         // sets menu bar
         setJMenuBar( menuBar );
         setBounds( new java.awt.Rectangle( 0, 0, 802, 515 ) );
-        setSize( new java.awt.Dimension( 802,515 ) );
+        setSize( new java.awt.Dimension( 802, 515 ) );
         setResizable( true );
-        
-        addWindowListener( new java.awt.event.WindowAdapter() 
+
+        addWindowListener( new java.awt.event.WindowAdapter()
         {
-            public void windowClosing( java.awt.event.WindowEvent evt ) 
+            public void windowClosing( java.awt.event.WindowEvent evt )
             {
                 exitForm();
             }
         } );
-        
+
         treePane.getViewport().add( tree );
-        tree.setBounds( new java.awt.Rectangle( 6,184,82,80 ) );
+        tree.setBounds( new java.awt.Rectangle( 6, 184, 82, 80 ) );
         tree.setShowsRootHandles( true );
         tree.setToolTipText( "DB DIT" );
         tree.setScrollsOnExpand( true );
-        tree.getSelectionModel().addTreeSelectionListener(
-            new TreeSelectionListener() 
+        tree.getSelectionModel().addTreeSelectionListener( new TreeSelectionListener()
         {
-            public void valueChanged( TreeSelectionEvent e ) 
+            public void valueChanged( TreeSelectionEvent e )
             {
                 TreePath path = e.getNewLeadSelectionPath();
 
@@ -272,15 +269,14 @@ public class PartitionFrame extends JFrame
                 }
 
                 Object last = path.getLastPathComponent();
-                try 
+                try
                 {
                     if ( last instanceof EntryNode )
                     {
-                        displayEntry( ( ( EntryNode ) last ).getEntryId(),
-                        ( ( EntryNode ) last).getLdapEntry() );
+                        displayEntry( ( ( EntryNode ) last ).getEntryId(), ( ( EntryNode ) last ).getLdapEntry() );
                     }
-                } 
-                catch( Exception ex ) 
+                }
+                catch ( Exception ex )
                 {
                     ex.printStackTrace();
                 }
@@ -288,31 +284,31 @@ public class PartitionFrame extends JFrame
         } );
 
         entryPane.getViewport().add( entryTbl );
-        entryTbl.setBounds( new java.awt.Rectangle( 321,103,32,32 ) );
+        entryTbl.setBounds( new java.awt.Rectangle( 321, 103, 32, 32 ) );
 
         idxPane.getViewport().add( idxTbl );
-        idxTbl.setBounds( new java.awt.Rectangle( 429,134,32,32 ) );
+        idxTbl.setBounds( new java.awt.Rectangle( 429, 134, 32, 32 ) );
 
         treePane.setSize( new java.awt.Dimension( 285, 435 ) );
         treePane.setPreferredSize( new java.awt.Dimension( 285, 403 ) );
         searchMenu.setText( "Search" );
-        searchMenu.setBackground( new java.awt.Color( 205,205,205 ) );
+        searchMenu.setBackground( new java.awt.Color( 205, 205, 205 ) );
         searchMenu.add( run );
         searchMenu.add( debug );
         searchMenu.add( annotate );
 
         ActionListener searchHandler = new ActionListener()
         {
-            public void actionPerformed( ActionEvent an_event ) 
+            public void actionPerformed( ActionEvent an_event )
             {
-                if (log.isDebugEnabled())
+                if ( log.isDebugEnabled() )
                     log.debug( "action command = " + an_event.getActionCommand() );
 
                 try
                 {
                     doFilterDialog( an_event.getActionCommand() );
                 }
-                catch( NamingException e )
+                catch ( NamingException e )
                 {
                     e.printStackTrace();
                 }
@@ -321,17 +317,17 @@ public class PartitionFrame extends JFrame
 
         annotate.setText( FilterDialog.ANNOTATE_MODE );
         annotate.setActionCommand( FilterDialog.ANNOTATE_MODE );
-        annotate.setBackground( new java.awt.Color( 205,205,205 ) );
+        annotate.setBackground( new java.awt.Color( 205, 205, 205 ) );
         annotate.addActionListener( searchHandler );
 
         run.setText( FilterDialog.RUN_MODE );
         run.setActionCommand( FilterDialog.RUN_MODE );
-        run.setBackground( new java.awt.Color( 205,205,205 ) );
+        run.setBackground( new java.awt.Color( 205, 205, 205 ) );
         run.addActionListener( searchHandler );
 
         debug.setText( FilterDialog.DEBUG_MODE );
         debug.setActionCommand( FilterDialog.DEBUG_MODE );
-        debug.setBackground( new java.awt.Color( 205,205,205 ) );
+        debug.setBackground( new java.awt.Color( 205, 205, 205 ) );
         debug.addActionListener( searchHandler );
 
         indices.setText( "Indices" );
@@ -343,22 +339,19 @@ public class PartitionFrame extends JFrame
     {
         Dimension frameSize = window.getSize();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        
-        frameSize.height = ( ( frameSize.height > screenSize.height )
-            ? screenSize.height : frameSize.height );
-        frameSize.width = ( ( frameSize.width > screenSize.width )
-            ? screenSize.width : frameSize.width );
-        window.setLocation( ( screenSize.width - frameSize.width ) / 2,
-            ( screenSize.height - frameSize.height ) / 2 );
+
+        frameSize.height = ( ( frameSize.height > screenSize.height ) ? screenSize.height : frameSize.height );
+        frameSize.width = ( ( frameSize.width > screenSize.width ) ? screenSize.width : frameSize.width );
+        window.setLocation( ( screenSize.width - frameSize.width ) / 2, ( screenSize.height - frameSize.height ) / 2 );
     }
 
-    
+
     /**
      * Displays a entry addition dialog.
      */
     public void doAddDialog()
     {
-        try 
+        try
         {
             TreePath path = tree.getSelectionModel().getSelectionPath();
             String parentDn = partition.getSuffix( false ).toString();
@@ -367,22 +360,21 @@ public class PartitionFrame extends JFrame
             {
                 Object last = path.getLastPathComponent();
 
-                if( last instanceof EntryNode )
+                if ( last instanceof EntryNode )
                 {
                     parentDn = ( ( EntryNode ) last ).getEntryDn();
-                } 
+                }
             }
-            
+
             if ( null == parentDn )
             {
-                JOptionPane.showMessageDialog( this, 
-                    "Must select a parent entry to add a child to!" );
+                JOptionPane.showMessageDialog( this, "Must select a parent entry to add a child to!" );
                 return;
             }
-        
+
             AddEntryDialog dialog = new AddEntryDialog( this, false );
             dialog.setParentDn( parentDn );
-            
+
             centerOnScreen( dialog );
             dialog.setEnabled( true );
             dialog.setVisible( true );
@@ -392,7 +384,7 @@ public class PartitionFrame extends JFrame
             e.printStackTrace();
         }
     }
-    
+
 
     /**
      * Gets the DN of the DIT node selected in the tree view.
@@ -403,16 +395,16 @@ public class PartitionFrame extends JFrame
     public String getSelectedDn() throws NamingException
     {
         TreePath path = tree.getSelectionModel().getSelectionPath();
-        
+
         if ( null == path )
         {
             return partition.getSuffix( false ).toString();
-        }        
-        
+        }
+
         Object last = path.getLastPathComponent();
         String base = null;
-        
-        if( last instanceof EntryNode )
+
+        if ( last instanceof EntryNode )
         {
             try
             {
@@ -422,15 +414,15 @@ public class PartitionFrame extends JFrame
             {
                 e.printStackTrace();
             }
-        } 
-        else 
+        }
+        else
         {
             base = partition.getSuffix( false ).toString();
         }
-        
+
         return base;
     }
-    
+
 
     public void doImport()
     {
@@ -440,25 +432,24 @@ public class PartitionFrame extends JFrame
         JFileChooser chooser = new JFileChooser();
         int choice = chooser.showOpenDialog( this );
         File selected = chooser.getSelectedFile();
-        
+
         if ( JFileChooser.APPROVE_OPTION != choice )
         {
             return;
         }
 
-        try 
+        try
         {
             in = new FileReader( selected );
             list = new LdifIterator( in );
-            
+
             while ( list.hasNext() )
             {
                 String dif = ( String ) list.next();
                 LockableAttributesImpl attrs = new LockableAttributesImpl();
                 parser.parse( attrs, dif );
                 String updn = ( String ) attrs.get( "dn" ).get();
-                LdapName ndn =
-                    new LdapName( StringTools.deepTrimToLower( updn ) );
+                LdapName ndn = new LdapName( StringTools.deepTrimToLower( updn ) );
                 attrs.remove( "dn" );
 
                 if ( null == partition.getEntryId( ndn.toString() ) )
@@ -468,25 +459,25 @@ public class PartitionFrame extends JFrame
                 }
             }
         }
-        catch( NamingException e )
-        {
-            // @todo display popup with error here!
-            e.printStackTrace();
-            return;
-        } 
-        catch( FileNotFoundException e ) 
+        catch ( NamingException e )
         {
             // @todo display popup with error here!
             e.printStackTrace();
             return;
         }
-        catch( IOException e ) 
+        catch ( FileNotFoundException e )
         {
             // @todo display popup with error here!
             e.printStackTrace();
             return;
         }
-        catch( Exception e ) 
+        catch ( IOException e )
+        {
+            // @todo display popup with error here!
+            e.printStackTrace();
+            return;
+        }
+        catch ( Exception e )
         {
             // @todo display popup with error here!
             e.printStackTrace();
@@ -498,7 +489,7 @@ public class PartitionFrame extends JFrame
     /**
      * Exit the Application
      */
-    private void exitForm() 
+    private void exitForm()
     {
         setEnabled( false );
         setVisible( false );
@@ -516,39 +507,37 @@ public class PartitionFrame extends JFrame
                 e.printStackTrace();
             }
 
-	        System.exit( 0 );
+            System.exit( 0 );
         }
     }
-    
-    
+
+
     public void doRunDebugAnnotate( FilterDialog dialog, String mode )
     {
-        try 
+        try
         {
             if ( mode == FilterDialog.RUN_MODE )
             {
-                doRun( dialog.getFilter(), dialog.getScope(),
-                    dialog.getBase(), dialog.getLimit() );
-            } 
+                doRun( dialog.getFilter(), dialog.getScope(), dialog.getBase(), dialog.getLimit() );
+            }
             else if ( mode == FilterDialog.DEBUG_MODE )
             {
-                doDebug( dialog.getFilter(), dialog.getScope(),
-                     dialog.getBase(), dialog.getLimit() );
-            } 
+                doDebug( dialog.getFilter(), dialog.getScope(), dialog.getBase(), dialog.getLimit() );
+            }
             else if ( mode == FilterDialog.ANNOTATE_MODE )
             {
                 if ( doAnnotate( dialog.getFilter() ) )
                 {
                     // continue
-                } 
-                else 
+                }
+                else
                 {
                     // We failed don't loose users filter buf
                     // allow user to make edits.
                     return;
                 }
-            } 
-            else 
+            }
+            else
             {
                 throw new RuntimeException( "Unrecognized mode." );
             }
@@ -568,34 +557,33 @@ public class PartitionFrame extends JFrame
         if ( tree.getSelectionModel().getSelectionPath() != null )
         {
             dialog.setBase( getSelectedDn() );
-        } 
-        else 
+        }
+        else
         {
             dialog.setBase( partition.getSuffix( false ).toString() );
         }
 
         dialog.addActionListener( new ActionListener()
         {
-            public void actionPerformed( ActionEvent an_event ) 
+            public void actionPerformed( ActionEvent an_event )
             {
                 String cmd = an_event.getActionCommand();
 
                 if ( cmd.equals( FilterDialog.SEARCH_CMD ) )
                 {
                     doRunDebugAnnotate( dialog, mode );
-                } 
-                else if ( cmd.equals(FilterDialog.CANCEL_CMD ) )
+                }
+                else if ( cmd.equals( FilterDialog.CANCEL_CMD ) )
                 {
                     // Do nothing! Just exit dialog.
-                } 
-                else 
+                }
+                else
                 {
-                    throw new RuntimeException( 
-                        "Unrecognized FilterDialog command: " + cmd );
+                    throw new RuntimeException( "Unrecognized FilterDialog command: " + cmd );
                 }
 
-				dialog.setVisible( false );
-				dialog.dispose();
+                dialog.setVisible( false );
+                dialog.dispose();
             }
         } );
 
@@ -604,28 +592,25 @@ public class PartitionFrame extends JFrame
         centerOnScreen( dialog );
         dialog.setEnabled( true );
         dialog.setVisible( true );
-    } 
+    }
 
 
-    public boolean doRun( String filter, String scope, String base,
-        String limit )
-        throws Exception
+    public boolean doRun( String filter, String scope, String base, String limit ) throws Exception
     {
-        if (log.isDebugEnabled())
+        if ( log.isDebugEnabled() )
         {
-            log.debug( "Search attempt using filter '" + filter + "' "
-            + "with scope '" + scope + "' and a return limit of '" + limit
-            + "'" );
+            log.debug( "Search attempt using filter '" + filter + "' " + "with scope '" + scope
+                + "' and a return limit of '" + limit + "'" );
         }
 
         FilterParser parser = new FilterParserImpl();
         ExprNode root = null;
 
-        try 
+        try
         {
             root = parser.parse( filter );
-        } 
-        catch ( Exception e ) 
+        }
+        catch ( Exception e )
         {
             e.printStackTrace();
             JTextArea text = new JTextArea();
@@ -638,8 +623,7 @@ public class PartitionFrame extends JFrame
 
             text.setText( msg );
             text.setEnabled( false );
-            JOptionPane.showMessageDialog( null, text, "Syntax Error",
-                JOptionPane.ERROR_MESSAGE );
+            JOptionPane.showMessageDialog( null, text, "Syntax Error", JOptionPane.ERROR_MESSAGE );
             return false;
         }
 
@@ -647,38 +631,37 @@ public class PartitionFrame extends JFrame
 
         if ( scope == FilterDialog.BASE_SCOPE )
         {
-	        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        } 
+            ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        }
         else if ( scope == FilterDialog.SINGLE_SCOPE )
         {
             ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        } 
+        }
         else if ( scope == FilterDialog.SUBTREE_SCOPE )
         {
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        } else {
-            throw new RuntimeException( "Unexpected scope parameter: " +
-                scope );
+        }
+        else
+        {
+            throw new RuntimeException( "Unexpected scope parameter: " + scope );
         }
 
         int limitMax = Integer.MAX_VALUE;
-        if ( ! limit.equals( FilterDialog.UNLIMITED ) )
+        if ( !limit.equals( FilterDialog.UNLIMITED ) )
         {
             limitMax = Integer.parseInt( limit );
         }
 
         Hashtable env = new Hashtable();
 
-        env.put( DerefAliasesEnum.JNDI_PROP,
-            DerefAliasesEnum.DEREFALWAYS_NAME );
+        env.put( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.DEREFALWAYS_NAME );
 
-        NamingEnumeration cursor = eng.search( new LdapName( base ),
-                env, root, ctls );
-        String [] cols = new String [2];
+        NamingEnumeration cursor = eng.search( new LdapName( base ), env, root, ctls );
+        String[] cols = new String[2];
         cols[0] = "id";
         cols[1] = "dn";
         DefaultTableModel tableModel = new DefaultTableModel( cols, 0 );
-        Object [] row = new Object[2];
+        Object[] row = new Object[2];
         int count = 0;
         while ( cursor.hasMore() && count < limitMax )
         {
@@ -718,14 +701,12 @@ public class PartitionFrame extends JFrame
     }
 
 
-    public void doDebug( String filter, String scope, String base,
-        String limit )
+    public void doDebug( String filter, String scope, String base, String limit )
     {
-        if (log.isDebugEnabled())
+        if ( log.isDebugEnabled() )
         {
-            log.debug( "Search attempt using filter '" + filter + "' "
-            + "with scope '" + scope + "' and a return limit of '" + limit
-            + "'" );
+            log.debug( "Search attempt using filter '" + filter + "' " + "with scope '" + scope
+                + "' and a return limit of '" + limit + "'" );
         }
     }
 
@@ -733,7 +714,7 @@ public class PartitionFrame extends JFrame
     public void selectTreeNode( BigInteger id )
     {
         Stack stack = new Stack();
-        Object [] comps = null;
+        Object[] comps = null;
         TreeNode parent = ( EntryNode ) nodes.get( id );
 
         while ( parent != null && ( parent != parent.getParent() ) )
@@ -746,8 +727,8 @@ public class PartitionFrame extends JFrame
         {
             comps = new Object[1];
             comps[0] = root;
-        } 
-        else 
+        }
+        else
         {
             comps = new Object[stack.size()];
         }
@@ -764,17 +745,16 @@ public class PartitionFrame extends JFrame
     }
 
 
-    public boolean doAnnotate( String filter )
-        throws Exception
+    public boolean doAnnotate( String filter ) throws Exception
     {
-		FilterParser parser = new FilterParserImpl();
+        FilterParser parser = new FilterParserImpl();
         ExprNode root = null;
 
-        try 
+        try
         {
             root = parser.parse( filter );
-        } 
-        catch( Exception e ) 
+        }
+        catch ( Exception e )
         {
             JTextArea text = new JTextArea();
             String msg = e.getMessage();
@@ -786,19 +766,17 @@ public class PartitionFrame extends JFrame
 
             text.setText( msg );
             text.setEnabled( false );
-            JOptionPane.showMessageDialog( null, text, "Syntax Error",
-                JOptionPane.ERROR_MESSAGE );
+            JOptionPane.showMessageDialog( null, text, "Syntax Error", JOptionPane.ERROR_MESSAGE );
             return false;
         }
 
-		AnnotatedFilterTreeDialog treeDialog = new
-			AnnotatedFilterTreeDialog( PartitionFrame.this, false );
-		treeDialog.setFilter( filter );
+        AnnotatedFilterTreeDialog treeDialog = new AnnotatedFilterTreeDialog( PartitionFrame.this, false );
+        treeDialog.setFilter( filter );
 
         eng.getOptimizer().annotate( root );
-		TreeNode astRoot = new ASTNode( null, root );
-		TreeModel model = new DefaultTreeModel( astRoot, true );
-		treeDialog.setModel( model );
+        TreeNode astRoot = new ASTNode( null, root );
+        TreeModel model = new DefaultTreeModel( astRoot, true );
+        treeDialog.setModel( model );
         treeDialog.setVisible( true );
         return true;
     }
@@ -810,17 +788,16 @@ public class PartitionFrame extends JFrame
      * @param idxAttr the name of the index or its attribute
      * @throws Exception if the indices cannot be accessed
      */
-    public void showIndexDialog( String idxAttr )
-        throws Exception
+    public void showIndexDialog( String idxAttr ) throws Exception
     {
         Index index = null;
         boolean isSystem = partition.hasSystemIndexOn( idxAttr );
-        
+
         if ( isSystem )
         {
             index = partition.getSystemIndex( idxAttr );
         }
-        else 
+        else
         {
             index = partition.getUserIndex( idxAttr );
         }
@@ -838,16 +815,16 @@ public class PartitionFrame extends JFrame
     public void buildIndicesMenu( BTreeDirectoryPartition partition )
     {
         JMenuItem item = null;
-        
+
         ActionListener listener = new ActionListener()
         {
             public void actionPerformed( ActionEvent event )
             {
-                try 
+                try
                 {
                     showIndexDialog( event.getActionCommand() );
-                } 
-                catch ( Exception e ) 
+                }
+                catch ( Exception e )
                 {
                     e.printStackTrace();
                 }
@@ -871,7 +848,7 @@ public class PartitionFrame extends JFrame
         while ( list.hasNext() )
         {
             String idx = ( String ) list.next();
-			item = new JMenuItem();
+            item = new JMenuItem();
             item.setBackground( new java.awt.Color( 205, 205, 205 ) );
             indices.add( item );
             item.setText( idx );
@@ -881,16 +858,13 @@ public class PartitionFrame extends JFrame
     }
 
 
-    void displayEntry( BigInteger id, Attributes entry )
-        throws Exception
+    void displayEntry( BigInteger id, Attributes entry ) throws Exception
     {
         String dn = partition.getEntryUpdn( id );
-        AttributesTableModel model =
-            new AttributesTableModel( entry, id, dn, false );
+        AttributesTableModel model = new AttributesTableModel( entry, id, dn, false );
         entryTbl.setModel( model );
 
-        model = new AttributesTableModel(
-            partition.getIndices( id ), id, dn, false );
+        model = new AttributesTableModel( partition.getIndices( id ), id, dn, false );
         idxTbl.setModel( model );
 
         validate();
@@ -903,66 +877,65 @@ public class PartitionFrame extends JFrame
         nodes = new HashMap();
 
         Attributes suffix = partition.getSuffixEntry();
-        BigInteger id = partition.getEntryId(
-            partition.getSuffix( false ).toString() );
+        BigInteger id = partition.getEntryId( partition.getSuffix( false ).toString() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*
-        int option = JOptionPane.showConfirmDialog( null,
-            "Would you like to filter leaf nodes on load?", "Use Filter?",
-            JOptionPane.OK_CANCEL_OPTION );
-        doFiltered = option == JOptionPane.OK_OPTION;
+         int option = JOptionPane.showConfirmDialog( null,
+         "Would you like to filter leaf nodes on load?", "Use Filter?",
+         JOptionPane.OK_CANCEL_OPTION );
+         doFiltered = option == JOptionPane.OK_OPTION;
 
-        if(doFiltered) {
-            SearchEngine engine = new SearchEngine();
-            final FilterDialog dialog =
-                new FilterDialog(FilterDialog.LOAD_MODE, this, true);
-            dialog.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    dialog.setVisible(false);
-                    dialog.dispose();
-                }
-            });
+         if(doFiltered) {
+         SearchEngine engine = new SearchEngine();
+         final FilterDialog dialog =
+         new FilterDialog(FilterDialog.LOAD_MODE, this, true);
+         dialog.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+         dialog.setVisible(false);
+         dialog.dispose();
+         }
+         });
 
-            dialog.setBase(database.getSuffix().toString());
-            dialog.setScope(FilterDialog.SUBTREE_SCOPE);
+         dialog.setBase(database.getSuffix().toString());
+         dialog.setScope(FilterDialog.SUBTREE_SCOPE);
 
-            //Center the frame on screen
-            dialog.setSize(456, 256);
-            this.centerOnScreen( dialog );
-            dialog.setEnabled(true);
-            dialog.setVisible(true);
+         //Center the frame on screen
+         dialog.setSize(456, 256);
+         this.centerOnScreen( dialog );
+         dialog.setEnabled(true);
+         dialog.setVisible(true);
 
-            FilterParser parser = new FilterParserImpl();
-            parser.enableLogging(logger);
-            ExprNode exprNode = parser.parse(dialog.getFilter());
+         FilterParser parser = new FilterParserImpl();
+         parser.enableLogging(logger);
+         ExprNode exprNode = parser.parse(dialog.getFilter());
 
-            int scope = -1;
-            String scopeStr = dialog.getScope();
-            if(scopeStr == FilterDialog.BASE_SCOPE) {
-                scope = Backend.BASE_SCOPE;
-            } else if(scopeStr == FilterDialog.SINGLE_SCOPE) {
-                scope = Backend.SINGLE_SCOPE;
-            } else if(scopeStr == FilterDialog.SUBTREE_SCOPE) {
-                scope = Backend.SUBTREE_SCOPE;
-            } else {
-                throw new RuntimeException("Unrecognized scope");
-            }
+         int scope = -1;
+         String scopeStr = dialog.getScope();
+         if(scopeStr == FilterDialog.BASE_SCOPE) {
+         scope = Backend.BASE_SCOPE;
+         } else if(scopeStr == FilterDialog.SINGLE_SCOPE) {
+         scope = Backend.SINGLE_SCOPE;
+         } else if(scopeStr == FilterDialog.SUBTREE_SCOPE) {
+         scope = Backend.SUBTREE_SCOPE;
+         } else {
+         throw new RuntimeException("Unrecognized scope");
+         }
 
-            exprNode =
-                engine.addScopeNode(exprNode, dialog.getBase(), scope);
-            root = new EntryNode(null, database,
-                database.getSuffixEntry(), nodes, exprNode, engine);
-        } else {
-            root = new EntryNode(null, database,
-                database.getSuffixEntry(), nodes);
-        }
-        */
+         exprNode =
+         engine.addScopeNode(exprNode, dialog.getBase(), scope);
+         root = new EntryNode(null, database,
+         database.getSuffixEntry(), nodes, exprNode, engine);
+         } else {
+         root = new EntryNode(null, database,
+         database.getSuffixEntry(), nodes);
+         }
+         */
 
         DefaultTreeModel model = new DefaultTreeModel( root );
         tree.setModel( model );
 
-        if ( isVisible() ) 
+        if ( isVisible() )
         {
             tree.validate();
         }

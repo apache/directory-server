@@ -17,17 +17,19 @@
 
 package org.apache.directory.server.changepw;
 
+
 import java.io.IOException;
 import java.util.Dictionary;
 
 import org.apache.directory.server.changepw.protocol.ChangePasswordProtocolHandler;
-import org.apache.kerberos.store.PrincipalStore;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.registry.Service;
 import org.apache.mina.registry.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * A wrapper encapsulating configuration, a MINA registry, and a PrincipalStore
@@ -49,7 +51,8 @@ public class ChangePasswordServer
     private Service tcpService;
     private Service udpService;
 
-    public ChangePasswordServer( ChangePasswordConfiguration config, ServiceRegistry registry, PrincipalStore store )
+
+    public ChangePasswordServer(ChangePasswordConfiguration config, ServiceRegistry registry, PrincipalStore store)
     {
         this.config = config;
         this.registry = registry;
@@ -76,10 +79,12 @@ public class ChangePasswordServer
         }
     }
 
+
     public boolean isDifferent( Dictionary newConfig )
     {
         return config.isDifferent( newConfig );
     }
+
 
     public void destroy()
     {

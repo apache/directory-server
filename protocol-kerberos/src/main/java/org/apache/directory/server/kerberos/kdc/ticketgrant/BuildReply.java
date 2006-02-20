@@ -16,20 +16,22 @@
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
+
+import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
+import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
+import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.messages.KdcRequest;
-import org.apache.kerberos.messages.TicketGrantReply;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.messages.value.EncryptionKey;
-import org.apache.kerberos.messages.value.LastRequest;
-import org.apache.kerberos.messages.value.TicketFlags;
+
 
 public class BuildReply extends CommandBase
 {
     public boolean execute( Context context ) throws Exception
     {
-        TicketGrantingContext tgsContext = (TicketGrantingContext) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
         KdcRequest request = tgsContext.getRequest();
         Ticket tgt = tgsContext.getTgt();
         Ticket newTicket = tgsContext.getNewTicket();

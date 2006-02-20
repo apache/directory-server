@@ -38,11 +38,15 @@ public class ComparatorNPEBugTest extends AbstractAdminTestCase
     /**
      * Test runs first to initialize the system.
      */
-    public void testAAA() {}
+    public void testAAA()
+    {
+    }
 
 
     /**
      * This test fails currently.
      */
-    public void testZZZ() {}
+    public void testZZZ()
+    {
+    }
 }

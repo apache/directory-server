@@ -37,6 +37,7 @@ public class AbandonHandler implements MessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( AbandonHandler.class );
 
+
     public void messageReceived( IoSession session, Object request )
     {
         AbandonRequest req = ( AbandonRequest ) request;
@@ -48,29 +49,30 @@ public class AbandonHandler implements MessageHandler
         }
 
         Request abandonedRequest = SessionRegistry.getSingleton().getOutstandingRequest( session, abandonedId );
-        
+
         if ( abandonedRequest == null )
         {
             if ( log.isWarnEnabled() )
             {
-                log.warn( "Got abandon request from client " + session + " but request must have already " +
-                        "terminated.  Abandon request "+req+" had no effect." );
+                log.warn( "Got abandon request from client " + session + " but request must have already "
+                    + "terminated.  Abandon request " + req + " had no effect." );
             }
             return;
         }
-        
+
         if ( abandonedRequest instanceof AbandonableRequest )
         {
-            log.warn( "Abandon, Bind, Unbind, and StartTLS operations cannot be abandoned.  Abandon request will be ignored." );
+            log
+                .warn( "Abandon, Bind, Unbind, and StartTLS operations cannot be abandoned.  Abandon request will be ignored." );
         }
-        
+
         ( ( AbandonableRequest ) abandonedRequest ).abandon();
         if ( SessionRegistry.getSingleton().removeOutstandingRequest( session, abandonedId ) == null )
         {
             if ( log.isWarnEnabled() )
             {
-                log.warn( "Got abandon request from client " + session + " but request must have already " +
-                        "terminated." );
+                log.warn( "Got abandon request from client " + session + " but request must have already "
+                    + "terminated." );
             }
         }
         else

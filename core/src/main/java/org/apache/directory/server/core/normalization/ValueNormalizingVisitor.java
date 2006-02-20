@@ -55,7 +55,7 @@ public class ValueNormalizingVisitor implements FilterVisitor
     private final NameComponentNormalizer ncn;
 
 
-    public ValueNormalizingVisitor( NameComponentNormalizer ncn )
+    public ValueNormalizingVisitor(NameComponentNormalizer ncn)
     {
         this.ncn = ncn;
     }
@@ -72,7 +72,7 @@ public class ValueNormalizingVisitor implements FilterVisitor
             {
                 // still need this check here in case the top level is a leaf node
                 // with an undefined attributeType for its attribute
-                if ( ! ncn.isDefined( snode.getAttribute() ) )
+                if ( !ncn.isDefined( snode.getAttribute() ) )
                 {
                     normalized = snode.getValue();
                 }
@@ -99,7 +99,7 @@ public class ValueNormalizingVisitor implements FilterVisitor
         {
             BranchNode bnode = ( BranchNode ) node;
             StringBuffer buf = null;
-            for ( int ii = 0; ii < bnode.getChildren().size() ; ii++ )
+            for ( int ii = 0; ii < bnode.getChildren().size(); ii++ )
             {
                 // before visiting each node let's check to make sure non-branch children use
                 // attributes that are defined in the system, if undefined nodes are removed
@@ -107,7 +107,7 @@ public class ValueNormalizingVisitor implements FilterVisitor
                 if ( child.isLeaf() )
                 {
                     LeafNode ln = ( LeafNode ) child;
-                    if ( ! ncn.isDefined( ln.getAttribute() ) )
+                    if ( !ncn.isDefined( ln.getAttribute() ) )
                     {
                         if ( buf == null )
                         {
@@ -136,7 +136,7 @@ public class ValueNormalizingVisitor implements FilterVisitor
             // AND/OR with one or less children) and repair them by removing branch
             // nodes without children and replacing branch nodes like AND/OR with
             // their single child if other branch nodes do not remain.
-            for ( int ii = 0; ii < bnode.getChildren().size() ; ii++ )
+            for ( int ii = 0; ii < bnode.getChildren().size(); ii++ )
             {
                 ExprNode unknown = ( ExprNode ) bnode.getChildren().get( ii );
                 if ( !unknown.isLeaf() )

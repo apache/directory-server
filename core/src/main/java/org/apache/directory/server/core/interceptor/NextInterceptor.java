@@ -46,90 +46,130 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#compare(NextInterceptor,Name,String,Object)}.
      */
-    boolean compare(Name name, String oid, Object value ) throws NamingException;
-    
+    boolean compare( Name name, String oid, Object value ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#getRootDSE(NextInterceptor)}.
      */
-    Attributes getRootDSE() throws NamingException; 
+    Attributes getRootDSE() throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#getMatchedName(NextInterceptor, Name, boolean)}.
      */
     Name getMatchedName( Name name, boolean normalized ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#getSuffix(NextInterceptor, Name, boolean)}.
      */
     Name getSuffix( Name name, boolean normalized ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#listSuffixes(NextInterceptor, boolean)}.
      */
     Iterator listSuffixes( boolean normalized ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link DirectoryPartitionNexus#addContextPartition(DirectoryPartitionConfiguration)}.
      */
     void addContextPartition( DirectoryPartitionConfiguration cfg ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link DirectoryPartitionNexus#removeContextPartition(Name)}.
      */
     void removeContextPartition( Name suffix ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#delete(NextInterceptor, Name)}.
      */
     void delete( Name name ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#add(NextInterceptor, String, Name, Attributes)}.
      */
     void add( String userProvidedName, Name normalizedName, Attributes entry ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#modify(NextInterceptor, Name, int, Attributes)}.
      */
     void modify( Name name, int modOp, Attributes attributes ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#modify(NextInterceptor, Name, ModificationItem[])}.
      */
     void modify( Name name, ModificationItem[] items ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#list(NextInterceptor, Name)}.
      */
     NamingEnumeration list( Name baseName ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#search(NextInterceptor, Name, Map, ExprNode, SearchControls)}.
      */
-    NamingEnumeration search( Name baseName, Map environment, ExprNode filter,
-                              SearchControls searchControls ) throws NamingException;
+    NamingEnumeration search( Name baseName, Map environment, ExprNode filter, SearchControls searchControls )
+        throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#lookup(NextInterceptor, Name)}.
      */
     Attributes lookup( Name name ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#lookup(NextInterceptor, Name, String[])}.
      */
-    Attributes lookup( Name name, String [] attrIds ) throws NamingException;
+    Attributes lookup( Name name, String[] attrIds ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#hasEntry(NextInterceptor, Name)}.
      */
     boolean hasEntry( Name name ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#isSuffix(NextInterceptor, Name)}.
      */
     boolean isSuffix( Name name ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#modifyRn(NextInterceptor, Name, String, boolean)}.
      */
     void modifyRn( Name name, String newRn, boolean deleteOldRn ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#move(NextInterceptor, Name, Name)}.
      */
     void move( Name oldName, Name newParentName ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#move(NextInterceptor, Name, Name, String, boolean)}.
      */
-    void move( Name oldName, Name newParentName, String newRn,
-               boolean deleteOldRn ) throws NamingException;
+    void move( Name oldName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#bind(NextInterceptor, Name, byte[], List, String)
      */
     void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException;
+
+
     /**
      * Calls the next interceptor's {@link Interceptor#unbind(NextInterceptor, Name)
      */

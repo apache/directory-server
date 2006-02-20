@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * The NetBIOS datagram distribution server (NBDD) option specifies a
@@ -27,9 +29,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class NbddServers extends AddressListOption
 {
-	public NbddServers( byte[] netbiosDatagramDistributionServer )
-	{
-		super( 45, netbiosDatagramDistributionServer );
-	}
+    public NbddServers(byte[] netbiosDatagramDistributionServer)
+    {
+        super( 45, netbiosDatagramDistributionServer );
+    }
 }
-

@@ -56,9 +56,9 @@ public class OpenLdapSchemaParserTest extends TestCase
 
     public void testSimpleAttributeTypeNoLength() throws Exception
     {
-        String attributeTypeData = "attributetype ( 2.5.4.14 NAME 'searchGuide'\n" +
-            "        DESC 'RFC2256: search guide, obsoleted by enhancedSearchGuide'\n" +
-            "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.25 )";
+        String attributeTypeData = "attributetype ( 2.5.4.14 NAME 'searchGuide'\n"
+            + "        DESC 'RFC2256: search guide, obsoleted by enhancedSearchGuide'\n"
+            + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.25 )";
 
         parser.parse( attributeTypeData );
         Map attributeTypes = parser.getAttributeTypes();
@@ -74,11 +74,9 @@ public class OpenLdapSchemaParserTest extends TestCase
 
     public void testSimpleAttributeTypeParse() throws Exception
     {
-        String attributeTypeData = "# adding a comment  \n" +
-            "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n" +
-            "        DESC 'RFC2256: knowledge information'\n" +
-            "        EQUALITY caseIgnoreMatch\n" +
-            "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
+        String attributeTypeData = "# adding a comment  \n" + "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n"
+            + "        DESC 'RFC2256: knowledge information'\n" + "        EQUALITY caseIgnoreMatch\n"
+            + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
         parser.parse( attributeTypeData );
         Map attributeTypes = parser.getAttributeTypes();
         AttributeTypeLiteral type = ( AttributeTypeLiteral ) attributeTypes.get( "2.5.4.2" );
@@ -94,11 +92,9 @@ public class OpenLdapSchemaParserTest extends TestCase
 
     public void testAttributeTypeParseWithDescQuotes() throws Exception
     {
-        String attributeTypeData = "# adding a comment  \n" +
-            "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n" +
-            "        DESC 'RFC2256: \"knowledge\" information'\n" +
-            "        EQUALITY caseIgnoreMatch\n" +
-            "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
+        String attributeTypeData = "# adding a comment  \n" + "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n"
+            + "        DESC 'RFC2256: \"knowledge\" information'\n" + "        EQUALITY caseIgnoreMatch\n"
+            + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
         parser.parse( attributeTypeData );
         Map attributeTypes = parser.getAttributeTypes();
         AttributeTypeLiteral type = ( AttributeTypeLiteral ) attributeTypes.get( "2.5.4.2" );
@@ -114,11 +110,10 @@ public class OpenLdapSchemaParserTest extends TestCase
 
     public void testComplexAttributeTypeParse() throws Exception
     {
-        String attributeTypeData = "# adding a comment  \n" +
-            "attributetype ( 2.5.4.2 NAME ( 'knowledgeInformation' 'asdf' ) \n" +
-            "        DESC 'RFC2256: knowledge information'\n" +
-            "        EQUALITY caseIgnoreMatch\n" +
-            "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
+        String attributeTypeData = "# adding a comment  \n"
+            + "attributetype ( 2.5.4.2 NAME ( 'knowledgeInformation' 'asdf' ) \n"
+            + "        DESC 'RFC2256: knowledge information'\n" + "        EQUALITY caseIgnoreMatch\n"
+            + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
         parser.parse( attributeTypeData );
         Map attributeTypes = parser.getAttributeTypes();
         AttributeTypeLiteral type = ( AttributeTypeLiteral ) attributeTypes.get( "2.5.4.2" );
@@ -134,11 +129,9 @@ public class OpenLdapSchemaParserTest extends TestCase
 
     public void testObjectClassParse() throws Exception
     {
-        String objectClassData = "objectclass ( 2.5.6.6 NAME 'person'\n" +
-            "        DESC 'RFC2256: a person'\n" +
-            "        SUP top STRUCTURAL\n" +
-            "        MUST ( sn $ cn )\n" +
-            "        MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) )";
+        String objectClassData = "objectclass ( 2.5.6.6 NAME 'person'\n" + "        DESC 'RFC2256: a person'\n"
+            + "        SUP top STRUCTURAL\n" + "        MUST ( sn $ cn )\n"
+            + "        MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) )";
         parser.parse( objectClassData );
         Map objectClasses = parser.getObjectClassTypes();
         ObjectClassLiteral objectClass = ( ObjectClassLiteral ) objectClasses.get( "2.5.6.6" );
@@ -159,21 +152,18 @@ public class OpenLdapSchemaParserTest extends TestCase
 
     public void testObjectClassMultipleNames() throws Exception
     {
-        String objectClassData = "objectclass ( 0.9.2342.19200300.100.4.4\n" +
-            "\tNAME ( 'pilotPerson' 'newPilotPerson' )\n" +
-            "\tSUP person STRUCTURAL\n" +
-            "\tMAY ( userid $ textEncodedORAddress $ rfc822Mailbox $\n" +
-            "\t\tfavouriteDrink $ roomNumber $ userClass $\n" +
-            "\t\thomeTelephoneNumber $ homePostalAddress $ secretary $\n" +
-            "\t\tpersonalTitle $ preferredDeliveryMethod $ businessCategory $\n" +
-            "\t\tjanetMailbox $ otherMailbox $ mobileTelephoneNumber $\n" +
-            "\t\tpagerTelephoneNumber $ organizationalStatus $\n" +
-            "\t\tmailPreferenceOption $ personalSignature )\n" +
-            "\t)";
+        String objectClassData = "objectclass ( 0.9.2342.19200300.100.4.4\n"
+            + "\tNAME ( 'pilotPerson' 'newPilotPerson' )\n" + "\tSUP person STRUCTURAL\n"
+            + "\tMAY ( userid $ textEncodedORAddress $ rfc822Mailbox $\n"
+            + "\t\tfavouriteDrink $ roomNumber $ userClass $\n"
+            + "\t\thomeTelephoneNumber $ homePostalAddress $ secretary $\n"
+            + "\t\tpersonalTitle $ preferredDeliveryMethod $ businessCategory $\n"
+            + "\t\tjanetMailbox $ otherMailbox $ mobileTelephoneNumber $\n"
+            + "\t\tpagerTelephoneNumber $ organizationalStatus $\n"
+            + "\t\tmailPreferenceOption $ personalSignature )\n" + "\t)";
         parser.parse( objectClassData );
         Map objectClasses = parser.getObjectClassTypes();
-        ObjectClassLiteral objectClass = ( ObjectClassLiteral )
-            objectClasses.get( "0.9.2342.19200300.100.4.4" );
+        ObjectClassLiteral objectClass = ( ObjectClassLiteral ) objectClasses.get( "0.9.2342.19200300.100.4.4" );
 
         assertNotNull( objectClass );
         assertEquals( "0.9.2342.19200300.100.4.4", objectClass.getOid() );

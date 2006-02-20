@@ -56,7 +56,6 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
     // Utility methods used by subclasses
     // -----------------------------------------------------------------------
 
-
     /**
      * Gets a context at ou=system as the admin user.
      *
@@ -108,8 +107,8 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
         objectClass.add( "top" );
         objectClass.add( "groupOfUniqueNames" );
         group.put( "uniqueMember", firstMemberDn );
-        adminCtx.createSubcontext( "cn="+cn+",ou=groups", group );
-        return new LdapName( "cn="+cn+",ou=groups,ou=system" );
+        adminCtx.createSubcontext( "cn=" + cn + ",ou=groups", group );
+        return new LdapName( "cn=" + cn + ",ou=groups,ou=system" );
     }
 
 
@@ -123,7 +122,7 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
     public void deleteUser( String uid ) throws NamingException
     {
         DirContext adminCtx = getContextAsAdmin();
-        adminCtx.destroySubcontext( "uid="+uid+",ou=users" );
+        adminCtx.destroySubcontext( "uid=" + uid + ",ou=users" );
     }
 
 
@@ -150,8 +149,8 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
         objectClass.add( "inetOrgPerson" );
         user.put( "sn", uid );
         user.put( "cn", uid );
-        adminCtx.createSubcontext( "uid="+uid+",ou=users", user );
-        return new LdapName( "uid="+uid+",ou=users,ou=system" );
+        adminCtx.createSubcontext( "uid=" + uid + ",ou=users", user );
+        return new LdapName( "uid=" + uid + ",ou=users,ou=system" );
     }
 
 
@@ -166,10 +165,8 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
     public void addUserToGroup( String userUid, String groupCn ) throws NamingException
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes changes = new BasicAttributes( "uniqueMember",
-                "uid="+userUid+",ou=users,ou=system", true );
-        adminCtx.modifyAttributes( "cn="+groupCn+",ou=groups",
-                DirContext.ADD_ATTRIBUTE, changes );
+        Attributes changes = new BasicAttributes( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
+        adminCtx.modifyAttributes( "cn=" + groupCn + ",ou=groups", DirContext.ADD_ATTRIBUTE, changes );
     }
 
 
@@ -183,10 +180,8 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
     public void removeUserFromGroup( String userUid, String groupCn ) throws NamingException
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes changes = new BasicAttributes( "uniqueMember",
-                "uid="+userUid+",ou=users,ou=system", true );
-        adminCtx.modifyAttributes( "cn="+groupCn+",ou=groups",
-                DirContext.REMOVE_ATTRIBUTE, changes );
+        Attributes changes = new BasicAttributes( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
+        adminCtx.modifyAttributes( "cn=" + groupCn + ",ou=groups", DirContext.REMOVE_ATTRIBUTE, changes );
     }
 
 
@@ -259,9 +254,10 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
         DirContext adminCtx = getContextAsAdmin();
 
         // modify ou=system to be an AP for an A/C AA if it is not already
-        Attributes ap = adminCtx.getAttributes( "", new String[] { "administrativeRole" } );
+        Attributes ap = adminCtx.getAttributes( "", new String[]
+            { "administrativeRole" } );
         Attribute administrativeRole = ap.get( "administrativeRole" );
-        if ( administrativeRole == null || ! administrativeRole.contains( SubentryService.AC_AREA ) )
+        if ( administrativeRole == null || !administrativeRole.contains( SubentryService.AC_AREA ) )
         {
             Attributes changes = new BasicAttributes( "administrativeRole", SubentryService.AC_AREA, true );
             adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );

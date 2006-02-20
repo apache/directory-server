@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.ntp;
 
+
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.configuration.ConfigurationException;
 import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+
 
 public class NtpConfiguration extends ServiceConfiguration
 {
@@ -42,6 +44,7 @@ public class NtpConfiguration extends ServiceConfiguration
     /** the default prefix */
     private static final String DEFAULT_PREFIX = "ntp.";
 
+
     /**
      * Creates a new instance with default settings.
      */
@@ -50,22 +53,25 @@ public class NtpConfiguration extends ServiceConfiguration
         this( getDefaultConfig(), LoadStrategy.LDAP );
     }
 
+
     /**
      * Creates a new instance with default settings that operates on the
      * {@link DirectoryService} with the specified ID.
      */
-    public NtpConfiguration( String instanceId )
+    public NtpConfiguration(String instanceId)
     {
         this( getDefaultConfig(), LoadStrategy.LDAP );
         setInstanceId( instanceId );
     }
 
-    public NtpConfiguration( Map properties )
+
+    public NtpConfiguration(Map properties)
     {
         this( properties, LoadStrategy.LDAP );
     }
 
-    public NtpConfiguration( Map properties, int strategy )
+
+    public NtpConfiguration(Map properties, int strategy)
     {
         if ( properties == null )
         {
@@ -84,6 +90,7 @@ public class NtpConfiguration extends ServiceConfiguration
         }
     }
 
+
     public static Map getDefaultConfig()
     {
         Map defaults = new HashMap();
@@ -94,11 +101,12 @@ public class NtpConfiguration extends ServiceConfiguration
         return defaults;
     }
 
+
     public boolean isDifferent( Dictionary config )
     {
         int port = getPort();
 
-        if ( port == Integer.parseInt( (String) config.get( IP_PORT_KEY ) ) )
+        if ( port == Integer.parseInt( ( String ) config.get( IP_PORT_KEY ) ) )
         {
             return false;
         }
@@ -106,10 +114,12 @@ public class NtpConfiguration extends ServiceConfiguration
         return true;
     }
 
+
     public String getName()
     {
         return DEFAULT_NAME;
     }
+
 
     public int getPort()
     {

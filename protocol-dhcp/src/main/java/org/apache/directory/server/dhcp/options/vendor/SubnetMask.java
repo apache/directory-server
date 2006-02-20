@@ -26,13 +26,14 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import org.apache.directory.server.dhcp.options.AddressOption;
+
 
 public class SubnetMask extends AddressOption
 {
-	public SubnetMask( byte[] subnetMask )
-	{
-		super( 1, subnetMask );
-	}
+    public SubnetMask(byte[] subnetMask)
+    {
+        super( 1, subnetMask );
+    }
 }
-

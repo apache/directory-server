@@ -16,9 +16,11 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import org.apache.directory.server.protocol.shared.chain.impl.ChainBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Kerberos Change Password and Set Password Protocols (RFC 3244)
@@ -27,6 +29,7 @@ public class ChangePasswordChain extends ChainBase
 {
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( ChangePasswordChain.class );
+
 
     public ChangePasswordChain()
     {

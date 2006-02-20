@@ -17,11 +17,13 @@
 
 package org.apache.directory.server.protocol.shared;
 
+
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
 import org.apache.directory.server.core.configuration.Configuration;
+
 
 /**
  * Base class shared by all protocol providers for configuration.
@@ -73,6 +75,7 @@ public abstract class ServiceConfiguration extends Configuration
     /** the map of configuration */
     protected Map configuration = new HashMap();
 
+
     public String getCatalogBaseDn()
     {
         String key = CATALOG_BASEDN_KEY;
@@ -84,6 +87,7 @@ public abstract class ServiceConfiguration extends Configuration
 
         return null;
     }
+
 
     public String getEntryBaseDn()
     {
@@ -97,6 +101,7 @@ public abstract class ServiceConfiguration extends Configuration
         return DEFAULT_ENTRY_BASEDN;
     }
 
+
     public String getInitialContextFactory()
     {
         String key = INITIAL_CONTEXT_FACTORY_KEY;
@@ -109,6 +114,7 @@ public abstract class ServiceConfiguration extends Configuration
         return DEFAULT_INITIAL_CONTEXT_FACTORY;
     }
 
+
     public Hashtable toJndiEnvironment()
     {
         Hashtable env = new Hashtable();
@@ -117,6 +123,7 @@ public abstract class ServiceConfiguration extends Configuration
 
         return env;
     }
+
 
     protected void loadProperties( String prefix, Map properties, int strategy )
     {
@@ -136,8 +143,9 @@ public abstract class ServiceConfiguration extends Configuration
         configuration.putAll( loader.load( prefix, properties ) );
     }
 
+
     protected String get( String key )
     {
-        return (String) configuration.get( key );
+        return ( String ) configuration.get( key );
     }
 }

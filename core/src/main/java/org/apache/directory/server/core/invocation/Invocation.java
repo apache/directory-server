@@ -49,7 +49,7 @@ public class Invocation
      * @param caller the JNDI {@link Context} that made this invocation
      * @param name the name of the called method
      */
-    public Invocation( DirectoryPartitionNexusProxy proxy, Context caller, String name )
+    public Invocation(DirectoryPartitionNexusProxy proxy, Context caller, String name)
     {
         this( proxy, caller, name, null, Collections.EMPTY_SET );
     }
@@ -62,7 +62,7 @@ public class Invocation
      * @param name the name of the called method
      * @param parameters the array of parameters passed to the called method
      */
-    public Invocation( DirectoryPartitionNexusProxy proxy, Context caller, String name, Object[] parameters )
+    public Invocation(DirectoryPartitionNexusProxy proxy, Context caller, String name, Object[] parameters)
     {
         this( proxy, caller, name, parameters, Collections.EMPTY_SET );
     }
@@ -76,25 +76,25 @@ public class Invocation
      * @param parameters the array of parameters passed to the called method
      * @param bypassed the set of bypassed Interceptor names
      */
-    public Invocation( DirectoryPartitionNexusProxy proxy, Context caller, String name, Object[] parameters,
-                       Collection bypassed )
+    public Invocation(DirectoryPartitionNexusProxy proxy, Context caller, String name, Object[] parameters,
+        Collection bypassed)
     {
-        if( proxy == null )
+        if ( proxy == null )
         {
             throw new NullPointerException( "proxy" );
         }
-        if( caller == null )
+        if ( caller == null )
         {
             throw new NullPointerException( "caller" );
         }
-        if( name == null )
+        if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
 
-        if( parameters == null )
+        if ( parameters == null )
         {
-            parameters = new Object[ 0 ];
+            parameters = new Object[0];
         }
 
         if ( bypassed == null )
@@ -111,9 +111,9 @@ public class Invocation
         this.name = name;
 
         List paramList = new ArrayList();
-        for( int i = 0; i < parameters.length; i++ )
+        for ( int i = 0; i < parameters.length; i++ )
         {
-            paramList.add( parameters[ i ] );
+            paramList.add( parameters[i] );
         }
 
         this.parameters = Collections.unmodifiableList( paramList );

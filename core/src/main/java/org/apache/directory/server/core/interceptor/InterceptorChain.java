@@ -49,10 +49,11 @@ import org.slf4j.LoggerFactory;
 public class InterceptorChain
 {
     private static final Logger log = LoggerFactory.getLogger( InterceptorChain.class );
-    
+
     private final Interceptor FINAL_INTERCEPTOR = new Interceptor()
     {
         private DirectoryPartitionNexus nexus;
+
 
         public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg )
         {
@@ -126,7 +127,8 @@ public class InterceptorChain
         }
 
 
-        public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
+        public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
+            SearchControls searchCtls ) throws NamingException
         {
             return nexus.search( base, env, filter, searchCtls );
         }
@@ -156,7 +158,8 @@ public class InterceptorChain
         }
 
 
-        public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
+        public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn )
+            throws NamingException
         {
             nexus.modifyRn( name, newRn, deleteOldRn );
         }
@@ -168,13 +171,15 @@ public class InterceptorChain
         }
 
 
-        public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+        public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
+            throws NamingException
         {
             nexus.move( oriChildName, newParentName, newRn, deleteOldRn );
         }
 
 
-        public void addContextPartition( NextInterceptor next, DirectoryPartitionConfiguration cfg ) throws NamingException
+        public void addContextPartition( NextInterceptor next, DirectoryPartitionConfiguration cfg )
+            throws NamingException
         {
             nexus.addContextPartition( cfg );
         }
@@ -186,7 +191,8 @@ public class InterceptorChain
         }
 
 
-        public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+        public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+            throws NamingException
         {
             nexus.bind( bindDn, credentials, mechanisms, saslAuthId );
         }
@@ -205,6 +211,7 @@ public class InterceptorChain
     private Entry head;
 
     private DirectoryServiceConfiguration factoryCfg;
+
 
     /**
      * Create a new interceptor chain.
@@ -235,15 +242,15 @@ public class InterceptorChain
         Interceptor interceptor = null;
         try
         {
-            while( i.hasNext() )
+            while ( i.hasNext() )
             {
                 InterceptorConfiguration cfg = ( InterceptorConfiguration ) i.next();
-                
-                if ( log.isDebugEnabled() ) 
+
+                if ( log.isDebugEnabled() )
                 {
-                	log.debug( "Adding interceptor " + cfg.getName() ); 
+                    log.debug( "Adding interceptor " + cfg.getName() );
                 }
-                
+
                 register( cfg );
             }
         }
@@ -282,7 +289,7 @@ public class InterceptorChain
         while ( i.hasNext() )
         {
             e = ( Entry ) i.next();
-            if( e != tail )
+            if ( e != tail )
             {
                 try
                 {
@@ -290,8 +297,7 @@ public class InterceptorChain
                 }
                 catch ( Throwable t )
                 {
-                    log.warn( "Failed to deregister an interceptor: " +
-                            e.configuration.getName(), t );
+                    log.warn( "Failed to deregister an interceptor: " + e.configuration.getName(), t );
                 }
             }
         }
@@ -304,14 +310,15 @@ public class InterceptorChain
      */
     public Interceptor get( String interceptorName )
     {
-        Entry e = (Entry) name2entry.get( interceptorName );
-        if( e == null )
+        Entry e = ( Entry ) name2entry.get( interceptorName );
+        if ( e == null )
         {
             return null;
         }
 
         return e.configuration.getInterceptor();
     }
+
 
     /**
      * Returns the list of all registered interceptors.
@@ -330,35 +337,42 @@ public class InterceptorChain
         return result;
     }
 
+
     public synchronized void addFirst( InterceptorConfiguration cfg ) throws NamingException
     {
         register0( cfg, head );
     }
+
 
     public synchronized void addLast( InterceptorConfiguration cfg ) throws NamingException
     {
         register0( cfg, tail );
     }
 
-    public synchronized void addBefore( String nextInterceptorName, InterceptorConfiguration cfg ) throws NamingException
+
+    public synchronized void addBefore( String nextInterceptorName, InterceptorConfiguration cfg )
+        throws NamingException
     {
-        Entry e = (Entry) name2entry.get( nextInterceptorName );
-        if( e == null )
+        Entry e = ( Entry ) name2entry.get( nextInterceptorName );
+        if ( e == null )
         {
             throw new ConfigurationException( "Interceptor not found: " + nextInterceptorName );
         }
         register0( cfg, e );
     }
 
+
     public synchronized InterceptorConfiguration remove( String interceptorName ) throws NamingException
     {
         return deregister( interceptorName );
     }
 
-    public synchronized void addAfter( String prevInterceptorName, InterceptorConfiguration cfg ) throws NamingException
+
+    public synchronized void addAfter( String prevInterceptorName, InterceptorConfiguration cfg )
+        throws NamingException
     {
-        Entry e = (Entry) name2entry.get( prevInterceptorName );
-        if( e == null )
+        Entry e = ( Entry ) name2entry.get( prevInterceptorName );
+        if ( e == null )
         {
             throw new ConfigurationException( "Interceptor not found: " + prevInterceptorName );
         }
@@ -385,7 +399,7 @@ public class InterceptorChain
         Entry prevEntry = entry.prevEntry;
         Entry nextEntry = entry.nextEntry;
 
-        if( nextEntry == null )
+        if ( nextEntry == null )
         {
             // Don't deregister tail
             return null;
@@ -416,13 +430,13 @@ public class InterceptorChain
         interceptor.init( factoryCfg, cfg );
 
         Entry newEntry;
-        if( nextEntry == head )
+        if ( nextEntry == head )
         {
             newEntry = new Entry( null, head, cfg );
             head.prevEntry = newEntry;
             head = newEntry;
         }
-        else if( head == tail )
+        else if ( head == tail )
         {
             newEntry = new Entry( null, tail, cfg );
             tail.prevEntry = newEntry;
@@ -482,7 +496,7 @@ public class InterceptorChain
         }
 
         Invocation invocation = InvocationStack.getInstance().peek();
-        if ( ! invocation.hasBypass() )
+        if ( !invocation.hasBypass() )
         {
             return head;
         }
@@ -613,6 +627,7 @@ public class InterceptorChain
         }
     }
 
+
     public void addContextPartition( DirectoryPartitionConfiguration cfg ) throws NamingException
     {
         Entry entry = getStartingEntry();
@@ -633,6 +648,7 @@ public class InterceptorChain
         }
     }
 
+
     public void removeContextPartition( Name suffix ) throws NamingException
     {
         Entry entry = getStartingEntry();
@@ -652,6 +668,7 @@ public class InterceptorChain
             throw new InternalError(); // Should be unreachable
         }
     }
+
 
     public void delete( Name name ) throws NamingException
     {
@@ -712,7 +729,7 @@ public class InterceptorChain
         }
     }
 
-    
+
     public void unbind( Name bindDn ) throws NamingException
     {
         Entry node = getStartingEntry();
@@ -732,7 +749,7 @@ public class InterceptorChain
         }
     }
 
-    
+
     public void modify( Name name, int modOp, Attributes mods ) throws NamingException
     {
         Entry entry = getStartingEntry();
@@ -794,7 +811,8 @@ public class InterceptorChain
     }
 
 
-    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
+        throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
@@ -958,7 +976,6 @@ public class InterceptorChain
         }
     }
 
-
     /**
      * Represents an internal entry of this chain.
      */
@@ -973,10 +990,9 @@ public class InterceptorChain
         private final NextInterceptor nextInterceptor;
 
 
-        private Entry( Entry prevEntry, Entry nextEntry,
-                       InterceptorConfiguration configuration )
+        private Entry(Entry prevEntry, Entry nextEntry, InterceptorConfiguration configuration)
         {
-            if( configuration == null )
+            if ( configuration == null )
             {
                 throw new NullPointerException( "configuration" );
             }
@@ -994,18 +1010,18 @@ public class InterceptorChain
                     }
 
                     Invocation invocation = InvocationStack.getInstance().peek();
-                    if ( ! invocation.hasBypass() )
+                    if ( !invocation.hasBypass() )
                     {
                         return Entry.this.nextEntry;
                     }
 
-//  I don't think we really need this since this check is performed by the chain when
-//  getting the interceptor head to use.
-//
-//                    if ( invocation.isBypassed( DirectoryPartitionNexusProxy.BYPASS_ALL ) )
-//                    {
-//                        return tail;
-//                    }
+                    //  I don't think we really need this since this check is performed by the chain when
+                    //  getting the interceptor head to use.
+                    //
+                    //                    if ( invocation.isBypassed( DirectoryPartitionNexusProxy.BYPASS_ALL ) )
+                    //                    {
+                    //                        return tail;
+                    //                    }
 
                     Entry next = Entry.this.nextEntry;
                     while ( next != tail )
@@ -1022,6 +1038,7 @@ public class InterceptorChain
 
                     return next;
                 }
+
 
                 public boolean compare( Name name, String oid, Object value ) throws NamingException
                 {
@@ -1064,6 +1081,7 @@ public class InterceptorChain
                     }
                 }
 
+
                 public Name getMatchedName( Name dn, boolean normalized ) throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1083,6 +1101,7 @@ public class InterceptorChain
                         throw new InternalError(); // Should be unreachable
                     }
                 }
+
 
                 public Name getSuffix( Name dn, boolean normalized ) throws NamingException
                 {
@@ -1104,6 +1123,7 @@ public class InterceptorChain
                     }
                 }
 
+
                 public Iterator listSuffixes( boolean normalized ) throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1124,6 +1144,7 @@ public class InterceptorChain
                     }
                 }
 
+
                 public void delete( Name name ) throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1142,6 +1163,7 @@ public class InterceptorChain
                         throwInterceptorException( interceptor, e );
                     }
                 }
+
 
                 public void add( String upName, Name normName, Attributes entry ) throws NamingException
                 {
@@ -1162,6 +1184,7 @@ public class InterceptorChain
                     }
                 }
 
+
                 public void modify( Name name, int modOp, Attributes mods ) throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1181,6 +1204,7 @@ public class InterceptorChain
                     }
                 }
 
+
                 public void modify( Name name, ModificationItem[] mods ) throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1199,6 +1223,7 @@ public class InterceptorChain
                         throwInterceptorException( interceptor, e );
                     }
                 }
+
 
                 public NamingEnumeration list( Name base ) throws NamingException
                 {
@@ -1220,7 +1245,9 @@ public class InterceptorChain
                     }
                 }
 
-                public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
+
+                public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
+                    throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
@@ -1239,6 +1266,7 @@ public class InterceptorChain
                         throw new InternalError(); // Should be unreachable
                     }
                 }
+
 
                 public Attributes lookup( Name name ) throws NamingException
                 {
@@ -1260,6 +1288,7 @@ public class InterceptorChain
                     }
                 }
 
+
                 public Attributes lookup( Name dn, String[] attrIds ) throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1279,6 +1308,7 @@ public class InterceptorChain
                         throw new InternalError(); // Should be unreachable
                     }
                 }
+
 
                 public boolean hasEntry( Name name ) throws NamingException
                 {
@@ -1300,6 +1330,7 @@ public class InterceptorChain
                     }
                 }
 
+
                 public boolean isSuffix( Name name ) throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1320,6 +1351,7 @@ public class InterceptorChain
                     }
                 }
 
+
                 public void modifyRn( Name name, String newRn, boolean deleteOldRn ) throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1338,6 +1370,7 @@ public class InterceptorChain
                         throwInterceptorException( interceptor, e );
                     }
                 }
+
 
                 public void move( Name oriChildName, Name newParentName ) throws NamingException
                 {
@@ -1358,7 +1391,9 @@ public class InterceptorChain
                     }
                 }
 
-                public void move( Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+
+                public void move( Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
+                    throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
@@ -1378,7 +1413,8 @@ public class InterceptorChain
                 }
 
 
-                public void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+                public void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+                    throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
@@ -1396,6 +1432,7 @@ public class InterceptorChain
                         throwInterceptorException( interceptor, e );
                     }
                 }
+
 
                 public void unbind( Name bindDn ) throws NamingException
                 {
@@ -1416,6 +1453,7 @@ public class InterceptorChain
                     }
                 }
 
+
                 public void addContextPartition( DirectoryPartitionConfiguration cfg ) throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1435,6 +1473,7 @@ public class InterceptorChain
                         throw new InternalError(); // Should be unreachable
                     }
                 }
+
 
                 public void removeContextPartition( Name suffix ) throws NamingException
                 {

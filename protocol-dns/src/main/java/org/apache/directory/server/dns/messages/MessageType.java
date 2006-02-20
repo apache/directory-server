@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dns.messages;
 
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 
 public final class MessageType implements Comparable
 {
@@ -33,44 +35,50 @@ public final class MessageType implements Comparable
     /**
      * These two lines are all that's necessary to export a List of VALUES.
      */
-    private static final MessageType[] values = { QUERY, RESPONSE };
+    private static final MessageType[] values =
+        { QUERY, RESPONSE };
 
     public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     private final String name;
     private final int ordinal;
 
+
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private MessageType( int ordinal, String name )
+    private MessageType(int ordinal, String name)
     {
         this.ordinal = ordinal;
         this.name = name;
     }
+
 
     public String toString()
     {
         return name;
     }
 
+
     public int compareTo( Object that )
     {
-        return ordinal - ( (MessageType) that ).ordinal;
+        return ordinal - ( ( MessageType ) that ).ordinal;
     }
+
 
     public static MessageType getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
         {
-            if ( values[ ii ].ordinal == type )
+            if ( values[ii].ordinal == type )
             {
-                return values[ ii ];
+                return values[ii];
             }
         }
 
         return QUERY;
     }
+
 
     public int getOrdinal()
     {

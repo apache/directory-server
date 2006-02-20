@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -47,33 +48,39 @@ public class RelatedUserClassFilter implements ACITupleFilter
 
     private final SubtreeEvaluator subtreeEvaluator;
 
-    public RelatedUserClassFilter( SubtreeEvaluator subtreeEvaluator )
+
+    public RelatedUserClassFilter(SubtreeEvaluator subtreeEvaluator)
     {
         this.subtreeEvaluator = subtreeEvaluator;
     }
 
-    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+
+    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
+        Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
+        Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+        throws NamingException
     {
-        if( tuples.size() == 0 )
+        if ( tuples.size() == 0 )
         {
             return tuples;
         }
 
-        for( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            if( tuple.isGrant() )
+            if ( tuple.isGrant() )
             {
-                if( !isRelated( userGroupNames, userName, userEntry, entryName, tuple.getUserClasses() ) ||
-                        authenticationLevel.compareTo( tuple.getAuthenticationLevel() ) < 0 )
+                if ( !isRelated( userGroupNames, userName, userEntry, entryName, tuple.getUserClasses() )
+                    || authenticationLevel.compareTo( tuple.getAuthenticationLevel() ) < 0 )
                 {
                     i.remove();
                 }
             }
-            else // Denials
+            else
+            // Denials
             {
-                if( !isRelated( userGroupNames, userName, userEntry, entryName, tuple.getUserClasses() ) &&
-                        authenticationLevel.compareTo( tuple.getAuthenticationLevel() ) >= 0 )
+                if ( !isRelated( userGroupNames, userName, userEntry, entryName, tuple.getUserClasses() )
+                    && authenticationLevel.compareTo( tuple.getAuthenticationLevel() ) >= 0 )
                 {
                     i.remove();
                 }
@@ -83,46 +90,48 @@ public class RelatedUserClassFilter implements ACITupleFilter
         return tuples;
     }
 
-    private boolean isRelated( Collection userGroupNames, Name userName, Attributes userEntry, Name entryName, Collection userClasses ) throws NamingException
+
+    private boolean isRelated( Collection userGroupNames, Name userName, Attributes userEntry, Name entryName,
+        Collection userClasses ) throws NamingException
     {
-        for( Iterator i = userClasses.iterator(); i.hasNext(); )
+        for ( Iterator i = userClasses.iterator(); i.hasNext(); )
         {
             UserClass userClass = ( UserClass ) i.next();
-            if( userClass == UserClass.ALL_USERS )
+            if ( userClass == UserClass.ALL_USERS )
             {
                 return true;
             }
-            else if( userClass == UserClass.THIS_ENTRY )
+            else if ( userClass == UserClass.THIS_ENTRY )
             {
-                if( userName.equals( entryName ) )
+                if ( userName.equals( entryName ) )
                 {
                     return true;
                 }
             }
-            else if( userClass instanceof UserClass.Name )
+            else if ( userClass instanceof UserClass.Name )
             {
                 UserClass.Name nameUserClass = ( UserClass.Name ) userClass;
-                if( nameUserClass.getNames().contains( userName ) )
+                if ( nameUserClass.getNames().contains( userName ) )
                 {
                     return true;
                 }
             }
-            else if( userClass instanceof UserClass.UserGroup )
+            else if ( userClass instanceof UserClass.UserGroup )
             {
                 UserClass.UserGroup userGroupUserClass = ( UserClass.UserGroup ) userClass;
-                for( Iterator j = userGroupNames.iterator(); j.hasNext(); )
+                for ( Iterator j = userGroupNames.iterator(); j.hasNext(); )
                 {
                     Name userGroupName = ( Name ) j.next();
-                    if( userGroupName != null && userGroupUserClass.getNames().contains( userGroupName ) )
+                    if ( userGroupName != null && userGroupUserClass.getNames().contains( userGroupName ) )
                     {
                         return true;
                     }
                 }
             }
-            else if( userClass instanceof UserClass.Subtree )
+            else if ( userClass instanceof UserClass.Subtree )
             {
                 UserClass.Subtree subtree = ( UserClass.Subtree ) userClass;
-                if( matchUserClassSubtree( userName, userEntry, subtree ) )
+                if ( matchUserClassSubtree( userName, userEntry, subtree ) )
                 {
                     return true;
                 }
@@ -136,14 +145,14 @@ public class RelatedUserClassFilter implements ACITupleFilter
         return false;
     }
 
-    private boolean matchUserClassSubtree( Name userName, Attributes userEntry, UserClass.Subtree subtree ) throws NamingException
+
+    private boolean matchUserClassSubtree( Name userName, Attributes userEntry, UserClass.Subtree subtree )
+        throws NamingException
     {
-        for( Iterator i = subtree.getSubtreeSpecifications().iterator();
-             i.hasNext(); )
+        for ( Iterator i = subtree.getSubtreeSpecifications().iterator(); i.hasNext(); )
         {
             SubtreeSpecification subtreeSpec = ( SubtreeSpecification ) i.next();
-            if( subtreeEvaluator.evaluate(
-                    subtreeSpec, ROOTDSE_NAME, userName, userEntry.get( "userClass" ) ) )
+            if ( subtreeEvaluator.evaluate( subtreeSpec, ROOTDSE_NAME, userName, userEntry.get( "userClass" ) ) )
             {
                 return true;
             }

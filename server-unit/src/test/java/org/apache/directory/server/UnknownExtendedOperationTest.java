@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server;
 
+
 import java.util.Hashtable;
 
 import javax.naming.CommunicationException;
@@ -26,6 +27,7 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.unit.AbstractServerTest;
+
 
 /**
  * Check the behaviour of the server for an unknown extended operation. Created
@@ -38,6 +40,7 @@ public class UnknownExtendedOperationTest extends AbstractServerTest
 {
     private LdapContext ctx = null;
 
+
     /**
      * Create context.
      */
@@ -46,15 +49,16 @@ public class UnknownExtendedOperationTest extends AbstractServerTest
         super.setUp();
 
         Hashtable env = new Hashtable();
-        env.put("java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put("java.naming.provider.url", "ldap://localhost:" + port + "/ou=system");
-        env.put("java.naming.security.principal", "uid=admin,ou=system");
-        env.put("java.naming.security.credentials", "secret");
-        env.put("java.naming.security.authentication", "simple");
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", "secret" );
+        env.put( "java.naming.security.authentication", "simple" );
 
-        ctx = new InitialLdapContext(env, null);
-        assertNotNull(ctx);
+        ctx = new InitialLdapContext( env, null );
+        assertNotNull( ctx );
     }
+
 
     /**
      * Close context.
@@ -66,16 +70,20 @@ public class UnknownExtendedOperationTest extends AbstractServerTest
         super.tearDown();
     }
 
+
     /**
      * Calls an extended exception, which does not exist. Expected behaviour is
      * a CommunicationException.
      */
     public void testUnknownExtendedOperation() throws NamingException
     {
-        try {
-            ctx.extendedOperation(new UnknownExtendedOperationRequest());
-            fail("Calling an unknown extended operation should fail.");
-        } catch (CommunicationException ce) {
+        try
+        {
+            ctx.extendedOperation( new UnknownExtendedOperationRequest() );
+            fail( "Calling an unknown extended operation should fail." );
+        }
+        catch ( CommunicationException ce )
+        {
             // expected behaviour
         }
     }
@@ -88,18 +96,21 @@ public class UnknownExtendedOperationTest extends AbstractServerTest
 
         private static final long serialVersionUID = 1L;
 
+
         public String getID()
         {
             return "1.1"; // Never an OID for an extended operation
         }
+
 
         public byte[] getEncodedValue()
         {
             return null;
         }
 
-        public ExtendedResponse createExtendedResponse(String id, byte[] berValue, int offset, int length)
-                throws NamingException
+
+        public ExtendedResponse createExtendedResponse( String id, byte[] berValue, int offset, int length )
+            throws NamingException
         {
             return null;
         }

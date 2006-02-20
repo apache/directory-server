@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.perinterface;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies the address to which the client should transmit
@@ -29,17 +31,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class RouterSolicitationAddress extends DhcpOption
 {
-	private byte[] routerSolicitationAddress;
-	
-	public RouterSolicitationAddress( byte[] routerSolicitationAddress )
-	{
-		super( 32, 4 );
-		this.routerSolicitationAddress = routerSolicitationAddress;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( routerSolicitationAddress );
-	}
-}
+    private byte[] routerSolicitationAddress;
 
+
+    public RouterSolicitationAddress(byte[] routerSolicitationAddress)
+    {
+        super( 32, 4 );
+        this.routerSolicitationAddress = routerSolicitationAddress;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( routerSolicitationAddress );
+    }
+}

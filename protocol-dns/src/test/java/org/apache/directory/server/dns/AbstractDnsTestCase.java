@@ -14,8 +14,8 @@
  *   limitations under the License.
  *
  */
-
 package org.apache.directory.server.dns;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,39 +27,58 @@ import org.apache.directory.server.dns.messages.QuestionRecords;
 import org.apache.directory.server.dns.messages.ResourceRecords;
 import org.apache.mina.common.ByteBuffer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 public abstract class AbstractDnsTestCase extends TestCase
 {
+    private final Logger log;
     private static final int MINIMUM_DNS_DATAGRAM_SIZE = 576;
+
+
+    public AbstractDnsTestCase()
+    {
+        log = LoggerFactory.getLogger( AbstractDnsTestCase.class );
+    }
+
+
+    public AbstractDnsTestCase(Class subclass)
+    {
+        log = LoggerFactory.getLogger( subclass );
+    }
+
 
     protected void print( DnsMessage message )
     {
-        System.out.println( message.getTransactionId() );
-        System.out.println( message.getMessageType() );
-        System.out.println( message.getOpCode() );
-        System.out.println( message.isAuthoritativeAnswer() );
-        System.out.println( message.isTruncated() );
-        System.out.println( message.isRecursionDesired() );
-        System.out.println( message.isRecursionAvailable() );
-        System.out.println( message.getResponseCode() );
+        log.debug( String.valueOf( message.getTransactionId() ) );
+        log.debug( String.valueOf( message.getMessageType() ) );
+        log.debug( String.valueOf( message.getOpCode() ) );
+        log.debug( String.valueOf( message.isAuthoritativeAnswer() ) );
+        log.debug( String.valueOf( message.isTruncated() ) );
+        log.debug( String.valueOf( message.isRecursionDesired() ) );
+        log.debug( String.valueOf( message.isRecursionAvailable() ) );
+        log.debug( String.valueOf( message.getResponseCode() ) );
 
         QuestionRecords questions = message.getQuestionRecords();
-        System.out.println( questions );
+        log.debug( String.valueOf( questions ) );
 
         ResourceRecords records = message.getAnswerRecords();
-        System.out.println( records );
+        log.debug( String.valueOf( records ) );
 
         records = message.getAuthorityRecords();
-        System.out.println( records );
+        log.debug( String.valueOf( records ) );
 
         records = message.getAdditionalRecords();
-        System.out.println( records );
+        log.debug( String.valueOf( records ) );
     }
+
 
     protected ByteBuffer getByteBufferFromFile( String file ) throws IOException
     {
         InputStream is = getClass().getResourceAsStream( file );
 
-        byte[] bytes = new byte[ MINIMUM_DNS_DATAGRAM_SIZE ];
+        byte[] bytes = new byte[MINIMUM_DNS_DATAGRAM_SIZE];
 
         int offset = 0;
         int numRead = 0;

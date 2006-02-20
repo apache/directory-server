@@ -151,23 +151,19 @@ public class RefinementLeafEvaluatorTest extends TestCase
 
         // positive test
         objectClasses = new BasicAttribute( "objectClass", "person" );
-        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
 
         objectClasses = new BasicAttribute( "objectClass" );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
-        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
 
         // negative tests
         objectClasses = new BasicAttribute( "objectClass", "person" );
-        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "blah", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "blah", LeafNode.EQUALITY ), objectClasses ) );
 
         objectClasses = new BasicAttribute( "objectClass", "blah" );
-        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
     }
 
 
@@ -177,22 +173,18 @@ public class RefinementLeafEvaluatorTest extends TestCase
 
         // positive test
         objectClasses = new BasicAttribute( "objectClass", "person" );
-        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ), objectClasses ) );
 
         objectClasses = new BasicAttribute( "objectClass" );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
-        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ), objectClasses ) );
 
         // negative tests
         objectClasses = new BasicAttribute( "objectClass", "person" );
-        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ), objectClasses ) );
 
         objectClasses = new BasicAttribute( "objectClass", "blah" );
-        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ), objectClasses ) );
     }
 }

@@ -42,12 +42,10 @@ public class ApacheNormalizerProducer extends AbstractBootstrapProducer
     // BootstrapProducer Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see org.apache.directory.server.core.schema.bootstrap.BootstrapProducer#produce(org.apache.directory.server.core.schema.bootstrap.BootstrapRegistries, org.apache.directory.server.core.schema.bootstrap.ProducerCallback)
      */
-    public void produce( BootstrapRegistries registries, ProducerCallback cb )
-        throws NamingException
+    public void produce( BootstrapRegistries registries, ProducerCallback cb ) throws NamingException
     {
         Normalizer normalizer;
 

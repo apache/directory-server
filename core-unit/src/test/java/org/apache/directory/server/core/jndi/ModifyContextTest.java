@@ -136,7 +136,7 @@ public class ModifyContextTest extends AbstractAdminTestCase
             assertTrue( attribute.contains( "top" ) );
             assertTrue( attribute.contains( "organizationalUnit" ) );
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
         }
     }

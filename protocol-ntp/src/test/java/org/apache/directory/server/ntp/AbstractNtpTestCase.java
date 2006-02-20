@@ -14,8 +14,8 @@
  *   limitations under the License.
  *
  */
-
 package org.apache.directory.server.ntp;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,45 +24,61 @@ import java.nio.ByteBuffer;
 import junit.framework.TestCase;
 
 import org.apache.directory.server.ntp.messages.NtpMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class AbstractNtpTestCase extends TestCase
 {
-	protected static final int MINIMUM_NTP_DATAGRAM_SIZE = 576;
-	
-	protected void print( NtpMessage request )
-	{
-		System.out.println( request.getLeapIndicator() );
-		System.out.println( request.getVersionNumber() );
-		System.out.println( request.getMode() );
-		System.out.println( request.getStratum() );
-		System.out.println( request.getPollInterval() );
-		System.out.println( request.getPrecision() );
-		System.out.println( request.getRootDelay() );
-		System.out.println( request.getRootDispersion() );
-		System.out.println( request.getReferenceIdentifier() );
-		System.out.println( request.getReferenceTimestamp() );
-		System.out.println( request.getOriginateTimestamp() );
-		System.out.println( request.getReceiveTimestamp() );
-		System.out.println( request.getTransmitTimestamp() );
-	}
+    protected static final int MINIMUM_NTP_DATAGRAM_SIZE = 576;
+    protected final Logger log;
 
-	protected ByteBuffer getByteBufferFromFile(String file) throws IOException
-	{
-		InputStream is = getClass().getResourceAsStream(file);
 
-		byte[] bytes = new byte[ MINIMUM_NTP_DATAGRAM_SIZE ];
+    public AbstractNtpTestCase()
+    {
+        log = LoggerFactory.getLogger( getClass() );
+    }
 
-		int offset = 0;
-		int numRead = 0;
-		while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0)
-		{
-			offset += numRead;
-		}
 
-		is.close();
-		
-		return ByteBuffer.wrap(bytes);
-	}
+    public AbstractNtpTestCase(Class subclass)
+    {
+        log = LoggerFactory.getLogger( subclass );
+    }
+
+
+    protected void print( NtpMessage request )
+    {
+        log.debug( String.valueOf( request.getLeapIndicator() ) );
+        log.debug( String.valueOf( request.getVersionNumber() ) );
+        log.debug( String.valueOf( request.getMode() ) );
+        log.debug( String.valueOf( request.getStratum() ) );
+        log.debug( String.valueOf( request.getPollInterval() ) );
+        log.debug( String.valueOf( request.getPrecision() ) );
+        log.debug( String.valueOf( request.getRootDelay() ) );
+        log.debug( String.valueOf( request.getRootDispersion() ) );
+        log.debug( String.valueOf( request.getReferenceIdentifier() ) );
+        log.debug( String.valueOf( request.getReferenceTimestamp() ) );
+        log.debug( String.valueOf( request.getOriginateTimestamp() ) );
+        log.debug( String.valueOf( request.getReceiveTimestamp() ) );
+        log.debug( String.valueOf( request.getTransmitTimestamp() ) );
+    }
+
+
+    protected ByteBuffer getByteBufferFromFile( String file ) throws IOException
+    {
+        InputStream is = getClass().getResourceAsStream( file );
+
+        byte[] bytes = new byte[MINIMUM_NTP_DATAGRAM_SIZE];
+
+        int offset = 0;
+        int numRead = 0;
+        while ( offset < bytes.length && ( numRead = is.read( bytes, offset, bytes.length - offset ) ) >= 0 )
+        {
+            offset += numRead;
+        }
+
+        is.close();
+
+        return ByteBuffer.wrap( bytes );
+    }
 }
-

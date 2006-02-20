@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AttributeTypeRegistryMonitorAdapter
-    implements AttributeTypeRegistryMonitor
+public class AttributeTypeRegistryMonitorAdapter implements AttributeTypeRegistryMonitor
 {
-    private static final Logger log = LoggerFactory.getLogger(AttributeTypeRegistryMonitorAdapter.class );
-    
+    private static final Logger log = LoggerFactory.getLogger( AttributeTypeRegistryMonitorAdapter.class );
+
+
     public void registered( AttributeType attributeType )
     {
     }

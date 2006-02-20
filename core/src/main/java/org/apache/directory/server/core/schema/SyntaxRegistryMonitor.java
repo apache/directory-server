@@ -37,12 +37,14 @@ public interface SyntaxRegistryMonitor
      */
     void registered( Syntax syntax );
 
+
     /**
      * Monitors when a Syntax is successfully looked up.
      * 
      * @param syntax the Syntax looked up
      */
     void lookedUp( Syntax syntax );
+
 
     /**
      * Monitors when a lookup attempt fails.
@@ -51,7 +53,8 @@ public interface SyntaxRegistryMonitor
      * @param fault the exception to be thrown for the fault
      */
     void lookupFailed( String oid, NamingException fault );
-    
+
+
     /**
      * Monitors when a registration attempt fails.
      * 

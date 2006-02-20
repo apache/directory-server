@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AddEntryDialog extends JDialog implements ActionListener
 {
-    private static final Logger log = LoggerFactory.getLogger(AddEntryDialog.class);
+    private static final Logger log = LoggerFactory.getLogger( AddEntryDialog.class );
 
     private static final long serialVersionUID = 3544671793504663604L;
 
@@ -77,7 +77,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
      * @param parent the parent frame
      * @param modal whether or not to go modal on the dialog
      */
-    public AddEntryDialog( Frame parent, boolean modal )
+    public AddEntryDialog(Frame parent, boolean modal)
     {
         super( parent, modal );
         m_childEntry.put( "objectClass", "top" );
@@ -90,167 +90,82 @@ public class AddEntryDialog extends JDialog implements ActionListener
      */
     private void initGUI()
     {
-        addWindowListener( new java.awt.event.WindowAdapter(  )
+        addWindowListener( new java.awt.event.WindowAdapter()
         {
             public void windowClosing( java.awt.event.WindowEvent evt )
             {
-                closeDialog( );
+                closeDialog();
             }
         } );
-        pack(  );
+        pack();
         setBounds( new java.awt.Rectangle( 0, 0, 447, 364 ) );
         setTitle( "Add New Entry" );
-        getContentPane(  ).setLayout( new java.awt.GridBagLayout(  ) );
-        getContentPane(  ).add( 
+        getContentPane().setLayout( new java.awt.GridBagLayout() );
+        getContentPane().add(
             m_namePnl,
-            new java.awt.GridBagConstraints( 
-                0,
-                0,
-                1,
-                1,
-                1.0,
-                0.0,
-                java.awt.GridBagConstraints.NORTH,
-                java.awt.GridBagConstraints.HORIZONTAL,
-                new java.awt.Insets( 5, 5, 5, 5 ),
-                0,
-                0 ) );
-        getContentPane(  ).add( 
+            new java.awt.GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0, java.awt.GridBagConstraints.NORTH,
+                java.awt.GridBagConstraints.HORIZONTAL, new java.awt.Insets( 5, 5, 5, 5 ), 0, 0 ) );
+        getContentPane().add(
             m_attrPnl,
-            new java.awt.GridBagConstraints( 
-                0,
-                1,
-                1,
-                1,
-                1.0,
-                1.0,
-                java.awt.GridBagConstraints.CENTER,
-                java.awt.GridBagConstraints.BOTH,
-                new java.awt.Insets( 5, 5, 5, 5 ),
-                0,
-                0 ) );
-        getContentPane(  ).add( 
+            new java.awt.GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0, java.awt.GridBagConstraints.CENTER,
+                java.awt.GridBagConstraints.BOTH, new java.awt.Insets( 5, 5, 5, 5 ), 0, 0 ) );
+        getContentPane().add(
             m_buttonPnl,
-            new java.awt.GridBagConstraints( 
-                0,
-                2,
-                1,
-                1,
-                1.0,
-                0.05,
-                java.awt.GridBagConstraints.CENTER,
-                java.awt.GridBagConstraints.HORIZONTAL,
-                new java.awt.Insets( 0, 0, 0, 20 ),
-                0,
-                0 ) );
-        m_namePnl.setBorder( 
-            javax.swing.BorderFactory.createTitledBorder( 
-                javax.swing.BorderFactory.createLineBorder( 
-                    new java.awt.Color( 153, 153, 153 ),
-                    1 ),
-                "Naming",
-                javax.swing.border.TitledBorder.LEADING,
-                javax.swing.border.TitledBorder.TOP,
-                new java.awt.Font( "SansSerif", 0, 14 ),
-                new java.awt.Color( 60, 60, 60 ) ) );
-        m_namePnl.setLayout( 
-            new javax.swing.BoxLayout( m_namePnl, javax.swing.BoxLayout.Y_AXIS ) );
+            new java.awt.GridBagConstraints( 0, 2, 1, 1, 1.0, 0.05, java.awt.GridBagConstraints.CENTER,
+                java.awt.GridBagConstraints.HORIZONTAL, new java.awt.Insets( 0, 0, 0, 20 ), 0, 0 ) );
+        m_namePnl.setBorder( javax.swing.BorderFactory.createTitledBorder( javax.swing.BorderFactory.createLineBorder(
+            new java.awt.Color( 153, 153, 153 ), 1 ), "Naming", javax.swing.border.TitledBorder.LEADING,
+            javax.swing.border.TitledBorder.TOP, new java.awt.Font( "SansSerif", 0, 14 ), new java.awt.Color( 60, 60,
+                60 ) ) );
+        m_namePnl.setLayout( new javax.swing.BoxLayout( m_namePnl, javax.swing.BoxLayout.Y_AXIS ) );
         m_namePnl.add( m_rdnPnl );
         m_namePnl.add( m_dnPnl );
         m_rdnLbl.setText( "Rdn:" );
         m_rdnPnl.setLayout( new java.awt.GridBagLayout() );
-        m_rdnPnl.add( 
-            m_rdnChoice,
-            new java.awt.GridBagConstraints( 
-                1,
-                0,
-                1,
-                1,
-                1.0,
-                0.0,
-                java.awt.GridBagConstraints.WEST,
-                java.awt.GridBagConstraints.NONE,
-                new java.awt.Insets( 0, 10, 0, 0 ),
-                0,
-                0 ) );
-        m_rdnPnl.add( 
-            m_rdnLbl,
-            new java.awt.GridBagConstraints( 
-                0,
-                0,
-                1,
-                1,
-                0.0,
-                0.0,
-                java.awt.GridBagConstraints.WEST,
-                java.awt.GridBagConstraints.NONE,
-                new java.awt.Insets( 0, 10, 0, 0 ),
-                0,
-                0 ) );
-        m_dnPnl.setLayout( new java.awt.GridBagLayout(  ) );
-        m_dnPnl.add( 
-            m_dnText,
-            new java.awt.GridBagConstraints( 
-                1,
-                0,
-                1,
-                1,
-                1.0,
-                0.0,
-                java.awt.GridBagConstraints.WEST,
-                java.awt.GridBagConstraints.HORIZONTAL,
-                new java.awt.Insets( 0, 5, 0, 0 ),
-                0,
-                0 ) );
+        m_rdnPnl.add( m_rdnChoice, new java.awt.GridBagConstraints( 1, 0, 1, 1, 1.0, 0.0,
+            java.awt.GridBagConstraints.WEST, java.awt.GridBagConstraints.NONE, new java.awt.Insets( 0, 10, 0, 0 ), 0,
+            0 ) );
+        m_rdnPnl.add( m_rdnLbl, new java.awt.GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0,
+            java.awt.GridBagConstraints.WEST, java.awt.GridBagConstraints.NONE, new java.awt.Insets( 0, 10, 0, 0 ), 0,
+            0 ) );
+        m_dnPnl.setLayout( new java.awt.GridBagLayout() );
+        m_dnPnl.add( m_dnText, new java.awt.GridBagConstraints( 1, 0, 1, 1, 1.0, 0.0, java.awt.GridBagConstraints.WEST,
+            java.awt.GridBagConstraints.HORIZONTAL, new java.awt.Insets( 0, 5, 0, 0 ), 0, 0 ) );
         m_dnText.setText( "unknown" );
         m_dnText.setEditable( false );
-        m_dnText.setBorder( 
-            javax.swing.BorderFactory.createTitledBorder( 
-                javax.swing.BorderFactory.createLineBorder( 
-                    new java.awt.Color( 153, 153, 153 ),
-                    1 ),
-                "Dn",
-                javax.swing.border.TitledBorder.LEADING,
-                javax.swing.border.TitledBorder.TOP,
-                new java.awt.Font( "SansSerif", 0, 14 ),
-                new java.awt.Color( 60, 60, 60 ) ) );
+        m_dnText.setBorder( javax.swing.BorderFactory.createTitledBorder( javax.swing.BorderFactory.createLineBorder(
+            new java.awt.Color( 153, 153, 153 ), 1 ), "Dn", javax.swing.border.TitledBorder.LEADING,
+            javax.swing.border.TitledBorder.TOP, new java.awt.Font( "SansSerif", 0, 14 ), new java.awt.Color( 60, 60,
+                60 ) ) );
         m_rdnChoice.setEditable( true );
         m_rdnChoice.setMaximumRowCount( 6 );
-        
+
         m_rdnChoice.setSize( new java.awt.Dimension( 130, 24 ) );
-        m_attrPnl.setLayout( new java.awt.BorderLayout(  ) );
+        m_attrPnl.setLayout( new java.awt.BorderLayout() );
         m_attrPnl.add( m_attrScrollPnl, java.awt.BorderLayout.CENTER );
-        m_attrScrollPnl.getViewport(  ).add( m_attrTbl );
+        m_attrScrollPnl.getViewport().add( m_attrTbl );
         m_attrTbl.setBounds( new java.awt.Rectangle( 78, 60, 32, 32 ) );
         m_attrTbl.setCellSelectionEnabled( true );
-        
+
         m_doneBut.setText( "Done" );
-        m_buttonPnl.setLayout( 
-            new java.awt.FlowLayout( java.awt.FlowLayout.RIGHT, 10, 5 ) );
+        m_buttonPnl.setLayout( new java.awt.FlowLayout( java.awt.FlowLayout.RIGHT, 10, 5 ) );
         m_buttonPnl.add( m_doneBut );
         m_buttonPnl.add( m_cancelBut );
         m_cancelBut.setText( "Cancel" );
-        m_cancelBut.addActionListener( new ActionListener () 
+        m_cancelBut.addActionListener( new ActionListener()
         {
             public void actionPerformed( ActionEvent a_evt )
             {
                 closeDialog();
             }
         } );
-        m_attrScrollPnl.setBorder( 
-            javax.swing.BorderFactory.createTitledBorder( 
-                javax.swing.BorderFactory.createLineBorder( 
-                    new java.awt.Color( 153, 153, 153 ),
-                    1 ),
-                "Attributes",
-                javax.swing.border.TitledBorder.LEADING,
-                javax.swing.border.TitledBorder.TOP,
-                new java.awt.Font( "SansSerif", 0, 14 ),
-                new java.awt.Color( 60, 60, 60 ) ) );
+        m_attrScrollPnl.setBorder( javax.swing.BorderFactory.createTitledBorder( javax.swing.BorderFactory
+            .createLineBorder( new java.awt.Color( 153, 153, 153 ), 1 ), "Attributes",
+            javax.swing.border.TitledBorder.LEADING, javax.swing.border.TitledBorder.TOP, new java.awt.Font(
+                "SansSerif", 0, 14 ), new java.awt.Color( 60, 60, 60 ) ) );
 
-        m_attrTbl.setModel( new AttributesTableModel( m_childEntry, 
-            null, null, true ) );
-    
+        m_attrTbl.setModel( new AttributesTableModel( m_childEntry, null, null, true ) );
+
         //
         // Build the table's popup menu
         //
@@ -264,57 +179,54 @@ public class AddEntryDialog extends JDialog implements ActionListener
         l_menuItem.setActionCommand( "Delete" );
         l_menuItem.addActionListener( this );
         m_popup.add( l_menuItem );
-    
+
         // Add listener to components that can bring up popup menus.
         m_attrTbl.addMouseListener( new PopupListener() );
-        
+
         setUpEditor( m_attrTbl );
     }
 
 
-    private void setUpEditor( JTable l_table ) 
+    private void setUpEditor( JTable l_table )
     {
         //Set up the editor for the integer cells.
         final JTextField l_textField = new JTextField();
 
-        
-        DefaultCellEditor l_textEditor = 
-            new DefaultCellEditor( l_textField ) 
+        DefaultCellEditor l_textEditor = new DefaultCellEditor( l_textField )
         {
             private static final long serialVersionUID = 3256727286014554675L;
 
+
             //Override DefaultCellEditor's getCellEditorValue method
             //to return an Integer, not a String:
-            public Object getCellEditorValue() 
+            public Object getCellEditorValue()
             {
-                if (log.isDebugEnabled())
+                if ( log.isDebugEnabled() )
                     log.debug( "Editor returning '" + l_textField.getText() + "'" );
                 return l_textField.getText();
             }
         };
-        
+
         l_table.setDefaultEditor( String.class, l_textEditor );
     }
 
-
-
-    class PopupListener extends MouseAdapter 
+    class PopupListener extends MouseAdapter
     {
-        public void mousePressed( MouseEvent e ) 
+        public void mousePressed( MouseEvent e )
         {
             maybeShowPopup( e );
         }
 
-        
-        public void mouseReleased( MouseEvent e ) 
+
+        public void mouseReleased( MouseEvent e )
         {
             maybeShowPopup( e );
         }
 
-      
-        private void maybeShowPopup( MouseEvent e ) 
+
+        private void maybeShowPopup( MouseEvent e )
         {
-            if ( e.isPopupTrigger() ) 
+            if ( e.isPopupTrigger() )
             {
                 m_popup.show( e.getComponent(), e.getX(), e.getY() );
             }
@@ -325,29 +237,26 @@ public class AddEntryDialog extends JDialog implements ActionListener
     public void actionPerformed( ActionEvent a_event )
     {
         String l_cmd = a_event.getActionCommand();
-        AttributesTableModel l_model = ( AttributesTableModel ) 
-            m_attrTbl.getModel();
+        AttributesTableModel l_model = ( AttributesTableModel ) m_attrTbl.getModel();
         int l_row = m_attrTbl.getSelectedRow();
         log.debug( l_cmd );
-        
+
         if ( l_row >= l_model.getRowCount() || l_row < 0 )
         {
-            JOptionPane.showMessageDialog( this, 
-                "Row needs to be selected to apply operation" );
+            JOptionPane.showMessageDialog( this, "Row needs to be selected to apply operation" );
         }
-        
+
         if ( l_cmd.equals( "Add" ) )
         {
-             l_model.insert( l_row, "xxxx", "xxxx" );
+            l_model.insert( l_row, "xxxx", "xxxx" );
         }
         else if ( l_cmd.equals( "Delete" ) )
         {
             l_model.delete( l_row );
         }
-        else 
+        else
         {
-            JOptionPane.showMessageDialog( this, 
-                "Unrecognized action - abandoning action processing." );
+            JOptionPane.showMessageDialog( this, "Unrecognized action - abandoning action processing." );
         }
     }
 
@@ -364,14 +273,14 @@ public class AddEntryDialog extends JDialog implements ActionListener
     {
         m_dnText.setText( dn );
     }
-    
-    
+
+
     public Attributes getChildEntry()
     {
         return m_childEntry;
     }
-    
-    
+
+
     public String getChildDn()
     {
         return m_dnText.getText();

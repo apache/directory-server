@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.linklayer;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies whether or not the client should use Ethernet
@@ -32,17 +34,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class EthernetEncapsulation extends DhcpOption
 {
-	private byte[] ethernetEncapsulation;
-	
-	public EthernetEncapsulation( byte[] ethernetEncapsulation )
-	{
-		super( 36, 1 );
-		this.ethernetEncapsulation = ethernetEncapsulation;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( ethernetEncapsulation );
-	}
-}
+    private byte[] ethernetEncapsulation;
 
+
+    public EthernetEncapsulation(byte[] ethernetEncapsulation)
+    {
+        super( 36, 1 );
+        this.ethernetEncapsulation = ethernetEncapsulation;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( ethernetEncapsulation );
+    }
+}

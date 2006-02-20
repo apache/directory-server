@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.kerberos.protocol;
 
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -24,16 +25,17 @@ import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationCon
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationServiceChain;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingContext;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingServiceChain;
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.chain.Command;
-import org.apache.kerberos.exceptions.ErrorType;
-import org.apache.kerberos.messages.KdcRequest;
-import org.apache.kerberos.store.PrincipalStore;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * The Kerberos protocol handler for MINA which handles requests for the authentication
@@ -52,7 +54,8 @@ public class KerberosProtocolHandler implements IoHandler
     private Command authService;
     private Command tgsService;
 
-    public KerberosProtocolHandler( KdcConfiguration config, PrincipalStore store )
+
+    public KerberosProtocolHandler(KdcConfiguration config, PrincipalStore store)
     {
         this.config = config;
         this.store = store;
@@ -60,6 +63,7 @@ public class KerberosProtocolHandler implements IoHandler
         authService = new AuthenticationServiceChain();
         tgsService = new TicketGrantingServiceChain();
     }
+
 
     public void sessionCreated( IoSession session ) throws Exception
     {
@@ -69,8 +73,9 @@ public class KerberosProtocolHandler implements IoHandler
         }
 
         session.getFilterChain().addFirst( "codec",
-                new ProtocolCodecFilter( KerberosProtocolCodecFactory.getInstance() ) );
+            new ProtocolCodecFilter( KerberosProtocolCodecFactory.getInstance() ) );
     }
+
 
     public void sessionOpened( IoSession session )
     {
@@ -80,6 +85,7 @@ public class KerberosProtocolHandler implements IoHandler
         }
     }
 
+
     public void sessionClosed( IoSession session )
     {
         if ( log.isDebugEnabled() )
@@ -87,6 +93,7 @@ public class KerberosProtocolHandler implements IoHandler
             log.debug( session.getRemoteAddress() + " CLOSED" );
         }
     }
+
 
     public void sessionIdle( IoSession session, IdleStatus status )
     {
@@ -96,11 +103,13 @@ public class KerberosProtocolHandler implements IoHandler
         }
     }
 
+
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         log.error( session.getRemoteAddress() + " EXCEPTION", cause );
         session.close();
     }
+
 
     public void messageReceived( IoSession session, Object message )
     {
@@ -109,8 +118,8 @@ public class KerberosProtocolHandler implements IoHandler
             log.debug( session.getRemoteAddress() + " RCVD: " + message );
         }
 
-        InetAddress clientAddress = ( (InetSocketAddress) session.getRemoteAddress() ).getAddress();
-        KdcRequest request = (KdcRequest) message;
+        InetAddress clientAddress = ( ( InetSocketAddress ) session.getRemoteAddress() ).getAddress();
+        KdcRequest request = ( KdcRequest ) message;
 
         int messageType = request.getMessageType().getOrdinal();
 
@@ -155,6 +164,7 @@ public class KerberosProtocolHandler implements IoHandler
             log.error( e.getMessage() );
         }
     }
+
 
     public void messageSent( IoSession session, Object message )
     {

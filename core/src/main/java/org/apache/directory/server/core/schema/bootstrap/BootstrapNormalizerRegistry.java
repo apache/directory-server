@@ -48,7 +48,6 @@ public class BootstrapNormalizerRegistry implements NormalizerRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a default normalizer registry.
      */
@@ -75,14 +74,11 @@ public class BootstrapNormalizerRegistry implements NormalizerRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-
-    public void register( String schema, String oid, Normalizer normalizer )
-        throws NamingException
+    public void register( String schema, String oid, Normalizer normalizer ) throws NamingException
     {
         if ( byOid.containsKey( oid ) )
         {
-            NamingException e = new NamingException( "Normalizer already " +
-                "registered for OID " + oid );
+            NamingException e = new NamingException( "Normalizer already " + "registered for OID " + oid );
             monitor.registerFailed( oid, normalizer, e );
             throw e;
         }
@@ -95,10 +91,9 @@ public class BootstrapNormalizerRegistry implements NormalizerRegistry
 
     public Normalizer lookup( String oid ) throws NamingException
     {
-        if ( ! byOid.containsKey( oid ) )
+        if ( !byOid.containsKey( oid ) )
         {
-            NamingException e = new NamingException( "Normalizer for OID "
-                + oid + " does not exist!" );
+            NamingException e = new NamingException( "Normalizer for OID " + oid + " does not exist!" );
             monitor.lookupFailed( oid, e );
             throw e;
         }
@@ -127,7 +122,6 @@ public class BootstrapNormalizerRegistry implements NormalizerRegistry
             return ( String ) oidToSchema.get( oid );
         }
 
-        throw new NamingException( "OID " + oid + " not found in oid to " +
-            "schema name map!" );
+        throw new NamingException( "OID " + oid + " not found in oid to " + "schema name map!" );
     }
 }

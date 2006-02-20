@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.perinterface;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies whether or not the client should solicit
@@ -32,17 +34,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class PerformRouterDiscovery extends DhcpOption
 {
-	private byte[] performRouterDiscovery;
-	
-	public PerformRouterDiscovery( byte[] performRouterDiscovery )
-	{
-		super( 31, 1 );
-		this.performRouterDiscovery = performRouterDiscovery;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( performRouterDiscovery );
-	}
-}
+    private byte[] performRouterDiscovery;
 
+
+    public PerformRouterDiscovery(byte[] performRouterDiscovery)
+    {
+        super( 31, 1 );
+        this.performRouterDiscovery = performRouterDiscovery;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( performRouterDiscovery );
+    }
+}

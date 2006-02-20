@@ -18,11 +18,13 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 import java.util.Set;
 
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.partition.DirectoryPartition;
+
 
 /**
  * A mutable version of {@link DirectoryPartitionConfiguration}.
@@ -30,8 +32,7 @@ import org.apache.directory.server.core.partition.DirectoryPartition;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MutableDirectoryPartitionConfiguration extends
-        DirectoryPartitionConfiguration
+public class MutableDirectoryPartitionConfiguration extends DirectoryPartitionConfiguration
 {
     /**
      * Creates a new instance.
@@ -39,26 +40,31 @@ public class MutableDirectoryPartitionConfiguration extends
     public MutableDirectoryPartitionConfiguration()
     {
     }
-    
+
+
     public void setName( String name )
     {
         super.setName( name );
     }
+
 
     public void setIndexedAttributes( Set indexedAttributes )
     {
         super.setIndexedAttributes( indexedAttributes );
     }
 
+
     public void setContextPartition( DirectoryPartition partition )
     {
         super.setContextPartition( partition );
     }
 
+
     public void setContextEntry( Attributes rootEntry )
     {
         super.setContextEntry( rootEntry );
     }
+
 
     public void setSuffix( String suffix )
     {

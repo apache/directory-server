@@ -61,7 +61,7 @@ public class BindHandler implements MessageHandler
         Hashtable env = SessionRegistry.getSingleton().getEnvironment();
 
         // if the bind request is not simple then we freak: no strong auth yet
-        if ( ! req.isSimple() )
+        if ( !req.isSimple() )
         {
             result.setResultCode( ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
             result.setErrorMessage( "Only simple binds currently supported" );
@@ -109,10 +109,10 @@ public class BindHandler implements MessageHandler
                 ctx = new InitialLdapContext( cloned, connCtls );
             }
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             ResultCodeEnum code;
-            
+
             if ( e instanceof LdapException )
             {
                 code = ( ( LdapException ) e ).getResultCode();
@@ -131,15 +131,13 @@ public class BindHandler implements MessageHandler
                 msg += "\n\nBindRequest = \n" + req.toString();
             }
 
-            if ( ( e.getResolvedName() != null ) &&
-                    ( ( code == ResultCodeEnum.NOSUCHOBJECT ) ||
-                      ( code == ResultCodeEnum.ALIASPROBLEM ) ||
-                      ( code == ResultCodeEnum.INVALIDDNSYNTAX ) ||
-                      ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+            if ( ( e.getResolvedName() != null )
+                && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
+                    || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
             {
                 result.setMatchedDn( e.getResolvedName().toString() );
             }
-            
+
             result.setErrorMessage( msg );
             session.write( req.getResultResponse() );
             return;

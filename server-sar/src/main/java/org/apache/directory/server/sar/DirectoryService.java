@@ -1,5 +1,5 @@
 /*
- *   @(#) $Id:  $
+ *   @(#) $Id$
  *   Copyright 2004 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,7 +63,7 @@ import javax.naming.directory.ModificationItem;
  * JBoss 3.x Mbean for embedded and remote directory server support
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: $, $Date: $
+ * @version $Rev$, $Date$
  */
 public class DirectoryService extends ServiceMBeanSupport implements DirectoryServiceMBean, MBeanRegistration
 {

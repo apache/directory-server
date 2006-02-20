@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dns.store;
 
+
 import java.util.Set;
 
 import org.apache.directory.server.dns.messages.QuestionRecord;
+
 
 /**
  * Interface for search strategies.  The DNS protocol may search a single

@@ -62,7 +62,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
-    
+
     /**
      * Creates a new ServerDirContext by reading the PROVIDER_URL to resolve the
      * distinguished name for this context.
@@ -71,7 +71,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @param env the environment used for this context
      * @throws NamingException if something goes wrong
      */
-    public ServerDirContext( DirectoryService service, Hashtable env ) throws NamingException
+    public ServerDirContext(DirectoryService service, Hashtable env) throws NamingException
     {
         super( service, env );
     }
@@ -86,7 +86,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected ServerDirContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws NamingException
+    protected ServerDirContext(DirectoryService service, LdapPrincipal principal, Name dn) throws NamingException
     {
         super( service, principal, dn );
     }
@@ -96,7 +96,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     // DirContext Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * @see javax.naming.directory.DirContext#getAttributes(java.lang.String)
      */
@@ -104,7 +103,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     {
         return getAttributes( new LdapName( name ) );
     }
-    
+
 
     /**
      * @see javax.naming.directory.DirContext#getAttributes(javax.naming.Name)
@@ -133,7 +132,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     {
         return getNexusProxy().lookup( buildTarget( name ), attrIds );
     }
-    
+
 
     /**
      * @see javax.naming.directory.DirContext#modifyAttributes(java.lang.String,
@@ -173,7 +172,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     {
         getNexusProxy().modify( buildTarget( name ), mods );
     }
-    
+
 
     /**
      * @see javax.naming.directory.DirContext#bind(java.lang.String,
@@ -341,7 +340,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         Attributes attributes = ( Attributes ) attrs.clone();
         boolean doRdnPut = attributes.get( rdnAttribute ) == null;
         doRdnPut = doRdnPut || attributes.get( rdnAttribute ).size() == 0;
-        doRdnPut = doRdnPut || ! attributes.get( rdnAttribute ).contains( rdnValue );
+        doRdnPut = doRdnPut || !attributes.get( rdnAttribute ).contains( rdnValue );
 
         if ( doRdnPut )
         {
@@ -396,13 +395,11 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     // Search Operation Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * @see javax.naming.directory.DirContext#search(java.lang.String,
      *      javax.naming.directory.Attributes)
      */
-    public NamingEnumeration search( String name, Attributes matchingAttributes )
-            throws NamingException
+    public NamingEnumeration search( String name, Attributes matchingAttributes ) throws NamingException
     {
         return search( new LdapName( name ), matchingAttributes, null );
     }
@@ -412,8 +409,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @see javax.naming.directory.DirContext#search(javax.naming.Name,
      *      javax.naming.directory.Attributes)
      */
-    public NamingEnumeration search( Name name, Attributes matchingAttributes )
-            throws NamingException
+    public NamingEnumeration search( Name name, Attributes matchingAttributes ) throws NamingException
     {
         return search( name, matchingAttributes, null );
     }
@@ -423,7 +419,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @see javax.naming.directory.DirContext#search(java.lang.String,
      *      javax.naming.directory.Attributes, java.lang.String[])
      */
-    public NamingEnumeration search( String name, Attributes matchingAttributes, String[] attributesToReturn ) throws NamingException
+    public NamingEnumeration search( String name, Attributes matchingAttributes, String[] attributesToReturn )
+        throws NamingException
     {
         return search( new LdapName( name ), matchingAttributes, attributesToReturn );
     }
@@ -433,7 +430,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @see javax.naming.directory.DirContext#search(javax.naming.Name,
      *      javax.naming.directory.Attributes, java.lang.String[])
      */
-    public NamingEnumeration search( Name name, Attributes matchingAttributes, String[] attributesToReturn ) throws NamingException
+    public NamingEnumeration search( Name name, Attributes matchingAttributes, String[] attributesToReturn )
+        throws NamingException
     {
         SearchControls ctls = new SearchControls();
         Name target = buildTarget( name );
@@ -442,13 +440,13 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         if ( null != attributesToReturn )
         {
             ctls.setReturningAttributes( attributesToReturn );
-        } 
+        }
 
         // If matchingAttributes is null/empty use a match for everything filter
         if ( null == matchingAttributes || matchingAttributes.size() <= 0 )
         {
             PresenceNode filter = new PresenceNode( "objectClass" );
-            return getNexusProxy().search( target , getEnvironment(), filter, ctls );
+            return getNexusProxy().search( target, getEnvironment(), filter, ctls );
         }
 
         /*
@@ -464,7 +462,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         while ( list.hasMore() )
         {
             attr = ( Attribute ) list.next();
-            
+
             /*
              * According to JNDI if an attribute in the matchingAttributes
              * list does not have any values then we match for just the presence
@@ -475,7 +473,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 filter.addNode( new PresenceNode( attr.getID() ) );
                 continue;
             }
-            
+
             /*
              * With 1 or more value we build a set of simple nodes and add them
              * to the AND node - each attribute value pair is a simple AVA node.
@@ -483,7 +481,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
                 Object val = attr.get( ii );
-                
+
                 // Add simpel AVA node if its value is a String 
                 if ( val instanceof String )
                 {
@@ -493,7 +491,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             }
         }
 
-        return getNexusProxy().search( target , getEnvironment(), filter, ctls );
+        return getNexusProxy().search( target, getEnvironment(), filter, ctls );
     }
 
 
@@ -501,8 +499,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @see javax.naming.directory.DirContext#search(java.lang.String,
      *      java.lang.String, javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration search( String name, String filter, SearchControls cons )
-            throws NamingException
+    public NamingEnumeration search( String name, String filter, SearchControls cons ) throws NamingException
     {
         return search( new LdapName( name ), filter, cons );
     }
@@ -522,8 +519,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public NamingEnumeration search( Name name, ExprNode filter, SearchControls cons ) throws NamingException
     {
         /*Name newName = new LdapDN( name.toString() );
-        newName = LdapDN.oidToName( newName, DnOidContainer.getOids() );
-        Name target = buildTarget( ((LdapDN)newName).toLdapName() );*/
+         newName = LdapDN.oidToName( newName, DnOidContainer.getOids() );
+         Name target = buildTarget( ((LdapDN)newName).toLdapName() );*/
 
         Name target = buildTarget( name );
         return getNexusProxy().search( target, getEnvironment(), filter, cons );
@@ -534,8 +531,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @see javax.naming.directory.DirContext#search(javax.naming.Name,
      *      java.lang.String, javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration search( Name name, String filter, SearchControls cons )
-            throws NamingException
+    public NamingEnumeration search( Name name, String filter, SearchControls cons ) throws NamingException
     {
         ExprNode filterNode;
         Name target = buildTarget( name );
@@ -546,23 +542,19 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
         catch ( ParseException pe )
         {
-            InvalidSearchFilterException isfe =
-                new InvalidSearchFilterException (
-                "Encountered parse exception while parsing the filter: '"
-                + filter + "'" );
+            InvalidSearchFilterException isfe = new InvalidSearchFilterException(
+                "Encountered parse exception while parsing the filter: '" + filter + "'" );
             isfe.setRootCause( pe );
             throw isfe;
         }
         catch ( IOException ioe )
         {
-            NamingException ne = new NamingException(
-                "Parser failed with IO exception on filter: '"
-                + filter + "'" );
+            NamingException ne = new NamingException( "Parser failed with IO exception on filter: '" + filter + "'" );
             ne.setRootCause( ioe );
             throw ne;
         }
 
-        return getNexusProxy().search( target , getEnvironment(), filterNode, cons );
+        return getNexusProxy().search( target, getEnvironment(), filterNode, cons );
     }
 
 
@@ -571,8 +563,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      *      java.lang.String, java.lang.Object[],
      *      javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration search( String name, String filterExpr,
-        Object[] filterArgs, SearchControls cons ) throws NamingException
+    public NamingEnumeration search( String name, String filterExpr, Object[] filterArgs, SearchControls cons )
+        throws NamingException
     {
         return search( new LdapName( name ), filterExpr, filterArgs, cons );
     }
@@ -583,13 +575,14 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      *      java.lang.String, java.lang.Object[],
      *      javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration search( Name name, String filterExpr, Object[] filterArgs, SearchControls cons ) throws NamingException
+    public NamingEnumeration search( Name name, String filterExpr, Object[] filterArgs, SearchControls cons )
+        throws NamingException
     {
         int start;
         int index;
 
         StringBuffer buf = new StringBuffer( filterExpr );
-        
+
         // Scan until we hit the end of the string buffer 
         for ( int ii = 0; ii < buf.length(); ii++ )
         {
@@ -600,46 +593,44 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 {
                     ii++;
                 }
-                           
+
                 // Record start of variable at '{'
                 start = ii;
-                
+
                 // Advance to the end of a variable at '}'
                 while ( '}' != buf.charAt( ii ) )
                 {
                     ii++;
                 }
             }
-            catch (IndexOutOfBoundsException e)
+            catch ( IndexOutOfBoundsException e )
             {
                 // End of filter so done.
                 break;
             }
-            
+
             // Parse index
-            index = Integer.parseInt(buf.substring(start + 1, ii));
-            
+            index = Integer.parseInt( buf.substring( start + 1, ii ) );
+
             /*
              * Replace the '{ i }' with the string representation of the value
              * held in the filterArgs array at index index.
-             */           
+             */
             buf.replace( start, ii + 1, filterArgs[index].toString() );
         }
-        
+
         return search( name, buf.toString(), cons );
     }
-
 
     // ------------------------------------------------------------------------
     // EventDirContext implementations
     // ------------------------------------------------------------------------
 
-
     FilterParserImpl filterParser = new FilterParserImpl();
 
+
     public void addNamingListener( Name name, String filterStr, SearchControls searchControls,
-                                   NamingListener namingListener )
-            throws NamingException
+        NamingListener namingListener ) throws NamingException
     {
         ExprNode filter;
 
@@ -654,21 +645,21 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             throw e2;
         }
 
-        ( ( DirectoryPartitionNexusProxy ) getNexusProxy() )
-                .addNamingListener( this, buildTarget( name ), filter, searchControls, namingListener );
+        ( ( DirectoryPartitionNexusProxy ) getNexusProxy() ).addNamingListener( this, buildTarget( name ), filter,
+            searchControls, namingListener );
         getListeners().add( namingListener );
     }
 
 
-    public void addNamingListener( String name, String filter, SearchControls searchControls, NamingListener namingListener )
-            throws NamingException
+    public void addNamingListener( String name, String filter, SearchControls searchControls,
+        NamingListener namingListener ) throws NamingException
     {
         addNamingListener( new LdapName( name ), filter, searchControls, namingListener );
     }
 
 
     public void addNamingListener( Name name, String filterExpr, Object[] filterArgs, SearchControls searchControls,
-                                   NamingListener namingListener ) throws NamingException
+        NamingListener namingListener ) throws NamingException
     {
         int start;
         StringBuffer buf = new StringBuffer( filterExpr );
@@ -690,7 +681,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             {
                 ii++;
             }
-            
+
             /*
              * Replace the '{ i }' with the string representation of the value
              * held in the filterArgs array at index index.
@@ -703,7 +694,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
 
     public void addNamingListener( String name, String filter, Object[] objects, SearchControls searchControls,
-                                   NamingListener namingListener ) throws NamingException
+        NamingListener namingListener ) throws NamingException
     {
         addNamingListener( new LdapName( name ), filter, objects, searchControls, namingListener );
     }

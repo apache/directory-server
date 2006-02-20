@@ -34,24 +34,108 @@ import junit.framework.TestCase;
  */
 public class ReferralLutTest extends TestCase
 {
-    public void testNullLimits() 
+    public void testNullLimits()
     {
         ReferralLut lut = new ReferralLut();
-        try { lut.isReferral( ( String ) null ); fail( "can't get here" ); } catch( IllegalArgumentException e ) {}
-        try { lut.isReferral( ( Name ) null ); fail( "can't get here" ); } catch( IllegalArgumentException e ) {}
-        try { lut.getFarthestReferralAncestor( ( Name ) null ); fail( "can't get here" ); } catch( IllegalArgumentException e ) {}
-        try { lut.getNearestReferralAncestor( ( Name ) null ); fail( "can't get here" ); } catch( IllegalArgumentException e ) {}
-        try { lut.referralAdded( ( Name ) null ); fail( "can't get here" ); } catch( IllegalArgumentException e ) {}
-        try { lut.referralAdded( ( String ) null ); fail( "can't get here" ); } catch( IllegalArgumentException e ) {}
-        try { lut.referralDeleted( ( Name ) null ); fail( "can't get here" ); } catch( IllegalArgumentException e ) {}
-        try { lut.referralDeleted( ( String ) null ); fail( "can't get here" ); } catch( IllegalArgumentException e ) {}
-        try { lut.referralChanged( ( Name ) null, ( Name ) null ); fail( "can't get here" ); } catch( IllegalArgumentException e ) {}
-        try { lut.referralChanged( ( String ) null, ( String ) null ); fail( "can't get here" ); } catch( IllegalArgumentException e ) {}
-        try { lut.referralChanged( ( Name ) null, ( String ) null ); fail( "can't get here" ); } catch( IllegalArgumentException e ) {}
-        try { lut.referralChanged( ( String ) null, ( Name ) null ); fail( "can't get here" ); } catch( IllegalArgumentException e ) {}
+        try
+        {
+            lut.isReferral( ( String ) null );
+            fail( "can't get here" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+        }
+        try
+        {
+            lut.isReferral( ( Name ) null );
+            fail( "can't get here" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+        }
+        try
+        {
+            lut.getFarthestReferralAncestor( ( Name ) null );
+            fail( "can't get here" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+        }
+        try
+        {
+            lut.getNearestReferralAncestor( ( Name ) null );
+            fail( "can't get here" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+        }
+        try
+        {
+            lut.referralAdded( ( Name ) null );
+            fail( "can't get here" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+        }
+        try
+        {
+            lut.referralAdded( ( String ) null );
+            fail( "can't get here" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+        }
+        try
+        {
+            lut.referralDeleted( ( Name ) null );
+            fail( "can't get here" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+        }
+        try
+        {
+            lut.referralDeleted( ( String ) null );
+            fail( "can't get here" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+        }
+        try
+        {
+            lut.referralChanged( ( Name ) null, ( Name ) null );
+            fail( "can't get here" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+        }
+        try
+        {
+            lut.referralChanged( ( String ) null, ( String ) null );
+            fail( "can't get here" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+        }
+        try
+        {
+            lut.referralChanged( ( Name ) null, ( String ) null );
+            fail( "can't get here" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+        }
+        try
+        {
+            lut.referralChanged( ( String ) null, ( Name ) null );
+            fail( "can't get here" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+        }
     }
-    
-    
+
+
     public void testUpdateOperations() throws NamingException
     {
         String dn = "ou=users,ou=system";
@@ -94,7 +178,7 @@ public class ReferralLutTest extends TestCase
         assertTrue( lut.isReferral( dn ) );
         lut.referralDeleted( name );
         assertFalse( lut.isReferral( dn ) );
-        
+
         // change (rename and move) tests
         String newDn = "ou=people,ou=system";
         Name newName = new LdapName( newDn );
@@ -131,8 +215,8 @@ public class ReferralLutTest extends TestCase
         assertTrue( lut.isReferral( newDn ) );
         lut.referralDeleted( dn );
     }
-    
-    
+
+
     public void testReferralAncestors() throws NamingException
     {
         Name ancestor = new LdapName( "ou=users,ou=system" );

@@ -25,23 +25,26 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class MeritDumpFile extends DhcpOption
 {
-	private byte[] meritDumpFile;
-	
-	public MeritDumpFile( byte[] meritDumpFile )
-	{
-		super( 14, 1 );
-		this.meritDumpFile = meritDumpFile;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( meritDumpFile );
-	}
-}
+    private byte[] meritDumpFile;
 
+
+    public MeritDumpFile(byte[] meritDumpFile)
+    {
+        super( 14, 1 );
+        this.meritDumpFile = meritDumpFile;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( meritDumpFile );
+    }
+}

@@ -18,7 +18,9 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 import org.apache.directory.server.core.DirectoryService;
+
 
 /**
  * A {@link Configuration} that shuts down ApacheDS.
@@ -30,6 +32,7 @@ public class ShutdownConfiguration extends Configuration
 {
     private static final long serialVersionUID = 3141844093107051149L;
 
+
     /**
      * Creates a new instance.
      */
@@ -37,11 +40,12 @@ public class ShutdownConfiguration extends Configuration
     {
     }
 
+
     /**
      * Creates a new instance that operates on the {@link DirectoryService}
      * with the specified ID.
      */
-    public ShutdownConfiguration( String instanceId )
+    public ShutdownConfiguration(String instanceId)
     {
         setInstanceId( instanceId );
     }

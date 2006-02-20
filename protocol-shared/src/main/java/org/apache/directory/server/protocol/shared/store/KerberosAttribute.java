@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.protocol.shared.store;
 
+
 public class KerberosAttribute
 {
     // ------------------------------------------------------------------------
@@ -23,13 +24,13 @@ public class KerberosAttribute
     // ------------------------------------------------------------------------
 
     /** the krb5kdc schema key for a krb5KDCEntry */
-    public static final String KEY       = "krb5Key";
+    public static final String KEY = "krb5Key";
     /** the krb5kdc schema key encryption type for a krb5KDCEntry */
-    public static final String TYPE      = "krb5EncryptionType";
+    public static final String TYPE = "krb5EncryptionType";
     /** the krb5kdc schema principal name for a krb5KDCEntry */
     public static final String PRINCIPAL = "krb5PrincipalName";
     /** the krb5kdc schema key version identifier for a krb5KDCEntry */
-    public static final String VERSION   = "krb5KeyVersionNumber";
+    public static final String VERSION = "krb5KeyVersionNumber";
     /** the Apache specific SAM type attribute */
-    public static final String SAM_TYPE  = "apacheSamType";
+    public static final String SAM_TYPE = "apacheSamType";
 }

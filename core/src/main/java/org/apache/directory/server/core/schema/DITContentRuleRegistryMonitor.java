@@ -35,12 +35,14 @@ public interface DITContentRuleRegistryMonitor
      */
     void registered( DITContentRule dITContentRule );
 
+
     /**
      * Monitors when a Comparator is successfully looked up.
      *
      * @param dITContentRule the DITContentRule successfully lookedup
      */
     void lookedUp( DITContentRule dITContentRule );
+
 
     /**
      * Monitors when a lookup attempt fails.
@@ -49,6 +51,7 @@ public interface DITContentRuleRegistryMonitor
      * @param fault the exception to be thrown for the fault
      */
     void lookupFailed( String oid, Throwable fault );
+
 
     /**
      * Monitors when a registration attempt fails.

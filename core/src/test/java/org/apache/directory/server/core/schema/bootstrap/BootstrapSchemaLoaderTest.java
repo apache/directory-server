@@ -169,11 +169,11 @@ public class BootstrapSchemaLoaderTest extends TestCase
     public void testEveDepsSchemaLoad() throws NamingException
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        
+
         Set schemas = new HashSet();
         schemas.add( new ApacheSchema() );
         schemas.add( new SystemSchema() );
-        
+
         loader.load( schemas, registries );
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "apacheNdn" );
@@ -214,7 +214,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
         Set schemas = new HashSet();
         schemas.add( new CoreSchema() );
         schemas.add( new SystemSchema() );
-        
+
         loader.load( schemas, registries );
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "knowledgeInformation" );
@@ -256,7 +256,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
         schemas.add( new CoreSchema() );
         schemas.add( new JavaSchema() );
         schemas.add( new SystemSchema() );
-        
+
         loader.load( schemas, registries );
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "javaFactory" );
@@ -313,10 +313,9 @@ public class BootstrapSchemaLoaderTest extends TestCase
 
         StringBuffer buf = new StringBuffer();
 
-        if ( ! errors.isEmpty() )
+        if ( !errors.isEmpty() )
         {
-            buf.append( "expected empty erorrs but got " )
-                    .append( errors.size() ).append( " errors:\n" );
+            buf.append( "expected empty erorrs but got " ).append( errors.size() ).append( " errors:\n" );
             for ( int ii = 0; ii < errors.size(); ii++ )
             {
                 buf.append( '\t' ).append( errors.get( ii ).toString() ).append( '\n' );
@@ -331,4 +330,3 @@ public class BootstrapSchemaLoaderTest extends TestCase
         assertTrue( buf.toString(), errors.isEmpty() );
     }
 }
-                                   

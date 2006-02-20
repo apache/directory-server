@@ -17,12 +17,14 @@
 
 package org.apache.directory.server.changepw.io;
 
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
-import org.apache.kerberos.io.encoder.ErrorMessageEncoder;
-import org.apache.kerberos.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.shared.io.encoder.ErrorMessageEncoder;
+import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+
 
 public class ChangePasswordErrorEncoder
 {
@@ -35,7 +37,7 @@ public class ChangePasswordErrorEncoder
 
         short headerLength = 6;
 
-        short messageLength = (short) ( headerLength + errorBytes.length );
+        short messageLength = ( short ) ( headerLength + errorBytes.length );
         buf.putShort( messageLength );
 
         short protocolVersion = 1;

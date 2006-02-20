@@ -54,13 +54,13 @@ public class DirectorySchemaToolMojo extends AbstractMojo
      * @parameter expression="src/main/schema"
      */
     private File sourceDirectory;
-    
+
     /**
      * The target directory into which the plugin generates schema java sources.
      * @parameter expression="target/generated-sources"
      */
     private File outputDirectory;
-    
+
     /**
      * The default package to use for generated schema classes.
      * @parameter expression="org.apache.directory.server.core.schema.bootstrap"
@@ -72,7 +72,7 @@ public class DirectorySchemaToolMojo extends AbstractMojo
      * @parameter expression="uid=admin,ou=system"
      */
     private String defaultOwner;
-    
+
     /**
      * The set of schemas to generate classes for.
      * @parameter 
@@ -84,7 +84,7 @@ public class DirectorySchemaToolMojo extends AbstractMojo
      * @parameter expression="true"
      */
     private boolean verboseOutput;
-    
+
     /**
      * @parameter expression="${project}"
      * @required
@@ -126,8 +126,8 @@ public class DirectorySchemaToolMojo extends AbstractMojo
         context.put( "package", schema.getPackageName() );
         context.put( "classname", schemaCapped.toString() + "Schema" );
         context.put( "schema", schema.getSchemaName() );
-        context.put( "owner", schema.getOwner() ) ;
-        context.put( "deps", schema.getDependencies()  ) ;
+        context.put( "owner", schema.getOwner() );
+        context.put( "deps", schema.getDependencies() );
 
         Reader fileIn = getResourceReader( "Schema.template" );
         Writer writer = getResourceWriter( schema.getPackageName(), schema.getUnqualifiedClassName() );
@@ -159,52 +159,52 @@ public class DirectorySchemaToolMojo extends AbstractMojo
             context.put( "package", schema.getPackageName() );
             context.put( "classname", schema.getUnqualifiedClassName( type ) );
             context.put( "schema", schema.getSchemaName() );
-            context.put( "owner", schema.getOwner() ) ;
-            context.put( "type", type.getName().substring( 0, type.getName().length() - 8 ) ) ;
+            context.put( "owner", schema.getOwner() );
+            context.put( "type", type.getName().substring( 0, type.getName().length() - 8 ) );
 
             String typeName = null;
-            switch( type.getValue() )
+            switch ( type.getValue() )
             {
-                case( ProducerTypeEnum.COMPARATOR_PRODUCER_VAL ):
+                case ( ProducerTypeEnum.COMPARATOR_PRODUCER_VAL  ):
                     typeName = "ProducerTypeEnum.COMPARATOR_PRODUCER";
                     break;
-                case( ProducerTypeEnum.DIT_CONTENT_RULE_PRODUCER_VAL ):
+                case ( ProducerTypeEnum.DIT_CONTENT_RULE_PRODUCER_VAL  ):
                     typeName = "ProducerTypeEnum.DIT_CONTENT_RULE_PRODUCER";
                     break;
-                case( ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER_VAL ):
+                case ( ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER_VAL  ):
                     typeName = "ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER";
                     break;
-                case( ProducerTypeEnum.MATCHING_RULE_PRODUCER_VAL ):
+                case ( ProducerTypeEnum.MATCHING_RULE_PRODUCER_VAL  ):
                     typeName = "ProducerTypeEnum.MATCHING_RULE_PRODUCER";
                     break;
-                case( ProducerTypeEnum.MATCHING_RULE_USE_PRODUCER_VAL ):
+                case ( ProducerTypeEnum.MATCHING_RULE_USE_PRODUCER_VAL  ):
                     typeName = "ProducerTypeEnum.MATCHING_RULE_USE_PRODUCER";
                     break;
-                case( ProducerTypeEnum.NAME_FORM_PRODUCER_VAL ):
+                case ( ProducerTypeEnum.NAME_FORM_PRODUCER_VAL  ):
                     typeName = "ProducerTypeEnum.NAME_FORM_PRODUCER";
                     break;
-                case( ProducerTypeEnum.NORMALIZER_PRODUCER_VAL ):
+                case ( ProducerTypeEnum.NORMALIZER_PRODUCER_VAL  ):
                     typeName = "ProducerTypeEnum.NORMALIZER_PRODUCER";
                     break;
-                case( ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER_VAL ):
+                case ( ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER_VAL  ):
                     typeName = "ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER";
                     break;
-                case( ProducerTypeEnum.SYNTAX_PRODUCER_VAL ):
+                case ( ProducerTypeEnum.SYNTAX_PRODUCER_VAL  ):
                     typeName = "ProducerTypeEnum.SYNTAX_PRODUCER";
                     break;
-                case( ProducerTypeEnum.STATE_FACTORY_PRODUCER_VAL ):
+                case ( ProducerTypeEnum.STATE_FACTORY_PRODUCER_VAL  ):
                     typeName = "ProducerTypeEnum.STATE_FACTORY_PRODUCER";
                     break;
-                case( ProducerTypeEnum.OBJECT_FACTORY_PRODUCER_VAL ):
+                case ( ProducerTypeEnum.OBJECT_FACTORY_PRODUCER_VAL  ):
                     typeName = "ProducerTypeEnum.OBJECT_FACTORY_PRODUCER";
                     break;
                 default:
                     throw new IllegalStateException( "Unexpected producer: " + type.getName() );
             }
 
-            context.put( "typeName", typeName ) ;
-            runVelocity( schema.getPackageName(), schema.getUnqualifiedClassName( type ), 
-                context, "typeless.template", type );
+            context.put( "typeName", typeName );
+            runVelocity( schema.getPackageName(), schema.getUnqualifiedClassName( type ), context, "typeless.template",
+                type );
         }
     }
 
@@ -227,12 +227,13 @@ public class DirectorySchemaToolMojo extends AbstractMojo
         context.put( "package", schema.getPackageName() );
         context.put( "classname", schema.getUnqualifiedClassName( type ) );
         context.put( "schema", schema.getSchemaName() );
-        context.put( "owner", schema.getOwner() ) ;
+        context.put( "owner", schema.getOwner() );
         context.put( "schemaDepCount", new Integer( schema.getDependencies().length ) );
-        context.put( "schemaDeps", new String[] { "dep1", "dep2" }  ) ;
+        context.put( "schemaDeps", new String[]
+            { "dep1", "dep2" } );
         context.put( "attrTypes", attributeTypes );
-        runVelocity( schema.getPackageName(), schema.getUnqualifiedClassName( type ), 
-            context, "AttributeTypes.template", type );
+        runVelocity( schema.getPackageName(), schema.getUnqualifiedClassName( type ), context,
+            "AttributeTypes.template", type );
     }
 
 
@@ -254,18 +255,18 @@ public class DirectorySchemaToolMojo extends AbstractMojo
         context.put( "package", schema.getPackageName() );
         context.put( "classname", schema.getUnqualifiedClassName( type ) );
         context.put( "schema", schema.getSchemaName() );
-        context.put( "owner", schema.getOwner() ) ;
+        context.put( "owner", schema.getOwner() );
         context.put( "schemaDepCount", new Integer( schema.getDependencies().length ) );
-        context.put( "schemaDeps", new String[] { "dep1", "dep2" }  ) ;
+        context.put( "schemaDeps", new String[]
+            { "dep1", "dep2" } );
         context.put( "objectClasses", objectClasses );
-        runVelocity( schema.getPackageName(), schema.getUnqualifiedClassName( type ), 
-            context, "ObjectClasses.template", type );
+        runVelocity( schema.getPackageName(), schema.getUnqualifiedClassName( type ), context,
+            "ObjectClasses.template", type );
     }
 
 
-
     protected void runVelocity( String pkg, String uqcn, VelocityContext context, String template, ProducerTypeEnum type )
-            throws Exception
+        throws Exception
     {
         Reader fileIn = getResourceReader( template );
         Writer writer = getResourceWriter( pkg, uqcn );
@@ -286,7 +287,7 @@ public class DirectorySchemaToolMojo extends AbstractMojo
         String[] comps = path.split( "/" );
         File file = new File( base );
 
-        if ( ! file.exists() )
+        if ( !file.exists() )
         {
             file.mkdirs();
         }
@@ -295,7 +296,7 @@ public class DirectorySchemaToolMojo extends AbstractMojo
         {
             file = new File( file, comps[ii] );
 
-            if ( ! file.exists() )
+            if ( !file.exists() )
             {
                 file.mkdirs();
             }
@@ -319,8 +320,8 @@ public class DirectorySchemaToolMojo extends AbstractMojo
     {
         // check to see if any of the classes are available in the java 
         // source directory, if so we return true
-        File defaultFile = new File( project.getBuild().getSourceDirectory() 
-            + File.separator + getFilePath( defaultClass ) );
+        File defaultFile = new File( project.getBuild().getSourceDirectory() + File.separator
+            + getFilePath( defaultClass ) );
         return defaultFile.exists();
     }
 
@@ -331,25 +332,25 @@ public class DirectorySchemaToolMojo extends AbstractMojo
         path += ".java";
         return path;
     }
-    
-    
+
+
     private boolean isStale( BootstrapSchema schema )
     {
         String pkgPath = schema.getPackageName().replace( '.', File.separatorChar );
         File dir = new File( outputDirectory, pkgPath );
         File schemaClassFile = new File( dir, schema.getUnqualifiedClassName() + ".java" );
-        
-        if ( ! schemaClassFile.exists() )
+
+        if ( !schemaClassFile.exists() )
         {
             return true;
         }
-        
+
         File schemaFile = new File( sourceDirectory, schema.getSchemaName() + ".schema" );
         return schemaFile.lastModified() > schemaClassFile.lastModified();
     }
-    
-    
-    public void execute() throws MojoExecutionException 
+
+
+    public void execute() throws MojoExecutionException
     {
         // Bypass if no schemas have yet been defined 
         if ( schemas == null || schemas.length == 0 )
@@ -357,16 +358,16 @@ public class DirectorySchemaToolMojo extends AbstractMojo
             getLog().warn( "No schemas defined for directory plugin!" );
             return;
         }
-        
+
         // Make sure schema configurations have a name field and set defaults
         // for any other missing properties of the bean: pkg and owner.
         for ( int ii = 0; ii < schemas.length; ii++ )
         {
             Schema schema = schemas[ii];
-            
+
             if ( schema.getName() == null )
             {
-                String msg = ii + "th schema configuration element must specify a name."; 
+                String msg = ii + "th schema configuration element must specify a name.";
                 getLog().error( msg );
                 throw new MojoExecutionException( msg );
             }
@@ -375,13 +376,13 @@ public class DirectorySchemaToolMojo extends AbstractMojo
             {
                 schema.setPkg( defaultPackage );
             }
-            
+
             if ( schema.getOwner() == null )
             {
                 schema.setOwner( defaultOwner );
             }
-        } 
-       
+        }
+
         // Report configuration if verbose output is enabled
         if ( verboseOutput )
         {
@@ -389,18 +390,20 @@ public class DirectorySchemaToolMojo extends AbstractMojo
         }
 
         // Create output directory if it does not exist
-        if ( ! outputDirectory.exists() )
+        if ( !outputDirectory.exists() )
         {
             outputDirectory.mkdirs();
         }
-        
+
         // Generate for each schema 
         for ( int ii = 0; ii < schemas.length; ii++ )
         {
             try
             {
-                BootstrapSchema bootstrapSchema = new AbstractBootstrapSchema( schemas[ii].getOwner(), 
-                    schemas[ii].getName(), schemas[ii].getPkg(), schemas[ii].getDependencies() ){};
+                BootstrapSchema bootstrapSchema = new AbstractBootstrapSchema( schemas[ii].getOwner(), schemas[ii]
+                    .getName(), schemas[ii].getPkg(), schemas[ii].getDependencies() )
+                {
+                };
 
                 if ( isStale( bootstrapSchema ) )
                 {
@@ -417,9 +420,10 @@ public class DirectorySchemaToolMojo extends AbstractMojo
                 throw new MojoExecutionException( "Failed while generating sources for " + schemas[ii].getName(), e );
             }
         }
-        
+
         project.addCompileSourceRoot( outputDirectory.getPath() );
     }
+
 
     private void report()
     {
@@ -430,13 +434,13 @@ public class DirectorySchemaToolMojo extends AbstractMojo
         getLog().info( "defaultPackage  = " + defaultPackage );
         getLog().info( "defaultOwner    = " + defaultOwner );
         getLog().info( "----------------------------- schemas -----------------------------" );
-        
+
         if ( schemas != null )
         {
             for ( int ii = 0; ii < schemas.length; ii++ )
             {
                 getLog().info( "SCHEMA: " + schemas[ii].getName() );
-                
+
                 if ( schemas[ii].getDependencies() != null )
                 {
                     StringBuffer buf = new StringBuffer();
@@ -447,17 +451,17 @@ public class DirectorySchemaToolMojo extends AbstractMojo
                     }
                     getLog().info( "DEPENDENCIES: " + buf.toString() );
                 }
-                
+
                 getLog().info( "PACKAGE: " + schemas[ii].getPkg() );
                 getLog().info( "OWNER: " + schemas[ii].getOwner() );
-                
+
                 if ( ii + 1 < schemas.length )
                 {
                     getLog().info( "" );
                 }
             }
         }
-        
+
         getLog().info( "===================================================================" );
     }
 }

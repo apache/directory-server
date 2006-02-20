@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MatchingRuleUseRegistryMonitorAdapter
-    implements MatchingRuleUseRegistryMonitor
+public class MatchingRuleUseRegistryMonitorAdapter implements MatchingRuleUseRegistryMonitor
 {
     private static final Logger log = LoggerFactory.getLogger( MatchingRuleUseRegistryMonitorAdapter.class );
-    
+
+
     public void registered( MatchingRuleUse matchingRuleUse )
     {
     }

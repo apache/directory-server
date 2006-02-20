@@ -23,14 +23,14 @@ import java.util.regex.Pattern;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
+
 /**
  * A NamingEnumeration over an Index which returns IndexRecords.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class IndexEnumeration
-    implements NamingEnumeration
+public class IndexEnumeration implements NamingEnumeration
 {
     /** */
     private final Pattern re;
@@ -53,29 +53,25 @@ public class IndexEnumeration
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
-    public IndexEnumeration( NamingEnumeration list ) throws NamingException
+    public IndexEnumeration(NamingEnumeration list) throws NamingException
     {
         this( list, false, null );
     }
 
 
-    public IndexEnumeration( NamingEnumeration list, boolean swapKeyVal )
-        throws NamingException
+    public IndexEnumeration(NamingEnumeration list, boolean swapKeyVal) throws NamingException
     {
         this( list, swapKeyVal, null );
     }
 
 
-    public IndexEnumeration( NamingEnumeration list, boolean swapKeyVal,
-                             Pattern regex )
-        throws NamingException
+    public IndexEnumeration(NamingEnumeration list, boolean swapKeyVal, Pattern regex) throws NamingException
     {
         re = regex;
         underlying = list;
         this.swapKeyVal = swapKeyVal;
 
-        if ( ! underlying.hasMore() ) 
+        if ( !underlying.hasMore() )
         {
             hasMore = false;
             return;
@@ -89,19 +85,17 @@ public class IndexEnumeration
     // NamingEnumeration Interface Methods 
     // ------------------------------------------------------------------------
 
-
     /**
      * @see javax.naming.NamingEnumeration#next()
      */
-    public Object next()
-        throws NamingException
+    public Object next() throws NamingException
     {
         returned.copy( prefetched );
         prefetch();
         return returned;
     }
-    
-    
+
+
     /**
      * @see java.util.Enumeration#nextElement()
      */
@@ -150,18 +144,17 @@ public class IndexEnumeration
     // Private Methods 
     // ------------------------------------------------------------------------
 
-
     private void prefetch() throws NamingException
     {
-        while ( underlying.hasMore() ) 
+        while ( underlying.hasMore() )
         {
             Tuple tuple = ( Tuple ) underlying.next();
 
-            if ( swapKeyVal ) 
+            if ( swapKeyVal )
             {
                 tmp.setSwapped( tuple, null );
-            } 
-            else 
+            }
+            else
             {
                 tmp.setTuple( tuple, null );
             }

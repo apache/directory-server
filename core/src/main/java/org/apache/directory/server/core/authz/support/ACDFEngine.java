@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.*;
 
 import javax.naming.Name;
@@ -66,6 +67,7 @@ public class ACDFEngine
 {
     private final ACITupleFilter[] filters;
 
+
     /**
      * Creates a new instance.
      * 
@@ -74,25 +76,20 @@ public class ACDFEngine
      * 
      * @throws NamingException if failed to initialize internal components
      */
-    public ACDFEngine( OidRegistry oidRegistry, AttributeTypeRegistry attrTypeRegistry ) throws NamingException
+    public ACDFEngine(OidRegistry oidRegistry, AttributeTypeRegistry attrTypeRegistry) throws NamingException
     {
         Evaluator entryEvaluator = new ExpressionEvaluator( oidRegistry, attrTypeRegistry );
         SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( oidRegistry );
-        RefinementEvaluator refinementEvaluator = new RefinementEvaluator(
-                new RefinementLeafEvaluator( oidRegistry ) );
+        RefinementEvaluator refinementEvaluator = new RefinementEvaluator( new RefinementLeafEvaluator( oidRegistry ) );
 
-        filters = new ACITupleFilter[] {
-                new RelatedUserClassFilter( subtreeEvaluator ),
-                new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator ),
-                new MaxValueCountFilter(),
-                new MaxImmSubFilter(),
-                new RestrictedByFilter(),
-                new MicroOperationFilter(),
-                new HighestPrecedenceFilter(),
-                new MostSpecificUserClassFilter(),
-                new MostSpecificProtectedItemFilter(),
-        };
+        filters = new ACITupleFilter[]
+            { new RelatedUserClassFilter( subtreeEvaluator ),
+                new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator ), new MaxValueCountFilter(),
+                new MaxImmSubFilter(), new RestrictedByFilter(), new MicroOperationFilter(),
+                new HighestPrecedenceFilter(), new MostSpecificUserClassFilter(),
+                new MostSpecificProtectedItemFilter(), };
     }
+
 
     /**
      * Checks the user with the specified name can access the specified resource
@@ -111,22 +108,16 @@ public class ACDFEngine
      * @param aciTuples {@link ACITuple}s translated from {@link ACIItem}s in the subtree entries
      * @throws NamingException if failed to evaluate ACI items
      */
-    public void checkPermission(
-            DirectoryPartitionNexusProxy proxy,
-            Collection userGroupNames, Name username, AuthenticationLevel authenticationLevel,
-            Name entryName, String attrId, Object attrValue,
-            Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
+    public void checkPermission( DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name username,
+        AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue,
+        Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
     {
-        if( !hasPermission(
-                proxy,
-                userGroupNames, username, authenticationLevel,
-                entryName, attrId, attrValue,
-                microOperations, aciTuples, entry ) )
+        if ( !hasPermission( proxy, userGroupNames, username, authenticationLevel, entryName, attrId, attrValue,
+            microOperations, aciTuples, entry ) )
         {
             throw new LdapNoPermissionException();
         }
     }
-
 
     public static final Collection USER_LOOKUP_BYPASS;
     static
@@ -160,13 +151,11 @@ public class ACDFEngine
      * @param microOperations the {@link MicroOperation}s to perform
      * @param aciTuples {@link ACITuple}s translated from {@link ACIItem}s in the subtree entries
      */
-    public boolean hasPermission(
-            DirectoryPartitionNexusProxy proxy,
-            Collection userGroupNames, Name userName, AuthenticationLevel authenticationLevel,
-            Name entryName, String attrId, Object attrValue,
-            Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
+    public boolean hasPermission( DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName,
+        AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue,
+        Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
     {
-        if( entryName == null )
+        if ( entryName == null )
         {
             throw new NullPointerException( "entryName" );
         }
@@ -175,11 +164,11 @@ public class ACDFEngine
 
         // Determine the scope of the requested operation.
         OperationScope scope;
-        if( attrId == null )
+        if ( attrId == null )
         {
             scope = OperationScope.ENTRY;
         }
-        else if( attrValue == null )
+        else if ( attrValue == null )
         {
             scope = OperationScope.ATTRIBUTE_TYPE;
         }
@@ -192,27 +181,25 @@ public class ACDFEngine
         aciTuples = new ArrayList( aciTuples );
 
         // Filter unrelated and invalid tuples
-        for( int i = 0; i < filters.length; i++ )
+        for ( int i = 0; i < filters.length; i++ )
         {
-            ACITupleFilter filter = filters[ i ];
-            aciTuples = filter.filter(
-                    aciTuples, scope, proxy,
-                    userGroupNames, userName, userEntry, authenticationLevel,
-                    entryName, attrId, attrValue, entry, microOperations );
+            ACITupleFilter filter = filters[i];
+            aciTuples = filter.filter( aciTuples, scope, proxy, userGroupNames, userName, userEntry,
+                authenticationLevel, entryName, attrId, attrValue, entry, microOperations );
         }
 
         // Deny access if no tuples left.
-        if( aciTuples.size() == 0 )
+        if ( aciTuples.size() == 0 )
         {
             return false;
         }
 
         // Grant access if and only if one or more tuples remain and
         // all grant access. Otherwise deny access.
-        for( Iterator i = aciTuples.iterator(); i.hasNext(); )
+        for ( Iterator i = aciTuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            if( !tuple.isGrant() )
+            if ( !tuple.isGrant() )
             {
                 return false;
             }

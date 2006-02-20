@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.io.encoder;
 
+
 import java.io.IOException;
 
 import org.apache.directory.server.dns.messages.RecordClass;
@@ -24,9 +25,11 @@ import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.mina.common.ByteBuffer;
 
+
 public abstract class ResourceRecordEncoder implements RecordEncoder
 {
     protected abstract byte[] encodeResourceData( ResourceRecord record );
+
 
     public void encode( ByteBuffer out, ResourceRecord record ) throws IOException
     {
@@ -38,9 +41,10 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
 
         byte[] resourceData = encodeResourceData( record );
 
-        out.putShort( (short) resourceData.length );
+        out.putShort( ( short ) resourceData.length );
         out.put( resourceData );
     }
+
 
     /**
      * <domain-name> is a domain name represented as a series of labels, and
@@ -55,11 +59,12 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
         encodeDomainName( byteBuffer, domainName );
 
         byteBuffer.flip();
-        byte[] bytes = new byte[ byteBuffer.remaining() ];
+        byte[] bytes = new byte[byteBuffer.remaining()];
         byteBuffer.get( bytes, 0, bytes.length );
 
         return bytes;
     }
+
 
     /**
      * <domain-name> is a domain name represented as a series of labels, and
@@ -73,27 +78,30 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
 
         for ( int ii = 0; ii < labels.length; ii++ )
         {
-            byteBuffer.put( (byte) labels[ ii ].length() );
+            byteBuffer.put( ( byte ) labels[ii].length() );
 
-            char[] characters = labels[ ii ].toCharArray();
+            char[] characters = labels[ii].toCharArray();
             for ( int jj = 0; jj < characters.length; jj++ )
             {
-                byteBuffer.put( (byte) characters[ jj ] );
+                byteBuffer.put( ( byte ) characters[jj] );
             }
         }
 
-        byteBuffer.put( (byte) 0x00 );
+        byteBuffer.put( ( byte ) 0x00 );
     }
+
 
     protected void encodeRecordType( ByteBuffer byteBuffer, RecordType recordType )
     {
-        byteBuffer.putShort( (short) recordType.getOrdinal() );
+        byteBuffer.putShort( ( short ) recordType.getOrdinal() );
     }
+
 
     protected void encodeRecordClass( ByteBuffer byteBuffer, RecordClass recordClass )
     {
-        byteBuffer.putShort( (short) recordClass.getOrdinal() );
+        byteBuffer.putShort( ( short ) recordClass.getOrdinal() );
     }
+
 
     /**
      * <character-string> is a single length octet followed by that number
@@ -106,49 +114,55 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
     {
         ByteBuffer byteBuffer = ByteBuffer.allocate( 256 );
 
-        byteBuffer.put( (byte) characterString.length() );
+        byteBuffer.put( ( byte ) characterString.length() );
 
         char[] characters = characterString.toCharArray();
 
         for ( int ii = 0; ii < characters.length; ii++ )
         {
-            byteBuffer.put( (byte) characters[ ii ] );
+            byteBuffer.put( ( byte ) characters[ii] );
         }
 
         byteBuffer.flip();
-        byte[] bytes = new byte[ byteBuffer.remaining() ];
+        byte[] bytes = new byte[byteBuffer.remaining()];
         byteBuffer.get( bytes, 0, bytes.length );
 
         return bytes;
     }
 
+
     protected void putUnsignedByte( ByteBuffer byteBuffer, int value )
     {
-        byteBuffer.put( (byte) ( value & 0xff ) );
+        byteBuffer.put( ( byte ) ( value & 0xff ) );
     }
+
 
     protected void putUnsignedByte( ByteBuffer byteBuffer, int position, int value )
     {
-        byteBuffer.put( position, (byte) ( value & 0xff ) );
+        byteBuffer.put( position, ( byte ) ( value & 0xff ) );
     }
+
 
     protected void putUnsignedShort( ByteBuffer byteBuffer, int value )
     {
-        byteBuffer.putShort( (short) ( value & 0xffff ) );
+        byteBuffer.putShort( ( short ) ( value & 0xffff ) );
     }
+
 
     protected void putUnsignedShort( ByteBuffer byteBuffer, int position, int value )
     {
-        byteBuffer.putShort( position, (short) ( value & 0xffff ) );
+        byteBuffer.putShort( position, ( short ) ( value & 0xffff ) );
     }
+
 
     protected void putUnsignedInt( ByteBuffer byteBuffer, long value )
     {
-        byteBuffer.putInt( (int) ( value & 0xffffffffL ) );
+        byteBuffer.putInt( ( int ) ( value & 0xffffffffL ) );
     }
+
 
     protected void putUnsignedInt( ByteBuffer byteBuffer, int position, long value )
     {
-        byteBuffer.putInt( position, (int) ( value & 0xffffffffL ) );
+        byteBuffer.putInt( position, ( int ) ( value & 0xffffffffL ) );
     }
 }

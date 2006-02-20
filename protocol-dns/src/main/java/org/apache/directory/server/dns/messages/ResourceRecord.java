@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.messages;
 
+
 public interface ResourceRecord
 {
     /**
@@ -24,20 +25,24 @@ public interface ResourceRecord
      */
     public String getDomainName();
 
+
     /**
      * @return Returns the recordType.
      */
     public RecordType getRecordType();
+
 
     /**
      * @return Returns the recordClass.
      */
     public RecordClass getRecordClass();
 
+
     /**
      * @return Returns the timeToLive.
      */
     public int getTimeToLive();
+
 
     /**
      * @return Returns the value for an id.

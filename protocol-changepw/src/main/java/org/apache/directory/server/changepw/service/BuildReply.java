@@ -16,37 +16,40 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import java.net.InetAddress;
 
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.changepw.messages.ChangePasswordReplyModifier;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
+import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
+import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPart;
+import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPartModifier;
+import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
+import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPartModifier;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
+import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.exceptions.KerberosException;
-import org.apache.kerberos.messages.application.ApplicationReply;
-import org.apache.kerberos.messages.application.PrivateMessage;
-import org.apache.kerberos.messages.components.Authenticator;
-import org.apache.kerberos.messages.components.EncApRepPart;
-import org.apache.kerberos.messages.components.EncApRepPartModifier;
-import org.apache.kerberos.messages.components.EncKrbPrivPart;
-import org.apache.kerberos.messages.components.EncKrbPrivPartModifier;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.messages.value.EncryptedData;
-import org.apache.kerberos.messages.value.EncryptionKey;
-import org.apache.kerberos.messages.value.HostAddress;
-import org.apache.kerberos.service.LockBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class BuildReply extends CommandBase
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( BuildReply.class );
 
+
     public boolean execute( Context context ) throws Exception
     {
-        ChangePasswordContext changepwContext = (ChangePasswordContext) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
 
         Authenticator authenticator = changepwContext.getAuthenticator();
         Ticket ticket = changepwContext.getTicket();
@@ -57,7 +60,8 @@ public class BuildReply extends CommandBase
         // create priv message
         // user-data component is short result code
         EncKrbPrivPartModifier modifier = new EncKrbPrivPartModifier();
-        byte[] resultCode = { (byte) 0x00, (byte) 0x00 };
+        byte[] resultCode =
+            { ( byte ) 0x00, ( byte ) 0x00 };
         modifier.setUserData( resultCode );
 
         modifier.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );

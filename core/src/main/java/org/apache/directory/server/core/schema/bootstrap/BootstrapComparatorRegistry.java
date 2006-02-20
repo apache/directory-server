@@ -49,7 +49,6 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a default ComparatorRegistry by initializing the map and the
      * montior.
@@ -79,13 +78,11 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-
     public void register( String schema, String oid, Comparator comparator ) throws NamingException
     {
         if ( comparators.containsKey( oid ) )
         {
-            NamingException e = new NamingException( "Comparator with OID "
-                + oid + " already registered!" );
+            NamingException e = new NamingException( "Comparator with OID " + oid + " already registered!" );
             monitor.registerFailed( oid, comparator, e );
             throw e;
         }
@@ -105,7 +102,6 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
             return c;
         }
 
-
         NamingException e = new NamingException( "Comparator not found for OID: " + oid );
         monitor.lookupFailed( oid, e );
         throw e;
@@ -120,17 +116,16 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
 
     public String getSchemaName( String oid ) throws NamingException
     {
-        if ( ! Character.isDigit( oid.charAt( 0 ) ) )
+        if ( !Character.isDigit( oid.charAt( 0 ) ) )
         {
             throw new NamingException( "OID " + oid + " is not a numeric OID" );
         }
-        
+
         if ( oidToSchema.containsKey( oid ) )
         {
             return ( String ) oidToSchema.get( oid );
         }
 
-        throw new NamingException( "OID " + oid + " not found in oid to " +
-            "schema name map!" );
+        throw new NamingException( "OID " + oid + " not found in oid to " + "schema name map!" );
     }
 }

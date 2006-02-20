@@ -37,7 +37,6 @@ public interface ProducerCallback
      * @throws NamingException if there are problems registering these objects
      * with bootstrap registries
      */
-    void schemaObjectProduced( BootstrapProducer producer,
-                               String registryKey, Object schemaObject )
+    void schemaObjectProduced( BootstrapProducer producer, String registryKey, Object schemaObject )
         throws NamingException;
 }

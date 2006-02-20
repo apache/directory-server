@@ -17,8 +17,10 @@
 
 package org.apache.directory.server.dhcp.options;
 
+
 import java.util.HashSet;
 import java.util.Set;
+
 
 /**
  * The Dynamic Host Configuration Protocol (DHCP) provides a framework
@@ -29,21 +31,23 @@ import java.util.Set;
  */
 public class OptionsField
 {
-	private Set options = new HashSet();
+    private Set options = new HashSet();
 
-	public void add( DhcpOption option )
-	{
-		options.add( option );
-	}
-	
-	public boolean isEmpty()
-	{
-		return options.isEmpty();
-	}
 
-	public DhcpOption[] toArray()
-	{
-		return (DhcpOption[])options.toArray( new DhcpOption[ options.size() ] );
-	}
+    public void add( DhcpOption option )
+    {
+        options.add( option );
+    }
+
+
+    public boolean isEmpty()
+    {
+        return options.isEmpty();
+    }
+
+
+    public DhcpOption[] toArray()
+    {
+        return ( DhcpOption[] ) options.toArray( new DhcpOption[options.size()] );
+    }
 }
-

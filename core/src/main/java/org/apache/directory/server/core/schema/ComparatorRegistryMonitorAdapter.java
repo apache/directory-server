@@ -31,10 +31,10 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ComparatorRegistryMonitorAdapter 
-    implements ComparatorRegistryMonitor
+public class ComparatorRegistryMonitorAdapter implements ComparatorRegistryMonitor
 {
     private static final Logger log = LoggerFactory.getLogger( ComparatorRegistryMonitorAdapter.class );
+
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.ComparatorRegistryMonitor#registered(
@@ -44,7 +44,7 @@ public class ComparatorRegistryMonitorAdapter
     {
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.ComparatorRegistryMonitor#lookedUp(
      * org.apache.eve.schema.Comparator)
@@ -53,7 +53,7 @@ public class ComparatorRegistryMonitorAdapter
     {
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.ComparatorRegistryMonitor#lookupFailed(
      * java.lang.String, javax.naming.NamingException)
@@ -66,7 +66,7 @@ public class ComparatorRegistryMonitorAdapter
         }
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.ComparatorRegistryMonitor#registerFailed(
      * org.apache.eve.schema.Comparator, javax.naming.NamingException)

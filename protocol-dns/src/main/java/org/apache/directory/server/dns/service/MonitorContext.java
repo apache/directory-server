@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.dns.service;
 
+
 import org.apache.directory.server.dns.messages.ResourceRecords;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.server.protocol.shared.chain.Context;
@@ -23,10 +24,12 @@ import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class MonitorContext extends CommandBase
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorContext.class );
+
 
     public boolean execute( Context context ) throws Exception
     {
@@ -34,7 +37,7 @@ public class MonitorContext extends CommandBase
         {
             try
             {
-                DnsContext dnsContext = (DnsContext) context;
+                DnsContext dnsContext = ( DnsContext ) context;
                 RecordStore store = dnsContext.getStore();
                 ResourceRecords records = dnsContext.getResourceRecords();
 

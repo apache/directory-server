@@ -55,7 +55,7 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
     public boolean checkCanModifyAs( String uid, String password, String entryRdn, ModificationItem[] mods )
-            throws NamingException
+        throws NamingException
     {
         // create the entry with the telephoneNumber attribute to modify
         Attributes testEntry = new BasicAttributes( "ou", "testou", true );
@@ -63,14 +63,14 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
         testEntry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
-        testEntry.put( "telephoneNumber", "867-5309" );  // jenny don't change your number
+        testEntry.put( "telephoneNumber", "867-5309" ); // jenny don't change your number
 
         DirContext adminContext = getContextAsAdmin();
 
         try
         {
             // create the entry as admin
-            LdapName userName = new LdapName( "uid="+uid+",ou=users,ou=system" );
+            LdapName userName = new LdapName( "uid=" + uid + ",ou=users,ou=system" );
             adminContext.createSubcontext( entryRdn, testEntry );
 
             // modify the entry as the user
@@ -111,7 +111,7 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
     public boolean checkCanModifyAs( String uid, String password, String entryRdn, int modOp, Attributes mods )
-            throws NamingException
+        throws NamingException
     {
         // create the entry with the telephoneNumber attribute to modify
         Attributes testEntry = new BasicAttributes( "ou", "testou", true );
@@ -119,14 +119,14 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
         testEntry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
-        testEntry.put( "telephoneNumber", "867-5309" );  // jenny don't change your number
+        testEntry.put( "telephoneNumber", "867-5309" ); // jenny don't change your number
 
         DirContext adminContext = getContextAsAdmin();
 
         try
         {
             // create the entry as admin
-            LdapName userName = new LdapName( "uid="+uid+",ou=users,ou=system" );
+            LdapName userName = new LdapName( "uid=" + uid + ",ou=users,ou=system" );
             adminContext.createSubcontext( entryRdn, testEntry );
 
             // modify the entry as the user
@@ -160,13 +160,12 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
      * false otherwise.
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
-    public boolean checkCanSelfModify( String uid, String password, int modOp, Attributes mods )
-            throws NamingException
+    public boolean checkCanSelfModify( String uid, String password, int modOp, Attributes mods ) throws NamingException
     {
         try
         {
             // modify the entry as the user
-            Name userEntry = new LdapName( "uid="+uid+",ou=users,ou=system" );
+            Name userEntry = new LdapName( "uid=" + uid + ",ou=users,ou=system" );
             DirContext userContext = getContextAs( userEntry, password, userEntry.toString() );
             userContext.modifyAttributes( "", modOp, mods );
             return true;
@@ -190,13 +189,12 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
      * false otherwise.
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
-    public boolean checkCanSelfModify( String uid, String password, ModificationItem[] mods )
-            throws NamingException
+    public boolean checkCanSelfModify( String uid, String password, ModificationItem[] mods ) throws NamingException
     {
         try
         {
             // modify the entry as the user
-            Name userEntry = new LdapName( "uid="+uid+",ou=users,ou=system" );
+            Name userEntry = new LdapName( "uid=" + uid + ",ou=users,ou=system" );
             DirContext userContext = getContextAs( userEntry, password, userEntry.toString() );
             userContext.modifyAttributes( "", mods );
             return true;
@@ -240,25 +238,20 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
         createUser( "billyd", "billyd" );
 
         // create the password modification
-        ModificationItem[] mods = toItems( DirContext.REPLACE_ATTRIBUTE,
-                new BasicAttributes( "userPassword", "williams", true ) );
+        ModificationItem[] mods = toItems( DirContext.REPLACE_ATTRIBUTE, new BasicAttributes( "userPassword",
+            "williams", true ) );
 
         // try a modify operation which should fail without any ACI
         assertFalse( checkCanSelfModify( "billyd", "billyd", mods ) );
 
         // Gives grantModify, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "selfModifyUserPassword",
-                "{ " +
-                "identificationTag \"addAci\", " +
-                "precedence 14, " +
-                "authenticationLevel none, " +
-                "itemOrUserFirst userFirst: { " +
-                "userClasses { thisEntry }, " +
-                "userPermissions { " +
-                        "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse, grantRead } }, " +
-                        "{ protectedItems {allAttributeValues {userPassword}}, grantsAndDenials { grantAdd, grantRemove } } " +
-                        "} } }" );
+        createAccessControlSubentry( "selfModifyUserPassword", "{ " + "identificationTag \"addAci\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { thisEntry }, " + "userPermissions { "
+            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse, grantRead } }, "
+            + "{ protectedItems {allAttributeValues {userPassword}}, grantsAndDenials { grantAdd, grantRemove } } "
+            + "} } }" );
 
         // try a modify operation which should succeed with ACI
         assertTrue( checkCanSelfModify( "billyd", "billyd", mods ) );
@@ -278,8 +271,8 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
         // ----------------------------------------------------------------------------------
 
         // create the add modifications
-        ModificationItem[] mods = toItems( DirContext.ADD_ATTRIBUTE,
-                new BasicAttributes( "registeredAddress", "100 Park Ave.", true ) );
+        ModificationItem[] mods = toItems( DirContext.ADD_ATTRIBUTE, new BasicAttributes( "registeredAddress",
+            "100 Park Ave.", true ) );
 
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -289,17 +282,11 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
 
         // Gives grantModify, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyAdd",
-                "{ " +
-                "identificationTag \"addAci\", " +
-                "precedence 14, " +
-                "authenticationLevel none, " +
-                "itemOrUserFirst userFirst: { " +
-                "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " +
-                "userPermissions { " +
-                        "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, " +
-                        "{ protectedItems {allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " +
-                        "} } }" );
+        createAccessControlSubentry( "administratorModifyAdd", "{ " + "identificationTag \"addAci\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { "
+            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
+            + "{ protectedItems {allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group
@@ -317,24 +304,18 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        mods = toItems( DirContext.REMOVE_ATTRIBUTE,
-                new BasicAttributes( "telephoneNumber", "867-5309", true ) );
+        mods = toItems( DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "telephoneNumber", "867-5309", true ) );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
         // Gives grantModify, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyRemove", "{ " +
-                "identificationTag \"addAci\", " +
-                "precedence 14, " +
-                "authenticationLevel none, " +
-                "itemOrUserFirst userFirst: { " +
-                "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " +
-                "userPermissions { " +
-                        "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, " +
-                        "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " +
-                        "} } }" );
+        createAccessControlSubentry( "administratorModifyRemove", "{ " + "identificationTag \"addAci\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { "
+            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
+            + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -345,24 +326,19 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        mods = toItems( DirContext.REPLACE_ATTRIBUTE,
-                new BasicAttributes( "telephoneNumber", "867-5309", true ) );
+        mods = toItems( DirContext.REPLACE_ATTRIBUTE, new BasicAttributes( "telephoneNumber", "867-5309", true ) );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
         // Gives grantModify, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyReplace", "{ " +
-                "identificationTag \"addAci\", " +
-                "precedence 14, " +
-                "authenticationLevel none, " +
-                "itemOrUserFirst userFirst: { " +
-                "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " +
-                "userPermissions { " +
-                        "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, " +
-                        "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } " +
-                        "} } }" );
+        createAccessControlSubentry( "administratorModifyReplace", "{ " + "identificationTag \"addAci\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { "
+            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
+            + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
+            + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -375,7 +351,6 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
         // ----------------------------------------------------------------------------------
         // Modify with Attribute Addition
         // ----------------------------------------------------------------------------------
-
         // create the add modifications
         Attributes changes = new BasicAttributes( "registeredAddress", "100 Park Ave.", true );
 
@@ -384,16 +359,11 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
 
         // Gives grantModify, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyAdd", "{ " +
-                "identificationTag \"addAci\", " +
-                "precedence 14, " +
-                "authenticationLevel none, " +
-                "itemOrUserFirst userFirst: { " +
-                "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " +
-                "userPermissions { " +
-                        "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, " +
-                        "{ protectedItems {allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " +
-                        "} } }" );
+        createAccessControlSubentry( "administratorModifyAdd", "{ " + "identificationTag \"addAci\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { "
+            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
+            + "{ protectedItems {allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.ADD_ATTRIBUTE, changes ) );
@@ -411,16 +381,11 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
 
         // Gives grantModify, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyRemove", "{ " +
-                "identificationTag \"addAci\", " +
-                "precedence 14, " +
-                "authenticationLevel none, " +
-                "itemOrUserFirst userFirst: { " +
-                "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " +
-                "userPermissions { " +
-                        "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, " +
-                        "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " +
-                        "} } }" );
+        createAccessControlSubentry( "administratorModifyRemove", "{ " + "identificationTag \"addAci\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { "
+            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
+            + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REMOVE_ATTRIBUTE, changes ) );
@@ -438,107 +403,102 @@ public class ModifyAuthorizationTest extends AbstractAuthorizationTest
 
         // Gives grantModify, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyReplace", "{ " +
-                "identificationTag \"addAci\", " +
-                "precedence 14, " +
-                "authenticationLevel none, " +
-                "itemOrUserFirst userFirst: { " +
-                "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " +
-                "userPermissions { " +
-                        "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, " +
-                        "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } " +
-                        "} } }" );
+        createAccessControlSubentry( "administratorModifyReplace", "{ " + "identificationTag \"addAci\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { "
+            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
+            + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
+            + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REPLACE_ATTRIBUTE, changes ) );
         deleteAccessControlSubentry( "administratorModifyReplace" );
     }
 
-
-//    /**
-//     * Checks to make sure name based userClass works for modify operations.
-//     *
-//     * @throws javax.naming.NamingException if the test encounters an error
-//     */
-//    public void testGrantModifyByName() throws NamingException
-//    {
-//        // create the non-admin user
-//        createUser( "billyd", "billyd" );
-//
-//        // try an modify operation which should fail without any ACI
-//        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
-//
-//        // now add a subentry that enables user billyd to modify an entry below ou=system
-//        createAccessControlSubentry( "billydAdd", "{ " +
-//                "identificationTag \"addAci\", " +
-//                "precedence 14, " +
-//                "authenticationLevel none, " +
-//                "itemOrUserFirst userFirst: { " +
-//                "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
-//                "userPermissions { { " +
-//                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-//                "grantsAndDenials { grantModify, grantRead, grantBrowse } } } } }" );
-//
-//        // should work now that billyd is authorized by name
-//        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
-//    }
-//
-//
-//    /**
-//     * Checks to make sure subtree based userClass works for modify operations.
-//     *
-//     * @throws javax.naming.NamingException if the test encounters an error
-//     */
-//    public void testGrantModifyBySubtree() throws NamingException
-//    {
-//        // create the non-admin user
-//        createUser( "billyd", "billyd" );
-//
-//        // try a modify operation which should fail without any ACI
-//        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
-//
-//        // now add a subentry that enables user billyd to modify an entry below ou=system
-//        createAccessControlSubentry( "billyAddBySubtree", "{ " +
-//                "identificationTag \"addAci\", " +
-//                "precedence 14, " +
-//                "authenticationLevel none, " +
-//                "itemOrUserFirst userFirst: { " +
-//                "userClasses { subtree { { base \"ou=users,ou=system\" } } }, " +
-//                "userPermissions { { " +
-//                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-//                "grantsAndDenials { grantModify, grantRead, grantBrowse } } } } }" );
-//
-//        // should work now that billyd is authorized by the subtree userClass
-//        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
-//    }
-//
-//
-//    /**
-//     * Checks to make sure <b>allUsers</b> userClass works for modify operations.
-//     *
-//     * @throws javax.naming.NamingException if the test encounters an error
-//     */
-//    public void testGrantModifyAllUsers() throws NamingException
-//    {
-//        // create the non-admin user
-//        createUser( "billyd", "billyd" );
-//
-//        // try an add operation which should fail without any ACI
-//        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
-//
-//        // now add a subentry that enables anyone to add an entry below ou=system
-//        createAccessControlSubentry( "anybodyAdd", "{ " +
-//                "identificationTag \"addAci\", " +
-//                "precedence 14, " +
-//                "authenticationLevel none, " +
-//                "itemOrUserFirst userFirst: { " +
-//                "userClasses { allUsers }, " +
-//                "userPermissions { { " +
-//                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-//                "grantsAndDenials { grantModify, grantRead, grantBrowse } } } } }" );
-//
-//        // see if we can now modify that test entry's number which we could not before
-//        // should work with billyd now that all users are authorized
-//        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
-//    }
+    //    /**
+    //     * Checks to make sure name based userClass works for modify operations.
+    //     *
+    //     * @throws javax.naming.NamingException if the test encounters an error
+    //     */
+    //    public void testGrantModifyByName() throws NamingException
+    //    {
+    //        // create the non-admin user
+    //        createUser( "billyd", "billyd" );
+    //
+    //        // try an modify operation which should fail without any ACI
+    //        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
+    //
+    //        // now add a subentry that enables user billyd to modify an entry below ou=system
+    //        createAccessControlSubentry( "billydAdd", "{ " +
+    //                "identificationTag \"addAci\", " +
+    //                "precedence 14, " +
+    //                "authenticationLevel none, " +
+    //                "itemOrUserFirst userFirst: { " +
+    //                "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
+    //                "userPermissions { { " +
+    //                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+    //                "grantsAndDenials { grantModify, grantRead, grantBrowse } } } } }" );
+    //
+    //        // should work now that billyd is authorized by name
+    //        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
+    //    }
+    //
+    //
+    //    /**
+    //     * Checks to make sure subtree based userClass works for modify operations.
+    //     *
+    //     * @throws javax.naming.NamingException if the test encounters an error
+    //     */
+    //    public void testGrantModifyBySubtree() throws NamingException
+    //    {
+    //        // create the non-admin user
+    //        createUser( "billyd", "billyd" );
+    //
+    //        // try a modify operation which should fail without any ACI
+    //        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
+    //
+    //        // now add a subentry that enables user billyd to modify an entry below ou=system
+    //        createAccessControlSubentry( "billyAddBySubtree", "{ " +
+    //                "identificationTag \"addAci\", " +
+    //                "precedence 14, " +
+    //                "authenticationLevel none, " +
+    //                "itemOrUserFirst userFirst: { " +
+    //                "userClasses { subtree { { base \"ou=users,ou=system\" } } }, " +
+    //                "userPermissions { { " +
+    //                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+    //                "grantsAndDenials { grantModify, grantRead, grantBrowse } } } } }" );
+    //
+    //        // should work now that billyd is authorized by the subtree userClass
+    //        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
+    //    }
+    //
+    //
+    //    /**
+    //     * Checks to make sure <b>allUsers</b> userClass works for modify operations.
+    //     *
+    //     * @throws javax.naming.NamingException if the test encounters an error
+    //     */
+    //    public void testGrantModifyAllUsers() throws NamingException
+    //    {
+    //        // create the non-admin user
+    //        createUser( "billyd", "billyd" );
+    //
+    //        // try an add operation which should fail without any ACI
+    //        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
+    //
+    //        // now add a subentry that enables anyone to add an entry below ou=system
+    //        createAccessControlSubentry( "anybodyAdd", "{ " +
+    //                "identificationTag \"addAci\", " +
+    //                "precedence 14, " +
+    //                "authenticationLevel none, " +
+    //                "itemOrUserFirst userFirst: { " +
+    //                "userClasses { allUsers }, " +
+    //                "userPermissions { { " +
+    //                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+    //                "grantsAndDenials { grantModify, grantRead, grantBrowse } } } } }" );
+    //
+    //        // see if we can now modify that test entry's number which we could not before
+    //        // should work with billyd now that all users are authorized
+    //        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
+    //    }
 }

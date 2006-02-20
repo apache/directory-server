@@ -15,6 +15,7 @@
  */
 package org.apache.directory.server.protocol.shared.chain;
 
+
 /**
  * <p>A {@link Filter} is a specialized {@link Command} that also expects
  * the {@link Chain} that is executing it to call the

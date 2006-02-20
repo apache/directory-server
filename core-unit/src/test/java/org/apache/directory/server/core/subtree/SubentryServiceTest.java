@@ -86,7 +86,8 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         Attribute attribute = new LockableAttributeImpl( "administrativeRole" );
         attribute.add( role );
         ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
-        super.sysRoot.modifyAttributes( "", new ModificationItem[] { item } );
+        super.sysRoot.modifyAttributes( "", new ModificationItem[]
+            { item } );
     }
 
 
@@ -95,7 +96,8 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         Map resultMap = new HashMap();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[] { "+", "*" } );
+        controls.setReturningAttributes( new String[]
+            { "+", "*" } );
         NamingEnumeration results = super.sysRoot.search( "", "(objectClass=*)", controls );
         while ( results.hasMore() )
         {
@@ -129,8 +131,8 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes unmarked = ( Attributes ) results.get( "cn=unmarked,ou=system" );
-        assertNull( "cn=unmarked,ou=system should not be marked",
-                unmarked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "cn=unmarked,ou=system should not be marked", unmarked
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
     }
 
 
@@ -141,7 +143,9 @@ public class SubentryServiceTest extends AbstractAdminTestCase
             super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
             fail( "should never get here: cannot create subentry under regular entries" );
         }
-        catch ( LdapNoSuchAttributeException e ) {}
+        catch ( LdapNoSuchAttributeException e )
+        {
+        }
 
         addAdministrativeRole( "autonomousArea" );
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
@@ -180,24 +184,20 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked",
-                system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked",
-                users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked",
-                groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked",
-                admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
-        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked",
-                sysPrefRoot.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
     }
 
@@ -241,24 +241,20 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked",
-                system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked",
-                users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked",
-                groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked",
-                admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
-        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked",
-                sysPrefRoot.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         // --------------------------------------------------------------------
         // Now modify the subentry by introducing an exclusion
@@ -267,7 +263,8 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         Attribute subtreeSpecification = new LockableAttributeImpl( "subtreeSpecification" );
         subtreeSpecification.add( "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
         ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
-        super.sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItem[] { item } );
+        super.sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItem[]
+            { item } );
         results = getAllEntries();
 
         // --------------------------------------------------------------------
@@ -297,31 +294,26 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked",
-                system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked",
-                users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked",
-                groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked",
-                admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
-        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked",
-                sysPrefRoot.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
         autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
         if ( autonomousSubentry != null )
         {
-            assertEquals( "ou=services,ou=configuration,ou=system should not be marked",
-                0, autonomousSubentry.size() );
+            assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0, autonomousSubentry.size() );
         }
     }
 
@@ -365,24 +357,20 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked",
-                system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked",
-                users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked",
-                groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked",
-                admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
-        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked",
-                sysPrefRoot.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         // --------------------------------------------------------------------
         // Now modify the subentry by introducing an exclusion
@@ -390,7 +378,7 @@ public class SubentryServiceTest extends AbstractAdminTestCase
 
         Attributes changes = new LockableAttributesImpl();
         changes.put( "subtreeSpecification",
-                "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
+            "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
         super.sysRoot.modifyAttributes( "cn=testsubentry", DirContext.REPLACE_ATTRIBUTE, changes );
         results = getAllEntries();
 
@@ -421,31 +409,26 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked",
-                system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked",
-                users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked",
-                groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked",
-                admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
-        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked",
-                sysPrefRoot.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
         autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
         if ( autonomousSubentry != null )
         {
-            assertEquals( "ou=services,ou=configuration,ou=system should not be marked",
-                0, autonomousSubentry.size() );
+            assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0, autonomousSubentry.size() );
         }
     }
 
@@ -473,41 +456,36 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
         if ( autonomousSubentry != null )
         {
-            assertEquals( "ou=interceptors,ou=configuration,ou=system should not be marked",
-                    0,autonomousSubentry.size() );
+            assertEquals( "ou=interceptors,ou=configuration,ou=system should not be marked", 0, autonomousSubentry
+                .size() );
         }
 
         Attributes partitions = ( Attributes ) results.get( "ou=partitions,ou=configuration,ou=system" );
         autonomousSubentry = partitions.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
         if ( autonomousSubentry != null )
         {
-            assertEquals( "ou=partitions,ou=configuration,ou=system should not be marked",
-                    0, autonomousSubentry.size() );
+            assertEquals( "ou=partitions,ou=configuration,ou=system should not be marked", 0, autonomousSubentry.size() );
         }
 
         Attributes services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
         autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
         if ( autonomousSubentry != null )
         {
-            assertEquals( "ou=services,ou=configuration,ou=system should not be marked",
-                    0, autonomousSubentry.size() );
+            assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0, autonomousSubentry.size() );
         }
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked",
-                system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked",
-                users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked",
-                admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
-        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked",
-                sysPrefRoot.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
     }
 
@@ -552,24 +530,20 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked",
-                system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked",
-                users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked",
-                groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked",
-                admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
-        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked",
-                sysPrefRoot.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
     }
 
@@ -621,28 +595,24 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked",
-                system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked",
-                users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked",
-                groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked",
-                admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
-        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked",
-                sysPrefRoot.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes unmarked = ( Attributes ) results.get( "cn=unmarked,ou=configuration,ou=system" );
-        assertNull( "cn=unmarked,ou=configuration,ou=system should not be marked",
-                unmarked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "cn=unmarked,ou=configuration,ou=system should not be marked", unmarked
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         // --------------------------------------------------------------------
         // Now destry one of the marked/unmarked and rename to deleted entry
@@ -653,8 +623,8 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         results = getAllEntries();
 
         unmarked = ( Attributes ) results.get( "cn=unmarked,ou=configuration,ou=system" );
-        assertNull( "cn=unmarked,ou=configuration,ou=system should not be marked",
-                unmarked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "cn=unmarked,ou=configuration,ou=system should not be marked", unmarked
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
         assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
 
         // --------------------------------------------------------------------
@@ -720,28 +690,24 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked",
-                system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked",
-                users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked",
-                groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked",
-                admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
-        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked",
-                sysPrefRoot.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes unmarked = ( Attributes ) results.get( "cn=unmarked,ou=system" );
-        assertNull( "cn=unmarked,ou=system should not be marked",
-                unmarked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "cn=unmarked,ou=system should not be marked", unmarked
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         // --------------------------------------------------------------------
         // Now destry one of the marked/unmarked and rename to deleted entry
@@ -752,8 +718,8 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         results = getAllEntries();
 
         unmarked = ( Attributes ) results.get( "cn=unmarked,ou=system" );
-        assertNull( "cn=unmarked,ou=system should not be marked",
-                unmarked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "cn=unmarked,ou=system should not be marked", unmarked
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
         assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
 
         // --------------------------------------------------------------------
@@ -819,28 +785,24 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked",
-                system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked",
-                users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked",
-                groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked",
-                admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
-        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked",
-                sysPrefRoot.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         Attributes unmarked = ( Attributes ) results.get( "cn=unmarked,ou=system" );
-        assertNull( "cn=unmarked,ou=system should not be marked",
-                unmarked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "cn=unmarked,ou=system should not be marked", unmarked
+            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
 
         // --------------------------------------------------------------------
         // Now destry one of the marked/unmarked and rename to deleted entry
@@ -861,8 +823,8 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         assertEquals( "cn=testsubentry,ou=system", autonomousSubentry.get() );
         assertEquals( 1, autonomousSubentry.size() );
     }
-    
-    
+
+
     public void testSubentriesControl() throws Exception
     {
         addAdministrativeRole( "autonomousArea" );
@@ -878,14 +840,15 @@ public class SubentryServiceTest extends AbstractAdminTestCase
             SearchResult result = ( SearchResult ) list.next();
             entries.put( result.getName(), result );
         }
-        assertTrue( entries.size() > 1  );
+        assertTrue( entries.size() > 1 );
         assertNull( entries.get( "cn=testsubentry,ou=system" ) );
-        
+
         // now add the control with visibility set to true where all entries 
         // except subentries disappear
         SubentriesControl ctl = new SubentriesControl();
         ctl.setVisibility( true );
-        super.sysRoot.setRequestControls( new Control[] { ctl } );
+        super.sysRoot.setRequestControls( new Control[]
+            { ctl } );
         list = super.sysRoot.search( "", "(objectClass=*)", searchControls );
         SearchResult result = ( SearchResult ) list.next();
         assertFalse( list.hasMore() );

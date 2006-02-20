@@ -50,7 +50,6 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
     // Search Operation Tests
     // ------------------------------------------------------------------------
 
-
     /**
      * Test search operation failure when the search base is non-existant.
      */
@@ -62,7 +61,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.search( "ou=blah", "(objectClass=*)", ctls );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameNotFoundException e )
+        catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
@@ -94,7 +93,6 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
     // Move Operation Tests
     // ------------------------------------------------------------------------
 
-
     /**
      * Test move operation failure when the object moved is non-existant.
      */
@@ -106,7 +104,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.rename( "ou=users", "ou=users,ou=groups" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameAlreadyBoundException e )
+        catch ( LdapNameAlreadyBoundException e )
         {
             assertEquals( "ou=users,ou=groups,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.ENTRYALREADYEXISTS, e.getResultCode() );
@@ -120,7 +118,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.removeFromEnvironment( "java.naming.ldap.deleteRDN" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameAlreadyBoundException e )
+        catch ( LdapNameAlreadyBoundException e )
         {
             assertEquals( "ou=uzerz,ou=groups,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.ENTRYALREADYEXISTS, e.getResultCode() );
@@ -138,7 +136,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.rename( "ou=blah", "ou=blah,ou=groups" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameNotFoundException e )
+        catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
@@ -151,7 +149,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.removeFromEnvironment( "java.naming.ldap.deleteRDN" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameNotFoundException e )
+        catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
@@ -173,7 +171,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.lookup( "ou=users" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertTrue( e instanceof LdapNameNotFoundException );
@@ -195,7 +193,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.rename( "ou=users", "ou=groups" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameAlreadyBoundException e )
+        catch ( LdapNameAlreadyBoundException e )
         {
             assertEquals( "ou=groups,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.ENTRYALREADYEXISTS, e.getResultCode() );
@@ -213,7 +211,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.rename( "ou=blah", "ou=asdf" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameNotFoundException e )
+        catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
@@ -235,7 +233,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.lookup( "ou=users" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertTrue( e instanceof LdapNameNotFoundException );
@@ -263,23 +261,21 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.modifyAttributes( "ou=blah", DirContext.ADD_ATTRIBUTE, attrs );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameNotFoundException e )
+        catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
         }
 
-
-        ModificationItem[] mods = new ModificationItem[] {
-            new ModificationItem( DirContext.ADD_ATTRIBUTE, ou )
-        };
+        ModificationItem[] mods = new ModificationItem[]
+            { new ModificationItem( DirContext.ADD_ATTRIBUTE, ou ) };
 
         try
         {
             sysRoot.modifyAttributes( "ou=blah", mods );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameNotFoundException e )
+        catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
@@ -304,9 +300,8 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
 
         attr = new BasicAttribute( "ou" );
         attr.add( "another" );
-        ModificationItem[] mods = new ModificationItem[] {
-            new ModificationItem( DirContext.ADD_ATTRIBUTE, attr )
-        };
+        ModificationItem[] mods = new ModificationItem[]
+            { new ModificationItem( DirContext.ADD_ATTRIBUTE, attr ) };
 
         sysRoot.modifyAttributes( "ou=users", mods );
         ou = sysRoot.getAttributes( "ou=users" ).get( "ou" );
@@ -330,7 +325,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.lookup( "ou=blah" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameNotFoundException e )
+        catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
@@ -346,14 +341,13 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
     {
         LdapContext ctx = ( LdapContext ) sysRoot.lookup( "ou=users" );
         assertNotNull( ctx );
-        assertEquals( "users", ctx.getAttributes("").get( "ou" ).get() );
+        assertEquals( "users", ctx.getAttributes( "" ).get( "ou" ).get() );
     }
 
 
     // ------------------------------------------------------------------------
     // List Operation Tests
     // ------------------------------------------------------------------------
-
 
     /**
      * Test list operation failure when the base searched is non-existant.
@@ -365,7 +359,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.list( "ou=blah" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameNotFoundException e )
+        catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
@@ -395,7 +389,6 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
     // Add Operation Tests
     // ------------------------------------------------------------------------
 
-
     /**
      * Tests for add operation failure when the parent of the entry to add does
      * not exist.
@@ -416,7 +409,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.createSubcontext( "ou=blah,cn=toanother" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNamingException e )
+        catch ( LdapNamingException e )
         {
             assertEquals( "cn=toanother,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.ALIASPROBLEM, e.getResultCode() );
@@ -435,7 +428,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.createSubcontext( "ou=blah,ou=abc" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameNotFoundException e )
+        catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
@@ -455,7 +448,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.createSubcontext( "ou=blah" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameAlreadyBoundException e )
+        catch ( LdapNameAlreadyBoundException e )
         {
             assertEquals( "ou=blah,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.ENTRYALREADYEXISTS, e.getResultCode() );
@@ -479,7 +472,6 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
     // Delete Operation Tests
     // ------------------------------------------------------------------------
 
-
     /**
      * Tests for delete failure when the entry to be deleted has child entires.
      */
@@ -493,7 +485,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.destroySubcontext( "ou=blah" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapContextNotEmptyException e )
+        catch ( LdapContextNotEmptyException e )
         {
             assertEquals( "ou=blah,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NOTALLOWEDONNONLEAF, e.getResultCode() );
@@ -512,7 +504,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.destroySubcontext( "ou=blah" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameNotFoundException e )
+        catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
@@ -535,7 +527,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
             sysRoot.lookup( "ou=blah" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch( LdapNameNotFoundException e )
+        catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );

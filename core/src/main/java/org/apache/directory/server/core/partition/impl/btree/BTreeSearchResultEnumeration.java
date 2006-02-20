@@ -45,13 +45,14 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
     /** Database used to lookup entries from */
     private BTreeDirectoryPartition partition = null;
     /** the attributes to return */
-    private final String [] attrIds;
+    private final String[] attrIds;
     /** underlying enumeration over IndexRecords */
     private final NamingEnumeration underlying;
 
     private boolean attrIdsHasStar = false;
     private boolean attrIdsHasPlus = false;
     private AttributeTypeRegistry registry = null;
+
 
     /**
      * Creates an enumeration that returns entries packaged within SearchResults
@@ -60,10 +61,8 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
      * @param attrIds the returned attributes
      * @param underlying the enumeration over IndexRecords
      */
-    public BTreeSearchResultEnumeration( String [] attrIds, 
-                                    NamingEnumeration underlying,
-                                    BTreeDirectoryPartition db,
-                                    AttributeTypeRegistry registry )
+    public BTreeSearchResultEnumeration(String[] attrIds, NamingEnumeration underlying, BTreeDirectoryPartition db,
+        AttributeTypeRegistry registry)
     {
         this.partition = db;
         this.attrIds = attrIds;
@@ -72,8 +71,8 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
         this.attrIdsHasPlus = containsPlus( attrIds );
         this.registry = registry;
     }
-    
-    
+
+
     /**
      * @see javax.naming.NamingEnumeration#close()
      */
@@ -82,7 +81,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
         underlying.close();
     }
 
-    
+
     /**
      * @see javax.naming.NamingEnumeration#hasMore()
      */
@@ -91,7 +90,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
         return underlying.hasMore();
     }
 
-   
+
     /**
      * @see javax.naming.NamingEnumeration#next()
      */
@@ -121,7 +120,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             // add all listed attributes
             for ( int ii = 0; ii < attrIds.length; ii++ )
             {
-                if ( attrIds[ii].equals( "+") )
+                if ( attrIds[ii].equals( "+" ) )
                 {
                     continue;
                 }
@@ -158,7 +157,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             // add all listed operational attributes
             for ( int ii = 0; ii < attrIds.length; ii++ )
             {
-                if ( attrIds[ii].equals( "*") )
+                if ( attrIds[ii].equals( "*" ) )
                 {
                     continue;
                 }

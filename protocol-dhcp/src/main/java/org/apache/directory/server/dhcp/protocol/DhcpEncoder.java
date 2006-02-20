@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dhcp.protocol;
 
+
 import org.apache.directory.server.dhcp.io.DhcpMessageEncoder;
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
 import org.apache.mina.common.ByteBuffer;
@@ -30,17 +31,17 @@ public class DhcpEncoder implements ProtocolEncoder
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out )
     {
         DhcpMessageEncoder encoder = new DhcpMessageEncoder();
-        
+
         ByteBuffer buf = ByteBuffer.allocate( 1024 );
-        encoder.encode( buf.buf(), (DhcpMessage)message );
-        
+        encoder.encode( buf.buf(), ( DhcpMessage ) message );
+
         buf.flip();
-        
+
         out.write( buf );
     }
+
 
     public void dispose( IoSession arg0 ) throws Exception
     {
     }
 }
-

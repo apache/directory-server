@@ -24,23 +24,26 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class RootPath extends DhcpOption
 {
-	private byte[] rootPath;
-	
-	public RootPath( byte[] rootPath )
-	{
-		super( 17, 1 );
-		this.rootPath = rootPath;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( rootPath );
-	}
-}
+    private byte[] rootPath;
 
+
+    public RootPath(byte[] rootPath)
+    {
+        super( 17, 1 );
+        this.rootPath = rootPath;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( rootPath );
+    }
+}

@@ -16,15 +16,17 @@
  */
 package org.apache.directory.server.changepw.io;
 
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequestModifier;
-import org.apache.kerberos.io.decoder.ApplicationRequestDecoder;
-import org.apache.kerberos.io.decoder.PrivateMessageDecoder;
-import org.apache.kerberos.messages.ApplicationRequest;
-import org.apache.kerberos.messages.application.PrivateMessage;
+import org.apache.directory.server.kerberos.shared.io.decoder.ApplicationRequestDecoder;
+import org.apache.directory.server.kerberos.shared.io.decoder.PrivateMessageDecoder;
+import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
+
 
 public class ChangePasswordRequestDecoder
 {
@@ -38,7 +40,7 @@ public class ChangePasswordRequestDecoder
         short authHeaderLength = buf.getShort();
         modifier.setAuthHeaderLength( authHeaderLength );
 
-        byte[] undecodedAuthHeader = new byte[ authHeaderLength ];
+        byte[] undecodedAuthHeader = new byte[authHeaderLength];
         buf.get( undecodedAuthHeader, 0, authHeaderLength );
 
         ApplicationRequestDecoder decoder = new ApplicationRequestDecoder();
@@ -46,7 +48,7 @@ public class ChangePasswordRequestDecoder
 
         modifier.setAuthHeader( authHeader );
 
-        byte[] encodedPrivate = new byte[ buf.remaining() ];
+        byte[] encodedPrivate = new byte[buf.remaining()];
         buf.get( encodedPrivate, 0, buf.remaining() );
 
         PrivateMessageDecoder privateDecoder = new PrivateMessageDecoder();

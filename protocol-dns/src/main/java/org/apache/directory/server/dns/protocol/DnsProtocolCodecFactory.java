@@ -17,29 +17,34 @@
 
 package org.apache.directory.server.dns.protocol;
 
+
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
+
 public class DnsProtocolCodecFactory implements ProtocolCodecFactory
 {
-    private static final DnsProtocolCodecFactory INSTANCE = 
-        new DnsProtocolCodecFactory();
-    
+    private static final DnsProtocolCodecFactory INSTANCE = new DnsProtocolCodecFactory();
+
+
     public static DnsProtocolCodecFactory getInstance()
     {
         return INSTANCE;
     }
 
+
     private DnsProtocolCodecFactory()
     {
     }
+
 
     public ProtocolEncoder getEncoder()
     {
         // Create a new encoder.
         return new DnsEncoder();
     }
+
 
     public ProtocolDecoder getDecoder()
     {

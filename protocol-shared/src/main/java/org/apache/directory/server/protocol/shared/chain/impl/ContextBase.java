@@ -15,6 +15,7 @@
  */
 package org.apache.directory.server.protocol.shared.chain.impl;
 
+
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.server.protocol.shared.chain.Context;
+
 
 /**
  * <p>Convenience base class for {@link Context} implementations.</p>
@@ -52,6 +54,7 @@ public class ContextBase extends HashMap implements Context
 
     private static final long serialVersionUID = 5536081240350960868L;
 
+
     /**
      * Default, no argument constructor.
      */
@@ -60,6 +63,7 @@ public class ContextBase extends HashMap implements Context
         super();
         initialize();
     }
+
 
     /**
      * <p>Initialize the contents of this {@link Context} by copying the
@@ -74,7 +78,7 @@ public class ContextBase extends HashMap implements Context
      * @exception UnsupportedOperationException if a local property does not
      *  have a write method.
      */
-    public ContextBase( Map map )
+    public ContextBase(Map map)
     {
         super( map );
         initialize();
@@ -118,7 +122,8 @@ public class ContextBase extends HashMap implements Context
      * <p>Zero-length array of parameter values for calling property getters.
      * </p>
      */
-    private static Object[] zeroParams = new Object[ 0 ];
+    private static Object[] zeroParams = new Object[0];
+
 
     // ------------------------------------------------------------- Map Methods
 
@@ -146,6 +151,7 @@ public class ContextBase extends HashMap implements Context
         }
     }
 
+
     /**
      * <p>Override the default <code>Map</code> behavior to return
      * <code>true</code> if the specified value is present in either the
@@ -162,18 +168,17 @@ public class ContextBase extends HashMap implements Context
             return ( super.containsValue( value ) );
         }
         // Case 2 -- value found in the underlying Map
-        else
-            if ( super.containsValue( value ) )
-            {
-                return ( true );
-            }
+        else if ( super.containsValue( value ) )
+        {
+            return ( true );
+        }
 
         // Case 3 -- check the values of our readable properties
         for ( int i = 0; i < pd.length; i++ )
         {
-            if ( pd[ i ].getReadMethod() != null )
+            if ( pd[i].getReadMethod() != null )
             {
-                Object prop = readProperty( pd[ i ] );
+                Object prop = readProperty( pd[i] );
                 if ( value == null )
                 {
                     if ( prop == null )
@@ -181,16 +186,16 @@ public class ContextBase extends HashMap implements Context
                         return ( true );
                     }
                 }
-                else
-                    if ( value.equals( prop ) )
-                    {
-                        return ( true );
-                    }
+                else if ( value.equals( prop ) )
+                {
+                    return ( true );
+                }
             }
         }
 
         return ( false );
     }
+
 
     /**
      * <p>Override the default <code>Map</code> behavior to return a
@@ -203,6 +208,7 @@ public class ContextBase extends HashMap implements Context
     {
         return ( new EntrySetImpl() );
     }
+
 
     /**
      * <p>Override the default <code>Map</code> behavior to return the value
@@ -232,7 +238,7 @@ public class ContextBase extends HashMap implements Context
         // Case 2 -- this is a local property
         if ( key != null )
         {
-            PropertyDescriptor descriptor = (PropertyDescriptor) descriptors.get( key );
+            PropertyDescriptor descriptor = ( PropertyDescriptor ) descriptors.get( key );
             if ( descriptor != null )
             {
                 if ( descriptor.getReadMethod() != null )
@@ -249,6 +255,7 @@ public class ContextBase extends HashMap implements Context
         // Case 3 -- retrieve value from our underlying Map
         return ( super.get( key ) );
     }
+
 
     /**
      * <p>Override the default <code>Map</code> behavior to return
@@ -268,6 +275,7 @@ public class ContextBase extends HashMap implements Context
 
     }
 
+
     /**
      * <p>Override the default <code>Map</code> behavior to return a
      * <code>Set</code> that meets the specified default behavior except
@@ -279,6 +287,7 @@ public class ContextBase extends HashMap implements Context
     {
         return ( super.keySet() );
     }
+
 
     /**
      * <p>Override the default <code>Map</code> behavior to set the value
@@ -304,7 +313,7 @@ public class ContextBase extends HashMap implements Context
         // Case 2 -- this is a local property
         if ( key != null )
         {
-            PropertyDescriptor descriptor = (PropertyDescriptor) descriptors.get( key );
+            PropertyDescriptor descriptor = ( PropertyDescriptor ) descriptors.get( key );
             if ( descriptor != null )
             {
                 Object previous = null;
@@ -320,6 +329,7 @@ public class ContextBase extends HashMap implements Context
         // Case 3 -- store or replace value in our underlying map
         return ( super.put( key, value ) );
     }
+
 
     /**
      * <p>Override the default <code>Map</code> behavior to call the
@@ -339,10 +349,11 @@ public class ContextBase extends HashMap implements Context
         Iterator pairs = map.entrySet().iterator();
         while ( pairs.hasNext() )
         {
-            Map.Entry pair = (Map.Entry) pairs.next();
+            Map.Entry pair = ( Map.Entry ) pairs.next();
             put( pair.getKey(), pair.getValue() );
         }
     }
+
 
     /**
      * <p>Override the default <code>Map</code> behavior to throw
@@ -365,7 +376,7 @@ public class ContextBase extends HashMap implements Context
         // Case 2 -- this is a local property
         if ( key != null )
         {
-            PropertyDescriptor descriptor = (PropertyDescriptor) descriptors.get( key );
+            PropertyDescriptor descriptor = ( PropertyDescriptor ) descriptors.get( key );
             if ( descriptor != null )
             {
                 throw new UnsupportedOperationException( "Local property '" + key + "' cannot be removed" );
@@ -375,6 +386,7 @@ public class ContextBase extends HashMap implements Context
         // Case 3 -- remove from underlying Map
         return ( super.remove( key ) );
     }
+
 
     /**
      * <p>Override the default <code>Map</code> behavior to return a
@@ -387,6 +399,7 @@ public class ContextBase extends HashMap implements Context
     {
         return ( new ValuesImpl() );
     }
+
 
     // --------------------------------------------------------- Private Methods
 
@@ -404,7 +417,7 @@ public class ContextBase extends HashMap implements Context
         int j = -1;
         for ( int i = 0; i < pd.length; i++ )
         {
-            if ( name.equals( pd[ i ].getName() ) )
+            if ( name.equals( pd[i].getName() ) )
             {
                 j = i;
                 break;
@@ -416,11 +429,12 @@ public class ContextBase extends HashMap implements Context
             throw new IllegalArgumentException( "Property '" + name + "' is not present" );
         }
 
-        PropertyDescriptor[] results = new PropertyDescriptor[ pd.length - 1 ];
+        PropertyDescriptor[] results = new PropertyDescriptor[pd.length - 1];
         System.arraycopy( pd, 0, results, 0, j );
         System.arraycopy( pd, j + 1, results, j, pd.length - ( j + 1 ) );
         pd = results;
     }
+
 
     /**
      * <p>Return an <code>Iterator</code> over the set of <code>Map.Entry</code>
@@ -430,6 +444,7 @@ public class ContextBase extends HashMap implements Context
     {
         return ( new EntrySetIterator() );
     }
+
 
     /**
      * <p>Return a <code>Map.Entry</code> for the specified key value, if it
@@ -448,6 +463,7 @@ public class ContextBase extends HashMap implements Context
             return ( null );
         }
     }
+
 
     /**
      * <p>Customize the contents of our underlying <code>Map</code> so that
@@ -469,7 +485,7 @@ public class ContextBase extends HashMap implements Context
         }
         catch ( IntrospectionException e )
         {
-            pd = new PropertyDescriptor[ 0 ]; // Should never happen
+            pd = new PropertyDescriptor[0]; // Should never happen
         }
         eliminate( "class" ); // Because of "getClass()"
         eliminate( "empty" ); // Because of "isEmpty()"
@@ -480,12 +496,13 @@ public class ContextBase extends HashMap implements Context
             descriptors = new HashMap();
             for ( int i = 0; i < pd.length; i++ )
             {
-                descriptors.put( pd[ i ].getName(), pd[ i ] );
-                super.put( pd[ i ].getName(), singleton );
+                descriptors.put( pd[i].getName(), pd[i] );
+                super.put( pd[i].getName(), singleton );
             }
         }
 
     }
+
 
     /**
      * <p>Get and return the value for the specified property.</p>
@@ -512,9 +529,10 @@ public class ContextBase extends HashMap implements Context
         catch ( Exception e )
         {
             throw new UnsupportedOperationException( "Exception reading property '" + descriptor.getName() + "': "
-                    + e.getMessage() );
+                + e.getMessage() );
         }
     }
+
 
     /**
      * <p>Remove the specified key-value pair, if it exists, and return
@@ -533,17 +551,17 @@ public class ContextBase extends HashMap implements Context
         {
             return ( false );
         }
+        else if ( !entry.equals( actual ) )
+        {
+            return ( false );
+        }
         else
-            if ( !entry.equals( actual ) )
-            {
-                return ( false );
-            }
-            else
-            {
-                remove( entry.getKey() );
-                return ( true );
-            }
+        {
+            remove( entry.getKey() );
+            return ( true );
+        }
     }
+
 
     /**
      * <p>Return an <code>Iterator</code> over the set of values in this
@@ -553,6 +571,7 @@ public class ContextBase extends HashMap implements Context
     {
         return ( new ValuesIterator() );
     }
+
 
     /**
      * <p>Set the value for the specified property.</p>
@@ -576,12 +595,13 @@ public class ContextBase extends HashMap implements Context
             {
                 throw new UnsupportedOperationException( "Property '" + descriptor.getName() + "' is not writeable" );
             }
-            method.invoke( this, new Object[] { value } );
+            method.invoke( this, new Object[]
+                { value } );
         }
         catch ( Exception e )
         {
             throw new UnsupportedOperationException( "Exception writing property '" + descriptor.getName() + "': "
-                    + e.getMessage() );
+                + e.getMessage() );
         }
     }
 
@@ -598,13 +618,14 @@ public class ContextBase extends HashMap implements Context
             ContextBase.this.clear();
         }
 
+
         public boolean contains( Object obj )
         {
             if ( !( obj instanceof Map.Entry ) )
             {
                 return ( false );
             }
-            Map.Entry entry = (Map.Entry) obj;
+            Map.Entry entry = ( Map.Entry ) obj;
             Entry actual = ContextBase.this.entry( entry.getKey() );
             if ( actual != null )
             {
@@ -616,27 +637,31 @@ public class ContextBase extends HashMap implements Context
             }
         }
 
+
         public boolean isEmpty()
         {
             return ( ContextBase.this.isEmpty() );
         }
+
 
         public Iterator iterator()
         {
             return ( ContextBase.this.entriesIterator() );
         }
 
+
         public boolean remove( Object obj )
         {
             if ( obj instanceof Map.Entry )
             {
-                return ( ContextBase.this.remove( (Map.Entry) obj ) );
+                return ( ContextBase.this.remove( ( Map.Entry ) obj ) );
             }
             else
             {
                 return ( false );
             }
         }
+
 
         public int size()
         {
@@ -653,16 +678,19 @@ public class ContextBase extends HashMap implements Context
         Map.Entry entry = null;
         private Iterator keys = ContextBase.this.keySet().iterator();
 
+
         public boolean hasNext()
         {
             return ( keys.hasNext() );
         }
+
 
         public Object next()
         {
             entry = ContextBase.this.entry( keys.next() );
             return ( entry );
         }
+
 
         public void remove()
         {
@@ -677,7 +705,7 @@ public class ContextBase extends HashMap implements Context
      */
     private class MapEntryImpl implements Map.Entry
     {
-        MapEntryImpl( Object key, Object value )
+        MapEntryImpl(Object key, Object value)
         {
             this.key = key;
             this.value = value;
@@ -686,18 +714,18 @@ public class ContextBase extends HashMap implements Context
         private Object key;
         private Object value;
 
+
         public boolean equals( Object obj )
         {
             if ( obj == null )
             {
                 return ( false );
             }
-            else
-                if ( !( obj instanceof Map.Entry ) )
-                {
-                    return ( false );
-                }
-            Map.Entry entry = (Map.Entry) obj;
+            else if ( !( obj instanceof Map.Entry ) )
+            {
+                return ( false );
+            }
+            Map.Entry entry = ( Map.Entry ) obj;
             if ( key == null )
             {
                 return ( entry.getKey() == null );
@@ -719,20 +747,24 @@ public class ContextBase extends HashMap implements Context
             }
         }
 
+
         public Object getKey()
         {
             return ( this.key );
         }
+
 
         public Object getValue()
         {
             return ( this.value );
         }
 
+
         public int hashCode()
         {
             return ( ( ( key == null ) ? 0 : key.hashCode() ) ^ ( ( value == null ) ? 0 : value.hashCode() ) );
         }
+
 
         public Object setValue( Object value )
         {
@@ -754,37 +786,42 @@ public class ContextBase extends HashMap implements Context
             ContextBase.this.clear();
         }
 
+
         public boolean contains( Object obj )
         {
             if ( !( obj instanceof Map.Entry ) )
             {
                 return ( false );
             }
-            Map.Entry entry = (Map.Entry) obj;
+            Map.Entry entry = ( Map.Entry ) obj;
             return ( ContextBase.this.containsValue( entry.getValue() ) );
         }
+
 
         public boolean isEmpty()
         {
             return ( ContextBase.this.isEmpty() );
         }
 
+
         public Iterator iterator()
         {
             return ( ContextBase.this.valuesIterator() );
         }
 
+
         public boolean remove( Object obj )
         {
             if ( obj instanceof Map.Entry )
             {
-                return ( ContextBase.this.remove( (Map.Entry) obj ) );
+                return ( ContextBase.this.remove( ( Map.Entry ) obj ) );
             }
             else
             {
                 return ( false );
             }
         }
+
 
         public int size()
         {
@@ -801,16 +838,19 @@ public class ContextBase extends HashMap implements Context
         Map.Entry entry = null;
         private Iterator keys = ContextBase.this.keySet().iterator();
 
+
         public boolean hasNext()
         {
             return ( keys.hasNext() );
         }
+
 
         public Object next()
         {
             entry = ContextBase.this.entry( keys.next() );
             return ( entry.getValue() );
         }
+
 
         public void remove()
         {

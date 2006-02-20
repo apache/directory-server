@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.linklayer;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies whether or not the client should negotiate the
@@ -31,17 +33,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class TrailerEncapsulation extends DhcpOption
 {
-	private byte[] trailerEncapsulation;
-	
-	public TrailerEncapsulation( byte[] trailerEncapsulation )
-	{
-		super( 34, 1 );
-		this.trailerEncapsulation = trailerEncapsulation;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( trailerEncapsulation );
-	}
-}
+    private byte[] trailerEncapsulation;
 
+
+    public TrailerEncapsulation(byte[] trailerEncapsulation)
+    {
+        super( 34, 1 );
+        this.trailerEncapsulation = trailerEncapsulation;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( trailerEncapsulation );
+    }
+}

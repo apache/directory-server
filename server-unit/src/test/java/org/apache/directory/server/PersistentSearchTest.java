@@ -61,7 +61,6 @@ public class PersistentSearchTest extends AbstractServerTest
     private LdapContext ctx = null;
 
 
-
     /**
      * Creation of required attributes of a person entry.
      */
@@ -115,7 +114,7 @@ public class PersistentSearchTest extends AbstractServerTest
             ctx = null;
             super.tearDown();
         }
-        catch( Throwable t )
+        catch ( Throwable t )
         {
         }
     }
@@ -129,15 +128,15 @@ public class PersistentSearchTest extends AbstractServerTest
         PSearchListener listener = new PSearchListener();
         Thread t = new Thread( listener, "PSearchListener" );
         t.start();
-        
-        while( ! listener.isReady )
+
+        while ( !listener.isReady )
         {
             Thread.sleep( 100 );
         }
         Thread.sleep( 250 );
 
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, 
-            new BasicAttributes( "description", PERSON_DESCRIPTION, true ) );
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "description", PERSON_DESCRIPTION,
+            true ) );
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -147,7 +146,7 @@ public class PersistentSearchTest extends AbstractServerTest
                 break;
             }
         }
-        
+
         assertNotNull( listener.result );
         // darn it getting normalized name back
         assertEquals( RDN.toLowerCase(), listener.result.getName().toLowerCase() );
@@ -162,15 +161,15 @@ public class PersistentSearchTest extends AbstractServerTest
         PSearchListener listener = new PSearchListener();
         Thread t = new Thread( listener );
         t.start();
-        
-        while( ! listener.isReady )
+
+        while ( !listener.isReady )
         {
             Thread.sleep( 100 );
         }
         Thread.sleep( 250 );
 
         ctx.rename( RDN, "cn=Jack Black" );
-        
+
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -180,13 +179,13 @@ public class PersistentSearchTest extends AbstractServerTest
                 break;
             }
         }
-        
+
         assertNotNull( listener.result );
         // darn it getting normalized name back
         assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
     }
 
-    
+
     /**
      * Shows correct notifications for delete(2) changes.
      */
@@ -195,15 +194,15 @@ public class PersistentSearchTest extends AbstractServerTest
         PSearchListener listener = new PSearchListener();
         Thread t = new Thread( listener );
         t.start();
-        
-        while( ! listener.isReady )
+
+        while ( !listener.isReady )
         {
             Thread.sleep( 100 );
         }
         Thread.sleep( 250 );
 
         ctx.destroySubcontext( RDN );
-        
+
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -213,13 +212,13 @@ public class PersistentSearchTest extends AbstractServerTest
                 break;
             }
         }
-        
+
         assertNotNull( listener.result );
         // darn it getting normalized name back
         assertEquals( RDN.toLowerCase(), listener.result.getName().toLowerCase() );
     }
 
-    
+
     /**
      * Shows correct notifications for add(1) changes.
      */
@@ -228,15 +227,15 @@ public class PersistentSearchTest extends AbstractServerTest
         PSearchListener listener = new PSearchListener();
         Thread t = new Thread( listener );
         t.start();
-        
-        while( ! listener.isReady )
+
+        while ( !listener.isReady )
         {
             Thread.sleep( 100 );
         }
         Thread.sleep( 250 );
 
         ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );
-        
+
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -246,7 +245,7 @@ public class PersistentSearchTest extends AbstractServerTest
                 break;
             }
         }
-        
+
         assertNotNull( listener.result );
         // darn it getting normalized name back
         assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
@@ -264,15 +263,15 @@ public class PersistentSearchTest extends AbstractServerTest
         PSearchListener listener = new PSearchListener( control );
         Thread t = new Thread( listener, "PSearchListener" );
         t.start();
-        
-        while( ! listener.isReady )
+
+        while ( !listener.isReady )
         {
             Thread.sleep( 100 );
         }
         Thread.sleep( 250 );
 
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, 
-            new BasicAttributes( "description", PERSON_DESCRIPTION, true ) );
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "description", PERSON_DESCRIPTION,
+            true ) );
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -282,7 +281,7 @@ public class PersistentSearchTest extends AbstractServerTest
                 break;
             }
         }
-        
+
         assertNotNull( listener.result );
         // darn it getting normalized name back
         assertEquals( RDN.toLowerCase(), listener.result.getName().toLowerCase() );
@@ -301,15 +300,15 @@ public class PersistentSearchTest extends AbstractServerTest
         PSearchListener listener = new PSearchListener( control );
         Thread t = new Thread( listener );
         t.start();
-        
-        while( ! listener.isReady )
+
+        while ( !listener.isReady )
         {
             Thread.sleep( 100 );
         }
         Thread.sleep( 250 );
 
         ctx.rename( RDN, "cn=Jack Black" );
-        
+
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -319,7 +318,7 @@ public class PersistentSearchTest extends AbstractServerTest
                 break;
             }
         }
-        
+
         assertNotNull( listener.result );
         // darn it getting normalized name back
         assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
@@ -327,7 +326,7 @@ public class PersistentSearchTest extends AbstractServerTest
         assertEquals( ( RDN + ",ou=system" ).toLowerCase(), listener.result.control.getPreviousDn().toLowerCase() );
     }
 
-    
+
     /**
      * Shows correct notifications for delete(2) changes with returned 
      * EntryChangeControl.
@@ -339,15 +338,15 @@ public class PersistentSearchTest extends AbstractServerTest
         PSearchListener listener = new PSearchListener( control );
         Thread t = new Thread( listener );
         t.start();
-        
-        while( ! listener.isReady )
+
+        while ( !listener.isReady )
         {
             Thread.sleep( 100 );
         }
         Thread.sleep( 250 );
 
         ctx.destroySubcontext( RDN );
-        
+
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -357,14 +356,14 @@ public class PersistentSearchTest extends AbstractServerTest
                 break;
             }
         }
-        
+
         assertNotNull( listener.result );
         // darn it getting normalized name back
         assertEquals( RDN.toLowerCase(), listener.result.getName().toLowerCase() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.DELETE );
     }
 
-    
+
     /**
      * Shows correct notifications for add(1) changes with returned 
      * EntryChangeControl.
@@ -376,15 +375,15 @@ public class PersistentSearchTest extends AbstractServerTest
         PSearchListener listener = new PSearchListener( control );
         Thread t = new Thread( listener );
         t.start();
-        
-        while( ! listener.isReady )
+
+        while ( !listener.isReady )
         {
             Thread.sleep( 100 );
         }
         Thread.sleep( 250 );
 
         ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );
-        
+
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -394,14 +393,14 @@ public class PersistentSearchTest extends AbstractServerTest
                 break;
             }
         }
-        
+
         assertNotNull( listener.result );
         // darn it getting normalized name back
         assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
     }
 
-    
+
     /**
      * Shows correct notifications for only add(1) and modify(4) registered changes with returned 
      * EntryChangeControl.
@@ -415,15 +414,15 @@ public class PersistentSearchTest extends AbstractServerTest
         PSearchListener listener = new PSearchListener( control );
         Thread t = new Thread( listener );
         t.start();
-        
-        while( ! listener.isReady )
+
+        while ( !listener.isReady )
         {
             Thread.sleep( 100 );
         }
         Thread.sleep( 250 );
 
         ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );
-        
+
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -433,7 +432,7 @@ public class PersistentSearchTest extends AbstractServerTest
                 break;
             }
         }
-        
+
         assertNotNull( listener.result );
         // darn it getting normalized name back
         assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
@@ -441,9 +440,9 @@ public class PersistentSearchTest extends AbstractServerTest
         listener.result = null;
         t = new Thread( listener );
         t.start();
-        
+
         ctx.destroySubcontext( "cn=Jack Black" );
-        
+
         start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -457,8 +456,8 @@ public class PersistentSearchTest extends AbstractServerTest
         assertNull( listener.result );
 
         // thread is still waiting for notifications try a modify
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, 
-            new BasicAttributes( "description", PERSON_DESCRIPTION, true ) );
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "description", PERSON_DESCRIPTION,
+            true ) );
         start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -468,13 +467,13 @@ public class PersistentSearchTest extends AbstractServerTest
                 break;
             }
         }
-        
+
         assertNotNull( listener.result );
         // darn it getting normalized name back
         assertEquals( RDN.toLowerCase(), listener.result.getName().toLowerCase() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
     }
-    
+
 
     /**
      * Shows correct notifications for add(1) changes with returned 
@@ -486,37 +485,36 @@ public class PersistentSearchTest extends AbstractServerTest
      * 
      * PLUS ALL THIS GARBAGE IS TIME DEPENDENT!!!!!
      */
-//    public void testPsearchAddWithECAndFalseChangesOnly() throws Exception
-//    {
-//        PersistentSearchControl control = new PersistentSearchControl();
-//        control.setReturnECs( true );
-//        control.setChangesOnly( false );
-//        PSearchListener listener = new PSearchListener( control );
-//        Thread t = new Thread( listener );
-//        t.start();
-//        
-//        Thread.sleep( 3000 );
-//
-//        assertEquals( 5, listener.count );
-//        ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );
-//        
-//        long start = System.currentTimeMillis();
-//        while ( t.isAlive() )
-//        {
-//            Thread.sleep( 100 );
-//            if ( System.currentTimeMillis() - start > 3000 )
-//            {
-//                break;
-//            }
-//        }
-//        
-//        assertEquals( 6, listener.count );
-//        assertNotNull( listener.result );
-//        // darn it getting normalized name back
-//        assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
-//        assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
-//    }
-
+    //    public void testPsearchAddWithECAndFalseChangesOnly() throws Exception
+    //    {
+    //        PersistentSearchControl control = new PersistentSearchControl();
+    //        control.setReturnECs( true );
+    //        control.setChangesOnly( false );
+    //        PSearchListener listener = new PSearchListener( control );
+    //        Thread t = new Thread( listener );
+    //        t.start();
+    //        
+    //        Thread.sleep( 3000 );
+    //
+    //        assertEquals( 5, listener.count );
+    //        ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );
+    //        
+    //        long start = System.currentTimeMillis();
+    //        while ( t.isAlive() )
+    //        {
+    //            Thread.sleep( 100 );
+    //            if ( System.currentTimeMillis() - start > 3000 )
+    //            {
+    //                break;
+    //            }
+    //        }
+    //        
+    //        assertEquals( 6, listener.count );
+    //        assertNotNull( listener.result );
+    //        // darn it getting normalized name back
+    //        assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
+    //        assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
+    //    }
 
     /**
      * Shows notifications functioning with the JNDI notification API of the SUN
@@ -535,7 +533,7 @@ public class PersistentSearchTest extends AbstractServerTest
         InitialDirContext idc = new InitialDirContext( env );
         EventDirContext edc = ( EventDirContext ) ( idc.lookup( "" ) );
         edc.addNamingListener( "", EventContext.ONELEVEL_SCOPE, listener );
-        
+
         while ( listener.list.isEmpty() )
         {
             Thread.sleep( 250 );
@@ -543,12 +541,12 @@ public class PersistentSearchTest extends AbstractServerTest
             ctx.createSubcontext( rdn, getPersonAttributes( "Black", "Jack Black" ) );
             ctx.destroySubcontext( rdn );
         }
-        
+
         NamingEvent event = ( NamingEvent ) listener.list.get( 0 );
         assertEquals( edc, event.getSource() );
     }
 
-    
+
     /**
      * Shows notifications functioning with the JNDI notification API of the SUN
      * provider.
@@ -560,15 +558,15 @@ public class PersistentSearchTest extends AbstractServerTest
         PSearchListener listener = new PSearchListener( control );
         Thread t = new Thread( listener );
         t.start();
-        
-        while( ! listener.isReady )
+
+        while ( !listener.isReady )
         {
             Thread.sleep( 100 );
         }
         Thread.sleep( 250 );
 
         ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );
-        
+
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -578,7 +576,7 @@ public class PersistentSearchTest extends AbstractServerTest
                 break;
             }
         }
-        
+
         assertNotNull( listener.result );
         // darn it getting normalized name back
         assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
@@ -586,9 +584,9 @@ public class PersistentSearchTest extends AbstractServerTest
         listener.result = null;
         t = new Thread( listener );
         t.start();
-        
+
         ctx.destroySubcontext( "cn=Jack Black" );
-        
+
         start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -603,8 +601,8 @@ public class PersistentSearchTest extends AbstractServerTest
         // assertNull( listener.result );
 
         // thread is still waiting for notifications try a modify
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, 
-            new BasicAttributes( "description", PERSON_DESCRIPTION, true ) );
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "description", PERSON_DESCRIPTION,
+            true ) );
         start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -614,45 +612,48 @@ public class PersistentSearchTest extends AbstractServerTest
                 break;
             }
         }
-        
+
         assertNotNull( listener.result );
         // darn it getting normalized name back
         assertEquals( RDN.toLowerCase(), listener.result.getName().toLowerCase() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
     }
 
-    
     class JndiNotificationListener implements NamespaceChangeListener, ObjectChangeListener
     {
         ArrayList list = new ArrayList();
-        
-        public void objectAdded(NamingEvent evt)
+
+
+        public void objectAdded( NamingEvent evt )
         {
             list.add( 0, evt );
         }
 
-        public void objectRemoved(NamingEvent evt)
+
+        public void objectRemoved( NamingEvent evt )
         {
             list.add( 0, evt );
         }
 
-        public void objectRenamed(NamingEvent evt)
+
+        public void objectRenamed( NamingEvent evt )
         {
             list.add( 0, evt );
         }
 
-        public void namingExceptionThrown(NamingExceptionEvent evt)
+
+        public void namingExceptionThrown( NamingExceptionEvent evt )
         {
             list.add( 0, evt );
         }
 
-        public void objectChanged(NamingEvent evt)
+
+        public void objectChanged( NamingEvent evt )
         {
             list.add( 0, evt );
         }
     }
-    
-    
+
     class PSearchListener implements Runnable
     {
         boolean isReady = false;
@@ -660,23 +661,34 @@ public class PersistentSearchTest extends AbstractServerTest
         int count = 0;
         final PersistentSearchControl control;
 
-        PSearchListener() { control = new PersistentSearchControl(); }
-        PSearchListener( PersistentSearchControl control ) { this.control = control; }
-        
+
+        PSearchListener()
+        {
+            control = new PersistentSearchControl();
+        }
+
+
+        PSearchListener(PersistentSearchControl control)
+        {
+            this.control = control;
+        }
+
+
         public void run()
         {
             NamingEnumeration list = null;
             control.setCritical( true );
-            Control[] ctxCtls = new Control[] { control };
-            
+            Control[] ctxCtls = new Control[]
+                { control };
+
             try
             {
                 ctx.setRequestControls( ctxCtls );
                 isReady = true;
                 list = ctx.search( "", "objectClass=*", null );
                 EntryChangeControl ecControl = null;
-                
-                while( list.hasMore() )
+
+                while ( list.hasMore() )
                 {
                     Control[] controls = null;
                     SearchResult sresult = ( SearchResult ) list.next();
@@ -686,9 +698,9 @@ public class PersistentSearchTest extends AbstractServerTest
                         controls = ( ( HasControls ) sresult ).getControls();
                         if ( controls != null )
                         {
-                            for ( int ii = 0; ii < controls.length; ii ++ )
+                            for ( int ii = 0; ii < controls.length; ii++ )
                             {
-                                if ( controls[ii].getID().equals( 
+                                if ( controls[ii].getID().equals(
                                     org.apache.directory.shared.ldap.message.EntryChangeControl.CONTROL_OID ) )
                                 {
                                     EntryChangeControlDecoder decoder = new EntryChangeControlDecoder();
@@ -701,7 +713,7 @@ public class PersistentSearchTest extends AbstractServerTest
                     break;
                 }
             }
-            catch( Exception e ) 
+            catch ( Exception e )
             {
                 e.printStackTrace();
             }
@@ -709,24 +721,33 @@ public class PersistentSearchTest extends AbstractServerTest
             {
                 if ( list != null )
                 {
-                    try { list.close(); } catch ( Exception e ) { e.printStackTrace(); };
+                    try
+                    {
+                        list.close();
+                    }
+                    catch ( Exception e )
+                    {
+                        e.printStackTrace();
+                    };
                 }
             }
         }
     }
 
-
     class PSearchNotification extends SearchResult
     {
         private static final long serialVersionUID = 1L;
         final EntryChangeControl control;
-        
-        public PSearchNotification( SearchResult result, EntryChangeControl control )
+
+
+        public PSearchNotification(SearchResult result, EntryChangeControl control)
         {
-            super( result.getName(), result.getClassName(), result.getObject(), result.getAttributes(), result.isRelative() );
+            super( result.getName(), result.getClassName(), result.getObject(), result.getAttributes(), result
+                .isRelative() );
             this.control = control;
         }
-        
+
+
         public String toString()
         {
             StringBuffer buf = new StringBuffer();

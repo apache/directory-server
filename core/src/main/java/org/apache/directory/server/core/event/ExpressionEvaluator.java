@@ -44,14 +44,13 @@ public class ExpressionEvaluator implements Evaluator
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a top level Evaluator where leaves are delegated to a leaf node
      * evaluator which is already provided.
      *
      * @param leafEvaluator handles leaf node evaluation.
      */
-    public ExpressionEvaluator( LeafEvaluator leafEvaluator )
+    public ExpressionEvaluator(LeafEvaluator leafEvaluator)
     {
         this.leafEvaluator = leafEvaluator;
     }
@@ -64,8 +63,8 @@ public class ExpressionEvaluator implements Evaluator
      * @param oidRegistry the oid reg used for attrID to oid resolution
      * @param attributeTypeRegistry the attribtype reg used for value comparison
      */
-    public ExpressionEvaluator( OidRegistry oidRegistry,
-                                AttributeTypeRegistry attributeTypeRegistry ) throws NamingException
+    public ExpressionEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry)
+        throws NamingException
     {
         SubstringEvaluator substringEvaluator = null;
         substringEvaluator = new SubstringEvaluator( oidRegistry, attributeTypeRegistry );
@@ -88,59 +87,56 @@ public class ExpressionEvaluator implements Evaluator
     // Evaluator.evaluate() implementation
     // ------------------------------------------------------------------------
 
-
     /**
      * @see Evaluator#evaluate(ExprNode, String, Attributes)
      */
-    public boolean evaluate( ExprNode node, String dn, Attributes entry )
-        throws NamingException
+    public boolean evaluate( ExprNode node, String dn, Attributes entry ) throws NamingException
     {
-        if ( node.isLeaf() ) 
+        if ( node.isLeaf() )
         {
             return leafEvaluator.evaluate( node, dn, entry );
         }
 
         BranchNode bnode = ( BranchNode ) node;
 
-        switch( bnode.getOperator() )
+        switch ( bnode.getOperator() )
         {
-        case( BranchNode.OR ):
-            Iterator children = bnode.getChildren().iterator();
-            
-            while ( children.hasNext() ) 
-            {
-                ExprNode child = ( ExprNode ) children.next();
-                
-                if ( evaluate( child, dn, entry ) )
+            case ( BranchNode.OR  ):
+                Iterator children = bnode.getChildren().iterator();
+
+                while ( children.hasNext() )
                 {
-                    return true;
+                    ExprNode child = ( ExprNode ) children.next();
+
+                    if ( evaluate( child, dn, entry ) )
+                    {
+                        return true;
+                    }
                 }
-            }
 
-            return false;
-        case( BranchNode.AND ):
-            children = bnode.getChildren().iterator();
-            while ( children.hasNext() ) 
-            {
-                ExprNode child = ( ExprNode ) children.next();
-
-                if ( ! evaluate( child, dn, entry ) )
+                return false;
+            case ( BranchNode.AND  ):
+                children = bnode.getChildren().iterator();
+                while ( children.hasNext() )
                 {
-                    return false;
+                    ExprNode child = ( ExprNode ) children.next();
+
+                    if ( !evaluate( child, dn, entry ) )
+                    {
+                        return false;
+                    }
                 }
-            }
 
-            return true;
-        case( BranchNode.NOT ):
-            if ( null != bnode.getChild() )
-            {
-                return ! evaluate( bnode.getChild(), dn, entry );
-            }
+                return true;
+            case ( BranchNode.NOT  ):
+                if ( null != bnode.getChild() )
+                {
+                    return !evaluate( bnode.getChild(), dn, entry );
+                }
 
-            throw new NamingException( "Negation has no child: " + node );
-        default:
-            throw new NamingException( "Unrecognized branch node operator: "
-                + bnode.getOperator() );
+                throw new NamingException( "Negation has no child: " + node );
+            default:
+                throw new NamingException( "Unrecognized branch node operator: " + bnode.getOperator() );
         }
     }
 }

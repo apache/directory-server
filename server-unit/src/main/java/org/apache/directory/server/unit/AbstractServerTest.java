@@ -63,6 +63,7 @@ public abstract class AbstractServerTest extends TestCase
 
     protected int port = -1;
 
+
     /**
      * Get's the initial context factory for the provider's ou=system context
      * root.
@@ -152,7 +153,13 @@ public abstract class AbstractServerTest extends TestCase
         env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        try { new InitialContext( env ); } catch( Exception e ) {}
+        try
+        {
+            new InitialContext( env );
+        }
+        catch ( Exception e )
+        {
+        }
 
         sysRoot = null;
         doDelete( configuration.getWorkingDirectory() );

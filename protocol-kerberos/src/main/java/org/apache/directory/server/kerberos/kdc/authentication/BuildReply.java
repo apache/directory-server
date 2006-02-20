@@ -16,19 +16,21 @@
  */
 package org.apache.directory.server.kerberos.kdc.authentication;
 
+
+import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
+import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
+import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.messages.AuthenticationReply;
-import org.apache.kerberos.messages.KdcRequest;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.messages.value.LastRequest;
-import org.apache.kerberos.messages.value.TicketFlags;
+
 
 public class BuildReply extends CommandBase
 {
     public boolean execute( Context ctx ) throws Exception
     {
-        AuthenticationContext authContext = (AuthenticationContext) ctx;
+        AuthenticationContext authContext = ( AuthenticationContext ) ctx;
         KdcRequest request = authContext.getRequest();
         Ticket ticket = authContext.getTicket();
 

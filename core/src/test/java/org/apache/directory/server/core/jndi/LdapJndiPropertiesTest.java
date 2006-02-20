@@ -15,7 +15,7 @@
  *
  */
 package org.apache.directory.server.core.jndi;
- 
+
 
 import java.util.Hashtable;
 
@@ -34,7 +34,7 @@ import junit.framework.TestCase;
  * Tests the LdapJndiProperties.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 374647 $
+ * @version $Rev$
  */
 public class LdapJndiPropertiesTest extends TestCase
 {
@@ -50,7 +50,7 @@ public class LdapJndiPropertiesTest extends TestCase
         }
     }
 
-    
+
     public void testNullEnv() throws Exception
     {
         try

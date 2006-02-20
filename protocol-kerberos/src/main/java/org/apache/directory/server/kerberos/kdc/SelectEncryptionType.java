@@ -16,17 +16,19 @@
  */
 package org.apache.directory.server.kerberos.kdc;
 
+
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.crypto.encryption.EncryptionType;
-import org.apache.kerberos.exceptions.ErrorType;
-import org.apache.kerberos.exceptions.KerberosException;
+
 
 public class SelectEncryptionType extends CommandBase
 {
     public boolean execute( Context context ) throws Exception
     {
-        KdcContext kdcContext = (KdcContext) context;
+        KdcContext kdcContext = ( KdcContext ) context;
         KdcConfiguration config = kdcContext.getConfig();
 
         EncryptionType[] requestedTypes = kdcContext.getRequest().getEType();
@@ -41,16 +43,16 @@ public class SelectEncryptionType extends CommandBase
         return CONTINUE_CHAIN;
     }
 
-    protected EncryptionType getBestEncryptionType( EncryptionType[] requestedTypes,
-            EncryptionType[] configuredTypes )
+
+    protected EncryptionType getBestEncryptionType( EncryptionType[] requestedTypes, EncryptionType[] configuredTypes )
     {
         for ( int ii = 0; ii < requestedTypes.length; ii++ )
         {
             for ( int jj = 0; jj < configuredTypes.length; jj++ )
             {
-                if ( requestedTypes[ ii ] == configuredTypes[ jj ] )
+                if ( requestedTypes[ii] == configuredTypes[jj] )
                 {
-                    return configuredTypes[ jj ];
+                    return configuredTypes[jj];
                 }
             }
         }

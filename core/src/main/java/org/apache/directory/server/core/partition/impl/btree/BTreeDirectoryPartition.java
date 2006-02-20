@@ -59,44 +59,44 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
      The following OID branch is reserved for the directory TLP once it
      graduates the incubator:
 
-       1.2.6.1.4.1.18060.1.1
+     1.2.6.1.4.1.18060.1.1
 
      The following branch is reserved for the apache directory server:
 
-       1.2.6.1.4.1.18060.1.1.1
+     1.2.6.1.4.1.18060.1.1.1
 
-      The following branch is reserved for use by apache directory server Syntaxes:
+     The following branch is reserved for use by apache directory server Syntaxes:
 
-        1.2.6.1.4.1.18060.1.1.1.1
+     1.2.6.1.4.1.18060.1.1.1.1
 
-      The following branch is reserved for use by apache directory server MatchingRules:
+     The following branch is reserved for use by apache directory server MatchingRules:
 
-        1.2.6.1.4.1.18060.1.1.1.2
+     1.2.6.1.4.1.18060.1.1.1.2
 
-      The following branch is reserved for use by apache directory server AttributeTypes:
+     The following branch is reserved for use by apache directory server AttributeTypes:
 
-        1.2.6.1.4.1.18060.1.1.1.3
+     1.2.6.1.4.1.18060.1.1.1.3
 
-          * 1.2.6.1.4.1.18060.1.1.1.3.1 - apacheNdn
-          * 1.2.6.1.4.1.18060.1.1.1.3.2 - apacheUpdn
-          * 1.2.6.1.4.1.18060.1.1.1.3.3 - apacheExistance
-          * 1.2.6.1.4.1.18060.1.1.1.3.4 - apacheHierarchy
-          * 1.2.6.1.4.1.18060.1.1.1.3.5 - apacheOneAlias
-          * 1.2.6.1.4.1.18060.1.1.1.3.6 - apacheSubAlias
-          * 1.2.6.1.4.1.18060.1.1.1.3.7 - apacheAlias
+     * 1.2.6.1.4.1.18060.1.1.1.3.1 - apacheNdn
+     * 1.2.6.1.4.1.18060.1.1.1.3.2 - apacheUpdn
+     * 1.2.6.1.4.1.18060.1.1.1.3.3 - apacheExistance
+     * 1.2.6.1.4.1.18060.1.1.1.3.4 - apacheHierarchy
+     * 1.2.6.1.4.1.18060.1.1.1.3.5 - apacheOneAlias
+     * 1.2.6.1.4.1.18060.1.1.1.3.6 - apacheSubAlias
+     * 1.2.6.1.4.1.18060.1.1.1.3.7 - apacheAlias
 
-      The following branch is reserved for use by apache directory server ObjectClasses:
+     The following branch is reserved for use by apache directory server ObjectClasses:
 
-        1.2.6.1.4.1.18060.1.1.1.4
+     1.2.6.1.4.1.18060.1.1.1.4
 
-    ==================================================================== */
-
+     ==================================================================== */
 
     /**
      * the search engine used to search the database
      */
     private SearchEngine searchEngine = null;
     private AttributeTypeRegistry attributeTypeRegistry = null;
+
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -108,9 +108,10 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
     protected BTreeDirectoryPartition()
     {
     }
-    
 
-    public void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
+
+    public void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg )
+        throws NamingException
     {
         attributeTypeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
@@ -128,7 +129,7 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
         sysOidSet.add( Oid.ALIAS );
 
         Iterator i = cfg.getIndexedAttributes().iterator();
-        while( i.hasNext() )
+        while ( i.hasNext() )
         {
             String name = ( String ) i.next();
             String oid = oidRegistry.getOid( name );
@@ -167,8 +168,7 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
                 }
                 else
                 {
-                    throw new NamingException( "Unidentified system index "
-                        + oid );
+                    throw new NamingException( "Unidentified system index " + oid );
                 }
             }
             else
@@ -182,16 +182,15 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
         if ( suffixOnDisk == null )
         {
             add( cfg.getSuffix(),
-                 cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() ),
-                 cfg.getContextEntry() );
+                cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() ), cfg
+                    .getContextEntry() );
         }
     }
 
-    
+
     // ------------------------------------------------------------------------
     // Public Accessors - not declared in any interfaces just for this class
     // ------------------------------------------------------------------------
-
 
     /**
      * Gets the DefaultSearchEngine used by this ContextPartition to search the
@@ -209,7 +208,6 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
     // ContextPartition Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     public void delete( Name dn ) throws NamingException
     {
         BigInteger id = getEntryId( dn.toString() );
@@ -217,44 +215,47 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
         // don't continue if id is null
         if ( id == null )
         {
-            throw new LdapNameNotFoundException( "Could not find entry at '"
-                    + dn + "' to delete it!");
+            throw new LdapNameNotFoundException( "Could not find entry at '" + dn + "' to delete it!" );
         }
 
         if ( getChildCount( id ) > 0 )
         {
-            LdapContextNotEmptyException cnee = new LdapContextNotEmptyException(
-                "[66] Cannot delete entry " + dn + " it has children!" );
+            LdapContextNotEmptyException cnee = new LdapContextNotEmptyException( "[66] Cannot delete entry " + dn
+                + " it has children!" );
             cnee.setRemainingName( dn );
             throw cnee;
         }
-        
+
         delete( id );
     }
-    
+
+
     public abstract void add( String updn, Name dn, Attributes entry ) throws NamingException;
+
+
     public abstract void modify( Name dn, int modOp, Attributes mods ) throws NamingException;
+
+
     public abstract void modify( Name dn, ModificationItem[] mods ) throws NamingException;
 
 
     public NamingEnumeration list( Name base ) throws NamingException
     {
         SearchResultEnumeration list;
-        list = new BTreeSearchResultEnumeration( ArrayUtils.EMPTY_STRING_ARRAY,
-                list( getEntryId( base.toString() ) ), this, attributeTypeRegistry );
+        list = new BTreeSearchResultEnumeration( ArrayUtils.EMPTY_STRING_ARRAY, list( getEntryId( base.toString() ) ),
+            this, attributeTypeRegistry );
         return list;
     }
-    
-    
-    public NamingEnumeration search( Name base, Map env, ExprNode filter,
-                                     SearchControls searchCtls )
+
+
+    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
         throws NamingException
     {
-        String [] attrIds = searchCtls.getReturningAttributes();
+        String[] attrIds = searchCtls.getReturningAttributes();
         NamingEnumeration underlying = null;
-        
+
         underlying = searchEngine.search( base, env, filter, searchCtls );
-        
+
         return new BTreeSearchResultEnumeration( attrIds, underlying, this, attributeTypeRegistry );
     }
 
@@ -265,7 +266,7 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
     }
 
 
-    public Attributes lookup( Name dn, String [] attrIds ) throws NamingException
+    public Attributes lookup( Name dn, String[] attrIds ) throws NamingException
     {
         if ( attrIds == null || attrIds.length == 0 )
         {
@@ -296,18 +297,27 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
 
 
     public abstract void modifyRn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException;
+
+
     public abstract void move( Name oldChildDn, Name newParentDn ) throws NamingException;
-    public abstract void move( Name oldChildDn, Name newParentDn, String newRdn,
-        boolean deleteOldRdn ) throws NamingException;
+
+
+    public abstract void move( Name oldChildDn, Name newParentDn, String newRdn, boolean deleteOldRdn )
+        throws NamingException;
 
 
     public abstract void sync() throws NamingException;
+
+
     public abstract void destroy();
+
+
     public abstract boolean isInitialized();
+
 
     public boolean isSuffix( Name dn ) throws NamingException
     {
-        return getSuffix( true ).equals( dn ) ;
+        return getSuffix( true ).equals( dn );
     }
 
 
@@ -316,19 +326,26 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
         PartitionViewer viewer = new PartitionViewer( this, searchEngine );
         viewer.execute();
     }
-    
+
+
     ////////////////////
     // public abstract methods
-    
+
     // ------------------------------------------------------------------------
     // Index Operations 
     // ------------------------------------------------------------------------
 
-
     public abstract void addIndexOn( AttributeType attribute ) throws NamingException;
+
+
     public abstract boolean hasUserIndexOn( String attribute );
+
+
     public abstract boolean hasSystemIndexOn( String attribute );
+
+
     public abstract Index getExistanceIndex();
+
 
     /**
      * Gets the Index mapping the BigInteger primary keys of parents to the 
@@ -337,7 +354,8 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
      * @return the hierarchy Index
      */
     public abstract Index getHierarchyIndex();
-    
+
+
     /**
      * Gets the Index mapping user provided distinguished names of entries as 
      * Strings to the BigInteger primary keys of entries.
@@ -346,6 +364,7 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
      */
     public abstract Index getUpdnIndex();
 
+
     /**
      * Gets the Index mapping the normalized distinguished names of entries as
      * Strings to the BigInteger primary keys of entries.  
@@ -353,6 +372,7 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
      * @return the normalized distinguished name Index
      */
     public abstract Index getNdnIndex();
+
 
     /**
      * Gets the alias index mapping parent entries with scope expanding aliases 
@@ -363,6 +383,7 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
      */
     public abstract Index getOneAliasIndex();
 
+
     /**
      * Gets the alias index mapping relative entries with scope expanding 
      * alias descendents; this system index is used to dereference aliases on 
@@ -372,6 +393,7 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
      */
     public abstract Index getSubAliasIndex();
 
+
     /**
      * Gets the system index defined on the ALIAS_ATTRIBUTE which for LDAP would
      * be the aliasedObjectName and for X.500 would be aliasedEntryName.
@@ -379,6 +401,7 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
      * @return the index on the ALIAS_ATTRIBUTE
      */
     public abstract Index getAliasIndex();
+
 
     /**
      * Sets the system index defined on the ALIAS_ATTRIBUTE which for LDAP would
@@ -388,34 +411,39 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
      */
     public abstract void setAliasIndexOn( AttributeType attrType ) throws NamingException;
 
+
     /**
      * Sets the attribute existance Index.
      *
      * @param attrType the attribute existance Index
-     */    
+     */
     public abstract void setExistanceIndexOn( AttributeType attrType ) throws NamingException;
+
 
     /**
      * Sets the hierarchy Index.
      *
      * @param attrType the hierarchy Index
-     */    
+     */
     public abstract void setHierarchyIndexOn( AttributeType attrType ) throws NamingException;
+
 
     /**
      * Sets the user provided distinguished name Index.
      *
      * @param attrType the updn Index
-     */    
+     */
     public abstract void setUpdnIndexOn( AttributeType attrType ) throws NamingException;
+
 
     /**
      * Sets the normalized distinguished name Index.
      *
      * @param attrType the ndn Index
-     */    
+     */
     public abstract void setNdnIndexOn( AttributeType attrType ) throws NamingException;
-    
+
+
     /**
      * Sets the alias index mapping parent entries with scope expanding aliases 
      * children one level below them; this system index is used to dereference
@@ -424,7 +452,8 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
      * @param attrType a one level alias index
      */
     public abstract void setOneAliasIndexOn( AttributeType attrType ) throws NamingException;
-    
+
+
     /**
      * Sets the alias index mapping relative entries with scope expanding 
      * alias descendents; this system index is used to dereference aliases on 
@@ -433,12 +462,25 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
      * @param attrType a subtree alias index
      */
     public abstract void setSubAliasIndexOn( AttributeType attrType ) throws NamingException;
+
+
     public abstract Index getUserIndex( String attribute ) throws IndexNotFoundException;
+
+
     public abstract Index getSystemIndex( String attribute ) throws IndexNotFoundException;
+
+
     public abstract BigInteger getEntryId( String dn ) throws NamingException;
+
+
     public abstract String getEntryDn( BigInteger id ) throws NamingException;
+
+
     public abstract BigInteger getParentId( String dn ) throws NamingException;
+
+
     public abstract BigInteger getParentId( BigInteger childId ) throws NamingException;
+
 
     /**
      * Gets the user provided distinguished name.
@@ -449,6 +491,7 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
      */
     public abstract String getEntryUpdn( BigInteger id ) throws NamingException;
 
+
     /**
      * Gets the user provided distinguished name.
      *
@@ -457,16 +500,37 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
      * @throws NamingException if the updn and ndn indices cannot be accessed
      */
     public abstract String getEntryUpdn( String dn ) throws NamingException;
+
+
     public abstract Attributes lookup( BigInteger id ) throws NamingException;
+
+
     public abstract void delete( BigInteger id ) throws NamingException;
+
+
     public abstract NamingEnumeration list( BigInteger id ) throws NamingException;
+
+
     public abstract int getChildCount( BigInteger id ) throws NamingException;
+
+
     public abstract Attributes getSuffixEntry() throws NamingException;
+
+
     public abstract void setProperty( String key, String value ) throws NamingException;
+
+
     public abstract String getProperty( String key ) throws NamingException;
+
+
     public abstract Iterator getUserIndices();
+
+
     public abstract Iterator getSystemIndices();
+
+
     public abstract Attributes getIndices( BigInteger id ) throws NamingException;
+
 
     /**
      * Gets the count of the total number of entries in the database.

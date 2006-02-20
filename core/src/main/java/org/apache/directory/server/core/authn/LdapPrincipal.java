@@ -55,7 +55,7 @@ public final class LdapPrincipal implements Principal, Serializable
      * @param name the normalized distinguished name of the principal
      * @param authenticationLevel
      */
-    LdapPrincipal( Name name, AuthenticationLevel authenticationLevel )
+    LdapPrincipal(Name name, AuthenticationLevel authenticationLevel)
     {
         this.name = name;
         this.authenticationLevel = authenticationLevel;

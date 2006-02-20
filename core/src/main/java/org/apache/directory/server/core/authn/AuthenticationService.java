@@ -59,11 +59,12 @@ import org.slf4j.LoggerFactory;
 public class AuthenticationService extends BaseInterceptor
 {
     private static final Logger log = LoggerFactory.getLogger( AuthenticationService.class );
-    
+
     /** authenticators **/
     public Map authenticators = new HashMap();
 
     private DirectoryServiceConfiguration factoryCfg;
+
 
     /**
      * Creates an authentication service interceptor.
@@ -71,6 +72,7 @@ public class AuthenticationService extends BaseInterceptor
     public AuthenticationService()
     {
     }
+
 
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
@@ -81,7 +83,7 @@ public class AuthenticationService extends BaseInterceptor
 
         // Register all authenticators
         Iterator i = factoryCfg.getStartupConfiguration().getAuthenticatorConfigurations().iterator();
-        while( i.hasNext() )
+        while ( i.hasNext() )
         {
             try
             {
@@ -90,29 +92,30 @@ public class AuthenticationService extends BaseInterceptor
             catch ( Exception e )
             {
                 destroy();
-                throw ( NamingException ) new NamingException(
-                        "Failed to register authenticator." ).initCause( e );
+                throw ( NamingException ) new NamingException( "Failed to register authenticator." ).initCause( e );
             }
         }
     }
-    
+
+
     /**
      * Deinitializes and deregisters all {@link Authenticator}s from this service.
      */
     public void destroy()
     {
         Iterator i = new ArrayList( authenticators.values() ).iterator();
-        while( i.hasNext() )
+        while ( i.hasNext() )
         {
             Iterator j = new ArrayList( ( Collection ) i.next() ).iterator();
-            while( j.hasNext() )
+            while ( j.hasNext() )
             {
                 unregister( ( Authenticator ) j.next() );
             }
         }
-        
+
         authenticators.clear();
     }
+
 
     /**
      * Initializes the specified {@link Authenticator} and registers it to
@@ -132,6 +135,7 @@ public class AuthenticationService extends BaseInterceptor
         authenticatorList.add( cfg.getAuthenticator() );
     }
 
+
     /**
      * Deinitializes the specified {@link Authenticator} and deregisters it from
      * this service.
@@ -146,16 +150,17 @@ public class AuthenticationService extends BaseInterceptor
         }
 
         authenticatorList.remove( authenticator );
-        
+
         try
         {
             authenticator.destroy();
         }
-        catch( Throwable t )
+        catch ( Throwable t )
         {
             log.warn( "Failed to destroy an authenticator.", t );
         }
     }
+
 
     /**
      * Returns the list of {@link Authenticator}s with the specified type.
@@ -165,7 +170,7 @@ public class AuthenticationService extends BaseInterceptor
     private Collection getAuthenticators( String type )
     {
         Collection result = ( Collection ) authenticators.get( type );
-        if( result != null && result.size() > 0 )
+        if ( result != null && result.size() > 0 )
         {
             return result;
         }
@@ -174,15 +179,15 @@ public class AuthenticationService extends BaseInterceptor
             return null;
         }
     }
-    
+
 
     public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = '"  + upName + "'" );
-    	}
-    	
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = '" + upName + "'" );
+        }
+
         checkAuthenticated();
         next.add( upName, normName, entry );
     }
@@ -190,11 +195,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public void delete( NextInterceptor next, Name name ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Deleting name = '" + name.toString() + "'" );
-    	}
-    	
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Deleting name = '" + name.toString() + "'" );
+        }
+
         checkAuthenticated();
         next.delete( name );
     }
@@ -202,22 +207,22 @@ public class AuthenticationService extends BaseInterceptor
 
     public Name getMatchedName( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Matching name = '" + dn.toString() + "'" );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Matching name = '" + dn.toString() + "'" );
+        }
 
-    	checkAuthenticated();
+        checkAuthenticated();
         return next.getMatchedName( dn, normalized );
     }
 
 
     public Attributes getRootDSE( NextInterceptor next ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Getting root DSE" );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Getting root DSE" );
+        }
 
         checkAuthenticated();
         return next.getRootDSE();
@@ -226,10 +231,10 @@ public class AuthenticationService extends BaseInterceptor
 
     public Name getSuffix( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Getting suffix for name = '" + dn.toString() + "'" );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Getting suffix for name = '" + dn.toString() + "'" );
+        }
 
         checkAuthenticated();
         return next.getSuffix( dn, normalized );
@@ -238,10 +243,10 @@ public class AuthenticationService extends BaseInterceptor
 
     public boolean hasEntry( NextInterceptor next, Name name ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Testing if entry name = '" + name.toString() + "' exists");
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Testing if entry name = '" + name.toString() + "' exists" );
+        }
 
         checkAuthenticated();
         return next.hasEntry( name );
@@ -250,10 +255,10 @@ public class AuthenticationService extends BaseInterceptor
 
     public boolean isSuffix( NextInterceptor next, Name name ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Testing suffix for name = '" + name.toString() + "'" );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Testing suffix for name = '" + name.toString() + "'" );
+        }
 
         checkAuthenticated();
         return next.isSuffix( name );
@@ -262,10 +267,10 @@ public class AuthenticationService extends BaseInterceptor
 
     public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Listing base = '" + base.toString() + "'" );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Listing base = '" + base.toString() + "'" );
+        }
 
         checkAuthenticated();
         return next.list( base );
@@ -274,10 +279,10 @@ public class AuthenticationService extends BaseInterceptor
 
     public Iterator listSuffixes( NextInterceptor next, boolean normalized ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Listing suffixes" );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Listing suffixes" );
+        }
 
         checkAuthenticated();
         return next.listSuffixes( normalized );
@@ -286,10 +291,10 @@ public class AuthenticationService extends BaseInterceptor
 
     public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Lookup name = '" + dn.toString() + "', attributes = " + attrIds );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Lookup name = '" + dn.toString() + "', attributes = " + attrIds );
+        }
 
         checkAuthenticated();
         return next.lookup( dn, attrIds );
@@ -298,10 +303,10 @@ public class AuthenticationService extends BaseInterceptor
 
     public Attributes lookup( NextInterceptor next, Name name ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Lookup name = '" + name.toString() + "'" );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Lookup name = '" + name.toString() + "'" );
+        }
 
         checkAuthenticated();
         return next.lookup( name );
@@ -310,10 +315,10 @@ public class AuthenticationService extends BaseInterceptor
 
     public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Modifying name = '" + name.toString() + "', modifs = " + AttributeUtils.toString( mods ) );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Modifying name = '" + name.toString() + "', modifs = " + AttributeUtils.toString( mods ) );
+        }
 
         checkAuthenticated();
         next.modify( name, modOp, mods );
@@ -322,10 +327,10 @@ public class AuthenticationService extends BaseInterceptor
 
     public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Modifying name = '" + name.toString() + "'" );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Modifying name = '" + name.toString() + "'" );
+        }
 
         checkAuthenticated();
         next.modify( name, mods );
@@ -334,22 +339,25 @@ public class AuthenticationService extends BaseInterceptor
 
     public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Modifying name = '" + name.toString() + "', new RDN = '" + newRn + "', oldRDN = '" + deleteOldRn + "'" );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Modifying name = '" + name.toString() + "', new RDN = '" + newRn + "', oldRDN = '"
+                + deleteOldRn + "'" );
+        }
 
         checkAuthenticated();
         next.modifyRn( name, newRn, deleteOldRn );
     }
 
 
-    public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
+        throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Moving name = '" + oriChildName.toString() + "' to name = '" + newParentName + "', new RDN = '" + newRn + "', oldRDN = '" + deleteOldRn + "'" );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Moving name = '" + oriChildName.toString() + "' to name = '" + newParentName + "', new RDN = '"
+                + newRn + "', oldRDN = '" + deleteOldRn + "'" );
+        }
 
         checkAuthenticated();
         next.move( oriChildName, newParentName, newRn, deleteOldRn );
@@ -358,22 +366,23 @@ public class AuthenticationService extends BaseInterceptor
 
     public void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Moving name = '" + oriChildName.toString() + " to name = '" + newParentName + "'" );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Moving name = '" + oriChildName.toString() + " to name = '" + newParentName + "'" );
+        }
 
         checkAuthenticated();
         next.move( oriChildName, newParentName );
     }
 
 
-    public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
+        SearchControls searchCtls ) throws NamingException
     {
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Search for base = '" + base.toString() + "'" );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Search for base = '" + base.toString() + "'" );
+        }
 
         checkAuthenticated();
         return next.search( base, env, filter, searchCtls );
@@ -395,15 +404,14 @@ public class AuthenticationService extends BaseInterceptor
 
         throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
     }
-    
-    
-    public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) 
+
+
+    public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId )
         throws NamingException
     {
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
-        ServerContext ctx =
-            ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
+        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
 
         if ( ctx.getPrincipal() != null )
         {
@@ -416,7 +424,7 @@ public class AuthenticationService extends BaseInterceptor
 
         // pick the first matching authenticator type
         Collection authenticators = null;
-        for ( int ii = 0; ii < mechanisms.size(); ii++)
+        for ( int ii = 0; ii < mechanisms.size(); ii++ )
         {
             authenticators = getAuthenticators( ( String ) mechanisms.get( ii ) );
 
@@ -433,8 +441,8 @@ public class AuthenticationService extends BaseInterceptor
             next.bind( bindDn, credentials, mechanisms, saslAuthId );
             log.debug( "Nexus succeeded on bind operation." );
             // bind succeeded if we got this far 
-            ctx.setPrincipal( new TrustedPrincipalWrapper( 
-                new LdapPrincipal( bindDn, LdapJndiProperties.getAuthenticationLevel( ctx.getEnvironment() ) ) ) );
+            ctx.setPrincipal( new TrustedPrincipalWrapper( new LdapPrincipal( bindDn, LdapJndiProperties
+                .getAuthenticationLevel( ctx.getEnvironment() ) ) ) );
             // remove creds so there is no security risk
             ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
             return;
@@ -454,15 +462,15 @@ public class AuthenticationService extends BaseInterceptor
                 ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
                 return;
             }
-            catch( LdapAuthenticationException e )
+            catch ( LdapAuthenticationException e )
             {
                 // authentication failed, try the next authenticator
                 if ( log.isInfoEnabled() )
                 {
-                    log.info( "Authenticator "+authenticator.getClass()+" failed to authenticate " + bindDn );
+                    log.info( "Authenticator " + authenticator.getClass() + " failed to authenticate " + bindDn );
                 }
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 // Log other exceptions than LdapAuthenticationException
                 if ( log.isWarnEnabled() )
@@ -474,7 +482,6 @@ public class AuthenticationService extends BaseInterceptor
 
         throw new LdapAuthenticationException();
     }
-
 
     /**
      * FIXME This doesn't secure anything actually.
@@ -500,7 +507,7 @@ public class AuthenticationService extends BaseInterceptor
          *
          * @param principal the LdapPrincipal to wrap
          */
-        private TrustedPrincipalWrapper( LdapPrincipal principal )
+        private TrustedPrincipalWrapper(LdapPrincipal principal)
         {
             this.principal = principal;
         }

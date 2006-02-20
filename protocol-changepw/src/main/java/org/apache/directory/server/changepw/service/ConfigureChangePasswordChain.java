@@ -16,20 +16,23 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
+import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.replay.InMemoryReplayCache;
-import org.apache.kerberos.replay.ReplayCache;
-import org.apache.kerberos.service.LockBox;
+
 
 public class ConfigureChangePasswordChain extends CommandBase
 {
     private static final ReplayCache replayCache = new InMemoryReplayCache();
     private static final LockBox lockBox = new LockBox();
 
+
     public boolean execute( Context context ) throws Exception
     {
-        ChangePasswordContext changepwContext = (ChangePasswordContext) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
 
         changepwContext.setReplayCache( replayCache );
         changepwContext.setLockBox( lockBox );

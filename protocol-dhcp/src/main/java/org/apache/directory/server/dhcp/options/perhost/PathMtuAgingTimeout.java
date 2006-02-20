@@ -24,23 +24,26 @@
  */
 package org.apache.directory.server.dhcp.options.perhost;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class PathMtuAgingTimeout extends DhcpOption
 {
-	private byte[] pathMtuAgingTimeout;
-	
-	public PathMtuAgingTimeout( byte[] pathMtuAgingTimeout )
-	{
-		super( 24, 4 );
-		this.pathMtuAgingTimeout = pathMtuAgingTimeout;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( pathMtuAgingTimeout );
-	}
-}
+    private byte[] pathMtuAgingTimeout;
 
+
+    public PathMtuAgingTimeout(byte[] pathMtuAgingTimeout)
+    {
+        super( 24, 4 );
+        this.pathMtuAgingTimeout = pathMtuAgingTimeout;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( pathMtuAgingTimeout );
+    }
+}

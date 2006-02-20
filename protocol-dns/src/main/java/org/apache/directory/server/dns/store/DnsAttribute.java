@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.dns.store;
 
+
 /**
  * Constants representing the DNS attribute ids as defined by the Apache DNS schema.
  *
@@ -82,10 +83,10 @@ public class DnsAttribute
 
     /** the apachedns schema apacheDnsServicePriority */
     public static final String SERVICE_PRIORITY = "apacheDnsServicePriority";
-    
+
     /** the apachedns schema apacheDnsServiceWeight */
     public static final String SERVICE_WEIGHT = "apacheDnsServiceWeight";
-    
+
     /** the apachedns schema apacheDnsServicePort */
     public static final String SERVICE_PORT = "apacheDnsServicePort";
 }

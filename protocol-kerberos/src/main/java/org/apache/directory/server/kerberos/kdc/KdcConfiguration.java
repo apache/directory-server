@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.kerberos.kdc;
 
+
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -28,9 +29,10 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.configuration.ConfigurationException;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
-import org.apache.kerberos.crypto.encryption.EncryptionType;
+
 
 public class KdcConfiguration extends ServiceConfiguration
 {
@@ -85,7 +87,8 @@ public class KdcConfiguration extends ServiceConfiguration
     private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * MINUTE;
 
     /** the default encryption types */
-    private static final String[] DEFAULT_ENCRYPTION_TYPES = new String[] { "des-cbc-md5" };
+    private static final String[] DEFAULT_ENCRYPTION_TYPES = new String[]
+        { "des-cbc-md5" };
 
     /** the default for allowing empty addresses */
     private static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
@@ -117,6 +120,7 @@ public class KdcConfiguration extends ServiceConfiguration
 
     private EncryptionType[] encryptionTypes;
 
+
     /**
      * Creates a new instance with default settings.
      */
@@ -125,22 +129,25 @@ public class KdcConfiguration extends ServiceConfiguration
         this( getDefaultConfig(), LoadStrategy.LDAP );
     }
 
+
     /**
      * Creates a new instance with default settings that operates on the
      * {@link DirectoryService} with the specified ID.
      */
-    public KdcConfiguration( String instanceId )
+    public KdcConfiguration(String instanceId)
     {
         this( getDefaultConfig(), LoadStrategy.LDAP );
         setInstanceId( instanceId );
     }
 
-    public KdcConfiguration( Map properties )
+
+    public KdcConfiguration(Map properties)
     {
         this( properties, LoadStrategy.LDAP );
     }
 
-    public KdcConfiguration( Map properties, int strategy )
+
+    public KdcConfiguration(Map properties, int strategy)
     {
         if ( properties == null )
         {
@@ -161,6 +168,7 @@ public class KdcConfiguration extends ServiceConfiguration
         prepareEncryptionTypes();
     }
 
+
     public static Map getDefaultConfig()
     {
         Map defaults = new HashMap();
@@ -171,11 +179,12 @@ public class KdcConfiguration extends ServiceConfiguration
         return defaults;
     }
 
+
     public boolean isDifferent( Dictionary config )
     {
         int port = getPort();
 
-        if ( port == Integer.parseInt( (String) config.get( IP_PORT_KEY ) ) )
+        if ( port == Integer.parseInt( ( String ) config.get( IP_PORT_KEY ) ) )
         {
             return false;
         }
@@ -183,10 +192,12 @@ public class KdcConfiguration extends ServiceConfiguration
         return true;
     }
 
+
     public String getName()
     {
         return DEFAULT_NAME;
     }
+
 
     public String getPrimaryRealm()
     {
@@ -200,6 +211,7 @@ public class KdcConfiguration extends ServiceConfiguration
         return DEFAULT_REALM;
     }
 
+
     public KerberosPrincipal getKdcPrincipal()
     {
         String key = PRINCIPAL_KEY;
@@ -212,10 +224,12 @@ public class KdcConfiguration extends ServiceConfiguration
         return new KerberosPrincipal( DEFAULT_PRINCIPAL );
     }
 
+
     public EncryptionType[] getEncryptionTypes()
     {
         return encryptionTypes;
     }
+
 
     public Map getProperties()
     {
@@ -224,6 +238,7 @@ public class KdcConfiguration extends ServiceConfiguration
 
         return configuration;
     }
+
 
     public long getClockSkew()
     {
@@ -237,6 +252,7 @@ public class KdcConfiguration extends ServiceConfiguration
         return DEFAULT_ALLOWABLE_CLOCKSKEW;
     }
 
+
     public int getPort()
     {
         String key = IP_PORT_KEY;
@@ -248,6 +264,7 @@ public class KdcConfiguration extends ServiceConfiguration
 
         return Integer.parseInt( DEFAULT_IP_PORT );
     }
+
 
     public int getBufferSize()
     {
@@ -261,6 +278,7 @@ public class KdcConfiguration extends ServiceConfiguration
         return DEFAULT_BUFFER_SIZE;
     }
 
+
     public boolean isPaEncTimestampRequired()
     {
         String key = PA_ENC_TIMESTAMP_REQUIRED_KEY;
@@ -272,6 +290,7 @@ public class KdcConfiguration extends ServiceConfiguration
 
         return DEFAULT_PA_ENC_TIMESTAMP_REQUIRED;
     }
+
 
     public long getMaximumTicketLifetime()
     {
@@ -285,6 +304,7 @@ public class KdcConfiguration extends ServiceConfiguration
         return DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME;
     }
 
+
     public long getMaximumRenewableLifetime()
     {
         String key = TGS_MAXIMUM_RENEWABLE_LIFETIME_KEY;
@@ -296,6 +316,7 @@ public class KdcConfiguration extends ServiceConfiguration
 
         return DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME;
     }
+
 
     public boolean isEmptyAddressesAllowed()
     {
@@ -309,6 +330,7 @@ public class KdcConfiguration extends ServiceConfiguration
         return DEFAULT_EMPTY_ADDRESSES_ALLOWED;
     }
 
+
     public boolean isForwardableAllowed()
     {
         String key = TGS_FORWARDABLE_ALLOWED_KEY;
@@ -320,6 +342,7 @@ public class KdcConfiguration extends ServiceConfiguration
 
         return DEFAULT_TGS_FORWARDABLE_ALLOWED;
     }
+
 
     public boolean isProxiableAllowed()
     {
@@ -333,6 +356,7 @@ public class KdcConfiguration extends ServiceConfiguration
         return DEFAULT_TGS_PROXIABLE_ALLOWED;
     }
 
+
     public boolean isPostdateAllowed()
     {
         String key = TGS_POSTDATE_ALLOWED_KEY;
@@ -345,6 +369,7 @@ public class KdcConfiguration extends ServiceConfiguration
         return DEFAULT_TGS_POSTDATE_ALLOWED;
     }
 
+
     public boolean isRenewableAllowed()
     {
         String key = TGS_RENEWABLE_ALLOWED_KEY;
@@ -356,6 +381,7 @@ public class KdcConfiguration extends ServiceConfiguration
 
         return DEFAULT_TGS_RENEWABLE_ALLOWED;
     }
+
 
     private void prepareEncryptionTypes()
     {
@@ -376,13 +402,13 @@ public class KdcConfiguration extends ServiceConfiguration
 
         for ( int i = 0; i < encryptionTypeStrings.length; i++ )
         {
-            String enc = encryptionTypeStrings[ i ];
+            String enc = encryptionTypeStrings[i];
 
             Iterator it = EncryptionType.VALUES.iterator();
 
             while ( it.hasNext() )
             {
-                EncryptionType type = (EncryptionType) it.next();
+                EncryptionType type = ( EncryptionType ) it.next();
 
                 if ( type.toString().equalsIgnoreCase( enc ) )
                 {
@@ -391,6 +417,6 @@ public class KdcConfiguration extends ServiceConfiguration
             }
         }
 
-        encryptionTypes = (EncryptionType[]) encTypes.toArray( new EncryptionType[ encTypes.size() ] );
+        encryptionTypes = ( EncryptionType[] ) encTypes.toArray( new EncryptionType[encTypes.size()] );
     }
 }

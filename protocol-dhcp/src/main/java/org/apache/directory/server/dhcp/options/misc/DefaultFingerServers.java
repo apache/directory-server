@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * The Finger server option specifies a list of Finger available to the
@@ -29,9 +31,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class DefaultFingerServers extends AddressListOption
 {
-	public DefaultFingerServers( byte[] defaultFingerServer )
-	{
-		super( 73, defaultFingerServer );
-	}
+    public DefaultFingerServers(byte[] defaultFingerServer)
+    {
+        super( 73, defaultFingerServer );
+    }
 }
-

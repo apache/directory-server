@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * This option specifies a list of IP addresses of systems that are
@@ -31,9 +33,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class XWindowDisplayManagers extends AddressListOption
 {
-	public XWindowDisplayManagers( byte[] xWindowDisplayManager )
-	{
-		super( 49, xWindowDisplayManager );
-	}
+    public XWindowDisplayManagers(byte[] xWindowDisplayManager)
+    {
+        super( 49, xWindowDisplayManager );
+    }
 }
-

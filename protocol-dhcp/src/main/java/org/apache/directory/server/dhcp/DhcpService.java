@@ -17,13 +17,14 @@
 
 package org.apache.directory.server.dhcp;
 
+
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
+
 
 /**
  * DHCP Protocol (RFC 2131, RFC 2132)
  */
 public interface DhcpService
 {
-	public DhcpMessage getReplyFor( DhcpMessage request );
+    public DhcpMessage getReplyFor( DhcpMessage request );
 }
-

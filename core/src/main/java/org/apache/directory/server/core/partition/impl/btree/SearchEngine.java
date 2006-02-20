@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SearchEngine 
+public interface SearchEngine
 {
     /**
      * @todo put this in the right place
@@ -62,14 +62,16 @@ public interface SearchEngine
      * The alias dereferencing mode value for JNDI providers 
      */
     String SEARCHING = "searching";
-    
+
+
     /**
      * Gets the optimizer for this DefaultSearchEngine.
      *
      * @return the optimizer
      */
     Optimizer getOptimizer();
-    
+
+
     /**
      * Conducts a search on a database.
      * 
@@ -80,8 +82,8 @@ public interface SearchEngine
      * @return enumeration over SearchResults
      * @throws NamingException if the search fails
      */
-    NamingEnumeration search( Name base, Map env, ExprNode filter,
-        SearchControls searchCtls ) throws NamingException;
+    NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException;
+
 
     /**
      * Evaluates a filter on an entry with a id.
@@ -91,5 +93,5 @@ public interface SearchEngine
      * @return true if the filter passes the entry, false otherwise
      * @throws NamingException if something goes wrong while accessing the db
      */
-    boolean evaluate( ExprNode filter, BigInteger id )  throws NamingException;
+    boolean evaluate( ExprNode filter, BigInteger id ) throws NamingException;
 }

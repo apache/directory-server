@@ -16,18 +16,20 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.service.VerifyTicket;
 import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.service.VerifyTicket;
+
 
 public class VerifyServiceTicket extends VerifyTicket
 {
     public boolean execute( Context context ) throws Exception
     {
-        ChangePasswordContext changepwContext = (ChangePasswordContext) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
         ChangePasswordConfiguration config = changepwContext.getConfig();
         Ticket ticket = changepwContext.getTicket();
         String primaryRealm = config.getPrimaryRealm();

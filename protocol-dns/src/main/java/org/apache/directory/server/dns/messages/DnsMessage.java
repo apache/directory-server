@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.messages;
 
+
 /**
  * All communications inside of the domain protocol are carried in a single
  * format called a message.  The top level format of message is divided
@@ -59,10 +60,11 @@ public class DnsMessage
     private ResourceRecords authorityRecords;
     private ResourceRecords additionalRecords;
 
-    public DnsMessage( short transactionId, MessageType messageType, OpCode opCode, boolean authoritativeAnswer,
-            boolean truncated, boolean recursionDesired, boolean recursionAvailable, boolean reserved,
-            boolean acceptNonAuthenticatedData, ResponseCode responseCode, QuestionRecords question,
-            ResourceRecords answer, ResourceRecords authority, ResourceRecords additional )
+
+    public DnsMessage(short transactionId, MessageType messageType, OpCode opCode, boolean authoritativeAnswer,
+        boolean truncated, boolean recursionDesired, boolean recursionAvailable, boolean reserved,
+        boolean acceptNonAuthenticatedData, ResponseCode responseCode, QuestionRecords question,
+        ResourceRecords answer, ResourceRecords authority, ResourceRecords additional)
     {
         this.transactionId = transactionId;
         this.messageType = messageType;
@@ -80,6 +82,7 @@ public class DnsMessage
         this.additionalRecords = additional;
     }
 
+
     /**
      * @return Returns the acceptNonAuthenticatedData.
      */
@@ -87,6 +90,7 @@ public class DnsMessage
     {
         return acceptNonAuthenticatedData;
     }
+
 
     /**
      * @return Returns the additional.
@@ -96,6 +100,7 @@ public class DnsMessage
         return additionalRecords;
     }
 
+
     /**
      * @return Returns the answers.
      */
@@ -103,6 +108,7 @@ public class DnsMessage
     {
         return answerRecords;
     }
+
 
     /**
      * @return Returns the authoritativeAnswer.
@@ -112,6 +118,7 @@ public class DnsMessage
         return authoritativeAnswer;
     }
 
+
     /**
      * @return Returns the authority.
      */
@@ -119,6 +126,7 @@ public class DnsMessage
     {
         return authorityRecords;
     }
+
 
     /**
      * @return Returns the messageType.
@@ -128,6 +136,7 @@ public class DnsMessage
         return messageType;
     }
 
+
     /**
      * @return Returns the opCode.
      */
@@ -135,6 +144,7 @@ public class DnsMessage
     {
         return opCode;
     }
+
 
     /**
      * @return Returns the question.
@@ -144,6 +154,7 @@ public class DnsMessage
         return questionRecords;
     }
 
+
     /**
      * @return Returns the recursionAvailable.
      */
@@ -151,6 +162,7 @@ public class DnsMessage
     {
         return recursionAvailable;
     }
+
 
     /**
      * @return Returns the recursionDesired.
@@ -160,6 +172,7 @@ public class DnsMessage
         return recursionDesired;
     }
 
+
     /**
      * @return Returns the reserved.
      */
@@ -167,6 +180,7 @@ public class DnsMessage
     {
         return reserved;
     }
+
 
     /**
      * @return Returns the responseCode.
@@ -176,6 +190,7 @@ public class DnsMessage
         return responseCode;
     }
 
+
     /**
      * @return Returns the transactionId.
      */
@@ -184,6 +199,7 @@ public class DnsMessage
         return transactionId;
     }
 
+
     /**
      * @return Returns the truncated.
      */
@@ -191,6 +207,7 @@ public class DnsMessage
     {
         return truncated;
     }
+
 
     public String toString()
     {

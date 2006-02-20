@@ -16,7 +16,9 @@
  */
 package org.apache.directory.server.protocol.shared.chain.impl;
 
+
 import org.apache.directory.server.protocol.shared.chain.Command;
+
 
 /**
  * <p>Convenience base class for {@link Command} implementations.</p>

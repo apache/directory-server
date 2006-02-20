@@ -25,23 +25,26 @@
  */
 package org.apache.directory.server.dhcp.options.perhost;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class NonLocalSourceRouting extends DhcpOption
 {
-	private byte[] nonLocalSourceRouting;
-	
-	public NonLocalSourceRouting( byte[] nonLocalSourceRouting )
-	{
-		super( 20, 1 );
-		this.nonLocalSourceRouting = nonLocalSourceRouting;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( nonLocalSourceRouting );
-	}
-}
+    private byte[] nonLocalSourceRouting;
 
+
+    public NonLocalSourceRouting(byte[] nonLocalSourceRouting)
+    {
+        super( 20, 1 );
+        this.nonLocalSourceRouting = nonLocalSourceRouting;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( nonLocalSourceRouting );
+    }
+}

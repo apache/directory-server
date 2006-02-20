@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.ntp.io;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.ntp.messages.LeapIndicatorType;
@@ -26,6 +27,7 @@ import org.apache.directory.server.ntp.messages.NtpMessageModifier;
 import org.apache.directory.server.ntp.messages.NtpTimeStamp;
 import org.apache.directory.server.ntp.messages.ReferenceIdentifier;
 import org.apache.directory.server.ntp.messages.StratumType;
+
 
 public class NtpMessageDecoder
 {
@@ -46,7 +48,7 @@ public class NtpMessageDecoder
         modifier.setReferenceTimestamp( new NtpTimeStamp( request ) );
         modifier.setOriginateTimestamp( new NtpTimeStamp( request ) );
 
-        byte[] unneededBytes = new byte[ 8 ];
+        byte[] unneededBytes = new byte[8];
         request.get( unneededBytes );
 
         modifier.setReceiveTimestamp( new NtpTimeStamp() );
@@ -55,48 +57,57 @@ public class NtpMessageDecoder
         return modifier.getNtpMessage();
     }
 
+
     private LeapIndicatorType parseLeapIndicator( byte header )
     {
         return LeapIndicatorType.getTypeByOrdinal( ( header & 0xc0 ) >>> 6 );
     }
+
 
     private int parseVersionNumber( byte header )
     {
         return ( header & 0x38 ) >>> 3;
     }
 
+
     private ModeType parseMode( byte header )
     {
         return ModeType.getTypeByOrdinal( header & 0x07 );
     }
+
 
     private StratumType parseStratum( ByteBuffer request )
     {
         return StratumType.getTypeByOrdinal( request.get() );
     }
 
+
     private byte parsePollInterval( ByteBuffer bytes )
     {
-        return (byte) Math.round( Math.pow( 2, bytes.get() ) );
+        return ( byte ) Math.round( Math.pow( 2, bytes.get() ) );
     }
+
 
     private byte parsePrecision( ByteBuffer bytes )
     {
-        return (byte) ( 1000 * Math.pow( 2, bytes.get() ) );
+        return ( byte ) ( 1000 * Math.pow( 2, bytes.get() ) );
     }
+
 
     private ReferenceIdentifier parseReferenceIdentifier( ByteBuffer request )
     {
-        byte[] nextFourBytes = new byte[ 4 ];
+        byte[] nextFourBytes = new byte[4];
         request.get( nextFourBytes );
         return ReferenceIdentifier.getTypeByName( new String( nextFourBytes ) );
     }
+
 
     private int parseRootDelay( ByteBuffer bytes )
     {
         int temp = 256 * ( 256 * ( 256 * bytes.get() + bytes.get() ) + bytes.get() ) + bytes.get();
         return 1000 * ( temp / 0x10000 );
     }
+
 
     private int parseRootDispersion( ByteBuffer bytes )
     {

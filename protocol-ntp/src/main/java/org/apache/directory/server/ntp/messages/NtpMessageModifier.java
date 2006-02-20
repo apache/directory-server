@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.ntp.messages;
 
+
 public class NtpMessageModifier
 {
     private LeapIndicatorType leapIndicator;
@@ -35,12 +36,14 @@ public class NtpMessageModifier
     private NtpTimeStamp receiveTimestamp;
     private NtpTimeStamp transmitTimestamp;
 
+
     public NtpMessage getNtpMessage()
     {
         return new NtpMessage( leapIndicator, versionNumber, mode, stratumType, pollInterval, precision, rootDelay,
-                rootDispersion, referenceIdentifier, referenceTimestamp, originateTimestamp, receiveTimestamp,
-                transmitTimestamp );
+            rootDispersion, referenceIdentifier, referenceTimestamp, originateTimestamp, receiveTimestamp,
+            transmitTimestamp );
     }
+
 
     /**
      * @param leapIndicator The Leap Indicator to set.
@@ -50,6 +53,7 @@ public class NtpMessageModifier
         this.leapIndicator = leapIndicator;
     }
 
+
     /**
      * @param mode The Mode to set.
      */
@@ -57,6 +61,7 @@ public class NtpMessageModifier
     {
         this.mode = mode;
     }
+
 
     /**
      * @param originateTimestamp The Originate Timestamp to set.
@@ -66,6 +71,7 @@ public class NtpMessageModifier
         this.originateTimestamp = originateTimestamp;
     }
 
+
     /**
      * @param pollInterval The Poll Interval to set.
      */
@@ -73,6 +79,7 @@ public class NtpMessageModifier
     {
         this.pollInterval = pollInterval;
     }
+
 
     /**
      * @param precision The Precision to set.
@@ -82,6 +89,7 @@ public class NtpMessageModifier
         this.precision = precision;
     }
 
+
     /**
      * @param receiveTimestamp The Receive Timestamp to set.
      */
@@ -89,6 +97,7 @@ public class NtpMessageModifier
     {
         this.receiveTimestamp = receiveTimestamp;
     }
+
 
     /**
      * @param referenceIdentifier The Reference Identifier to set.
@@ -98,6 +107,7 @@ public class NtpMessageModifier
         this.referenceIdentifier = referenceIdentifier;
     }
 
+
     /**
      * @param referenceTimestamp The Reference Timestamp to set.
      */
@@ -105,6 +115,7 @@ public class NtpMessageModifier
     {
         this.referenceTimestamp = referenceTimestamp;
     }
+
 
     /**
      * @param rootDelay The Root Delay to set.
@@ -114,6 +125,7 @@ public class NtpMessageModifier
         this.rootDelay = rootDelay;
     }
 
+
     /**
      * @param rootDispersion The Root Dispersion to set.
      */
@@ -121,6 +133,7 @@ public class NtpMessageModifier
     {
         this.rootDispersion = rootDispersion;
     }
+
 
     /**
      * @param stratumType The Stratum to set.
@@ -130,6 +143,7 @@ public class NtpMessageModifier
         this.stratumType = stratumType;
     }
 
+
     /**
      * @param transmitTimestamp The Transmit Timestamp to set.
      */
@@ -137,6 +151,7 @@ public class NtpMessageModifier
     {
         this.transmitTimestamp = transmitTimestamp;
     }
+
 
     /**
      * @param versionNumber The Version Number to set.

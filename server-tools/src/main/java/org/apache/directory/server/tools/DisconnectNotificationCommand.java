@@ -52,11 +52,12 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
     private int port = 10389;
     private String bindDn = "uid=admin,ou=system";
     private String password = "secret";
-//    private String shutdownCommand = "echo"; 
-//    private String[] shutdownCommandArgs = new String[] { 
-//        "server $HOST:$PORT will shutdown for $OFFLINE minutes in $DELAY seconds" };
 
-    
+
+    //    private String shutdownCommand = "echo"; 
+    //    private String[] shutdownCommandArgs = new String[] { 
+    //        "server $HOST:$PORT will shutdown for $OFFLINE minutes in $DELAY seconds" };
+
     protected DisconnectNotificationCommand()
     {
         super( "notifications" );
@@ -66,7 +67,7 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
     public void notificationReceived( UnsolicitedNotificationEvent evt )
     {
         notification = evt.getNotification();
-        
+
         if ( notification.getID().equals( NoticeOfDisconnect.EXTENSION_OID ) )
         {
             System.out.println( "\nRecieved NoticeOfDisconnect: " + NoticeOfDisconnect.EXTENSION_OID );
@@ -79,14 +80,14 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
             GracefulDisconnect gd = new GracefulDisconnect( notification.getEncodedValue() );
             System.out.println( "LDAP server will shutdown in " + gd.getDelay() + " seconds." );
             System.out.println( "LDAP server will be back online in " + gd.getTimeOffline() + " minutes." );
-            
+
             if ( gd.getDelay() > 0 )
             {
                 Thread t = new Thread( new Counter( gd.getDelay() ) );
                 t.start();
             }
         }
-        else 
+        else
         {
             System.out.println( "Unknown event recieved with OID: " + evt.getNotification().getID() );
         }
@@ -100,29 +101,36 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
         System.out.println( "Process shutting down abruptly." );
         System.exit( 1 );
     }
-    
-    
+
     class Counter implements Runnable
     {
         int delay;
-        
-        Counter( int delay )
+
+
+        Counter(int delay)
         {
             this.delay = delay;
         }
-        
+
+
         public void run()
         {
             System.out.println( "Starting countdown until server shutdown:" );
-            System.out.print( "[" ); 
+            System.out.print( "[" );
             long delayMillis = delay * 1000 - 1000; // 1000 is for setup costs
             long startTime = System.currentTimeMillis();
             while ( System.currentTimeMillis() - startTime < delayMillis && !canceled )
             {
-                try{ Thread.sleep( 1000 ); }catch ( InterruptedException e ){}
+                try
+                {
+                    Thread.sleep( 1000 );
+                }
+                catch ( InterruptedException e )
+                {
+                }
                 System.out.print( "." );
             }
-            
+
             if ( canceled )
             {
                 System.out.println( " -- countdown canceled -- " );
@@ -140,19 +148,19 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
     public void execute( CommandLine cmd ) throws Exception
     {
         processOptions( cmd );
-        
+
         Hashtable env = new Hashtable();
-        env.put("java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put("java.naming.provider.url", "ldap://" + host + ":" + port ); 
-        env.put("java.naming.security.principal", bindDn ); 
-        env.put("java.naming.security.credentials", password );
-        env.put("java.naming.security.authentication", "simple" );
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://" + host + ":" + port );
+        env.put( "java.naming.security.principal", bindDn );
+        env.put( "java.naming.security.credentials", password );
+        env.put( "java.naming.security.authentication", "simple" );
 
         LdapContext ctx = new InitialLdapContext( env, null );
         ctx = ctx.newInstance( null );
         UnsolicitedNotificationListener listener = new DisconnectNotificationCommand();
         ( ( EventContext ) ctx ).addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
-        
+
         System.out.println( "Listening for notifications." );
         System.out.println( "Press any key to terminate." );
         System.in.read();
@@ -167,12 +175,12 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
         {
             System.out.println( "Processing options for disconnect notifications ..." );
         }
-        
+
         // -------------------------------------------------------------------
         // figure out and error check the port value
         // -------------------------------------------------------------------
 
-        if ( cmd.hasOption( 'p' ) )   // - user provided port w/ -p takes precedence
+        if ( cmd.hasOption( 'p' ) ) // - user provided port w/ -p takes precedence
         {
             String val = cmd.getOptionValue( 'p' );
             try
@@ -184,20 +192,20 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
                 System.err.println( "port value of '" + val + "' is not a number" );
                 System.exit( 1 );
             }
-            
+
             if ( port > AvailablePortFinder.MAX_PORT_NUMBER )
             {
-                System.err.println( "port value of '" + val + "' is larger than max port number: " 
+                System.err.println( "port value of '" + val + "' is larger than max port number: "
                     + AvailablePortFinder.MAX_PORT_NUMBER );
                 System.exit( 1 );
             }
             else if ( port < AvailablePortFinder.MIN_PORT_NUMBER )
             {
-                System.err.println( "port value of '" + val + "' is smaller than the minimum port number: " 
+                System.err.println( "port value of '" + val + "' is smaller than the minimum port number: "
                     + AvailablePortFinder.MIN_PORT_NUMBER );
                 System.exit( 1 );
             }
-            
+
             if ( isDebugEnabled() )
             {
                 System.out.println( "port overriden by -p option: " + port );
@@ -206,7 +214,7 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
         else if ( getConfiguration() != null )
         {
             port = getConfiguration().getLdapPort();
-            
+
             if ( isDebugEnabled() )
             {
                 System.out.println( "port overriden by server.xml configuration: " + port );
@@ -216,7 +224,7 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
         {
             System.out.println( "port set to default: " + port );
         }
-        
+
         // -------------------------------------------------------------------
         // figure out the host value
         // -------------------------------------------------------------------
@@ -224,7 +232,7 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
         if ( cmd.hasOption( 'h' ) )
         {
             host = cmd.getOptionValue( 'h' );
-            
+
             if ( isDebugEnabled() )
             {
                 System.out.println( "host overriden by -h option: " + host );
@@ -234,7 +242,7 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
         {
             System.out.println( "host set to default: " + host );
         }
-        
+
         // -------------------------------------------------------------------
         // figure out the password value
         // -------------------------------------------------------------------
@@ -252,7 +260,7 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
         {
             System.out.println( "password set to default: " + password );
         }
-        
+
         // -------------------------------------------------------------------
         // figure out the binddn value
         // -------------------------------------------------------------------
@@ -279,7 +287,7 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
         Option op = new Option( "h", "host", true, "server host: defaults to localhost" );
         op.setRequired( false );
         opts.addOption( op );
-        op = new Option(  "p", "port", true, "server port: defaults to 10389 or server.xml specified port" );
+        op = new Option( "p", "port", true, "server port: defaults to 10389 or server.xml specified port" );
         op.setRequired( false );
         opts.addOption( op );
         op = new Option( "w", "password", true, "the apacheds administrator's password: defaults to secret" );

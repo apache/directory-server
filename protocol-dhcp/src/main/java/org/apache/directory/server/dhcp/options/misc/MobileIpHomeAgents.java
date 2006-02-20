@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * This option specifies a list of IP addresses indicating mobile IP
@@ -31,9 +33,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class MobileIpHomeAgents extends AddressListOption
 {
-	public MobileIpHomeAgents( byte[] mobileIpHomeAgent )
-	{
-		super( 68, mobileIpHomeAgent );
-	}
+    public MobileIpHomeAgents(byte[] mobileIpHomeAgent)
+    {
+        super( 68, mobileIpHomeAgent );
+    }
 }
-

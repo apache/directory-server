@@ -32,9 +32,11 @@ public class ParserMonitorAdapter implements ParserMonitor
     {
     }
 
+
     public void startedParse( String s )
     {
     }
+
 
     public void finishedParse( String s )
     {

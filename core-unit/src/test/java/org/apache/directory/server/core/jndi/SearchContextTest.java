@@ -62,7 +62,7 @@ public class SearchContextTest extends AbstractAdminTestCase
 
         DirContext ctx = sysRoot.createSubcontext( "ou=testing00", attributes );
         assertNotNull( ctx );
-        
+
         ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
         assertNotNull( ctx );
         attributes = ctx.getAttributes( "" );
@@ -194,7 +194,7 @@ public class SearchContextTest extends AbstractAdminTestCase
         assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
     }
 
-    
+
     public void testSearchSubstringSubTreeLevel() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -219,7 +219,7 @@ public class SearchContextTest extends AbstractAdminTestCase
         assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
     }
 
-    
+
     public void testSearchFilterArgs() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -228,7 +228,8 @@ public class SearchContextTest extends AbstractAdminTestCase
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
         HashMap map = new HashMap();
 
-        NamingEnumeration list = sysRoot.search( "", "(| (ou={0}) (ou={1}))", new Object[] {"testing00", "testing01"}, controls );
+        NamingEnumeration list = sysRoot.search( "", "(| (ou={0}) (ou={1}))", new Object[]
+            { "testing00", "testing01" }, controls );
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();
@@ -239,8 +240,8 @@ public class SearchContextTest extends AbstractAdminTestCase
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
     }
-    
-    
+
+
     public void testSearchSizeLimit() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -251,7 +252,7 @@ public class SearchContextTest extends AbstractAdminTestCase
 
         HashMap map = new HashMap();
         NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
-        
+
         try
         {
             while ( list.hasMore() )
@@ -261,7 +262,9 @@ public class SearchContextTest extends AbstractAdminTestCase
             }
             fail( "Should not get here due to a SizeLimitExceededException" );
         }
-        catch( LdapSizeLimitExceededException e ){}
+        catch ( LdapSizeLimitExceededException e )
+        {
+        }
         assertEquals( "Expected number of results returned was incorrect", 7, map.size() );
     }
 
@@ -277,8 +280,10 @@ public class SearchContextTest extends AbstractAdminTestCase
         HashMap map = new HashMap();
         NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
         SearchResultFilteringEnumeration srfe = ( SearchResultFilteringEnumeration ) list;
-        srfe.addResultFilter( new SearchResultFilter() {
-            public boolean accept(Invocation invocation, SearchResult result, SearchControls controls) throws NamingException
+        srfe.addResultFilter( new SearchResultFilter()
+        {
+            public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+                throws NamingException
             {
                 try
                 {
@@ -290,8 +295,8 @@ public class SearchContextTest extends AbstractAdminTestCase
                 }
                 return true;
             }
-        });
-        
+        } );
+
         try
         {
             while ( list.hasMore() )
@@ -301,7 +306,9 @@ public class SearchContextTest extends AbstractAdminTestCase
             }
             fail( "Should not get here due to a TimeLimitExceededException" );
         }
-        catch( LdapTimeLimitExceededException e ){}
+        catch ( LdapTimeLimitExceededException e )
+        {
+        }
         assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
     }
 }

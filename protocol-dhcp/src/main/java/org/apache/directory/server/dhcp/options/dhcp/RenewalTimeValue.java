@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies the time interval from address assignment until
@@ -32,17 +34,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class RenewalTimeValue extends DhcpOption
 {
-	private int renewalTimeValue;
-	
-	public RenewalTimeValue( int renewalTimeValue )
-	{
-		super( 58, 4 );
-		this.renewalTimeValue = renewalTimeValue;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.putInt( renewalTimeValue );
-	}
-}
+    private int renewalTimeValue;
 
+
+    public RenewalTimeValue(int renewalTimeValue)
+    {
+        super( 58, 4 );
+        this.renewalTimeValue = renewalTimeValue;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.putInt( renewalTimeValue );
+    }
+}

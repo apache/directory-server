@@ -16,23 +16,25 @@
  */
 package org.apache.directory.server.kerberos.kdc.preauthentication;
 
+
 import javax.security.auth.kerberos.KerberosKey;
 
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationContext;
 import org.apache.directory.server.kerberos.sam.SamException;
 import org.apache.directory.server.kerberos.sam.SamSubsystem;
 import org.apache.directory.server.kerberos.sam.TimestampChecker;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.kerberos.crypto.encryption.EncryptionType;
-import org.apache.kerberos.exceptions.ErrorType;
-import org.apache.kerberos.exceptions.KerberosException;
-import org.apache.kerberos.messages.KdcRequest;
-import org.apache.kerberos.messages.value.EncryptionKey;
-import org.apache.kerberos.messages.value.PreAuthenticationData;
-import org.apache.kerberos.messages.value.PreAuthenticationDataType;
-import org.apache.kerberos.store.PrincipalStoreEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class VerifySam extends VerifierBase
 {
@@ -45,10 +47,11 @@ public class VerifySam extends VerifierBase
         SamSubsystem.getInstance().setIntegrityChecker( new TimestampChecker() );
     }
 
+
     public boolean execute( Context ctx ) throws Exception
     {
         log.debug( "Verifying using SAM subsystem." );
-        AuthenticationContext authContext = (AuthenticationContext) ctx;
+        AuthenticationContext authContext = ( AuthenticationContext ) ctx;
         KdcRequest request = authContext.getRequest();
         PrincipalStoreEntry clientEntry = authContext.getClientEntry();
         String clientName = clientEntry.getPrincipal().getName();
@@ -60,28 +63,26 @@ public class VerifySam extends VerifierBase
             if ( log.isDebugEnabled() )
             {
                 log.debug( "entry for client principal " + clientName
-                        + " has a valid SAM type: invoking SAM subsystem for pre-authentication" );
+                    + " has a valid SAM type: invoking SAM subsystem for pre-authentication" );
             }
 
             PreAuthenticationData[] preAuthData = request.getPreAuthData();
 
             if ( preAuthData == null || preAuthData.length == 0 )
             {
-                throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED,
-                        preparePreAuthenticationError() );
+                throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError() );
             }
 
             try
             {
                 for ( int ii = 0; ii < preAuthData.length; ii++ )
                 {
-                    if ( preAuthData[ ii ].getDataType().equals(
-                            PreAuthenticationDataType.PA_ENC_TIMESTAMP ) )
+                    if ( preAuthData[ii].getDataType().equals( PreAuthenticationDataType.PA_ENC_TIMESTAMP ) )
                     {
                         KerberosKey samKey = SamSubsystem.getInstance().verify( clientEntry,
-                                preAuthData[ ii ].getDataValue() );
-                        clientKey = new EncryptionKey( EncryptionType.getTypeByOrdinal( samKey
-                                .getKeyType() ), samKey.getEncoded() );
+                            preAuthData[ii].getDataValue() );
+                        clientKey = new EncryptionKey( EncryptionType.getTypeByOrdinal( samKey.getKeyType() ), samKey
+                            .getEncoded() );
                     }
                 }
             }

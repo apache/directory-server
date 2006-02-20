@@ -17,12 +17,14 @@
 
 package org.apache.directory.server.ntp.protocol;
 
+
 import org.apache.directory.server.ntp.io.NtpMessageEncoder;
 import org.apache.directory.server.ntp.messages.NtpMessage;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
+
 
 public class NtpEncoder implements ProtocolEncoder
 {
@@ -31,12 +33,13 @@ public class NtpEncoder implements ProtocolEncoder
         NtpMessageEncoder encoder = new NtpMessageEncoder();
 
         ByteBuffer buf = ByteBuffer.allocate( 1024 );
-        encoder.encode( buf.buf(), (NtpMessage) message );
+        encoder.encode( buf.buf(), ( NtpMessage ) message );
 
         buf.flip();
 
         out.write( buf );
     }
+
 
     public void dispose( IoSession arg0 ) throws Exception
     {

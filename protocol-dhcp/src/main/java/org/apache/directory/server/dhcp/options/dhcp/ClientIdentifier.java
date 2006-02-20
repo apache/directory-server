@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option is used by DHCP clients to specify their unique
@@ -47,17 +49,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class ClientIdentifier extends DhcpOption
 {
-	private byte[] clientIdentifier;
-	
-	public ClientIdentifier( byte[] clientIdentifier )
-	{
-		super( 61, 2 );
-		this.clientIdentifier = clientIdentifier;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( clientIdentifier );
-	}
-}
+    private byte[] clientIdentifier;
 
+
+    public ClientIdentifier(byte[] clientIdentifier)
+    {
+        super( 61, 2 );
+        this.clientIdentifier = clientIdentifier;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( clientIdentifier );
+    }
+}

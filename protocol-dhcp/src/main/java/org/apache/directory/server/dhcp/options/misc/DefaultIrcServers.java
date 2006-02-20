@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * The IRC server option specifies a list of IRC available to the
@@ -29,9 +31,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class DefaultIrcServers extends AddressListOption
 {
-	public DefaultIrcServers( byte[] defaultIrcServer )
-	{
-		super( 74, defaultIrcServer );
-	}
+    public DefaultIrcServers(byte[] defaultIrcServer)
+    {
+        super( 74, defaultIrcServer );
+    }
 }
-

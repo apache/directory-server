@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.protocol;
 
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class DnsDecoder implements ProtocolDecoder
 {
     /** the log for this class */
@@ -60,10 +62,12 @@ public class DnsDecoder implements ProtocolDecoder
         DEFAULT_DECODERS = Collections.unmodifiableMap( map );
     }
 
+
     public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out )
     {
         out.write( decode( in ) );
     }
+
 
     DnsMessage decode( ByteBuffer in )
     {
@@ -95,6 +99,7 @@ public class DnsDecoder implements ProtocolDecoder
         return modifier.getDnsMessage();
     }
 
+
     private ResourceRecords decodeRecords( short recordCount, ByteBuffer byteBuffer )
     {
         ResourceRecords records = new ResourceRecords( recordCount );
@@ -109,7 +114,7 @@ public class DnsDecoder implements ProtocolDecoder
             int timeToLive = byteBuffer.getInt();
             short dataLength = byteBuffer.getShort();
 
-            byte[] data = new byte[ dataLength ];
+            byte[] data = new byte[dataLength];
             byteBuffer.get( data );
 
             try
@@ -126,9 +131,10 @@ public class DnsDecoder implements ProtocolDecoder
         return records;
     }
 
+
     private Map decode( RecordType type, byte[] resourceData ) throws IOException
     {
-        Decoder decoder = (Decoder) DEFAULT_DECODERS.get( type );
+        Decoder decoder = ( Decoder ) DEFAULT_DECODERS.get( type );
 
         if ( decoder == null )
         {
@@ -137,6 +143,7 @@ public class DnsDecoder implements ProtocolDecoder
 
         return decoder.decode( resourceData );
     }
+
 
     private QuestionRecords decodeQuestions( short questionCount, ByteBuffer byteBuffer )
     {
@@ -155,6 +162,7 @@ public class DnsDecoder implements ProtocolDecoder
         return questions;
     }
 
+
     private String decodeDomainName( ByteBuffer byteBuffer )
     {
         StringBuffer domainName = new StringBuffer();
@@ -163,11 +171,12 @@ public class DnsDecoder implements ProtocolDecoder
         return domainName.toString();
     }
 
+
     private void recurseDomainName( StringBuffer domainName, ByteBuffer byteBuffer )
     {
         byte currentByte = byteBuffer.get();
 
-        boolean isCompressed = ( ( currentByte & (byte) 0xc0 ) == (byte) 0xc0 );
+        boolean isCompressed = ( ( currentByte & ( byte ) 0xc0 ) == ( byte ) 0xc0 );
         boolean isLabelLength = ( ( currentByte != 0 ) && !isCompressed );
 
         if ( isCompressed )
@@ -191,11 +200,12 @@ public class DnsDecoder implements ProtocolDecoder
         }
     }
 
+
     private void getLabel( int labelLength, ByteBuffer byteBuffer, StringBuffer domainName )
     {
         for ( int jj = 0; jj < labelLength; jj++ )
         {
-            char character = (char) byteBuffer.get();
+            char character = ( char ) byteBuffer.get();
             domainName.append( character );
         }
 
@@ -205,40 +215,48 @@ public class DnsDecoder implements ProtocolDecoder
         }
     }
 
+
     private MessageType decodeMessageType( byte header )
     {
         return MessageType.getTypeByOrdinal( ( header & 0x80 ) >>> 7 );
     }
+
 
     private OpCode decodeOpCode( byte header )
     {
         return OpCode.getTypeByOrdinal( ( header & 0x78 ) >>> 3 );
     }
 
+
     private boolean decodeAuthoritativeAnswer( byte header )
     {
         return ( ( header & 0x04 ) >>> 2 ) == 1;
     }
+
 
     private boolean decodeTruncated( byte header )
     {
         return ( ( header & 0x02 ) >>> 1 ) == 1;
     }
 
+
     private boolean decodeRecursionDesired( byte header )
     {
         return ( ( header & 0x01 ) ) == 1;
     }
+
 
     private boolean decodeRecursionAvailable( byte header )
     {
         return ( ( header & 0x80 ) >>> 7 ) == 1;
     }
 
+
     private ResponseCode decodeResponseCode( byte header )
     {
         return ResponseCode.getTypeByOrdinal( header & 0x0F );
     }
+
 
     public void dispose( IoSession arg0 ) throws Exception
     {

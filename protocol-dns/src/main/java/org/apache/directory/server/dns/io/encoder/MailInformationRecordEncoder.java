@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.io.encoder;
 
+
 /**
  * 3.3.7. MINFO RDATA format (EXPERIMENTAL)
  * 

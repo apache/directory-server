@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.ntp;
 
+
 /**
  * The root of the NTP exception hierarchy.
  *
@@ -27,6 +28,7 @@ public class NtpException extends Exception
 {
     private static final long serialVersionUID = -225862469671550203L;
 
+
     /**
      * Creates an NtpException.
      */
@@ -35,31 +37,34 @@ public class NtpException extends Exception
         super();
     }
 
+
     /**
      * Creates an NtpException with a message and cause.
      * 
      * @param message the message
      * @param cause the cause
      */
-    public NtpException( String message, Throwable cause )
+    public NtpException(String message, Throwable cause)
     {
         super( message, cause );
     }
+
 
     /**
      * Creates an NtpException with a message.
      * 
      * @param message the message
      */
-    public NtpException( String message )
+    public NtpException(String message)
     {
         super( message );
     }
 
+
     /**
      * @param cause the cause
      */
-    public NtpException( Throwable cause )
+    public NtpException(Throwable cause)
     {
         super( cause );
     }

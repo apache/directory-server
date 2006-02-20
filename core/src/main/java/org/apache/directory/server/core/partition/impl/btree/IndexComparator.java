@@ -31,16 +31,17 @@ public class IndexComparator implements TupleComparator
 {
     private static final long serialVersionUID = 3257283621751633459L;
 
-    private static final SerializableComparator BIG_INTEGER_COMPARATOR = 
-        new SerializableComparator( "1.2.6.1.4.1.18060.1.1.1.2.2" )
-        {
-            private static final long serialVersionUID = 3690478030414165816L;
+    private static final SerializableComparator BIG_INTEGER_COMPARATOR = new SerializableComparator(
+        "1.2.6.1.4.1.18060.1.1.1.2.2" )
+    {
+        private static final long serialVersionUID = 3690478030414165816L;
 
-            public int compare( Object o1, Object o2 )
-            {
-                return BigIntegerComparator.INSTANCE.compare( o1, o2 );
-            }
-        };
+
+        public int compare( Object o1, Object o2 )
+        {
+            return BigIntegerComparator.INSTANCE.compare( o1, o2 );
+        }
+    };
     /** Whether or not the key/value is swapped */
     private final boolean isForwardMap;
     /** The key comparison to use */
@@ -54,7 +55,7 @@ public class IndexComparator implements TupleComparator
      * @param isForwardMap whether or not the comparator should swap the 
      * key value pair while conducting comparisons.
      */
-    public IndexComparator( SerializableComparator keyComp, boolean isForwardMap )
+    public IndexComparator(SerializableComparator keyComp, boolean isForwardMap)
     {
         this.keyComp = keyComp;
         this.isForwardMap = isForwardMap;
@@ -69,7 +70,7 @@ public class IndexComparator implements TupleComparator
      */
     public SerializableComparator getKeyComparator()
     {
-        if ( isForwardMap ) 
+        if ( isForwardMap )
         {
             return keyComp;
         }
@@ -86,7 +87,7 @@ public class IndexComparator implements TupleComparator
      */
     public SerializableComparator getValueComparator()
     {
-        if ( isForwardMap ) 
+        if ( isForwardMap )
         {
             return BIG_INTEGER_COMPARATOR;
         }

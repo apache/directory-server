@@ -16,19 +16,23 @@
  */
 package org.apache.directory.server.changepw.messages;
 
-import org.apache.kerberos.messages.ErrorMessage;
+
+import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+
 
 public class ChangePasswordError extends AbstractPasswordMessage
 {
     private ErrorMessage errorMessage;
 
-    public ChangePasswordError( short messageLength, short versionNumber, short authHeaderLength,
-            ErrorMessage errorMessage )
+
+    public ChangePasswordError(short messageLength, short versionNumber, short authHeaderLength,
+        ErrorMessage errorMessage)
     {
         super( messageLength, versionNumber, authHeaderLength );
 
         this.errorMessage = errorMessage;
     }
+
 
     public ErrorMessage getErrorMessage()
     {

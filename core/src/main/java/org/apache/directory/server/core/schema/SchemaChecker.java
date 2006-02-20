@@ -48,6 +48,7 @@ public class SchemaChecker
     /** the SLF4J logger for this class */
     private static Logger log = LoggerFactory.getLogger( SchemaChecker.class );
 
+
     /**
      * Makes sure modify operations do not leave the entry without a STRUCTURAL
      * objectClass.  At least one STRUCTURAL objectClass must be specified for
@@ -62,15 +63,14 @@ public class SchemaChecker
      * without a STRUCTURAL objectClass
      */
     public static void preventStructuralClassRemovalOnModifyReplace( ObjectClassRegistry registry, Name name, int mod,
-                                                                     Attribute attribute )
-            throws NamingException
+        Attribute attribute ) throws NamingException
     {
         if ( mod != DirContext.REPLACE_ATTRIBUTE )
         {
             return;
         }
 
-        if ( ! "objectclass".equalsIgnoreCase( attribute.getID() ) )
+        if ( !"objectclass".equalsIgnoreCase( attribute.getID() ) )
         {
             return;
         }
@@ -122,8 +122,7 @@ public class SchemaChecker
      * without a STRUCTURAL objectClass
      */
     public static void preventStructuralClassRemovalOnModifyReplace( ObjectClassRegistry registry, Name name, int mod,
-                                                                     Attributes attributes )
-            throws NamingException
+        Attributes attributes ) throws NamingException
     {
         if ( mod != DirContext.REPLACE_ATTRIBUTE )
         {
@@ -184,15 +183,14 @@ public class SchemaChecker
      * without a STRUCTURAL objectClass
      */
     public static void preventStructuralClassRemovalOnModifyRemove( ObjectClassRegistry registry, Name name, int mod,
-                                                                    Attribute attribute, Attribute entryObjectClasses )
-            throws NamingException
+        Attribute attribute, Attribute entryObjectClasses ) throws NamingException
     {
         if ( mod != DirContext.REMOVE_ATTRIBUTE )
         {
             return;
         }
 
-        if ( ! "objectclass".equalsIgnoreCase( attribute.getID() ) )
+        if ( !"objectclass".equalsIgnoreCase( attribute.getID() ) )
         {
             return;
         }
@@ -255,8 +253,7 @@ public class SchemaChecker
      * without a STRUCTURAL objectClass
      */
     public static void preventStructuralClassRemovalOnModifyRemove( ObjectClassRegistry registry, Name name, int mod,
-                                                                    Attributes attributes, Attribute entryObjectClasses )
-            throws NamingException
+        Attributes attributes, Attribute entryObjectClasses ) throws NamingException
     {
         if ( mod != DirContext.REMOVE_ATTRIBUTE )
         {
@@ -332,7 +329,7 @@ public class SchemaChecker
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyReplace( Name name, int mod, Attribute attribute )
-            throws NamingException
+        throws NamingException
     {
         if ( mod != DirContext.REPLACE_ATTRIBUTE )
         {
@@ -342,7 +339,7 @@ public class SchemaChecker
         Set rdnAttributes = getRdnAttributes( name );
         String id = ( String ) attribute.getID();
 
-        if ( ! rdnAttributes.contains( id ) )
+        if ( !rdnAttributes.contains( id ) )
         {
             return;
         }
@@ -370,7 +367,7 @@ public class SchemaChecker
         {
             // if the old rdn value is not in the rdn attribute then
             // we must complain with a schema violation
-            if ( ! attribute.contains( rdnValue ) )
+            if ( !attribute.contains( rdnValue ) )
             {
                 String msg = "Modify operation attempts to delete RDN attribute values in use for ";
                 msg += id + " on entry " + name + " and violates schema constraints";
@@ -405,7 +402,7 @@ public class SchemaChecker
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyReplace( Name name, int mod, Attributes attributes )
-            throws NamingException
+        throws NamingException
     {
         if ( mod != DirContext.REPLACE_ATTRIBUTE )
         {
@@ -444,7 +441,7 @@ public class SchemaChecker
                 {
                     // if the old rdn value is not in the rdn attribute then
                     // we must complain with a schema violation
-                    if ( ! rdnAttr.contains( rdnValue ) )
+                    if ( !rdnAttr.contains( rdnValue ) )
                     {
                         String msg = "Modify operation attempts to delete RDN attribute values in use for ";
                         msg += id + " on entry " + name + " and violates schema constraints";
@@ -480,8 +477,7 @@ public class SchemaChecker
      * @param attribute the attribute being modified
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyRemove( Name name, int mod, Attribute attribute )
-            throws NamingException
+    public static void preventRdnChangeOnModifyRemove( Name name, int mod, Attribute attribute ) throws NamingException
     {
         if ( mod != DirContext.REMOVE_ATTRIBUTE )
         {
@@ -491,7 +487,7 @@ public class SchemaChecker
         Set rdnAttributes = getRdnAttributes( name );
         String id = attribute.getID();
 
-        if ( ! rdnAttributes.contains( id ) )
+        if ( !rdnAttributes.contains( id ) )
         {
             return;
         }
@@ -552,7 +548,7 @@ public class SchemaChecker
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyRemove( Name name, int mod, Attributes attributes )
-            throws NamingException
+        throws NamingException
     {
         if ( mod != DirContext.REMOVE_ATTRIBUTE )
         {
@@ -618,7 +614,7 @@ public class SchemaChecker
      */
     private static String getRdnValue( String id, Name name ) throws NamingException
     {
-        String [] comps = NamespaceTools.getCompositeComponents( name.get( name.size() - 1 ) );
+        String[] comps = NamespaceTools.getCompositeComponents( name.get( name.size() - 1 ) );
 
         for ( int ii = 0; ii < comps.length; ii++ )
         {
@@ -644,7 +640,7 @@ public class SchemaChecker
      */
     private static Set getRdnAttributes( Name name ) throws NamingException
     {
-        String [] comps = NamespaceTools.getCompositeComponents( name.get( name.size() - 1 ) );
+        String[] comps = NamespaceTools.getCompositeComponents( name.get( name.size() - 1 ) );
         Set attributes = new HashSet();
 
         for ( int ii = 0; ii < comps.length; ii++ )

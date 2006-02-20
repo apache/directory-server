@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.configuration;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -47,10 +48,8 @@ public class ServerStartupConfiguration extends StartupConfiguration
     private ServiceRegistry minaServiceRegistry = new SimpleServiceRegistry();
     private int ldapPort = 389;
     private int ldapsPort = 636;
-    private File ldapsCertificateFile = new File(
-            this.getWorkingDirectory().getPath() + File.separator +
-            "certificates" + File.separator +
-            "server.cert" );
+    private File ldapsCertificateFile = new File( this.getWorkingDirectory().getPath() + File.separator
+        + "certificates" + File.separator + "server.cert" );
     private String ldapsCertificatePassword = "changeit";
     private boolean enableLdaps = false;
     private boolean enableKerberos = false;
@@ -60,9 +59,11 @@ public class ServerStartupConfiguration extends StartupConfiguration
     private File ldifDirectory = null;
     private final List ldifFilters = new ArrayList();
 
+
     protected ServerStartupConfiguration()
     {
     }
+
 
     /**
      * Returns <tt>true</tt> if networking (LDAP, LDAPS, and Kerberos) is enabled.
@@ -72,6 +73,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
         return enableNetworking;
     }
 
+
     /**
      * Sets whether to enable networking (LDAP, LDAPS, and Kerberos) or not.
      */
@@ -79,6 +81,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
     {
         this.enableNetworking = enableNetworking;
     }
+
 
     /**
      * Returns <tt>true</tt> if Kerberos support is enabled.
@@ -88,6 +91,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
         return enableKerberos;
     }
 
+
     /**
      * Returns <tt>true</tt> if Change Password support is enabled.
      */
@@ -95,6 +99,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
     {
         return enableChangePassword;
     }
+
 
     /**
      * Returns <tt>true</tt> if Kerberos support is enabled.
@@ -104,6 +109,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
         return enableNtp;
     }
 
+
     /**
      * Sets whether to enable Kerberos support or not.
      */
@@ -111,6 +117,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
     {
         this.enableKerberos = enableKerberos;
     }
+
 
     /**
      * Sets whether to enable Change Password support or not.
@@ -120,6 +127,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
         this.enableChangePassword = enableChangePassword;
     }
 
+
     /**
      * Sets whether to enable Ntp support or not.
      */
@@ -128,6 +136,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
         this.enableNtp = enableNtp;
     }
 
+
     /**
      * Returns LDAP TCP/IP port number to listen to.
      */
@@ -135,6 +144,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
     {
         return ldapPort;
     }
+
 
     /**
      * Sets LDAP TCP/IP port number to listen to.
@@ -145,6 +155,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
         this.ldapPort = ldapPort;
     }
 
+
     /**
      * Returns LDAPS TCP/IP port number to listen to.
      */
@@ -152,6 +163,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
     {
         return ldapsPort;
     }
+
 
     /**
      * Sets LDAPS TCP/IP port number to listen to.
@@ -161,7 +173,8 @@ public class ServerStartupConfiguration extends StartupConfiguration
         ConfigurationUtil.validatePortNumber( ldapsPort );
         this.ldapsPort = ldapsPort;
     }
-    
+
+
     /**
      * Returns <tt>true</tt> if LDAPS is enabled.
      */
@@ -170,6 +183,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
         return enableLdaps;
     }
 
+
     /**
      * Sets if LDAPS is enabled or not.
      */
@@ -177,7 +191,8 @@ public class ServerStartupConfiguration extends StartupConfiguration
     {
         this.enableLdaps = enableLdaps;
     }
-    
+
+
     /**
      * Returns the path of the X509 (or JKS) certificate file for LDAPS.
      * The default value is <tt>"&lt;WORKDIR&gt;/certificates/server.cert"</tt>. 
@@ -187,20 +202,22 @@ public class ServerStartupConfiguration extends StartupConfiguration
     {
         return ldapsCertificateFile;
     }
-    
+
+
     /**
      * Sets the path of the SunX509 certificate file (either PKCS12 or JKS format)
      * for LDAPS.
      */
     protected void setLdapsCertificateFile( File ldapsCertificateFile )
     {
-        if( ldapsCertificateFile == null )
+        if ( ldapsCertificateFile == null )
         {
             throw new ConfigurationException( "LdapsCertificateFile cannot be null." );
         }
         this.ldapsCertificateFile = ldapsCertificateFile;
     }
-    
+
+
     /**
      * Returns the password which is used to load the the SunX509 certificate file
      * (either PKCS12 or JKS format).
@@ -212,18 +229,20 @@ public class ServerStartupConfiguration extends StartupConfiguration
     {
         return ldapsCertificatePassword;
     }
-    
+
+
     /**
      * Sets the password which is used to load the LDAPS certificate file.
      */
     protected void setLdapsCertificatePassword( String ldapsCertificatePassword )
     {
-        if( ldapsCertificatePassword == null )
+        if ( ldapsCertificatePassword == null )
         {
             throw new ConfigurationException( "LdapsCertificatePassword cannot be null." );
         }
         this.ldapsCertificatePassword = ldapsCertificatePassword;
     }
+
 
     /**
      * Returns <a href="http://directory.apache.org/subprojects/network/">MINA</a>
@@ -234,32 +253,35 @@ public class ServerStartupConfiguration extends StartupConfiguration
         return minaServiceRegistry;
     }
 
+
     /**
      * Sets <a href="http://directory.apache.org/subprojects/network/">MINA</a>
      * {@link ServiceRegistry} that will be used by ApacheDS.
      */
     protected void setMinaServiceRegistry( ServiceRegistry minaServiceRegistry )
     {
-        if( minaServiceRegistry == null )
+        if ( minaServiceRegistry == null )
         {
             throw new ConfigurationException( "MinaServiceRegistry cannot be null" );
         }
         this.minaServiceRegistry = minaServiceRegistry;
     }
 
+
     public Collection getExtendedOperationHandlers()
     {
         return new ArrayList( extendedOperationHandlers );
     }
 
+
     protected void setExtendedOperationHandlers( Collection handlers )
     {
-        for( Iterator i = handlers.iterator(); i.hasNext(); )
+        for ( Iterator i = handlers.iterator(); i.hasNext(); )
         {
-            if( !( i.next() instanceof ExtendedOperationHandler ) )
+            if ( !( i.next() instanceof ExtendedOperationHandler ) )
             {
                 throw new IllegalArgumentException(
-                        "The specified handler collection contains an element which is not an ExtendedOperationHandler." );
+                    "The specified handler collection contains an element which is not an ExtendedOperationHandler." );
             }
         }
 
@@ -267,29 +289,33 @@ public class ServerStartupConfiguration extends StartupConfiguration
         this.extendedOperationHandlers.addAll( handlers );
     }
 
+
     public File getLdifDirectory()
     {
         return this.ldifDirectory;
     }
+
 
     protected void setLdifDirectory( File ldifDirectory )
     {
         this.ldifDirectory = ldifDirectory;
     }
 
+
     public List getLdifFilters()
     {
         return new ArrayList( ldifFilters );
     }
 
+
     protected void setLdifFilters( List filters )
     {
-        for( int ii = 0; ii < filters.size(); ii++ )
+        for ( int ii = 0; ii < filters.size(); ii++ )
         {
-            if( !( filters.get( ii ) instanceof LdifLoadFilter ) )
+            if ( !( filters.get( ii ) instanceof LdifLoadFilter ) )
             {
                 throw new IllegalArgumentException(
-                        "The specified filter collection contains an element which is not an LdifLoadFilter." );
+                    "The specified filter collection contains an element which is not an LdifLoadFilter." );
             }
         }
 

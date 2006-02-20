@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.name.DnParser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
- 
+
 
 /**
  * A wrapper enumeration which saves referral entries to be returned last.
@@ -58,10 +58,10 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
     private final int scope;
     private SearchResult prefetched;
     private int refIndex = -1;
-    
-    
-    public ReferralHandlingEnumeration( NamingEnumeration underlying, ReferralLut lut, DnParser parser, 
-        DirectoryPartitionNexus nexus, int scope, boolean doThrow ) throws NamingException
+
+
+    public ReferralHandlingEnumeration(NamingEnumeration underlying, ReferralLut lut, DnParser parser,
+        DirectoryPartitionNexus nexus, int scope, boolean doThrow) throws NamingException
     {
         this.underlying = underlying;
         this.parser = parser;
@@ -71,8 +71,8 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
         this.nexus = nexus;
         prefetch();
     }
-    
-    
+
+
     public void prefetch() throws NamingException
     {
         while ( underlying.hasMore() )
@@ -87,7 +87,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
             prefetched = result;
             return;
         }
-        
+
         refIndex++;
         prefetched = ( SearchResult ) referrals.get( refIndex );
         if ( doThrow )
@@ -95,8 +95,8 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
             doReferralExceptionOnSearchBase();
         }
     }
-    
-    
+
+
     public Object next() throws NamingException
     {
         SearchResult retval = prefetched;
@@ -104,7 +104,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
         return retval;
     }
 
-    
+
     public boolean hasMore() throws NamingException
     {
         return underlying.hasMore() || refIndex < referrals.size();
@@ -119,7 +119,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
         refIndex = Integer.MAX_VALUE;
     }
 
-    
+
     public boolean hasMoreElements()
     {
         try
@@ -138,7 +138,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
                 log.error( "Naming enumeration failure.  Failed to properly close enumeration!", e1 );
             }
         }
-        
+
         return false;
     }
 
@@ -153,7 +153,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
         {
             log.error( "NamingEnumeration closed prematurely without returning elements.", e );
         }
-        
+
         throw new NoSuchElementException( "NamingEnumeration closed prematurely without returning elements." );
     }
 
@@ -166,25 +166,25 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
         {
             refs = nexus.lookup( parser.parse( prefetched.getName() ) ).get( REF_ATTR );
         }
-        
+
         if ( refs == null )
         {
-            throw new IllegalStateException( prefetched.getName() 
+            throw new IllegalStateException( prefetched.getName()
                 + " does not seem like a referral but we're trying to handle it as one." );
         }
-        
+
         List list = new ArrayList( refs.size() );
         for ( int ii = 0; ii < refs.size(); ii++ )
         {
             String val = ( String ) refs.get( ii );
-            
+
             // need to add non-ldap URLs as-is
-            if ( ! val.startsWith( "ldap" ) )
+            if ( !val.startsWith( "ldap" ) )
             {
                 list.add( val );
                 continue;
             }
-            
+
             // parse the ref value and normalize the DN according to schema 
             LdapURL ldapUrl = new LdapURL();
             try
@@ -193,9 +193,11 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
             }
             catch ( LdapURLEncodingException e )
             {
-                log.error( "Bad URL ("+ val +") for ref in " + prefetched.getName() + ".  Reference will be ignored." ); 
+                log
+                    .error( "Bad URL (" + val + ") for ref in " + prefetched.getName()
+                        + ".  Reference will be ignored." );
             }
-            
+
             StringBuffer buf = new StringBuffer();
             buf.append( ldapUrl.getScheme() );
             buf.append( ldapUrl.getHost() );
@@ -207,25 +209,25 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
             buf.append( "/" );
             buf.append( ldapUrl.getDn() );
             buf.append( "??" );
-            
+
             switch ( scope )
             {
-                case( SearchControls.SUBTREE_SCOPE ):
+                case ( SearchControls.SUBTREE_SCOPE  ):
                     buf.append( "sub" );
                     break;
-                    
+
                 // if we search for one level and encounter a referral then search
                 // must be continued at that node using base level search scope
-                case( SearchControls.ONELEVEL_SCOPE ):
+                case ( SearchControls.ONELEVEL_SCOPE  ):
                     buf.append( "base" );
                     break;
-                case( SearchControls.OBJECT_SCOPE ):
+                case ( SearchControls.OBJECT_SCOPE  ):
                     buf.append( "base" );
                     break;
                 default:
                     throw new IllegalStateException( "Unknown recognized search scope: " + scope );
             }
-            
+
             list.add( buf.toString() );
         }
         LdapReferralException lre = new LdapReferralException( list );

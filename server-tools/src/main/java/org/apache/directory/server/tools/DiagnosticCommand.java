@@ -40,14 +40,14 @@ import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiReque
  */
 public class DiagnosticCommand extends ToolCommand
 {
-    public static final String PORT_RANGE = "(" + AvailablePortFinder.MIN_PORT_NUMBER + ", " 
-    + AvailablePortFinder.MAX_PORT_NUMBER + ")";
+    public static final String PORT_RANGE = "(" + AvailablePortFinder.MIN_PORT_NUMBER + ", "
+        + AvailablePortFinder.MAX_PORT_NUMBER + ")";
 
     private int port = 10389;
     private String host = "localhost";
     private String password = "secret";
 
-    
+
     protected DiagnosticCommand()
     {
         super( "diagnostic" );
@@ -57,7 +57,7 @@ public class DiagnosticCommand extends ToolCommand
     public void execute( CommandLine cmd ) throws Exception
     {
         processOptions( cmd );
-        
+
         if ( isDebugEnabled() )
         {
             System.out.println( "Parameters for LaunchDiagnosticUI extended request:" );
@@ -76,8 +76,7 @@ public class DiagnosticCommand extends ToolCommand
         LdapContext ctx = new InitialLdapContext( env, null );
         if ( isDebugEnabled() )
         {
-            System.out.println( "Connection to the server established.\n"+
-                "Sending extended request ... " );
+            System.out.println( "Connection to the server established.\n" + "Sending extended request ... " );
         }
         ctx.extendedOperation( new LaunchDiagnosticUiRequest( 3 ) );
         ctx.close();
@@ -90,12 +89,12 @@ public class DiagnosticCommand extends ToolCommand
         {
             System.out.println( "Processing options for launching diagnostic UI ..." );
         }
-        
+
         // -------------------------------------------------------------------
         // figure out and error check the port value
         // -------------------------------------------------------------------
 
-        if ( cmd.hasOption( 'p' ) )   // - user provided port w/ -p takes precedence
+        if ( cmd.hasOption( 'p' ) ) // - user provided port w/ -p takes precedence
         {
             String val = cmd.getOptionValue( 'p' );
             try
@@ -107,20 +106,20 @@ public class DiagnosticCommand extends ToolCommand
                 System.err.println( "port value of '" + val + "' is not a number" );
                 System.exit( 1 );
             }
-            
+
             if ( port > AvailablePortFinder.MAX_PORT_NUMBER )
             {
-                System.err.println( "port value of '" + val + "' is larger than max port number: " 
+                System.err.println( "port value of '" + val + "' is larger than max port number: "
                     + AvailablePortFinder.MAX_PORT_NUMBER );
                 System.exit( 1 );
             }
             else if ( port < AvailablePortFinder.MIN_PORT_NUMBER )
             {
-                System.err.println( "port value of '" + val + "' is smaller than the minimum port number: " 
+                System.err.println( "port value of '" + val + "' is smaller than the minimum port number: "
                     + AvailablePortFinder.MIN_PORT_NUMBER );
                 System.exit( 1 );
             }
-            
+
             if ( isDebugEnabled() )
             {
                 System.out.println( "port overriden by -p option: " + port );
@@ -129,7 +128,7 @@ public class DiagnosticCommand extends ToolCommand
         else if ( getConfiguration() != null )
         {
             port = getConfiguration().getLdapPort();
-            
+
             if ( isDebugEnabled() )
             {
                 System.out.println( "port overriden by server.xml configuration: " + port );
@@ -139,7 +138,7 @@ public class DiagnosticCommand extends ToolCommand
         {
             System.out.println( "port set to default: " + port );
         }
-        
+
         // -------------------------------------------------------------------
         // figure out the host value
         // -------------------------------------------------------------------
@@ -147,7 +146,7 @@ public class DiagnosticCommand extends ToolCommand
         if ( cmd.hasOption( 'h' ) )
         {
             host = cmd.getOptionValue( 'h' );
-            
+
             if ( isDebugEnabled() )
             {
                 System.out.println( "host overriden by -h option: " + host );
@@ -157,7 +156,7 @@ public class DiagnosticCommand extends ToolCommand
         {
             System.out.println( "host set to default: " + host );
         }
-        
+
         // -------------------------------------------------------------------
         // figure out the password value
         // -------------------------------------------------------------------
@@ -184,7 +183,7 @@ public class DiagnosticCommand extends ToolCommand
         Option op = new Option( "h", "host", true, "server host: defaults to localhost" );
         op.setRequired( false );
         opts.addOption( op );
-        op = new Option(  "p", "port", true, "server port: defaults to 10389 or server.xml specified port" );
+        op = new Option( "p", "port", true, "server port: defaults to 10389 or server.xml specified port" );
         op.setRequired( false );
         opts.addOption( op );
         op = new Option( "w", "password", true, "the apacheds administrator's password: defaults to secret" );

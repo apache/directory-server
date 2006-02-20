@@ -33,13 +33,15 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 public class ServerSystemPreferencesTest extends AbstractAdminTestCase
 {
     private ServerSystemPreferences prefs;
-    
+
+
     public void setUp() throws Exception
     {
         super.setUp();
         prefs = new ServerSystemPreferences();
     }
-    
+
+
     /**
      * Tests to make sure the system preferences root has entry (test, abc123).
      */
@@ -47,6 +49,7 @@ public class ServerSystemPreferencesTest extends AbstractAdminTestCase
     {
         assertEquals( "sysPrefRoot", prefs.get( "prefNodeName", "not the value" ) );
     }
+
 
     /**
      * Tests the creation and use of a new preferences node.
@@ -86,7 +89,7 @@ public class ServerSystemPreferencesTest extends AbstractAdminTestCase
 
         assertEquals( true, testNode.getBoolean( "boolKey", false ) );
         assertTrue( 3.14 == testNode.getDouble( "doubleKey", 9.20 ) );
-        assertTrue( (float) 3.14 == testNode.getFloat( "floatKey", (float) 3.90 ) );
+        assertTrue( ( float ) 3.14 == testNode.getFloat( "floatKey", ( float ) 3.90 ) );
         assertEquals( 345, testNode.getInt( "intKey", 87 ) );
         assertEquals( 75449559185447L, testNode.getLong( "longKey", 75449547L ) );
     }
@@ -116,7 +119,7 @@ public class ServerSystemPreferencesTest extends AbstractAdminTestCase
 
         assertEquals( true, testNode.getBoolean( "boolKey", false ) );
         assertTrue( 3.14 == testNode.getDouble( "doubleKey", 9.20 ) );
-        assertTrue( (float) 3.14 == testNode.getFloat( "floatKey", (float) 3.90 ) );
+        assertTrue( ( float ) 3.14 == testNode.getFloat( "floatKey", ( float ) 3.90 ) );
         assertEquals( 345, testNode.getInt( "intKey", 87 ) );
         assertEquals( 75449559185447L, testNode.getLong( "longKey", 75449547L ) );
 

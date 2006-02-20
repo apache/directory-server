@@ -42,6 +42,5 @@ public interface IndexAssertion
      * @throws NamingException if their are failures while asserting the 
      * condition
      */
-    boolean assertCandidate( IndexRecord record ) 
-        throws NamingException;
+    boolean assertCandidate( IndexRecord record ) throws NamingException;
 }

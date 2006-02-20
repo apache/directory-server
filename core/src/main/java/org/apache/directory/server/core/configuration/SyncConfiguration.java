@@ -18,7 +18,9 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 import org.apache.directory.server.core.DirectoryService;
+
 
 /**
  * A {@link Configuration} that makes a call to {@link DirectoryService#sync()}.
@@ -30,18 +32,20 @@ public class SyncConfiguration extends Configuration
 {
     private static final long serialVersionUID = -3260859085299322327L;
 
+
     /**
      * Creates a new instance.
      */
     public SyncConfiguration()
     {
     }
-    
+
+
     /**
      * Creates a new instance that operates on the {@link DirectoryService}
      * with the specified ID.
      */
-    public SyncConfiguration( String instanceId )
+    public SyncConfiguration(String instanceId)
     {
         setInstanceId( instanceId );
     }

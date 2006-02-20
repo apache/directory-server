@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.io.encoder;
 
+
 /**
  * 2. New resource record definition and domain
  * 

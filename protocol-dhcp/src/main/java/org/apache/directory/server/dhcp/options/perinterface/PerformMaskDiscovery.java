@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.perinterface;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies whether or not the client should perform subnet
@@ -31,17 +33,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class PerformMaskDiscovery extends DhcpOption
 {
-	private byte[] performMaskDiscovery;
-	
-	public PerformMaskDiscovery( byte[] performMaskDiscovery )
-	{
-		super( 29, 1 );
-		this.performMaskDiscovery = performMaskDiscovery;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( performMaskDiscovery );
-	}
-}
+    private byte[] performMaskDiscovery;
 
+
+    public PerformMaskDiscovery(byte[] performMaskDiscovery)
+    {
+        super( 29, 1 );
+        this.performMaskDiscovery = performMaskDiscovery;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( performMaskDiscovery );
+    }
+}

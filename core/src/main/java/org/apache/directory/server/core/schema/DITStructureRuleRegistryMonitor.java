@@ -35,12 +35,14 @@ public interface DITStructureRuleRegistryMonitor
      */
     void registered( DITStructureRule dITStructureRule );
 
+
     /**
      * Monitors when a Comparator is successfully looked up.
      *
      * @param dITStructureRule the DITStructureRule successfully lookedup
      */
     void lookedUp( DITStructureRule dITStructureRule );
+
 
     /**
      * Monitors when a lookup attempt fails.
@@ -49,6 +51,7 @@ public interface DITStructureRuleRegistryMonitor
      * @param fault the exception to be thrown for the fault
      */
     void lookupFailed( String oid, Throwable fault );
+
 
     /**
      * Monitors when a registration attempt fails.

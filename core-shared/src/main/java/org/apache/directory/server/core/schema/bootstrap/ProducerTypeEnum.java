@@ -46,15 +46,13 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
  */
 public class ProducerTypeEnum extends ValuedEnum
 {
-	private static final long serialVersionUID = 3257284725524475954L;
+    private static final long serialVersionUID = 3257284725524475954L;
 
-	private static final String[] producers = {
-        "NormalizerProducer", "ComparatorProducer", "SyntaxCheckerProducer",
-        "SyntaxProducer", "MatchingRuleProducer", "AttributeTypeProducer",
-        "ObjectClassProducer", "MatchingRuleUseProducer", "DitContentRuleProducer",
-        "NameFormProducer", "DitStructureRuleProducer",
-        "StateFactoryProducer", "ObjectFactoryProducer"
-    };
+    private static final String[] producers =
+        { "NormalizerProducer", "ComparatorProducer", "SyntaxCheckerProducer", "SyntaxProducer",
+            "MatchingRuleProducer", "AttributeTypeProducer", "ObjectClassProducer", "MatchingRuleUseProducer",
+            "DitContentRuleProducer", "NameFormProducer", "DitStructureRuleProducer", "StateFactoryProducer",
+            "ObjectFactoryProducer" };
 
     /** value for Normalizer BootstrapProducers */
     public static final int NORMALIZER_PRODUCER_VAL = 0;
@@ -83,46 +81,44 @@ public class ProducerTypeEnum extends ValuedEnum
     /** value for ObjectFactory BootstrapProducers */
     public static final int OBJECT_FACTORY_PRODUCER_VAL = 12;
 
-
     /** enum for BootstrapProducers of Normalizer schema objects */
-    public static final ProducerTypeEnum NORMALIZER_PRODUCER =
-        new ProducerTypeEnum( producers[0], NORMALIZER_PRODUCER_VAL );
+    public static final ProducerTypeEnum NORMALIZER_PRODUCER = new ProducerTypeEnum( producers[0],
+        NORMALIZER_PRODUCER_VAL );
     /** enum for BootstrapProducers of Comparator schema objects */
-    public static final ProducerTypeEnum COMPARATOR_PRODUCER =
-        new ProducerTypeEnum( producers[1], COMPARATOR_PRODUCER_VAL );
+    public static final ProducerTypeEnum COMPARATOR_PRODUCER = new ProducerTypeEnum( producers[1],
+        COMPARATOR_PRODUCER_VAL );
     /** enum for BootstrapProducers of SyntaxChecker schema objects */
-    public static final ProducerTypeEnum SYNTAX_CHECKER_PRODUCER =
-        new ProducerTypeEnum( producers[2], SYNTAX_CHECKER_PRODUCER_VAL );
+    public static final ProducerTypeEnum SYNTAX_CHECKER_PRODUCER = new ProducerTypeEnum( producers[2],
+        SYNTAX_CHECKER_PRODUCER_VAL );
     /** enum for BootstrapProducers of Syntax schema objects */
-    public static final ProducerTypeEnum SYNTAX_PRODUCER =
-        new ProducerTypeEnum( producers[3], SYNTAX_PRODUCER_VAL );
+    public static final ProducerTypeEnum SYNTAX_PRODUCER = new ProducerTypeEnum( producers[3], SYNTAX_PRODUCER_VAL );
     /** enum for BootstrapProducers of MatchingRule schema objects */
-    public static final ProducerTypeEnum MATCHING_RULE_PRODUCER =
-        new ProducerTypeEnum( producers[4], MATCHING_RULE_PRODUCER_VAL );
+    public static final ProducerTypeEnum MATCHING_RULE_PRODUCER = new ProducerTypeEnum( producers[4],
+        MATCHING_RULE_PRODUCER_VAL );
     /** enum for BootstrapProducers of AttributeType schema objects */
-    public static final ProducerTypeEnum ATTRIBUTE_TYPE_PRODUCER =
-        new ProducerTypeEnum( producers[5], ATTRIBUTE_TYPE_PRODUCER_VAL );
+    public static final ProducerTypeEnum ATTRIBUTE_TYPE_PRODUCER = new ProducerTypeEnum( producers[5],
+        ATTRIBUTE_TYPE_PRODUCER_VAL );
     /** enum for BootstrapProducers of ObjectClass schema objects */
-    public static final ProducerTypeEnum OBJECT_CLASS_PRODUCER =
-        new ProducerTypeEnum( producers[6], OBJECT_CLASS_PRODUCER_VAL );
+    public static final ProducerTypeEnum OBJECT_CLASS_PRODUCER = new ProducerTypeEnum( producers[6],
+        OBJECT_CLASS_PRODUCER_VAL );
     /** enum for BootstrapProducers of MatchingRule schema objects */
-    public static final ProducerTypeEnum MATCHING_RULE_USE_PRODUCER =
-        new ProducerTypeEnum( producers[7], MATCHING_RULE_USE_PRODUCER_VAL );
+    public static final ProducerTypeEnum MATCHING_RULE_USE_PRODUCER = new ProducerTypeEnum( producers[7],
+        MATCHING_RULE_USE_PRODUCER_VAL );
     /** enum for BootstrapProducers of DitContentRule schema objects */
-    public static final ProducerTypeEnum DIT_CONTENT_RULE_PRODUCER =
-        new ProducerTypeEnum( producers[8], DIT_CONTENT_RULE_PRODUCER_VAL );
+    public static final ProducerTypeEnum DIT_CONTENT_RULE_PRODUCER = new ProducerTypeEnum( producers[8],
+        DIT_CONTENT_RULE_PRODUCER_VAL );
     /** enum for BootstrapProducers of NameForm schema objects */
-    public static final ProducerTypeEnum NAME_FORM_PRODUCER =
-        new ProducerTypeEnum( producers[9], NAME_FORM_PRODUCER_VAL );
+    public static final ProducerTypeEnum NAME_FORM_PRODUCER = new ProducerTypeEnum( producers[9],
+        NAME_FORM_PRODUCER_VAL );
     /** enum for BootstrapProducers of DitStructureRule schema objects */
-    public static final ProducerTypeEnum DIT_STRUCTURE_RULE_PRODUCER =
-        new ProducerTypeEnum( producers[10], DIT_STRUCTURE_RULE_PRODUCER_VAL );
+    public static final ProducerTypeEnum DIT_STRUCTURE_RULE_PRODUCER = new ProducerTypeEnum( producers[10],
+        DIT_STRUCTURE_RULE_PRODUCER_VAL );
     /** enum for BootstrapProducers of StateFactory schema objects */
-    public static final ProducerTypeEnum STATE_FACTORY_PRODUCER =
-        new ProducerTypeEnum( producers[11], STATE_FACTORY_PRODUCER_VAL );
+    public static final ProducerTypeEnum STATE_FACTORY_PRODUCER = new ProducerTypeEnum( producers[11],
+        STATE_FACTORY_PRODUCER_VAL );
     /** enum for BootstrapProducers of ObjectFactory schema objects */
-    public static final ProducerTypeEnum OBJECT_FACTORY_PRODUCER =
-        new ProducerTypeEnum( producers[12], OBJECT_FACTORY_PRODUCER_VAL );
+    public static final ProducerTypeEnum OBJECT_FACTORY_PRODUCER = new ProducerTypeEnum( producers[12],
+        OBJECT_FACTORY_PRODUCER_VAL );
 
 
     /**
@@ -132,12 +128,12 @@ public class ProducerTypeEnum extends ValuedEnum
      * @param name a string name for the enumeration value.
      * @param value the integer value of the enumeration.
      */
-    private ProducerTypeEnum( final String name, final int value )
+    private ProducerTypeEnum(final String name, final int value)
     {
         super( name, value );
     }
-    
-    
+
+
     /**
      * Gets the enumeration type for the attributeType producerType string regardless
      * of case.
@@ -200,11 +196,10 @@ public class ProducerTypeEnum extends ValuedEnum
             return ProducerTypeEnum.OBJECT_FACTORY_PRODUCER;
         }
 
-        throw new IllegalArgumentException( "Unknown ProducerTypeEnum string"
-            + producerType );
+        throw new IllegalArgumentException( "Unknown ProducerTypeEnum string" + producerType );
     }
-    
-    
+
+
     /**
      * Gets a List of the enumerations.
      * 
@@ -214,8 +209,8 @@ public class ProducerTypeEnum extends ValuedEnum
     {
         return EnumUtils.getEnumList( ProducerTypeEnum.class );
     }
-    
-    
+
+
     /**
      * Gets the Map of ProducerTypeEnum objects by name.
      * 

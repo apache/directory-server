@@ -4,9 +4,12 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC1-SNAPSHOT</version>
+    <version>1.0-RC1</version>
   </parent>
   <artifactId>apacheds-protocol-ldap</artifactId>
+  <description>
+    The LDAPv3 protocol provider for ApacheDS
+  </description>
   <name>ApacheDS Protocol Ldap</name>
   <packaging>jar</packaging>  
   <dependencies>

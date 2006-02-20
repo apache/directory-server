@@ -15,6 +15,7 @@
  */
 package org.apache.directory.server.protocol.shared.chain.impl;
 
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -22,6 +23,7 @@ import org.apache.directory.server.protocol.shared.chain.Chain;
 import org.apache.directory.server.protocol.shared.chain.Command;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.Filter;
+
 
 /**
  * <p>Convenience base class for {@link Chain} implementations.</p>
@@ -41,6 +43,7 @@ public class ChainBase implements Chain
 
     }
 
+
     /**
      * <p>Construct a {@link Chain} configured with the specified
      * {@link Command}.</p>
@@ -50,10 +53,11 @@ public class ChainBase implements Chain
      * @exception IllegalArgumentException if <code>command</code>
      *  is <code>null</code>
      */
-    public ChainBase( Command command )
+    public ChainBase(Command command)
     {
         addCommand( command );
     }
+
 
     /**
      * <p>Construct a {@link Chain} configured with the specified
@@ -65,7 +69,7 @@ public class ChainBase implements Chain
      *  or one of the individual {@link Command} elements,
      *  is <code>null</code>
      */
-    public ChainBase( Command[] commands )
+    public ChainBase(Command[] commands)
     {
         if ( commands == null )
         {
@@ -74,9 +78,10 @@ public class ChainBase implements Chain
 
         for ( int i = 0; i < commands.length; i++ )
         {
-            addCommand( commands[ i ] );
+            addCommand( commands[i] );
         }
     }
+
 
     /**
      * <p>Construct a {@link Chain} configured with the specified
@@ -88,7 +93,7 @@ public class ChainBase implements Chain
      *  or one of the individual {@link Command} elements,
      *  is <code>null</code>
      */
-    public ChainBase( Collection commands )
+    public ChainBase(Collection commands)
     {
         if ( commands == null )
         {
@@ -98,7 +103,7 @@ public class ChainBase implements Chain
         Iterator elements = commands.iterator();
         while ( elements.hasNext() )
         {
-            addCommand( (Command) elements.next() );
+            addCommand( ( Command ) elements.next() );
         }
     }
 
@@ -109,13 +114,14 @@ public class ChainBase implements Chain
      * the order in which they may delegate processing to the remainder of
      * the {@link Chain}.</p>
      */
-    protected Command[] commands = new Command[ 0 ];
+    protected Command[] commands = new Command[0];
 
     /**
      * <p>Flag indicating whether the configuration of our commands list
      * has been frozen by a call to the <code>execute()</code> method.</p>
      */
     protected boolean frozen = false;
+
 
     // ---------------------------------------------------------- Chain Methods
 
@@ -132,11 +138,12 @@ public class ChainBase implements Chain
             throw new IllegalStateException();
         }
 
-        Command[] results = new Command[ commands.length + 1 ];
+        Command[] results = new Command[commands.length + 1];
         System.arraycopy( commands, 0, results, 0, commands.length );
-        results[ commands.length ] = command;
+        results[commands.length] = command;
         commands = results;
     }
+
 
     // Documented in Chain interface
     public boolean execute( Context context ) throws Exception
@@ -161,7 +168,7 @@ public class ChainBase implements Chain
         {
             try
             {
-                saveResult = commands[ i ].execute( context );
+                saveResult = commands[i].execute( context );
                 if ( saveResult )
                 {
                     break;
@@ -183,11 +190,11 @@ public class ChainBase implements Chain
         boolean result = false;
         for ( int j = i; j >= 0; j-- )
         {
-            if ( commands[ j ] instanceof Filter )
+            if ( commands[j] instanceof Filter )
             {
                 try
                 {
-                    result = ( (Filter) commands[ j ] ).postprocess( context, saveException );
+                    result = ( ( Filter ) commands[j] ).postprocess( context, saveException );
                     if ( result )
                     {
                         handled = true;
@@ -210,6 +217,7 @@ public class ChainBase implements Chain
             return ( saveResult );
         }
     }
+
 
     // -------------------------------------------------------- Package Methods
 

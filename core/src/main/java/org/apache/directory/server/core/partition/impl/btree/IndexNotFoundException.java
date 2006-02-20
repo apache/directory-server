@@ -26,8 +26,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class IndexNotFoundException
-    extends NamingException
+public class IndexNotFoundException extends NamingException
 {
     private static final long serialVersionUID = 3906088970608981815L;
 
@@ -40,13 +39,12 @@ public class IndexNotFoundException
      * 
      * @param indexName the name of the index that was not found 
      */
-    public IndexNotFoundException( String indexName )
+    public IndexNotFoundException(String indexName)
     {
-        super( "Cannot efficiently search the DIB w/o an index on attribute "
-            + indexName + "\n. To allow such searches please contact the "
+        super( "Cannot efficiently search the DIB w/o an index on attribute " + indexName
+            + "\n. To allow such searches please contact the "
             + "directory\nadministrator to create the index or to enable "
-            + "referrals on searches using these\nattributes to a replica with "
-            + "the required set of indices." );
+            + "referrals on searches using these\nattributes to a replica with " + "the required set of indices." );
         this.indexName = indexName;
     }
 
@@ -57,7 +55,7 @@ public class IndexNotFoundException
      * @param message the message associated with the exception.
      * @param indexName the name of the index that was not found 
      */
-    public IndexNotFoundException( String message, String indexName )
+    public IndexNotFoundException(String message, String indexName)
     {
         super( message );
         this.indexName = indexName;
@@ -72,8 +70,7 @@ public class IndexNotFoundException
      * @param indexName the name of the index that was not found 
      * @param rootCause the root cause of this exception 
      */
-    public IndexNotFoundException( String message, String indexName,
-        Throwable rootCause )
+    public IndexNotFoundException(String message, String indexName, Throwable rootCause)
     {
         this( message, indexName );
         setRootCause( rootCause );

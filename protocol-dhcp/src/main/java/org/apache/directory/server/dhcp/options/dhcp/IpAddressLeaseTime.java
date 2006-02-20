@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option is used in a client request (DHCPDISCOVER or DHCPREQUEST)
@@ -34,17 +36,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class IpAddressLeaseTime extends DhcpOption
 {
-	private byte[] ipAddressLeaseTime;
-	
-	public IpAddressLeaseTime( byte[] ipAddressLeaseTime )
-	{
-		super( 51, 4 );
-		this.ipAddressLeaseTime = ipAddressLeaseTime;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( ipAddressLeaseTime );
-	}
-}
+    private byte[] ipAddressLeaseTime;
 
+
+    public IpAddressLeaseTime(byte[] ipAddressLeaseTime)
+    {
+        super( 51, 4 );
+        this.ipAddressLeaseTime = ipAddressLeaseTime;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( ipAddressLeaseTime );
+    }
+}

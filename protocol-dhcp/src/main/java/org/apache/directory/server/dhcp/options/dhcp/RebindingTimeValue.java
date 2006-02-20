@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies the time interval from address assignment until
@@ -32,17 +34,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class RebindingTimeValue extends DhcpOption
 {
-	private int rebindingTimeValue;
-	
-	public RebindingTimeValue( int rebindingTimeValue )
-	{
-		super( 59, 4 );
-		this.rebindingTimeValue = rebindingTimeValue;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.putInt( rebindingTimeValue );
-	}
-}
+    private int rebindingTimeValue;
 
+
+    public RebindingTimeValue(int rebindingTimeValue)
+    {
+        super( 59, 4 );
+        this.rebindingTimeValue = rebindingTimeValue;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.putInt( rebindingTimeValue );
+    }
+}

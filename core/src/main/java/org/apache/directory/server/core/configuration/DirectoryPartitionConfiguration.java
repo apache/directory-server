@@ -52,7 +52,8 @@ public class DirectoryPartitionConfiguration
     private Set indexedAttributes; // Set<String>
     private Attributes contextEntry = new BasicAttributes( true );
     private DirectoryPartition contextPartition = new JdbmDirectoryPartition();
-    
+
+
     /**
      * Creates a new instance.
      */
@@ -60,7 +61,8 @@ public class DirectoryPartitionConfiguration
     {
         setIndexedAttributes( new HashSet() );
     }
-    
+
+
     /**
      * Returns user-defined name of the {@link DirectoryPartition} that
      * this configuration configures.
@@ -69,7 +71,8 @@ public class DirectoryPartitionConfiguration
     {
         return name;
     }
-    
+
+
     /**
      * Sets user-defined name of the {@link DirectoryPartition} that
      * this configuration configures.
@@ -81,6 +84,7 @@ public class DirectoryPartitionConfiguration
         this.name = name;
     }
 
+
     /**
      * Returns the set of attribute type strings to create an index on.
      */
@@ -88,23 +92,23 @@ public class DirectoryPartitionConfiguration
     {
         return ConfigurationUtil.getClonedSet( indexedAttributes );
     }
-    
+
+
     /**
      * Sets the set of attribute type strings to create an index on.
      */
     protected void setIndexedAttributes( Set indexedAttributes )
     {
-        Set newIndexedAttributes = ConfigurationUtil.getTypeSafeSet(
-                indexedAttributes, String.class );
+        Set newIndexedAttributes = ConfigurationUtil.getTypeSafeSet( indexedAttributes, String.class );
 
         Iterator i = newIndexedAttributes.iterator();
-        while( i.hasNext() )
+        while ( i.hasNext() )
         {
             String attribute = ( String ) i.next();
             // TODO Attribute name must be normalized and validated
             newIndexedAttributes.add( attribute );
         }
-        
+
         // Add default indices
         newIndexedAttributes.add( Oid.ALIAS );
         newIndexedAttributes.add( Oid.EXISTANCE );
@@ -116,7 +120,8 @@ public class DirectoryPartitionConfiguration
 
         this.indexedAttributes = newIndexedAttributes;
     }
-    
+
+
     /**
      * Returns the {@link DirectoryPartition} that this configuration configures.
      */
@@ -124,19 +129,21 @@ public class DirectoryPartitionConfiguration
     {
         return contextPartition;
     }
-    
+
+
     /**
      * Sets the {@link DirectoryPartition} that this configuration configures.
      */
     protected void setContextPartition( DirectoryPartition partition )
     {
-        if( partition == null )
+        if ( partition == null )
         {
             throw new NullPointerException( "partition" );
         }
         this.contextPartition = partition;
     }
-    
+
+
     /**
      * Returns root entry that will be added to the {@link DirectoryPartition}
      * after it is initialized.
@@ -145,7 +152,8 @@ public class DirectoryPartitionConfiguration
     {
         return ( Attributes ) contextEntry.clone();
     }
-    
+
+
     /**
      * Sets root entry that will be added to the {@link DirectoryPartition}
      * after it is initialized.
@@ -154,7 +162,8 @@ public class DirectoryPartitionConfiguration
     {
         this.contextEntry = ( Attributes ) rootEntry.clone();
     }
-    
+
+
     /**
      * Returns the suffix of the {@link DirectoryPartition}.
      */
@@ -162,7 +171,8 @@ public class DirectoryPartitionConfiguration
     {
         return suffix;
     }
-    
+
+
     /**
      * Returns the normalized suffix of the {@link DirectoryPartition}.
      */
@@ -170,7 +180,8 @@ public class DirectoryPartitionConfiguration
     {
         return getNormalizedSuffix( matchingRuleRegistry.lookup( "distinguishedNameMatch" ).getNormalizer() );
     }
-    
+
+
     /**
      * Returns the normalized suffix of the {@link DirectoryPartition}.
      */
@@ -178,7 +189,8 @@ public class DirectoryPartitionConfiguration
     {
         return new LdapName( normalizer.normalize( suffix ).toString() );
     }
-    
+
+
     /**
      * Sets the suffix of the {@link DirectoryPartition}.
      */
@@ -189,14 +201,14 @@ public class DirectoryPartitionConfiguration
         {
             new LdapName( suffix );
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             throw new ConfigurationException( "Failed to normalize the suffix: " + suffix );
         }
         this.suffix = suffix;
     }
-    
-    
+
+
     /**
      * Validates this configuration.
      * 
@@ -204,12 +216,12 @@ public class DirectoryPartitionConfiguration
      */
     public void validate()
     {
-        if( getName() == null || getName().length() == 0 )
+        if ( getName() == null || getName().length() == 0 )
         {
             throw new ConfigurationException( "Name is not specified." );
         }
 
-        if( getSuffix() == null )
+        if ( getSuffix() == null )
         {
             throw new ConfigurationException( "Suffix is not specified." );
         }

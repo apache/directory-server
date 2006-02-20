@@ -16,24 +16,26 @@
  */
 package org.apache.directory.server.kerberos.kdc.authentication;
 
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.service.GetPrincipalStoreEntry;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.kerberos.exceptions.ErrorType;
-import org.apache.kerberos.service.GetPrincipalStoreEntry;
-import org.apache.kerberos.store.PrincipalStore;
+
 
 public class GetClientEntry extends GetPrincipalStoreEntry
 {
-    public boolean execute(Context context) throws Exception
+    public boolean execute( Context context ) throws Exception
     {
-        AuthenticationContext authContext = (AuthenticationContext) context;
-        
+        AuthenticationContext authContext = ( AuthenticationContext ) context;
+
         KerberosPrincipal principal = authContext.getRequest().getClientPrincipal();
         PrincipalStore store = authContext.getStore();
 
         authContext.setClientEntry( getEntry( principal, store, ErrorType.KDC_ERR_C_PRINCIPAL_UNKNOWN ) );
-        
+
         return CONTINUE_CHAIN;
     }
 }

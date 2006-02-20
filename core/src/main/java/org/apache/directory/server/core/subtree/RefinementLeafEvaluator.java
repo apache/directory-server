@@ -45,7 +45,7 @@ public class RefinementLeafEvaluator
      *
      * @param registry the OID registry used to lookup names for objectClass OIDs
      */
-    public RefinementLeafEvaluator( OidRegistry registry )
+    public RefinementLeafEvaluator(OidRegistry registry)
     {
         this.registry = registry;
     }
@@ -69,10 +69,9 @@ public class RefinementLeafEvaluator
         }
         if ( node.getAssertionType() != LeafNode.EQUALITY )
         {
-            throw new NamingException( "Unrecognized assertion type for refinement node: "
-                    + node.getAssertionType() );
+            throw new NamingException( "Unrecognized assertion type for refinement node: " + node.getAssertionType() );
         }
-        if ( ! node.getAttribute().equalsIgnoreCase( "objectclass" ) )
+        if ( !node.getAttribute().equalsIgnoreCase( "objectclass" ) )
         {
             throw new NamingException( "Refinement leaf node attribute was " + node.getAttribute() );
         }
@@ -81,7 +80,7 @@ public class RefinementLeafEvaluator
         {
             throw new IllegalArgumentException( "objectClasses argument cannot be null" );
         }
-        if ( ! objectClasses.getID().equalsIgnoreCase( "objectclass" ) )
+        if ( !objectClasses.getID().equalsIgnoreCase( "objectclass" ) )
         {
             throw new IllegalArgumentException( "objectClasses attribute must be for ID 'objectClass'" );
         }
@@ -94,7 +93,7 @@ public class RefinementLeafEvaluator
 
         // If the filter value for the objectClass is an OID we need to resolve a name
         String value = node.getValue();
-        
+
         if ( Character.isDigit( value.charAt( 0 ) ) )
         {
             Iterator list = registry.getNameSet( value ).iterator();

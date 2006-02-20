@@ -17,12 +17,14 @@
 
 package org.apache.directory.server.ntp.io;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.ntp.messages.LeapIndicatorType;
 import org.apache.directory.server.ntp.messages.ModeType;
 import org.apache.directory.server.ntp.messages.NtpMessage;
 import org.apache.directory.server.ntp.messages.ReferenceIdentifier;
+
 
 public class NtpMessageEncoder
 {
@@ -34,9 +36,9 @@ public class NtpMessageEncoder
         header = encodeMode( message.getMode(), header );
         byteBuffer.put( header );
 
-        byteBuffer.put( (byte) ( message.getStratum().getOrdinal() & 0xFF ) );
-        byteBuffer.put( (byte) ( message.getPollInterval() & 0xFF ) );
-        byteBuffer.put( (byte) ( message.getPrecision() & 0xFF ) );
+        byteBuffer.put( ( byte ) ( message.getStratum().getOrdinal() & 0xFF ) );
+        byteBuffer.put( ( byte ) ( message.getPollInterval() & 0xFF ) );
+        byteBuffer.put( ( byte ) ( message.getPrecision() & 0xFF ) );
 
         byteBuffer.putInt( message.getRootDelay() );
         byteBuffer.putInt( message.getRootDispersion() );
@@ -49,23 +51,27 @@ public class NtpMessageEncoder
         message.getTransmitTimestamp().writeTo( byteBuffer );
     }
 
+
     private byte encodeLeapIndicator( LeapIndicatorType leapIndicator, byte header )
     {
-        byte twoBits = (byte) ( leapIndicator.getOrdinal() & 0x03 );
-        return (byte) ( ( twoBits << 6 ) | header );
+        byte twoBits = ( byte ) ( leapIndicator.getOrdinal() & 0x03 );
+        return ( byte ) ( ( twoBits << 6 ) | header );
     }
+
 
     private byte encodeVersionNumber( int versionNumber, byte header )
     {
-        byte threeBits = (byte) ( versionNumber & 0x07 );
-        return (byte) ( ( threeBits << 3 ) | header );
+        byte threeBits = ( byte ) ( versionNumber & 0x07 );
+        return ( byte ) ( ( threeBits << 3 ) | header );
     }
+
 
     private byte encodeMode( ModeType mode, byte header )
     {
-        byte threeBits = (byte) ( mode.getOrdinal() & 0x07 );
-        return (byte) ( threeBits | header );
+        byte threeBits = ( byte ) ( mode.getOrdinal() & 0x07 );
+        return ( byte ) ( threeBits | header );
     }
+
 
     private void encodeReferenceIdentifier( ReferenceIdentifier identifier, ByteBuffer byteBuffer )
     {
@@ -73,7 +79,7 @@ public class NtpMessageEncoder
 
         for ( int ii = 0; ii < characters.length; ii++ )
         {
-            byteBuffer.put( (byte) characters[ ii ] );
+            byteBuffer.put( ( byte ) characters[ii] );
         }
     }
 }

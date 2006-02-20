@@ -48,12 +48,11 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a default NormalizerRegistry by initializing the map and the
      * montior.
      */
-    public GlobalNormalizerRegistry( BootstrapNormalizerRegistry bootstrap )
+    public GlobalNormalizerRegistry(BootstrapNormalizerRegistry bootstrap)
     {
         this.oidToSchema = new HashMap();
         this.normalizers = new HashMap();
@@ -62,7 +61,7 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
         {
-            throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
+            throw new NullPointerException( "the bootstrap registry cannot be null" );
         }
     }
 
@@ -82,14 +81,11 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-
-    public void register( String schema, String oid, Normalizer normalizer )
-            throws NamingException
+    public void register( String schema, String oid, Normalizer normalizer ) throws NamingException
     {
         if ( normalizers.containsKey( oid ) || bootstrap.hasNormalizer( oid ) )
         {
-            NamingException e = new NamingException( "Normalizer with OID "
-                + oid + " already registered!" );
+            NamingException e = new NamingException( "Normalizer with OID " + oid + " already registered!" );
             monitor.registerFailed( oid, normalizer, e );
             throw e;
         }
@@ -133,11 +129,11 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
 
     public String getSchemaName( String oid ) throws NamingException
     {
-        if ( ! Character.isDigit( oid.charAt( 0 ) ) )
+        if ( !Character.isDigit( oid.charAt( 0 ) ) )
         {
             throw new NamingException( "OID " + oid + " is not a numeric OID" );
         }
-        
+
         if ( oidToSchema.containsKey( oid ) )
         {
             return ( String ) oidToSchema.get( oid );
@@ -148,7 +144,6 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
             return bootstrap.getSchemaName( oid );
         }
 
-        throw new NamingException( "OID " + oid + " not found in oid to " +
-            "schema name map!" );
+        throw new NamingException( "OID " + oid + " not found in oid to " + "schema name map!" );
     }
 }

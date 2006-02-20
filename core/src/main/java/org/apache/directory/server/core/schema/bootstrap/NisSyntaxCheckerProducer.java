@@ -24,7 +24,6 @@ import org.apache.directory.shared.ldap.schema.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 
 
-
 /**
  * A producer of SyntaxChecker objects for the nis schema.  This code has been
  * automatically generated using schema files in the OpenLDAP format along with
@@ -46,12 +45,10 @@ public class NisSyntaxCheckerProducer extends AbstractBootstrapProducer
     // BootstrapProducer Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see org.apache.directory.server.core.schema.bootstrap.BootstrapProducer#produce(BootstrapRegistries, org.apache.directory.server.core.schema.bootstrap.ProducerCallback)
      */
-    public void produce( BootstrapRegistries registries, ProducerCallback cb )
-        throws NamingException
+    public void produce( BootstrapRegistries registries, ProducerCallback cb ) throws NamingException
     {
         SyntaxChecker syntaxChecker;
 

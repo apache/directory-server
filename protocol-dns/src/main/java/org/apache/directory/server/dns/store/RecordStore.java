@@ -16,15 +16,17 @@
  */
 package org.apache.directory.server.dns.store;
 
+
 import java.util.Set;
 
 import org.apache.directory.server.dns.messages.QuestionRecord;
+
 
 /**
  * The store interface used by the DNS protocol to lookup resource records.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 329063 $, $Date$
+ * @version $Rev$, $Date$
  */
 public interface RecordStore
 {

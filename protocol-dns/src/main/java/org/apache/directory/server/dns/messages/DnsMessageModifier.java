@@ -60,12 +60,14 @@ public class DnsMessageModifier
     private ResourceRecords authorityRecords;
     private ResourceRecords additionalRecords;
 
+
     public DnsMessage getDnsMessage()
     {
         return new DnsMessage( transactionId, messageType, opCode, authoritativeAnswer, truncated, recursionDesired,
-                recursionAvailable, reserved, acceptNonAuthenticatedData, responseCode, questionRecords, answerRecords,
-                authorityRecords, additionalRecords );
+            recursionAvailable, reserved, acceptNonAuthenticatedData, responseCode, questionRecords, answerRecords,
+            authorityRecords, additionalRecords );
     }
+
 
     /**
      * @param acceptNonAuthenticatedData The acceptNonAuthenticatedData to set.
@@ -75,6 +77,7 @@ public class DnsMessageModifier
         this.acceptNonAuthenticatedData = acceptNonAuthenticatedData;
     }
 
+
     /**
      * @param additionalRecords The additional to set.
      */
@@ -82,6 +85,7 @@ public class DnsMessageModifier
     {
         this.additionalRecords = additionalRecords;
     }
+
 
     /**
      * @param answerRecords The answer to set.
@@ -91,6 +95,7 @@ public class DnsMessageModifier
         this.answerRecords = answerRecords;
     }
 
+
     /**
      * @param authoritativeAnswer The authoritativeAnswer to set.
      */
@@ -98,6 +103,7 @@ public class DnsMessageModifier
     {
         this.authoritativeAnswer = authoritativeAnswer;
     }
+
 
     /**
      * @param authorityRecords The authority to set.
@@ -107,6 +113,7 @@ public class DnsMessageModifier
         this.authorityRecords = authorityRecords;
     }
 
+
     /**
      * @param messageType The messageType to set.
      */
@@ -114,6 +121,7 @@ public class DnsMessageModifier
     {
         this.messageType = messageType;
     }
+
 
     /**
      * @param opCode The opCode to set.
@@ -123,6 +131,7 @@ public class DnsMessageModifier
         this.opCode = opCode;
     }
 
+
     /**
      * @param questionRecords The question to set.
      */
@@ -130,6 +139,7 @@ public class DnsMessageModifier
     {
         this.questionRecords = questionRecords;
     }
+
 
     /**
      * @param recursionAvailable The recursionAvailable to set.
@@ -139,6 +149,7 @@ public class DnsMessageModifier
         this.recursionAvailable = recursionAvailable;
     }
 
+
     /**
      * @param recursionDesired The recursionDesired to set.
      */
@@ -146,6 +157,7 @@ public class DnsMessageModifier
     {
         this.recursionDesired = recursionDesired;
     }
+
 
     /**
      * @param reserved The reserved to set.
@@ -155,6 +167,7 @@ public class DnsMessageModifier
         this.reserved = reserved;
     }
 
+
     /**
      * @param responseCode The responseCode to set.
      */
@@ -163,6 +176,7 @@ public class DnsMessageModifier
         this.responseCode = responseCode;
     }
 
+
     /**
      * @param transactionId The transactionId to set.
      */
@@ -170,6 +184,7 @@ public class DnsMessageModifier
     {
         this.transactionId = transactionId;
     }
+
 
     /**
      * @param truncated The truncated to set.

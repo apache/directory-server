@@ -64,9 +64,9 @@ public class CollectiveAttributeService extends BaseInterceptor
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
-                throws NamingException
+            throws NamingException
         {
-                return filter( result.getAttributes() );
+            return filter( result.getAttributes() );
         }
     };
 
@@ -109,8 +109,8 @@ public class CollectiveAttributeService extends BaseInterceptor
         Set exclusions;
         if ( collectiveExclusions != null )
         {
-            if ( collectiveExclusions.contains( "2.5.18.0" ) ||
-                 collectiveExclusions.contains( "excludeAllCollectiveAttributes" ) )
+            if ( collectiveExclusions.contains( "2.5.18.0" )
+                || collectiveExclusions.contains( "excludeAllCollectiveAttributes" ) )
             {
                 return;
             }
@@ -236,7 +236,6 @@ public class CollectiveAttributeService extends BaseInterceptor
     // Interceptor Method Overrides
     // ------------------------------------------------------------------------
 
-
     public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name );
@@ -270,9 +269,8 @@ public class CollectiveAttributeService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor,
-            Name base, Map env, ExprNode filter,
-            SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor, Name base, Map env, ExprNode filter,
+        SearchControls searchCtls ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
         Invocation invocation = InvocationStack.getInstance().peek();

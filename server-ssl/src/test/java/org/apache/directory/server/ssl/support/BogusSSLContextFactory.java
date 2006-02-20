@@ -1,5 +1,5 @@
 /*
- *   @(#) $Id: BogusSSLContextFactory.java 365899 2006-01-04 12:24:30Z trustin $
+ *   @(#) $Id$
  *
  *   Copyright 2004 The Apache Software Foundation
  *
@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.ssl.support;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -26,11 +27,12 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
+
 /**
  * Factory to create a bougus SSLContext.
  *
  * @author The Apache Directory Project (dev@directory.apache.org)
- * @version $Rev: 365899 $, $Date: 2006-01-04 21:24:30 +0900 (수, 04  1월 2006) $
+ * @version $Rev$, $Date$
  */
 public class BogusSSLContextFactory
 {
@@ -54,12 +56,13 @@ public class BogusSSLContextFactory
     /**
      * Bougus keystore password.
      */
-    private static final char[] BOGUS_PW = { 'b', 'o', 'g', 'u', 's', 'p',
-                                            'w' };
+    private static final char[] BOGUS_PW =
+        { 'b', 'o', 'g', 'u', 's', 'p', 'w' };
 
     private static SSLContext serverInstance = null;
 
     private static SSLContext clientInstance = null;
+
 
     /**
      * Get SSLContext singleton.
@@ -68,26 +71,24 @@ public class BogusSSLContextFactory
      * @throws java.security.GeneralSecurityException
      *
      */
-    public static SSLContext getInstance( boolean server )
-            throws GeneralSecurityException
+    public static SSLContext getInstance( boolean server ) throws GeneralSecurityException
     {
         SSLContext retInstance = null;
-        if( server )
+        if ( server )
         {
-            if( serverInstance == null )
+            if ( serverInstance == null )
             {
-                synchronized( BogusSSLContextFactory.class )
+                synchronized ( BogusSSLContextFactory.class )
                 {
-                    if( serverInstance == null )
+                    if ( serverInstance == null )
                     {
                         try
                         {
                             serverInstance = createBougusServerSSLContext();
                         }
-                        catch( Exception ioe )
+                        catch ( Exception ioe )
                         {
-                            throw new GeneralSecurityException(
-                                    "Can't create Server SSLContext:" + ioe );
+                            throw new GeneralSecurityException( "Can't create Server SSLContext:" + ioe );
                         }
                     }
                 }
@@ -96,11 +97,11 @@ public class BogusSSLContextFactory
         }
         else
         {
-            if( clientInstance == null )
+            if ( clientInstance == null )
             {
-                synchronized( BogusSSLContextFactory.class )
+                synchronized ( BogusSSLContextFactory.class )
                 {
-                    if( clientInstance == null )
+                    if ( clientInstance == null )
                     {
                         clientInstance = createBougusClientSSLContext();
                     }
@@ -111,27 +112,26 @@ public class BogusSSLContextFactory
         return retInstance;
     }
 
-    private static SSLContext createBougusServerSSLContext()
-            throws GeneralSecurityException, IOException
+
+    private static SSLContext createBougusServerSSLContext() throws GeneralSecurityException, IOException
     {
         // Create keystore
         KeyStore ks = KeyStore.getInstance( "JKS" );
         InputStream in = null;
         try
         {
-            in = BogusSSLContextFactory.class
-                    .getResourceAsStream( BOGUS_KEYSTORE );
+            in = BogusSSLContextFactory.class.getResourceAsStream( BOGUS_KEYSTORE );
             ks.load( in, BOGUS_PW );
         }
         finally
         {
-            if( in != null )
+            if ( in != null )
             {
                 try
                 {
                     in.close();
                 }
-                catch( IOException ignored )
+                catch ( IOException ignored )
                 {
                 }
             }
@@ -143,14 +143,13 @@ public class BogusSSLContextFactory
 
         // Initialize the SSLContext to work with our key managers.
         SSLContext sslContext = SSLContext.getInstance( PROTOCOL );
-        sslContext.init( kmf.getKeyManagers(),
-                BogusTrustManagerFactory.X509_MANAGERS, null );
+        sslContext.init( kmf.getKeyManagers(), BogusTrustManagerFactory.X509_MANAGERS, null );
 
         return sslContext;
     }
 
-    private static SSLContext createBougusClientSSLContext()
-            throws GeneralSecurityException
+
+    private static SSLContext createBougusClientSSLContext() throws GeneralSecurityException
     {
         SSLContext context = SSLContext.getInstance( PROTOCOL );
         context.init( null, BogusTrustManagerFactory.X509_MANAGERS, null );

@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.core;
 
+
 import java.util.Hashtable;
 
 import javax.naming.Context;
@@ -25,6 +26,7 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.server.core.schema.GlobalRegistries;
 
+
 /**
  * Represents the global configuration of currently running
  * {@link DirectoryService}.  You can access all properties of
@@ -33,48 +35,56 @@ import org.apache.directory.server.core.schema.GlobalRegistries;
  */
 public interface DirectoryServiceConfiguration
 {
-    
+
     /**
      * Returns the {@link DirectoryService} for this configuration.
      */
     DirectoryService getService();
-    
+
+
     /**
      * Returns the instance ID of the {@link DirectoryService}.
      */
     String getInstanceId();
-    
+
+
     /**
      * Returns the listener that listens to service events.
      */
     DirectoryServiceListener getServiceListener();
-    
+
+
     /**
      * Returns the initial context environment of the {@link DirectoryService}.
      */
     Hashtable getEnvironment();
-    
+
+
     /**
      * Returns the startup configuration of the {@link DirectoryService}.
      */
     StartupConfiguration getStartupConfiguration();
-    
+
+
     /**
      * Returns the registries for system schema objects of the {@link DirectoryService}.
      */
     GlobalRegistries getGlobalRegistries();
+
 
     /**
      * Returns the {@link DirectoryPartitionNexus} of the {@link DirectoryService}
      * which bypasses the interceptor chain.
      */
     DirectoryPartitionNexus getPartitionNexus();
-    
+
+
     /**
      * Returns the interceptor chain of the {@link DirectoryService}.
      */
     InterceptorChain getInterceptorChain();
-    
+
+
     /**
      * Returns <tt>true</tt> if this service is started
      * and bootstrap entries have been created for the first time.

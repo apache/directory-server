@@ -41,7 +41,8 @@ public interface ExtendedOperationHandler
      * Returns the EXTENSION_OID of the extended request this handler can handle.
      */
     String getOid();
-    
+
+
     /**
      * The OIDs of the extensions supported by this handler.  This includes the 
      * request as well as any responses associated with the request.  These OIDs 
@@ -50,7 +51,8 @@ public interface ExtendedOperationHandler
      * @return the OIDs supported by this handler.
      */
     Set getExtensionOids();
-    
+
+
     /**
      * Handles the specified extended operation.
      * 
@@ -60,21 +62,24 @@ public interface ExtendedOperationHandler
      * @throws Exception if failed to handle the operation
      */
     void handleExtendedOperation( IoSession session, SessionRegistry registry, ExtendedRequest req ) throws Exception;
-    
+
+
     /**
      * Sets the LDAP provider for this extendedOperation handler.
      * 
      * @param provider the ldap protocol provider 
      */
     void setLdapProvider( LdapProtocolProvider provider );
-    
+
+
     /**
      * Sets the LDAP service for the this extenedOperation handler.
      * 
      * @param service the MINA service for LDAP or LDAPS
      */
     void setLdapService( Service service );
-    
+
+
     /**
      * Sets the MINA service registry for this extendedOperation handler.
      * 

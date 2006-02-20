@@ -42,8 +42,7 @@ public class RefinementEvaluator
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
-    public RefinementEvaluator( RefinementLeafEvaluator leafEvaluator )
+    public RefinementEvaluator(RefinementLeafEvaluator leafEvaluator)
     {
         this.leafEvaluator = leafEvaluator;
     }
@@ -59,7 +58,7 @@ public class RefinementEvaluator
         {
             throw new IllegalArgumentException( "objectClasses cannot be null" );
         }
-        if ( ! objectClasses.getID().equalsIgnoreCase( "objectClass" ) )
+        if ( !objectClasses.getID().equalsIgnoreCase( "objectClass" ) )
         {
             throw new IllegalArgumentException( "Attribute objectClasses should be of id 'objectClass'" );
         }
@@ -70,45 +69,44 @@ public class RefinementEvaluator
 
         BranchNode bnode = ( BranchNode ) node;
 
-        switch( bnode.getOperator() )
+        switch ( bnode.getOperator() )
         {
-        case( BranchNode.OR ):
-            Iterator children = bnode.getChildren().iterator();
+            case ( BranchNode.OR  ):
+                Iterator children = bnode.getChildren().iterator();
 
-            while ( children.hasNext() )
-            {
-                ExprNode child = ( ExprNode ) children.next();
-
-                if ( evaluate( child, objectClasses ) )
+                while ( children.hasNext() )
                 {
-                    return true;
+                    ExprNode child = ( ExprNode ) children.next();
+
+                    if ( evaluate( child, objectClasses ) )
+                    {
+                        return true;
+                    }
                 }
-            }
 
-            return false;
-        case( BranchNode.AND ):
-            children = bnode.getChildren().iterator();
-            while ( children.hasNext() )
-            {
-                ExprNode child = ( ExprNode ) children.next();
-
-                if ( ! evaluate( child, objectClasses ) )
+                return false;
+            case ( BranchNode.AND  ):
+                children = bnode.getChildren().iterator();
+                while ( children.hasNext() )
                 {
-                    return false;
+                    ExprNode child = ( ExprNode ) children.next();
+
+                    if ( !evaluate( child, objectClasses ) )
+                    {
+                        return false;
+                    }
                 }
-            }
 
-            return true;
-        case( BranchNode.NOT ):
-            if ( null != bnode.getChild() )
-            {
-                return ! evaluate( bnode.getChild(), objectClasses );
-            }
+                return true;
+            case ( BranchNode.NOT  ):
+                if ( null != bnode.getChild() )
+                {
+                    return !evaluate( bnode.getChild(), objectClasses );
+                }
 
-            throw new IllegalArgumentException( "Negation has no child: " + node );
-        default:
-            throw new IllegalArgumentException( "Unrecognized branch node operator: "
-                + bnode.getOperator() );
+                throw new IllegalArgumentException( "Negation has no child: " + node );
+            default:
+                throw new IllegalArgumentException( "Unrecognized branch node operator: " + bnode.getOperator() );
         }
     }
 }

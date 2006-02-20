@@ -48,12 +48,11 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a default ComparatorRegistry by initializing the map and the
      * montior.
      */
-    public GlobalComparatorRegistry( BootstrapComparatorRegistry bootstrap )
+    public GlobalComparatorRegistry(BootstrapComparatorRegistry bootstrap)
     {
         this.oidToSchema = new HashMap();
         this.comparators = new HashMap();
@@ -65,7 +64,7 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
         {
-            throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
+            throw new NullPointerException( "the bootstrap registry cannot be null" );
         }
     }
 
@@ -85,14 +84,11 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-
-    public void register( String schema, String oid, Comparator comparator )
-            throws NamingException
+    public void register( String schema, String oid, Comparator comparator ) throws NamingException
     {
         if ( comparators.containsKey( oid ) || bootstrap.hasComparator( oid ) )
         {
-            NamingException e = new NamingException( "Comparator with OID "
-                + oid + " already registered!" );
+            NamingException e = new NamingException( "Comparator with OID " + oid + " already registered!" );
             monitor.registerFailed( oid, comparator, e );
             throw e;
         }
@@ -136,11 +132,11 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
 
     public String getSchemaName( String oid ) throws NamingException
     {
-        if ( ! Character.isDigit( oid.charAt( 0 ) ) )
+        if ( !Character.isDigit( oid.charAt( 0 ) ) )
         {
             throw new NamingException( "OID " + oid + " is not a numeric OID" );
         }
-        
+
         if ( oidToSchema.containsKey( oid ) )
         {
             return ( String ) oidToSchema.get( oid );
@@ -151,7 +147,6 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
             return bootstrap.getSchemaName( oid );
         }
 
-        throw new NamingException( "OID " + oid + " not found in oid to " +
-            "schema name map!" );
+        throw new NamingException( "OID " + oid + " not found in oid to " + "schema name map!" );
     }
 }

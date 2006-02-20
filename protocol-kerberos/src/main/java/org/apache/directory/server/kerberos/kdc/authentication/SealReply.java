@@ -16,20 +16,22 @@
  */
 package org.apache.directory.server.kerberos.kdc.authentication;
 
+
+import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.messages.AuthenticationReply;
-import org.apache.kerberos.messages.value.EncryptedData;
-import org.apache.kerberos.messages.value.EncryptionKey;
-import org.apache.kerberos.service.LockBox;
+
 
 public class SealReply extends CommandBase
 {
     public boolean execute( Context context ) throws Exception
     {
-        AuthenticationContext authContext = (AuthenticationContext) context;
+        AuthenticationContext authContext = ( AuthenticationContext ) context;
 
-        AuthenticationReply reply = (AuthenticationReply) authContext.getReply();
+        AuthenticationReply reply = ( AuthenticationReply ) authContext.getReply();
         EncryptionKey clientKey = authContext.getClientKey();
         LockBox lockBox = authContext.getLockBox();
 

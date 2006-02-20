@@ -30,11 +30,11 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MatchingRuleRegistryMonitorAdapter
-    implements MatchingRuleRegistryMonitor
+public class MatchingRuleRegistryMonitorAdapter implements MatchingRuleRegistryMonitor
 {
     private static final Logger log = LoggerFactory.getLogger( MatchingRuleRegistryMonitorAdapter.class );
-    
+
+
     /**
      * @see org.apache.directory.server.core.schema.MatchingRuleRegistryMonitor#registered(
      * org.apache.directory.shared.ldap.schema.MatchingRule)
@@ -42,7 +42,7 @@ public class MatchingRuleRegistryMonitorAdapter
     public void registered( MatchingRule rule )
     {
     }
-    
+
 
     /**
      * @see org.apache.directory.server.core.schema.MatchingRuleRegistryMonitor#lookedUp(
@@ -52,7 +52,7 @@ public class MatchingRuleRegistryMonitorAdapter
     {
     }
 
-    
+
     /**
      * @see org.apache.directory.server.core.schema.MatchingRuleRegistryMonitor#lookupFailed(
      * java.lang.String, javax.naming.NamingException)
@@ -65,7 +65,7 @@ public class MatchingRuleRegistryMonitorAdapter
         }
     }
 
-    
+
     /**
      * @see org.apache.directory.server.core.schema.MatchingRuleRegistryMonitor#registerFailed(
      * org.apache.directory.shared.ldap.schema.MatchingRule, javax.naming.NamingException)

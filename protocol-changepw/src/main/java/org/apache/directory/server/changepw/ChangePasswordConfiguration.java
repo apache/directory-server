@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.changepw;
 
+
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -27,9 +28,10 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.configuration.ConfigurationException;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
-import org.apache.kerberos.crypto.encryption.EncryptionType;
+
 
 public class ChangePasswordConfiguration extends ServiceConfiguration
 {
@@ -54,7 +56,8 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
     private static final String ENCRYPTION_TYPES_KEY = "encryption.types";
 
     /** the default encryption types */
-    public static final String[] DEFAULT_ENCRYPTION_TYPES = new String[] { "des-cbc-md5" };
+    public static final String[] DEFAULT_ENCRYPTION_TYPES = new String[]
+        { "des-cbc-md5" };
 
     /** the prop key const for allowable.clockskew */
     private static final String ALLOWABLE_CLOCKSKEW_KEY = "allowable.clockskew";
@@ -84,6 +87,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 
     private EncryptionType[] encryptionTypes;
 
+
     /**
      * Creates a new instance with default settings.
      */
@@ -92,22 +96,25 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         this( getDefaultConfig(), LoadStrategy.LDAP );
     }
 
+
     /**
      * Creates a new instance with default settings that operates on the
      * {@link DirectoryService} with the specified ID.
      */
-    public ChangePasswordConfiguration( String instanceId )
+    public ChangePasswordConfiguration(String instanceId)
     {
         this( getDefaultConfig(), LoadStrategy.LDAP );
         setInstanceId( instanceId );
     }
 
-    public ChangePasswordConfiguration( Map properties )
+
+    public ChangePasswordConfiguration(Map properties)
     {
         this( properties, LoadStrategy.LDAP );
     }
 
-    public ChangePasswordConfiguration( Map properties, int strategy )
+
+    public ChangePasswordConfiguration(Map properties, int strategy)
     {
         if ( properties == null )
         {
@@ -128,6 +135,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         prepareEncryptionTypes();
     }
 
+
     public static Map getDefaultConfig()
     {
         Map defaults = new HashMap();
@@ -138,11 +146,12 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         return defaults;
     }
 
+
     public boolean isDifferent( Dictionary config )
     {
         int port = getPort();
 
-        if ( port == Integer.parseInt( (String) config.get( IP_PORT_KEY ) ) )
+        if ( port == Integer.parseInt( ( String ) config.get( IP_PORT_KEY ) ) )
         {
             return false;
         }
@@ -150,10 +159,12 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         return true;
     }
 
+
     public String getName()
     {
         return DEFAULT_NAME;
     }
+
 
     public int getPort()
     {
@@ -167,6 +178,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         return Integer.parseInt( DEFAULT_IP_PORT );
     }
 
+
     public String getPrimaryRealm()
     {
         String key = REALM_KEY;
@@ -179,10 +191,12 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         return DEFAULT_REALM;
     }
 
+
     public EncryptionType[] getEncryptionTypes()
     {
         return encryptionTypes;
     }
+
 
     public Map getProperties()
     {
@@ -191,6 +205,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 
         return configuration;
     }
+
 
     public long getClockSkew()
     {
@@ -204,6 +219,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         return DEFAULT_ALLOWABLE_CLOCKSKEW;
     }
 
+
     public int getBufferSize()
     {
         String key = BUFFER_SIZE_KEY;
@@ -215,6 +231,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 
         return DEFAULT_BUFFER_SIZE;
     }
+
 
     public KerberosPrincipal getChangepwPrincipal()
     {
@@ -228,6 +245,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         return new KerberosPrincipal( DEFAULT_PRINCIPAL );
     }
 
+
     public boolean isEmptyAddressesAllowed()
     {
         String key = EMPTY_ADDRESSES_ALLOWED_KEY;
@@ -239,6 +257,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 
         return DEFAULT_EMPTY_ADDRESSES_ALLOWED;
     }
+
 
     public int getPasswordLengthPolicy()
     {
@@ -252,6 +271,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         return DEFAULT_PASSWORD_LENGTH;
     }
 
+
     public int getCategoryCountPolicy()
     {
         String key = CATEGORY_COUNT_KEY;
@@ -264,6 +284,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         return DEFAULT_CATEGORY_COUNT;
     }
 
+
     public int getTokenSizePolicy()
     {
         String key = TOKEN_SIZE_KEY;
@@ -275,6 +296,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 
         return DEFAULT_TOKEN_SIZE;
     }
+
 
     private void prepareEncryptionTypes()
     {
@@ -295,13 +317,13 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 
         for ( int ii = 0; ii < encryptionTypeStrings.length; ii++ )
         {
-            String enc = encryptionTypeStrings[ ii ];
+            String enc = encryptionTypeStrings[ii];
 
             Iterator it = EncryptionType.VALUES.iterator();
 
             while ( it.hasNext() )
             {
-                EncryptionType type = (EncryptionType) it.next();
+                EncryptionType type = ( EncryptionType ) it.next();
 
                 if ( type.toString().equalsIgnoreCase( enc ) )
                 {
@@ -310,6 +332,6 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
             }
         }
 
-        encryptionTypes = (EncryptionType[]) encTypes.toArray( new EncryptionType[ encTypes.size() ] );
+        encryptionTypes = ( EncryptionType[] ) encTypes.toArray( new EncryptionType[encTypes.size()] );
     }
 }

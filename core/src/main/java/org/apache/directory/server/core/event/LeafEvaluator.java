@@ -52,7 +52,6 @@ public class LeafEvaluator implements Evaluator
     /** substring matching type constant */
     private static final int SUBSTRING_MATCH = 3;
 
-
     /** Oid Registry used to translate attributeIds to OIDs */
     private OidRegistry oidRegistry;
     /** AttributeType registry needed for normalizing and comparing values */
@@ -68,9 +67,8 @@ public class LeafEvaluator implements Evaluator
      *
      * @param substringEvaluator
      */
-    public LeafEvaluator( OidRegistry oidRegistry,
-                          AttributeTypeRegistry attributeTypeRegistry,
-                          SubstringEvaluator substringEvaluator ) throws NamingException
+    public LeafEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry,
+        SubstringEvaluator substringEvaluator) throws NamingException
     {
         this.oidRegistry = oidRegistry;
         this.attributeTypeRegistry = attributeTypeRegistry;
@@ -100,31 +98,30 @@ public class LeafEvaluator implements Evaluator
         {
             return scopeEvaluator.evaluate( node, dn, entry );
         }
-        
-        switch( ( ( LeafNode ) node ).getAssertionType() ) 
+
+        switch ( ( ( LeafNode ) node ).getAssertionType() )
         {
-        case( LeafNode.APPROXIMATE ):
-            return evalEquality( ( SimpleNode ) node, entry );
-        case( LeafNode.EQUALITY ):
-            return evalEquality( ( SimpleNode ) node, entry );
-        case( LeafNode.EXTENSIBLE ):
-            throw new NotImplementedException();
-        case( LeafNode.GREATEREQ ):
-            return evalGreater( ( SimpleNode ) node, entry, true );
-        case( LeafNode.LESSEQ ):
-            return evalGreater( ( SimpleNode ) node, entry, false );
-        case( LeafNode.PRESENCE ):
-            String attrId = ( ( PresenceNode ) node ).getAttribute();
-            return evalPresence( attrId, entry );
-        case( LeafNode.SUBSTRING ):
-            return substringEvaluator.evaluate( node, dn, entry );
-        default:
-            throw new NamingException( "Unrecognized leaf node type: "
-                + ( ( LeafNode ) node ).getAssertionType() );
+            case ( LeafNode.APPROXIMATE  ):
+                return evalEquality( ( SimpleNode ) node, entry );
+            case ( LeafNode.EQUALITY  ):
+                return evalEquality( ( SimpleNode ) node, entry );
+            case ( LeafNode.EXTENSIBLE  ):
+                throw new NotImplementedException();
+            case ( LeafNode.GREATEREQ  ):
+                return evalGreater( ( SimpleNode ) node, entry, true );
+            case ( LeafNode.LESSEQ  ):
+                return evalGreater( ( SimpleNode ) node, entry, false );
+            case ( LeafNode.PRESENCE  ):
+                String attrId = ( ( PresenceNode ) node ).getAttribute();
+                return evalPresence( attrId, entry );
+            case ( LeafNode.SUBSTRING  ):
+                return substringEvaluator.evaluate( node, dn, entry );
+            default:
+                throw new NamingException( "Unrecognized leaf node type: " + ( ( LeafNode ) node ).getAssertionType() );
         }
     }
-    
-    
+
+
     /**
      * Evaluates a simple greater than or less than attribute value assertion on
      * a perspective candidate.
@@ -136,8 +133,7 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws javax.naming.NamingException if there is a database access failure
      */
-    private boolean evalGreater( SimpleNode node, Attributes entry,
-        boolean isGreater ) throws NamingException
+    private boolean evalGreater( SimpleNode node, Attributes entry, boolean isGreater ) throws NamingException
     {
         String attrId = node.getAttribute();
 
@@ -149,7 +145,7 @@ public class LeafEvaluator implements Evaluator
         {
             return false;
         }
-        
+
         /*
          * We need to iterate through all values and for each value we normalize
          * and use the comparator to determine if a match exists.
@@ -158,7 +154,7 @@ public class LeafEvaluator implements Evaluator
         Comparator comparator = getComparator( attrId );
         Object filterValue = normalizer.normalize( node.getValue() );
         NamingEnumeration list = attr.getAll();
-        
+
         /*
          * Cheaper to not check isGreater in one loop - better to separate
          * out into two loops which you choose to execute based on isGreater
@@ -168,7 +164,7 @@ public class LeafEvaluator implements Evaluator
             while ( list.hasMore() )
             {
                 Object value = normalizer.normalize( list.next() );
-            
+
                 // Found a value that is greater than or equal to the ava value
                 if ( 0 >= comparator.compare( value, filterValue ) )
                 {
@@ -176,12 +172,12 @@ public class LeafEvaluator implements Evaluator
                 }
             }
         }
-        else 
-        {    
+        else
+        {
             while ( list.hasMore() )
             {
                 Object value = normalizer.normalize( list.next() );
-            
+
                 // Found a value that is less than or equal to the ava value
                 if ( 0 <= comparator.compare( value, filterValue ) )
                 {
@@ -189,12 +185,12 @@ public class LeafEvaluator implements Evaluator
                 }
             }
         }
-        
+
         // no match so return false
         return false;
     }
 
-    
+
     /**
      * Evaluates a simple presence attribute value assertion on a perspective
      * candidate.
@@ -209,7 +205,7 @@ public class LeafEvaluator implements Evaluator
         {
             return false;
         }
-        
+
         return null != entry.get( attrId );
     }
 
@@ -223,8 +219,7 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws javax.naming.NamingException if there is a database access failure
      */
-    private boolean evalEquality( SimpleNode node, Attributes entry )
-        throws NamingException
+    private boolean evalEquality( SimpleNode node, Attributes entry ) throws NamingException
     {
         Normalizer normalizer = getNormalizer( node.getAttribute() );
         Comparator comparator = getComparator( node.getAttribute() );
@@ -237,7 +232,7 @@ public class LeafEvaluator implements Evaluator
         {
             return false;
         }
-        
+
         // check if AVA value exists in attribute
         if ( attr.contains( node.getValue() ) )
         {
@@ -252,7 +247,7 @@ public class LeafEvaluator implements Evaluator
         {
             return true;
         }
-        
+
         /*
          * We need to now iterate through all values because we could not get
          * a lookup to work.  For each value we normalize and use the comparator
@@ -262,13 +257,13 @@ public class LeafEvaluator implements Evaluator
         while ( list.hasMore() )
         {
             Object value = normalizer.normalize( list.next() );
-            
+
             if ( 0 == comparator.compare( value, filterValue ) )
             {
                 return true;
             }
         }
-        
+
         // no match so return false
         return false;
     }
@@ -309,22 +304,21 @@ public class LeafEvaluator implements Evaluator
      * @return the matching rule
      * @throws javax.naming.NamingException if there is a failure
      */
-    private MatchingRule getMatchingRule( String attrId, int matchType )
-        throws NamingException
+    private MatchingRule getMatchingRule( String attrId, int matchType ) throws NamingException
     {
         MatchingRule mrule = null;
         String oid = oidRegistry.getOid( attrId );
         AttributeType type = attributeTypeRegistry.lookup( oid );
 
-        switch( matchType )
+        switch ( matchType )
         {
-            case( EQUALITY_MATCH ):
+            case ( EQUALITY_MATCH ):
                 mrule = type.getEquality();
                 break;
-            case( SUBSTRING_MATCH ):
+            case ( SUBSTRING_MATCH ):
                 mrule = type.getSubstr();
                 break;
-            case( ORDERING_MATCH ):
+            case ( ORDERING_MATCH ):
                 mrule = type.getOrdering();
                 break;
             default:

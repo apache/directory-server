@@ -45,7 +45,7 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
      *
      * @param registry the at registry used to dynamically resolve Normalizers
      */
-    public ConcreteNameComponentNormalizer( AttributeTypeRegistry registry )
+    public ConcreteNameComponentNormalizer(AttributeTypeRegistry registry)
     {
         this.registry = registry;
     }
@@ -58,6 +58,7 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
     {
         return lookup( name ).normalize( value ).toString();
     }
+
 
     /**
      * @see NameComponentNormalizer#normalizeByName(String, String)
@@ -75,6 +76,7 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
     {
         return lookup( oid ).normalize( value ).toString();
     }
+
 
     /**
      * @see NameComponentNormalizer#normalizeByOid(String, String)

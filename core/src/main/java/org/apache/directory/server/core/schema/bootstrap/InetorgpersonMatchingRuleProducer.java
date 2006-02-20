@@ -22,7 +22,6 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.schema.bootstrap.ProducerTypeEnum;
 
 
-
 /**
  * A producer of MatchingRule objects for the inetorgperson schema.  This code has been
  * automatically generated using schema files in the OpenLDAP format along with
@@ -44,12 +43,10 @@ public class InetorgpersonMatchingRuleProducer extends AbstractBootstrapProducer
     // BootstrapProducer Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see org.apache.directory.server.core.schema.bootstrap.BootstrapProducer#produce(org.apache.directory.server.core.schema.bootstrap.BootstrapRegistries, org.apache.directory.server.core.schema.bootstrap.ProducerCallback)
      */
-    public void produce( BootstrapRegistries registries, ProducerCallback cb )
-        throws NamingException
+    public void produce( BootstrapRegistries registries, ProducerCallback cb ) throws NamingException
     {
         BootstrapMatchingRule mrule = null;
 
@@ -57,28 +54,31 @@ public class InetorgpersonMatchingRuleProducer extends AbstractBootstrapProducer
          * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.3
          * =========================================================
 
-            ( 2.5.13.5 NAME 'caseExactMatch'
-              SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         ( 2.5.13.5 NAME 'caseExactMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
-            ( 2.5.13.7 NAME 'caseExactSubstringsMatch'
-              SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         ( 2.5.13.7 NAME 'caseExactSubstringsMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
 
-            ( 2.5.13.12 NAME 'caseIgnoreListSubstringsMatch'
-              SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
-        */
+         ( 2.5.13.12 NAME 'caseIgnoreListSubstringsMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
 
         mrule = new BootstrapMatchingRule( "2.5.13.5", registries );
-        mrule.setNames( new String[] { "caseExactMatch" } );
+        mrule.setNames( new String[]
+            { "caseExactMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.15" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new BootstrapMatchingRule( "2.5.13.7", registries );
-        mrule.setNames( new String[] { "caseExactSubstringsMatch" } );
+        mrule.setNames( new String[]
+            { "caseExactSubstringsMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new BootstrapMatchingRule( "2.5.13.12", registries );
-        mrule.setNames( new String[] { "caseIgnoreListSubstringsMatch" } );
+        mrule.setNames( new String[]
+            { "caseIgnoreListSubstringsMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
@@ -86,12 +86,13 @@ public class InetorgpersonMatchingRuleProducer extends AbstractBootstrapProducer
          * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.4
          * =========================================================
 
-            ( 1.3.6.1.4.1.1466.109.114.3 NAME 'caseIgnoreIA5SubstringsMatch'
-              SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
-        */
+         ( 1.3.6.1.4.1.1466.109.114.3 NAME 'caseIgnoreIA5SubstringsMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
 
         mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.1466.109.114.3", registries );
-        mrule.setNames( new String[] { "caseIgnoreIA5SubstringsMatch" } );
+        mrule.setNames( new String[]
+            { "caseIgnoreIA5SubstringsMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 

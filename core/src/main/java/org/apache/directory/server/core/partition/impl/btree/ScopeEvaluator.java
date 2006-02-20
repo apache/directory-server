@@ -54,7 +54,7 @@ public class ScopeEvaluator implements Evaluator
      *
      * @param db the database used to evaluate scope node
      */
-    public ScopeEvaluator( BTreeDirectoryPartition db )
+    public ScopeEvaluator(BTreeDirectoryPartition db)
     {
         this.db = db;
     }
@@ -63,26 +63,25 @@ public class ScopeEvaluator implements Evaluator
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, org.apache.directory.server.core.partition.impl.btree.IndexRecord)
      */
-    public boolean evaluate( ExprNode node, IndexRecord record )
-        throws NamingException
+    public boolean evaluate( ExprNode node, IndexRecord record ) throws NamingException
     {
         ScopeNode snode = ( ScopeNode ) node;
-        
-        switch( snode.getScope() )
+
+        switch ( snode.getScope() )
         {
-        case( SearchControls.OBJECT_SCOPE ):
-            String dn = db.getEntryDn( record.getEntryId() );
-            return dn.equals( snode.getBaseDn() );
-        case( SearchControls.ONELEVEL_SCOPE ):
-            return assertOneLevelScope( snode, record.getEntryId() );
-        case( SearchControls.SUBTREE_SCOPE ):
-            return assertSubtreeScope( snode, record.getEntryId() );
-        default:
-            throw new NamingException( "Unrecognized search scope!" );
+            case ( SearchControls.OBJECT_SCOPE  ):
+                String dn = db.getEntryDn( record.getEntryId() );
+                return dn.equals( snode.getBaseDn() );
+            case ( SearchControls.ONELEVEL_SCOPE  ):
+                return assertOneLevelScope( snode, record.getEntryId() );
+            case ( SearchControls.SUBTREE_SCOPE  ):
+                return assertSubtreeScope( snode, record.getEntryId() );
+            default:
+                throw new NamingException( "Unrecognized search scope!" );
         }
     }
-    
-    
+
+
     /**
      * Asserts whether or not a candidate has one level scope while taking
      * alias dereferencing into account.
@@ -93,20 +92,19 @@ public class ScopeEvaluator implements Evaluator
      * alias dereferencing is enabled.
      * @throws NamingException if the index lookups fail.
      */
-    public boolean assertSubtreeScope( final ScopeNode node, 
-        final BigInteger id ) throws NamingException
+    public boolean assertSubtreeScope( final ScopeNode node, final BigInteger id ) throws NamingException
     {
         String dn = db.getEntryDn( id );
         DerefAliasesEnum mode = node.getDerefAliases();
         Object baseId = db.getEntryId( node.getBaseDn() );
         boolean isDescendant = dn.endsWith( node.getBaseDn() );
-        
+
         /*
          * The candidate id could be any entry in the db.  If search 
          * dereferencing is not enabled then we return the results of the 
          * descendant test.
          */
-        if ( ! mode.derefInSearching() )
+        if ( !mode.derefInSearching() )
         {
             return isDescendant;
         }
@@ -121,7 +119,7 @@ public class ScopeEvaluator implements Evaluator
         {
             return false;
         }
-        
+
         /*
          * The candidate is NOT an alias at this point.  So if it is a 
          * descendant we just return it since it is in normal subtree scope.
@@ -130,7 +128,7 @@ public class ScopeEvaluator implements Evaluator
         {
             return true;
         }
-        
+
         /*
          * At this point the candidate is not a descendant and it is not an 
          * alias.  We need to check if the candidate is in extended subtree 
@@ -147,8 +145,8 @@ public class ScopeEvaluator implements Evaluator
         idx = db.getSubAliasIndex();
         return idx.hasValue( baseId, id );
     }
-    
-    
+
+
     /**
      * Asserts whether or not a candidate has one level scope while taking
      * alias dereferencing into account.
@@ -159,8 +157,7 @@ public class ScopeEvaluator implements Evaluator
      * alias dereferencing is enabled.
      * @throws NamingException if the index lookups fail.
      */
-    public boolean assertOneLevelScope( final ScopeNode node, 
-        final BigInteger id ) throws NamingException
+    public boolean assertOneLevelScope( final ScopeNode node, final BigInteger id ) throws NamingException
     {
         DerefAliasesEnum mode = node.getDerefAliases();
         Object baseId = db.getEntryId( node.getBaseDn() );
@@ -172,7 +169,7 @@ public class ScopeEvaluator implements Evaluator
          * dereferencing is not enabled then we return the results of the child 
          * test. 
          */
-        if ( ! mode.derefInSearching() )
+        if ( !mode.derefInSearching() )
         {
             return isChild;
         }
@@ -187,7 +184,7 @@ public class ScopeEvaluator implements Evaluator
         {
             return false;
         }
-        
+
         /*
          * The candidate is NOT an alias at this point.  So if it is a child we
          * just return it since it is in normal one level scope.
@@ -196,7 +193,7 @@ public class ScopeEvaluator implements Evaluator
         {
             return true;
         }
-        
+
         /*
          * At this point the candidate is not a child and it is not an alias.
          * We need to check if the candidate is in extended one level scope by 

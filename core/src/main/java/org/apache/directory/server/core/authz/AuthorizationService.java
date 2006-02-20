@@ -90,7 +90,6 @@ public class AuthorizationService extends BaseInterceptor
     private static final Collection IMPORT_PERMS;
     private static final Collection MOVERENAME_PERMS;
 
-
     static
     {
         HashSet set = new HashSet( 2 );
@@ -167,7 +166,8 @@ public class AuthorizationService extends BaseInterceptor
         enabled = factoryCfg.getStartupConfiguration().isAccessControlEnabled();
 
         // stuff for dealing with subentries (garbage for now)
-        String subschemaSubentry = ( String ) factoryCfg.getPartitionNexus().getRootDSE().get( "subschemaSubentry" ).get();
+        String subschemaSubentry = ( String ) factoryCfg.getPartitionNexus().getRootDSE().get( "subschemaSubentry" )
+            .get();
         subschemaSubentryDn = new LdapName( subschemaSubentry ).toString().toLowerCase();
     }
 
@@ -185,9 +185,8 @@ public class AuthorizationService extends BaseInterceptor
      * @param entry the target entry that access to is being controled
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addPerscriptiveAciTuples( DirectoryPartitionNexusProxy proxy, Collection tuples,
-                                           Name dn, Attributes entry )
-            throws NamingException
+    private void addPerscriptiveAciTuples( DirectoryPartitionNexusProxy proxy, Collection tuples, Name dn,
+        Attributes entry ) throws NamingException
     {
         /*
          * If the protected entry is a subentry, then the entry being evaluated
@@ -245,7 +244,7 @@ public class AuthorizationService extends BaseInterceptor
             }
             catch ( ParseException e )
             {
-                String msg = "failed to parse entryACI: " + aciString ;
+                String msg = "failed to parse entryACI: " + aciString;
                 log.error( msg, e );
                 throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONSERROR );
             }
@@ -264,11 +263,11 @@ public class AuthorizationService extends BaseInterceptor
      * @param entry the target entry that access to is being regulated
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addSubentryAciTuples( DirectoryPartitionNexusProxy proxy, Collection tuples,
-                                       Name dn, Attributes entry ) throws NamingException
+    private void addSubentryAciTuples( DirectoryPartitionNexusProxy proxy, Collection tuples, Name dn, Attributes entry )
+        throws NamingException
     {
         // only perform this for subentries
-        if ( ! entry.get("objectClass").contains("subentry") )
+        if ( !entry.get( "objectClass" ).contains( "subentry" ) )
         {
             return;
         }
@@ -277,8 +276,8 @@ public class AuthorizationService extends BaseInterceptor
         // will contain the subentryACI attributes that effect subentries
         Name parentDn = ( Name ) dn.clone();
         parentDn.remove( dn.size() - 1 );
-        Attributes administrativeEntry = proxy.lookup( parentDn, new String[] { SUBENTRYACI_ATTR },
-                DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes administrativeEntry = proxy.lookup( parentDn, new String[]
+            { SUBENTRYACI_ATTR }, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         Attribute subentryAci = administrativeEntry.get( SUBENTRYACI_ATTR );
 
         if ( subentryAci == null )
@@ -297,7 +296,7 @@ public class AuthorizationService extends BaseInterceptor
             }
             catch ( ParseException e )
             {
-                String msg = "failed to parse subentryACI: " + aciString ;
+                String msg = "failed to parse subentryACI: " + aciString;
                 log.error( msg, e );
                 throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONSERROR );
             }
@@ -336,7 +335,7 @@ public class AuthorizationService extends BaseInterceptor
         Name userName = dnParser.parse( principal.getName() );
 
         // bypass authz code if we are disabled
-        if ( ! enabled )
+        if ( !enabled )
         {
             next.add( upName, normName, entry );
             return;
@@ -355,7 +354,7 @@ public class AuthorizationService extends BaseInterceptor
         SubentryService subentryService = ( SubentryService ) chain.get( "subentryService" );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( normName, entry );
         NamingEnumeration attrList = entry.getAll();
-        while( attrList.hasMore() )
+        while ( attrList.hasMore() )
         {
             subentryAttrs.put( ( Attribute ) attrList.next() );
         }
@@ -371,8 +370,8 @@ public class AuthorizationService extends BaseInterceptor
 
         // check if entry scope permission is granted
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(),
-                normName, null, null, ADD_PERMS, tuples, subentryAttrs );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), normName, null, null,
+            ADD_PERMS, tuples, subentryAttrs );
 
         // now we must check if attribute type and value scope permission is granted
         NamingEnumeration attributeList = entry.getAll();
@@ -381,9 +380,8 @@ public class AuthorizationService extends BaseInterceptor
             Attribute attr = ( Attribute ) attributeList.next();
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
-                engine.checkPermission( proxy, userGroups, userName,
-                        principal.getAuthenticationLevel(), normName, attr.getID(),
-                        attr.get( ii ), ADD_PERMS, tuples, entry );
+                engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), normName, attr
+                    .getID(), attr.get( ii ), ADD_PERMS, tuples, entry );
             }
         }
 
@@ -407,7 +405,7 @@ public class AuthorizationService extends BaseInterceptor
         Name userName = dnParser.parse( principal.getName() );
 
         // bypass authz code if we are disabled
-        if ( ! enabled )
+        if ( !enabled )
         {
             next.delete( name );
             return;
@@ -428,8 +426,8 @@ public class AuthorizationService extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, name, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null,
-                null, REMOVE_PERMS, tuples, entry );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null, null,
+            REMOVE_PERMS, tuples, entry );
 
         next.delete( name );
         tupleCache.subentryDeleted( name, entry );
@@ -447,7 +445,7 @@ public class AuthorizationService extends BaseInterceptor
         Name userName = dnParser.parse( principal.getName() );
 
         // bypass authz code if we are disabled
-        if ( ! enabled )
+        if ( !enabled )
         {
             next.modify( name, modOp, mods );
             return;
@@ -468,31 +466,31 @@ public class AuthorizationService extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, name, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null,
-                null, Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null, null,
+            Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
 
         NamingEnumeration attrList = mods.getAll();
         Collection perms = null;
-        switch( modOp )
+        switch ( modOp )
         {
-            case( DirContext.ADD_ATTRIBUTE ):
+            case ( DirContext.ADD_ATTRIBUTE  ):
                 perms = ADD_PERMS;
                 break;
-            case( DirContext.REMOVE_ATTRIBUTE ):
+            case ( DirContext.REMOVE_ATTRIBUTE  ):
                 perms = REMOVE_PERMS;
                 break;
-            case( DirContext.REPLACE_ATTRIBUTE ):
+            case ( DirContext.REPLACE_ATTRIBUTE  ):
                 perms = REPLACE_PERMS;
                 break;
         }
 
-        while( attrList.hasMore() )
+        while ( attrList.hasMore() )
         {
             Attribute attr = ( Attribute ) attrList.next();
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
-                engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(),
-                        name, attr.getID(), attr.get( ii ), perms, tuples, entry );
+                engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, attr
+                    .getID(), attr.get( ii ), perms, tuples, entry );
             }
         }
 
@@ -512,7 +510,7 @@ public class AuthorizationService extends BaseInterceptor
         Name userName = dnParser.parse( principal.getName() );
 
         // bypass authz code if we are disabled
-        if ( ! enabled )
+        if ( !enabled )
         {
             next.modify( name, mods );
             return;
@@ -533,21 +531,21 @@ public class AuthorizationService extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, name, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null,
-                null, Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null, null,
+            Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
 
         Collection perms = null;
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            switch( mods[ii].getModificationOp() )
+            switch ( mods[ii].getModificationOp() )
             {
-                case( DirContext.ADD_ATTRIBUTE ):
+                case ( DirContext.ADD_ATTRIBUTE  ):
                     perms = ADD_PERMS;
                     break;
-                case( DirContext.REMOVE_ATTRIBUTE ):
+                case ( DirContext.REMOVE_ATTRIBUTE  ):
                     perms = REMOVE_PERMS;
                     break;
-                case( DirContext.REPLACE_ATTRIBUTE ):
+                case ( DirContext.REPLACE_ATTRIBUTE  ):
                     perms = REPLACE_PERMS;
                     break;
             }
@@ -555,8 +553,8 @@ public class AuthorizationService extends BaseInterceptor
             Attribute attr = mods[ii].getAttribute();
             for ( int jj = 0; jj < attr.size(); jj++ )
             {
-                engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(),
-                        name, attr.getID(), attr.get( jj ), perms, tuples, entry );
+                engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, attr
+                    .getID(), attr.get( jj ), perms, tuples, entry );
             }
         }
 
@@ -574,8 +572,8 @@ public class AuthorizationService extends BaseInterceptor
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         Name userName = dnParser.parse( principal.getName() );
 
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled
-                || name.toString().trim().equals( "" ) ) // no checks on the rootdse
+        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled
+            || name.toString().trim().equals( "" ) ) // no checks on the rootdse
         {
             return next.hasEntry( name );
         }
@@ -587,8 +585,8 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, name, entry );
 
         // check that we have browse access to the entry
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null,
-                null, BROWSE_PERMS, tuples, entry );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null, null,
+            BROWSE_PERMS, tuples, entry );
 
         return next.hasEntry( name );
     }
@@ -609,8 +607,7 @@ public class AuthorizationService extends BaseInterceptor
      * @param entry the raw entry pulled from the nexus
      * @throws NamingException
      */
-    private void checkLookupAccess( LdapPrincipal principal, Name dn, Attributes entry )
-            throws NamingException
+    private void checkLookupAccess( LdapPrincipal principal, Name dn, Attributes entry ) throws NamingException
     {
         // no permissions checks on the RootDSE
         if ( dn.toString().trim().equals( "" ) )
@@ -627,8 +624,8 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, dn, entry );
 
         // check that we have read access to the entry
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), dn, null,
-                null, LOOKUP_PERMS, tuples, entry );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), dn, null, null,
+            LOOKUP_PERMS, tuples, entry );
 
         // check that we have read access to every attribute type and value
         NamingEnumeration attributeList = entry.getAll();
@@ -637,8 +634,8 @@ public class AuthorizationService extends BaseInterceptor
             Attribute attr = ( Attribute ) attributeList.next();
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
-                engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), dn,
-                        attr.getID(), attr.get( ii ), READ_PERMS, tuples, entry );
+                engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), dn, attr
+                    .getID(), attr.get( ii ), READ_PERMS, tuples, entry );
             }
         }
     }
@@ -651,7 +648,7 @@ public class AuthorizationService extends BaseInterceptor
         Attributes entry = proxy.lookup( dn, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
 
-        if ( principal.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        if ( principal.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled )
         {
             return next.lookup( dn, attrIds );
         }
@@ -668,7 +665,7 @@ public class AuthorizationService extends BaseInterceptor
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
 
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled )
         {
             return next.lookup( name );
         }
@@ -690,9 +687,8 @@ public class AuthorizationService extends BaseInterceptor
         newName.remove( name.size() - 1 );
         newName.add( dnParser.parse( newRn ).get( 0 ) );
 
-
         // bypass authz code if we are disabled
-        if ( ! enabled )
+        if ( !enabled )
         {
             next.modifyRn( name, newRn, deleteOldRn );
             return;
@@ -715,35 +711,35 @@ public class AuthorizationService extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, name, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null,
-                null, RENAME_PERMS, tuples, entry );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null, null,
+            RENAME_PERMS, tuples, entry );
 
-//        if ( deleteOldRn )
-//        {
-//            String oldRn = name.get( name.size() - 1 );
-//            if ( NamespaceTools.hasCompositeComponents( oldRn ) )
-//            {
-//                String[] comps = NamespaceTools.getCompositeComponents( oldRn );
-//                for ( int ii = 0; ii < comps.length; ii++ )
-//                {
-//                    String id = NamespaceTools.getRdnAttribute( comps[ii] );
-//                    String value = NamespaceTools.getRdnValue( comps[ii] );
-//                    engine.checkPermission( next, userGroups, user.getJndiName(),
-//                            user.getAuthenticationLevel(), name, id,
-//                            value, Collections.singleton( MicroOperation.REMOVE ),
-//                            tuples, entry );
-//                }
-//            }
-//            else
-//            {
-//                String id = NamespaceTools.getRdnAttribute( oldRn );
-//                String value = NamespaceTools.getRdnValue( oldRn );
-//                engine.checkPermission( next, userGroups, user.getJndiName(),
-//                        user.getAuthenticationLevel(), name, id,
-//                        value, Collections.singleton( MicroOperation.REMOVE ),
-//                        tuples, entry );
-//            }
-//        }
+        //        if ( deleteOldRn )
+        //        {
+        //            String oldRn = name.get( name.size() - 1 );
+        //            if ( NamespaceTools.hasCompositeComponents( oldRn ) )
+        //            {
+        //                String[] comps = NamespaceTools.getCompositeComponents( oldRn );
+        //                for ( int ii = 0; ii < comps.length; ii++ )
+        //                {
+        //                    String id = NamespaceTools.getRdnAttribute( comps[ii] );
+        //                    String value = NamespaceTools.getRdnValue( comps[ii] );
+        //                    engine.checkPermission( next, userGroups, user.getJndiName(),
+        //                            user.getAuthenticationLevel(), name, id,
+        //                            value, Collections.singleton( MicroOperation.REMOVE ),
+        //                            tuples, entry );
+        //                }
+        //            }
+        //            else
+        //            {
+        //                String id = NamespaceTools.getRdnAttribute( oldRn );
+        //                String value = NamespaceTools.getRdnValue( oldRn );
+        //                engine.checkPermission( next, userGroups, user.getJndiName(),
+        //                        user.getAuthenticationLevel(), name, id,
+        //                        value, Collections.singleton( MicroOperation.REMOVE ),
+        //                        tuples, entry );
+        //            }
+        //        }
 
         next.modifyRn( name, newRn, deleteOldRn );
         tupleCache.subentryRenamed( name, newName );
@@ -752,7 +748,7 @@ public class AuthorizationService extends BaseInterceptor
 
 
     public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
-            throws NamingException
+        throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -764,7 +760,7 @@ public class AuthorizationService extends BaseInterceptor
         newName.add( newRn );
 
         // bypass authz code if we are disabled
-        if ( ! enabled )
+        if ( !enabled )
         {
             next.move( oriChildName, newParentName, newRn, deleteOldRn );
             return;
@@ -785,42 +781,42 @@ public class AuthorizationService extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, oriChildName, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(),
-                oriChildName, null, null, MOVERENAME_PERMS, tuples, entry );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), oriChildName, null,
+            null, MOVERENAME_PERMS, tuples, entry );
 
         Collection destTuples = new HashSet();
         addPerscriptiveAciTuples( proxy, destTuples, oriChildName, entry );
         addEntryAciTuples( destTuples, entry );
         addSubentryAciTuples( proxy, destTuples, oriChildName, entry );
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(),
-                oriChildName, null, null, IMPORT_PERMS, tuples, entry );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), oriChildName, null,
+            null, IMPORT_PERMS, tuples, entry );
 
-//        if ( deleteOldRn )
-//        {
-//            String oldRn = oriChildName.get( oriChildName.size() - 1 );
-//            if ( NamespaceTools.hasCompositeComponents( oldRn ) )
-//            {
-//                String[] comps = NamespaceTools.getCompositeComponents( oldRn );
-//                for ( int ii = 0; ii < comps.length; ii++ )
-//                {
-//                    String id = NamespaceTools.getRdnAttribute( comps[ii] );
-//                    String value = NamespaceTools.getRdnValue( comps[ii] );
-//                    engine.checkPermission( next, userGroups, user.getJndiName(),
-//                            user.getAuthenticationLevel(), oriChildName, id,
-//                            value, Collections.singleton( MicroOperation.REMOVE ),
-//                            tuples, entry );
-//                }
-//            }
-//            else
-//            {
-//                String id = NamespaceTools.getRdnAttribute( oldRn );
-//                String value = NamespaceTools.getRdnValue( oldRn );
-//                engine.checkPermission( next, userGroups, user.getJndiName(),
-//                        user.getAuthenticationLevel(), oriChildName, id,
-//                        value, Collections.singleton( MicroOperation.REMOVE ),
-//                        tuples, entry );
-//            }
-//        }
+        //        if ( deleteOldRn )
+        //        {
+        //            String oldRn = oriChildName.get( oriChildName.size() - 1 );
+        //            if ( NamespaceTools.hasCompositeComponents( oldRn ) )
+        //            {
+        //                String[] comps = NamespaceTools.getCompositeComponents( oldRn );
+        //                for ( int ii = 0; ii < comps.length; ii++ )
+        //                {
+        //                    String id = NamespaceTools.getRdnAttribute( comps[ii] );
+        //                    String value = NamespaceTools.getRdnValue( comps[ii] );
+        //                    engine.checkPermission( next, userGroups, user.getJndiName(),
+        //                            user.getAuthenticationLevel(), oriChildName, id,
+        //                            value, Collections.singleton( MicroOperation.REMOVE ),
+        //                            tuples, entry );
+        //                }
+        //            }
+        //            else
+        //            {
+        //                String id = NamespaceTools.getRdnAttribute( oldRn );
+        //                String value = NamespaceTools.getRdnValue( oldRn );
+        //                engine.checkPermission( next, userGroups, user.getJndiName(),
+        //                        user.getAuthenticationLevel(), oriChildName, id,
+        //                        value, Collections.singleton( MicroOperation.REMOVE ),
+        //                        tuples, entry );
+        //            }
+        //        }
 
         next.move( oriChildName, newParentName, newRn, deleteOldRn );
         tupleCache.subentryRenamed( oriChildName, newName );
@@ -840,7 +836,7 @@ public class AuthorizationService extends BaseInterceptor
         Name userName = dnParser.parse( principal.getName() );
 
         // bypass authz code if we are disabled
-        if ( ! enabled )
+        if ( !enabled )
         {
             next.move( oriChildName, newParentName );
             return;
@@ -861,23 +857,23 @@ public class AuthorizationService extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, oriChildName, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(),
-                oriChildName, null, null, EXPORT_PERMS, tuples, entry );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), oriChildName, null,
+            null, EXPORT_PERMS, tuples, entry );
 
         Collection destTuples = new HashSet();
         addPerscriptiveAciTuples( proxy, destTuples, oriChildName, entry );
         addEntryAciTuples( destTuples, entry );
         addSubentryAciTuples( proxy, destTuples, oriChildName, entry );
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(),
-                oriChildName, null, null, IMPORT_PERMS, tuples, entry );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), oriChildName, null,
+            null, IMPORT_PERMS, tuples, entry );
 
         next.move( oriChildName, newParentName );
         tupleCache.subentryRenamed( oriChildName, newName );
         groupCache.groupRenamed( oriChildName, newName );
     }
 
-
     public static final SearchControls DEFUALT_SEARCH_CONTROLS = new SearchControls();
+
 
     public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
     {
@@ -885,7 +881,7 @@ public class AuthorizationService extends BaseInterceptor
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
         NamingEnumeration e = next.list( base );
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled )
         {
             return e;
         }
@@ -895,7 +891,7 @@ public class AuthorizationService extends BaseInterceptor
 
 
     public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
-                                     SearchControls searchCtls ) throws NamingException
+        SearchControls searchCtls ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
@@ -904,8 +900,8 @@ public class AuthorizationService extends BaseInterceptor
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( base.toString() );
         boolean isRootDSELookup = base.size() == 0 && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL )
-                || ! enabled || isRootDSELookup || isSubschemaSubentryLookup )
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled || isRootDSELookup
+            || isSubschemaSubentryLookup )
         {
             return e;
         }
@@ -923,7 +919,7 @@ public class AuthorizationService extends BaseInterceptor
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         Name userName = dnParser.parse( principal.getName() );
 
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled )
         {
             return next.compare( name, oid, value );
         }
@@ -934,10 +930,10 @@ public class AuthorizationService extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, name, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null,
-                null, READ_PERMS, tuples, entry );
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, oid,
-                value, COMPARE_PERMS, tuples, entry );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null, null,
+            READ_PERMS, tuples, entry );
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, oid, value,
+            COMPARE_PERMS, tuples, entry );
 
         return next.compare( name, oid, value );
     }
@@ -950,7 +946,7 @@ public class AuthorizationService extends BaseInterceptor
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         Name userName = dnParser.parse( principal.getName() );
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled )
         {
             return next.getMatchedName( dn, normalized );
         }
@@ -979,9 +975,8 @@ public class AuthorizationService extends BaseInterceptor
             addEntryAciTuples( tuples, entry );
             addSubentryAciTuples( proxy, tuples, matched, entry );
 
-            if ( engine.hasPermission( proxy, userGroups, userName,
-                    principal.getAuthenticationLevel(), matched, null, null,
-                    MATCHEDNAME_PERMS, tuples, entry ) )
+            if ( engine.hasPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), matched, null,
+                null, MATCHEDNAME_PERMS, tuples, entry ) )
             {
                 return matched;
             }
@@ -1001,11 +996,11 @@ public class AuthorizationService extends BaseInterceptor
 
     private boolean filter( Invocation invocation, Name normName, SearchResult result ) throws NamingException
     {
-       /*
-        * First call hasPermission() for entry level "Browse" and "ReturnDN" perm
-        * tests.  If we hasPermission() returns false we immediately short the
-        * process and return false.
-        */
+        /*
+         * First call hasPermission() for entry level "Browse" and "ReturnDN" perm
+         * tests.  If we hasPermission() returns false we immediately short the
+         * process and return false.
+         */
         Attributes entry = invocation.getProxy().lookup( normName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         Name userDn = dnParser.parse( ctx.getPrincipal().getName() );
@@ -1015,9 +1010,8 @@ public class AuthorizationService extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( invocation.getProxy(), tuples, normName, entry );
 
-        if ( ! engine.hasPermission( invocation.getProxy(), userGroups, userDn,
-                ctx.getPrincipal().getAuthenticationLevel(),
-                normName, null, null, SEARCH_ENTRY_PERMS, tuples, entry ) )
+        if ( !engine.hasPermission( invocation.getProxy(), userGroups, userDn, ctx.getPrincipal()
+            .getAuthenticationLevel(), normName, null, null, SEARCH_ENTRY_PERMS, tuples, entry ) )
         {
             return false;
         }
@@ -1035,9 +1029,8 @@ public class AuthorizationService extends BaseInterceptor
             // if attribute type scope access is not allowed then remove the attribute and continue
             String id = ( String ) idList.next();
             Attribute attr = result.getAttributes().get( id );
-            if ( ! engine.hasPermission( invocation.getProxy(), userGroups, userDn,
-                    ctx.getPrincipal().getAuthenticationLevel(),
-                    normName, attr.getID(), null, SEARCH_ATTRVAL_PERMS, tuples, entry ) )
+            if ( !engine.hasPermission( invocation.getProxy(), userGroups, userDn, ctx.getPrincipal()
+                .getAuthenticationLevel(), normName, attr.getID(), null, SEARCH_ATTRVAL_PERMS, tuples, entry ) )
             {
                 result.getAttributes().remove( attr.getID() );
 
@@ -1051,9 +1044,9 @@ public class AuthorizationService extends BaseInterceptor
             // attribute type scope is ok now let's determine value level scope
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
-                if ( ! engine.hasPermission( invocation.getProxy(), userGroups, userDn,
-                        ctx.getPrincipal().getAuthenticationLevel(), normName,
-                        attr.getID(), attr.get( ii ), SEARCH_ATTRVAL_PERMS, tuples, entry ) )
+                if ( !engine.hasPermission( invocation.getProxy(), userGroups, userDn, ctx.getPrincipal()
+                    .getAuthenticationLevel(), normName, attr.getID(), attr.get( ii ), SEARCH_ATTRVAL_PERMS, tuples,
+                    entry ) )
                 {
                     attr.remove( ii );
 
@@ -1068,7 +1061,6 @@ public class AuthorizationService extends BaseInterceptor
         return true;
     }
 
-
     /**
      * WARNING: create one of these filters fresh every time for each new search.
      */
@@ -1077,6 +1069,7 @@ public class AuthorizationService extends BaseInterceptor
         /** dedicated normalizing parser for this search - cheaper than synchronization */
         final DnParser parser;
 
+
         public AuthorizationFilter() throws NamingException
         {
             parser = new DnParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
@@ -1084,18 +1077,18 @@ public class AuthorizationService extends BaseInterceptor
 
 
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
-                throws NamingException
+            throws NamingException
         {
             Name normName = parser.parse( result.getName() );
 
-// looks like isRelative returns true even when the names for results are absolute!!!!
-// @todo this is a big bug in JNDI provider
+            // looks like isRelative returns true even when the names for results are absolute!!!!
+            // @todo this is a big bug in JNDI provider
 
-//            if ( result.isRelative() )
-//            {
-//                Name base = parser.parse( ctx.getNameInNamespace() );
-//                normName = base.addAll( normName );
-//            }
+            //            if ( result.isRelative() )
+            //            {
+            //                Name base = parser.parse( ctx.getNameInNamespace() );
+            //                normName = base.addAll( normName );
+            //            }
 
             return filter( invocation, normName, result );
         }

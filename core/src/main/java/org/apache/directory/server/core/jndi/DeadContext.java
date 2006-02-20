@@ -52,8 +52,8 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
  */
 public class DeadContext implements LdapContext, EventDirContext
 {
-    private final String EXCEPTION_MSG = "Context operation unavailable when " +
-            "invoked after Eve provider has been shutdown";
+    private final String EXCEPTION_MSG = "Context operation unavailable when "
+        + "invoked after Eve provider has been shutdown";
 
 
     public Control[] getConnectControls() throws NamingException
@@ -218,13 +218,15 @@ public class DeadContext implements LdapContext, EventDirContext
     }
 
 
-    public NamingEnumeration search( String name, Attributes matchingAttributes, String[] attributesToReturn ) throws NamingException
+    public NamingEnumeration search( String name, Attributes matchingAttributes, String[] attributesToReturn )
+        throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public NamingEnumeration search( Name name, Attributes matchingAttributes, String[] attributesToReturn ) throws NamingException
+    public NamingEnumeration search( Name name, Attributes matchingAttributes, String[] attributesToReturn )
+        throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
@@ -242,13 +244,15 @@ public class DeadContext implements LdapContext, EventDirContext
     }
 
 
-    public NamingEnumeration search( String name, String filterExpr, Object[] filterArgs, SearchControls cons ) throws NamingException
+    public NamingEnumeration search( String name, String filterExpr, Object[] filterArgs, SearchControls cons )
+        throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public NamingEnumeration search( Name name, String filterExpr, Object[] filterArgs, SearchControls cons ) throws NamingException
+    public NamingEnumeration search( Name name, String filterExpr, Object[] filterArgs, SearchControls cons )
+        throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
@@ -429,25 +433,28 @@ public class DeadContext implements LdapContext, EventDirContext
 
 
     public void addNamingListener( Name name, String s, SearchControls searchControls, NamingListener namingListener )
-            throws NamingException
+        throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public void addNamingListener( String s, String s1, SearchControls searchControls, NamingListener namingListener ) throws NamingException
+    public void addNamingListener( String s, String s1, SearchControls searchControls, NamingListener namingListener )
+        throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public void addNamingListener( Name name, String s, Object[] objects, SearchControls searchControls, NamingListener namingListener ) throws NamingException
+    public void addNamingListener( Name name, String s, Object[] objects, SearchControls searchControls,
+        NamingListener namingListener ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public void addNamingListener( String s, String s1, Object[] objects, SearchControls searchControls, NamingListener namingListener ) throws NamingException
+    public void addNamingListener( String s, String s1, Object[] objects, SearchControls searchControls,
+        NamingListener namingListener ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }

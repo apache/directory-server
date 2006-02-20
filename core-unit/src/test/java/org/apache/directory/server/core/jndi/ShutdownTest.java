@@ -61,7 +61,7 @@ public class ShutdownTest extends AbstractAdminTestCase
 
         // restart the system now
         setSysRoot( "uid=admin,ou=system", "secret", configuration );
-        
+
         // Shutdown again (tearDown is overriden)
         setSysRoot( "uid=admin,ou=system", "secret", new ShutdownConfiguration() );
     }

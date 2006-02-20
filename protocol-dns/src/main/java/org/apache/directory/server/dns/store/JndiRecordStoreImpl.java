@@ -16,12 +16,14 @@
  */
 package org.apache.directory.server.dns.store;
 
+
 import java.util.Set;
 
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.messages.QuestionRecord;
+
 
 /**
  * A JNDI-backed implementation of the RecordStore interface.  This RecordStore uses
@@ -40,7 +42,8 @@ public class JndiRecordStoreImpl implements RecordStore
     /** a handle on the searchh strategy */
     private SearchStrategy strategy;
 
-    public JndiRecordStoreImpl( DnsConfiguration config, InitialContextFactory factory )
+
+    public JndiRecordStoreImpl(DnsConfiguration config, InitialContextFactory factory)
     {
         this.config = config;
         this.factory = factory;
@@ -48,10 +51,12 @@ public class JndiRecordStoreImpl implements RecordStore
         strategy = getSearchStrategy();
     }
 
+
     public Set getRecords( QuestionRecord question ) throws Exception
     {
         return strategy.getRecords( question );
     }
+
 
     private SearchStrategy getSearchStrategy()
     {

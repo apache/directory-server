@@ -52,11 +52,10 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates an empty BootstrapDitContentRuleRegistry.
      */
-    public GlobalDitContentRuleRegistry( BootstrapDitContentRuleRegistry bootstrap, OidRegistry oidRegistry )
+    public GlobalDitContentRuleRegistry(BootstrapDitContentRuleRegistry bootstrap, OidRegistry oidRegistry)
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
@@ -66,7 +65,7 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
         {
-            throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
+            throw new NullPointerException( "the bootstrap registry cannot be null" );
         }
     }
 
@@ -86,19 +85,17 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-
     public void register( String schema, DITContentRule dITContentRule ) throws NamingException
     {
-        if ( byOid.containsKey( dITContentRule.getOid() ) ||
-             bootstrap.hasDITContentRule( dITContentRule.getOid() ) )
+        if ( byOid.containsKey( dITContentRule.getOid() ) || bootstrap.hasDITContentRule( dITContentRule.getOid() ) )
         {
-            NamingException e = new NamingException( "dITContentRule w/ OID " +
-                dITContentRule.getOid() + " has already been registered!" );
+            NamingException e = new NamingException( "dITContentRule w/ OID " + dITContentRule.getOid()
+                + " has already been registered!" );
             monitor.registerFailed( dITContentRule, e );
             throw e;
         }
 
-        oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() ) ;
+        oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() );
         byOid.put( dITContentRule.getOid(), dITContentRule );
         oidToSchema.put( dITContentRule.getOid(), schema );
         monitor.registered( dITContentRule );
@@ -123,8 +120,7 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
             return dITContentRule;
         }
 
-        NamingException e = new NamingException( "dITContentRule w/ OID "
-            + id + " not registered!" );
+        NamingException e = new NamingException( "dITContentRule w/ OID " + id + " not registered!" );
         monitor.lookupFailed( id, e );
         throw e;
     }
@@ -136,8 +132,7 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
         {
             try
             {
-                return byOid.containsKey( oidRegistry.getOid( id ) ) ||
-                       bootstrap.hasDITContentRule( id );
+                return byOid.containsKey( oidRegistry.getOid( id ) ) || bootstrap.hasDITContentRule( id );
             }
             catch ( NamingException e )
             {
@@ -163,14 +158,13 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
             return bootstrap.getSchemaName( id );
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " +
-            "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
     }
 
 
     public Iterator list()
     {
         return new JoinIterator( new Iterator[]
-            { byOid.values().iterator(),bootstrap.list() } );
+            { byOid.values().iterator(), bootstrap.list() } );
     }
 }

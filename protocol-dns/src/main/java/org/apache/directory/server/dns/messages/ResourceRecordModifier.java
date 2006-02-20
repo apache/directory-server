@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.dns.messages;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordImpl;
+
 
 public class ResourceRecordModifier
 {
@@ -32,10 +34,12 @@ public class ResourceRecordModifier
     private int dnsTtl;
     private Map attributes = new HashMap();
 
+
     public ResourceRecord getEntry()
     {
         return new ResourceRecordImpl( dnsName, dnsType, dnsClass, dnsTtl, attributes );
     }
+
 
     /**
      * @param dnsName The dnsName to set.
@@ -45,6 +49,7 @@ public class ResourceRecordModifier
         this.dnsName = dnsName;
     }
 
+
     /**
      * @param dnsType The dnsType to set.
      */
@@ -52,6 +57,7 @@ public class ResourceRecordModifier
     {
         this.dnsType = dnsType;
     }
+
 
     /**
      * @param dnsClass The dnsClass to set.
@@ -61,6 +67,7 @@ public class ResourceRecordModifier
         this.dnsClass = dnsClass;
     }
 
+
     /**
      * @param dnsTtl The dnsTtl to set.
      */
@@ -68,6 +75,7 @@ public class ResourceRecordModifier
     {
         this.dnsTtl = dnsTtl;
     }
+
 
     /**
      * @param id The id to set

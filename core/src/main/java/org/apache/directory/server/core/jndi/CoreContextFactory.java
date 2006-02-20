@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.core.jndi;
 
+
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
@@ -39,6 +40,7 @@ public class CoreContextFactory extends AbstractContextFactory implements Initia
     {
     }
 
+
     /**
      * Does nothing by default.
      */
@@ -46,33 +48,38 @@ public class CoreContextFactory extends AbstractContextFactory implements Initia
     {
     }
 
+
     /**
      * Does nothing by default.
      */
     public void afterStartup( DirectoryService service ) throws NamingException
     {
     }
-    
+
+
     /**
      * Does nothing by default.
      */
     public void beforeShutdown( DirectoryService service ) throws NamingException
     {
     }
-    
+
+
     /**
      * Does nothing by default.
      */
     public void afterShutdown( DirectoryService service ) throws NamingException
     {
     }
-    
+
+
     /**
      * Does nothing by default.
      */
     public void beforeSync( DirectoryService service ) throws NamingException
     {
     }
+
 
     /**
      * Does nothing by default.

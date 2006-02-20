@@ -17,34 +17,41 @@
 
 package org.apache.directory.server.dns.io.decoder;
 
+
 import java.nio.ByteBuffer;
+
 
 public class ResourceRecordDecoder
 {
     protected short getUnsignedByte( ByteBuffer byteBuffer )
     {
-        return ( (short) ( byteBuffer.get() & 0xff ) );
+        return ( ( short ) ( byteBuffer.get() & 0xff ) );
     }
+
 
     protected short getUnsignedByte( ByteBuffer byteBuffer, int position )
     {
-        return ( (short) ( byteBuffer.get( position ) & (short) 0xff ) );
+        return ( ( short ) ( byteBuffer.get( position ) & ( short ) 0xff ) );
     }
+
 
     protected int getUnsignedShort( ByteBuffer byteBuffer )
     {
         return ( byteBuffer.getShort() & 0xffff );
     }
 
+
     protected int getUnsignedShort( ByteBuffer byteBuffer, int position )
     {
         return ( byteBuffer.getShort( position ) & 0xffff );
     }
 
+
     protected long getUnsignedInt( ByteBuffer byteBuffer )
     {
         return ( byteBuffer.getInt() & 0xffffffffL );
     }
+
 
     protected long getUnsignedInt( ByteBuffer byteBuffer, int position )
     {

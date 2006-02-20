@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.protocol.shared.store;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,6 +37,7 @@ import org.apache.directory.shared.ldap.ldif.LdifParserImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Support for commands to load an LDIF file into a DirContext.
@@ -59,23 +61,26 @@ public class LdifFileLoader
     /** the total count of entries loaded */
     private int count;
 
+
     /**
      * Creates the LDIF file loader command.
      *
      * @param ctx the context to load the entries into.
      * @param ldif the file of LDIF entries to load.
      */
-    public LdifFileLoader( DirContext ctx, String ldif )
+    public LdifFileLoader(DirContext ctx, String ldif)
     {
         this( ctx, new File( ldif ), null );
     }
 
-    public LdifFileLoader( DirContext ctx, File ldif, List filters )
+
+    public LdifFileLoader(DirContext ctx, File ldif, List filters)
     {
         this( ctx, ldif, filters, null );
     }
 
-    public LdifFileLoader( DirContext ctx, File ldif, List filters, ClassLoader loader )
+
+    public LdifFileLoader(DirContext ctx, File ldif, List filters, ClassLoader loader)
     {
         this.ctx = ctx;
         this.ldif = ldif;
@@ -90,6 +95,7 @@ public class LdifFileLoader
             this.filters = Collections.unmodifiableList( filters );
         }
     }
+
 
     /**
      * Applies filters making sure failures in one filter do not effect another.
@@ -112,7 +118,7 @@ public class LdifFileLoader
         {
             try
             {
-                accept &= ( (LdifLoadFilter) filters.get( ii ) ).filter( ldif, dn, entry, ctx );
+                accept &= ( ( LdifLoadFilter ) filters.get( ii ) ).filter( ldif, dn, entry, ctx );
             }
             catch ( NamingException e )
             {
@@ -127,6 +133,7 @@ public class LdifFileLoader
         }
         return true;
     }
+
 
     /**
      * Opens the LDIF file and loads the entries into the context.
@@ -144,10 +151,10 @@ public class LdifFileLoader
 
             while ( iterator.hasNext() )
             {
-                String ldif = (String) iterator.next();
+                String ldif = ( String ) iterator.next();
                 Attributes attributes = new LockableAttributesImpl();
                 ldifParser.parse( attributes, ldif );
-                String dn = (String) attributes.remove( "dn" ).get();
+                String dn = ( String ) attributes.remove( "dn" ).get();
 
                 boolean filterAccepted = applyFilters( dn, attributes );
 
@@ -197,6 +204,7 @@ public class LdifFileLoader
         return count;
     }
 
+
     private Name getRelativeName( DirContext ctx, String baseDn ) throws NamingException
     {
         Properties props = new Properties();
@@ -229,6 +237,7 @@ public class LdifFileLoader
 
         return searchBaseDn;
     }
+
 
     /**
      * Tries to find an LDIF file either on the file system or packaged within a jar.

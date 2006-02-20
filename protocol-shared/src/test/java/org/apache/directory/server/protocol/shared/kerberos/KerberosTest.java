@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.protocol.shared.kerberos;
 
+
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -26,6 +27,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.protocol.shared.AbstractBackingStoreTest;
+
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -44,6 +46,7 @@ public class KerberosTest extends AbstractBackingStoreTest
         loadPartition( "dc=example,dc=com", "kerberos-example.ldif" );
     }
 
+
     /**
      * Makes sure the context has the right attributes and values.
      *
@@ -52,7 +55,7 @@ public class KerberosTest extends AbstractBackingStoreTest
     public void testContext() throws Exception
     {
         env.put( Context.PROVIDER_URL, "dc=example,dc=com" );
-        DirContext ctx = (DirContext) factory.getInitialContext( env );
+        DirContext ctx = ( DirContext ) factory.getInitialContext( env );
 
         Attributes matchAttrs = new BasicAttributes( true );
         matchAttrs.put( new BasicAttribute( "krb5PrincipalName", "kadmin/changepw@EXAMPLE.COM" ) );
@@ -60,7 +63,7 @@ public class KerberosTest extends AbstractBackingStoreTest
         Attributes attributes = ctx.getAttributes( "ou=users" );
         System.out.println( attributes );
         assertNotNull( attributes );
-        assertTrue( "users".equalsIgnoreCase( (String) attributes.get( "ou" ).get() ) );
+        assertTrue( "users".equalsIgnoreCase( ( String ) attributes.get( "ou" ).get() ) );
 
         Attribute attribute = attributes.get( "objectClass" );
 

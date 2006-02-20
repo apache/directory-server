@@ -47,26 +47,25 @@ public class ScopeEvaluator implements Evaluator
     /**
      * @see Evaluator#evaluate(ExprNode, String, Attributes)
      */
-    public boolean evaluate( ExprNode node, String dn, Attributes record )
-        throws NamingException
+    public boolean evaluate( ExprNode node, String dn, Attributes record ) throws NamingException
     {
         ScopeNode snode = ( ScopeNode ) node;
 
-        switch( snode.getScope() )
+        switch ( snode.getScope() )
         {
-        case( SearchControls.OBJECT_SCOPE ):
-            return dn.equals( snode.getBaseDn() );
-        case( SearchControls.ONELEVEL_SCOPE ):
-            if ( dn.endsWith( snode.getBaseDn() ) )
-            {
-                Name candidateDn = parser.parse( dn );
-                Name scopeDn = parser.parse( snode.getBaseDn() );
-                return ( scopeDn.size() + 1 ) == candidateDn.size();
-            }
-        case( SearchControls.SUBTREE_SCOPE ):
-            return dn.endsWith( snode.getBaseDn() );
-        default:
-            throw new NamingException( "Unrecognized search scope!" );
+            case ( SearchControls.OBJECT_SCOPE  ):
+                return dn.equals( snode.getBaseDn() );
+            case ( SearchControls.ONELEVEL_SCOPE  ):
+                if ( dn.endsWith( snode.getBaseDn() ) )
+                {
+                    Name candidateDn = parser.parse( dn );
+                    Name scopeDn = parser.parse( snode.getBaseDn() );
+                    return ( scopeDn.size() + 1 ) == candidateDn.size();
+                }
+            case ( SearchControls.SUBTREE_SCOPE  ):
+                return dn.endsWith( snode.getBaseDn() );
+            default:
+                throw new NamingException( "Unrecognized search scope!" );
         }
     }
 }

@@ -14,8 +14,8 @@
  *   limitations under the License.
  *
  */
-
 package org.apache.directory.server.ntp;
+
 
 import java.nio.ByteBuffer;
 
@@ -32,39 +32,44 @@ import org.apache.directory.server.ntp.messages.StratumType;
 
 public class NtpMessageEncoderTest extends AbstractNtpTestCase
 {
-	public void testEncodeMessage() throws Exception
-	{
-		NtpMessageModifier modifier = new NtpMessageModifier();
-		modifier.setLeapIndicator( LeapIndicatorType.NO_WARNING );
-		modifier.setVersionNumber( 4 );
-		modifier.setMode( ModeType.SERVER );
-		modifier.setStratum( StratumType.PRIMARY_REFERENCE );
-		modifier.setPollInterval( (byte)0x06 ); // 6
-		modifier.setPrecision( (byte)0xFA );    // -6
-		modifier.setRootDelay( 0 );
-		modifier.setRootDispersion( 0 );
-		modifier.setReferenceIdentifier( ReferenceIdentifier.LOCL );
-		
-		NtpTimeStamp now = new NtpTimeStamp();
-		
-		modifier.setReferenceTimestamp( now );
-		modifier.setOriginateTimestamp( now );
-		modifier.setReceiveTimestamp( now );
-		modifier.setTransmitTimestamp( now );
-		
-		NtpMessage message = modifier.getNtpMessage();
-		
-		ByteBuffer replyByteBuffer = ByteBuffer.allocate( 1024 );
-		
-		NtpMessageEncoder encoder = new NtpMessageEncoder();
-		encoder.encode( replyByteBuffer, message );
-		
-		print( message );
-		
-		NtpMessageDecoder decoder = new NtpMessageDecoder();
-		NtpMessage reply = decoder.decode( replyByteBuffer );
-		
-		print( reply );
-	}
-}
+    public NtpMessageEncoderTest()
+    {
+        super( NtpMessageEncoderTest.class );
+    }
 
+
+    public void testEncodeMessage() throws Exception
+    {
+        NtpMessageModifier modifier = new NtpMessageModifier();
+        modifier.setLeapIndicator( LeapIndicatorType.NO_WARNING );
+        modifier.setVersionNumber( 4 );
+        modifier.setMode( ModeType.SERVER );
+        modifier.setStratum( StratumType.PRIMARY_REFERENCE );
+        modifier.setPollInterval( ( byte ) 0x06 ); // 6
+        modifier.setPrecision( ( byte ) 0xFA ); // -6
+        modifier.setRootDelay( 0 );
+        modifier.setRootDispersion( 0 );
+        modifier.setReferenceIdentifier( ReferenceIdentifier.LOCL );
+
+        NtpTimeStamp now = new NtpTimeStamp();
+
+        modifier.setReferenceTimestamp( now );
+        modifier.setOriginateTimestamp( now );
+        modifier.setReceiveTimestamp( now );
+        modifier.setTransmitTimestamp( now );
+
+        NtpMessage message = modifier.getNtpMessage();
+
+        ByteBuffer replyByteBuffer = ByteBuffer.allocate( 1024 );
+
+        NtpMessageEncoder encoder = new NtpMessageEncoder();
+        encoder.encode( replyByteBuffer, message );
+
+        print( message );
+
+        NtpMessageDecoder decoder = new NtpMessageDecoder();
+        NtpMessage reply = decoder.decode( replyByteBuffer );
+
+        print( reply );
+    }
+}

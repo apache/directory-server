@@ -34,6 +34,7 @@ public interface BootstrapSchema
      */
     String getOwner();
 
+
     /**
      * Gets the name of the logical schema the objects of this BootstrapSchema
      * belong to: e.g. krb5-kdc may be the logical LDAP schema name.
@@ -42,12 +43,14 @@ public interface BootstrapSchema
      */
     String getSchemaName();
 
+
     /**
      * Gets the package name of the schema's object factories.
      *
      * @return the name of the schema's package name
      */
     String getPackageName();
+
 
     /**
      * Gets the names of other schemas that this objects within this
@@ -57,6 +60,7 @@ public interface BootstrapSchema
      * @return the String names of schema dependencies
      */
     String[] getDependencies();
+
 
     /**
      * Gets the base class name for bootstrap Schema class files.  This name
@@ -68,6 +72,7 @@ public interface BootstrapSchema
      */
     String getBaseClassName();
 
+
     /**
      * Gets the default base class name for bootstrap Schema class files.  This
      * name is the schema name with the first character capitalized and qualified
@@ -78,12 +83,14 @@ public interface BootstrapSchema
      */
     String getDefaultBaseClassName();
 
+
     /**
      * Gets the class name for bootstrap Schema class producer type.
      *
      * @return the bootstrap schema class name for a producer type in this schema
      */
     String getFullClassName( ProducerTypeEnum type );
+
 
     /**
      * If the base class name for the target class does not resolve, we attempt
@@ -94,12 +101,14 @@ public interface BootstrapSchema
      */
     String getFullDefaultBaseClassName( ProducerTypeEnum type );
 
+
     /**
      * Gets the unqualified class name for bootstrap Schema class producer type.
      *
      * @return the bootstrap schema class name for a producer type in this schema
      */
     String getUnqualifiedClassName( ProducerTypeEnum type );
+
 
     /**
      * Gets the unqualified class name for Schema class.

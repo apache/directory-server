@@ -16,16 +16,19 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class MonitorRequest extends CommandBase
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorRequest.class );
+
 
     public boolean execute( Context context ) throws Exception
     {
@@ -33,9 +36,9 @@ public class MonitorRequest extends CommandBase
         {
             try
             {
-                ChangePasswordContext changepwContext = (ChangePasswordContext) context;
+                ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
 
-                ChangePasswordRequest request = (ChangePasswordRequest) changepwContext.getRequest();
+                ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
                 short authHeaderLength = request.getAuthHeaderLength();
                 short messageLength = request.getMessageLength();
                 short versionNumber = request.getVersionNumber();

@@ -4,12 +4,13 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC1-SNAPSHOT</version>
+    <version>1.0-RC1</version>
   </parent>
   <artifactId>apacheds-server-installers</artifactId>
   <name>ApacheDS Server Installers</name>
   <packaging>jar</packaging>
   <description>
+    Installer generating project for ApacheDS
   </description>
   <dependencies>
     <dependency>
@@ -20,7 +21,7 @@
     <dependency>
       <groupId>org.apache.directory.daemon</groupId>
       <artifactId>daemon-bootstrappers</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
+      <version>${pom.version}</version>
       <scope>provided</scope>
     </dependency>  
     <dependency>
@@ -69,12 +70,6 @@
       <version>1.2.1</version>
     </dependency>
   </dependencies>
-  <!-- <distributionManagement>
-    <site>
-      <id>apache.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/</url>
-    </site>
-  </distributionManagement> -->
   <build>
     <plugins>
       <plugin>
@@ -82,6 +77,10 @@
         <artifactId>daemon-plugin</artifactId>
         <configuration>
           <excludes>
+
+            <!-- apacheds-tools.jar does not get put in lib directory -->
+            <exclude>org.apache.directory.server:apacheds-server-tools</exclude>
+
             <exclude>ant:ant</exclude>
             <exclude>aopalliance:aopalliance</exclude>
             <exclude>xerces:xerces</exclude>
@@ -120,18 +119,36 @@
               <author>szoerner@apache.org</author>
             </authors>
           </application>
+          <packagedFiles>
+            <packagedFile>
+              <source>org.apache.directory.server:apacheds-server-tools</source>
+              <destinationPath>bin/apacheds-tools.jar</destinationPath>
+              <dependency>true</dependency>
+              <installationBundleId>Binaries</installationBundleId>
+            </packagedFile>
+          </packagedFiles>
           <svnBaseUrl>
             http://svn.apache.org/repos/asf/directory/trunks/apacheds
           </svnBaseUrl>
           <packageSources>true</packageSources>
           <packageDocs>true</packageDocs>
           <applicationClass>
-            org.apache.ldap.server.DirectoryServer
+            org.apache.ldap.server.Service
           </applicationClass>
           <rpmTargets>
             <rpmTarget>
+              <packagedFiles>
+                <packagedFile>
+                  <source>rpm-apacheds-tools.sh</source>
+                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
+                  <installationBundleId>Binaries</installationBundleId>
+                  <executable>true</executable>
+                  <filtered>true</filtered>
+                </packagedFile>
+              </packagedFiles>
               <!--  doSudo>true</doSudo -->
-              <id>linux-jsvc</id>
+              <id>linux-jsvc-rpm</id>
+              <rpmSpecificationFile>rpm-apacheds.spec</rpmSpecificationFile>
               <finalName>
                 apacheds-${pom.version}-linux-i386.rpm
               </finalName>
@@ -144,6 +161,7 @@
           <innoTargets>
             <innoTarget>
               <id>windows-xp-procrun</id>
+              <innoConfigurationFile>inno-apacheds.iss</innoConfigurationFile>
               <finalName>
                 apacheds-${pom.version}-win32-setup
               </finalName>
@@ -156,7 +174,17 @@
           </innoTargets>
           <izPackTargets>
             <izPackTarget>
+              <packagedFiles>
+                <packagedFile>
+                  <source>izpack-apacheds-tools.sh</source>
+                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
+                  <installationBundleId>Binaries</installationBundleId>
+                  <executable>true</executable>
+                  <filtered>true</filtered>
+                </packagedFile>
+              </packagedFiles>
               <id>linux-jsvc</id>
+              <izPackInstallFile>izpack-unix.xml</izPackInstallFile>
               <finalName>
                 apacheds-${pom.version}-linux-i386-setup.jar
               </finalName>
@@ -166,17 +194,37 @@
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
             <izPackTarget>
+              <packagedFiles>
+                <packagedFile>
+                  <source>izpack-apacheds-tools.sh</source>
+                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
+                  <installationBundleId>Binaries</installationBundleId>
+                  <executable>true</executable>
+                  <filtered>true</filtered>
+                </packagedFile>
+              </packagedFiles>
               <finalName>
                 apacheds-${pom.version}-solaris-sparc-setup.jar
               </finalName>
               <id>solaris-jsvc-sparc</id>
+              <izPackInstallFile>izpack-unix.xml</izPackInstallFile>
               <osName>sunos</osName>
               <osFamily>unix</osFamily>
               <osArch>sparc</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
             <izPackTarget>
+              <packagedFiles>
+                <packagedFile>
+                  <source>izpack-apacheds-tools.sh</source>
+                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
+                  <installationBundleId>Binaries</installationBundleId>
+                  <executable>true</executable>
+                  <filtered>true</filtered>
+                </packagedFile>
+              </packagedFiles>
               <id>solaris-jsvc-i386</id>
+              <izPackInstallFile>izpack-unix.xml</izPackInstallFile>
               <finalName>
                 apacheds-${pom.version}-solaris-i386-setup.jar
               </finalName>
@@ -186,7 +234,17 @@
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
             <izPackTarget>
+              <packagedFiles>
+                <packagedFile>
+                  <source>izpack-apacheds-tools.sh</source>
+                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
+                  <installationBundleId>Binaries</installationBundleId>
+                  <executable>true</executable>
+                  <filtered>true</filtered>
+                </packagedFile>
+              </packagedFiles>
               <id>macosx-jsvc</id>
+              <izPackInstallFile>izpack-mac.xml</izPackInstallFile>
               <finalName>
                 apacheds-${pom.version}-macosx-ppc-setup.jar
               </finalName>

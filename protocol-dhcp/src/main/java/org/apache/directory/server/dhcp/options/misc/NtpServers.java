@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * This option specifies a list of IP addresses indicating NTP
@@ -29,9 +31,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class NtpServers extends AddressListOption
 {
-	public NtpServers( byte[] ntpServers )
-	{
-		super( 42, ntpServers );
-	}
+    public NtpServers(byte[] ntpServers)
+    {
+        super( 42, ntpServers );
+    }
 }
-

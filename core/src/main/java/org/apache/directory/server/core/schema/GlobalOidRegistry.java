@@ -37,7 +37,7 @@ import org.apache.directory.server.core.schema.bootstrap.BootstrapOidRegistry;
  * @version $Rev$
  */
 public class GlobalOidRegistry implements OidRegistry
-{ 
+{
     /** Maps OID to a name or a list of names if more than one name exists */
     private Hashtable byOid = new Hashtable();
 
@@ -55,21 +55,18 @@ public class GlobalOidRegistry implements OidRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a default OidRegistry by initializing the map and the montior.
      */
-    public GlobalOidRegistry( BootstrapOidRegistry bootstrap )
+    public GlobalOidRegistry(BootstrapOidRegistry bootstrap)
     {
         this.bootstrap = bootstrap;
 
         if ( this.bootstrap == null )
         {
-            throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
+            throw new NullPointerException( "the bootstrap registry cannot be null" );
         }
     }
-
-
 
 
     /**
@@ -97,7 +94,6 @@ public class GlobalOidRegistry implements OidRegistry
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
-
 
     /**
      * @see OidRegistry#getOid(String)
@@ -143,37 +139,37 @@ public class GlobalOidRegistry implements OidRegistry
          * returned on a getNameSet.
          */
         String lowerCase = name.trim().toLowerCase();
-        if ( ! name.equals( lowerCase ) )
-		{
-			if ( byName.containsKey( lowerCase ) )
-	        {
-	            String oid = ( String ) byName.get( lowerCase );
-	            monitor.oidResolved( name, lowerCase, oid );
+        if ( !name.equals( lowerCase ) )
+        {
+            if ( byName.containsKey( lowerCase ) )
+            {
+                String oid = ( String ) byName.get( lowerCase );
+                monitor.oidResolved( name, lowerCase, oid );
 
-	            // We expect to see this version of the key again so we add it
-	            byName.put( name, oid );
-                return oid;
-	        }
-			
-			/*
-			 * Some LDAP servers (MS Active Directory) tend to use some of the
-			 * bootstrap oid names as all caps, like OU. This should resolve that.
-			 * Lets stash this in the byName if we find it.
-			 */
-			
-			if ( bootstrap.hasOid( lowerCase) )
-			{
-	            String oid = bootstrap.getOid( name );
-                monitor.oidResolved( name, oid );
-
-	            // We expect to see this version of the key again so we add it
+                // We expect to see this version of the key again so we add it
                 byName.put( name, oid );
                 return oid;
-			}
-		}
+            }
+
+            /*
+             * Some LDAP servers (MS Active Directory) tend to use some of the
+             * bootstrap oid names as all caps, like OU. This should resolve that.
+             * Lets stash this in the byName if we find it.
+             */
+
+            if ( bootstrap.hasOid( lowerCase ) )
+            {
+                String oid = bootstrap.getOid( name );
+                monitor.oidResolved( name, oid );
+
+                // We expect to see this version of the key again so we add it
+                byName.put( name, oid );
+                return oid;
+            }
+        }
 
         String msg = "OID for name '" + name + "' was not " + "found within the OID registry";
-        NamingException fault = new NamingException ( msg );
+        NamingException fault = new NamingException( msg );
         monitor.oidResolutionFailed( name, fault );
         throw fault;
     }
@@ -197,35 +193,35 @@ public class GlobalOidRegistry implements OidRegistry
         }
 
         /*
-        * As a last resort we check if name is not normalized and if the
-        * normalized version used as a key returns an OID.  If the normalized
-        * name works add the normalized name as a key with its OID to the
-        * byName lookup.  BTW these normalized versions of the key are not
-        * returned on a getNameSet.
-        */
+         * As a last resort we check if name is not normalized and if the
+         * normalized version used as a key returns an OID.  If the normalized
+         * name works add the normalized name as a key with its OID to the
+         * byName lookup.  BTW these normalized versions of the key are not
+         * returned on a getNameSet.
+         */
         String lowerCase = name.trim().toLowerCase();
-        if ( ! name.equals( lowerCase ) )
-		{
-			if ( byName.containsKey( lowerCase ) )
-	        {
-	            String oid = ( String ) byName.get( lowerCase );
-	            monitor.oidResolved( name, lowerCase, oid );
+        if ( !name.equals( lowerCase ) )
+        {
+            if ( byName.containsKey( lowerCase ) )
+            {
+                String oid = ( String ) byName.get( lowerCase );
+                monitor.oidResolved( name, lowerCase, oid );
 
-	            // We expect to see this version of the key again so we add it
-	            byName.put( name, oid );
+                // We expect to see this version of the key again so we add it
+                byName.put( name, oid );
                 return true;
-	        }
+            }
 
-			/*
-			 * Some LDAP servers (MS Active Directory) tend to use some of the
-			 * bootstrap oid names as all caps, like OU. This should resolve that.
-			 * Lets stash this in the byName if we find it.
-			 */
-			if ( bootstrap.hasOid( lowerCase) )
-			{
+            /*
+             * Some LDAP servers (MS Active Directory) tend to use some of the
+             * bootstrap oid names as all caps, like OU. This should resolve that.
+             * Lets stash this in the byName if we find it.
+             */
+            if ( bootstrap.hasOid( lowerCase ) )
+            {
                 return true;
-			}
-		}
+            }
+        }
 
         return false;
     }
@@ -237,25 +233,25 @@ public class GlobalOidRegistry implements OidRegistry
     public String getPrimaryName( String oid ) throws NamingException
     {
         Object value = byOid.get( oid );
-        
+
         if ( null == value )
         {
             String msg = "OID '" + oid + "' was not found within the OID registry";
 
-            NamingException fault = new NamingException ( msg );
+            NamingException fault = new NamingException( msg );
 
             monitor.oidDoesNotExist( oid, fault );
 
             throw fault;
         }
-        
+
         if ( value instanceof String )
         {
             monitor.nameResolved( oid, ( String ) value );
 
             return ( String ) value;
         }
-        
+
         String name = ( String ) ( ( List ) value ).get( 0 );
 
         monitor.nameResolved( oid, name );
@@ -270,7 +266,7 @@ public class GlobalOidRegistry implements OidRegistry
     public List getNameSet( String oid ) throws NamingException
     {
         Object value = this.byOid.get( oid );
-        
+
         if ( null == value )
         {
             value = this.bootstrap.getNameSet( oid );
@@ -280,13 +276,13 @@ public class GlobalOidRegistry implements OidRegistry
         {
             String msg = "OID '" + oid + "' was not found within the OID registry";
 
-            NamingException fault = new NamingException ( msg );
+            NamingException fault = new NamingException( msg );
 
             monitor.oidDoesNotExist( oid, fault );
 
             throw fault;
         }
-        
+
         if ( value instanceof String )
         {
             List list = Collections.singletonList( value );
@@ -295,7 +291,7 @@ public class GlobalOidRegistry implements OidRegistry
 
             return list;
         }
-        
+
         monitor.namesResolved( oid, ( List ) value );
 
         return ( List ) value;
@@ -316,10 +312,9 @@ public class GlobalOidRegistry implements OidRegistry
      */
     public void register( String name, String oid )
     {
-        if ( ! Character.isDigit( oid.charAt( 0 ) ) )
+        if ( !Character.isDigit( oid.charAt( 0 ) ) )
         {
-            throw new RuntimeException( "Swap the parameter order: the oid " +
-                "does not start with a digit!" );
+            throw new RuntimeException( "Swap the parameter order: the oid " + "does not start with a digit!" );
         }
 
         /*
@@ -328,16 +323,16 @@ public class GlobalOidRegistry implements OidRegistry
          */
         String lowerCase = name.toLowerCase();
 
-        if ( ! lowerCase.equals( name ) )
+        if ( !lowerCase.equals( name ) )
         {
             byName.put( lowerCase, oid );
         }
-        
+
         // Put both the name and the oid as names
         byName.put( name, oid );
 
         byName.put( oid, oid );
-        
+
         /*
          * Update OID Map
          * 
@@ -350,26 +345,26 @@ public class GlobalOidRegistry implements OidRegistry
          */
         Object value = null;
 
-        if ( ! byOid.containsKey( oid ) )
+        if ( !byOid.containsKey( oid ) )
         {
             value = name;
         }
-        else 
+        else
         {
             ArrayList list = null;
 
             value = byOid.get( oid );
-            
+
             if ( value instanceof String )
             {
                 String existingName = ( String ) value;
-                
+
                 // if the existing name is already there we don't readd it
                 if ( existingName.equalsIgnoreCase( name ) )
                 {
                     return;
                 }
-                
+
                 list = new ArrayList();
 
                 list.add( value );
@@ -380,16 +375,16 @@ public class GlobalOidRegistry implements OidRegistry
             else if ( value instanceof ArrayList )
             {
                 list = ( ArrayList ) value;
-                
+
                 for ( int ii = 0; ii < list.size(); ii++ )
                 {
                     // One form or another of the name already exists in list
-                    if ( ! name.equalsIgnoreCase( ( String ) list.get( ii ) ) )
+                    if ( !name.equalsIgnoreCase( ( String ) list.get( ii ) ) )
                     {
                         return;
                     }
                 }
-                
+
                 list.add( name );
             }
         }
@@ -399,14 +394,16 @@ public class GlobalOidRegistry implements OidRegistry
         monitor.registered( name, oid );
     }
 
+
     /**
      * Get the map of all the oids by their name
      * @return The Map that contains all the oids
      */
     public Map getOidByName()
     {
-    	return byName;
+        return byName;
     }
+
 
     /**
      * Get the map of all the oids by their name
@@ -414,7 +411,6 @@ public class GlobalOidRegistry implements OidRegistry
      */
     public Map getNameByOid()
     {
-    	return byOid;
+        return byOid;
     }
 }
-

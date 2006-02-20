@@ -48,7 +48,6 @@ public class BootstrapSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates an instance of a BootstrapSyntaxRegistry.
      */
@@ -75,15 +74,12 @@ public class BootstrapSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-
-    public void register( String schema, String oid, SyntaxChecker syntaxChecker )
-        throws NamingException
+    public void register( String schema, String oid, SyntaxChecker syntaxChecker ) throws NamingException
     {
         if ( byOid.containsKey( oid ) )
         {
-            NamingException e = new NamingException( "SyntaxChecker with OID " +
-                oid + " already registered!" );
-            monitor.registerFailed( oid, syntaxChecker,e );
+            NamingException e = new NamingException( "SyntaxChecker with OID " + oid + " already registered!" );
+            monitor.registerFailed( oid, syntaxChecker, e );
             throw e;
         }
 
@@ -95,10 +91,9 @@ public class BootstrapSyntaxCheckerRegistry implements SyntaxCheckerRegistry
 
     public SyntaxChecker lookup( String oid ) throws NamingException
     {
-        if ( ! byOid.containsKey( oid ) )
+        if ( !byOid.containsKey( oid ) )
         {
-            NamingException e = new NamingException( "SyntaxChecker for OID "
-                + oid + " not found!" );
+            NamingException e = new NamingException( "SyntaxChecker for OID " + oid + " not found!" );
             monitor.lookupFailed( oid, e );
             throw e;
         }
@@ -127,7 +122,6 @@ public class BootstrapSyntaxCheckerRegistry implements SyntaxCheckerRegistry
             return ( String ) oidToSchema.get( oid );
         }
 
-        throw new NamingException( "OID " + oid + " not found in oid to " +
-            "schema name map!" );
+        throw new NamingException( "OID " + oid + " not found in oid to " + "schema name map!" );
     }
 }

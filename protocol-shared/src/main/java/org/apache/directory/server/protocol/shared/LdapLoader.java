@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.protocol.shared;
 
+
 import java.util.Map;
+
 
 /**
  * Load strategy for configuration properties coming from LDAP.

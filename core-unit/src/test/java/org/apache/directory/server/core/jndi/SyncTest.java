@@ -53,7 +53,7 @@ public class SyncTest extends AbstractAdminTestCase
     public void testPostSyncLookup() throws Exception
     {
         sysRoot = setSysRoot( "uid=admin,ou=system", "secret", new SyncConfiguration() );
-        
+
         Attributes users = sysRoot.getAttributes( "ou=users" );
 
         // assert making sure the entry is ok

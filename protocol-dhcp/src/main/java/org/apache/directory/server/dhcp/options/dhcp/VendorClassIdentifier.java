@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option is used by DHCP clients to optionally identify the vendor
@@ -38,17 +40,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class VendorClassIdentifier extends DhcpOption
 {
-	private byte[] vendorClassIdentifier;
-	
-	public VendorClassIdentifier( byte[] vendorClassIdentifier )
-	{
-		super( 60, 1 );
-		this.vendorClassIdentifier = vendorClassIdentifier;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( vendorClassIdentifier );
-	}
-}
+    private byte[] vendorClassIdentifier;
 
+
+    public VendorClassIdentifier(byte[] vendorClassIdentifier)
+    {
+        super( 60, 1 );
+        this.vendorClassIdentifier = vendorClassIdentifier;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( vendorClassIdentifier );
+    }
+}

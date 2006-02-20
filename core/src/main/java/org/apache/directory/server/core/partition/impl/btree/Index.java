@@ -42,6 +42,7 @@ public interface Index
      */
     AttributeType getAttribute();
 
+
     /**
      * Gets the normalized value for an attribute.
      *
@@ -51,6 +52,7 @@ public interface Index
      */
     Object getNormalized( Object attrVal ) throws NamingException;
 
+
     /**
      * Gets the total scan count for this index.
      *
@@ -58,6 +60,7 @@ public interface Index
      * @throws NamingException if their is a failure accessing the index
      */
     int count() throws NamingException;
+
 
     /**
      * Gets the scan count for the occurance of a specific attribute value 
@@ -69,57 +72,74 @@ public interface Index
      */
     int count( Object attrVal ) throws NamingException;
 
+
     int count( Object attrVal, boolean isGreaterThan ) throws NamingException;
 
-    BigInteger forwardLookup( Object attrVal )  throws NamingException;
+
+    BigInteger forwardLookup( Object attrVal ) throws NamingException;
+
 
     Object reverseLookup( BigInteger id ) throws NamingException;
 
+
     void add( Object attrVal, BigInteger id ) throws NamingException;
+
 
     void add( Attribute attr, BigInteger id ) throws NamingException;
 
+
     void add( Attributes attrs, BigInteger id ) throws NamingException;
+
 
     void drop( BigInteger entryId ) throws NamingException;
 
+
     void drop( Object attrVal, BigInteger id ) throws NamingException;
-        
+
+
     /**
      * If the Attribute does not have any values then this reduces to a 
      * drop(BigInteger) call.
      */
     void drop( Attribute attr, BigInteger id ) throws NamingException;
-        
+
+
     /**
      * If the Attribute for this index within the Attributes does not have any 
      * values then this reduces to a drop(BigInteger) call.
      */
     void drop( Attributes attrs, BigInteger id ) throws NamingException;
-        
+
+
     IndexEnumeration listReverseIndices( BigInteger id ) throws NamingException;
+
 
     IndexEnumeration listIndices() throws NamingException;
 
+
     IndexEnumeration listIndices( Object attrVal ) throws NamingException;
 
-    IndexEnumeration listIndices( Object attrVal, boolean isGreaterThan )
-        throws NamingException;
+
+    IndexEnumeration listIndices( Object attrVal, boolean isGreaterThan ) throws NamingException;
+
 
     IndexEnumeration listIndices( Pattern regex ) throws NamingException;
 
-    IndexEnumeration listIndices( Pattern regex, String prefix )
-        throws NamingException;
 
-    boolean hasValue( Object attrVal, BigInteger id ) 
-        throws NamingException;
+    IndexEnumeration listIndices( Pattern regex, String prefix ) throws NamingException;
 
-    boolean hasValue( Object attrVal, BigInteger id, boolean isGreaterThan )
-        throws NamingException;
+
+    boolean hasValue( Object attrVal, BigInteger id ) throws NamingException;
+
+
+    boolean hasValue( Object attrVal, BigInteger id, boolean isGreaterThan ) throws NamingException;
+
 
     boolean hasValue( Pattern regex, BigInteger id ) throws NamingException;
 
+
     void close() throws NamingException;
+
 
     void sync() throws NamingException;
 }

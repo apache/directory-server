@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.protocol;
 
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class DnsEncoder implements ProtocolEncoder
 {
     /** the log for this class */
@@ -75,21 +77,23 @@ public class DnsEncoder implements ProtocolEncoder
         DEFAULT_ENCODERS = Collections.unmodifiableMap( map );
     }
 
+
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out )
     {
         ByteBuffer buf = ByteBuffer.allocate( 1024 );
-        encode( buf, (DnsMessage) message );
+        encode( buf, ( DnsMessage ) message );
 
         buf.flip();
 
         out.write( buf );
     }
 
+
     public void encode( ByteBuffer byteBuffer, DnsMessage message )
     {
         byteBuffer.putShort( message.getTransactionId() );
 
-        byte header = (byte) 0x00;
+        byte header = ( byte ) 0x00;
         header = encodeMessageType( message.getMessageType(), header );
         header = encodeOpCode( message.getOpCode(), header );
         header = encodeAuthoritativeAnswer( message.isAuthoritativeAnswer(), header );
@@ -97,21 +101,22 @@ public class DnsEncoder implements ProtocolEncoder
         header = encodeRecursionDesired( message.isRecursionDesired(), header );
         byteBuffer.put( header );
 
-        header = (byte) 0x00;
+        header = ( byte ) 0x00;
         header = encodeRecursionAvailable( message.isRecursionAvailable(), header );
         header = encodeResponseCode( message.getResponseCode(), header );
         byteBuffer.put( header );
 
-        byteBuffer.putShort( (short) message.getQuestionRecords().size() );
-        byteBuffer.putShort( (short) message.getAnswerRecords().size() );
-        byteBuffer.putShort( (short) message.getAuthorityRecords().size() );
-        byteBuffer.putShort( (short) message.getAdditionalRecords().size() );
+        byteBuffer.putShort( ( short ) message.getQuestionRecords().size() );
+        byteBuffer.putShort( ( short ) message.getAnswerRecords().size() );
+        byteBuffer.putShort( ( short ) message.getAuthorityRecords().size() );
+        byteBuffer.putShort( ( short ) message.getAdditionalRecords().size() );
 
         encodeRecords( message.getQuestionRecords(), byteBuffer );
         encodeRecords( message.getAnswerRecords(), byteBuffer );
         encodeRecords( message.getAuthorityRecords(), byteBuffer );
         encodeRecords( message.getAdditionalRecords(), byteBuffer );
     }
+
 
     private void encodeRecords( QuestionRecords questions, ByteBuffer byteBuffer )
     {
@@ -121,10 +126,11 @@ public class DnsEncoder implements ProtocolEncoder
 
         while ( it.hasNext() )
         {
-            QuestionRecord question = (QuestionRecord) it.next();
+            QuestionRecord question = ( QuestionRecord ) it.next();
             encoder.encode( byteBuffer, question );
         }
     }
+
 
     private void encodeRecords( ResourceRecords records, ByteBuffer byteBuffer )
     {
@@ -132,7 +138,7 @@ public class DnsEncoder implements ProtocolEncoder
 
         while ( it.hasNext() )
         {
-            ResourceRecord record = (ResourceRecord) it.next();
+            ResourceRecord record = ( ResourceRecord ) it.next();
 
             try
             {
@@ -145,11 +151,12 @@ public class DnsEncoder implements ProtocolEncoder
         }
     }
 
+
     private void encode( ByteBuffer out, ResourceRecord record ) throws IOException
     {
         RecordType type = record.getRecordType();
 
-        RecordEncoder encoder = (RecordEncoder) DEFAULT_ENCODERS.get( type );
+        RecordEncoder encoder = ( RecordEncoder ) DEFAULT_ENCODERS.get( type );
 
         if ( encoder == null )
         {
@@ -159,59 +166,67 @@ public class DnsEncoder implements ProtocolEncoder
         encoder.encode( out, record );
     }
 
+
     private byte encodeMessageType( MessageType messageType, byte header )
     {
-        byte oneBit = (byte) ( messageType.getOrdinal() & 0x01 );
-        return (byte) ( ( oneBit << 7 ) | header );
+        byte oneBit = ( byte ) ( messageType.getOrdinal() & 0x01 );
+        return ( byte ) ( ( oneBit << 7 ) | header );
     }
+
 
     private byte encodeOpCode( OpCode opCode, byte header )
     {
-        byte fourBits = (byte) ( opCode.getOrdinal() & 0x0F );
-        return (byte) ( ( fourBits << 3 ) | header );
+        byte fourBits = ( byte ) ( opCode.getOrdinal() & 0x0F );
+        return ( byte ) ( ( fourBits << 3 ) | header );
     }
+
 
     private byte encodeAuthoritativeAnswer( boolean authoritative, byte header )
     {
         if ( authoritative )
         {
-            header = (byte) ( ( (byte) 0x01 << 2 ) | header );
+            header = ( byte ) ( ( ( byte ) 0x01 << 2 ) | header );
         }
         return header;
     }
+
 
     private byte encodeTruncated( boolean truncated, byte header )
     {
         if ( truncated )
         {
-            header = (byte) ( ( (byte) 0x01 << 1 ) | header );
+            header = ( byte ) ( ( ( byte ) 0x01 << 1 ) | header );
         }
         return header;
     }
+
 
     private byte encodeRecursionDesired( boolean recursionDesired, byte header )
     {
         if ( recursionDesired )
         {
-            header = (byte) ( ( (byte) 0x01 ) | header );
+            header = ( byte ) ( ( ( byte ) 0x01 ) | header );
         }
         return header;
     }
+
 
     private byte encodeRecursionAvailable( boolean recursionAvailable, byte header )
     {
         if ( recursionAvailable )
         {
-            header = (byte) ( ( (byte) 0x01 << 7 ) | header );
+            header = ( byte ) ( ( ( byte ) 0x01 << 7 ) | header );
         }
         return header;
     }
 
+
     private byte encodeResponseCode( ResponseCode responseCode, byte header )
     {
-        byte fourBits = (byte) ( responseCode.getOrdinal() & 0x0F );
-        return (byte) ( fourBits | header );
+        byte fourBits = ( byte ) ( responseCode.getOrdinal() & 0x0F );
+        return ( byte ) ( fourBits | header );
     }
+
 
     public void dispose( IoSession arg0 ) throws Exception
     {

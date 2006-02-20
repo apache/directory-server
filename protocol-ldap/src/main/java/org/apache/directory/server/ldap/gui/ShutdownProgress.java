@@ -19,14 +19,14 @@ public class ShutdownProgress extends JDialog implements Runnable
     private JProgressBar jProgressBar = null;
     private long timeMillis = 0;
     private boolean bypass = false;
-    
-    
+
+
     public void setTime( long millis )
     {
         this.timeMillis = millis;
     }
-    
-    
+
+
     public void run()
     {
         setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
@@ -36,7 +36,7 @@ public class ShutdownProgress extends JDialog implements Runnable
         jProgressBar.setValue( 0 );
         jProgressBar.setStringPainted( true );
         final long startTime = System.currentTimeMillis();
-        while ( System.currentTimeMillis() - startTime < timeMillis && ! bypass )
+        while ( System.currentTimeMillis() - startTime < timeMillis && !bypass )
         {
             try
             {
@@ -47,17 +47,18 @@ public class ShutdownProgress extends JDialog implements Runnable
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            jProgressBar.setString( ( timeMillis - ( System.currentTimeMillis() - startTime ) )/1000 + " seconds remaining ..." );
+            jProgressBar.setString( ( timeMillis - ( System.currentTimeMillis() - startTime ) ) / 1000
+                + " seconds remaining ..." );
             jProgressBar.setValue( jProgressBar.getValue() + 100 );
             this.repaint();
         }
-        
+
         setCursor( null );
         setVisible( false );
         dispose();
     }
-    
-    
+
+
     /**
      * This is the default constructor
      */
@@ -75,11 +76,11 @@ public class ShutdownProgress extends JDialog implements Runnable
      */
     private void initialize()
     {
-        this.setSize(300, 104);
+        this.setSize( 300, 104 );
         this.setContentPane( getJContentPane() );
     }
 
-    
+
     /**
      * This method initializes jContentPane
      * 
@@ -91,8 +92,8 @@ public class ShutdownProgress extends JDialog implements Runnable
         {
             jContentPane = new JPanel();
             jContentPane.setLayout( new BorderLayout() );
-            jContentPane.add(getJPanel(), java.awt.BorderLayout.SOUTH);
-            jContentPane.add(getJProgressBar(), java.awt.BorderLayout.CENTER);
+            jContentPane.add( getJPanel(), java.awt.BorderLayout.SOUTH );
+            jContentPane.add( getJProgressBar(), java.awt.BorderLayout.CENTER );
         }
         return jContentPane;
     }
@@ -108,7 +109,7 @@ public class ShutdownProgress extends JDialog implements Runnable
         if ( jPanel == null )
         {
             jPanel = new JPanel();
-            jPanel.add(getJButton(), null);
+            jPanel.add( getJButton(), null );
         }
         return jPanel;
     }
@@ -124,8 +125,8 @@ public class ShutdownProgress extends JDialog implements Runnable
         if ( jButton == null )
         {
             jButton = new JButton();
-            jButton.setText("Bypass Delay");
-            jButton.setText("Bypass Delay");
+            jButton.setText( "Bypass Delay" );
+            jButton.setText( "Bypass Delay" );
             jButton.addActionListener( new java.awt.event.ActionListener()
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
@@ -152,4 +153,4 @@ public class ShutdownProgress extends JDialog implements Runnable
         return jProgressBar;
     }
 
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+} //  @jve:decl-index=0:visual-constraint="10,10"

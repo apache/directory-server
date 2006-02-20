@@ -16,18 +16,20 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import java.net.InetAddress;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.changepw.messages.AbstractPasswordMessage;
+import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.service.LockBox;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.protocol.shared.chain.impl.ContextBase;
-import org.apache.kerberos.messages.ApplicationRequest;
-import org.apache.kerberos.messages.components.Authenticator;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.replay.ReplayCache;
-import org.apache.kerberos.service.LockBox;
-import org.apache.kerberos.store.PrincipalStore;
-import org.apache.kerberos.store.PrincipalStoreEntry;
+
 
 public class ChangePasswordContext extends ContextBase
 {
@@ -47,6 +49,7 @@ public class ChangePasswordContext extends ContextBase
     private LockBox lockBox;
     private String password;
 
+
     /**
      * @return Returns the replayCache.
      */
@@ -54,6 +57,7 @@ public class ChangePasswordContext extends ContextBase
     {
         return replayCache;
     }
+
 
     /**
      * @param replayCache The replayCache to set.
@@ -63,6 +67,7 @@ public class ChangePasswordContext extends ContextBase
         this.replayCache = replayCache;
     }
 
+
     /**
      * @return Returns the serverEntry.
      */
@@ -70,6 +75,7 @@ public class ChangePasswordContext extends ContextBase
     {
         return serverEntry;
     }
+
 
     /**
      * @param serverEntry The serverEntry to set.
@@ -79,6 +85,7 @@ public class ChangePasswordContext extends ContextBase
         this.serverEntry = serverEntry;
     }
 
+
     /**
      * @return Returns the config.
      */
@@ -86,6 +93,7 @@ public class ChangePasswordContext extends ContextBase
     {
         return config;
     }
+
 
     /**
      * @param config The config to set.
@@ -95,6 +103,7 @@ public class ChangePasswordContext extends ContextBase
         this.config = config;
     }
 
+
     /**
      * @return Returns the reply.
      */
@@ -102,6 +111,7 @@ public class ChangePasswordContext extends ContextBase
     {
         return reply;
     }
+
 
     /**
      * @param reply The reply to set.
@@ -111,6 +121,7 @@ public class ChangePasswordContext extends ContextBase
         this.reply = reply;
     }
 
+
     /**
      * @return Returns the request.
      */
@@ -118,6 +129,7 @@ public class ChangePasswordContext extends ContextBase
     {
         return request;
     }
+
 
     /**
      * @param request The request to set.
@@ -127,6 +139,7 @@ public class ChangePasswordContext extends ContextBase
         this.request = request;
     }
 
+
     /**
      * @return Returns the store.
      */
@@ -134,6 +147,7 @@ public class ChangePasswordContext extends ContextBase
     {
         return store;
     }
+
 
     /**
      * @param store The store to set.
@@ -143,6 +157,7 @@ public class ChangePasswordContext extends ContextBase
         this.store = store;
     }
 
+
     /**
      * @return Returns the lockBox.
      */
@@ -150,6 +165,7 @@ public class ChangePasswordContext extends ContextBase
     {
         return lockBox;
     }
+
 
     /**
      * @param lockBox The lockBox to set.
@@ -159,6 +175,7 @@ public class ChangePasswordContext extends ContextBase
         this.lockBox = lockBox;
     }
 
+
     /**
      * @return Returns the authenticator.
      */
@@ -166,6 +183,7 @@ public class ChangePasswordContext extends ContextBase
     {
         return authenticator;
     }
+
 
     /**
      * @param authenticator The authenticator to set.
@@ -175,6 +193,7 @@ public class ChangePasswordContext extends ContextBase
         this.authenticator = authenticator;
     }
 
+
     /**
      * @return Returns the authHeader.
      */
@@ -182,6 +201,7 @@ public class ChangePasswordContext extends ContextBase
     {
         return authHeader;
     }
+
 
     /**
      * @param authHeader The authHeader to set.
@@ -191,6 +211,7 @@ public class ChangePasswordContext extends ContextBase
         this.authHeader = authHeader;
     }
 
+
     /**
      * @return Returns the ticket.
      */
@@ -198,6 +219,7 @@ public class ChangePasswordContext extends ContextBase
     {
         return ticket;
     }
+
 
     /**
      * @param ticket The ticket to set.
@@ -207,6 +229,7 @@ public class ChangePasswordContext extends ContextBase
         this.ticket = ticket;
     }
 
+
     /**
      * @return Returns the clientAddress.
      */
@@ -214,6 +237,7 @@ public class ChangePasswordContext extends ContextBase
     {
         return clientAddress;
     }
+
 
     /**
      * @param clientAddress The clientAddress to set.
@@ -223,6 +247,7 @@ public class ChangePasswordContext extends ContextBase
         this.clientAddress = clientAddress;
     }
 
+
     /**
      * @return Returns the password.
      */
@@ -230,6 +255,7 @@ public class ChangePasswordContext extends ContextBase
     {
         return password;
     }
+
 
     /**
      * @param password The password to set.

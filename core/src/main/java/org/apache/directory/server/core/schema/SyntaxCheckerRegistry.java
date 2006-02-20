@@ -38,9 +38,9 @@ public interface SyntaxCheckerRegistry
      * @throws NamingException if the SyntaxChecker is already registered or the
      *      registration operation is not supported
      */
-    void register( String schema, String oid, SyntaxChecker syntaxChecker )
-        throws NamingException;
-    
+    void register( String schema, String oid, SyntaxChecker syntaxChecker ) throws NamingException;
+
+
     /**
      * Looks up a SyntaxChecker by its unique Object Identifier.
      * 
@@ -51,6 +51,7 @@ public interface SyntaxCheckerRegistry
      */
     SyntaxChecker lookup( String oid ) throws NamingException;
 
+
     /**
      * Gets the name of the schema this schema object is associated with.
      *
@@ -59,6 +60,7 @@ public interface SyntaxCheckerRegistry
      * @throws NamingException if the schema object does not exist
      */
     String getSchemaName( String oid ) throws NamingException;
+
 
     /**
      * Checks to see if a SyntaxChecker exists.  Backing store failures simply 

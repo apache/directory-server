@@ -17,44 +17,53 @@
 
 package org.apache.directory.server.dns.messages;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+
 public class ResourceRecords
 {
     private List resourceRecords;
+
 
     public ResourceRecords()
     {
         this.resourceRecords = new ArrayList();
     }
 
-    public ResourceRecords( int initialCapacity )
+
+    public ResourceRecords(int initialCapacity)
     {
         this.resourceRecords = new ArrayList( initialCapacity );
     }
+
 
     public void add( ResourceRecord record )
     {
         resourceRecords.add( record );
     }
 
+
     public void addAll( Collection records )
     {
         resourceRecords.addAll( records );
     }
+
 
     public int size()
     {
         return resourceRecords.size();
     }
 
+
     public Iterator iterator()
     {
         return resourceRecords.iterator();
     }
+
 
     public String toString()
     {
@@ -64,7 +73,7 @@ public class ResourceRecords
 
         while ( it.hasNext() )
         {
-            ResourceRecord record = (ResourceRecord) it.next();
+            ResourceRecord record = ( ResourceRecord ) it.next();
             sb.append( "\n\t" + "dnsName                    " + record.getDomainName() );
             sb.append( "\n\t" + "dnsType                    " + record.getRecordType() );
             sb.append( "\n\t" + "dnsClass                   " + record.getRecordClass() );

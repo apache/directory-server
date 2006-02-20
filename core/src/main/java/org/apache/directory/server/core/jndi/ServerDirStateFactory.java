@@ -52,6 +52,7 @@ public interface ServerDirStateFactory extends DirStateFactory
      */
     String getObjectClassId();
 
+
     /**
      * Gets the Class instance associated with this StateFactory.  Objects to
      * be persisted by this StateFactory must be of this type, a subclass of

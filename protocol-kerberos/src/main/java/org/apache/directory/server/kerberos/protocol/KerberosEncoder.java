@@ -16,21 +16,24 @@
  */
 package org.apache.directory.server.kerberos.protocol;
 
+
 import java.io.IOException;
 
-import org.apache.kerberos.io.encoder.ErrorMessageEncoder;
-import org.apache.kerberos.io.encoder.KdcReplyEncoder;
-import org.apache.kerberos.messages.ErrorMessage;
-import org.apache.kerberos.messages.KdcReply;
+import org.apache.directory.server.kerberos.shared.io.encoder.ErrorMessageEncoder;
+import org.apache.directory.server.kerberos.shared.io.encoder.KdcReplyEncoder;
+import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
+
 public class KerberosEncoder implements ProtocolEncoder
 {
     private KdcReplyEncoder replyEncoder = new KdcReplyEncoder();
     private ErrorMessageEncoder errorEncoder = new ErrorMessageEncoder();
+
 
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out ) throws IOException
     {
@@ -38,13 +41,13 @@ public class KerberosEncoder implements ProtocolEncoder
 
         if ( message instanceof KdcReply )
         {
-            replyEncoder.encode( (KdcReply) message, buf.buf() );
+            replyEncoder.encode( ( KdcReply ) message, buf.buf() );
         }
         else
         {
             if ( message instanceof ErrorMessage )
             {
-                errorEncoder.encode( (ErrorMessage) message, buf.buf() );
+                errorEncoder.encode( ( ErrorMessage ) message, buf.buf() );
             }
         }
 
@@ -52,6 +55,7 @@ public class KerberosEncoder implements ProtocolEncoder
 
         out.write( buf );
     }
+
 
     public void dispose( IoSession arg0 ) throws Exception
     {

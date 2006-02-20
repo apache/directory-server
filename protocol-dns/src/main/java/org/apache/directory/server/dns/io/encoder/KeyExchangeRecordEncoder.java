@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.io.encoder;
 
+
 /**
  * 3.1 KX RDATA format
  * 

@@ -16,27 +16,30 @@
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
+
 import java.net.InetAddress;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
+import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
+import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.crypto.checksum.ChecksumType;
-import org.apache.kerberos.messages.ApplicationRequest;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.messages.value.HostAddress;
-import org.apache.kerberos.messages.value.HostAddresses;
-import org.apache.kerberos.replay.ReplayCache;
-import org.apache.kerberos.store.PrincipalStore;
-import org.apache.kerberos.store.PrincipalStoreEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class MonitorContext extends CommandBase
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorContext.class );
+
 
     public boolean execute( Context context ) throws Exception
     {
@@ -44,7 +47,7 @@ public class MonitorContext extends CommandBase
         {
             try
             {
-                TicketGrantingContext tgsContext = (TicketGrantingContext) context;
+                TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
 
                 PrincipalStore store = tgsContext.getStore();
                 ApplicationRequest authHeader = tgsContext.getAuthHeader();

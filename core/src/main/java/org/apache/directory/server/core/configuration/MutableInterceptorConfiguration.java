@@ -18,7 +18,9 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 import org.apache.directory.server.core.interceptor.Interceptor;
+
 
 /**
  * A mutable version of {@link InterceptorConfiguration}.
@@ -26,8 +28,7 @@ import org.apache.directory.server.core.interceptor.Interceptor;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MutableInterceptorConfiguration extends
-        InterceptorConfiguration
+public class MutableInterceptorConfiguration extends InterceptorConfiguration
 {
 
     /**
@@ -37,10 +38,12 @@ public class MutableInterceptorConfiguration extends
     {
     }
 
+
     public void setInterceptor( Interceptor interceptor )
     {
         super.setInterceptor( interceptor );
     }
+
 
     public void setName( String name )
     {

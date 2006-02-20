@@ -72,6 +72,7 @@ public class LdapProtocolProviderTest extends TestCase
         assertTrue( provider.getName() == LdapProtocolProvider.SERVICE_NAME );
     }
 
+
     /**
      * Tests to make sure handlers for alternative configurations are kicking
      * in properly with the right request type.
@@ -117,7 +118,6 @@ public class LdapProtocolProviderTest extends TestCase
         assertNotNull( provider.getCodecFactory() );
         assertTrue( provider.getName() == LdapProtocolProvider.SERVICE_NAME );
     }
-
 
     public static class BogusAbandonHandler implements MessageHandler
     {
@@ -167,7 +167,6 @@ public class LdapProtocolProviderTest extends TestCase
         }
     }
 
-
     public static class BogusModifyDnHandler implements MessageHandler
     {
         public void messageReceived( IoSession session, Object request )
@@ -176,7 +175,6 @@ public class LdapProtocolProviderTest extends TestCase
         }
     }
 
-
     public static class BogusModifyHandler implements MessageHandler
     {
         public void messageReceived( IoSession session, Object request )
@@ -184,7 +182,6 @@ public class LdapProtocolProviderTest extends TestCase
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
-
 
     public static class BogusSearchHandler implements MessageHandler
     {

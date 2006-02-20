@@ -16,7 +16,9 @@
  */
 package org.apache.directory.server.core;
 
+
 import javax.naming.NamingException;
+
 
 /**
  * An event handler that listens to the changes occurs to
@@ -31,22 +33,32 @@ public interface DirectoryServiceListener
      * Invoked before starting up {@link DirectoryService}.
      */
     void beforeStartup( DirectoryService service ) throws NamingException;
+
+
     /**
      * Invoked after starting up {@link DirectoryService}.
      */
     void afterStartup( DirectoryService service ) throws NamingException;
+
+
     /**
      * Invoked before shutting down {@link DirectoryService}.
      */
     void beforeShutdown( DirectoryService service ) throws NamingException;
+
+
     /**
      * Invoked after shutting down {@link DirectoryService}.
      */
     void afterShutdown( DirectoryService service ) throws NamingException;
+
+
     /**
      * Invoked before calling {@link DirectoryService#sync()}.
      */
     void beforeSync( DirectoryService service ) throws NamingException;
+
+
     /**
      * Invoked after calling {@link DirectoryService#sync()}.
      */

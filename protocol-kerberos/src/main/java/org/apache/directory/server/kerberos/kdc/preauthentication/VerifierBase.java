@@ -16,31 +16,33 @@
  */
 package org.apache.directory.server.kerberos.kdc.preauthentication;
 
+
 import java.io.IOException;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionTypeInfoEncoder;
+import org.apache.directory.server.kerberos.shared.io.encoder.PreAuthenticationDataEncoder;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionTypeInfoEntry;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataModifier;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.crypto.encryption.EncryptionType;
-import org.apache.kerberos.io.encoder.EncryptionTypeInfoEncoder;
-import org.apache.kerberos.io.encoder.PreAuthenticationDataEncoder;
-import org.apache.kerberos.messages.value.EncryptionTypeInfoEntry;
-import org.apache.kerberos.messages.value.PreAuthenticationData;
-import org.apache.kerberos.messages.value.PreAuthenticationDataModifier;
-import org.apache.kerberos.messages.value.PreAuthenticationDataType;
+
 
 public abstract class VerifierBase extends CommandBase
 {
     public byte[] preparePreAuthenticationError()
     {
-        PreAuthenticationData[] paDataSequence = new PreAuthenticationData[ 2 ];
+        PreAuthenticationData[] paDataSequence = new PreAuthenticationData[2];
 
         PreAuthenticationDataModifier modifier = new PreAuthenticationDataModifier();
         modifier.setDataType( PreAuthenticationDataType.PA_ENC_TIMESTAMP );
-        modifier.setDataValue( new byte[ 0 ] );
+        modifier.setDataValue( new byte[0] );
 
-        paDataSequence[ 0 ] = modifier.getPreAuthenticationData();
+        paDataSequence[0] = modifier.getPreAuthenticationData();
 
-        EncryptionTypeInfoEntry[] entries = new EncryptionTypeInfoEntry[ 1 ];
-        entries[ 0 ] = new EncryptionTypeInfoEntry( EncryptionType.DES_CBC_MD5, null );
+        EncryptionTypeInfoEntry[] entries = new EncryptionTypeInfoEntry[1];
+        entries[0] = new EncryptionTypeInfoEntry( EncryptionType.DES_CBC_MD5, null );
 
         byte[] encTypeInfo = null;
 
@@ -57,7 +59,7 @@ public abstract class VerifierBase extends CommandBase
         encTypeModifier.setDataType( PreAuthenticationDataType.PA_ENCTYPE_INFO );
         encTypeModifier.setDataValue( encTypeInfo );
 
-        paDataSequence[ 1 ] = encTypeModifier.getPreAuthenticationData();
+        paDataSequence[1] = encTypeModifier.getPreAuthenticationData();
 
         try
         {

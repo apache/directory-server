@@ -16,22 +16,26 @@
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
+
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.shared.service.ErrorMessageHandler;
 import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.kerberos.exceptions.KerberosException;
-import org.apache.kerberos.messages.ErrorMessage;
-import org.apache.kerberos.service.ErrorMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class TicketGrantingExceptionHandler extends ErrorMessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( TicketGrantingExceptionHandler.class );
 
+
     public boolean execute( Context context ) throws Exception
     {
         return CONTINUE_CHAIN;
     }
+
 
     public boolean postprocess( Context context, Exception exception )
     {
@@ -49,9 +53,9 @@ public class TicketGrantingExceptionHandler extends ErrorMessageHandler
             log.info( exception.getMessage() );
         }
 
-        TicketGrantingContext tgsContext = (TicketGrantingContext) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
         KdcConfiguration config = tgsContext.getConfig();
-        KerberosException ke = (KerberosException) exception;
+        KerberosException ke = ( KerberosException ) exception;
 
         ErrorMessage errorMessage = getErrorMessage( config.getKdcPrincipal(), ke );
 

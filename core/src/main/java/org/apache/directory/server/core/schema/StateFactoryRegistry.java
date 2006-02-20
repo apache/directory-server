@@ -47,6 +47,7 @@ public interface StateFactoryRegistry
      */
     ServerDirStateFactory getStateFactories( Object obj ) throws NamingException;
 
+
     /**
      * Registers a server-side state factory with this registry.
      *

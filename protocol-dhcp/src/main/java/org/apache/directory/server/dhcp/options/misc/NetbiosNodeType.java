@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * The NetBIOS node type option allows NetBIOS over TCP/IP clients which
@@ -42,17 +44,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class NetbiosNodeType extends DhcpOption
 {
-	private byte[] netbiosNodeType;
-	
-	public NetbiosNodeType( byte[] netbiosNodeType )
-	{
-		super( 46, 1 );
-		this.netbiosNodeType = netbiosNodeType;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( netbiosNodeType );
-	}
-}
+    private byte[] netbiosNodeType;
 
+
+    public NetbiosNodeType(byte[] netbiosNodeType)
+    {
+        super( 46, 1 );
+        this.netbiosNodeType = netbiosNodeType;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( netbiosNodeType );
+    }
+}

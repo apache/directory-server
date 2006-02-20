@@ -56,14 +56,9 @@ import java.util.*;
 public class InterceptorChainTest extends TestCase
 {
     private final MockInterceptor[] interceptorArray =
-    {
-            new MockInterceptor( "0" ),
-            new MockInterceptor( "1" ),
-            new MockInterceptor( "2" ),
-            new MockInterceptor( "3" ),
-            new MockInterceptor( "4" )
-    };
-//    private final static Logger log = LoggerFactory.getLogger( InterceptorChainTest.class );
+        { new MockInterceptor( "0" ), new MockInterceptor( "1" ), new MockInterceptor( "2" ),
+            new MockInterceptor( "3" ), new MockInterceptor( "4" ) };
+    //    private final static Logger log = LoggerFactory.getLogger( InterceptorChainTest.class );
     private InterceptorChain chain;
     private List interceptors = new ArrayList( interceptorArray.length );
 
@@ -95,14 +90,15 @@ public class InterceptorChainTest extends TestCase
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]{ dn } );
+        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
+            { dn } );
         InvocationStack.getInstance().push( i );
 
         try
         {
             chain.lookup( dn );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
         }
 
@@ -120,14 +116,15 @@ public class InterceptorChainTest extends TestCase
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]{ dn }, Collections.singleton( "0" ) );
+        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
+            { dn }, Collections.singleton( "0" ) );
         InvocationStack.getInstance().push( i );
 
         try
         {
             chain.lookup( dn );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
         }
 
@@ -152,14 +149,15 @@ public class InterceptorChainTest extends TestCase
         Collection bypass = new HashSet();
         bypass.add( "0" );
         bypass.add( "1" );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]{ dn }, bypass );
+        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
+            { dn }, bypass );
         InvocationStack.getInstance().push( i );
 
         try
         {
             chain.lookup( dn );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
         }
 
@@ -185,14 +183,15 @@ public class InterceptorChainTest extends TestCase
         Collection bypass = new HashSet();
         bypass.add( "0" );
         bypass.add( "4" );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]{ dn }, bypass );
+        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
+            { dn }, bypass );
         InvocationStack.getInstance().push( i );
 
         try
         {
             chain.lookup( dn );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
         }
 
@@ -214,14 +213,15 @@ public class InterceptorChainTest extends TestCase
         Collection bypass = new HashSet();
         bypass.add( "1" );
         bypass.add( "3" );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]{ dn }, bypass );
+        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
+            { dn }, bypass );
         InvocationStack.getInstance().push( i );
 
         try
         {
             chain.lookup( dn );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
         }
 
@@ -240,27 +240,27 @@ public class InterceptorChainTest extends TestCase
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]{ dn },
-                DirectoryPartitionNexusProxy.BYPASS_ALL_COLLECTION );
+        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
+            { dn }, DirectoryPartitionNexusProxy.BYPASS_ALL_COLLECTION );
         InvocationStack.getInstance().push( i );
 
         try
         {
             chain.lookup( dn );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
         }
 
         assertEquals( 0, interceptors.size() );
     }
 
-
     class MockInterceptor implements Interceptor
     {
         String name;
 
-        public MockInterceptor( String name )
+
+        public MockInterceptor(String name)
         {
             this.name = name;
         }
@@ -272,7 +272,8 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+        public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg )
+            throws NamingException
         {
         }
 
@@ -310,7 +311,8 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void addContextPartition( NextInterceptor next, DirectoryPartitionConfiguration cfg ) throws NamingException
+        public void addContextPartition( NextInterceptor next, DirectoryPartitionConfiguration cfg )
+            throws NamingException
         {
             interceptors.add( this );
             next.addContextPartition( cfg );
@@ -338,7 +340,8 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void add( NextInterceptor next, String userProvidedName, Name normalizedName, Attributes entry ) throws NamingException
+        public void add( NextInterceptor next, String userProvidedName, Name normalizedName, Attributes entry )
+            throws NamingException
         {
             interceptors.add( this );
             next.add( userProvidedName, normalizedName, entry );
@@ -352,7 +355,7 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void modify( NextInterceptor next, Name name, ModificationItem [] items ) throws NamingException
+        public void modify( NextInterceptor next, Name name, ModificationItem[] items ) throws NamingException
         {
             interceptors.add( this );
             next.modify( name, items );
@@ -366,7 +369,8 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public NamingEnumeration search( NextInterceptor next, Name baseName, Map environment, ExprNode filter, SearchControls searchControls ) throws NamingException
+        public NamingEnumeration search( NextInterceptor next, Name baseName, Map environment, ExprNode filter,
+            SearchControls searchControls ) throws NamingException
         {
             interceptors.add( this );
             return next.search( baseName, environment, filter, searchControls );
@@ -380,7 +384,7 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public Attributes lookup( NextInterceptor next, Name dn, String [] attrIds ) throws NamingException
+        public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
         {
             interceptors.add( this );
             return next.lookup( dn, attrIds );
@@ -401,7 +405,8 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
+        public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn )
+            throws NamingException
         {
             interceptors.add( this );
             next.modifyRn( name, newRn, deleteOldRn );
@@ -415,14 +420,16 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void move( NextInterceptor next, Name oldName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+        public void move( NextInterceptor next, Name oldName, Name newParentName, String newRn, boolean deleteOldRn )
+            throws NamingException
         {
             interceptors.add( this );
             next.move( oldName, newParentName, newRn, deleteOldRn );
         }
 
 
-        public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+        public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+            throws NamingException
         {
             interceptors.add( this );
             next.bind( bindDn, credentials, mechanisms, saslAuthId );
@@ -435,7 +442,6 @@ public class InterceptorChainTest extends TestCase
             next.unbind( bindDn );
         }
     }
-
 
     class MockDirectoryService extends DirectoryService
     {
@@ -459,25 +465,26 @@ public class InterceptorChainTest extends TestCase
 
         public boolean isStarted()
         {
-            return false;  //To change body of implemented methods use File | Settings | File Templates.
+            return false; //To change body of implemented methods use File | Settings | File Templates.
         }
 
 
         public DirectoryServiceConfiguration getConfiguration()
         {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+            return null; //To change body of implemented methods use File | Settings | File Templates.
         }
 
 
         public Context getJndiContext( String baseName ) throws NamingException
         {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+            return null; //To change body of implemented methods use File | Settings | File Templates.
         }
 
 
-        public Context getJndiContext( String principal, byte[] credential, String authentication, String baseName ) throws NamingException
+        public Context getJndiContext( String principal, byte[] credential, String authentication, String baseName )
+            throws NamingException
         {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+            return null; //To change body of implemented methods use File | Settings | File Templates.
         }
     }
 }

@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * The NetBIOS name server (NBNS) option specifies a list of RFC
@@ -28,9 +30,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class NetbiosNameServers extends AddressListOption
 {
-	public NetbiosNameServers( byte[] netbiosNameServer )
-	{
-		super( 44, netbiosNameServer );
-	}
+    public NetbiosNameServers(byte[] netbiosNameServer)
+    {
+        super( 44, netbiosNameServer );
+    }
 }
-

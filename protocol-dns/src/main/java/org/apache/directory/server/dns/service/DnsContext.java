@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.dns.service;
 
+
 import java.util.Collection;
 
 import org.apache.directory.server.dns.DnsConfiguration;
@@ -24,6 +25,7 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecords;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.server.protocol.shared.chain.impl.ContextBase;
+
 
 public class DnsContext extends ContextBase
 {
@@ -35,6 +37,7 @@ public class DnsContext extends ContextBase
     private DnsMessage reply;
     private ResourceRecords records = new ResourceRecords();
 
+
     /**
      * @return Returns the recordEntry.
      */
@@ -42,6 +45,7 @@ public class DnsContext extends ContextBase
     {
         return records;
     }
+
 
     /**
      * @param resourceRecord The resourceRecord to add.
@@ -51,6 +55,7 @@ public class DnsContext extends ContextBase
         this.records.add( resourceRecord );
     }
 
+
     /**
      * @param resourceRecords The resourceRecords to add.
      */
@@ -58,6 +63,7 @@ public class DnsContext extends ContextBase
     {
         this.records.addAll( resourceRecords );
     }
+
 
     /**
      * @return Returns the config.
@@ -67,6 +73,7 @@ public class DnsContext extends ContextBase
         return config;
     }
 
+
     /**
      * @param config The config to set.
      */
@@ -74,6 +81,7 @@ public class DnsContext extends ContextBase
     {
         this.config = config;
     }
+
 
     /**
      * @return Returns the reply.
@@ -83,6 +91,7 @@ public class DnsContext extends ContextBase
         return reply;
     }
 
+
     /**
      * @param reply The reply to set.
      */
@@ -90,6 +99,7 @@ public class DnsContext extends ContextBase
     {
         this.reply = reply;
     }
+
 
     /**
      * @return Returns the request.
@@ -99,6 +109,7 @@ public class DnsContext extends ContextBase
         return request;
     }
 
+
     /**
      * @param request The request to set.
      */
@@ -107,6 +118,7 @@ public class DnsContext extends ContextBase
         this.request = request;
     }
 
+
     /**
      * @return Returns the store.
      */
@@ -114,6 +126,7 @@ public class DnsContext extends ContextBase
     {
         return store;
     }
+
 
     /**
      * @param store The store to set.

@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -47,9 +48,12 @@ import org.apache.directory.shared.ldap.aci.UserClass;
  */
 public class MostSpecificUserClassFilter implements ACITupleFilter
 {
-    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
+        Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
+        Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+        throws NamingException
     {
-        if( tuples.size() <= 1 )
+        if ( tuples.size() <= 1 )
         {
             return tuples;
         }
@@ -58,14 +62,13 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
 
         // If there are any tuples matching the requestor with UserClasses
         // element name or thisEntry, discard all other tuples.
-        for( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            for( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
+            for ( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
             {
                 UserClass userClass = ( UserClass ) j.next();
-                if( userClass instanceof UserClass.Name ||
-                    userClass instanceof UserClass.ThisEntry )
+                if ( userClass instanceof UserClass.Name || userClass instanceof UserClass.ThisEntry )
                 {
                     filteredTuples.add( tuple );
                     break;
@@ -73,20 +76,20 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             }
         }
 
-        if( filteredTuples.size() > 0 )
+        if ( filteredTuples.size() > 0 )
         {
             return filteredTuples;
         }
 
         // Otherwise if there are any tuples matching UserGroup,
         // discard all other tuples.
-        for( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            for( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
+            for ( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
             {
                 UserClass userClass = ( UserClass ) j.next();
-                if( userClass instanceof UserClass.UserGroup )
+                if ( userClass instanceof UserClass.UserGroup )
                 {
                     filteredTuples.add( tuple );
                     break;
@@ -94,20 +97,20 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             }
         }
 
-        if( filteredTuples.size() > 0 )
+        if ( filteredTuples.size() > 0 )
         {
             return filteredTuples;
         }
 
         // Otherwise if there are any tuples matching subtree,
         // discard all other tuples.
-        for( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            for( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
+            for ( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
             {
                 UserClass userClass = ( UserClass ) j.next();
-                if( userClass instanceof UserClass.Subtree )
+                if ( userClass instanceof UserClass.Subtree )
                 {
                     filteredTuples.add( tuple );
                     break;
@@ -115,7 +118,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             }
         }
 
-        if( filteredTuples.size() > 0 )
+        if ( filteredTuples.size() > 0 )
         {
             return filteredTuples;
         }

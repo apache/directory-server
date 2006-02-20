@@ -55,61 +55,61 @@ public class MutableStartupConfiguration extends StartupConfiguration
     }
 
 
-    public void setInstanceId(String instanceId)
+    public void setInstanceId( String instanceId )
     {
         super.setInstanceId( instanceId );
     }
 
 
-    public void setAuthenticatorConfigurations(Set authenticators)
+    public void setAuthenticatorConfigurations( Set authenticators )
     {
         super.setAuthenticatorConfigurations( authenticators );
     }
 
 
-    public void setBootstrapSchemas(Set bootstrapSchemas)
+    public void setBootstrapSchemas( Set bootstrapSchemas )
     {
         super.setBootstrapSchemas( bootstrapSchemas );
     }
 
 
-    public void setContextPartitionConfigurations(Set contextParitionConfigurations)
+    public void setContextPartitionConfigurations( Set contextParitionConfigurations )
     {
         super.setContextPartitionConfigurations( contextParitionConfigurations );
     }
 
 
-    public void setAccessControlEnabled(boolean accessControlEnabled)
+    public void setAccessControlEnabled( boolean accessControlEnabled )
     {
         super.setAccessControlEnabled( accessControlEnabled );
     }
 
 
-    public void setAllowAnonymousAccess(boolean enableAnonymousAccess)
+    public void setAllowAnonymousAccess( boolean enableAnonymousAccess )
     {
         super.setAllowAnonymousAccess( enableAnonymousAccess );
     }
 
 
-    public void setInterceptorConfigurations(List interceptorConfigurations)
+    public void setInterceptorConfigurations( List interceptorConfigurations )
     {
         super.setInterceptorConfigurations( interceptorConfigurations );
     }
 
 
-    public void setTestEntries(List testEntries)
+    public void setTestEntries( List testEntries )
     {
         super.setTestEntries( testEntries );
     }
 
 
-    public void setWorkingDirectory(File workingDirectory)
+    public void setWorkingDirectory( File workingDirectory )
     {
         super.setWorkingDirectory( workingDirectory );
     }
 
 
-    public void setShutdownHookEnabled(boolean shutdownHookEnabled)
+    public void setShutdownHookEnabled( boolean shutdownHookEnabled )
     {
         super.setShutdownHookEnabled( shutdownHookEnabled );
     }

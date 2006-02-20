@@ -45,6 +45,7 @@ public interface ObjectFactoryRegistry
      */
     ServerDirObjectFactory getObjectFactories( LdapContext ctx ) throws NamingException;
 
+
     /**
      * Registers a server-side object factory with this registry.
      *

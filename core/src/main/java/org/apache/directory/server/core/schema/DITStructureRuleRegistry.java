@@ -41,7 +41,8 @@ public interface DITStructureRuleRegistry
      * or the registration operation is not supported
      */
     void register( String schema, DITStructureRule dITStructureRule ) throws NamingException;
-    
+
+
     /**
      * Looks up an dITStructureRule by its unique Object IDentifier or by its
      * name.
@@ -52,6 +53,7 @@ public interface DITStructureRuleRegistry
      */
     DITStructureRule lookup( String id ) throws NamingException;
 
+
     /**
      * Gets the name of the schema this schema object is associated with.
      *
@@ -61,6 +63,7 @@ public interface DITStructureRuleRegistry
      */
     String getSchemaName( String id ) throws NamingException;
 
+
     /**
      * Checks to see if an dITStructureRule exists.
      * 
@@ -69,6 +72,7 @@ public interface DITStructureRuleRegistry
      * otherwise
      */
     boolean hasDITStructureRule( String id );
+
 
     /**
      * Lists all the DITStructureRules within this registry.

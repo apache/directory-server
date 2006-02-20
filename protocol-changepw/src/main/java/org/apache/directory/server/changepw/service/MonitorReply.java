@@ -16,18 +16,21 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import org.apache.directory.server.changepw.messages.ChangePasswordReply;
+import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
+import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.messages.application.ApplicationReply;
-import org.apache.kerberos.messages.application.PrivateMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class MonitorReply extends CommandBase
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorReply.class );
+
 
     public boolean execute( Context context ) throws Exception
     {
@@ -35,9 +38,9 @@ public class MonitorReply extends CommandBase
         {
             try
             {
-                ChangePasswordContext changepwContext = (ChangePasswordContext) context;
+                ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
 
-                ChangePasswordReply reply = (ChangePasswordReply) changepwContext.getReply();
+                ChangePasswordReply reply = ( ChangePasswordReply ) changepwContext.getReply();
                 ApplicationReply appReply = reply.getApplicationReply();
                 PrivateMessage priv = reply.getPrivateMessage();
 

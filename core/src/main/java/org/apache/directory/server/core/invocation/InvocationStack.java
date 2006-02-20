@@ -43,7 +43,8 @@ public final class InvocationStack
     // It seems like JDK 1.5 supports explicit release by introducing
     // <tt>ThreadLocal.remove()</tt>, but we're still targetting 1.4.
     private static final Map stacks = new IdentityHashMap();
-    
+
+
     /**
      * Returns the invocation stack of current thread.
      */
@@ -51,10 +52,10 @@ public final class InvocationStack
     {
         Thread currentThread = Thread.currentThread();
         InvocationStack ctx;
-        synchronized( stacks )
+        synchronized ( stacks )
         {
             ctx = ( InvocationStack ) stacks.get( currentThread );
-            if( ctx == null )
+            if ( ctx == null )
             {
                 ctx = new InvocationStack();
             }
@@ -65,6 +66,7 @@ public final class InvocationStack
     private final Thread thread;
     private final List stack = new ArrayList();
 
+
     private InvocationStack()
     {
         Thread currentThread = Thread.currentThread();
@@ -72,18 +74,20 @@ public final class InvocationStack
         // This operation is already synchronized from getInstance()
         stacks.put( currentThread, this );
     }
-    
+
+
     /**
      * Returns an array of {@link Invocation}s.  0th element is the
      * latest invocation.
      */
     public Invocation[] toArray()
     {
-        Invocation[] result = new Invocation[ stack.size() ];
+        Invocation[] result = new Invocation[stack.size()];
         result = ( Invocation[] ) stack.toArray( result );
         return result;
     }
-    
+
+
     /**
      * Returns the latest invocation.
      */
@@ -91,6 +95,7 @@ public final class InvocationStack
     {
         return ( Invocation ) this.stack.get( 0 );
     }
+
 
     /**
      * Returns true if the stack is empty false otherwise.
@@ -100,6 +105,7 @@ public final class InvocationStack
         return this.stack.isEmpty();
     }
 
+
     /**
      * Pushes the specified invocation to this stack.
      */
@@ -107,7 +113,8 @@ public final class InvocationStack
     {
         this.stack.add( 0, invocation );
     }
-    
+
+
     /**
      * Pops the latest invocation from this stack.  This stack is released
      * automatically if you pop all items from this stack.
@@ -115,9 +122,9 @@ public final class InvocationStack
     public Invocation pop()
     {
         Invocation invocation = ( Invocation ) this.stack.remove( 0 );
-        if( this.stack.size() == 0 )
+        if ( this.stack.size() == 0 )
         {
-            synchronized( stacks )
+            synchronized ( stacks )
             {
                 stacks.remove( thread );
             }

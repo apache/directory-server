@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -30,6 +31,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 
+
 /**
  * A mock {@link AttributeTypeRegistry} to test {@link ACITupleFilter} implementations.
  *
@@ -41,18 +43,21 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 {
     private final boolean returnOperational;
 
-    public DummyAttributeTypeRegistry( boolean returnOperational )
+
+    public DummyAttributeTypeRegistry(boolean returnOperational)
     {
         this.returnOperational = returnOperational;
     }
+
 
     public void register( String schema, AttributeType attributeType ) throws NamingException
     {
     }
 
+
     public AttributeType lookup( final String id ) throws NamingException
     {
-        if( returnOperational )
+        if ( returnOperational )
         {
             return new AttributeType()
             {
@@ -61,70 +66,85 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                     return false;
                 }
 
+
                 public boolean isCanUserModify()
                 {
                     return false;
                 }
+
 
                 public boolean isCollective()
                 {
                     return false;
                 }
 
+
                 public UsageEnum getUsage()
                 {
                     return null;
                 }
+
 
                 public AttributeType getSuperior() throws NamingException
                 {
                     return null;
                 }
 
+
                 public Syntax getSyntax() throws NamingException
                 {
                     return null;
                 }
+
 
                 public int getLength()
                 {
                     return 0;
                 }
 
+
                 public MatchingRule getEquality() throws NamingException
                 {
                     return null;
                 }
+
 
                 public MatchingRule getOrdering() throws NamingException
                 {
                     return null;
                 }
 
+
                 public MatchingRule getSubstr() throws NamingException
                 {
                     return null;
                 }
+
 
                 public boolean isObsolete()
                 {
                     return false;
                 }
 
+
                 public String getOid()
                 {
                     return String.valueOf( id.hashCode() );
                 }
 
+
                 public String[] getNames()
                 {
-                    return new String[] { id };
+                    return new String[]
+                        { id };
                 }
+
 
                 public String getName()
                 {
                     return id;
                 }
+
 
                 public String getDescription()
                 {
@@ -141,70 +161,85 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                     return false;
                 }
 
+
                 public boolean isCanUserModify()
                 {
                     return true;
                 }
+
 
                 public boolean isCollective()
                 {
                     return false;
                 }
 
+
                 public UsageEnum getUsage()
                 {
                     return null;
                 }
+
 
                 public AttributeType getSuperior() throws NamingException
                 {
                     return null;
                 }
 
+
                 public Syntax getSyntax() throws NamingException
                 {
                     return null;
                 }
+
 
                 public int getLength()
                 {
                     return 0;
                 }
 
+
                 public MatchingRule getEquality() throws NamingException
                 {
                     return null;
                 }
+
 
                 public MatchingRule getOrdering() throws NamingException
                 {
                     return null;
                 }
 
+
                 public MatchingRule getSubstr() throws NamingException
                 {
                     return null;
                 }
+
 
                 public boolean isObsolete()
                 {
                     return false;
                 }
 
+
                 public String getOid()
                 {
                     return String.valueOf( id.hashCode() );
                 }
 
+
                 public String[] getNames()
                 {
-                    return new String[] { id };
+                    return new String[]
+                        { id };
                 }
+
 
                 public String getName()
                 {
                     return id;
                 }
+
 
                 public String getDescription()
                 {
@@ -214,15 +249,18 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
         }
     }
 
+
     public String getSchemaName( String id ) throws NamingException
     {
         return "dummy";
     }
 
+
     public boolean hasAttributeType( String id )
     {
         return true;
     }
+
 
     public Iterator list()
     {

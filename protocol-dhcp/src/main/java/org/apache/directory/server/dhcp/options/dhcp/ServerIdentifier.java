@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import org.apache.directory.server.dhcp.options.AddressOption;
+
 
 /**
  * This option is used in DHCPOFFER and DHCPREQUEST messages, and may
@@ -35,9 +37,8 @@ import org.apache.directory.server.dhcp.options.AddressOption;
  */
 public class ServerIdentifier extends AddressOption
 {
-	public ServerIdentifier( byte[] serverIdentifier )
-	{
-		super( 54, serverIdentifier );
-	}
+    public ServerIdentifier(byte[] serverIdentifier)
+    {
+        super( 54, serverIdentifier );
+    }
 }
-

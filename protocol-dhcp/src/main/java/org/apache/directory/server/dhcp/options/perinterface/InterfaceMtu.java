@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.perinterface;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies the MTU to use on this interface.  The MTU is
@@ -30,17 +32,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class InterfaceMtu extends DhcpOption
 {
-	private byte[] interfaceMtu;
-	
-	public InterfaceMtu( byte[] interfaceMtu )
-	{
-		super( 26, 2 );
-		this.interfaceMtu = interfaceMtu;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( interfaceMtu );
-	}
-}
+    private byte[] interfaceMtu;
 
+
+    public InterfaceMtu(byte[] interfaceMtu)
+    {
+        super( 26, 2 );
+        this.interfaceMtu = interfaceMtu;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( interfaceMtu );
+    }
+}

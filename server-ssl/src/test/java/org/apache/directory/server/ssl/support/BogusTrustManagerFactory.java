@@ -1,5 +1,5 @@
 /*
- *   @(#) $Id: BogusTrustManagerFactory.java 365899 2006-01-04 12:24:30Z trustin $
+ *   @(#) $Id$
  *
  *   Copyright 2004 The Apache Software Foundation
  *
@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.ssl.support;
 
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -29,52 +30,57 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactorySpi;
 import javax.net.ssl.X509TrustManager;
 
+
 /**
  * Bogus trust manager factory. Creates BogusX509TrustManager
  *
  * @author The Apache Directory Project (dev@directory.apache.org)
- * @version $Rev: 365899 $, $Date: 2006-01-04 21:24:30 +0900 (수, 04  1월 2006) $
+ * @version $Rev$, $Date$
  */
 class BogusTrustManagerFactory extends TrustManagerFactorySpi
 {
 
     static final X509TrustManager X509 = new X509TrustManager()
     {
-        public void checkClientTrusted( X509Certificate[] x509Certificates,
-                                       String s ) throws CertificateException
+        public void checkClientTrusted( X509Certificate[] x509Certificates, String s ) throws CertificateException
         {
         }
 
-        public void checkServerTrusted( X509Certificate[] x509Certificates,
-                                       String s ) throws CertificateException
+
+        public void checkServerTrusted( X509Certificate[] x509Certificates, String s ) throws CertificateException
         {
         }
+
 
         public X509Certificate[] getAcceptedIssuers()
         {
-            return new X509Certificate[ 0 ];
+            return new X509Certificate[0];
         }
     };
 
-    static final TrustManager[] X509_MANAGERS = new TrustManager[] { X509 };
+    static final TrustManager[] X509_MANAGERS = new TrustManager[]
+        { X509 };
+
 
     public BogusTrustManagerFactory()
     {
     }
+
 
     protected TrustManager[] engineGetTrustManagers()
     {
         return X509_MANAGERS;
     }
 
+
     protected void engineInit( KeyStore keystore ) throws KeyStoreException
     {
         // noop
     }
 
-    protected void engineInit(
-                              ManagerFactoryParameters managerFactoryParameters )
-            throws InvalidAlgorithmParameterException
+
+    protected void engineInit( ManagerFactoryParameters managerFactoryParameters )
+        throws InvalidAlgorithmParameterException
     {
         // noop
     }

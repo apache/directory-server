@@ -121,8 +121,7 @@ public class RefinementEvaluatorTest extends TestCase
 
         try
         {
-            assertFalse( evaluator.evaluate( new SimpleNode( "", "", LeafNode.EQUALITY ),
-                    new BasicAttribute( "blah") ) );
+            assertFalse( evaluator.evaluate( new SimpleNode( "", "", LeafNode.EQUALITY ), new BasicAttribute( "blah" ) ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -137,23 +136,19 @@ public class RefinementEvaluatorTest extends TestCase
 
         // positive test
         objectClasses = new BasicAttribute( "objectClass", "person" );
-        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
 
         objectClasses = new BasicAttribute( "objectClass" );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
-        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
 
         // negative tests
         objectClasses = new BasicAttribute( "objectClass", "person" );
-        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "blah", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "blah", LeafNode.EQUALITY ), objectClasses ) );
 
         objectClasses = new BasicAttribute( "objectClass", "blah" );
-        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
     }
 
 
@@ -163,23 +158,19 @@ public class RefinementEvaluatorTest extends TestCase
 
         // positive test
         objectClasses = new BasicAttribute( "objectClass", "person" );
-        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ), objectClasses ) );
 
         objectClasses = new BasicAttribute( "objectClass" );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
-        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ), objectClasses ) );
 
         // negative tests
         objectClasses = new BasicAttribute( "objectClass", "person" );
-        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ), objectClasses ) );
 
         objectClasses = new BasicAttribute( "objectClass", "blah" );
-        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ),
-                objectClasses ) );
+        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ), objectClasses ) );
     }
 
 
@@ -234,8 +225,7 @@ public class RefinementEvaluatorTest extends TestCase
 
         try
         {
-            assertFalse( evaluator.evaluate( new BranchNode( 1000 ),
-                    new BasicAttribute( "objectClass" ) ) );
+            assertFalse( evaluator.evaluate( new BranchNode( 1000 ), new BasicAttribute( "objectClass" ) ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -244,8 +234,7 @@ public class RefinementEvaluatorTest extends TestCase
 
         try
         {
-            assertFalse( evaluator.evaluate( new BranchNode( BranchNode.NOT ),
-                    new BasicAttribute( "objectClass" ) ) );
+            assertFalse( evaluator.evaluate( new BranchNode( BranchNode.NOT ), new BasicAttribute( "objectClass" ) ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )

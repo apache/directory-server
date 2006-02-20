@@ -51,7 +51,7 @@ public class CompareHandler implements MessageHandler
     private static final Logger log = LoggerFactory.getLogger( CompareHandler.class );
     private static Control[] EMPTY_CONTROLS = new Control[0];
 
-    
+
     public void messageReceived( IoSession session, Object request )
     {
         CompareRequest req = ( CompareRequest ) request;
@@ -81,7 +81,7 @@ public class CompareHandler implements MessageHandler
                 result.setResultCode( ResultCodeEnum.COMPAREFALSE );
             }
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             ReferralImpl refs = new ReferralImpl();
             result.setReferral( refs );
@@ -93,7 +93,7 @@ public class CompareHandler implements MessageHandler
             {
                 refs.addLdapUrl( ( String ) e.getReferralInfo() );
             }
-            while( e.skipReferral() );
+            while ( e.skipReferral() );
             session.write( req.getResultResponse() );
             return;
         }
@@ -107,10 +107,10 @@ public class CompareHandler implements MessageHandler
             }
 
             ResultCodeEnum code;
-            
+
             if ( e instanceof LdapException )
             {
-                code = ( ( LdapException ) e ).getResultCode() ;
+                code = ( ( LdapException ) e ).getResultCode();
             }
             else
             {
@@ -122,13 +122,11 @@ public class CompareHandler implements MessageHandler
 
             if ( e instanceof NamingException )
             {
-            	NamingException ne = (NamingException)e;
-            	
-                if ( ( ne.getResolvedName() != null ) &&
-                        ( ( code == ResultCodeEnum.NOSUCHOBJECT ) ||
-                          ( code == ResultCodeEnum.ALIASPROBLEM ) ||
-                          ( code == ResultCodeEnum.INVALIDDNSYNTAX ) ||
-                          ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+                NamingException ne = ( NamingException ) e;
+
+                if ( ( ne.getResolvedName() != null )
+                    && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
+                        || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
                 {
                     result.setMatchedDn( ne.getResolvedName().toString() );
                 }

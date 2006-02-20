@@ -23,27 +23,30 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class EndOption extends DhcpOption
 {
-	public EndOption()
-	{
-		super( 255, 1 );
-	}
-	
-	public void writeTo( ByteBuffer out )
-	{
-		out.put( (byte)0xFF );
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		/**
-		 * This option has no value
-		 */
-	}
-}
+    public EndOption()
+    {
+        super( 255, 1 );
+    }
 
+
+    public void writeTo( ByteBuffer out )
+    {
+        out.put( ( byte ) 0xFF );
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        /**
+         * This option has no value
+         */
+    }
+}

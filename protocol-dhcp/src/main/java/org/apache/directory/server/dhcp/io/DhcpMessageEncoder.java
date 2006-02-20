@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dhcp.io;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
@@ -25,34 +26,33 @@ import org.apache.directory.server.dhcp.options.OptionsField;
 
 public class DhcpMessageEncoder
 {
-	/**
-	 * Converts a DhcpMessage object into a byte buffer.
-	 * 
-	 * @param byteBuffer ByteBuffer to put DhcpMessage into
-	 * @param message DhcpMessage to encode into ByteBuffer
-	 */
-	public void encode( ByteBuffer byteBuffer, DhcpMessage message )
-	{
-		byteBuffer.put( message.getOpCode() );
-		byteBuffer.put( message.getHardwareAddressType() );
-		byteBuffer.put( message.getHardwareAddressLength() );
-		byteBuffer.put( message.getHardwareOptions() );
-		byteBuffer.putInt( message.getTransactionId() );
-		byteBuffer.putShort( message.getSeconds() );
-		byteBuffer.putShort( message.getFlags() );
-		byteBuffer.put( message.getActualClientAddress() );
-		byteBuffer.put( message.getAssignedClientAddress() );
-		byteBuffer.put( message.getNextServerAddress() );
-		byteBuffer.put( message.getRelayAgentAddress() );
-		byteBuffer.put( message.getClientHardwareAddress() );
-		byteBuffer.put( message.getServerHostname() );
-		byteBuffer.put( message.getBootFileName() );
-		
-		OptionsField options = message.getOptions();
-		
-		DhcpOptionsEncoder optionsEncoder = new DhcpOptionsEncoder();
-		
-		optionsEncoder.encode( options, byteBuffer );
-	}
-}
+    /**
+     * Converts a DhcpMessage object into a byte buffer.
+     * 
+     * @param byteBuffer ByteBuffer to put DhcpMessage into
+     * @param message DhcpMessage to encode into ByteBuffer
+     */
+    public void encode( ByteBuffer byteBuffer, DhcpMessage message )
+    {
+        byteBuffer.put( message.getOpCode() );
+        byteBuffer.put( message.getHardwareAddressType() );
+        byteBuffer.put( message.getHardwareAddressLength() );
+        byteBuffer.put( message.getHardwareOptions() );
+        byteBuffer.putInt( message.getTransactionId() );
+        byteBuffer.putShort( message.getSeconds() );
+        byteBuffer.putShort( message.getFlags() );
+        byteBuffer.put( message.getActualClientAddress() );
+        byteBuffer.put( message.getAssignedClientAddress() );
+        byteBuffer.put( message.getNextServerAddress() );
+        byteBuffer.put( message.getRelayAgentAddress() );
+        byteBuffer.put( message.getClientHardwareAddress() );
+        byteBuffer.put( message.getServerHostname() );
+        byteBuffer.put( message.getBootFileName() );
 
+        OptionsField options = message.getOptions();
+
+        DhcpOptionsEncoder optionsEncoder = new DhcpOptionsEncoder();
+
+        optionsEncoder.encode( options, byteBuffer );
+    }
+}

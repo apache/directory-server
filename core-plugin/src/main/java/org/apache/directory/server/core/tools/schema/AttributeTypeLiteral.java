@@ -54,8 +54,7 @@ public class AttributeTypeLiteral
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
-    public AttributeTypeLiteral( String oid )
+    public AttributeTypeLiteral(String oid)
     {
         this.oid = oid;
     }
@@ -65,136 +64,161 @@ public class AttributeTypeLiteral
     // Accessors and mutators
     // ------------------------------------------------------------------------
 
-
     public boolean isObsolete()
     {
         return obsolete;
     }
+
 
     public void setObsolete( boolean obsolete )
     {
         this.obsolete = obsolete;
     }
 
+
     public boolean isSingleValue()
     {
         return singleValue;
     }
+
 
     public void setSingleValue( boolean singleValue )
     {
         this.singleValue = singleValue;
     }
 
+
     public boolean isCollective()
     {
         return collective;
     }
+
 
     public void setCollective( boolean collective )
     {
         this.collective = collective;
     }
 
+
     public boolean isNoUserModification()
     {
         return noUserModification;
     }
+
 
     public void setNoUserModification( boolean noUserModification )
     {
         this.noUserModification = noUserModification;
     }
 
+
     public String getOid()
     {
         return oid;
     }
+
 
     public String getDescription()
     {
         return description;
     }
 
+
     public void setDescription( String description )
     {
         this.description = description;
     }
+
 
     public String getSuperior()
     {
         return superior;
     }
 
+
     public void setSuperior( String superior )
     {
         this.superior = superior;
     }
+
 
     public String getEquality()
     {
         return equality;
     }
 
+
     public void setEquality( String equality )
     {
         this.equality = equality;
     }
+
 
     public String getOrdering()
     {
         return ordering;
     }
 
+
     public void setOrdering( String ordering )
     {
         this.ordering = ordering;
     }
+
 
     public String getSubstr()
     {
         return substr;
     }
 
+
     public void setSubstr( String substr )
     {
         this.substr = substr;
     }
+
 
     public String getSyntax()
     {
         return syntax;
     }
 
+
     public void setSyntax( String syntax )
     {
         this.syntax = syntax;
     }
+
 
     public UsageEnum getUsage()
     {
         return usage;
     }
 
+
     public void setUsage( UsageEnum usage )
     {
         this.usage = usage;
     }
+
 
     public String[] getNames()
     {
         return names;
     }
 
+
     public void setNames( String[] names )
     {
         this.names = names;
     }
 
+
     public int getLength()
     {
         return length;
     }
+
 
     public void setLength( int length )
     {
@@ -205,7 +229,6 @@ public class AttributeTypeLiteral
     // ------------------------------------------------------------------------
     // Object overrides
     // ------------------------------------------------------------------------
-
 
     public int hashCode()
     {
@@ -220,7 +243,7 @@ public class AttributeTypeLiteral
             return true;
         }
 
-        if ( ! ( obj instanceof AttributeTypeLiteral ) )
+        if ( !( obj instanceof AttributeTypeLiteral ) )
         {
             return false;
         }

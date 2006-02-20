@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.dns.service;
 
+
 import java.util.Iterator;
 import java.util.Set;
 
@@ -27,11 +28,12 @@ import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
 
+
 public class GetResourceRecords extends CommandBase
 {
     public boolean execute( Context context ) throws Exception
     {
-        DnsContext dnsContext = (DnsContext) context;
+        DnsContext dnsContext = ( DnsContext ) context;
         RecordStore store = dnsContext.getStore();
 
         QuestionRecords questions = dnsContext.getRequest().getQuestionRecords();
@@ -40,11 +42,12 @@ public class GetResourceRecords extends CommandBase
 
         while ( it.hasNext() )
         {
-            dnsContext.addResourceRecords( getEntry( store, (QuestionRecord) it.next() ) );
+            dnsContext.addResourceRecords( getEntry( store, ( QuestionRecord ) it.next() ) );
         }
 
         return CONTINUE_CHAIN;
     }
+
 
     public Set getEntry( RecordStore store, QuestionRecord question ) throws Exception
     {

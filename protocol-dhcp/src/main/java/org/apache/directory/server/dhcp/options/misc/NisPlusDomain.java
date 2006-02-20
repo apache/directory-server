@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies the name of the client's NIS+ domain.  The
@@ -30,17 +32,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class NisPlusDomain extends DhcpOption
 {
-	private byte[] nisPlusDomain;
-	
-	public NisPlusDomain( byte[] nisPlusDomain )
-	{
-		super( 64, 1 );
-		this.nisPlusDomain = nisPlusDomain;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( nisPlusDomain );
-	}
-}
+    private byte[] nisPlusDomain;
 
+
+    public NisPlusDomain(byte[] nisPlusDomain)
+    {
+        super( 64, 1 );
+        this.nisPlusDomain = nisPlusDomain;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( nisPlusDomain );
+    }
+}

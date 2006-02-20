@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * The NetBIOS scope option specifies the NetBIOS over TCP/IP scope
@@ -30,17 +32,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class NetbiosScope extends DhcpOption
 {
-	private byte[] netbiosScope;
-	
-	public NetbiosScope( byte[] netbiosScope )
-	{
-		super( 47, 1 );
-		this.netbiosScope = netbiosScope;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( netbiosScope );
-	}
-}
+    private byte[] netbiosScope;
 
+
+    public NetbiosScope(byte[] netbiosScope)
+    {
+        super( 47, 1 );
+        this.netbiosScope = netbiosScope;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( netbiosScope );
+    }
+}

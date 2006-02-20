@@ -16,18 +16,20 @@
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
+
 import java.io.IOException;
 
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.io.decoder.ApplicationRequestDecoder;
+import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.exceptions.ErrorType;
-import org.apache.kerberos.exceptions.KerberosException;
-import org.apache.kerberos.io.decoder.ApplicationRequestDecoder;
-import org.apache.kerberos.messages.ApplicationRequest;
-import org.apache.kerberos.messages.KdcRequest;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.messages.value.PreAuthenticationData;
-import org.apache.kerberos.messages.value.PreAuthenticationDataType;
+
 
 /*
  * differs from the changepw getAuthHeader by verifying the presence of TGS_REQ
@@ -36,7 +38,7 @@ public class GetAuthHeader extends CommandBase
 {
     public boolean execute( Context context ) throws Exception
     {
-        TicketGrantingContext tgsContext = (TicketGrantingContext) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
         KdcRequest request = tgsContext.getRequest();
 
         ApplicationRequest authHeader = getAuthHeader( request );
@@ -48,6 +50,7 @@ public class GetAuthHeader extends CommandBase
         return CONTINUE_CHAIN;
     }
 
+
     protected ApplicationRequest getAuthHeader( KdcRequest request ) throws KerberosException, IOException
     {
         byte[] undecodedAuthHeader = null;
@@ -55,9 +58,9 @@ public class GetAuthHeader extends CommandBase
 
         for ( int ii = 0; ii < preAuthData.length; ii++ )
         {
-            if ( preAuthData[ ii ].getDataType() == PreAuthenticationDataType.PA_TGS_REQ )
+            if ( preAuthData[ii].getDataType() == PreAuthenticationDataType.PA_TGS_REQ )
             {
-                undecodedAuthHeader = preAuthData[ ii ].getDataValue();
+                undecodedAuthHeader = preAuthData[ii].getDataValue();
             }
         }
 

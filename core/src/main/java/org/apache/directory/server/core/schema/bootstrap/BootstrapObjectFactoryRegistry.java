@@ -47,13 +47,12 @@ public class BootstrapObjectFactoryRegistry implements ObjectFactoryRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates an ObjectFactoryRegistry that looks up an object factory to use.
      *
      * @param oidRegistry an object identifier registry
      */
-    public BootstrapObjectFactoryRegistry( OidRegistry oidRegistry )
+    public BootstrapObjectFactoryRegistry(OidRegistry oidRegistry)
     {
         this.oidRegistry = oidRegistry;
     }

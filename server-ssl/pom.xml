@@ -4,10 +4,13 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC1-SNAPSHOT</version>
+    <version>1.0-RC1</version>
   </parent>
   <artifactId>apacheds-server-ssl</artifactId>
   <name>ApacheDS Server SSL</name>
+  <description>
+    An SSL support module for LDAPS with ApacheDS
+  </description>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>

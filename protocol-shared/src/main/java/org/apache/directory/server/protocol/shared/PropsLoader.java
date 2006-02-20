@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.protocol.shared;
 
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 
 /**
  * Load strategy for configuration properties coming from a properties file.
@@ -37,11 +39,11 @@ public class PropsLoader implements LoadStrategy
 
         while ( it.hasNext() )
         {
-            String key = (String) it.next();
+            String key = ( String ) it.next();
 
             if ( properties.get( key ) instanceof String )
             {
-                String value = (String) properties.get( key );
+                String value = ( String ) properties.get( key );
 
                 if ( key.startsWith( prefix ) )
                 {

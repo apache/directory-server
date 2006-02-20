@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dhcp;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -24,45 +25,61 @@ import java.nio.ByteBuffer;
 import junit.framework.TestCase;
 
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public abstract class AbstractDhcpTestCase extends TestCase
 {
-	protected static final int MINIMUM_DHCP_DATAGRAM_SIZE = 576;
-	
-	protected void print( DhcpMessage message )
-	{
-		System.out.println( message.getMessageType() );
-		System.out.println( message.getHardwareAddressType() );
-		System.out.println( message.getHardwareAddressLength() );
-		System.out.println( message.getHardwareOptions() );
-		System.out.println( message.getTransactionId() );
-		System.out.println( message.getSeconds() );
-		System.out.println( message.getFlags() );
-		System.out.println( message.getActualClientAddress() );
-		System.out.println( message.getAssignedClientAddress() );
-		System.out.println( message.getNextServerAddress() );
-		System.out.println( message.getRelayAgentAddress() );
-		System.out.println( message.getClientHardwareAddress() );
-		System.out.println( message.getServerHostname() );
-		System.out.println( message.getBootFileName() );
-	}
-	
+    protected static final int MINIMUM_DHCP_DATAGRAM_SIZE = 576;
+    protected final Logger log;
+
+
+    public AbstractDhcpTestCase()
+    {
+        log = LoggerFactory.getLogger( AbstractDhcpTestCase.class );
+    }
+
+
+    public AbstractDhcpTestCase(Class subclass)
+    {
+        log = LoggerFactory.getLogger( subclass );
+    }
+
+
+    protected void print( DhcpMessage message )
+    {
+        log.debug( String.valueOf( message.getMessageType() ) );
+        log.debug( String.valueOf( message.getHardwareAddressType() ) );
+        log.debug( String.valueOf( message.getHardwareAddressLength() ) );
+        log.debug( String.valueOf( message.getHardwareOptions() ) );
+        log.debug( String.valueOf( message.getTransactionId() ) );
+        log.debug( String.valueOf( message.getSeconds() ) );
+        log.debug( String.valueOf( message.getFlags() ) );
+        log.debug( String.valueOf( message.getActualClientAddress() ) );
+        log.debug( String.valueOf( message.getAssignedClientAddress() ) );
+        log.debug( String.valueOf( message.getNextServerAddress() ) );
+        log.debug( String.valueOf( message.getRelayAgentAddress() ) );
+        log.debug( String.valueOf( message.getClientHardwareAddress() ) );
+        log.debug( String.valueOf( message.getServerHostname() ) );
+        log.debug( String.valueOf( message.getBootFileName() ) );
+    }
+
+
     protected ByteBuffer getByteBufferFromFile( String file ) throws IOException
-	{
+    {
         InputStream is = getClass().getResourceAsStream( file );
-    
-        byte[] bytes = new byte[ MINIMUM_DHCP_DATAGRAM_SIZE ];
-    
+
+        byte[] bytes = new byte[MINIMUM_DHCP_DATAGRAM_SIZE];
+
         int offset = 0;
         int numRead = 0;
-        while ( offset < bytes.length && ( numRead=is.read( bytes, offset, bytes.length-offset ) ) >= 0 )
+        while ( offset < bytes.length && ( numRead = is.read( bytes, offset, bytes.length - offset ) ) >= 0 )
         {
             offset += numRead;
         }
-        
+
         is.close();
         return ByteBuffer.wrap( bytes );
     }
 }
-

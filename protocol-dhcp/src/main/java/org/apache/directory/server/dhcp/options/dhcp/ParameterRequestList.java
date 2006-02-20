@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option is used by a DHCP client to request values for specified
@@ -36,17 +38,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class ParameterRequestList extends DhcpOption
 {
-	private byte[] parameterRequestList;
-	
-	public ParameterRequestList( byte[] parameterRequestList )
-	{
-		super( 55, 1 );
-		this.parameterRequestList = parameterRequestList;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( parameterRequestList );
-	}
-}
+    private byte[] parameterRequestList;
 
+
+    public ParameterRequestList(byte[] parameterRequestList)
+    {
+        super( 55, 1 );
+        this.parameterRequestList = parameterRequestList;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( parameterRequestList );
+    }
+}

@@ -59,10 +59,10 @@ public class ModifyDnHandler implements MessageHandler
 
         if ( LOG.isDebugEnabled() )
         {
-        	LOG.debug( "req.getName() == [" + req.getName() +"]" );
+            LOG.debug( "req.getName() == [" + req.getName() + "]" );
         }
-        
-        if (req.getName() == null || req.getName().length() == 0)
+
+        if ( req.getName() == null || req.getName().length() == 0 )
         {
             // it is not allowed to modify the name of the Root DSE
             String msg = "Modify DN is not allowed on Root DSE.";
@@ -87,22 +87,22 @@ public class ModifyDnHandler implements MessageHandler
                 String deleteRDN = String.valueOf( req.getDeleteOldRdn() );
                 ctx.addToEnvironment( "java.naming.ldap.deleteRDN", deleteRDN );
 
-                if (req.isMove())
+                if ( req.isMove() )
                 {
                     LdapName oldDn = new LdapName( req.getName() );
                     LdapName newDn = null;
-                    
+
                     String newSuperior = req.getNewSuperior();
                     if ( StringTools.isEmpty( newSuperior ) )
                     {
-                    	newDn = (LdapName)oldDn.getPrefix( 1 );
+                        newDn = ( LdapName ) oldDn.getPrefix( 1 );
                     }
                     else
                     {
-                    	newDn = new LdapName( req.getNewSuperior() );
+                        newDn = new LdapName( req.getNewSuperior() );
                     }
-                    
-                    if (req.getNewRdn() != null)
+
+                    if ( req.getNewRdn() != null )
                     {
                         newDn.add( req.getNewRdn() );
                     }
@@ -121,7 +121,7 @@ public class ModifyDnHandler implements MessageHandler
                     ctx.rename( new LdapName( req.getName() ), newDn );
                 }
             }
-            catch( ReferralException e )
+            catch ( ReferralException e )
             {
                 ReferralImpl refs = new ReferralImpl();
                 result.setReferral( refs );
@@ -133,22 +133,22 @@ public class ModifyDnHandler implements MessageHandler
                 {
                     refs.addLdapUrl( ( String ) e.getReferralInfo() );
                 }
-                while( e.skipReferral() );
+                while ( e.skipReferral() );
                 session.write( req.getResultResponse() );
                 return;
             }
             catch ( NamingException e )
             {
                 String msg = "failed to modify DN of entry " + req.getName();
-                if (LOG.isDebugEnabled())
+                if ( LOG.isDebugEnabled() )
                 {
                     msg += ":\n" + ExceptionUtils.getStackTrace( e );
                 }
 
                 ResultCodeEnum code;
-                if (e instanceof LdapException)
+                if ( e instanceof LdapException )
                 {
-                    code = ((LdapException) e).getResultCode();
+                    code = ( ( LdapException ) e ).getResultCode();
                 }
                 else
                 {
@@ -158,8 +158,8 @@ public class ModifyDnHandler implements MessageHandler
                 result.setResultCode( code );
                 result.setErrorMessage( msg );
                 if ( ( e.getResolvedName() != null )
-                        && ((code == ResultCodeEnum.NOSUCHOBJECT) || (code == ResultCodeEnum.ALIASPROBLEM)
-                                || (code == ResultCodeEnum.INVALIDDNSYNTAX) || (code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM)))
+                    && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
+                        || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
                 {
                     result.setMatchedDn( e.getResolvedName().toString() );
                 }

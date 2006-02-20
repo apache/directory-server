@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dhcp.protocol;
 
+
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
@@ -25,13 +26,14 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 public class DhcpProtocolCodecFactory implements ProtocolCodecFactory
 {
     // Codec factory is also usually a singleton.
-    private static DhcpProtocolCodecFactory INSTANCE =
-        new DhcpProtocolCodecFactory();
-    
+    private static DhcpProtocolCodecFactory INSTANCE = new DhcpProtocolCodecFactory();
+
+
     public static DhcpProtocolCodecFactory getInstance()
     {
         return INSTANCE;
     }
+
 
     public ProtocolEncoder getEncoder()
     {
@@ -39,10 +41,10 @@ public class DhcpProtocolCodecFactory implements ProtocolCodecFactory
         return new DhcpEncoder();
     }
 
+
     public ProtocolDecoder getDecoder()
     {
         // Create a new decoder.
         return new DhcpDecoder();
     }
 }
-

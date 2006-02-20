@@ -72,10 +72,10 @@ public class ObjStateFactoryTest extends AbstractAdminTestCase
         assertEquals( "committer", attrs.get( "description" ).get() );
     }
 
-
     public static class PersonStateFactory implements DirStateFactory
     {
-        public Result getStateToBind( Object obj, Name name, Context nameCtx, Hashtable environment, Attributes inAttrs ) throws NamingException
+        public Result getStateToBind( Object obj, Name name, Context nameCtx, Hashtable environment, Attributes inAttrs )
+            throws NamingException
         {
             // Only interested in Person objects
             if ( obj instanceof Person )
@@ -85,7 +85,7 @@ public class ObjStateFactoryTest extends AbstractAdminTestCase
 
                 if ( inAttrs == null )
                 {
-                    outAttrs = new BasicAttributes(true);
+                    outAttrs = new BasicAttributes( true );
                 }
                 else
                 {
@@ -146,7 +146,8 @@ public class ObjStateFactoryTest extends AbstractAdminTestCase
         }
 
 
-        public Object getStateToBind( Object obj, Name name, Context nameCtx, Hashtable environment ) throws NamingException
+        public Object getStateToBind( Object obj, Name name, Context nameCtx, Hashtable environment )
+            throws NamingException
         {
             throw new UnsupportedOperationException( "Please use directory support overload with Attributes argument." );
         }
@@ -154,52 +155,51 @@ public class ObjStateFactoryTest extends AbstractAdminTestCase
 
     public static class PersonObjectFactory implements DirObjectFactory
     {
-        public Object getObjectInstance( Object obj, Name name, Context nameCtx, Hashtable environment, Attributes attrs ) throws Exception
+        public Object getObjectInstance( Object obj, Name name, Context nameCtx, Hashtable environment, Attributes attrs )
+            throws Exception
         {
             // Only interested in Attributes with "person" objectclass
             // System.out.println("object factory: " + attrs);
-            Attribute oc = (attrs != null ? attrs.get("objectclass") : null);
-            if (oc != null && oc.contains("person"))
+            Attribute oc = ( attrs != null ? attrs.get( "objectclass" ) : null );
+            if ( oc != null && oc.contains( "person" ) )
             {
                 Attribute attr;
                 String passwd = null;
 
-            // Extract the password
-            attr = attrs.get("userPassword");
-            if (attr != null)
-            {
-                Object pw = attr.get();
+                // Extract the password
+                attr = attrs.get( "userPassword" );
+                if ( attr != null )
+                {
+                    Object pw = attr.get();
 
-                if ( pw instanceof String )
-                    passwd = ( String ) pw;
-                else
-                    passwd = new String((byte[]) pw);
-            }
+                    if ( pw instanceof String )
+                        passwd = ( String ) pw;
+                    else
+                        passwd = new String( ( byte[] ) pw );
+                }
 
-                return new Person(
-                      (String)attrs.get("sn").get(),
-                      (String)attrs.get("cn").get(),
-                      passwd,
-                      (attr=attrs.get("telephoneNumber")) != null ? (String)attr.get() : null,
-                      (attr=attrs.get("seealso")) != null ? (String)attr.get() : null,
-                      (attr=attrs.get("description")) != null ? (String)attr.get() : null);
+                return new Person( ( String ) attrs.get( "sn" ).get(), ( String ) attrs.get( "cn" ).get(), passwd,
+                    ( attr = attrs.get( "telephoneNumber" ) ) != null ? ( String ) attr.get() : null, ( attr = attrs
+                        .get( "seealso" ) ) != null ? ( String ) attr.get() : null,
+                    ( attr = attrs.get( "description" ) ) != null ? ( String ) attr.get() : null );
             }
             return null;
         }
 
 
-        public Object getObjectInstance( Object obj, Name name, Context nameCtx, Hashtable environment ) throws Exception
+        public Object getObjectInstance( Object obj, Name name, Context nameCtx, Hashtable environment )
+            throws Exception
         {
             throw new UnsupportedOperationException( "Please use directory support overload with Attributes argument." );
         }
     }
 
-
     public static class Person
     {
         private String sn, cn, pwd, tele, seealso, desc;
 
-        public Person( String sn, String cn, String pwd, String tele, String seealso, String desc )
+
+        public Person(String sn, String cn, String pwd, String tele, String seealso, String desc)
         {
             this.sn = sn;
             this.cn = cn;

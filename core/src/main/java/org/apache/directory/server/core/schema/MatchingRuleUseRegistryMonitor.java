@@ -35,12 +35,14 @@ public interface MatchingRuleUseRegistryMonitor
      */
     void registered( MatchingRuleUse matchingRuleUse );
 
+
     /**
      * Monitors when a Comparator is successfully looked up.
      *
      * @param matchingRuleUse the MatchingRuleUse successfully lookedup
      */
     void lookedUp( MatchingRuleUse matchingRuleUse );
+
 
     /**
      * Monitors when a lookup attempt fails.
@@ -49,6 +51,7 @@ public interface MatchingRuleUseRegistryMonitor
      * @param fault the exception to be thrown for the fault
      */
     void lookupFailed( String name, Throwable fault );
+
 
     /**
      * Monitors when a registration attempt fails.

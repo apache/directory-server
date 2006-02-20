@@ -41,6 +41,7 @@ public interface Table
      */
     TupleComparator getComparator();
 
+
     /**
      * Gets the data renderer used by this Table to display or log records keys
      * and values.
@@ -48,6 +49,7 @@ public interface Table
      * @return the renderer used
      */
     TupleRenderer getRenderer();
+
 
     /**
      * Sets the data renderer to by used by this Table to display or log record
@@ -57,12 +59,14 @@ public interface Table
      */
     void setRenderer( TupleRenderer renderer );
 
+
     /**
      * Gets the name of this Table.
      *
      * @return the name
      */
     String getName();
+
 
     /**
      * Checks to see if this Table has enabled the use of duplicate keys.
@@ -71,6 +75,7 @@ public interface Table
      */
     boolean isDupsEnabled();
 
+
     /**
      * Checks to see if this Table has enabled sorting on the values of
      * duplicate keys.
@@ -78,12 +83,11 @@ public interface Table
      * @return true if duplicate key values are sorted, false otherwise.
      */
     boolean isSortedDupsEnabled();
-    
+
 
     // ------------------------------------------------------------------------
     // Simple Table Key/Value Assertions 
     // ------------------------------------------------------------------------
-
 
     /**
      * Checks to see if this table has a key: same as a get call with a check to
@@ -95,6 +99,7 @@ public interface Table
      */
     boolean has( Object key ) throws NamingException;
 
+
     /**
      * Checks to see if this table has a key with a specific value.
      *
@@ -104,6 +109,7 @@ public interface Table
      * @throws NamingException if there is a failure to read the underlying Db
      */
     boolean has( Object key, Object value ) throws NamingException;
+
 
     /**
      * Checks to see if this table has a record with a key greater/less than or
@@ -119,6 +125,7 @@ public interface Table
      * or if the underlying Db is not a Btree.
      */
     boolean has( Object key, boolean isGreaterThan ) throws NamingException;
+
 
     /**
      * Checks to see if this table has a record with a key equal to the
@@ -138,9 +145,8 @@ public interface Table
      * or if the underlying Db is not of the Btree type that allows sorted
      * duplicate values.
      */
-    boolean has( Object key, Object val, boolean isGreaterThan )
-        throws NamingException;
-        
+    boolean has( Object key, Object val, boolean isGreaterThan ) throws NamingException;
+
 
     // ------------------------------------------------------------------------
     // Table Value Accessors/Mutators
@@ -160,6 +166,7 @@ public interface Table
      */
     Object get( Object key ) throws NamingException;
 
+
     /**
      * Puts a record into this Table.
      *
@@ -171,6 +178,7 @@ public interface Table
      * the underlying Db
      */
     Object put( Object key, Object value ) throws NamingException;
+
 
     /**
      * Efficiently puts a set of values into the Table.  If the Table does not 
@@ -186,6 +194,7 @@ public interface Table
      */
     Object put( Object key, NamingEnumeration values ) throws NamingException;
 
+
     /**
      * Removes all records with key from this Table.
      *
@@ -194,6 +203,7 @@ public interface Table
      * the underlying Db
      */
     Object remove( Object key ) throws NamingException;
+
 
     /**
      * Removes a single specific record with key and value from this Table.
@@ -219,8 +229,7 @@ public interface Table
      * @throws NamingException if there is a failure to read or write to
      * the underlying Db
      */
-    Object remove( Object key, NamingEnumeration values )
-        throws NamingException;
+    Object remove( Object key, NamingEnumeration values ) throws NamingException;
 
 
     /**
@@ -240,7 +249,6 @@ public interface Table
     // ------------------------------------------------------------------------
     // listTuple overloads
     // ------------------------------------------------------------------------
-    
 
     /**
      * Sets a cursor to the first record in the Table and enables single
@@ -249,6 +257,7 @@ public interface Table
      * @throws NamingException if the underlying cursor could not be set.
      */
     NamingEnumeration listTuples() throws NamingException;
+
 
     /**
      * Sets a cursor to the first record in the Table with a key value of
@@ -259,6 +268,7 @@ public interface Table
      * @throws NamingException if the underlying cursor could not be set
      */
     NamingEnumeration listTuples( Object key ) throws NamingException;
+
 
     /**
      * Sets a cursor to the first record in the Table with a key value
@@ -272,8 +282,8 @@ public interface Table
      * iterates down over descending keys less than or equal to key argument
      * @throws NamingException if the underlying cursor could not be set
      */
-    NamingEnumeration listTuples( Object key, boolean isGreaterThan )
-        throws NamingException;
+    NamingEnumeration listTuples( Object key, boolean isGreaterThan ) throws NamingException;
+
 
     /**
      * Sets a cursor to the first record in the Table with a key equal to
@@ -294,14 +304,12 @@ public interface Table
      * this method is called over a cursor on a table that does not have sorted
      * duplicates enabled.
      */
-    NamingEnumeration listTuples( Object key, Object val, boolean isGreaterThan )
-        throws NamingException;
+    NamingEnumeration listTuples( Object key, Object val, boolean isGreaterThan ) throws NamingException;
 
 
     // ------------------------------------------------------------------------
     // Table Record Count Methods
     // ------------------------------------------------------------------------
-    
 
     /**
      * Gets the count of the number of records in this Table.
@@ -310,6 +318,7 @@ public interface Table
      * @throws NamingException if there is a failure to read the underlying Db
      */
     int count() throws NamingException;
+
 
     /**
      * Gets the count of the number of records in this Table with a specific
@@ -320,6 +329,7 @@ public interface Table
      * @throws NamingException if there is a failure to read the underlying Db
      */
     int count( Object key ) throws NamingException;
+
 
     /**
      * Returns the number of records greater than or less than a key value.  The
@@ -332,6 +342,7 @@ public interface Table
      * @throws NamingException if there is a failure to read the underlying Db
      */
     int count( Object key, boolean isGreaterThan ) throws NamingException;
+
 
     /**
      * Closes the underlying Db of this Table.

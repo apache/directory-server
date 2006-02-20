@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dhcp.protocol;
 
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -37,25 +38,27 @@ public class DhcpProtocolHandler implements IoHandler
     public void sessionCreated( IoSession session ) throws Exception
     {
         System.out.println( session.getRemoteAddress() + " CREATED" );
-        session.getFilterChain().addFirst(
-                "codec",
-                new ProtocolCodecFilter( new DhcpProtocolCodecFactory() ) );
+        session.getFilterChain().addFirst( "codec", new ProtocolCodecFilter( new DhcpProtocolCodecFactory() ) );
     }
+
 
     public void sessionOpened( IoSession session )
     {
         System.out.println( session.getRemoteAddress() + " OPENED" );
     }
 
+
     public void sessionClosed( IoSession session )
     {
         System.out.println( session.getRemoteAddress() + " CLOSED" );
     }
 
+
     public void sessionIdle( IoSession session, IdleStatus status )
     {
         System.out.println( session.getRemoteAddress() + " IDLE(" + status + ")" );
     }
+
 
     public void exceptionCaught( IoSession session, Throwable cause )
     {
@@ -65,21 +68,23 @@ public class DhcpProtocolHandler implements IoHandler
         session.close();
     }
 
+
     public void messageReceived( IoSession session, Object message ) throws Exception
     {
         System.out.println( session.getRemoteAddress() + " RCVD: " + message );
-        
-        DhcpMessage request = (DhcpMessage)message;
-        
+
+        DhcpMessage request = ( DhcpMessage ) message;
+
         if ( request.getOpCode() == 1 )
         {
             DhcpService dhcpService = new DhcpServiceImpl();
             DhcpMessage reply = dhcpService.getReplyFor( request );
-            
-        	int PORT = 68;
+
+            int PORT = 68;
             IoConnector connector = new DatagramConnector();
             InetAddress broadcast = InetAddress.getByName( null );
-            ConnectFuture future = connector.connect( new InetSocketAddress( broadcast, PORT ), new DhcpProtocolHandler() );
+            ConnectFuture future = connector.connect( new InetSocketAddress( broadcast, PORT ),
+                new DhcpProtocolHandler() );
             future.join();
             IoSession replySession = future.getSession();
             replySession.write( reply ).join();
@@ -87,9 +92,9 @@ public class DhcpProtocolHandler implements IoHandler
         }
     }
 
+
     public void messageSent( IoSession session, Object message )
     {
         System.out.println( session.getRemoteAddress() + " SENT: " + message );
     }
 }
-

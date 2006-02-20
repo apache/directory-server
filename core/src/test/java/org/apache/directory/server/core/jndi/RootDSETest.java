@@ -101,7 +101,13 @@ public class RootDSETest extends TestCase
 
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
-        try { new InitialContext( env ); } catch( Exception e ) {}
+        try
+        {
+            new InitialContext( env );
+        }
+        catch ( Exception e )
+        {
+        }
     }
 
 
@@ -182,7 +188,8 @@ public class RootDSETest extends TestCase
 
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
 
-        Attributes attributes = ctx.getAttributes( "", new String[]{ "namingContexts", "vendorName" });
+        Attributes attributes = ctx.getAttributes( "", new String[]
+            { "namingContexts", "vendorName" } );
 
         assertEquals( 2, attributes.size() );
 
@@ -339,7 +346,8 @@ public class RootDSETest extends TestCase
 
         try
         {
-            ctx.modifyAttributes( "", new ModificationItem[]{} );
+            ctx.modifyAttributes( "", new ModificationItem[]
+                {} );
 
             fail( "we should never get here" );
         }

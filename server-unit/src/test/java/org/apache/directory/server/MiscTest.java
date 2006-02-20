@@ -41,7 +41,7 @@ import javax.naming.ldap.InitialLdapContext;
  * A set of miscellanous tests.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 375632 $
+ * @version $Rev$
  */
 public class MiscTest extends AbstractServerTest
 {
@@ -84,12 +84,12 @@ public class MiscTest extends AbstractServerTest
             partition.setIndexedAttributes( Collections.singleton( "dc" ) );
             partitions.add( partition );
             configuration.setContextPartitionConfigurations( partitions );
-	}
+        }
         else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
         {
             // allow anonymous access
             configuration.setAllowAnonymousAccess( true );
-            
+
             // create a partition to search
             Set partitions = new HashSet();
             partitions.addAll( configuration.getContextPartitionConfigurations() );
@@ -106,7 +106,6 @@ public class MiscTest extends AbstractServerTest
             partitions.add( partition );
             configuration.setContextPartitionConfigurations( partitions );
         }
- 
 
         super.setUp();
     }
@@ -129,18 +128,18 @@ public class MiscTest extends AbstractServerTest
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
         boolean connected = false;
-        while( ! connected )
+        while ( !connected )
         {
             try
             {
                 ic = new InitialDirContext( env );
                 connected = true;
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
             }
         }
-        
+
         try
         {
             ic.search( "", "(objectClass=*)", new SearchControls() );
@@ -160,7 +159,7 @@ public class MiscTest extends AbstractServerTest
         {
             ic.createSubcontext( "ou=blah", attrs );
         }
-        catch( NoPermissionException e )
+        catch ( NoPermissionException e )
         {
         }
     }
@@ -198,6 +197,7 @@ public class MiscTest extends AbstractServerTest
         assertEquals( "", result.getName().trim() );
     }
 
+
     /**
      * Test to make sure that if anonymous binds are allowed a user may search 
      * within a a partition.
@@ -227,8 +227,9 @@ public class MiscTest extends AbstractServerTest
         list.close();
 
         assertNotNull( result );
-        assertNotNull( result.getAttributes().get("dc") );
+        assertNotNull( result.getAttributes().get( "dc" ) );
     }
+
 
     /**
      * Reproduces the problem with
@@ -243,7 +244,7 @@ public class MiscTest extends AbstractServerTest
         final Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
-        env.put("java.naming.ldap.version", "3");
+        env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
         Attributes attributes = new BasicAttributes();
@@ -256,7 +257,8 @@ public class MiscTest extends AbstractServerTest
         ctx.createSubcontext( "ou=blah,ou=system", attributes );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[] { "+" } );
+        controls.setReturningAttributes( new String[]
+            { "+" } );
         NamingEnumeration list = ctx.search( "ou=blah,ou=system", "(objectClass=*)", controls );
         SearchResult result = ( SearchResult ) list.next();
         list.close();
@@ -278,7 +280,7 @@ public class MiscTest extends AbstractServerTest
         final Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/dc=aPache,dc=org" );
-        env.put("java.naming.ldap.version", "3");
+        env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         InitialDirContext ctx = new InitialDirContext( env );
         Attributes attrs = ctx.getAttributes( "" );
@@ -332,8 +334,8 @@ public class MiscTest extends AbstractServerTest
         assertNotNull( e );
         assertFalse( e.getClass().equals( EmptyEnumeration.class ) );
     }
-    
-    
+
+
     public void testFailureWithUnsupportedControl() throws Exception
     {
         Control unsupported = new Control()
@@ -341,38 +343,46 @@ public class MiscTest extends AbstractServerTest
             boolean isCritical = true;
             private static final long serialVersionUID = 1L;
 
+
             public String getType()
             {
                 return "1.1.1.1";
             }
 
-            public void setType(String oid)
+
+            public void setType( String oid )
             {
             }
+
 
             public byte[] getValue()
             {
                 return new byte[0];
             }
 
-            public void setValue(byte[] value)
+
+            public void setValue( byte[] value )
             {
             }
+
 
             public boolean isCritical()
             {
                 return isCritical;
             }
 
-            public void setCritical(boolean isCritical)
+
+            public void setCritical( boolean isCritical )
             {
                 this.isCritical = isCritical;
             }
+
 
             public String getID()
             {
                 return "1.1.1.1";
             }
+
 
             public byte[] getEncodedValue()
             {
@@ -382,7 +392,7 @@ public class MiscTest extends AbstractServerTest
         final Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
-        env.put("java.naming.ldap.version", "3");
+        env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -398,18 +408,21 @@ public class MiscTest extends AbstractServerTest
         user.put( oc );
         user.put( "sn", "Bush" );
         user.put( "userPassword", "Aerial" );
-        ctx.setRequestControls( new Control[] { unsupported } );
-        
+        ctx.setRequestControls( new Control[]
+            { unsupported } );
+
         try
         {
             ctx.createSubcontext( "cn=Kate Bush", user );
         }
-        catch( OperationNotSupportedException e ) {}
-        
+        catch ( OperationNotSupportedException e )
+        {
+        }
+
         unsupported.setCritical( false );
         DirContext kate = ctx.createSubcontext( "cn=Kate Bush", user );
         assertNotNull( kate );
-        assertTrue( ArrayUtils.isEquals( Asn1StringUtils.getBytesUtf8( "Aerial" ), 
-            kate.getAttributes( "" ).get( "userPassword" ).get() ) );
+        assertTrue( ArrayUtils.isEquals( Asn1StringUtils.getBytesUtf8( "Aerial" ), kate.getAttributes( "" ).get(
+            "userPassword" ).get() ) );
     }
 }

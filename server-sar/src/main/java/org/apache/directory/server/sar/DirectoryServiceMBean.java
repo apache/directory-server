@@ -1,5 +1,5 @@
 /*
- *   @(#) $Id:  $
+ *   @(#) $Id$
  *   Copyright 2004 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
  */
 package org.apache.directory.server.sar;
 
+
 import org.w3c.dom.Element;
 
 import javax.naming.NamingException;
@@ -28,7 +29,7 @@ import javax.naming.directory.DirContext;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory
  *         Project</a>
- * @version $Rev:  $, $Date:  $
+ * @version $Rev$, $Date$
  */
 public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
 {
@@ -39,7 +40,8 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      *
      * @return The root DOM element
      */
-    public Element getEmbeddedLDIFFilters(  );
+    public Element getEmbeddedLDIFFilters();
+
 
     /**
      * Sets the root element of the XML properties list of defined LDIF filters
@@ -48,13 +50,15 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedLDIFFilters( Element fil );
 
+
     /**
      * Gets the root element of the XML properties list of additional
      * environment properties
      *
      * @return The root DOM element
      */
-    public Element getEmbeddedAdditionalEnvProperties(  );
+    public Element getEmbeddedAdditionalEnvProperties();
+
 
     /**
      * Sets the root element of the XML properties list of additional
@@ -64,13 +68,15 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedAdditionalEnvProperties( Element env );
 
+
     /**
      * Gets the root element of the XML properties list of custom bootstrap
      * schema properties
      *
      * @return The root DOM element
      */
-    public Element getEmbeddedCustomBootstrapSchema(  );
+    public Element getEmbeddedCustomBootstrapSchema();
+
 
     /**
      * Sets the root element of the XML properties list of custom bootstrap
@@ -80,12 +86,14 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedCustomBootstrapSchema( Element cfg );
 
+
     /**
      * Test to see if the directory service to use is embedded in this VM
      *
      * @return True if embedded else false
      */
-    public boolean isEmbeddedServerEnabled(  );
+    public boolean isEmbeddedServerEnabled();
+
 
     /**
      * Set if the directory service to use is embedded in this VM
@@ -94,12 +102,14 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedServerEnabled( boolean enabled );
 
+
     /**
      * Gets the name-to-object binding for Context INITIAL_CONTEXT_FACTORY
      *
      * @return Context.INITIAL_CONTEXT_FACTORY
      */
-    public String getContextFactory(  );
+    public String getContextFactory();
+
 
     /**
      * Sets the name-to-object binding for Context INITIAL_CONTEXT_FACTORY
@@ -108,12 +118,14 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setContextFactory( String factoryClass );
 
+
     /**
      * Gets the name-to-object binding for Context PROVIDER_URL
      *
      * @return Context.PROVIDER_URL
      */
-    public String getContextProviderURL(  );
+    public String getContextProviderURL();
+
 
     /**
      * Sets the name-to-object binding for Context PROVIDER_URL
@@ -122,12 +134,14 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setContextProviderURL( String providerURL );
 
+
     /**
      * Gets the name-to-object binding for Context SECURITY_AUTHENTICATION
      *
      * @return Context.SECURITY_AUTHENTICATION
      */
-    public String getContextSecurityAuthentication(  );
+    public String getContextSecurityAuthentication();
+
 
     /**
      * Sets the name-to-object binding for Context SECURITY_AUTHENTICATION
@@ -136,12 +150,14 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setContextSecurityAuthentication( String securityAuthentication );
 
+
     /**
      * Gets the name-to-object binding for Context SECURITY_PRINCIPAL
      *
      * @return Context.SECURITY_PRINCIPAL
      */
-    public String getContextSecurityPrincipal(  );
+    public String getContextSecurityPrincipal();
+
 
     /**
      * Sets the name-to-object binding for Context SECURITY_PRINCIPAL
@@ -150,12 +166,14 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setContextSecurityPrincipal( String securityPrincipal );
 
+
     /**
      * Gets the name-to-object binding for Context SECURITY_CREDENTIALS
      *
      * @return Context.SECURITY_CREDENTIALS
      */
-    public String getContextSecurityCredentials(  );
+    public String getContextSecurityCredentials();
+
 
     /**
      * Sets the name-to-object binding for Context SECURITY_CREDENTIALS
@@ -164,20 +182,23 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setContextSecurityCredentials( String securityCredentials );
 
+
     /**
      * Opens a directory context based on the currently assigned name-to-object
      * bindings
      *
      * @return A valid directory context or null on error
      */
-    public DirContext openDirContext(  ) throws NamingException;
+    public DirContext openDirContext() throws NamingException;
+
 
     /**
      * Embedded server only - Flushes out any I/O buffer or write cache
      *
      * @return True if flush succeeded else false
      */
-    public boolean flushEmbeddedServerData(  );
+    public boolean flushEmbeddedServerData();
+
 
     /**
      * Embedded server only - Changes the current password of the uid=admin
@@ -188,15 +209,16 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      *
      * @return Confirmation message for UI display
      */
-    public String changedEmbeddedAdminPassword( String oldPassword,
-        String newPassword );
+    public String changedEmbeddedAdminPassword( String oldPassword, String newPassword );
+
 
     /**
      * Embedded server only - tests if anonymous access is permitted
      *
      * @return True if permitted else false
      */
-    public boolean isEmbeddedAnonymousAccess(  );
+    public boolean isEmbeddedAnonymousAccess();
+
 
     /**
      * Embedded server only - sests if anonymous access is permitted
@@ -205,13 +227,15 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedAnonymousAccess( boolean anonymousAccess );
 
+
     /**
      * Embedded server only - tests if LDAP wire protocol handler is to be
      * started
      *
      * @return True if LDAP wire protocol in use else false
      */
-    public boolean isEmbeddedLDAPNetworkingSupport(  );
+    public boolean isEmbeddedLDAPNetworkingSupport();
+
 
     /**
      * Embedded server only - sests if LDAP wire protocol handler is to be
@@ -221,12 +245,14 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedLDAPNetworkingSupport( boolean ldapNetworkingSupport );
 
+
     /**
      * Embedded server only - gets the LDAP listen port
      *
      * @return LDAP listen port
      */
-    public int getEmbeddedLDAPPort(  );
+    public int getEmbeddedLDAPPort();
+
 
     /**
      * Embedded server only - sets the LDAP listen port
@@ -235,13 +261,15 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedLDAPPort( int ldapPort );
 
+
     /**
      * Embedded server only - gets the LDAPSSL) listen port (!NOT YET
      * SUPPORTED!)
      *
      * @return LDAPS listen port
      */
-    public int getEmbeddedLDAPSPort(  );
+    public int getEmbeddedLDAPSPort();
+
 
     /**
      * Embedded server only - sets the LDAPS (SSL) listen port (!NOT YET
@@ -251,6 +279,7 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedLDAPSPort( int ldapsPort );
 
+
     /**
      * Embedded server only - Gets the name of the root partion which was
      * automatically created on server startup
@@ -258,7 +287,8 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      * @return The name of the custom root partition (null for no custom
      *         partition)
      */
-    public String getEmbeddedCustomRootPartitionName(  );
+    public String getEmbeddedCustomRootPartitionName();
+
 
     /**
      * Embedded server only - Sets the name of the root partion which is
@@ -269,13 +299,15 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedCustomRootPartitionName( String rootPartitianName );
 
+
     /**
      * Embedded server only - Gets the name of the workfile folder used by the
      * server
      *
      * @return Folder name
      */
-    public String getEmbeddedWkdir(  );
+    public String getEmbeddedWkdir();
+
 
     /**
      * Embedded server only - Sets the name of the workfile folder used by the
@@ -285,13 +317,15 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedWkdir( String wkdir );
 
+
     /**
      * Embedded server only - Gets the name of the LDIF import folder used by
      * the server
      *
      * @return LDIF import folder
      */
-    public String getEmbeddedLDIFdir(  );
+    public String getEmbeddedLDIFdir();
+
 
     /**
      * Embedded server only - Sets the name of the LDIF import folder used by
@@ -301,12 +335,14 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedLDIFdir( String LDIFdir );
 
+
     /**
      * Embedded server only - test if access control is enabled
      *
      * @return True is enabled else false
      */
-    public boolean isEmbeddedAccessControlEnabled(  );
+    public boolean isEmbeddedAccessControlEnabled();
+
 
     /**
      * Embedded server only - Set if access control is enabled
@@ -315,12 +351,14 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedAccessControlEnabled( boolean enabled );
 
+
     /**
      * Embedded server only - test if NTP wire protocol is enabled
      *
      * @return True is enabled else false
      */
-    public boolean isEmbeddedEnableNtp(  );
+    public boolean isEmbeddedEnableNtp();
+
 
     /**
      * Embedded server only - set if NTP wire protocol is enabled
@@ -329,12 +367,14 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedEnableNtp( boolean enabled );
 
+
     /**
      * Embedded server only - test if Kerberos wire protocol is enabled
      *
      * @return True is enabled else false
      */
-    public boolean isEmbeddedEnableKerberos(  );
+    public boolean isEmbeddedEnableKerberos();
+
 
     /**
      * Embedded server only - set if Kerberos wire protocol is enabled
@@ -343,12 +383,14 @@ public interface DirectoryServiceMBean extends org.jboss.system.ServiceMBean
      */
     public void setEmbeddedEnableKerberos( boolean enabled );
 
+
     /**
      * Embedded server only - test if Change Password wire protocol is enabled
      *
      * @return True is enabled else false
      */
-    public boolean isEmbeddedEnableChangePassword(  );
+    public boolean isEmbeddedEnableChangePassword();
+
 
     /**
      * Embedded server only - set if Change Password wire protocol is enabled

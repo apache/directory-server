@@ -57,7 +57,8 @@ public abstract class BaseInterceptor implements Interceptor
         ServerContext ctx = ( ServerContext ) getContext();
         return ctx.getPrincipal();
     }
-    
+
+
     /**
      * Returns the current JNDI {@link Context}.
      */
@@ -179,7 +180,8 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
+        throws NamingException
     {
         next.move( oriChildName, newParentName, newRn, deleteOldRn );
     }
@@ -191,32 +193,38 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
+        SearchControls searchCtls ) throws NamingException
     {
         return next.search( base, env, filter, searchCtls );
     }
+
 
     public void addContextPartition( NextInterceptor next, DirectoryPartitionConfiguration cfg ) throws NamingException
     {
         next.addContextPartition( cfg );
     }
 
+
     public void removeContextPartition( NextInterceptor next, Name suffix ) throws NamingException
     {
         next.removeContextPartition( suffix );
     }
 
+
     public boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException
     {
         return next.compare( name, oid, value );
     }
-    
+
+
     public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId )
         throws NamingException
     {
         next.bind( bindDn, credentials, mechanisms, saslAuthId );
     }
-    
+
+
     public void unbind( NextInterceptor next, Name bindDn ) throws NamingException
     {
         next.unbind( bindDn );

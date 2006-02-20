@@ -52,11 +52,10 @@ public class BootstrapDitStructureRuleRegistry implements DITStructureRuleRegist
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates an empty BootstrapDitStructureRuleRegistry.
      */
-    public BootstrapDitStructureRuleRegistry( OidRegistry oidRegistry )
+    public BootstrapDitStructureRuleRegistry(OidRegistry oidRegistry)
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
@@ -80,13 +79,12 @@ public class BootstrapDitStructureRuleRegistry implements DITStructureRuleRegist
     // Service Methods
     // ------------------------------------------------------------------------
 
-
     public void register( String schema, DITStructureRule dITStructureRule ) throws NamingException
     {
         if ( byOid.containsKey( dITStructureRule.getOid() ) )
         {
-            NamingException e = new NamingException( "dITStructureRule w/ OID " +
-                dITStructureRule.getOid() + " has already been registered!" );
+            NamingException e = new NamingException( "dITStructureRule w/ OID " + dITStructureRule.getOid()
+                + " has already been registered!" );
             monitor.registerFailed( dITStructureRule, e );
             throw e;
         }
@@ -102,10 +100,9 @@ public class BootstrapDitStructureRuleRegistry implements DITStructureRuleRegist
     {
         id = oidRegistry.getOid( id );
 
-        if ( ! byOid.containsKey( id ) )
+        if ( !byOid.containsKey( id ) )
         {
-            NamingException e = new NamingException( "dITStructureRule w/ OID "
-                + id + " not registered!" );
+            NamingException e = new NamingException( "dITStructureRule w/ OID " + id + " not registered!" );
             monitor.lookupFailed( id, e );
             throw e;
         }
@@ -142,11 +139,8 @@ public class BootstrapDitStructureRuleRegistry implements DITStructureRuleRegist
             return ( String ) oidToSchema.get( id );
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " +
-            "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
     }
-
-
 
 
     public Iterator list()

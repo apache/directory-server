@@ -41,7 +41,8 @@ public interface MatchingRuleRegistry
      * registration operation is not supported
      */
     void register( String schema, MatchingRule matchingRule ) throws NamingException;
-    
+
+
     /**
      * Looks up a MatchingRule by its unique Object Identifier or by name.
      * 
@@ -52,6 +53,7 @@ public interface MatchingRuleRegistry
      */
     MatchingRule lookup( String id ) throws NamingException;
 
+
     /**
      * Gets the name of the schema this schema object is associated with.
      *
@@ -60,6 +62,7 @@ public interface MatchingRuleRegistry
      * @throws NamingException if the schema object does not exist
      */
     String getSchemaName( String id ) throws NamingException;
+
 
     /**
      * Checks to see if a MatchingRule exists.  Backing store failures simply 
@@ -70,6 +73,7 @@ public interface MatchingRuleRegistry
      * otherwise
      */
     boolean hasMatchingRule( String oid );
+
 
     /**
      * Gets an Iterator over the MatchingRules within this registry.

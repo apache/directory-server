@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dns.store;
 
+
 import java.util.Map;
 
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
+
 
 /**
  * A catalog for mapping DNS zones to search base DN's. 
@@ -31,10 +33,12 @@ class DnsCatalog implements Catalog
 {
     private Map map;
 
-    public DnsCatalog( Map map )
+
+    public DnsCatalog(Map map)
     {
         this.map = map;
     }
+
 
     public String getBaseDn( String name )
     {
@@ -46,7 +50,7 @@ class DnsCatalog implements Catalog
 
         while ( !name.equals( "" ) && name != null )
         {
-            String candidate = (String) map.get( name );
+            String candidate = ( String ) map.get( name );
             if ( candidate != null )
             {
                 return candidate;

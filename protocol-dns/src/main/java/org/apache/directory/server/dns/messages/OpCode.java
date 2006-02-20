@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dns.messages;
 
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 
 public final class OpCode implements Comparable
 {
@@ -36,44 +38,50 @@ public final class OpCode implements Comparable
     /**
      * These two lines are all that's necessary to export a List of VALUES.
      */
-    private static final OpCode[] values = { QUERY, IQUERY, STATUS, NOTIFY, UPDATE };
+    private static final OpCode[] values =
+        { QUERY, IQUERY, STATUS, NOTIFY, UPDATE };
 
     public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     private final String name;
     private final int ordinal;
 
+
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private OpCode( int ordinal, String name )
+    private OpCode(int ordinal, String name)
     {
         this.ordinal = ordinal;
         this.name = name;
     }
+
 
     public String toString()
     {
         return name;
     }
 
+
     public int compareTo( Object that )
     {
-        return ordinal - ( (OpCode) that ).ordinal;
+        return ordinal - ( ( OpCode ) that ).ordinal;
     }
+
 
     public static OpCode getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
         {
-            if ( values[ ii ].ordinal == type )
+            if ( values[ii].ordinal == type )
             {
-                return values[ ii ];
+                return values[ii];
             }
         }
 
         return QUERY;
     }
+
 
     public int getOrdinal()
     {

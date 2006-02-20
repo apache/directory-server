@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.changepw.protocol;
 
+
 import java.io.IOException;
 
 import org.apache.directory.server.changepw.io.ChangePasswordRequestDecoder;
@@ -25,6 +26,7 @@ import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
+
 public class ChangePasswordDecoder implements ProtocolDecoder
 {
     public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws IOException
@@ -32,6 +34,7 @@ public class ChangePasswordDecoder implements ProtocolDecoder
         ChangePasswordRequestDecoder decoder = new ChangePasswordRequestDecoder();
         out.write( decoder.decode( in.buf() ) );
     }
+
 
     public void dispose( IoSession session ) throws Exception
     {

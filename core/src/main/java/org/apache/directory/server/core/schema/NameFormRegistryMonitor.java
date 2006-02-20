@@ -35,12 +35,14 @@ public interface NameFormRegistryMonitor
      */
     void registered( NameForm nameForm );
 
+
     /**
      * Monitors when a Comparator is successfully looked up.
      *
      * @param nameForm the NameForm successfully lookedup
      */
     void lookedUp( NameForm nameForm );
+
 
     /**
      * Monitors when a lookup attempt fails.
@@ -49,6 +51,7 @@ public interface NameFormRegistryMonitor
      * @param fault the exception to be thrown for the fault
      */
     void lookupFailed( String oid, Throwable fault );
+
 
     /**
      * Monitors when a registration attempt fails.

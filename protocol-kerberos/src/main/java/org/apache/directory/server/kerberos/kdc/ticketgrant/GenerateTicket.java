@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,28 +24,29 @@ import java.util.List;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
+import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
+import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
+import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
+import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.exceptions.ErrorType;
-import org.apache.kerberos.exceptions.KerberosException;
-import org.apache.kerberos.messages.KdcRequest;
-import org.apache.kerberos.messages.components.Authenticator;
-import org.apache.kerberos.messages.components.EncTicketPart;
-import org.apache.kerberos.messages.components.EncTicketPartModifier;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.messages.value.AuthorizationData;
-import org.apache.kerberos.messages.value.EncryptedData;
-import org.apache.kerberos.messages.value.EncryptionKey;
-import org.apache.kerberos.messages.value.KdcOptions;
-import org.apache.kerberos.messages.value.KerberosTime;
-import org.apache.kerberos.messages.value.TicketFlags;
-import org.apache.kerberos.service.LockBox;
+
 
 public class GenerateTicket extends CommandBase
 {
     public boolean execute( Context context ) throws Exception
     {
-        TicketGrantingContext tgsContext = (TicketGrantingContext) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
 
         KdcRequest request = tgsContext.getRequest();
         Ticket tgt = tgsContext.getTgt();
@@ -66,7 +68,8 @@ public class GenerateTicket extends CommandBase
 
         if ( request.getEncAuthorizationData() != null )
         {
-            AuthorizationData authData = (AuthorizationData) lockBox.unseal( AuthorizationData.class, authenticator.getSubSessionKey(), request.getEncAuthorizationData() );
+            AuthorizationData authData = ( AuthorizationData ) lockBox.unseal( AuthorizationData.class, authenticator
+                .getSubSessionKey(), request.getEncAuthorizationData() );
             authData.add( tgt.getAuthorizationData() );
             newTicketBody.setAuthorizationData( authData );
         }
@@ -103,8 +106,9 @@ public class GenerateTicket extends CommandBase
         return CONTINUE_CHAIN;
     }
 
+
     private void processFlags( KdcConfiguration config, KdcRequest request, Ticket tgt,
-            EncTicketPartModifier newTicketBody ) throws KerberosException
+        EncTicketPartModifier newTicketBody ) throws KerberosException
     {
         if ( request.getOption( KdcOptions.FORWARDABLE ) )
         {
@@ -208,8 +212,9 @@ public class GenerateTicket extends CommandBase
         }
     }
 
+
     private void processTimes( KdcConfiguration config, KdcRequest request, EncTicketPartModifier newTicketBody,
-            Ticket tgt ) throws KerberosException
+        Ticket tgt ) throws KerberosException
     {
         KerberosTime now = new KerberosTime();
 
@@ -234,7 +239,7 @@ public class GenerateTicket extends CommandBase
             newTicketBody.setStartTime( now );
             long oldLife = tgt.getEndTime().getTime() - tgt.getStartTime().getTime();
             newTicketBody.setEndTime( new KerberosTime( Math
-                    .min( tgt.getRenewTill().getTime(), now.getTime() + oldLife ) ) );
+                .min( tgt.getRenewTill().getTime(), now.getTime() + oldLife ) ) );
         }
         else
         {
@@ -258,11 +263,11 @@ public class GenerateTicket extends CommandBase
             minimizer.add( till );
             minimizer.add( new KerberosTime( now.getTime() + config.getMaximumTicketLifetime() ) );
             minimizer.add( tgt.getEndTime() );
-            KerberosTime minTime = (KerberosTime) Collections.min( minimizer );
+            KerberosTime minTime = ( KerberosTime ) Collections.min( minimizer );
             newTicketBody.setEndTime( minTime );
 
             if ( request.getOption( KdcOptions.RENEWABLE_OK ) && minTime.lessThan( request.getTill() )
-                    && tgt.getFlag( TicketFlags.RENEWABLE ) )
+                && tgt.getFlag( TicketFlags.RENEWABLE ) )
             {
                 // we set the RENEWABLE option for later processing                           
                 request.setOption( KdcOptions.RENEWABLE );
@@ -307,9 +312,10 @@ public class GenerateTicket extends CommandBase
 
             minimizer.add( new KerberosTime( now.getTime() + config.getMaximumRenewableLifetime() ) );
             minimizer.add( tgt.getRenewTill() );
-            newTicketBody.setRenewTill( (KerberosTime) Collections.min( minimizer ) );
+            newTicketBody.setRenewTill( ( KerberosTime ) Collections.min( minimizer ) );
         }
     }
+
 
     /*
      if (realm_tgt_is_for(tgt) := tgt.realm) then
@@ -328,6 +334,7 @@ public class GenerateTicket extends CommandBase
         // TODO - currently no transited support other than local
         newTicketBody.setTransitedEncoding( tgt.getTransitedEncoding() );
     }
+
 
     protected void echoTicket( EncTicketPartModifier newTicketBody, Ticket tgt )
     {

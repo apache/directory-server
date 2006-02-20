@@ -40,6 +40,7 @@ public class ServerPreferencesFactory implements PreferencesFactory
 
     public Preferences userRoot()
     {
-        throw new NotImplementedException( "userRoot() in org.apache.directory.server.prefs.ServerPreferencesFactory not implemented!" );
+        throw new NotImplementedException(
+            "userRoot() in org.apache.directory.server.prefs.ServerPreferencesFactory not implemented!" );
     }
 }

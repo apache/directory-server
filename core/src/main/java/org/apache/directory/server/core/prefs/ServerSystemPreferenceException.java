@@ -30,22 +30,26 @@ public class ServerSystemPreferenceException extends RuntimeException
 {
     private static final long serialVersionUID = -2042269063779317751L;
 
+
     public ServerSystemPreferenceException()
     {
         super();
     }
 
-    public ServerSystemPreferenceException( String message )
+
+    public ServerSystemPreferenceException(String message)
     {
         super( message );
     }
 
-    public ServerSystemPreferenceException( String message, Throwable cause )
+
+    public ServerSystemPreferenceException(String message, Throwable cause)
     {
         super( message, cause );
     }
 
-    public ServerSystemPreferenceException( Throwable cause )
+
+    public ServerSystemPreferenceException(Throwable cause)
     {
         super( cause );
     }

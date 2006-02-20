@@ -40,24 +40,26 @@ public abstract class ToolCommand
     private String version;
     private InstallationLayout layout;
     private ServerStartupConfiguration configuration;
-    
 
-    protected ToolCommand( String name )
+
+    protected ToolCommand(String name)
     {
         this.name = name;
     }
-    
-    
+
+
     public abstract void execute( CommandLine cmd ) throws Exception;
+
+
     public abstract Options getOptions();
 
-    
+
     public String getName()
     {
         return this.name;
     }
-    
-    
+
+
     public void setLayout( File installationDirectory )
     {
         this.layout = new InstallationLayout( installationDirectory );

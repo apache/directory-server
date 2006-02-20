@@ -29,10 +29,10 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DITStructureRuleRegistryMonitorAdapter
-    implements DITStructureRuleRegistryMonitor
+public class DITStructureRuleRegistryMonitorAdapter implements DITStructureRuleRegistryMonitor
 {
     private static final Logger log = LoggerFactory.getLogger( DITStructureRuleRegistryMonitorAdapter.class );
+
 
     public void registered( DITStructureRule dITStructureRule )
     {

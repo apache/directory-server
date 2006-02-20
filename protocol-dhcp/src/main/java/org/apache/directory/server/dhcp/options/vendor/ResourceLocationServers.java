@@ -25,13 +25,14 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 public class ResourceLocationServers extends AddressListOption
 {
-	public ResourceLocationServers( byte[] resourceLocationServers )
-	{
-		super( 11, resourceLocationServers );
-	}
+    public ResourceLocationServers(byte[] resourceLocationServers)
+    {
+        super( 11, resourceLocationServers );
+    }
 }
-

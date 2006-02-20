@@ -17,30 +17,32 @@
 
 package org.apache.directory.server.changepw.io;
 
+
 import java.io.IOException;
 import java.util.Enumeration;
 
 import org.apache.directory.server.changepw.value.ChangePasswordData;
 import org.apache.directory.server.changepw.value.ChangePasswordDataModifier;
+import org.apache.directory.server.kerberos.shared.io.decoder.PrincipalNameDecoder;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
 import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
-import org.apache.kerberos.io.decoder.PrincipalNameDecoder;
+
 
 public class ChangePasswordDataDecoder
 {
-    public ChangePasswordData decodeChangePasswordData( byte[] encodedChangePasswdData )
-            throws IOException
+    public ChangePasswordData decodeChangePasswordData( byte[] encodedChangePasswdData ) throws IOException
     {
         ASN1InputStream ais = new ASN1InputStream( encodedChangePasswdData );
 
-        DERSequence sequence = (DERSequence) ais.readObject();
+        DERSequence sequence = ( DERSequence ) ais.readObject();
 
         return decodeChangePasswdData( sequence );
     }
+
 
     protected ChangePasswordData decodeChangePasswdData( DERSequence sequence )
     {
@@ -48,21 +50,21 @@ public class ChangePasswordDataDecoder
 
         for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
         {
-            DERTaggedObject object = ( (DERTaggedObject) e.nextElement() );
+            DERTaggedObject object = ( ( DERTaggedObject ) e.nextElement() );
             int tag = object.getTagNo();
             DEREncodable derObject = object.getObject();
             switch ( tag )
             {
                 case 0:
-                    DEROctetString tag0 = (DEROctetString) derObject;
+                    DEROctetString tag0 = ( DEROctetString ) derObject;
                     modifier.setNewPassword( tag0.getOctets() );
                     break;
                 case 1:
-                    DERSequence tag1 = (DERSequence) derObject;
+                    DERSequence tag1 = ( DERSequence ) derObject;
                     modifier.setTargetName( PrincipalNameDecoder.decode( tag1 ) );
                     break;
                 case 2:
-                    DERGeneralString tag2 = (DERGeneralString) derObject;
+                    DERGeneralString tag2 = ( DERGeneralString ) derObject;
                     modifier.setTargetRealm( tag2.getString() );
                     break;
                 default:

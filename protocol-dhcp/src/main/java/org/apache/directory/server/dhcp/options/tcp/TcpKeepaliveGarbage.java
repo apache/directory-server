@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.tcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies the interval (in seconds) that the client TCP
@@ -32,17 +34,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class TcpKeepaliveGarbage extends DhcpOption
 {
-	private byte[] tcpKeepaliveGarbage;
-	
-	public TcpKeepaliveGarbage( byte[] tcpKeepaliveGarbage )
-	{
-		super( 38, 4 );
-		this.tcpKeepaliveGarbage = tcpKeepaliveGarbage;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( tcpKeepaliveGarbage );
-	}
-}
+    private byte[] tcpKeepaliveGarbage;
 
+
+    public TcpKeepaliveGarbage(byte[] tcpKeepaliveGarbage)
+    {
+        super( 38, 4 );
+        this.tcpKeepaliveGarbage = tcpKeepaliveGarbage;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( tcpKeepaliveGarbage );
+    }
+}

@@ -66,7 +66,7 @@ public class SearchHandler implements MessageHandler
     private static final Logger log = LoggerFactory.getLogger( SearchHandler.class );
     private static final String DEREFALIASES_KEY = "java.naming.ldap.derefAliases";
 
-    
+
     /**
      * Builds the JNDI search controls for a SearchRequest.
      *  
@@ -87,7 +87,7 @@ public class SearchHandler implements MessageHandler
         return controls;
     }
 
-    
+
     /**
      * Determines if a search request is on the RootDSE of the server.
      * 
@@ -105,7 +105,7 @@ public class SearchHandler implements MessageHandler
         }
         return isBaseIsRoot && isBaseScope && isRootDSEFilter;
     }
-    
+
 
     /**
      * Main message handing method for search requests.
@@ -118,17 +118,17 @@ public class SearchHandler implements MessageHandler
         String[] ids = null;
         Collection retAttrs = new HashSet();
         retAttrs.addAll( req.getAttributes() );
-        
+
         // add the search request to the registry of outstanding requests for this session
         SessionRegistry.getSingleton().addOutstandingRequest( session, req );
 
         // check the attributes to see if a referral's ref attribute is included
-        if( retAttrs.size() > 0 && !retAttrs.contains( "ref" ) )
+        if ( retAttrs.size() > 0 && !retAttrs.contains( "ref" ) )
         {
             retAttrs.add( "ref" );
             ids = ( String[] ) retAttrs.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
         }
-        else if( retAttrs.size() > 0 )
+        else if ( retAttrs.size() > 0 )
         {
             ids = ( String[] ) retAttrs.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
         }
@@ -145,7 +145,7 @@ public class SearchHandler implements MessageHandler
             if ( isRootDSESearch )
             {
                 LdapContext unknown = SessionRegistry.getSingleton().getLdapContextOnRootDSEAccess( session, null );
-                if ( ! ( unknown instanceof ServerLdapContext ) )
+                if ( !( unknown instanceof ServerLdapContext ) )
                 {
                     ctx = ( ServerLdapContext ) unknown.lookup( "" );
                 }
@@ -158,7 +158,7 @@ public class SearchHandler implements MessageHandler
             else
             {
                 LdapContext unknown = SessionRegistry.getSingleton().getLdapContext( session, null, true );
-                if ( ! ( unknown instanceof ServerLdapContext ) )
+                if ( !( unknown instanceof ServerLdapContext ) )
                 {
                     ctx = ( ServerLdapContext ) unknown.lookup( "" );
                 }
@@ -185,7 +185,7 @@ public class SearchHandler implements MessageHandler
             boolean allowAnonymousBinds = cfg.isAllowAnonymousAccess();
             boolean isAnonymousUser = ( ( ServerLdapContext ) ctx ).getPrincipal().getName().trim().equals( "" );
 
-            if ( isAnonymousUser && ! allowAnonymousBinds && ! isRootDSESearch )
+            if ( isAnonymousUser && !allowAnonymousBinds && !isRootDSESearch )
             {
                 LdapResult result = req.getResultResponse().getLdapResult();
                 result.setResultCode( ResultCodeEnum.INSUFFICIENTACCESSRIGHTS );
@@ -199,25 +199,26 @@ public class SearchHandler implements MessageHandler
             // Handle psearch differently
             // ===============================================================
 
-            PersistentSearchControl psearchControl = ( PersistentSearchControl ) 
-                req.getControls().get( PersistentSearchControl.CONTROL_OID );
+            PersistentSearchControl psearchControl = ( PersistentSearchControl ) req.getControls().get(
+                PersistentSearchControl.CONTROL_OID );
             if ( psearchControl != null )
             {
                 // there are no limits for psearch processing
                 controls.setCountLimit( 0 );
                 controls.setTimeLimit( 0 );
-                
-                if ( ! psearchControl.isChangesOnly() )
+
+                if ( !psearchControl.isChangesOnly() )
                 {
-                    list = ( ( ServerLdapContext ) ctx ).search( new LdapName( req.getBase() ), req.getFilter(), controls );
+                    list = ( ( ServerLdapContext ) ctx ).search( new LdapName( req.getBase() ), req.getFilter(),
+                        controls );
                     if ( list instanceof AbandonListener )
                     {
                         req.addAbandonListener( ( AbandonListener ) list );
                     }
-                    if( list.hasMore() )
+                    if ( list.hasMore() )
                     {
                         Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope() );
-                        while( it.hasNext() )
+                        while ( it.hasNext() )
                         {
                             Response resp = ( Response ) it.next();
                             if ( resp instanceof SearchResponseDone )
@@ -233,7 +234,8 @@ public class SearchHandler implements MessageHandler
                                 // instead of returning the DONE response we break from the
                                 // loop and user the notification listener to send back 
                                 // notificationss to the client in never ending search
-                                else break;
+                                else
+                                    break;
                             }
                             else
                             {
@@ -242,7 +244,7 @@ public class SearchHandler implements MessageHandler
                         }
                     }
                 }
-                
+
                 // now we process entries for ever as they change 
                 PersistentSearchListener handler = new PersistentSearchListener( ctx, session, req );
                 StringBuffer buf = new StringBuffer();
@@ -251,7 +253,7 @@ public class SearchHandler implements MessageHandler
                 SessionRegistry.getSingleton().addOutstandingRequest( session, req );
                 return;
             }
-            
+
             // ===============================================================
             // Handle regular search requests from here down
             // ===============================================================
@@ -265,11 +267,11 @@ public class SearchHandler implements MessageHandler
             {
                 req.addAbandonListener( ( AbandonListener ) list );
             }
-            
-            if( list.hasMore() )
+
+            if ( list.hasMore() )
             {
                 Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope() );
-                while( it.hasNext() )
+                while ( it.hasNext() )
                 {
                     session.write( it.next() );
                 }
@@ -281,14 +283,14 @@ public class SearchHandler implements MessageHandler
                 list.close();
                 req.getResultResponse().getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
                 Iterator it = Collections.singleton( req.getResultResponse() ).iterator();
-                while( it.hasNext() )
+                while ( it.hasNext() )
                 {
                     session.write( it.next() );
                 }
                 return;
             }
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             LdapResult result = req.getResultResponse().getLdapResult();
             ReferralImpl refs = new ReferralImpl();
@@ -301,12 +303,12 @@ public class SearchHandler implements MessageHandler
             {
                 refs.addLdapUrl( ( String ) e.getReferralInfo() );
             }
-            while( e.skipReferral() );
+            while ( e.skipReferral() );
             session.write( req.getResultResponse() );
             SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
             return;
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             /*
              * From RFC 2251 Section 4.11:
@@ -324,7 +326,7 @@ public class SearchHandler implements MessageHandler
             {
                 return;
             }
-            
+
             String msg = "failed on search operation";
             if ( log.isDebugEnabled() )
             {
@@ -332,7 +334,7 @@ public class SearchHandler implements MessageHandler
             }
 
             ResultCodeEnum code = null;
-            if( e instanceof LdapException )
+            if ( e instanceof LdapException )
             {
                 code = ( ( LdapException ) e ).getResultCode();
             }
@@ -345,17 +347,15 @@ public class SearchHandler implements MessageHandler
             result.setResultCode( code );
             result.setErrorMessage( msg );
 
-            if ( ( e.getResolvedName() != null ) &&
-                    ( ( code == ResultCodeEnum.NOSUCHOBJECT ) ||
-                      ( code == ResultCodeEnum.ALIASPROBLEM ) ||
-                      ( code == ResultCodeEnum.INVALIDDNSYNTAX ) ||
-                      ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+            if ( ( e.getResolvedName() != null )
+                && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
+                    || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
             {
                 result.setMatchedDn( e.getResolvedName().toString() );
             }
 
             Iterator it = Collections.singleton( req.getResultResponse() ).iterator();
-            while( it.hasNext() )
+            while ( it.hasNext() )
             {
                 session.write( it.next() );
             }
@@ -365,7 +365,14 @@ public class SearchHandler implements MessageHandler
         {
             if ( list != null )
             {
-                try { list.close(); } catch( NamingException e ){ log.error("failed on list.close()", e ); } 
+                try
+                {
+                    list.close();
+                }
+                catch ( NamingException e )
+                {
+                    log.error( "failed on list.close()", e );
+                }
             }
         }
     }

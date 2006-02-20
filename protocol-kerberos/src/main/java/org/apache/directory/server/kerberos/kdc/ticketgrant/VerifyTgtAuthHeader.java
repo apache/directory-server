@@ -16,22 +16,24 @@
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
+
 import java.net.InetAddress;
 
+import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.service.LockBox;
+import org.apache.directory.server.kerberos.shared.service.VerifyAuthHeader;
 import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.kerberos.messages.ApplicationRequest;
-import org.apache.kerberos.messages.components.Authenticator;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.messages.value.EncryptionKey;
-import org.apache.kerberos.replay.ReplayCache;
-import org.apache.kerberos.service.LockBox;
-import org.apache.kerberos.service.VerifyAuthHeader;
+
 
 public class VerifyTgtAuthHeader extends VerifyAuthHeader
 {
     public boolean execute( Context context ) throws Exception
     {
-        TicketGrantingContext tgsContext = (TicketGrantingContext) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
 
         ApplicationRequest authHeader = tgsContext.getAuthHeader();
         Ticket tgt = tgsContext.getTgt();
@@ -43,7 +45,7 @@ public class VerifyTgtAuthHeader extends VerifyAuthHeader
         LockBox lockBox = tgsContext.getLockBox();
 
         Authenticator authenticator = verifyAuthHeader( authHeader, tgt, serverKey, clockSkew, replayCache,
-                emptyAddressesAllowed, clientAddress, lockBox );
+            emptyAddressesAllowed, clientAddress, lockBox );
 
         tgsContext.setAuthenticator( authenticator );
 

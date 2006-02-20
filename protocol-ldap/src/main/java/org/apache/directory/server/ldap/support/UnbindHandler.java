@@ -40,7 +40,7 @@ public class UnbindHandler implements MessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( UnbindHandler.class );
 
-    
+
     public void messageReceived( IoSession session, Object request )
     {
         SessionRegistry registry = SessionRegistry.getSingleton();
@@ -48,7 +48,7 @@ public class UnbindHandler implements MessageHandler
         try
         {
             LdapContext ctx = ( LdapContext ) SessionRegistry.getSingleton().getLdapContext( session, null, false );
-            
+
             if ( ctx != null )
             {
                 if ( ctx instanceof ServerLdapContext && ( ( ServerLdapContext ) ctx ).getService().isStarted() )

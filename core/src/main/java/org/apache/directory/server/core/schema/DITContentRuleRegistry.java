@@ -41,7 +41,8 @@ public interface DITContentRuleRegistry
      * the registration operation is not supported
      */
     void register( String schema, DITContentRule dITContentRule ) throws NamingException;
-    
+
+
     /**
      * Looks up a DITContentRule by its object identifier or by its name.
      * 
@@ -50,6 +51,7 @@ public interface DITContentRuleRegistry
      * @throws NamingException if the DITContentRule does not exist
      */
     DITContentRule lookup( String id ) throws NamingException;
+
 
     /**
      * Gets the name of the schema this schema object is associated with.
@@ -60,6 +62,7 @@ public interface DITContentRuleRegistry
      */
     String getSchemaName( String id ) throws NamingException;
 
+
     /**
      * Checks to see if a DITContentRule exists.
      * 
@@ -68,6 +71,7 @@ public interface DITContentRuleRegistry
      * otherwise
      */
     boolean hasDITContentRule( String id );
+
 
     /**
      * Lists all the DITContentRules within this registry.

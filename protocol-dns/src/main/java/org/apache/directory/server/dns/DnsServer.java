@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns;
 
+
 import java.io.IOException;
 import java.util.Dictionary;
 
@@ -28,6 +29,7 @@ import org.apache.mina.registry.Service;
 import org.apache.mina.registry.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class DnsServer
 {
@@ -42,7 +44,8 @@ public class DnsServer
     private Service tcpService;
     private Service udpService;
 
-    public DnsServer( DnsConfiguration config, ServiceRegistry registry, RecordStore store )
+
+    public DnsServer(DnsConfiguration config, ServiceRegistry registry, RecordStore store)
     {
         this.config = config;
         this.registry = registry;
@@ -69,10 +72,12 @@ public class DnsServer
         }
     }
 
+
     public boolean isDifferent( Dictionary newConfig )
     {
         return config.isDifferent( newConfig );
     }
+
 
     public void destroy()
     {

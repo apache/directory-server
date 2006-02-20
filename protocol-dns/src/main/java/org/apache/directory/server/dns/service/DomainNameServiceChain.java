@@ -16,9 +16,11 @@
  */
 package org.apache.directory.server.dns.service;
 
+
 import org.apache.directory.server.protocol.shared.chain.impl.ChainBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Domain Name Service (DNS) Protocol (RFC 1034, 1035)
@@ -27,6 +29,7 @@ public class DomainNameServiceChain extends ChainBase
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( DomainNameServiceChain.class );
+
 
     public DomainNameServiceChain()
     {

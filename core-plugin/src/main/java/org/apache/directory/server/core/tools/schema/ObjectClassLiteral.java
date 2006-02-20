@@ -47,8 +47,7 @@ public class ObjectClassLiteral
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
-    public ObjectClassLiteral( String oid )
+    public ObjectClassLiteral(String oid)
     {
         this.oid = oid;
     }
@@ -58,81 +57,95 @@ public class ObjectClassLiteral
     // Accessors and mutators
     // ------------------------------------------------------------------------
 
-
     public boolean isObsolete()
     {
         return obsolete;
     }
+
 
     public void setObsolete( boolean obsolete )
     {
         this.obsolete = obsolete;
     }
 
+
     public String getOid()
     {
         return oid;
     }
+
 
     public void setOid( String oid )
     {
         this.oid = oid;
     }
 
+
     public String getDescription()
     {
         return description;
     }
+
 
     public void setDescription( String description )
     {
         this.description = description;
     }
 
+
     public String[] getNames()
     {
         return names;
     }
+
 
     public void setNames( String[] names )
     {
         this.names = names;
     }
 
+
     public String[] getSuperiors()
     {
         return superiors;
     }
+
 
     public void setSuperiors( String[] superiors )
     {
         this.superiors = superiors;
     }
 
+
     public String[] getMust()
     {
         return must;
     }
+
 
     public void setMust( String[] must )
     {
         this.must = must;
     }
 
+
     public String[] getMay()
     {
         return may;
     }
+
 
     public void setMay( String[] may )
     {
         this.may = may;
     }
 
+
     public ObjectClassTypeEnum getClassType()
     {
         return classType;
     }
+
 
     public void setClassType( ObjectClassTypeEnum classType )
     {
@@ -143,7 +156,6 @@ public class ObjectClassLiteral
     // ------------------------------------------------------------------------
     // Object overrides
     // ------------------------------------------------------------------------
-
 
     public int hashCode()
     {
@@ -158,7 +170,7 @@ public class ObjectClassLiteral
             return true;
         }
 
-        if ( ! ( obj instanceof ObjectClassLiteral ) )
+        if ( !( obj instanceof ObjectClassLiteral ) )
         {
             return false;
         }

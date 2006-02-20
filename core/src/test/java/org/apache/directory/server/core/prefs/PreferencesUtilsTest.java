@@ -47,9 +47,8 @@ public class PreferencesUtilsTest extends TestCase
 
         Name dn = PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.toString(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org," + PreferencesUtils.SYSPREF_BASE );
-
-
+        assertEquals( dn.toString(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org,"
+            + PreferencesUtils.SYSPREF_BASE );
 
         // simple test without trailing '/'
 
@@ -57,9 +56,8 @@ public class PreferencesUtilsTest extends TestCase
 
         dn = PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.toString(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org," + PreferencesUtils.SYSPREF_BASE );
-
-
+        assertEquals( dn.toString(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org,"
+            + PreferencesUtils.SYSPREF_BASE );
 
         // basis condition tests
 
@@ -68,8 +66,6 @@ public class PreferencesUtilsTest extends TestCase
         dn = PreferencesUtils.toSysDn( test );
 
         assertEquals( dn.toString(), PreferencesUtils.SYSPREF_BASE );
-
-
 
         // endpoint tests
 

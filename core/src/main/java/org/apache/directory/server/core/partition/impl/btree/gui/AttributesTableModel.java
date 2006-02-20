@@ -64,23 +64,22 @@ public class AttributesTableModel extends AbstractTableModel
      * @param dn the distinguished name of the entry
      * @param isMutable whether or not the model can be changed
      */
-    public AttributesTableModel( Attributes entry, BigInteger id, String dn,
-                                 boolean isMutable )
+    public AttributesTableModel(Attributes entry, BigInteger id, String dn, boolean isMutable)
     {
         this.dn = dn;
         this.id = id;
         this.entry = entry;
         this.isMutable = isMutable;
-        
+
         NamingEnumeration list = entry.getIDs();
         int rowCount = 0;
-        
-        while( list.hasMoreElements() )
+
+        while ( list.hasMoreElements() )
         {
             String attrId = ( String ) list.nextElement();
             rowCount = rowCount + entry.get( attrId ).size();
         }
-        
+
         keyList = new ArrayList( rowCount );
         valList = new ArrayList( rowCount );
 
@@ -89,10 +88,10 @@ public class AttributesTableModel extends AbstractTableModel
         {
             String l_key = ( String ) list.nextElement();
             Attribute l_attr = this.entry.get( l_key );
-            
+
             for ( int ii = 0; ii < l_attr.size(); ii++ )
             {
-                try 
+                try
                 {
                     keyList.add( l_attr.getID() );
                     valList.add( l_attr.get( ii ) );
@@ -114,15 +113,14 @@ public class AttributesTableModel extends AbstractTableModel
         if ( col == 0 )
         {
             return KEY_COL;
-        } 
+        }
         else if ( col == 1 )
         {
             return VAL_COL;
-        } 
-        else 
+        }
+        else
         {
-            throw new RuntimeException("There can only be 2 columns at index "
-                + "0 and at 1");
+            throw new RuntimeException( "There can only be 2 columns at index " + "0 and at 1" );
         }
     }
 
@@ -168,20 +166,20 @@ public class AttributesTableModel extends AbstractTableModel
      */
     public Object getValueAt( int row, int col )
     {
-		if ( row >= keyList.size() )
+        if ( row >= keyList.size() )
         {
-			return ( "NULL" );
-		}
+            return ( "NULL" );
+        }
 
         if ( getColumnName( col ).equals( KEY_COL ) )
         {
             return keyList.get( row );
-        } 
+        }
         else if ( getColumnName( col ).equals( VAL_COL ) )
         {
             return valList.get( row );
-        } 
-        else 
+        }
+        else
         {
             throw new RuntimeException( "You didn't correctly set col names" );
         }
@@ -194,7 +192,7 @@ public class AttributesTableModel extends AbstractTableModel
     public void setValue( Object val, int row, int col )
     {
         ArrayList list = null;
-        
+
         if ( col > 1 || col < 0 )
         {
             return;
@@ -203,11 +201,11 @@ public class AttributesTableModel extends AbstractTableModel
         {
             list = keyList;
         }
-        else 
+        else
         {
             list = valList;
         }
-        
+
         if ( row >= keyList.size() )
         {
             return;
@@ -227,8 +225,8 @@ public class AttributesTableModel extends AbstractTableModel
     {
         return dn;
     }
-    
-    
+
+
     /**
      * Gets the unique id for the entry.
      *
@@ -251,7 +249,7 @@ public class AttributesTableModel extends AbstractTableModel
         {
             return;
         }
-        
+
         keyList.remove( row );
         valList.remove( row );
         fireTableRowsDeleted( row, row );
@@ -271,7 +269,7 @@ public class AttributesTableModel extends AbstractTableModel
         {
             return;
         }
-        
+
         keyList.add( row, key );
         valList.add( row, val );
         fireTableRowsInserted( row, row );

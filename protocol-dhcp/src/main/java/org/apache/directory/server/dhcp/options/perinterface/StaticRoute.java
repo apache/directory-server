@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.perinterface;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies a list of static routes that the client should
@@ -39,17 +41,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class StaticRoute extends DhcpOption
 {
-	private byte[] staticRoute;
-	
-	public StaticRoute( byte[] staticRoute )
-	{
-		super( 33, 8 );
-		this.staticRoute = staticRoute;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( staticRoute );
-	}
-}
+    private byte[] staticRoute;
 
+
+    public StaticRoute(byte[] staticRoute)
+    {
+        super( 33, 8 );
+        this.staticRoute = staticRoute;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( staticRoute );
+    }
+}

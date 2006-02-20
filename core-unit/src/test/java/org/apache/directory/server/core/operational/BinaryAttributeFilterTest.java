@@ -50,37 +50,38 @@ public class BinaryAttributeFilterTest extends AbstractAdminTestCase
         sysRoot.createSubcontext( "ou=test", attributes );
 
         // test without turning on the property
-        DirContext ctx = ( DirContext ) sysRoot.lookup( "ou=test" ) ;
+        DirContext ctx = ( DirContext ) sysRoot.lookup( "ou=test" );
         Attribute ou = ctx.getAttributes( "" ).get( "ou" );
         Object value = ou.get();
         assertTrue( value instanceof String );
 
         // test with the property now making ou into a binary value
         sysRoot.addToEnvironment( BINARY_KEY, "ou" );
-        ctx = ( DirContext ) sysRoot.lookup( "ou=test" ) ;
+        ctx = ( DirContext ) sysRoot.lookup( "ou=test" );
         ou = ctx.getAttributes( "" ).get( "ou" );
         value = ou.get();
         assertEquals( "test", value );
 
         // try krb5Key which should be binary automatically - use ou as control
-        byte[] keyValue = new byte[] { 0x45, 0x23, 0x7d, 0x7f };
+        byte[] keyValue = new byte[]
+            { 0x45, 0x23, 0x7d, 0x7f };
         attributes.put( "jpegPhoto", keyValue );
         sysRoot.createSubcontext( "ou=anothertest", attributes );
-        ctx = ( DirContext ) sysRoot.lookup( "ou=anothertest" ) ;
+        ctx = ( DirContext ) sysRoot.lookup( "ou=anothertest" );
         ou = ctx.getAttributes( "" ).get( "ou" );
         value = ou.get();
         assertEquals( "anothertest", value );
         Attribute jpegPhoto = ctx.getAttributes( "" ).get( "jpegPhoto" );
         value = jpegPhoto.get();
         assertTrue( value instanceof byte[] );
-        assertEquals( "0x45 0x23 0x7D 0x7F ", StringTools.dumpBytes( (byte[])value ) );
+        assertEquals( "0x45 0x23 0x7D 0x7F ", StringTools.dumpBytes( ( byte[] ) value ) );
 
         // try jpegPhoto which should be binary automatically but use String to
         // create so we should still get back a byte[] - use ou as control
         attributes.remove( "jpegPhoto" );
         attributes.put( "jpegPhoto", "testing a string" );
         sysRoot.createSubcontext( "ou=yetanothertest", attributes );
-        ctx = ( DirContext ) sysRoot.lookup( "ou=yetanothertest" ) ;
+        ctx = ( DirContext ) sysRoot.lookup( "ou=yetanothertest" );
         ou = ctx.getAttributes( "" ).get( "ou" );
         value = ou.get();
         assertEquals( "yetanothertest", value );

@@ -42,6 +42,7 @@ public interface ObjectClassRegistry
      */
     void register( String schema, ObjectClass objectClass ) throws NamingException;
 
+
     /**
      * Looks up an objectClass by its unique Object Identifier or by name.
      *
@@ -50,6 +51,7 @@ public interface ObjectClassRegistry
      * @throws NamingException if the ObjectClass does not exist
      */
     ObjectClass lookup( String id ) throws NamingException;
+
 
     /**
      * Gets the name of the schema this schema object is associated with.
@@ -60,6 +62,7 @@ public interface ObjectClassRegistry
      */
     String getSchemaName( String id ) throws NamingException;
 
+
     /**
      * Checks to see if an objectClass exists.
      *
@@ -68,6 +71,7 @@ public interface ObjectClassRegistry
      * otherwise
      */
     boolean hasObjectClass( String id );
+
 
     /**
      * Gets an Iterator over the ObjectClasses within this ObjectClassRegistry.

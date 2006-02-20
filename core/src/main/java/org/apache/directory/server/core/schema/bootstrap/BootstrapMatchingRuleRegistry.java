@@ -46,32 +46,30 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
     private final OidRegistry oidRegistry;
     /** a monitor used to track noteable registry events */
     private MatchingRuleRegistryMonitor monitor = null;
-    
-    
+
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-    
-    
+
     /**
      * Creates a BootstrapMatchingRuleRegistry using existing MatchingRulees
      * for lookups.
      * 
      */
-    public BootstrapMatchingRuleRegistry( OidRegistry oidRegistry )
+    public BootstrapMatchingRuleRegistry(OidRegistry oidRegistry)
     {
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
         this.byOid = new HashMap();
         this.monitor = new MatchingRuleRegistryMonitorAdapter();
     }
-    
+
 
     // ------------------------------------------------------------------------
     // MatchingRuleRegistry interface methods
     // ------------------------------------------------------------------------
-    
-    
+
     /**
      * @see org.apache.directory.server.core.schema.MatchingRuleRegistry#lookup(String)
      */
@@ -85,12 +83,12 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
             monitor.lookedUp( MatchingRule );
             return MatchingRule;
         }
-        
+
         NamingException fault = new NamingException( "Unknown MatchingRule OID " + id );
         monitor.lookupFailed( id, fault );
         throw fault;
     }
-    
+
 
     /**
      * @see MatchingRuleRegistry#register(String, MatchingRule)
@@ -99,8 +97,8 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
     {
         if ( byOid.containsKey( matchingRule.getOid() ) )
         {
-            NamingException e = new NamingException( "matchingRule w/ OID " +
-                matchingRule.getOid() + " has already been registered!" );
+            NamingException e = new NamingException( "matchingRule w/ OID " + matchingRule.getOid()
+                + " has already been registered!" );
             monitor.registerFailed( matchingRule, e );
             throw e;
         }
@@ -117,7 +115,7 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
         monitor.registered( matchingRule );
     }
 
-    
+
     /**
      * @see org.apache.directory.server.core.schema.MatchingRuleRegistry#hasMatchingRule(String)
      */
@@ -147,16 +145,14 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
             return ( String ) oidToSchema.get( id );
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " +
-            "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
     }
 
 
     // ------------------------------------------------------------------------
     // package friendly monitor methods
     // ------------------------------------------------------------------------
-    
-    
+
     /**
      * Gets the monitor for this registry.
      * 
@@ -167,7 +163,7 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
         return monitor;
     }
 
-    
+
     /**
      * Sets the monitor for this registry.
      * 

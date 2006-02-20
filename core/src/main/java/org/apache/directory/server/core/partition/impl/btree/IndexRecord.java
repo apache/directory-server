@@ -119,7 +119,7 @@ public class IndexRecord
      */
     public Attributes getAttributes()
     {
-        if( entry == null )
+        if ( entry == null )
         {
             return null;
         }
@@ -148,14 +148,14 @@ public class IndexRecord
         tuple.setKey( null );
         tuple.setValue( null );
     }
-    
- 
+
+
     /**
      * Utility method used to copy the contents of one IndexRecord into this
      * IndexRecord.
      * 
      * @param record the record whose contents we copy
-     */   
+     */
     public void copy( IndexRecord record )
     {
         entry = record.getAttributes();

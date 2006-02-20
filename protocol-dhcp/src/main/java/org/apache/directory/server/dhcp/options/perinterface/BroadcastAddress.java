@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.perinterface;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies the broadcast address in use on the client's
@@ -29,17 +31,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class BroadcastAddress extends DhcpOption
 {
-	private byte[] broadcastAddress;
-	
-	public BroadcastAddress( byte[] broadcastAddress )
-	{
-		super( 28, 4 );
-		this.broadcastAddress = broadcastAddress;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( broadcastAddress );
-	}	
-}
+    private byte[] broadcastAddress;
 
+
+    public BroadcastAddress(byte[] broadcastAddress)
+    {
+        super( 28, 4 );
+        this.broadcastAddress = broadcastAddress;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( broadcastAddress );
+    }
+}

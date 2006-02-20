@@ -67,7 +67,6 @@ public class DupsEnumeration implements NamingEnumeration
     // Constructor
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a DupsEnumeration over a enumeration of Tuples holding TreeSets
      * for values that have the same key.
@@ -75,17 +74,17 @@ public class DupsEnumeration implements NamingEnumeration
      * @param list the underlying enumeration
      * @throws NamingException if there is a problem
      */
-    public DupsEnumeration( NoDupsEnumeration list ) throws NamingException
+    public DupsEnumeration(NoDupsEnumeration list) throws NamingException
     {
         underlying = list;
 
         // Protect against closed cursors
-        if ( ! underlying.hasMore() ) 
+        if ( !underlying.hasMore() )
         {
             close();
             return;
         }
-    
+
         prefetch();
     }
 
@@ -93,7 +92,6 @@ public class DupsEnumeration implements NamingEnumeration
     // ------------------------------------------------------------------------
     // NamingEnumeration Interface Method Implementations
     // ------------------------------------------------------------------------
-
 
     /**
      * Returns the same Tuple every time but with different key/value pairs.
@@ -109,8 +107,8 @@ public class DupsEnumeration implements NamingEnumeration
 
         return returned;
     }
-    
-    
+
+
     /**
      * Returns the same Tuple every time but with different key/value pairs.
      * 
@@ -154,7 +152,7 @@ public class DupsEnumeration implements NamingEnumeration
      *
      * @see javax.naming.NamingEnumeration#close()
      */
-    public void close() 
+    public void close()
     {
         hasMore = false;
         underlying.close();
@@ -164,7 +162,6 @@ public class DupsEnumeration implements NamingEnumeration
     // ------------------------------------------------------------------------
     // Private/Package Friendly Methods
     // ------------------------------------------------------------------------
-    
 
     /**
      * Prefetches values into the prefetched Tuple taking into account that 
@@ -184,22 +181,22 @@ public class DupsEnumeration implements NamingEnumeration
          * If the iterator over the values of the current key is null or is 
          * extinguished then we need to advance to the next key.
          */
-        while ( null == dupIterator || ! dupIterator.hasNext() ) 
+        while ( null == dupIterator || !dupIterator.hasNext() )
         {
             /*
              * If the underlying enumeration has more elements we get the next
              * key/TreeSet Tuple to work with and get an iterator over it. 
              */
-            if ( underlying.hasMore() ) 
+            if ( underlying.hasMore() )
             {
                 duplicates = ( Tuple ) underlying.next();
                 TreeSet set = ( TreeSet ) duplicates.getValue();
 
-                if ( underlying.doAscendingScan() ) 
+                if ( underlying.doAscendingScan() )
                 {
                     dupIterator = set.iterator();
-                } 
-                else 
+                }
+                else
                 {
                     /*
                      * Need to reverse the list and iterate over the reversed
@@ -208,14 +205,14 @@ public class DupsEnumeration implements NamingEnumeration
                      * TODO This can be optimized by using a ReverseIterator 
                      * over the array list.  I don't think there is a way to 
                      * do this on the TreeSet.
-                     */ 
+                     */
                     ArrayList list = new ArrayList( set.size() );
                     list.addAll( set );
                     Collections.reverse( list );
                     dupIterator = list.iterator();
                 }
-            } 
-            else 
+            }
+            else
             {
                 close();
                 return;

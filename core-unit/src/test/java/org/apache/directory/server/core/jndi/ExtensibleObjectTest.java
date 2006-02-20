@@ -51,7 +51,7 @@ public class ExtensibleObjectTest extends AbstractAdminTestCase
         assertNotNull( attribute );
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
-        
+
         Attributes newattribs = new BasicAttributes( true );
         Attribute freeform = new BasicAttribute( "freeform" );
         freeform.add( "testing" );
@@ -75,6 +75,7 @@ public class ExtensibleObjectTest extends AbstractAdminTestCase
         assertTrue( attribute.contains( "testing" ) );
     }
 
+
     public void testExtensibleObjectAdd() throws Exception
     {
         Attributes attributes = new BasicAttributes( true );
@@ -84,15 +85,15 @@ public class ExtensibleObjectTest extends AbstractAdminTestCase
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
         attributes.put( "ou", "testing00" );
-        
+
         // WARNING: extensible objects cannot accept any arbitrary 
         // attribute.  The attribute must be defined by the schema
         // at a bare minimum or the addition will be rejected
-        
+
         // here's an attribute that is not on the MAY or MUST list for 
         // an organizationalUnit - it's our test for extensible objects
         attributes.put( "employeeType", "testing" );
-        
+
         DirContext ctx = sysRoot.createSubcontext( "ou=testing00", attributes );
         assertNotNull( ctx );
 

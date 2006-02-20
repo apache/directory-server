@@ -38,6 +38,7 @@ public interface TupleBrowser
      */
     boolean getNext( Tuple tuple ) throws NamingException;
 
+
     /**
      * Gets the previous value deemed greater than the last using the key 
      * comparator.

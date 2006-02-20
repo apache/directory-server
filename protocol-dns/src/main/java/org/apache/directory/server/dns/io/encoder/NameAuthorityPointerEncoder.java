@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.io.encoder;
 
+
 /**
  * 4. NAPTR RR Format
  * 

@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 
+
 /**
  * Tests {@link MostSpecificProtectedItemFilter}.
  *
@@ -43,17 +45,15 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
  */
 public class MostSpecificProtectedItemFilterTest extends TestCase
 {
-    private static final Collection EMPTY_COLLECTION =
-        Collections.unmodifiableCollection( new ArrayList() );
-    private static final Set EMPTY_SET =
-        Collections.unmodifiableSet( new HashSet() );
-    
+    private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
+    private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
+
     private static final List TUPLES_A = new ArrayList();
     private static final List TUPLES_B = new ArrayList();
     private static final List TUPLES_C = new ArrayList();
     private static final List TUPLES_D = new ArrayList();
     private static final List TUPLES_E = new ArrayList();
-    
+
     static
     {
         Collection attributeType = new ArrayList();
@@ -72,27 +72,20 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
         allUserAttributeTypes.add( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
         allUserAttributeTypesAndValues.add( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
 
-        ACITuple attributeTypeTuple = new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, attributeType,
-                EMPTY_SET, true, 0 );
-        ACITuple allAttributeValuesTuple = new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, allAttributeValues,
-                EMPTY_SET, true, 0 );
-        ACITuple selfValueTuple = new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, selfValue,
-                EMPTY_SET, true, 0 );
-        ACITuple attributeValueTuple = new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, attributeValue,
-                EMPTY_SET, true, 0 );
-        ACITuple rangeOfValuesTuple = new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, rangeOfValues,
-                EMPTY_SET, true, 0 );
-        ACITuple allUserAttributeTypesTuple = new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, allUserAttributeTypes,
-                EMPTY_SET, true, 0 );
-        ACITuple allUserAttributeTypesAndValuesTuple = new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, allUserAttributeTypesAndValues,
-                EMPTY_SET, true, 0 );
+        ACITuple attributeTypeTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, attributeType,
+            EMPTY_SET, true, 0 );
+        ACITuple allAttributeValuesTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE,
+            allAttributeValues, EMPTY_SET, true, 0 );
+        ACITuple selfValueTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, selfValue, EMPTY_SET, true,
+            0 );
+        ACITuple attributeValueTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, attributeValue,
+            EMPTY_SET, true, 0 );
+        ACITuple rangeOfValuesTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, rangeOfValues,
+            EMPTY_SET, true, 0 );
+        ACITuple allUserAttributeTypesTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE,
+            allUserAttributeTypes, EMPTY_SET, true, 0 );
+        ACITuple allUserAttributeTypesAndValuesTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE,
+            allUserAttributeTypesAndValues, EMPTY_SET, true, 0 );
 
         TUPLES_A.add( attributeTypeTuple );
         TUPLES_A.add( allAttributeValuesTuple );
@@ -123,36 +116,31 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
         TUPLES_E.add( allUserAttributeTypesTuple );
         TUPLES_E.add( allUserAttributeTypesAndValuesTuple );
     }
-    
+
+
     public void testZeroOrOneTuple() throws Exception
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
-        Assert.assertEquals(
-                0, filter.filter(
-                        EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE,
-                        null, null, null, null, null, null, null, null, null, null ).size() );
+        Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
+            null, null, null, null, null, null, null, null ).size() );
 
         Collection tuples = new ArrayList();
-        tuples.add( new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION,
-                EMPTY_SET, false, 0 ) );
-        
-        Assert.assertEquals(
-                1, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE,
-                        null, null, null, null, null, null, null, null, null, null ).size() );
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, false, 0 ) );
+
+        Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
+            null, null, null, null, null, null ).size() );
     }
-    
+
+
     public void testTuplesA() throws Exception
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
-        
+
         List tuples = new ArrayList( TUPLES_A );
-        tuples = ( List ) filter.filter(
-                tuples, OperationScope.ENTRY, null, null, null,
-                null, null, null, null, null, null, null );
-        
+        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+            null, null );
+
         Assert.assertEquals( 4, tuples.size() );
         Assert.assertSame( TUPLES_A.get( 0 ), tuples.get( 0 ) );
         Assert.assertSame( TUPLES_A.get( 1 ), tuples.get( 1 ) );
@@ -160,57 +148,57 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
         Assert.assertSame( TUPLES_A.get( 3 ), tuples.get( 3 ) );
     }
 
+
     public void testTuplesB() throws Exception
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
-        
+
         List tuples = new ArrayList( TUPLES_B );
-        tuples = ( List ) filter.filter(
-                tuples, OperationScope.ENTRY, null, null, null,
-                null, null, null, null, null, null, null );
-        
+        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+            null, null );
+
         Assert.assertEquals( 3, tuples.size() );
         Assert.assertSame( TUPLES_B.get( 0 ), tuples.get( 0 ) );
         Assert.assertSame( TUPLES_B.get( 1 ), tuples.get( 1 ) );
         Assert.assertSame( TUPLES_B.get( 2 ), tuples.get( 2 ) );
     }
 
+
     public void testTuplesC() throws Exception
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
-        
+
         List tuples = new ArrayList( TUPLES_C );
-        tuples = ( List ) filter.filter(
-                tuples, OperationScope.ENTRY, null, null, null,
-                null, null, null, null, null, null, null );
-        
+        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+            null, null );
+
         Assert.assertEquals( 2, tuples.size() );
         Assert.assertSame( TUPLES_C.get( 0 ), tuples.get( 0 ) );
         Assert.assertSame( TUPLES_C.get( 1 ), tuples.get( 1 ) );
     }
 
+
     public void testTuplesD() throws Exception
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
-        
+
         List tuples = new ArrayList( TUPLES_D );
-        tuples = ( List ) filter.filter(
-                tuples, OperationScope.ENTRY, null, null, null,
-                null, null, null, null, null, null, null );
-        
+        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+            null, null );
+
         Assert.assertEquals( 1, tuples.size() );
         Assert.assertSame( TUPLES_D.get( 0 ), tuples.get( 0 ) );
     }
-    
+
+
     public void testTuplesE() throws Exception
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
-        
+
         List tuples = new ArrayList( TUPLES_E );
-        tuples = ( List ) filter.filter(
-                tuples, OperationScope.ENTRY, null, null, null,
-                null, null, null, null, null, null, null );
-        
+        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+            null, null );
+
         Assert.assertEquals( 2, tuples.size() );
         Assert.assertSame( TUPLES_E.get( 0 ), tuples.get( 0 ) );
         Assert.assertSame( TUPLES_E.get( 1 ), tuples.get( 1 ) );

@@ -18,7 +18,9 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 import org.apache.directory.server.core.interceptor.Interceptor;
+
 
 /**
  * A configuration for {@link Interceptor}.
@@ -31,12 +33,14 @@ public class InterceptorConfiguration
     private String name;
     private Interceptor interceptor;
 
+
     /**
      * Creates a new instance.
      */
     protected InterceptorConfiguration()
     {
     }
+
 
     /**
      * Returns the {@link Interceptor} that this configuration
@@ -47,6 +51,7 @@ public class InterceptorConfiguration
         return interceptor;
     }
 
+
     /**
      * Sets the {@link Interceptor} that this configuration
      * configures.
@@ -56,6 +61,7 @@ public class InterceptorConfiguration
         this.interceptor = authenticator;
     }
 
+
     /**
      * Returns the name of the {@link Interceptor}.
      */
@@ -63,6 +69,7 @@ public class InterceptorConfiguration
     {
         return name;
     }
+
 
     /**
      * Sets the name of the {@link Interceptor}.
@@ -72,6 +79,7 @@ public class InterceptorConfiguration
         this.name = name.trim();
     }
 
+
     /**
      * Validates this configuration.
      *
@@ -79,12 +87,12 @@ public class InterceptorConfiguration
      */
     public void validate()
     {
-        if( name == null )
+        if ( name == null )
         {
             throw new ConfigurationException( "Name is not specified." );
         }
-        
-        if( interceptor == null )
+
+        if ( interceptor == null )
         {
             throw new ConfigurationException( "Interceptor is not specified." );
         }

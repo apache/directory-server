@@ -15,6 +15,7 @@
  */
 package org.apache.directory.server.protocol.shared.chain;
 
+
 /**
  * <p>A {@link Chain} represents a configured list of
  * {@link Command}s that will be executed in order to perform processing
@@ -65,6 +66,7 @@ public interface Chain extends Command
      *  been executed at least once, so no further configuration is allowed
      */
     void addCommand( Command command );
+
 
     /**
      * <p>Execute the processing represented by this {@link Chain} according

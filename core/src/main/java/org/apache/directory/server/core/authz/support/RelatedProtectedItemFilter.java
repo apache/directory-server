@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -48,24 +49,28 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     private final RefinementEvaluator refinementEvaluator;
     private final Evaluator entryEvaluator;
 
-    public RelatedProtectedItemFilter(
-            RefinementEvaluator refinementEvaluator, Evaluator entryEvaluator )
+
+    public RelatedProtectedItemFilter(RefinementEvaluator refinementEvaluator, Evaluator entryEvaluator)
     {
         this.refinementEvaluator = refinementEvaluator;
         this.entryEvaluator = entryEvaluator;
     }
 
-    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+
+    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
+        Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
+        Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+        throws NamingException
     {
-        if( tuples.size() == 0 )
+        if ( tuples.size() == 0 )
         {
             return tuples;
         }
 
-        for( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            if( !isRelated( tuple, scope, userName, entryName, attrId, attrValue, entry ) )
+            if ( !isRelated( tuple, scope, userName, entryName, attrId, attrValue, entry ) )
             {
                 i.remove();
             }
@@ -74,166 +79,162 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
         return tuples;
     }
 
-    private boolean isRelated( ACITuple tuple, OperationScope scope, Name userName, Name entryName, String attrId, Object attrValue, Attributes entry ) throws NamingException, InternalError
+
+    private boolean isRelated( ACITuple tuple, OperationScope scope, Name userName, Name entryName, String attrId,
+        Object attrValue, Attributes entry ) throws NamingException, InternalError
     {
-        for( Iterator i = tuple.getProtectedItems().iterator(); i.hasNext(); )
+        for ( Iterator i = tuple.getProtectedItems().iterator(); i.hasNext(); )
         {
             ProtectedItem item = ( ProtectedItem ) i.next();
-            if( item == ProtectedItem.ENTRY )
+            if ( item == ProtectedItem.ENTRY )
             {
-                if( scope == OperationScope.ENTRY )
+                if ( scope == OperationScope.ENTRY )
                 {
                     return true;
                 }
             }
-            else if( item == ProtectedItem.ALL_USER_ATTRIBUTE_TYPES )
+            else if ( item == ProtectedItem.ALL_USER_ATTRIBUTE_TYPES )
             {
-                if( scope != OperationScope.ATTRIBUTE_TYPE &&
-                    scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
+                if ( scope != OperationScope.ATTRIBUTE_TYPE && scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
                 {
                     continue;
                 }
 
-                if( isUserAttribute( attrId ) )
+                if ( isUserAttribute( attrId ) )
                 {
                     return true;
                 }
             }
-            else if( item == ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES )
+            else if ( item == ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES )
             {
-                if( scope != OperationScope.ATTRIBUTE_TYPE &&
-                    scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
+                if ( scope != OperationScope.ATTRIBUTE_TYPE && scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
                 {
                     continue;
                 }
 
-                if( isUserAttribute( attrId ) )
+                if ( isUserAttribute( attrId ) )
                 {
                     return true;
                 }
             }
-            else if( item instanceof ProtectedItem.AllAttributeValues )
+            else if ( item instanceof ProtectedItem.AllAttributeValues )
             {
-                if( scope != OperationScope.ATTRIBUTE_TYPE &&
-                    scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
+                if ( scope != OperationScope.ATTRIBUTE_TYPE && scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
                 {
                     continue;
                 }
 
                 ProtectedItem.AllAttributeValues aav = ( ProtectedItem.AllAttributeValues ) item;
-                for( Iterator j = aav.iterator(); j.hasNext(); )
+                for ( Iterator j = aav.iterator(); j.hasNext(); )
                 {
-                    if( attrId.equalsIgnoreCase( ( String ) j.next() ) )
+                    if ( attrId.equalsIgnoreCase( ( String ) j.next() ) )
                     {
                         return true;
                     }
                 }
             }
-            else if( item instanceof ProtectedItem.AttributeType )
+            else if ( item instanceof ProtectedItem.AttributeType )
             {
-                if( scope != OperationScope.ATTRIBUTE_TYPE )
+                if ( scope != OperationScope.ATTRIBUTE_TYPE )
                 {
                     continue;
                 }
 
                 ProtectedItem.AttributeType at = ( ProtectedItem.AttributeType ) item;
-                for( Iterator j = at.iterator(); j.hasNext(); )
+                for ( Iterator j = at.iterator(); j.hasNext(); )
                 {
-                    if( attrId.equalsIgnoreCase( ( String ) j.next() ) )
+                    if ( attrId.equalsIgnoreCase( ( String ) j.next() ) )
                     {
                         return true;
                     }
                 }
             }
-            else if( item instanceof ProtectedItem.AttributeValue )
+            else if ( item instanceof ProtectedItem.AttributeValue )
             {
-                if( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
+                if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
                 {
                     continue;
                 }
 
                 ProtectedItem.AttributeValue av = ( ProtectedItem.AttributeValue ) item;
-                for( Iterator j = av.iterator(); j.hasNext(); )
+                for ( Iterator j = av.iterator(); j.hasNext(); )
                 {
                     Attribute attr = ( Attribute ) j.next();
-                    if( attrId.equalsIgnoreCase( attr.getID() ) &&
-                            attr.contains( attrValue ) )
+                    if ( attrId.equalsIgnoreCase( attr.getID() ) && attr.contains( attrValue ) )
                     {
                         return true;
                     }
                 }
             }
-            else if( item instanceof ProtectedItem.Classes )
+            else if ( item instanceof ProtectedItem.Classes )
             {
                 ProtectedItem.Classes c = ( ProtectedItem.Classes ) item;
-                if( refinementEvaluator.evaluate(
-                        c.getClasses(), entry.get( "objectClass" ) ) )
+                if ( refinementEvaluator.evaluate( c.getClasses(), entry.get( "objectClass" ) ) )
                 {
                     return true;
                 }
             }
-            else if( item instanceof ProtectedItem.MaxImmSub )
+            else if ( item instanceof ProtectedItem.MaxImmSub )
             {
                 return true;
             }
-            else if( item instanceof ProtectedItem.MaxValueCount )
+            else if ( item instanceof ProtectedItem.MaxValueCount )
             {
-                if( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
+                if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
                 {
                     continue;
                 }
 
                 ProtectedItem.MaxValueCount mvc = ( ProtectedItem.MaxValueCount ) item;
-                for( Iterator j = mvc.iterator(); j.hasNext(); )
+                for ( Iterator j = mvc.iterator(); j.hasNext(); )
                 {
                     MaxValueCountItem mvcItem = ( MaxValueCountItem ) j.next();
-                    if( attrId.equalsIgnoreCase( mvcItem.getAttributeType() ) )
+                    if ( attrId.equalsIgnoreCase( mvcItem.getAttributeType() ) )
                     {
                         return true;
                     }
                 }
             }
-            else if( item instanceof ProtectedItem.RangeOfValues )
+            else if ( item instanceof ProtectedItem.RangeOfValues )
             {
                 ProtectedItem.RangeOfValues rov = ( ProtectedItem.RangeOfValues ) item;
-                if( entryEvaluator.evaluate( rov.getFilter(), entryName.toString(), entry ) )
+                if ( entryEvaluator.evaluate( rov.getFilter(), entryName.toString(), entry ) )
                 {
                     return true;
                 }
             }
-            else if( item instanceof ProtectedItem.RestrictedBy )
+            else if ( item instanceof ProtectedItem.RestrictedBy )
             {
-                if( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
+                if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
                 {
                     continue;
                 }
 
                 ProtectedItem.RestrictedBy rb = ( ProtectedItem.RestrictedBy ) item;
-                for( Iterator j = rb.iterator(); j.hasNext(); )
+                for ( Iterator j = rb.iterator(); j.hasNext(); )
                 {
                     RestrictedByItem rbItem = ( RestrictedByItem ) j.next();
-                    if( attrId.equalsIgnoreCase( rbItem.getAttributeType() ) )
+                    if ( attrId.equalsIgnoreCase( rbItem.getAttributeType() ) )
                     {
                         return true;
                     }
                 }
             }
-            else if( item instanceof ProtectedItem.SelfValue )
+            else if ( item instanceof ProtectedItem.SelfValue )
             {
-                if( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE &&
-                    scope != OperationScope.ATTRIBUTE_TYPE )
+                if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE && scope != OperationScope.ATTRIBUTE_TYPE )
                 {
                     continue;
                 }
 
                 ProtectedItem.SelfValue sv = ( ProtectedItem.SelfValue ) item;
-                for( Iterator j = sv.iterator(); j.hasNext(); )
+                for ( Iterator j = sv.iterator(); j.hasNext(); )
                 {
                     String svItem = String.valueOf( j.next() );
-                    if( svItem.equalsIgnoreCase( attrId ) )
+                    if ( svItem.equalsIgnoreCase( attrId ) )
                     {
                         Attribute attr = entry.get( attrId );
-                        if( attr != null && ( attr.contains( userName ) || attr.contains( userName.toString() ) ) )
+                        if ( attr != null && ( attr.contains( userName ) || attr.contains( userName.toString() ) ) )
                         {
                             return true;
                         }
@@ -249,26 +250,27 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
         return false;
     }
 
+
     private final boolean isUserAttribute( String attrId )
     {
         /* Not used anymore.  Just retaining in case of resurrection. */
         return true;
 
         /*
-        try
-        {
-            AttributeType type = attrTypeRegistry.lookup( attrId );
-            if( type != null && type.isCanUserModify() )
-            {
-                return true;
-            }
-        }
-        catch( NamingException e )
-        {
-            // Ignore
-        }
+         try
+         {
+         AttributeType type = attrTypeRegistry.lookup( attrId );
+         if( type != null && type.isCanUserModify() )
+         {
+         return true;
+         }
+         }
+         catch( NamingException e )
+         {
+         // Ignore
+         }
 
-        return false;
-        */
+         return false;
+         */
     }
 }

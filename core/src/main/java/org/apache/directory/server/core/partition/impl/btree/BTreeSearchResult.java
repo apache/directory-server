@@ -37,13 +37,12 @@ public class BTreeSearchResult extends SearchResult
 
     /** the primary key used for the resultant entry */
     private final BigInteger id;
-    
-    
+
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-    
-    
+
     /**
      * Creates a database search result.
      * 
@@ -52,14 +51,13 @@ public class BTreeSearchResult extends SearchResult
      * @param obj the object if any
      * @param attrs the attributes of the entry
      */
-    public BTreeSearchResult( BigInteger id, String name, Object obj,
-        Attributes attrs )
+    public BTreeSearchResult(BigInteger id, String name, Object obj, Attributes attrs)
     {
         super( name, obj, attrs );
         this.id = id;
     }
 
-    
+
     /**
      * Creates a database search result.
      * 
@@ -69,14 +67,13 @@ public class BTreeSearchResult extends SearchResult
      * @param attrs the attributes of the entry
      * @param isRelative whether or not the name is relative to the base
      */
-    public BTreeSearchResult( BigInteger id, String name, Object obj,
-        Attributes attrs, boolean isRelative )
+    public BTreeSearchResult(BigInteger id, String name, Object obj, Attributes attrs, boolean isRelative)
     {
         super( name, obj, attrs, isRelative );
         this.id = id;
     }
 
-    
+
     /**
      * Creates a database search result.
      * 
@@ -86,14 +83,13 @@ public class BTreeSearchResult extends SearchResult
      * @param obj the object if any
      * @param attrs the attributes of the entry
      */
-    public BTreeSearchResult( BigInteger id, String name, String className,
-        Object obj, Attributes attrs )
+    public BTreeSearchResult(BigInteger id, String name, String className, Object obj, Attributes attrs)
     {
         super( name, className, obj, attrs );
         this.id = id;
     }
 
-    
+
     /**
      * Creates a database search result.
      * 
@@ -104,14 +100,14 @@ public class BTreeSearchResult extends SearchResult
      * @param attrs the attributes of the entry
      * @param isRelative whether or not the name is relative to the base
      */
-    public BTreeSearchResult( BigInteger id, String name, String className,
-        Object obj, Attributes attrs, boolean isRelative )
+    public BTreeSearchResult(BigInteger id, String name, String className, Object obj, Attributes attrs,
+        boolean isRelative)
     {
         super( name, className, obj, attrs, isRelative );
         this.id = id;
     }
-    
-    
+
+
     /**
      * Gets the unique row id of the entry into the master table.
      * 

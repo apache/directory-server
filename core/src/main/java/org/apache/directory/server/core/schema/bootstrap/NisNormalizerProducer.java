@@ -25,7 +25,6 @@ import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
-
 /**
  * A producer of Normalizer objects for the nis schema.  This code has been
  * automatically generated using schema files in the OpenLDAP format along with
@@ -47,19 +46,17 @@ public class NisNormalizerProducer extends AbstractBootstrapProducer
     // BootstrapProducer Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see org.apache.directory.server.core.schema.bootstrap.BootstrapProducer#produce(BootstrapRegistries, ProducerCallback)
      */
-    public void produce( BootstrapRegistries registries, ProducerCallback cb )
-        throws NamingException
+    public void produce( BootstrapRegistries registries, ProducerCallback cb ) throws NamingException
     {
         Normalizer normalizer;
 
         /* Really an openLDAP matching rule but its used in he nis so its here
          *
-            ( 1.3.6.1.4.1.4203.1.2.1 NAME 'caseExactIA5SubstringsMatch'
-             SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+         ( 1.3.6.1.4.1.4203.1.2.1 NAME 'caseExactIA5SubstringsMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
          */
         normalizer = new CachingNormalizer( new DeepTrimNormalizer() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.4203.1.2.1", normalizer );

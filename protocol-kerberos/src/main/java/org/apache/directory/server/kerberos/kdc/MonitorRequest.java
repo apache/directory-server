@@ -16,45 +16,43 @@
  */
 package org.apache.directory.server.kerberos.kdc;
 
+
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.crypto.encryption.EncryptionType;
-import org.apache.kerberos.messages.KdcRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class MonitorRequest extends CommandBase
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorRequest.class );
 
+
     public boolean execute( Context context ) throws Exception
     {
-        KdcContext kdcContext = (KdcContext) context;
+        KdcContext kdcContext = ( KdcContext ) context;
         KdcRequest request = kdcContext.getRequest();
         String clientAddress = kdcContext.getClientAddress().getHostAddress();
 
         if ( log.isDebugEnabled() )
         {
-            log.debug( "Responding to authentication request:"
-                    + "\n\trealm:                 " + request.getRealm()
-                    + "\n\tserverPrincipal:       " + request.getServerPrincipal()
-                    + "\n\tclientPrincipal:       " + request.getClientPrincipal()
-                    + "\n\tclientAddress:         " + clientAddress
-                    + "\n\thostAddresses:         " + request.getAddresses()
-                    + "\n\tencryptionType:        " + getEncryptionTypes( request )
-                    + "\n\tfrom krb time:         " + request.getFrom()
-                    + "\n\trealm krb time:        " + request.getRtime()
-                    + "\n\tkdcOptions:            " + request.getKdcOptions()
-                    + "\n\tmessageType:           " + request.getMessageType()
-                    + "\n\tnonce:                 " + request.getNonce()
-                    + "\n\tprotocolVersionNumber: " + request.getProtocolVersionNumber()
-                    + "\n\ttill:                  " + request.getTill()
-                     );
+            log.debug( "Responding to authentication request:" + "\n\trealm:                 " + request.getRealm()
+                + "\n\tserverPrincipal:       " + request.getServerPrincipal() + "\n\tclientPrincipal:       "
+                + request.getClientPrincipal() + "\n\tclientAddress:         " + clientAddress
+                + "\n\thostAddresses:         " + request.getAddresses() + "\n\tencryptionType:        "
+                + getEncryptionTypes( request ) + "\n\tfrom krb time:         " + request.getFrom()
+                + "\n\trealm krb time:        " + request.getRtime() + "\n\tkdcOptions:            "
+                + request.getKdcOptions() + "\n\tmessageType:           " + request.getMessageType()
+                + "\n\tnonce:                 " + request.getNonce() + "\n\tprotocolVersionNumber: "
+                + request.getProtocolVersionNumber() + "\n\ttill:                  " + request.getTill() );
         }
 
         return CONTINUE_CHAIN;
     }
+
 
     public String getEncryptionTypes( KdcRequest request )
     {
@@ -64,7 +62,7 @@ public class MonitorRequest extends CommandBase
 
         for ( int ii = 0; ii < etypes.length; ii++ )
         {
-            sb.append( etypes[ ii ].toString() );
+            sb.append( etypes[ii].toString() );
 
             if ( ii < etypes.length - 1 )
             {

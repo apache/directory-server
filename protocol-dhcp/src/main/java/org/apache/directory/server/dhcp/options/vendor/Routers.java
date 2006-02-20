@@ -25,13 +25,14 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 public class Routers extends AddressListOption
 {
-	public Routers( byte[] routers )
-	{
-		super( 3, routers );
-	}
+    public Routers(byte[] routers)
+    {
+        super( 3, routers );
+    }
 }
-

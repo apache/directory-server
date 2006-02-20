@@ -16,10 +16,12 @@
  */
 package org.apache.directory.server.core.authn;
 
+
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+
 
 /**
  * An {@link Authenticator} that handles anonymous connections
@@ -37,6 +39,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
         super( "none" );
     }
 
+
     /**
      * If the context is not configured to allow anonymous connections,
      * this method throws a {@link javax.naming.NoPermissionException}.
@@ -45,7 +48,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
     {
         if ( getFactoryConfiguration().getStartupConfiguration().isAllowAnonymousAccess() )
         {
-            return LdapPrincipal.ANONYMOUS ;
+            return LdapPrincipal.ANONYMOUS;
         }
         else
         {

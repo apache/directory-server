@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * The StreetTalk server option specifies a list of StreetTalk servers
@@ -30,9 +32,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class StreetTalkServers extends AddressListOption
 {
-	public StreetTalkServers( byte[] streetTalkServer )
-	{
-		super( 75, streetTalkServer );
-	}
+    public StreetTalkServers(byte[] streetTalkServer)
+    {
+        super( 75, streetTalkServer );
+    }
 }
-

@@ -17,28 +17,34 @@
 
 package org.apache.directory.server.ntp.protocol;
 
+
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
+
 public class NtpProtocolCodecFactory implements ProtocolCodecFactory
 {
     private static final NtpProtocolCodecFactory INSTANCE = new NtpProtocolCodecFactory();
+
 
     public static NtpProtocolCodecFactory getInstance()
     {
         return INSTANCE;
     }
 
+
     private NtpProtocolCodecFactory()
     {
     }
+
 
     public ProtocolEncoder getEncoder()
     {
         // Create a new encoder.
         return new NtpEncoder();
     }
+
 
     public ProtocolDecoder getDecoder()
     {

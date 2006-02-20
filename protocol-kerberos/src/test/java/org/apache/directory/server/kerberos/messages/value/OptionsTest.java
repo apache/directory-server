@@ -16,16 +16,20 @@
  */
 package org.apache.directory.server.kerberos.messages.value;
 
+
 import java.util.Arrays;
 
-import org.apache.kerberos.messages.value.KdcOptions;
-import org.apache.kerberos.messages.value.TicketFlags;
+import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
+import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 
 import junit.framework.TestCase;
 
+
 public class OptionsTest extends TestCase
 {
-    private byte[] fpriOptions = { (byte) 0x50, (byte) 0x00, (byte) 0x00, (byte) 0x10 };
+    private byte[] fpriOptions =
+        { ( byte ) 0x50, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x10 };
+
 
     public void testToString()
     {
@@ -37,6 +41,7 @@ public class OptionsTest extends TestCase
         assertEquals( flags.toString(), "FORWARDABLE PROXIABLE RENEWABLE INITIAL" );
     }
 
+
     public void testDuplicateSetting()
     {
         TicketFlags flags = new TicketFlags();
@@ -47,6 +52,7 @@ public class OptionsTest extends TestCase
         flags.set( TicketFlags.RENEWABLE );
         assertEquals( flags.toString(), "FORWARDABLE PROXIABLE MAY_POSTDATE RENEWABLE" );
     }
+
 
     public void testConstruction()
     {

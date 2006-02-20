@@ -15,6 +15,7 @@
  */
 package org.apache.directory.server;
 
+
 import java.util.Hashtable;
 
 import javax.naming.NamingException;
@@ -46,21 +47,23 @@ public class ModifyRemoveTest extends AbstractServerTest
 
     public static final String RDN = "cn=Tori Amos";
 
+
     /**
      * Creation of required attributes of a person entry.
      */
-    protected Attributes getPersonAttributes(String sn, String cn)
+    protected Attributes getPersonAttributes( String sn, String cn )
     {
         Attributes attributes = new BasicAttributes();
-        Attribute attribute = new BasicAttribute("objectClass");
-        attribute.add("top");
-        attribute.add("person");
-        attributes.put(attribute);
-        attributes.put("cn", cn);
-        attributes.put("sn", sn);
+        Attribute attribute = new BasicAttribute( "objectClass" );
+        attribute.add( "top" );
+        attribute.add( "person" );
+        attributes.put( attribute );
+        attributes.put( "cn", cn );
+        attributes.put( "sn", sn );
 
         return attributes;
     }
+
 
     /**
      * Create context and a person entry.
@@ -70,32 +73,34 @@ public class ModifyRemoveTest extends AbstractServerTest
         super.setUp();
 
         Hashtable env = new Hashtable();
-        env.put("java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put("java.naming.provider.url", "ldap://localhost:" + port + "/ou=system");
-        env.put("java.naming.security.principal", "uid=admin,ou=system");
-        env.put("java.naming.security.credentials", "secret");
-        env.put("java.naming.security.authentication", "simple");
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", "secret" );
+        env.put( "java.naming.security.authentication", "simple" );
 
-        ctx = new InitialLdapContext(env, null);
-        assertNotNull(ctx);
+        ctx = new InitialLdapContext( env, null );
+        assertNotNull( ctx );
 
         // Create a person with description
-        Attributes attributes = this.getPersonAttributes("Amos", "Tori Amos");
-        attributes.put("description", "an American singer-songwriter");
-        ctx.createSubcontext(RDN, attributes);
+        Attributes attributes = this.getPersonAttributes( "Amos", "Tori Amos" );
+        attributes.put( "description", "an American singer-songwriter" );
+        ctx.createSubcontext( RDN, attributes );
 
     }
+
 
     /**
      * Remove person entry and close context.
      */
     public void tearDown() throws Exception
     {
-        ctx.unbind(RDN);
+        ctx.unbind( RDN );
         ctx.close();
         ctx = null;
         super.tearDown();
     }
+
 
     /**
      * Just a little test to check wether opening the connection and creation of
@@ -103,10 +108,11 @@ public class ModifyRemoveTest extends AbstractServerTest
      */
     public void testSetUpTearDown() throws NamingException
     {
-        assertNotNull(ctx);
-        DirContext tori = (DirContext) ctx.lookup(RDN);
-        assertNotNull(tori);
+        assertNotNull( ctx );
+        DirContext tori = ( DirContext ) ctx.lookup( RDN );
+        assertNotNull( tori );
     }
+
 
     /**
      * Remove an attribute, which is not required.
@@ -119,16 +125,17 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemoveNotRequiredAttribute() throws NamingException
     {
         // Remove description Attribute
-        Attribute attr = new BasicAttribute("description");
+        Attribute attr = new BasicAttribute( "description" );
         Attributes attrs = new BasicAttributes();
-        attrs.put(attr);
-        ctx.modifyAttributes(RDN, DirContext.REMOVE_ATTRIBUTE, attrs);
+        attrs.put( attr );
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
 
         // Verify, that attribute is deleted
-        attrs = ctx.getAttributes(RDN);
-        attr = attrs.get("description");
-        assertNull(attr);
+        attrs = ctx.getAttributes( RDN );
+        attr = attrs.get( "description" );
+        assertNull( attr );
     }
+
 
     /**
      * Remove two not required attributes.
@@ -142,22 +149,23 @@ public class ModifyRemoveTest extends AbstractServerTest
     {
 
         // add telephoneNumber to entry
-        Attributes tn = new BasicAttributes("telephoneNumber", "12345678");
-        ctx.modifyAttributes(RDN, DirContext.ADD_ATTRIBUTE, tn);
+        Attributes tn = new BasicAttributes( "telephoneNumber", "12345678" );
+        ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, tn );
 
         // Remove description and telephoneNumber to Attribute
         Attributes attrs = new BasicAttributes();
-        attrs.put(new BasicAttribute("description"));
-        attrs.put(new BasicAttribute("telephoneNumber"));
-        ctx.modifyAttributes(RDN, DirContext.REMOVE_ATTRIBUTE, attrs);
+        attrs.put( new BasicAttribute( "description" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber" ) );
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
 
         // Verify, that attributes are deleted
-        attrs = ctx.getAttributes(RDN);
-        assertNull(attrs.get("description"));
-        assertNull(attrs.get("telephoneNumber"));
-        assertNotNull(attrs.get("cn"));
-        assertNotNull(attrs.get("sn"));
+        attrs = ctx.getAttributes( RDN );
+        assertNull( attrs.get( "description" ) );
+        assertNull( attrs.get( "telephoneNumber" ) );
+        assertNotNull( attrs.get( "cn" ) );
+        assertNotNull( attrs.get( "sn" ) );
     }
+
 
     /**
      * Remove a required attribute. The sn attribute of the person entry is used
@@ -171,17 +179,21 @@ public class ModifyRemoveTest extends AbstractServerTest
     {
 
         // Remove sn attribute
-        Attribute attr = new BasicAttribute("sn");
+        Attribute attr = new BasicAttribute( "sn" );
         Attributes attrs = new BasicAttributes();
-        attrs.put(attr);
+        attrs.put( attr );
 
-        try {
-            ctx.modifyAttributes(RDN, DirContext.REMOVE_ATTRIBUTE, attrs);
-            fail("Deletion of required attribute should fail.");
-        } catch (SchemaViolationException e) {
+        try
+        {
+            ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
+            fail( "Deletion of required attribute should fail." );
+        }
+        catch ( SchemaViolationException e )
+        {
             // expected behaviour
         }
     }
+
 
     /**
      * Remove a required attribute from RDN.
@@ -194,17 +206,21 @@ public class ModifyRemoveTest extends AbstractServerTest
     {
 
         // Remove sn attribute
-        Attribute attr = new BasicAttribute("cn");
+        Attribute attr = new BasicAttribute( "cn" );
         Attributes attrs = new BasicAttributes();
-        attrs.put(attr);
+        attrs.put( attr );
 
-        try {
-            ctx.modifyAttributes(RDN, DirContext.REMOVE_ATTRIBUTE, attrs);
-            fail("Deletion of RDN attribute should fail.");
-        } catch (SchemaViolationException e) {
+        try
+        {
+            ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
+            fail( "Deletion of RDN attribute should fail." );
+        }
+        catch ( SchemaViolationException e )
+        {
             // expected behaviour
         }
     }
+
 
     /**
      * Remove a not required attribute from RDN.
@@ -218,25 +234,29 @@ public class ModifyRemoveTest extends AbstractServerTest
 
         // Change RDN to another attribute
         String newRdn = "description=an American singer-songwriter";
-        ctx.addToEnvironment("java.naming.ldap.deleteRDN", "false");
-        ctx.rename(RDN, newRdn);
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+        ctx.rename( RDN, newRdn );
 
         // Remove description, which is now RDN attribute
-        Attribute attr = new BasicAttribute("description");
+        Attribute attr = new BasicAttribute( "description" );
         Attributes attrs = new BasicAttributes();
-        attrs.put(attr);
+        attrs.put( attr );
 
-        try {
-            ctx.modifyAttributes(newRdn, DirContext.REMOVE_ATTRIBUTE, attrs);
-            fail("Deletion of RDN attribute should fail.");
-        } catch (SchemaViolationException e) {
+        try
+        {
+            ctx.modifyAttributes( newRdn, DirContext.REMOVE_ATTRIBUTE, attrs );
+            fail( "Deletion of RDN attribute should fail." );
+        }
+        catch ( SchemaViolationException e )
+        {
             // expected behaviour
         }
 
         // Change RDN back to original
-        ctx.addToEnvironment("java.naming.ldap.deleteRDN", "false");
-        ctx.rename(newRdn, RDN);
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+        ctx.rename( newRdn, RDN );
     }
+
 
     /**
      * Remove a an attribute which is not present on the entry, but in the
@@ -250,17 +270,21 @@ public class ModifyRemoveTest extends AbstractServerTest
     {
 
         // Remove telephoneNumber Attribute
-        Attribute attr = new BasicAttribute("telephoneNumber");
+        Attribute attr = new BasicAttribute( "telephoneNumber" );
         Attributes attrs = new BasicAttributes();
-        attrs.put(attr);
+        attrs.put( attr );
 
-        try {
-            ctx.modifyAttributes(RDN, DirContext.REMOVE_ATTRIBUTE, attrs);
-            fail("Deletion of attribute, which is not present in the entry, should fail.");
-        } catch (NoSuchAttributeException e) {
+        try
+        {
+            ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
+            fail( "Deletion of attribute, which is not present in the entry, should fail." );
+        }
+        catch ( NoSuchAttributeException e )
+        {
             // expected behaviour
         }
     }
+
 
     /**
      * Remove a an attribute which is not present in the schema.
@@ -273,16 +297,21 @@ public class ModifyRemoveTest extends AbstractServerTest
     {
 
         // Remove phantasy attribute
-        Attribute attr = new BasicAttribute("XXX");
+        Attribute attr = new BasicAttribute( "XXX" );
         Attributes attrs = new BasicAttributes();
-        attrs.put(attr);
+        attrs.put( attr );
 
-        try {
-            ctx.modifyAttributes(RDN, DirContext.REMOVE_ATTRIBUTE, attrs);
-            fail("Deletion of an invalid attribute should fail.");
-        } catch (NoSuchAttributeException e) {
+        try
+        {
+            ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
+            fail( "Deletion of an invalid attribute should fail." );
+        }
+        catch ( NoSuchAttributeException e )
+        {
             // expected behaviour
-        } catch (InvalidAttributeIdentifierException e) {
+        }
+        catch ( InvalidAttributeIdentifierException e )
+        {
             // expected behaviour
         }
     }

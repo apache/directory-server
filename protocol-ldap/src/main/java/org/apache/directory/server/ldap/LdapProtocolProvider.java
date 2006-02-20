@@ -71,7 +71,6 @@ import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
@@ -101,7 +100,7 @@ public class LdapProtocolProvider
     private static final Map DEFAULT_HANDLERS;
     /** a set of supported controls */
     private static final Set SUPPORTED_CONTROLS;
-    
+
     static
     {
         HashMap map = new HashMap();
@@ -147,10 +146,10 @@ public class LdapProtocolProvider
         map.put( UnbindRequestImpl.class.getName(), UnbindHandler.class );
 
         DEFAULT_HANDLERS = Collections.unmodifiableMap( map );
-        
+
         HashSet set = new HashSet();
-        set.add( PersistentSearchControl.CONTROL_OID );  
-        set.add( EntryChangeControl.CONTROL_OID ); 
+        set.add( PersistentSearchControl.CONTROL_OID );
+        set.add( EntryChangeControl.CONTROL_OID );
         set.add( ManageDsaITControl.CONTROL_OID );
         SUPPORTED_CONTROLS = Collections.unmodifiableSet( set );
     }
@@ -160,6 +159,7 @@ public class LdapProtocolProvider
 
     /** the MINA protocol handler */
     private final LdapProtocolHandler handler = new LdapProtocolHandler();
+
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -171,7 +171,7 @@ public class LdapProtocolProvider
      * @param env environment properties used to configure the provider and
      * underlying codec providers if any
      */
-    public LdapProtocolProvider( Hashtable env ) throws LdapNamingException
+    public LdapProtocolProvider(Hashtable env) throws LdapNamingException
     {
         Hashtable copy = ( Hashtable ) env.clone();
         copy.put( Context.PROVIDER_URL, "" );
@@ -179,19 +179,19 @@ public class LdapProtocolProvider
         new SessionRegistry( copy );
 
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
-        while( requestTypes.hasNext() )
+        while ( requestTypes.hasNext() )
         {
             MessageHandler handler = null;
             String type = ( String ) requestTypes.next();
             Class clazz = null;
 
-            if( copy.containsKey( type ) )
+            if ( copy.containsKey( type ) )
             {
                 try
                 {
                     clazz = Class.forName( ( String ) copy.get( type ) );
                 }
-                catch( ClassNotFoundException e )
+                catch ( ClassNotFoundException e )
                 {
                     LdapNamingException lne;
                     String msg = "failed to load class " + clazz;
@@ -212,7 +212,7 @@ public class LdapProtocolProvider
                 handler = ( MessageHandler ) clazz.newInstance();
                 this.handler.addMessageHandler( typeClass, handler );
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 LdapNamingException lne;
                 String msg = "failed to create handler instance of " + clazz;
@@ -226,6 +226,7 @@ public class LdapProtocolProvider
         this.codecFactory = new ProtocolCodecFactoryImpl( copy );
     }
 
+
     /**
      * Creates a MINA LDAP protocol provider.
      */
@@ -235,7 +236,7 @@ public class LdapProtocolProvider
         new SessionRegistry( null );
 
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
-        while( requestTypes.hasNext() )
+        while ( requestTypes.hasNext() )
         {
             MessageHandler handler = null;
             String type = ( String ) requestTypes.next();
@@ -249,7 +250,7 @@ public class LdapProtocolProvider
                 handler = ( MessageHandler ) clazz.newInstance();
                 this.handler.addMessageHandler( typeClass, handler );
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 LdapNamingException lne;
                 String msg = "failed to create handler instance of " + clazz;
@@ -263,6 +264,7 @@ public class LdapProtocolProvider
         this.codecFactory = new ProtocolCodecFactoryImpl();
     }
 
+
     // ------------------------------------------------------------------------
     // ProtocolProvider Methods
     // ------------------------------------------------------------------------
@@ -272,16 +274,19 @@ public class LdapProtocolProvider
         return SERVICE_NAME;
     }
 
+
     public ProtocolCodecFactory getCodecFactory()
     {
         return codecFactory;
     }
 
+
     public IoHandler getHandler()
     {
         return handler;
     }
-    
+
+
     /**
      * Registeres the specified {@link ExtendedOperationHandler} to this
      * protocol provider to provide a specific LDAP extended operation.
@@ -293,7 +298,8 @@ public class LdapProtocolProvider
         eh = ( ExtendedHandler ) handler.getMessageHandler( ExtendedRequestImpl.class );
         eh.addHandler( eoh );
     }
-    
+
+
     /**
      * Deregisteres an {@link ExtendedOperationHandler} with the specified <tt>oid</tt>
      * from this protocol provider.
@@ -305,7 +311,8 @@ public class LdapProtocolProvider
         eh = ( ExtendedHandler ) handler.getMessageHandler( ExtendedRequestImpl.class );
         eh.removeHandler( oid );
     }
-    
+
+
     /**
      * Returns an {@link ExtendedOperationHandler} with the specified <tt>oid</tt>
      * which is registered to this protocol provider.
@@ -315,7 +322,8 @@ public class LdapProtocolProvider
         ExtendedHandler eh = ( ExtendedHandler ) handler.getMessageHandler( ExtendedRequest.class );
         return eh.getHandler( oid );
     }
-    
+
+
     /**
      * Returns a {@link Map} of all registered OID-{@link ExtendedOperationHandler}
      * pairs.
@@ -325,46 +333,36 @@ public class LdapProtocolProvider
         ExtendedHandler eh = ( ExtendedHandler ) handler.getMessageHandler( ExtendedRequest.class );
         return eh.getHandlerMap();
     }
+
     /**
      * A snickers based BER Decoder factory.
      */
-    private static final class ProtocolCodecFactoryImpl implements
-            ProtocolCodecFactory
+    private static final class ProtocolCodecFactoryImpl implements ProtocolCodecFactory
     {
         final Hashtable env;
+
 
         public ProtocolCodecFactoryImpl()
         {
             this.env = null;
         }
 
-        ProtocolCodecFactoryImpl( Hashtable env )
+
+        ProtocolCodecFactoryImpl(Hashtable env)
         {
             this.env = env;
         }
 
+
         public ProtocolEncoder getEncoder()
         {
-            if( env == null || env.get( Provider.BERLIB_PROVIDER ) == null )
-            {
-                return new Asn1CodecEncoder( new MessageEncoder() );
-            }
-            else
-            {
-                return new Asn1CodecEncoder( new MessageEncoder( env ) );
-            }
+            return new Asn1CodecEncoder( new MessageEncoder( env ) );
         }
+
 
         public ProtocolDecoder getDecoder()
         {
-            if( env == null || env.get( Provider.BERLIB_PROVIDER ) == null )
-            {
-                return new Asn1CodecDecoder( new MessageDecoder() );
-            }
-            else
-            {
-                return new Asn1CodecDecoder( new MessageDecoder( env ) );
-            }
+            return new Asn1CodecDecoder( new MessageDecoder( env ) );
         }
     }
 
@@ -376,11 +374,13 @@ public class LdapProtocolProvider
             filters.addLast( "codec", new ProtocolCodecFilter( codecFactory ) );
             filters.addLast( "logger", new LoggingFilter() );
         }
-        
+
+
         public void sessionClosed( IoSession session )
         {
             SessionRegistry.getSingleton().remove( session );
         }
+
 
         public void messageReceived( IoSession session, Object message ) throws Exception
         {
@@ -394,22 +394,22 @@ public class LdapProtocolProvider
             // handler should react to only SESSION_UNSECURED message
             // and degrade authentication level to 'anonymous' as specified
             // in the RFC, and this is no threat.
-            
-            if( message == SSLFilter.SESSION_SECURED )
+
+            if ( message == SSLFilter.SESSION_SECURED )
             {
                 ExtendedRequest req = new ExtendedRequestImpl( 0 );
                 req.setOid( "1.3.6.1.4.1.1466.20037" );
                 req.setPayload( "SECURED".getBytes( "ISO-8859-1" ) );
                 message = req;
             }
-            else if( message == SSLFilter.SESSION_UNSECURED )
+            else if ( message == SSLFilter.SESSION_UNSECURED )
             {
                 ExtendedRequest req = new ExtendedRequestImpl( 0 );
                 req.setOid( "1.3.6.1.4.1.1466.20037" );
                 req.setPayload( "UNSECURED".getBytes( "ISO-8859-1" ) );
                 message = req;
             }
-            
+
             if ( ( ( Request ) message ).getControls().size() > 0 && message instanceof ResultResponseRequest )
             {
                 ResultResponseRequest req = ( ResultResponseRequest ) message;
@@ -417,7 +417,7 @@ public class LdapProtocolProvider
                 while ( controls.hasNext() )
                 {
                     Control control = ( Control ) controls.next();
-                    if ( control.isCritical() && ! SUPPORTED_CONTROLS.contains( control.getID() ) )
+                    if ( control.isCritical() && !SUPPORTED_CONTROLS.contains( control.getID() ) )
                     {
                         ResultResponse resp = req.getResultResponse();
                         resp.getLdapResult().setErrorMessage( "Unsupport critical control: " + control.getID() );
@@ -427,14 +427,14 @@ public class LdapProtocolProvider
                     }
                 }
             }
-            
+
             super.messageReceived( session, message );
         }
-        
+
 
         public void exceptionCaught( IoSession session, Throwable cause )
         {
-            SessionLog.warn( session, 
+            SessionLog.warn( session,
                 "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
             session.write( NoticeOfDisconnect.PROTOCOLERROR );
             SessionRegistry.getSingleton().remove( session );

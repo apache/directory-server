@@ -16,33 +16,36 @@
  */
 package org.apache.directory.server.kerberos.kdc.preauthentication;
 
+
 import java.io.IOException;
 
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationContext;
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
+import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.service.LockBox;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.kerberos.exceptions.ErrorType;
-import org.apache.kerberos.exceptions.KerberosException;
-import org.apache.kerberos.io.decoder.EncryptedDataDecoder;
-import org.apache.kerberos.messages.KdcRequest;
-import org.apache.kerberos.messages.value.EncryptedData;
-import org.apache.kerberos.messages.value.EncryptedTimeStamp;
-import org.apache.kerberos.messages.value.EncryptionKey;
-import org.apache.kerberos.messages.value.PreAuthenticationData;
-import org.apache.kerberos.messages.value.PreAuthenticationDataType;
-import org.apache.kerberos.service.LockBox;
-import org.apache.kerberos.store.PrincipalStoreEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class VerifyEncryptedTimestamp extends VerifierBase
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( VerifyEncryptedTimestamp.class );
 
+
     public boolean execute( Context ctx ) throws Exception
     {
-        AuthenticationContext authContext = (AuthenticationContext) ctx;
+        AuthenticationContext authContext = ( AuthenticationContext ) ctx;
 
         if ( authContext.getClientKey() != null )
         {
@@ -63,7 +66,7 @@ public class VerifyEncryptedTimestamp extends VerifierBase
             if ( log.isDebugEnabled() )
             {
                 log.debug( "entry for client principal " + clientName
-                        + " has no SAM type: proceeding with standard pre-authentication" );
+                    + " has no SAM type: proceeding with standard pre-authentication" );
             }
 
             clientKey = clientEntry.getEncryptionKey();
@@ -79,22 +82,20 @@ public class VerifyEncryptedTimestamp extends VerifierBase
 
                 if ( preAuthData == null )
                 {
-                    throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED,
-                            preparePreAuthenticationError() );
+                    throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError() );
                 }
 
                 EncryptedTimeStamp timestamp = null;
 
                 for ( int ii = 0; ii < preAuthData.length; ii++ )
                 {
-                    if ( preAuthData[ ii ].getDataType().equals(
-                            PreAuthenticationDataType.PA_ENC_TIMESTAMP ) )
+                    if ( preAuthData[ii].getDataType().equals( PreAuthenticationDataType.PA_ENC_TIMESTAMP ) )
                     {
                         EncryptedData dataValue;
 
                         try
                         {
-                            dataValue = EncryptedDataDecoder.decode( preAuthData[ ii ].getDataValue() );
+                            dataValue = EncryptedDataDecoder.decode( preAuthData[ii].getDataValue() );
                         }
                         catch ( IOException ioe )
                         {
@@ -105,14 +106,14 @@ public class VerifyEncryptedTimestamp extends VerifierBase
                             throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
                         }
 
-                        timestamp = (EncryptedTimeStamp) lockBox.unseal( EncryptedTimeStamp.class, clientKey, dataValue );
+                        timestamp = ( EncryptedTimeStamp ) lockBox.unseal( EncryptedTimeStamp.class, clientKey,
+                            dataValue );
                     }
                 }
 
                 if ( timestamp == null )
                 {
-                    throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED,
-                            preparePreAuthenticationError() );
+                    throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError() );
                 }
 
                 if ( !timestamp.getTimeStamp().isInClockSkew( config.getClockSkew() ) )

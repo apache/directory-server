@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -49,9 +50,12 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
  */
 public class MostSpecificProtectedItemFilter implements ACITupleFilter
 {
-    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
+        Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
+        Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+        throws NamingException
     {
-        if( tuples.size() <= 1 )
+        if ( tuples.size() <= 1 )
         {
             return tuples;
         }
@@ -60,16 +64,14 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
 
         // If the protected item is an attribute and there are tuples that
         // specify the attribute type explicitly, discard all other tuples.
-        for( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            for( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
+            for ( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
             {
                 ProtectedItem item = ( ProtectedItem ) j.next();
-                if( item instanceof ProtectedItem.AttributeType ||
-                    item instanceof ProtectedItem.AllAttributeValues ||
-                    item instanceof ProtectedItem.SelfValue ||
-                    item instanceof ProtectedItem.AttributeValue )
+                if ( item instanceof ProtectedItem.AttributeType || item instanceof ProtectedItem.AllAttributeValues
+                    || item instanceof ProtectedItem.SelfValue || item instanceof ProtectedItem.AttributeValue )
                 {
                     filteredTuples.add( tuple );
                     break;
@@ -77,7 +79,7 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
             }
         }
 
-        if( filteredTuples.size() > 0 )
+        if ( filteredTuples.size() > 0 )
         {
             return filteredTuples;
         }
@@ -86,20 +88,20 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
         // that specify the attribute value explicitly, discard all other tuples.
         // A protected item which is a rangeOfValues is to be treated as
         // specifying an attribute value explicitly. 
-        for( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            for( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
+            for ( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
             {
                 ProtectedItem item = ( ProtectedItem ) j.next();
-                if( item instanceof ProtectedItem.RangeOfValues )
+                if ( item instanceof ProtectedItem.RangeOfValues )
                 {
                     filteredTuples.add( tuple );
                 }
             }
         }
 
-        if( filteredTuples.size() > 0 )
+        if ( filteredTuples.size() > 0 )
         {
             return filteredTuples;
         }

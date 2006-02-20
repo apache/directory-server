@@ -35,8 +35,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NoDupsEnumeration
-    implements NamingEnumeration
+public class NoDupsEnumeration implements NamingEnumeration
 {
     /** Temporary Tuple used to return results */
     private final Tuple returned = new Tuple();
@@ -54,12 +53,10 @@ public class NoDupsEnumeration
     // C O N S T R U C T O R
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a cursor over a TupleBrowser where duplicates are not expected.
      */
-    public NoDupsEnumeration( TupleBrowser browser, boolean doAscendingScan )
-        throws NamingException
+    public NoDupsEnumeration(TupleBrowser browser, boolean doAscendingScan) throws NamingException
     {
         this.browser = browser;
         this.doAscendingScan = doAscendingScan;
@@ -71,14 +68,12 @@ public class NoDupsEnumeration
     // NamingEnumeration Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Returns the same Tuple every time but with different key/value pairs.
      * 
      * @see javax.naming.NamingEnumeration#next()
      */
-    public Object next()
-        throws NamingException
+    public Object next() throws NamingException
     {
         // Load values into the Tuple to return
         returned.setKey( prefetched.getKey() );
@@ -88,8 +83,8 @@ public class NoDupsEnumeration
         prefetch();
         return returned;
     }
-    
-    
+
+
     /**
      * Returns the same Tuple every time but with different key/value pairs.
      * 
@@ -97,7 +92,7 @@ public class NoDupsEnumeration
      */
     public Object nextElement()
     {
-        try 
+        try
         {
             return next();
         }
@@ -142,7 +137,6 @@ public class NoDupsEnumeration
     // ------------------------------------------------------------------------
     // Private/Package Friendly Methods
     // ------------------------------------------------------------------------
-    
 
     /**
      * Gets the direction of this NamingEnumeration.
@@ -167,11 +161,11 @@ public class NoDupsEnumeration
         // Prefetch into tuple!
         boolean isSuccess = false;
 
-        if ( doAscendingScan ) 
+        if ( doAscendingScan )
         {
             isSuccess = browser.getNext( prefetched );
-        } 
-        else 
+        }
+        else
         {
             isSuccess = browser.getPrevious( prefetched );
         }

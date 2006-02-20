@@ -51,7 +51,7 @@ class PreferencesUtils
 
         for ( int ii = 0; ii < comps.length; ii++ )
         {
-            if ( comps[ii] != null && ! comps[ii].trim().equals( "" ) )
+            if ( comps[ii] != null && !comps[ii].trim().equals( "" ) )
             {
                 dn.add( "prefNodeName=" + comps[ii] );
             }

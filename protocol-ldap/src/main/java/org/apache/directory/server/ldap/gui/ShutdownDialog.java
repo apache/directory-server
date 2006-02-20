@@ -29,7 +29,7 @@ public class ShutdownDialog extends JDialog
     private JTextField delayField = null;
     private boolean canceled = true;
 
-    
+
     /**
      * This is the default constructor
      */
@@ -39,30 +39,30 @@ public class ShutdownDialog extends JDialog
         initialize();
     }
 
-    
+
     public boolean isSendCanceled()
     {
         return canceled;
     }
-    
-    
+
+
     public int getTimeOffline()
     {
         return Integer.parseInt( timeOfflineField.getText() );
     }
-    
+
 
     public int getDelay()
     {
         return Integer.parseInt( delayField.getText() );
     }
-    
-    
+
+
     public boolean isCanceled()
     {
         return canceled;
     }
-    
+
 
     /**
      * This method initializes this
@@ -71,8 +71,8 @@ public class ShutdownDialog extends JDialog
      */
     private void initialize()
     {
-        this.setSize(248, 171);
-        this.setTitle("Shutdown Parameters");
+        this.setSize( 248, 171 );
+        this.setTitle( "Shutdown Parameters" );
         this.setContentPane( getJContentPane() );
     }
 
@@ -88,8 +88,8 @@ public class ShutdownDialog extends JDialog
         {
             jContentPane = new JPanel();
             jContentPane.setLayout( new BorderLayout() );
-            jContentPane.add(getJPanel(), java.awt.BorderLayout.CENTER);
-            jContentPane.add(getJPanel2(), java.awt.BorderLayout.SOUTH);
+            jContentPane.add( getJPanel(), java.awt.BorderLayout.CENTER );
+            jContentPane.add( getJPanel2(), java.awt.BorderLayout.SOUTH );
         }
         return jContentPane;
     }
@@ -105,10 +105,11 @@ public class ShutdownDialog extends JDialog
         if ( inputsPanel == null )
         {
             inputsPanel = new JPanel();
-            inputsPanel.setLayout(null);
-            inputsPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
-            inputsPanel.add(getJPanel3(), null);
-            inputsPanel.add(getJPanel1(), null);
+            inputsPanel.setLayout( null );
+            inputsPanel.setBorder( javax.swing.BorderFactory
+                .createEtchedBorder( javax.swing.border.EtchedBorder.RAISED ) );
+            inputsPanel.add( getJPanel3(), null );
+            inputsPanel.add( getJPanel1(), null );
         }
         return inputsPanel;
     }
@@ -124,8 +125,8 @@ public class ShutdownDialog extends JDialog
         if ( buttonsPanel == null )
         {
             buttonsPanel = new JPanel();
-            buttonsPanel.add(getJButton(), null);
-            buttonsPanel.add(getJButton2(), null);
+            buttonsPanel.add( getJButton(), null );
+            buttonsPanel.add( getJButton2(), null );
         }
         return buttonsPanel;
     }
@@ -141,7 +142,7 @@ public class ShutdownDialog extends JDialog
         if ( sendButton == null )
         {
             sendButton = new JButton();
-            sendButton.setText("Send");
+            sendButton.setText( "Send" );
             sendButton.addActionListener( new java.awt.event.ActionListener()
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
@@ -158,7 +159,7 @@ public class ShutdownDialog extends JDialog
                             return;
                         }
                     }
-                    catch( NumberFormatException nfe )
+                    catch ( NumberFormatException nfe )
                     {
                         JOptionPane.showMessageDialog( ShutdownDialog.this,
                             "The value for Time Offline is not a number", "Not a Number", JOptionPane.ERROR_MESSAGE );
@@ -171,16 +172,16 @@ public class ShutdownDialog extends JDialog
                         delay = Integer.parseInt( delayField.getText() );
                         if ( delay > 86400 || delay < 0 )
                         {
-                            JOptionPane.showMessageDialog( ShutdownDialog.this,
-                                "Delay is out of range: 0 ... 86400", "Range Problem", JOptionPane.ERROR_MESSAGE );
+                            JOptionPane.showMessageDialog( ShutdownDialog.this, "Delay is out of range: 0 ... 86400",
+                                "Range Problem", JOptionPane.ERROR_MESSAGE );
                             delayField.setText( "" );
                             return;
                         }
                     }
-                    catch( NumberFormatException nfe )
+                    catch ( NumberFormatException nfe )
                     {
-                        JOptionPane.showMessageDialog( ShutdownDialog.this,
-                            "Delay is not a number", "Not a Number", JOptionPane.ERROR_MESSAGE );
+                        JOptionPane.showMessageDialog( ShutdownDialog.this, "Delay is not a number", "Not a Number",
+                            JOptionPane.ERROR_MESSAGE );
                         delayField.setText( "" );
                         return;
                     }
@@ -204,8 +205,8 @@ public class ShutdownDialog extends JDialog
         if ( cancelButton == null )
         {
             cancelButton = new JButton();
-            cancelButton.setText("Cancel");
-            cancelButton.setSelected(true);
+            cancelButton.setText( "Cancel" );
+            cancelButton.setSelected( true );
             cancelButton.addActionListener( new java.awt.event.ActionListener()
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
@@ -231,12 +232,12 @@ public class ShutdownDialog extends JDialog
         if ( jPanel == null )
         {
             jLabel = new JLabel();
-            jLabel.setText("Minutes Offline: ");
+            jLabel.setText( "Minutes Offline: " );
             jPanel = new JPanel();
-            jPanel.setLayout(new BoxLayout(getJPanel3(), BoxLayout.X_AXIS));
-            jPanel.setBounds(new java.awt.Rectangle(35,28,163,16));
-            jPanel.add(jLabel, null);
-            jPanel.add(getJTextField(), null);
+            jPanel.setLayout( new BoxLayout( getJPanel3(), BoxLayout.X_AXIS ) );
+            jPanel.setBounds( new java.awt.Rectangle( 35, 28, 163, 16 ) );
+            jPanel.add( jLabel, null );
+            jPanel.add( getJTextField(), null );
         }
         return jPanel;
     }
@@ -252,12 +253,12 @@ public class ShutdownDialog extends JDialog
         if ( jPanel1 == null )
         {
             jLabel1 = new JLabel();
-            jLabel1.setText("Seconds Delay: ");
+            jLabel1.setText( "Seconds Delay: " );
             jPanel1 = new JPanel();
-            jPanel1.setLayout(new BoxLayout(getJPanel1(), BoxLayout.X_AXIS));
-            jPanel1.setBounds(new java.awt.Rectangle(42,57,156,16));
-            jPanel1.add(jLabel1, null);
-            jPanel1.add(getJTextField1(), null);
+            jPanel1.setLayout( new BoxLayout( getJPanel1(), BoxLayout.X_AXIS ) );
+            jPanel1.setBounds( new java.awt.Rectangle( 42, 57, 156, 16 ) );
+            jPanel1.add( jLabel1, null );
+            jPanel1.add( getJTextField1(), null );
         }
         return jPanel1;
     }
@@ -292,4 +293,4 @@ public class ShutdownDialog extends JDialog
         return delayField;
     }
 
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+} //  @jve:decl-index=0:visual-constraint="10,10"

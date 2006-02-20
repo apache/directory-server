@@ -42,7 +42,7 @@ public class InterceptorException extends NamingException
      *
      * @param interceptor the Interceptor causing the failure
      */
-    public InterceptorException( Interceptor interceptor )
+    public InterceptorException(Interceptor interceptor)
     {
         this.interceptor = interceptor;
     }
@@ -54,7 +54,7 @@ public class InterceptorException extends NamingException
      * @param interceptor the Interceptor causing the failure
      * @param explanation String explanation of why the Interceptor failed
      */
-    public InterceptorException( Interceptor interceptor, String explanation )
+    public InterceptorException(Interceptor interceptor, String explanation)
     {
         super( explanation );
         this.interceptor = interceptor;
@@ -67,7 +67,7 @@ public class InterceptorException extends NamingException
      * @param interceptor the Interceptor causing the failure
      * @param rootCause   the root cause of this exception
      */
-    public InterceptorException( Interceptor interceptor, Throwable rootCause )
+    public InterceptorException(Interceptor interceptor, Throwable rootCause)
     {
         this( interceptor );
         super.setRootCause( rootCause );
@@ -81,8 +81,7 @@ public class InterceptorException extends NamingException
      * @param explanation String explanation of why the Interceptor failed
      * @param rootCause   the root cause of this exception
      */
-    public InterceptorException( Interceptor interceptor, String explanation,
-                                 Throwable rootCause )
+    public InterceptorException(Interceptor interceptor, String explanation, Throwable rootCause)
     {
         this( interceptor, explanation );
         super.setRootCause( rootCause );

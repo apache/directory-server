@@ -43,23 +43,22 @@ public class NisMatchingRuleProducer extends AbstractBootstrapProducer
     // BootstrapProducer Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see org.apache.directory.server.core.schema.bootstrap.BootstrapProducer#produce(org.apache.directory.server.core.schema.bootstrap.BootstrapRegistries, org.apache.directory.server.core.schema.bootstrap.ProducerCallback)
      */
-    public void produce( BootstrapRegistries registries, ProducerCallback cb )
-        throws NamingException
+    public void produce( BootstrapRegistries registries, ProducerCallback cb ) throws NamingException
     {
         BootstrapMatchingRule mrule;
 
         /* Really an openLDAP matching rule but its used in he nis so its here
          *
-            ( 1.3.6.1.4.1.4203.1.2.1 NAME 'caseExactIA5SubstringsMatch'
-             SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+         ( 1.3.6.1.4.1.4203.1.2.1 NAME 'caseExactIA5SubstringsMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
          */
 
-        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.4203.1.2.1", registries  );
-        mrule.setNames( new String[] { "caseExactIA5SubstringsMatch" } );
+        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.4203.1.2.1", registries );
+        mrule.setNames( new String[]
+            { "caseExactIA5SubstringsMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.26" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
     }

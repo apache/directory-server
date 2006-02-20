@@ -38,6 +38,7 @@ public interface ComparatorRegistryMonitor
      */
     void registered( String oid, Comparator comparator );
 
+
     /**
      * Monitors when a Comparator is successfully looked up.
      * 
@@ -46,6 +47,7 @@ public interface ComparatorRegistryMonitor
      */
     void lookedUp( String oid, Comparator comparator );
 
+
     /**
      * Monitors when a lookup attempt fails.
      * 
@@ -53,7 +55,8 @@ public interface ComparatorRegistryMonitor
      * @param fault the exception to be thrown for the fault
      */
     void lookupFailed( String oid, NamingException fault );
-    
+
+
     /**
      * Monitors when a registration attempt fails.
      * 

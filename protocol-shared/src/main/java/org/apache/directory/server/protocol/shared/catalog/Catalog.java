@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.protocol.shared.catalog;
 
+
 /**
  * The interface for resolving search-base DN's from zone or realm names.
  *

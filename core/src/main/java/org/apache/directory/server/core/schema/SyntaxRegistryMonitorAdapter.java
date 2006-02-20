@@ -34,15 +34,16 @@ public class SyntaxRegistryMonitorAdapter implements SyntaxRegistryMonitor
 {
     private static final Logger log = LoggerFactory.getLogger( SyntaxRegistryMonitorAdapter.class );
 
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.SyntaxRegistryMonitor#registered(
      * org.apache.eve.schema.Syntax)
      */
-    public void registered( Syntax syntax)
+    public void registered( Syntax syntax )
     {
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.SyntaxRegistryMonitor#lookedUp(
      * org.apache.eve.schema.Syntax)
@@ -51,7 +52,7 @@ public class SyntaxRegistryMonitorAdapter implements SyntaxRegistryMonitor
     {
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.SyntaxRegistryMonitor#lookupFailed(
      * java.lang.String, javax.naming.NamingException)
@@ -64,7 +65,7 @@ public class SyntaxRegistryMonitorAdapter implements SyntaxRegistryMonitor
         }
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.SyntaxRegistryMonitor#registerFailed(
      * org.apache.eve.schema.Syntax, javax.naming.NamingException)

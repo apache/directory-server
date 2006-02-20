@@ -30,23 +30,26 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class ExtensionsPath extends DhcpOption
 {
-	private byte[] extensionsPath;
-	
-	public ExtensionsPath( byte[] extensionsPath )
-	{
-		super( 18, 1 );
-		this.extensionsPath = extensionsPath;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( extensionsPath );
-	}
-}
+    private byte[] extensionsPath;
 
+
+    public ExtensionsPath(byte[] extensionsPath)
+    {
+        super( 18, 1 );
+        this.extensionsPath = extensionsPath;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( extensionsPath );
+    }
+}

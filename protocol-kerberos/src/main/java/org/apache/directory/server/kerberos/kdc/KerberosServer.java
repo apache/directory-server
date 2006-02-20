@@ -17,17 +17,19 @@
 
 package org.apache.directory.server.kerberos.kdc;
 
+
 import java.io.IOException;
 import java.util.Dictionary;
 
 import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
-import org.apache.kerberos.store.PrincipalStore;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.registry.Service;
 import org.apache.mina.registry.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * A wrapper encapsulating configuration, a MINA registry, and a PrincipalStore
@@ -49,7 +51,8 @@ public class KerberosServer
     private Service tcpService;
     private Service udpService;
 
-    public KerberosServer( KdcConfiguration config, ServiceRegistry registry, PrincipalStore store )
+
+    public KerberosServer(KdcConfiguration config, ServiceRegistry registry, PrincipalStore store)
     {
         this.config = config;
         this.registry = registry;
@@ -76,10 +79,12 @@ public class KerberosServer
         }
     }
 
+
     public boolean isDifferent( Dictionary newConfig )
     {
         return config.isDifferent( newConfig );
     }
+
 
     public void destroy()
     {

@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import java.io.UnsupportedEncodingException;
 
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
@@ -24,27 +25,29 @@ import org.apache.directory.server.changepw.io.ChangePasswordDataDecoder;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.value.ChangePasswordData;
 import org.apache.directory.server.changepw.value.ChangePasswordDataModifier;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.exceptions.KerberosException;
-import org.apache.kerberos.messages.components.Authenticator;
-import org.apache.kerberos.messages.components.EncKrbPrivPart;
-import org.apache.kerberos.messages.value.EncryptedData;
-import org.apache.kerberos.messages.value.EncryptionKey;
-import org.apache.kerberos.service.LockBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class ExtractPassword extends CommandBase
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( ExtractPassword.class );
 
+
     public boolean execute( Context context ) throws Exception
     {
-        ChangePasswordContext changepwContext = (ChangePasswordContext) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
 
-        ChangePasswordRequest request = (ChangePasswordRequest) changepwContext.getRequest();
+        ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
         Authenticator authenticator = changepwContext.getAuthenticator();
         LockBox lockBox = changepwContext.getLockBox();
 
@@ -63,7 +66,7 @@ public class ExtractPassword extends CommandBase
 
         try
         {
-            privatePart = (EncKrbPrivPart) lockBox.unseal( EncKrbPrivPart.class, subSessionKey, encReqPrivPart );
+            privatePart = ( EncKrbPrivPart ) lockBox.unseal( EncKrbPrivPart.class, subSessionKey, encReqPrivPart );
         }
         catch ( KerberosException ke )
         {
@@ -73,7 +76,7 @@ public class ExtractPassword extends CommandBase
 
         ChangePasswordData passwordData = null;
 
-        if ( request.getVersionNumber() == (short) 1 )
+        if ( request.getVersionNumber() == ( short ) 1 )
         {
             // Use protocol version 0x0001, the legacy Kerberos change password protocol
             ChangePasswordDataModifier modifier = new ChangePasswordDataModifier();

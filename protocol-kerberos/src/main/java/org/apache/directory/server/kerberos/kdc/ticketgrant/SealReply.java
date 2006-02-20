@@ -16,21 +16,23 @@
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
+
+import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
+import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.messages.TicketGrantReply;
-import org.apache.kerberos.messages.components.Authenticator;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.messages.value.EncryptedData;
-import org.apache.kerberos.service.LockBox;
+
 
 public class SealReply extends CommandBase
 {
     public boolean execute( Context ctx ) throws Exception
     {
-        TicketGrantingContext tgsContext = (TicketGrantingContext) ctx;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) ctx;
 
-        TicketGrantReply reply = (TicketGrantReply) tgsContext.getReply();
+        TicketGrantReply reply = ( TicketGrantReply ) tgsContext.getReply();
         Ticket tgt = tgsContext.getTgt();
         LockBox lockBox = tgsContext.getLockBox();
         Authenticator authenticator = tgsContext.getAuthenticator();

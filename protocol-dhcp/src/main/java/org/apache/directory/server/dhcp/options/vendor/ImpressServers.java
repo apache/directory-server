@@ -26,13 +26,14 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 public class ImpressServers extends AddressListOption
 {
-	public ImpressServers( byte[] impressServers )
-	{
-		super( 10, impressServers );
-	}
+    public ImpressServers(byte[] impressServers)
+    {
+        super( 10, impressServers );
+    }
 }
-

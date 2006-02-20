@@ -107,7 +107,6 @@ public class EventServiceTest extends AbstractAdminTestCase
         assertEquals( "objectAdded", rec.method );
     }
 
-
     public class TestListener implements ObjectChangeListener, NamespaceChangeListener
     {
         List events = new ArrayList();
@@ -149,13 +148,13 @@ public class EventServiceTest extends AbstractAdminTestCase
         }
     }
 
-
     public class EventRecord
     {
         String method;
         EventObject event;
 
-        EventRecord( String method, EventObject event )
+
+        EventRecord(String method, EventObject event)
         {
             this.method = method;
             this.event = event;

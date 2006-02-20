@@ -4,10 +4,15 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC1-SNAPSHOT</version>
+    <version>1.0-RC1</version>
   </parent>
   <artifactId>apacheds-server-jndi</artifactId>
   <name>ApacheDS Server JNDI</name>
+  <description>
+    The JNDI provider which launches the core and associated network 
+    services: Changepw, Kerberos, LDAP, and NTP if all are configured.
+    By default only LDAP is configured to startup.
+  </description>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
@@ -19,17 +24,17 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-changepw</artifactId>
-      <version>0.7-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>  
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-ntp</artifactId>
-      <version>0.5-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>  
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-kerberos</artifactId>
-      <version>0.7-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>  
     <dependency>
       <groupId>org.apache.directory.server</groupId>

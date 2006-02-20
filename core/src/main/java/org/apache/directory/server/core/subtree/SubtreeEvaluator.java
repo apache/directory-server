@@ -47,7 +47,7 @@ public class SubtreeEvaluator
      *
      * @param registry a registry used to lookup objectClass names for OIDs
      */
-    public SubtreeEvaluator( OidRegistry registry )
+    public SubtreeEvaluator(OidRegistry registry)
     {
         RefinementLeafEvaluator leafEvaluator = new RefinementLeafEvaluator( registry );
         evaluator = new RefinementEvaluator( leafEvaluator );
@@ -65,26 +65,26 @@ public class SubtreeEvaluator
      * @throws javax.naming.NamingException if errors are encountered while evaluating selection
      */
     public boolean evaluate( SubtreeSpecification subtree, Name apDn, Name entryDn, Attribute objectClasses )
-            throws NamingException
+        throws NamingException
     {
-       /* =====================================================================
-        * NOTE: Regarding the overall approach, we try to narrow down the
-        * possibilities by slowly pruning relative names off of the entryDn.
-        * For example we check first if the entry is a descendant of the AP.
-        * If so we use the relative name thereafter to calculate if it is
-        * a descendant of the base.  This means shorter names to compare and
-        * less work to do while we continue to deduce inclusion by the subtree
-        * specification.
-        * =====================================================================
-        */
+        /* =====================================================================
+         * NOTE: Regarding the overall approach, we try to narrow down the
+         * possibilities by slowly pruning relative names off of the entryDn.
+         * For example we check first if the entry is a descendant of the AP.
+         * If so we use the relative name thereafter to calculate if it is
+         * a descendant of the base.  This means shorter names to compare and
+         * less work to do while we continue to deduce inclusion by the subtree
+         * specification.
+         * =====================================================================
+         */
 
-       /*
-        * First we simply check if the candidate entry is a descendant of the
-        * administrative point.  In the process we calculate the relative
-        * distinguished name relative to the administrative point.
-        */
+        /*
+         * First we simply check if the candidate entry is a descendant of the
+         * administrative point.  In the process we calculate the relative
+         * distinguished name relative to the administrative point.
+         */
         Name apRelativeRdn;
-        if ( ! NamespaceTools.isDescendant( apDn, entryDn ) )
+        if ( !NamespaceTools.isDescendant( apDn, entryDn ) )
         {
             return false;
         }
@@ -97,12 +97,12 @@ public class SubtreeEvaluator
             apRelativeRdn = NamespaceTools.getRelativeName( apDn, entryDn );
         }
 
-       /*
-        * We do the same thing with the base as we did with the administrative
-        * point: check if the entry is a descendant of the base and find the
-        * relative name of the entry with respect to the base rdn.  With the
-        * baseRelativeRdn we can later make comparisons with specific exclusions.
-        */
+        /*
+         * We do the same thing with the base as we did with the administrative
+         * point: check if the entry is a descendant of the base and find the
+         * relative name of the entry with respect to the base rdn.  With the
+         * baseRelativeRdn we can later make comparisons with specific exclusions.
+         */
         Name baseRelativeRdn;
         if ( subtree.getBase() != null && subtree.getBase().size() == 0 )
         {
@@ -112,7 +112,7 @@ public class SubtreeEvaluator
         {
             baseRelativeRdn = new LdapName();
         }
-        else if ( ! NamespaceTools.isDescendant( subtree.getBase(), apRelativeRdn ) )
+        else if ( !NamespaceTools.isDescendant( subtree.getBase(), apRelativeRdn ) )
         {
             return false;
         }
@@ -166,7 +166,7 @@ public class SubtreeEvaluator
         while ( list.hasNext() )
         {
             Name chopAfter = ( Name ) list.next();
-            if ( NamespaceTools.isDescendant( chopAfter, baseRelativeRdn ) && ! chopAfter.equals( baseRelativeRdn ) )
+            if ( NamespaceTools.isDescendant( chopAfter, baseRelativeRdn ) && !chopAfter.equals( baseRelativeRdn ) )
             {
                 return false;
             }

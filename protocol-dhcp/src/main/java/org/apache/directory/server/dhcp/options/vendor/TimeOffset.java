@@ -26,23 +26,26 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class TimeOffset extends DhcpOption
 {
-	private byte[] timeOffset;
-	
-	public TimeOffset( byte[] timeOffset )
-	{
-		super( 2, 4 );
-		this.timeOffset = timeOffset;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( timeOffset );
-	}
-}
+    private byte[] timeOffset;
 
+
+    public TimeOffset(byte[] timeOffset)
+    {
+        super( 2, 4 );
+        this.timeOffset = timeOffset;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( timeOffset );
+    }
+}

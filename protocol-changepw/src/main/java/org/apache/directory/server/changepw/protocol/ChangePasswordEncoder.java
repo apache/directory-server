@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.changepw.protocol;
 
+
 import java.io.IOException;
 
 import org.apache.directory.server.changepw.io.ChangePasswordErrorEncoder;
@@ -28,6 +29,7 @@ import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
+
 public class ChangePasswordEncoder implements ProtocolEncoder
 {
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out ) throws IOException
@@ -36,13 +38,13 @@ public class ChangePasswordEncoder implements ProtocolEncoder
 
         if ( message instanceof ChangePasswordReply )
         {
-            encodeReply( (ChangePasswordReply) message, buf );
+            encodeReply( ( ChangePasswordReply ) message, buf );
         }
         else
         {
             if ( message instanceof ChangePasswordError )
             {
-                encodeError( (ChangePasswordError) message, buf );
+                encodeError( ( ChangePasswordError ) message, buf );
             }
         }
 
@@ -51,6 +53,7 @@ public class ChangePasswordEncoder implements ProtocolEncoder
         out.write( buf );
     }
 
+
     private void encodeReply( ChangePasswordReply reply, ByteBuffer buf ) throws IOException
     {
         ChangePasswordReplyEncoder encoder = new ChangePasswordReplyEncoder();
@@ -58,12 +61,14 @@ public class ChangePasswordEncoder implements ProtocolEncoder
         encoder.encode( buf.buf(), reply );
     }
 
+
     private void encodeError( ChangePasswordError error, ByteBuffer buf ) throws IOException
     {
         ChangePasswordErrorEncoder encoder = new ChangePasswordErrorEncoder();
 
         encoder.encode( buf.buf(), error );
     }
+
 
     public void dispose( IoSession arg0 ) throws Exception
     {

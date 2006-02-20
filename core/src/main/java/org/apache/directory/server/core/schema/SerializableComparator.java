@@ -47,7 +47,6 @@ public class SerializableComparator implements Comparator, Serializable
     // S T A T I C   M E T H O D S
     // ------------------------------------------------------------------------
 
-
     /**
      * Sets the global Comparator registry for comparator lookups.
      *
@@ -63,8 +62,7 @@ public class SerializableComparator implements Comparator, Serializable
     // C O N T R U C T O R S
     // ------------------------------------------------------------------------
 
-
-    public SerializableComparator( String matchingRuleOid )
+    public SerializableComparator(String matchingRuleOid)
     {
         this.matchingRuleOid = matchingRuleOid;
     }
@@ -73,7 +71,6 @@ public class SerializableComparator implements Comparator, Serializable
     // ------------------------------------------------------------------------
     // C O M P A R A T O R   I M P L E M E N T A T I O N S
     // ------------------------------------------------------------------------
-
 
     /**
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)

@@ -24,23 +24,26 @@
  */
 package org.apache.directory.server.dhcp.options.perhost;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class DefaultIpTimeToLive extends DhcpOption
 {
-	private byte[] defaultIpTimeToLive;
-	
-	public DefaultIpTimeToLive( byte[] defaultIpTimeToLive )
-	{
-		super( 23, 1 );
-		this.defaultIpTimeToLive = defaultIpTimeToLive;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( defaultIpTimeToLive );
-	}
-}
+    private byte[] defaultIpTimeToLive;
 
+
+    public DefaultIpTimeToLive(byte[] defaultIpTimeToLive)
+    {
+        super( 23, 1 );
+        this.defaultIpTimeToLive = defaultIpTimeToLive;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( defaultIpTimeToLive );
+    }
+}

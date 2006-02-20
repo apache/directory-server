@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dhcp.protocol;
 
+
 import org.apache.directory.server.dhcp.DhcpException;
 import org.apache.directory.server.dhcp.io.DhcpMessageDecoder;
 import org.apache.mina.common.ByteBuffer;
@@ -24,14 +25,15 @@ import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
+
 public class DhcpDecoder implements ProtocolDecoder
 {
-    public void decode( IoSession session, ByteBuffer in,
-            ProtocolDecoderOutput out ) throws DhcpException
+    public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws DhcpException
     {
         DhcpMessageDecoder decoder = new DhcpMessageDecoder();
         out.write( decoder.decode( in.buf() ) );
     }
+
 
     public void dispose( IoSession arg0 ) throws Exception
     {

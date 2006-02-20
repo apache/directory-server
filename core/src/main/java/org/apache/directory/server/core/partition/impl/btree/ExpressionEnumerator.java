@@ -58,17 +58,15 @@ public class ExpressionEnumerator implements Enumerator
      * @param db database used by this enumerator
      * @param evaluator
      */
-    public ExpressionEnumerator( BTreeDirectoryPartition db,
-                                 AttributeTypeRegistry attributeTypeRegistry,
-                                 ExpressionEvaluator evaluator )
+    public ExpressionEnumerator(BTreeDirectoryPartition db, AttributeTypeRegistry attributeTypeRegistry,
+        ExpressionEvaluator evaluator)
     {
         this.db = db;
         this.evaluator = evaluator;
 
         LeafEvaluator leafEvaluator = evaluator.getLeafEvaluator();
         scopeEnumerator = new ScopeEnumerator( db, leafEvaluator.getScopeEvaluator() );
-        substringEnumerator = new SubstringEnumerator( db, attributeTypeRegistry,
-                leafEvaluator.getSubstringEvaluator() );
+        substringEnumerator = new SubstringEnumerator( db, attributeTypeRegistry, leafEvaluator.getSubstringEvaluator() );
     }
 
 
@@ -90,58 +88,56 @@ public class ExpressionEnumerator implements Enumerator
         }
         else if ( node instanceof AssertionNode )
         {
-            throw new IllegalArgumentException( "Cannot produce enumeration " 
-                + "on an AssertionNode" );
+            throw new IllegalArgumentException( "Cannot produce enumeration " + "on an AssertionNode" );
         }
-        else if ( node.isLeaf() ) 
+        else if ( node.isLeaf() )
         {
             LeafNode leaf = ( LeafNode ) node;
 
-            switch( leaf.getAssertionType() )
+            switch ( leaf.getAssertionType() )
             {
-            case( LeafNode.APPROXIMATE ):
-                list = enumEquality( ( SimpleNode ) node );
-                break;
-            case( LeafNode.EQUALITY ):
-                list = enumEquality( ( SimpleNode ) node );
-                break;
-            case( LeafNode.EXTENSIBLE ):
-                // N O T   I M P L E M E N T E D   Y E T !
-                throw new NotImplementedException();
-            case( LeafNode.GREATEREQ ):
-                list = enumGreater( ( SimpleNode ) node, true );
-                break;
-            case( LeafNode.LESSEQ ):
-                list = enumGreater( ( SimpleNode ) node, false );
-                break;
-            case( LeafNode.PRESENCE ):
-                list = enumPresence( ( PresenceNode ) node );
-                break;
-            case( LeafNode.SUBSTRING ):
-                list = substringEnumerator.enumerate( leaf );
-                break;
-            default:
-                throw new IllegalArgumentException( "Unknown leaf assertion" );
+                case ( LeafNode.APPROXIMATE  ):
+                    list = enumEquality( ( SimpleNode ) node );
+                    break;
+                case ( LeafNode.EQUALITY  ):
+                    list = enumEquality( ( SimpleNode ) node );
+                    break;
+                case ( LeafNode.EXTENSIBLE  ):
+                    // N O T   I M P L E M E N T E D   Y E T !
+                    throw new NotImplementedException();
+                case ( LeafNode.GREATEREQ  ):
+                    list = enumGreater( ( SimpleNode ) node, true );
+                    break;
+                case ( LeafNode.LESSEQ  ):
+                    list = enumGreater( ( SimpleNode ) node, false );
+                    break;
+                case ( LeafNode.PRESENCE  ):
+                    list = enumPresence( ( PresenceNode ) node );
+                    break;
+                case ( LeafNode.SUBSTRING  ):
+                    list = substringEnumerator.enumerate( leaf );
+                    break;
+                default:
+                    throw new IllegalArgumentException( "Unknown leaf assertion" );
             }
-        } 
-        else 
+        }
+        else
         {
             BranchNode branch = ( BranchNode ) node;
-            
-            switch( branch.getOperator() )
+
+            switch ( branch.getOperator() )
             {
-            case( BranchNode.AND ):
-                list = enumConj( branch );
-                break;
-            case( BranchNode.NOT ):
-                list = enumNeg( branch );
-                break;
-            case( BranchNode.OR ):
-                list = enumDisj( branch );
-                break;
-            default:
-                throw new IllegalArgumentException( 
-                    "Unknown branch logical operator" );
+                case ( BranchNode.AND  ):
+                    list = enumConj( branch );
+                    break;
+                case ( BranchNode.NOT  ):
+                    list = enumNeg( branch );
+                    break;
+                case ( BranchNode.OR  ):
+                    list = enumDisj( branch );
+                    break;
+                default:
+                    throw new IllegalArgumentException( "Unknown branch logical operator" );
             }
         }
 
@@ -157,7 +153,7 @@ public class ExpressionEnumerator implements Enumerator
     private NamingEnumeration enumDisj( BranchNode node ) throws NamingException
     {
         ArrayList children = node.getChildren();
-        NamingEnumeration[] childEnumerations = new NamingEnumeration [children.size()];
+        NamingEnumeration[] childEnumerations = new NamingEnumeration[children.size()];
 
         // Recursively create NamingEnumerations for each child expression node
         for ( int ii = 0; ii < childEnumerations.length; ii++ )
@@ -194,7 +190,6 @@ public class ExpressionEnumerator implements Enumerator
             childEnumeration = idx.listIndices();
         }
 
-
         IndexAssertion assertion = new IndexAssertion()
         {
             public boolean assertCandidate( IndexRecord rec ) throws NamingException
@@ -202,7 +197,7 @@ public class ExpressionEnumerator implements Enumerator
                 // NOTICE THE ! HERE
                 // The candidate is valid if it does not pass assertion. A
                 // candidate that passes assertion is therefore invalid.
-                return ! evaluator.evaluate( node.getChild(), rec );
+                return !evaluator.evaluate( node.getChild(), rec );
             }
         };
 
@@ -256,7 +251,7 @@ public class ExpressionEnumerator implements Enumerator
                     {
                         continue;
                     }
-                    else if ( ! evaluator.evaluate( child, rec ) )
+                    else if ( !evaluator.evaluate( child, rec ) )
                     {
                         return false;
                     }
@@ -282,18 +277,17 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the index records matching the AVA
      * @throws NamingException if there is a failure while accessing the db
      */
-    private NamingEnumeration enumPresence( final PresenceNode node ) 
-        throws NamingException
+    private NamingEnumeration enumPresence( final PresenceNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getExistanceIndex();
             return idx.listIndices( node.getAttribute() );
         }
-        
+
         return nonIndexedScan( node );
     }
-    
+
 
     /**
      * Returns an enumeration over candidates that satisfy a simple greater than
@@ -304,18 +298,17 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the index records matching the AVA
      * @throws NamingException if there is a failure while accessing the db
      */
-    private NamingEnumeration enumGreater( final SimpleNode node, 
-        final boolean isGreater ) throws NamingException
+    private NamingEnumeration enumGreater( final SimpleNode node, final boolean isGreater ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getUserIndex( node.getAttribute() );
-            
+
             if ( isGreater )
             {
                 return idx.listIndices( node.getValue(), true );
             }
-            else 
+            else
             {
                 return idx.listIndices( node.getValue(), false );
             }
@@ -323,8 +316,8 @@ public class ExpressionEnumerator implements Enumerator
 
         return nonIndexedScan( node );
     }
-    
-    
+
+
     /**
      * Returns an enumeration over candidates that satisfy a simple equality 
      * attribute value assertion.
@@ -333,8 +326,7 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the index records matching the AVA
      * @throws NamingException if there is a failure while accessing the db
      */
-    private NamingEnumeration enumEquality( final SimpleNode node )
-        throws NamingException
+    private NamingEnumeration enumEquality( final SimpleNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -344,8 +336,8 @@ public class ExpressionEnumerator implements Enumerator
 
         return nonIndexedScan( node );
     }
-    
-    
+
+
     /**
      * Creates a scan over all entries in the database with an assertion to test
      * for the correct evaluation of a filter expression on a LeafNode.
@@ -354,19 +346,17 @@ public class ExpressionEnumerator implements Enumerator
      * @return the enumeration over all perspective candidates satisfying expr
      * @throws NamingException if db access failures result
      */
-    private NamingEnumeration nonIndexedScan( final LeafNode node )
-        throws NamingException
+    private NamingEnumeration nonIndexedScan( final LeafNode node ) throws NamingException
     {
         NamingEnumeration underlying = db.getNdnIndex().listIndices();
         IndexAssertion assertion = new IndexAssertion()
         {
-            public boolean assertCandidate( IndexRecord record ) 
-                throws NamingException
+            public boolean assertCandidate( IndexRecord record ) throws NamingException
             {
                 return evaluator.getLeafEvaluator().evaluate( node, record );
             }
         };
-        
+
         return new IndexAssertionEnumeration( underlying, assertion );
     }
 }

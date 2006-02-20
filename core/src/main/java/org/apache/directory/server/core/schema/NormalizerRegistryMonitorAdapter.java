@@ -30,10 +30,10 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NormalizerRegistryMonitorAdapter 
-    implements NormalizerRegistryMonitor
+public class NormalizerRegistryMonitorAdapter implements NormalizerRegistryMonitor
 {
     private static final Logger log = LoggerFactory.getLogger( NormalizerRegistryMonitorAdapter.class );
+
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.NormalizerRegistryMonitor#registered(
@@ -43,7 +43,7 @@ public class NormalizerRegistryMonitorAdapter
     {
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.NormalizerRegistryMonitor#lookedUp(
      * org.apache.eve.schema.Normalizer)
@@ -52,7 +52,7 @@ public class NormalizerRegistryMonitorAdapter
     {
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.NormalizerRegistryMonitor#lookupFailed(
      * java.lang.String, javax.naming.NamingException)
@@ -61,11 +61,11 @@ public class NormalizerRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            log.warn( "Failed to look up the normalizer: " + oid , fault );
+            log.warn( "Failed to look up the normalizer: " + oid, fault );
         }
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.NormalizerRegistryMonitor#registerFailed(
      * org.apache.eve.schema.Normalizer, javax.naming.NamingException)

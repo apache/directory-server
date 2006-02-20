@@ -17,46 +17,50 @@
 
 package org.apache.directory.server.dhcp.service;
 
+
 import org.apache.directory.server.dhcp.DhcpService;
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
 import org.apache.directory.server.dhcp.messages.DhcpMessageModifier;
 import org.apache.directory.server.dhcp.messages.MessageType;
+
 
 /**
  * DHCP Protocol (RFC 2131, RFC 2132)
  */
 public class DhcpServiceImpl implements DhcpService
 {
-	public DhcpMessage getReplyFor( DhcpMessage request )
+    public DhcpMessage getReplyFor( DhcpMessage request )
     {
-		DhcpMessageModifier modifier = new DhcpMessageModifier();
-		
-		modifier.setMessageType( MessageType.DHCPOFFER );
-		modifier.setOpCode( (byte)0x02 );
-		modifier.setHardwareAddressType( (byte)0x00 );
-		modifier.setHardwareAddressLength( (byte)0xFF );
-		modifier.setHardwareOptions( (byte)0x00 );
-		modifier.setTransactionId( request.getTransactionId() );
-		modifier.setSeconds( (short)0 );
-		modifier.setFlags( (short)0 );
-		
-		byte[] actual = { (byte)0, (byte)0, (byte)0, (byte)0 };
-		modifier.setActualClientAddress( actual );
-		
-		byte[] assigned = { (byte)192, (byte)168, (byte)0, (byte)20 };
-		modifier.setAssignedClientAddress( assigned );
-		
-		byte[] unused = { (byte)0, (byte)0, (byte)0, (byte)0 };
-		modifier.setNextServerAddress( unused );
-		modifier.setRelayAgentAddress( unused );
-		
-		modifier.setClientHardwareAddress( request.getClientHardwareAddress() );
-		modifier.setServerHostname( request.getServerHostname() );
-		modifier.setBootFileName( request.getBootFileName() );
-		
-		DhcpMessage reply = modifier.getDhcpMessage();
-		
-		return reply;
-	}
-}
+        DhcpMessageModifier modifier = new DhcpMessageModifier();
 
+        modifier.setMessageType( MessageType.DHCPOFFER );
+        modifier.setOpCode( ( byte ) 0x02 );
+        modifier.setHardwareAddressType( ( byte ) 0x00 );
+        modifier.setHardwareAddressLength( ( byte ) 0xFF );
+        modifier.setHardwareOptions( ( byte ) 0x00 );
+        modifier.setTransactionId( request.getTransactionId() );
+        modifier.setSeconds( ( short ) 0 );
+        modifier.setFlags( ( short ) 0 );
+
+        byte[] actual =
+            { ( byte ) 0, ( byte ) 0, ( byte ) 0, ( byte ) 0 };
+        modifier.setActualClientAddress( actual );
+
+        byte[] assigned =
+            { ( byte ) 192, ( byte ) 168, ( byte ) 0, ( byte ) 20 };
+        modifier.setAssignedClientAddress( assigned );
+
+        byte[] unused =
+            { ( byte ) 0, ( byte ) 0, ( byte ) 0, ( byte ) 0 };
+        modifier.setNextServerAddress( unused );
+        modifier.setRelayAgentAddress( unused );
+
+        modifier.setClientHardwareAddress( request.getClientHardwareAddress() );
+        modifier.setServerHostname( request.getServerHostname() );
+        modifier.setBootFileName( request.getBootFileName() );
+
+        DhcpMessage reply = modifier.getDhcpMessage();
+
+        return reply;
+    }
+}

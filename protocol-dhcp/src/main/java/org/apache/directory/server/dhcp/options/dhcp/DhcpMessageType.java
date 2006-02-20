@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option is used to convey the type of the DHCP message.  The code
@@ -39,17 +41,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class DhcpMessageType extends DhcpOption
 {
-	private byte[] messageType;
-	
-	public DhcpMessageType( byte[] messageType )
-	{
-		super( 53, 1 );
-		this.messageType = messageType;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( messageType );
-	}
-}
+    private byte[] messageType;
 
+
+    public DhcpMessageType(byte[] messageType)
+    {
+        super( 53, 1 );
+        this.messageType = messageType;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( messageType );
+    }
+}

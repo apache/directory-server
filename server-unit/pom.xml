@@ -4,11 +4,14 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC1-SNAPSHOT</version>
+    <version>1.0-RC1</version>
   </parent>
   <artifactId>apacheds-server-unit</artifactId>
   <name>ApacheDS Server Unit</name>
   <packaging>jar</packaging>  
+  <description>
+    Unit testing framework for ApacheDS Server JNDI Provider
+  </description>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>

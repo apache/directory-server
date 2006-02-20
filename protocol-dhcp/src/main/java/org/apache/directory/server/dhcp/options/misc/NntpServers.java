@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * The NNTP server option specifies a list of NNTP available to the
@@ -29,9 +31,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class NntpServers extends AddressListOption
 {
-	public NntpServers( byte[] nntpServer )
-	{
-		super( 71, nntpServer );
-	}
+    public NntpServers(byte[] nntpServer)
+    {
+        super( 71, nntpServer );
+    }
 }
-

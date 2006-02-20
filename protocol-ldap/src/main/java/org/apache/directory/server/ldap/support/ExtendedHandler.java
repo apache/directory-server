@@ -15,7 +15,7 @@
  *
  */
 package org.apache.directory.server.ldap.support;
- 
+
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,48 +42,48 @@ public class ExtendedHandler implements MessageHandler
 {
     private Map handlers = new HashMap();
 
-    
+
     public ExtendedOperationHandler addHandler( ExtendedOperationHandler eoh )
     {
-        synchronized( handlers )
+        synchronized ( handlers )
         {
             return ( ExtendedOperationHandler ) handlers.put( eoh.getOid(), eoh );
         }
     }
-    
-    
+
+
     public ExtendedOperationHandler removeHandler( String oid )
     {
-        synchronized( handlers )
+        synchronized ( handlers )
         {
             return ( ExtendedOperationHandler ) handlers.remove( oid );
         }
     }
-    
-    
+
+
     public ExtendedOperationHandler getHandler( String oid )
     {
         return ( ExtendedOperationHandler ) handlers.get( oid );
     }
-    
-    
+
+
     public Map getHandlerMap()
     {
         return Collections.unmodifiableMap( handlers );
     }
-    
-    
+
+
     public void messageReceived( IoSession session, Object request )
     {
         ExtendedRequest req = ( ExtendedRequest ) request;
         ExtendedOperationHandler handler = ( ExtendedOperationHandler ) handlers.get( req.getOid() );
 
-        if( handler == null )
+        if ( handler == null )
         {
             // As long as no extended operations are implemented, send appropriate
             // error back to the client.
             String msg = "Unrecognized extended operation EXTENSION_OID: " + req.getOid();
-            LdapResult result = req.getResultResponse().getLdapResult();        
+            LdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.PROTOCOLERROR );
             result.setErrorMessage( msg );
             session.write( req.getResultResponse() );
@@ -94,15 +94,13 @@ public class ExtendedHandler implements MessageHandler
             {
                 handler.handleExtendedOperation( session, SessionRegistry.getSingleton(), req );
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 LdapResult result = req.getResultResponse().getLdapResult();
                 result.setResultCode( ResultCodeEnum.UNAVAILABLE );
-                result.setErrorMessage(
-                        "Extended operation handler for the specified EXTENSION_OID (" +
-                        req.getOid() + ") has failed to process your request:\n" +
-                        ExceptionUtils.getStackTrace( e ) );
-                ( ( ExtendedResponse ) req.getResultResponse() ).setResponse( new byte[ 0 ] );
+                result.setErrorMessage( "Extended operation handler for the specified EXTENSION_OID (" + req.getOid()
+                    + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
+                ( ( ExtendedResponse ) req.getResultResponse() ).setResponse( new byte[0] );
                 session.write( req.getResultResponse() );
             }
         }

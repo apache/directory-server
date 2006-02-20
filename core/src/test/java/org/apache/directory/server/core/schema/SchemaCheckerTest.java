@@ -52,7 +52,7 @@ public class SchemaCheckerTest extends TestCase
     }
 
 
-    public SchemaCheckerTest( String name ) throws NamingException
+    public SchemaCheckerTest(String name) throws NamingException
     {
         super( name );
 
@@ -80,31 +80,30 @@ public class SchemaCheckerTest extends TestCase
     }
 
 
-//    private GlobalRegistries getGlobalRegistries() throws NamingException
-//    {
-//        BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
-//
-//        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-//        Set schemas = new HashSet();
-//        schemas.add( new SystemSchema() );
-//        schemas.add( new ApacheSchema() );
-//        schemas.add( new CoreSchema() );
-//        schemas.add( new CosineSchema() );
-//        schemas.add( new InetorgpersonSchema() );
-//        schemas.add( new JavaSchema() );
-//        loader.load( schemas, bootstrapRegistries );
-//
-//        java.util.List errors = bootstrapRegistries.checkRefInteg();
-//        if ( !errors.isEmpty() )
-//        {
-//            NamingException e = new NamingException();
-//            e.setRootCause( ( Throwable ) errors.get( 0 ) );
-//            throw e;
-//        }
-//
-//        return new GlobalRegistries( bootstrapRegistries );
-//    }
-
+    //    private GlobalRegistries getGlobalRegistries() throws NamingException
+    //    {
+    //        BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
+    //
+    //        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
+    //        Set schemas = new HashSet();
+    //        schemas.add( new SystemSchema() );
+    //        schemas.add( new ApacheSchema() );
+    //        schemas.add( new CoreSchema() );
+    //        schemas.add( new CosineSchema() );
+    //        schemas.add( new InetorgpersonSchema() );
+    //        schemas.add( new JavaSchema() );
+    //        loader.load( schemas, bootstrapRegistries );
+    //
+    //        java.util.List errors = bootstrapRegistries.checkRefInteg();
+    //        if ( !errors.isEmpty() )
+    //        {
+    //            NamingException e = new NamingException();
+    //            e.setRootCause( ( Throwable ) errors.get( 0 ) );
+    //            throw e;
+    //        }
+    //
+    //        return new GlobalRegistries( bootstrapRegistries );
+    //    }
 
     /**
      * Test case to check the schema checker operates correctly when modify
@@ -180,7 +179,7 @@ public class SchemaCheckerTest extends TestCase
 
         // this should pass
         SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, modifyAttributes,
-                entryObjectClasses );
+            entryObjectClasses );
 
         // this should succeed since person is left and is structural
         modifyAttributes.remove( "cn" );
@@ -188,7 +187,7 @@ public class SchemaCheckerTest extends TestCase
         objectClassesRemoved.add( "person" );
         modifyAttributes.put( objectClassesRemoved );
         SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, modifyAttributes,
-                entryObjectClasses );
+            entryObjectClasses );
 
         // this should fail since only top is left
         modifyAttributes.remove( "cn" );
@@ -199,7 +198,7 @@ public class SchemaCheckerTest extends TestCase
         try
         {
             SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, modifyAttributes,
-                    entryObjectClasses );
+                entryObjectClasses );
             fail( "should never get here due to an LdapSchemaViolationException" );
         }
         catch ( LdapSchemaViolationException e )
@@ -215,7 +214,7 @@ public class SchemaCheckerTest extends TestCase
         try
         {
             SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, modifyAttributes,
-                    entryObjectClasses );
+                entryObjectClasses );
             fail( "should never get here due to an LdapSchemaViolationException" );
         }
         catch ( LdapSchemaViolationException e )
@@ -360,7 +359,6 @@ public class SchemaCheckerTest extends TestCase
     // Single Attribute Test Cases
     // ------------------------------------------------------------------------
 
-
     /**
      * Test case to check the schema checker operates correctly when modify
      * operations replace objectClasses.
@@ -425,13 +423,13 @@ public class SchemaCheckerTest extends TestCase
 
         // this should pass
         SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, new BasicAttribute( "cn" ),
-                entryObjectClasses );
+            entryObjectClasses );
 
         // this should succeed since person is left and is structural
         BasicAttribute objectClassesRemoved = new BasicAttribute( "objectClass" );
         objectClassesRemoved.add( "person" );
         SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, objectClassesRemoved,
-                entryObjectClasses );
+            entryObjectClasses );
 
         // this should fail since only top is left
         objectClassesRemoved = new BasicAttribute( "objectClass" );
@@ -440,7 +438,7 @@ public class SchemaCheckerTest extends TestCase
         try
         {
             SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, objectClassesRemoved,
-                    entryObjectClasses );
+                entryObjectClasses );
             fail( "should never get here due to an LdapSchemaViolationException" );
         }
         catch ( LdapSchemaViolationException e )
@@ -454,7 +452,7 @@ public class SchemaCheckerTest extends TestCase
         try
         {
             SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, objectClassesRemoved,
-                    entryObjectClasses );
+                entryObjectClasses );
             fail( "should never get here due to an LdapSchemaViolationException" );
         }
         catch ( LdapSchemaViolationException e )

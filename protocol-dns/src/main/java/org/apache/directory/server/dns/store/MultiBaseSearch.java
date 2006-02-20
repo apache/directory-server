@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.store;
 
+
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,7 @@ import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * A JNDI-backed search strategy implementation.  This search strategy builds a catalog
  * from directory configuration to determine where zones are to search for
@@ -54,7 +56,8 @@ public class MultiBaseSearch implements SearchStrategy
 
     private Catalog catalog;
 
-    MultiBaseSearch( DnsConfiguration config, InitialContextFactory factory )
+
+    MultiBaseSearch(DnsConfiguration config, InitialContextFactory factory)
     {
         this.factory = factory;
 
@@ -64,16 +67,17 @@ public class MultiBaseSearch implements SearchStrategy
 
         try
         {
-            DirContext ctx = (DirContext) factory.getInitialContext( env );
-            catalog = new DnsCatalog( (Map) execute( ctx, new GetCatalog() ) );
+            DirContext ctx = ( DirContext ) factory.getInitialContext( env );
+            catalog = new DnsCatalog( ( Map ) execute( ctx, new GetCatalog() ) );
         }
         catch ( Exception e )
         {
             log.error( e.getMessage(), e );
-            String message = "Failed to get catalog context " + (String) env.get( Context.PROVIDER_URL );
+            String message = "Failed to get catalog context " + ( String ) env.get( Context.PROVIDER_URL );
             throw new ConfigurationException( message, e );
         }
     }
+
 
     public Set getRecords( QuestionRecord question ) throws Exception
     {
@@ -81,16 +85,17 @@ public class MultiBaseSearch implements SearchStrategy
 
         try
         {
-            DirContext ctx = (DirContext) factory.getInitialContext( env );
-            return (Set) execute( ctx, new GetRecords( question ) );
+            DirContext ctx = ( DirContext ) factory.getInitialContext( env );
+            return ( Set ) execute( ctx, new GetRecords( question ) );
         }
         catch ( NamingException ne )
         {
             log.error( ne.getMessage(), ne );
-            String message = "Failed to get initial context " + (String) env.get( Context.PROVIDER_URL );
+            String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
             throw new ConfigurationException( message, ne );
         }
     }
+
 
     private Object execute( DirContext ctx, ContextOperation operation ) throws Exception
     {

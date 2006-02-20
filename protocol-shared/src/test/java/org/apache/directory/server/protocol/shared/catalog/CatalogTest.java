@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.protocol.shared.catalog;
 
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,6 +33,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.protocol.shared.AbstractBackingStoreTest;
 
+
 public class CatalogTest extends AbstractBackingStoreTest
 {
     /**
@@ -44,17 +46,19 @@ public class CatalogTest extends AbstractBackingStoreTest
         loadPartition( "ou=system", "configuration-dns.ldif" );
     }
 
+
     public void testListCatalogEntries() throws Exception
     {
         String baseDn = "cn=org.apache.dns.1,cn=dns,ou=services,ou=configuration,ou=system";
 
         env.put( Context.PROVIDER_URL, baseDn );
-        DirContext ctx = (DirContext) factory.getInitialContext( env );
+        DirContext ctx = ( DirContext ) factory.getInitialContext( env );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        String[] returningAttributes = new String[] { "apacheCatalogEntryBaseDn", "apacheCatalogEntryName" };
+        String[] returningAttributes = new String[]
+            { "apacheCatalogEntryBaseDn", "apacheCatalogEntryName" };
         controls.setReturningAttributes( returningAttributes );
 
         Set set = new HashSet();
@@ -64,16 +68,16 @@ public class CatalogTest extends AbstractBackingStoreTest
 
         while ( list.hasMore() )
         {
-            SearchResult result = (SearchResult) list.next();
+            SearchResult result = ( SearchResult ) list.next();
             set.add( result.getName() );
 
             Attributes attrs = result.getAttributes();
             Attribute attr;
 
-            String catalogEntryBaseDn = ( attr = attrs.get( "apacheCatalogEntryBaseDn" ) ) != null ? (String) attr
-                    .get() : null;
-            String catalogEntryName = ( attr = attrs.get( "apacheCatalogEntryName" ) ) != null ? (String) attr.get()
-                    : null;
+            String catalogEntryBaseDn = ( attr = attrs.get( "apacheCatalogEntryBaseDn" ) ) != null ? ( String ) attr
+                .get() : null;
+            String catalogEntryName = ( attr = attrs.get( "apacheCatalogEntryName" ) ) != null ? ( String ) attr.get()
+                : null;
             map.put( catalogEntryName, catalogEntryBaseDn );
 
             assertTrue( catalogEntryBaseDn.equals( "ou=zones,dc=example,dc=com" ) );
@@ -81,6 +85,6 @@ public class CatalogTest extends AbstractBackingStoreTest
         }
 
         assertTrue( set
-                .contains( "cn=example.com,ou=catalog,cn=org.apache.dns.1,cn=dns,ou=services,ou=configuration,ou=system" ) );
+            .contains( "cn=example.com,ou=catalog,cn=org.apache.dns.1,cn=dns,ou=services,ou=configuration,ou=system" ) );
     }
 }

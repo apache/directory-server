@@ -98,8 +98,7 @@ public class OpenLdapSchemaParser
     {
         if ( schemaObject == null || schemaObject.trim().equals( "" ) )
         {
-            throw new ParseException( "The schemaObject is either null or is "
-                + "the empty String!", 0 );
+            throw new ParseException( "The schemaObject is either null or is " + "the empty String!", 0 );
         }
 
         this.schemaIn = new ByteArrayInputStream( schemaObject.getBytes() );
@@ -124,24 +123,24 @@ public class OpenLdapSchemaParser
         }
         catch ( RecognitionException e )
         {
-            String msg = "Parser failure on:\n\t" + subject ;
+            String msg = "Parser failure on:\n\t" + subject;
             msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( e );
             init();
             throw new ParseException( msg, e.getColumn() );
         }
         catch ( TokenStreamException e2 )
         {
-            String msg = "Parser failure on:\n\t" + subject ;
+            String msg = "Parser failure on:\n\t" + subject;
             msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( e2 );
             init();
             throw new ParseException( msg, 0 );
         }
     }
 
-
     byte[] buf = new byte[128];
     private InputStream schemaIn;
     private Thread producerThread;
+
 
     /**
      * Thread safe method parses a stream of OpenLDAP schemaObject elements/objects.
@@ -183,10 +182,9 @@ public class OpenLdapSchemaParser
 
     public void setParserMonitor( ParserMonitor monitor )
     {
-        this.monitor = monitor ;
+        this.monitor = monitor;
         this.parser.setParserMonitor( monitor );
     }
-
 
     class DataProducer implements Runnable
     {

@@ -39,6 +39,7 @@ public interface BootstrapProducer
      */
     ProducerTypeEnum getType();
 
+
     /**
      * Produces schema objects announcing each one after creation via the
      * callback before continuing on to create more objects.
@@ -49,6 +50,5 @@ public interface BootstrapProducer
      * throw these exceptions so we must throw this as well since
      * implementations will have to call the callback methods
      */
-    void produce( BootstrapRegistries registries, ProducerCallback cb )
-        throws NamingException;
+    void produce( BootstrapRegistries registries, ProducerCallback cb ) throws NamingException;
 }

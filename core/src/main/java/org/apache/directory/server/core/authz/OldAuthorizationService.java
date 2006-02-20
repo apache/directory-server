@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.name.DnParser;
  * thrown and therefore the current invocation chain will terminate.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 201550 $, $Date: 2005-06-23 23:08:31 -0400 (Thu, 23 Jun 2005) $
+ * @version $Rev$, $Date$
  */
 public class OldAuthorizationService extends BaseInterceptor
 {
@@ -80,7 +80,6 @@ public class OldAuthorizationService extends BaseInterceptor
     private boolean enabled = true;
 
 
-
     /**
      * Creates a new instance.
      */
@@ -95,7 +94,7 @@ public class OldAuthorizationService extends BaseInterceptor
         dnParser = new DnParser( new ConcreteNameComponentNormalizer( atr ) );
 
         // disable this static module if basic access control mechanisms are enabled
-        enabled = ! factoryCfg.getStartupConfiguration().isAccessControlEnabled();
+        enabled = !factoryCfg.getStartupConfiguration().isAccessControlEnabled();
     }
 
 
@@ -127,8 +126,7 @@ public class OldAuthorizationService extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( name.size() > 2 && name.startsWith( USER_BASE_DN )
-                && !principalDn.equals( ADMIN_DN ) )
+        if ( name.size() > 2 && name.startsWith( USER_BASE_DN ) && !principalDn.equals( ADMIN_DN ) )
         {
             String msg = "User " + principalDn;
             msg += " does not have permission to delete the user account: ";
@@ -136,8 +134,7 @@ public class OldAuthorizationService extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( name.size() > 2 && name.startsWith( GROUP_BASE_DN )
-                && !principalDn.equals( ADMIN_DN ) )
+        if ( name.size() > 2 && name.startsWith( GROUP_BASE_DN ) && !principalDn.equals( ADMIN_DN ) )
         {
             String msg = "User " + principalDn;
             msg += " does not have permission to delete the group entry: ";
@@ -165,14 +162,14 @@ public class OldAuthorizationService extends BaseInterceptor
     // Entry Modification Operations
     // ------------------------------------------------------------------------
 
-
     /**
      * This policy needs to be really tight too because some attributes may take
      * part in giving the user permissions to protected resources.  We do not want
      * users to self access these resources.  As far as we're concerned no one but
      * the admin needs access.
      */
-    public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs ) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs )
+        throws NamingException
     {
         if ( enabled )
         {
@@ -218,7 +215,7 @@ public class OldAuthorizationService extends BaseInterceptor
                 msg += " admin user.";
                 throw new LdapNoPermissionException( msg );
             }
-            
+
             if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) )
             {
                 String msg = "User " + principalDn;
@@ -249,8 +246,8 @@ public class OldAuthorizationService extends BaseInterceptor
     //  o The administrator entry cannot be moved or renamed by anyone
     // ------------------------------------------------------------------------
 
-
-    public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn )
+        throws NamingException
     {
         if ( enabled )
         {
@@ -270,9 +267,8 @@ public class OldAuthorizationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor,
-            Name oriChildName, Name newParentName, String newRn,
-            boolean deleteOldRn ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, Name oriChildName, Name newParentName, String newRn,
+        boolean deleteOldRn ) throws NamingException
     {
         if ( enabled )
         {
@@ -323,7 +319,7 @@ public class OldAuthorizationService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
         Attributes attributes = nextInterceptor.lookup( name );
-        if ( ! enabled || attributes == null )
+        if ( !enabled || attributes == null )
         {
             return attributes;
         }
@@ -336,7 +332,7 @@ public class OldAuthorizationService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
     {
         Attributes attributes = nextInterceptor.lookup( name, attrIds );
-        if ( ! enabled || attributes == null )
+        if ( !enabled || attributes == null )
         {
             return attributes;
         }
@@ -348,8 +344,7 @@ public class OldAuthorizationService extends BaseInterceptor
 
     private void protectLookUp( Name dn ) throws NamingException
     {
-        LdapContext ctx =
-            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
+        LdapContext ctx = ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
         Name principalDn = ( ( ServerContext ) ctx ).getPrincipal().getJndiName();
 
         if ( !principalDn.equals( ADMIN_DN ) )
@@ -399,9 +394,8 @@ public class OldAuthorizationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor,
-            Name base, Map env, ExprNode filter,
-            SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor, Name base, Map env, ExprNode filter,
+        SearchControls searchCtls ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
         if ( !enabled )
@@ -412,17 +406,16 @@ public class OldAuthorizationService extends BaseInterceptor
         //{
         //    return null;
         //}
-        
+
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, searchCtls, invocation,
-            new SearchResultFilter()
+        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new SearchResultFilter()
+        {
+            public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+                throws NamingException
             {
-                public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
-                        throws NamingException
-                {
-                    return OldAuthorizationService.this.isSearchable( invocation, result );
-                }
-            });
+                return OldAuthorizationService.this.isSearchable( invocation, result );
+            }
+        } );
     }
 
 
@@ -435,20 +428,18 @@ public class OldAuthorizationService extends BaseInterceptor
         }
 
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, null, invocation,
-            new SearchResultFilter()
+        return new SearchResultFilteringEnumeration( e, null, invocation, new SearchResultFilter()
+        {
+            public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+                throws NamingException
             {
-                public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
-                        throws NamingException
-                {
-                    return OldAuthorizationService.this.isSearchable( invocation, result );
-                }
-            } );
+                return OldAuthorizationService.this.isSearchable( invocation, result );
+            }
+        } );
     }
 
 
-    private boolean isSearchable( Invocation invocataion, SearchResult result )
-            throws NamingException
+    private boolean isSearchable( Invocation invocataion, SearchResult result ) throws NamingException
     {
         Name dn;
 

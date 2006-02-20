@@ -41,7 +41,6 @@ import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownResponse;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 
-
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.WriteFuture;
@@ -56,7 +55,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
 {
     private static final Logger log = LoggerFactory.getLogger( GracefulShutdownHandler.class );
     public static final Set EXTENSION_OIDS;
-    
+
     static
     {
         Set set = new HashSet( 3 );
@@ -65,19 +64,19 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         set.add( GracefulDisconnect.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
-    
+
     private ServiceRegistry serviceRegistry;
     private Service ldapService;
-    
+
 
     public String getOid()
     {
         return GracefulShutdownRequest.EXTENSION_OID;
     }
 
-    
-    public void handleExtendedOperation( IoSession requestor, SessionRegistry registry, ExtendedRequest req ) 
-        throws NamingException 
+
+    public void handleExtendedOperation( IoSession requestor, SessionRegistry registry, ExtendedRequest req )
+        throws NamingException
     {
         DirectoryService service = null;
         ServerLdapContext slc = null;
@@ -94,7 +93,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         else
         {
             log.error( "Encountered session context which was not a ServerLdapContext" );
-            GracefulShutdownResponse msg = new GracefulShutdownResponse( req.getMessageId(), 
+            GracefulShutdownResponse msg = new GracefulShutdownResponse( req.getMessageId(),
                 ResultCodeEnum.OPERATIONSERROR );
             msg.getLdapResult().setErrorMessage( "The session context was not a ServerLdapContext" );
             requestor.write( msg );
@@ -103,23 +102,23 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
 
         // make sue only the administrator can issue this shutdown request if 
         // not we respond to the requestor with with insufficientAccessRights(50)
-        if ( ! slc.getPrincipal().getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
+        if ( !slc.getPrincipal().getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
         {
             if ( log.isInfoEnabled() )
             {
-                log.info( "Rejected with insufficientAccessRights to attempt for server shutdown by " 
+                log.info( "Rejected with insufficientAccessRights to attempt for server shutdown by "
                     + slc.getPrincipal().getName() );
             }
-            
-            requestor.write( new GracefulShutdownResponse( req.getMessageId(), 
-                ResultCodeEnum.INSUFFICIENTACCESSRIGHTS ) );
+
+            requestor
+                .write( new GracefulShutdownResponse( req.getMessageId(), ResultCodeEnum.INSUFFICIENTACCESSRIGHTS ) );
             return;
         }
-        
+
         // -------------------------------------------------------------------
         // handle the body of this operation below here
         // -------------------------------------------------------------------
-        
+
         IoAcceptor acceptor = serviceRegistry.getAcceptor( ldapService.getTransportType() );
         List sessions = new ArrayList( acceptor.getManagedSessions( ldapService.getAddress() ) );
         StartupConfiguration cfg = service.getConfiguration().getStartupConfiguration();
@@ -134,7 +133,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
 
         // wait for the specified delay before we unbind the service 
         waitForDelay( gsreq.getDelay() );
-        
+
         // -------------------------------------------------------------------
         // unbind the server socket for the LDAP service here so no new 
         // connections are accepted while we process this shutdown request
@@ -145,7 +144,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         //                       .setDisconnectClientsOnUnbind( false );
         // -------------------------------------------------------------------
         serviceRegistry.unbind( ldapService );
-        
+
         // -------------------------------------------------------------------
         // synchronously send a NoD to clients that are not aware of this resp
         // after sending the NoD the client is disconnected if still connected
@@ -165,11 +164,11 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         {
             System.exit( 0 );
         }
-        
+
         return;
     }
-    
-    
+
+
     /**
      * Sends a successful response.
      * 
@@ -194,8 +193,8 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         }
         requestor.close();
     }
-    
-    
+
+
     /**
      * Blocks to synchronously send the same GracefulDisconnect message to all 
      * managed sessions except for the requestor of the GracefulShutdown.
@@ -206,29 +205,29 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
     public static void sendGracefulDisconnect( List sessions, GracefulDisconnect msg, IoSession requestor )
     {
         List writeFutures = new ArrayList();
-        
+
         // asynchronously send GracefulDisconnection messages to all connected
         // clients giving time for the message to arrive before we block 
         // waiting for message delivery to the client in the loop below
-        
-        if( sessions != null )
+
+        if ( sessions != null )
         {
-            for( Iterator i = sessions.iterator(); i.hasNext(); )
+            for ( Iterator i = sessions.iterator(); i.hasNext(); )
             {
                 IoSession session = session = ( IoSession ) i.next();
-                
+
                 // make sure we do not send the disconnect mesasge to the 
                 // client which sent the initiating GracefulShutdown request
                 if ( session.equals( requestor ) )
                 {
                     continue;
                 }
-                
+
                 try
                 {
                     writeFutures.add( session.write( msg ) );
                 }
-                catch( Exception e )
+                catch ( Exception e )
                 {
                     log.warn( "Failed to write GracefulDisconnect to client session: " + session, e );
                 }
@@ -236,14 +235,14 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         }
 
         // wait for GracefulDisconnect messages to be sent before returning
-        for( Iterator i = writeFutures.iterator(); i.hasNext(); )
+        for ( Iterator i = writeFutures.iterator(); i.hasNext(); )
         {
             WriteFuture future = ( WriteFuture ) i.next();
             try
             {
                 future.join( 1000 );
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 log.warn( "Failed to sent GracefulDisconnect", e );
             }
@@ -261,14 +260,14 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
     public static void sendNoticeOfDisconnect( List sessions, IoSession requestor )
     {
         List writeFutures = new ArrayList();
-        
+
         // Send Notification of Disconnection messages to all connected clients.
-        if( sessions != null )
+        if ( sessions != null )
         {
-            for( Iterator i = sessions.iterator(); i.hasNext(); )
+            for ( Iterator i = sessions.iterator(); i.hasNext(); )
             {
                 IoSession session = session = ( IoSession ) i.next();
-                
+
                 // make sure we do not send the disconnect mesasge to the 
                 // client which sent the initiating GracefulShutdown request
                 if ( session.equals( requestor ) )
@@ -280,7 +279,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
                 {
                     writeFutures.add( session.write( NoticeOfDisconnect.UNAVAILABLE ) );
                 }
-                catch( Exception e )
+                catch ( Exception e )
                 {
                     log.warn( "Failed to sent NoD for client: " + session, e );
                 }
@@ -289,7 +288,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
 
         // And close the connections when the NoDs are sent.
         Iterator sessionIt = sessions.iterator();
-        for( Iterator i = writeFutures.iterator(); i.hasNext(); )
+        for ( Iterator i = writeFutures.iterator(); i.hasNext(); )
         {
             WriteFuture future = ( WriteFuture ) i.next();
             try
@@ -297,7 +296,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
                 future.join( 1000 );
                 ( ( IoSession ) sessionIt.next() ).close();
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 log.warn( "Failed to sent NoD.", e );
             }
@@ -310,12 +309,12 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         // build the graceful disconnect message with replicationContexts
         GracefulDisconnect notice = new GracefulDisconnect( timeOffline, delay );
         // @todo add the referral objects for replication contexts using setup code below
-//        Iterator list = nexus.listSuffixes( true );
-//        while ( list.hasNext() )
-//        {
-//            LdapName dn = new LdapName( ( String ) list.next() );
-//            DirectoryPartition partition = nexus.getPartition( dn );
-//        }
+        //        Iterator list = nexus.listSuffixes( true );
+        //        while ( list.hasNext() )
+        //        {
+        //            LdapName dn = new LdapName( ( String ) list.next() );
+        //            DirectoryPartition partition = nexus.getPartition( dn );
+        //        }
         return notice;
     }
 
@@ -327,7 +326,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
             // delay is in seconds
             long delayMillis = delay * 1000;
             long startTime = System.currentTimeMillis();
-            
+
             while ( ( System.currentTimeMillis() - startTime ) < delayMillis )
             {
                 try

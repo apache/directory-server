@@ -50,20 +50,18 @@ public class DefaultSearchEngine implements SearchEngine
     private ExpressionEvaluator evaluator;
     /** Enumerator flyweight that creates enumerations on filter expressions */
     private ExpressionEnumerator enumerator;
-    
+
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a DefaultSearchEngine for searching a Database without setting
      * up the database.
      */
-    public DefaultSearchEngine( BTreeDirectoryPartition db,
-                                ExpressionEvaluator evaluator,
-                                ExpressionEnumerator enumerator )
+    public DefaultSearchEngine(BTreeDirectoryPartition db, ExpressionEvaluator evaluator,
+        ExpressionEnumerator enumerator)
     {
         this.db = db;
         this.evaluator = evaluator;
@@ -81,13 +79,12 @@ public class DefaultSearchEngine implements SearchEngine
     {
         return optimizer;
     }
-    
-    
+
+
     /**
      * @see SearchEngine#search(Name, Map, ExprNode,SearchControls)
      */
-    public NamingEnumeration search( Name base, Map env, ExprNode filter,
-                                     SearchControls searchCtls )
+    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
         throws NamingException
     {
         Name effectiveBase = null;
@@ -95,18 +92,16 @@ public class DefaultSearchEngine implements SearchEngine
         String aliasedBase = ( String ) db.getAliasIndex().reverseLookup( baseId );
         DerefAliasesEnum mode = DerefAliasesEnum.getEnum( env );
 
-
         // --------------------------------------------------------------------
         // Determine the eective base with aliases
         // --------------------------------------------------------------------
-
 
         /*
          * If the base is not an alias or if alias dereerencing does not
          * occur on finding the base then we set the effective base to the
          * given base.
          */
-        if ( null == aliasedBase || ! mode.derefFindingBase() )
+        if ( null == aliasedBase || !mode.derefFindingBase() )
         {
             effectiveBase = base;
         }
@@ -129,8 +124,7 @@ public class DefaultSearchEngine implements SearchEngine
 
         // Add the scope node using the eective base to the ilter
         BranchNode root = new BranchNode( AbstractExprNode.AND );
-        ExprNode node = new ScopeNode( env, effectiveBase.toString(),
-            searchCtls.getSearchScope() );
+        ExprNode node = new ScopeNode( env, effectiveBase.toString(), searchCtls.getSearchScope() );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 

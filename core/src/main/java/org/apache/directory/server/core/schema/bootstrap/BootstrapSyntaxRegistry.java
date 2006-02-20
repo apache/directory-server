@@ -47,30 +47,28 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
     private final OidRegistry oidRegistry;
     /** a monitor used to track noteable oidRegistry events */
     private SyntaxRegistryMonitor monitor = null;
-    
-    
+
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-    
-    
+
     /**
      * Creates a BootstrapSyntaxRegistry.
      */
-    public BootstrapSyntaxRegistry( OidRegistry registry )
+    public BootstrapSyntaxRegistry(OidRegistry registry)
     {
         this.oidRegistry = registry;
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.monitor = new SyntaxRegistryMonitorAdapter();
     }
-    
+
 
     // ------------------------------------------------------------------------
     // SyntaxRegistry interface methods
     // ------------------------------------------------------------------------
-    
-    
+
     /**
      * @see org.apache.directory.server.core.schema.SyntaxRegistry#lookup(java.lang.String)
      */
@@ -84,12 +82,12 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
             monitor.lookedUp( syntax );
             return syntax;
         }
-        
+
         NamingException fault = new NamingException( "Unknown syntax OID " + id );
         monitor.lookupFailed( id, fault );
         throw fault;
     }
-    
+
 
     /**
      * @see org.apache.directory.server.core.schema.SyntaxRegistry#register(String,Syntax)
@@ -98,8 +96,8 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
     {
         if ( byOid.containsKey( syntax.getOid() ) )
         {
-            NamingException e = new NamingException( "syntax w/ OID " +
-                syntax.getOid() + " has already been registered!" );
+            NamingException e = new NamingException( "syntax w/ OID " + syntax.getOid()
+                + " has already been registered!" );
             monitor.registerFailed( syntax, e );
             throw e;
         }
@@ -110,7 +108,7 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
         monitor.registered( syntax );
     }
 
-    
+
     /**
      * @see org.apache.directory.server.core.schema.SyntaxRegistry#hasSyntax(java.lang.String)
      */
@@ -140,16 +138,14 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
             return ( String ) oidToSchema.get( id );
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " +
-            "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
     }
 
 
     // ------------------------------------------------------------------------
     // package friendly monitor methods
     // ------------------------------------------------------------------------
-    
-    
+
     /**
      * Gets the monitor for this oidRegistry.
      * 
@@ -160,7 +156,7 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
         return monitor;
     }
 
-    
+
     /**
      * Sets the monitor for this oidRegistry.
      * 

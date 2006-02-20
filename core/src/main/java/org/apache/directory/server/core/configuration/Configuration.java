@@ -18,10 +18,12 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 import java.io.Serializable;
 import java.util.Hashtable;
 
 import org.apache.directory.server.core.DirectoryService;
+
 
 /**
  * A configuration that provides required, optional, or default properties
@@ -36,12 +38,13 @@ public abstract class Configuration implements Cloneable, Serializable
      * A JNDI environment key that configuration instance is put on. 
      */
     public static final String JNDI_KEY = Configuration.class.getName();
-    
+
     /**
      * The default ID of {@link DirectoryService} that is used
      * when no instance ID is specified. 
      */
     public static final String DEFAULT_INSTANCE_ID = "default";
+
 
     /**
      * Gets {@link Configuration} instance from the specified JNDI environment
@@ -53,23 +56,25 @@ public abstract class Configuration implements Cloneable, Serializable
     public static Configuration toConfiguration( Hashtable jndiEnvironment )
     {
         Object value = jndiEnvironment.get( JNDI_KEY );
-        if( value == null || !( value instanceof Configuration ) )
+        if ( value == null || !( value instanceof Configuration ) )
         {
             throw new ConfigurationException( "Not an ApacheDS configuration: " + value );
         }
-        
+
         return ( Configuration ) value;
     }
-    
+
     private String instanceId = DEFAULT_INSTANCE_ID;
-    
+
+
     /**
      * Creates a new instance.
      */
     protected Configuration()
     {
     }
-    
+
+
     /**
      * Returns the ID of {@link DirectoryService} instance to configure.
      */
@@ -77,7 +82,8 @@ public abstract class Configuration implements Cloneable, Serializable
     {
         return instanceId;
     }
-    
+
+
     /**
      * Sets the ID of {@link DirectoryService} instance to configure.
      */
@@ -87,6 +93,7 @@ public abstract class Configuration implements Cloneable, Serializable
         this.instanceId = instanceId;
     }
 
+
     /**
      * Validates this configuration.
      * @throws ConfigurationException if this configuration is not valid
@@ -94,7 +101,8 @@ public abstract class Configuration implements Cloneable, Serializable
     public void validate()
     {
     }
-    
+
+
     /**
      * Converts this configuration to JNDI environment {@link Hashtable}.
      * This method simple returns a {@link Hashtable} that contains an entry
@@ -107,13 +115,14 @@ public abstract class Configuration implements Cloneable, Serializable
         return env;
     }
 
+
     public Object clone()
     {
         try
         {
             return super.clone();
         }
-        catch( CloneNotSupportedException e )
+        catch ( CloneNotSupportedException e )
         {
             throw new InternalError();
         }

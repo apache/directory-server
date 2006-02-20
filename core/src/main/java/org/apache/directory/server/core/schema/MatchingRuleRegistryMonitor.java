@@ -37,12 +37,14 @@ public interface MatchingRuleRegistryMonitor
      */
     void registered( MatchingRule matchingRule );
 
+
     /**
      * Monitors when a MatchingRule is successfully looked up.
      * 
      * @param matchingRule the MatchingRule looked up
      */
     void lookedUp( MatchingRule matchingRule );
+
 
     /**
      * Monitors when a lookup attempt fails.
@@ -51,7 +53,8 @@ public interface MatchingRuleRegistryMonitor
      * @param fault the exception to be thrown for the fault
      */
     void lookupFailed( String oid, NamingException fault );
-    
+
+
     /**
      * Monitors when a registration attempt fails.
      * 

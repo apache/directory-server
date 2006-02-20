@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * The SMTP server option specifies a list of SMTP servers available to
@@ -29,9 +31,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class SmtpServers extends AddressListOption
 {
-	public SmtpServers( byte[] smtpServer )
-	{
-		super( 69, smtpServer );
-	}
+    public SmtpServers(byte[] smtpServer)
+    {
+        super( 69, smtpServer );
+    }
 }
-

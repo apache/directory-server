@@ -16,28 +16,34 @@
  */
 package org.apache.directory.server.kerberos.protocol;
 
+
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
+
 public class KerberosProtocolCodecFactory implements ProtocolCodecFactory
 {
     private static final KerberosProtocolCodecFactory INSTANCE = new KerberosProtocolCodecFactory();
+
 
     public static KerberosProtocolCodecFactory getInstance()
     {
         return INSTANCE;
     }
 
+
     private KerberosProtocolCodecFactory()
     {
     }
+
 
     public ProtocolEncoder getEncoder()
     {
         // Create a new encoder.
         return new KerberosEncoder();
     }
+
 
     public ProtocolDecoder getDecoder()
     {

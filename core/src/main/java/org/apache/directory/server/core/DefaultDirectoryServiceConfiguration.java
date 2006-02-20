@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.core;
 
+
 import java.util.Hashtable;
 
 import javax.naming.Context;
@@ -36,63 +37,76 @@ import org.apache.directory.server.core.schema.GlobalRegistries;
 class DefaultDirectoryServiceConfiguration implements DirectoryServiceConfiguration
 {
     private DefaultDirectoryService parent;
-    
-    DefaultDirectoryServiceConfiguration( DefaultDirectoryService parent )
+
+
+    DefaultDirectoryServiceConfiguration(DefaultDirectoryService parent)
     {
         this.parent = parent;
     }
-    
+
+
     public String getInstanceId()
     {
         return parent.getInstanceId();
     }
-    
+
+
     public DirectoryService getService()
     {
         return parent;
     }
+
 
     public DirectoryServiceListener getServiceListener()
     {
         return parent.getServiceListener();
     }
 
+
     public Hashtable getEnvironment()
     {
         return parent.getEnvironment();
     }
-    
+
+
     public StartupConfiguration getStartupConfiguration()
     {
         return parent.getStartupConfiguration();
     }
-    
+
+
     public GlobalRegistries getGlobalRegistries()
     {
         return parent.getGlobalRegistries();
     }
 
+
     public DirectoryPartitionNexus getPartitionNexus()
     {
         return parent.getPartitionNexus();
     }
-    
+
+
     public InterceptorChain getInterceptorChain()
     {
         return parent.getInterceptorChain();
     }
-    
+
+
     public boolean isFirstStart()
     {
         return parent.isFirstStart();
     }
+
 
     public Context getJndiContext( String baseName ) throws NamingException
     {
         return parent.getJndiContext( baseName );
     }
 
-    public Context getJndiContext( String principal, byte[] credential, String authentication, String baseName ) throws NamingException
+
+    public Context getJndiContext( String principal, byte[] credential, String authentication, String baseName )
+        throws NamingException
     {
         return parent.getJndiContext( principal, credential, authentication, baseName );
     }

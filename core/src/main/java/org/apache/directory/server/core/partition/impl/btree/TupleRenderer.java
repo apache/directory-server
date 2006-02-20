@@ -34,6 +34,7 @@ public interface TupleRenderer
      */
     String getKeyString( Object key );
 
+
     /**
      * Gets the value Object rendered as a String.
      *

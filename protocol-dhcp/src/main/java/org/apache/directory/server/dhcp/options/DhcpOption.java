@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dhcp.options;
 
+
 import java.nio.ByteBuffer;
 
 
@@ -29,23 +30,25 @@ import java.nio.ByteBuffer;
  */
 public abstract class DhcpOption
 {
-	private int tag;
-	private int length;
+    private int tag;
+    private int length;
 
-	public DhcpOption( int tag, int length )
-	{
-		this.tag    = tag;
-		this.length = length;
-	}
-	
-	abstract protected void valueToByteBuffer( ByteBuffer out );
-	
-	public void writeTo( ByteBuffer out )
-	{
-		out.put( (byte)tag );
-		out.put( (byte)length );
-		
-		valueToByteBuffer( out );
-	}
+
+    public DhcpOption(int tag, int length)
+    {
+        this.tag = tag;
+        this.length = length;
+    }
+
+
+    abstract protected void valueToByteBuffer( ByteBuffer out );
+
+
+    public void writeTo( ByteBuffer out )
+    {
+        out.put( ( byte ) tag );
+        out.put( ( byte ) length );
+
+        valueToByteBuffer( out );
+    }
 }
-

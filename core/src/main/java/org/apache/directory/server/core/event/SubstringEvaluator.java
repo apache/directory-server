@@ -53,8 +53,7 @@ public class SubstringEvaluator implements Evaluator
      * @param oidRegistry the OID registry for name to OID mapping
      * @param attributeTypeRegistry the attributeType registry
      */
-    public SubstringEvaluator( OidRegistry oidRegistry,
-                               AttributeTypeRegistry attributeTypeRegistry )
+    public SubstringEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry)
     {
         this.oidRegistry = oidRegistry;
         this.attributeTypeRegistry = attributeTypeRegistry;
@@ -64,10 +63,9 @@ public class SubstringEvaluator implements Evaluator
     /**
      * @see Evaluator#evaluate(ExprNode, String, Attributes)
      */
-    public boolean evaluate( ExprNode node, String dn, Attributes entry )
-        throws NamingException
+    public boolean evaluate( ExprNode node, String dn, Attributes entry ) throws NamingException
     {
-        Pattern regex = null; 
+        Pattern regex = null;
         SubstringNode snode = ( SubstringNode ) node;
         String oid = oidRegistry.getOid( snode.getAttribute() );
         AttributeType type = attributeTypeRegistry.lookup( oid );
@@ -75,7 +73,7 @@ public class SubstringEvaluator implements Evaluator
 
         // get the attribute
         Attribute attr = entry.get( snode.getAttribute() );
-        
+
         // if the attribute does not exist just return false
         if ( null == attr )
         {
@@ -83,34 +81,32 @@ public class SubstringEvaluator implements Evaluator
         }
 
         // compile the regular expression to search for a matching attribute
-        try 
+        try
         {
             regex = snode.getRegex( normalizer );
-        } 
-        catch ( PatternSyntaxException pse ) 
+        }
+        catch ( PatternSyntaxException pse )
         {
-            NamingException ne = new NamingException( "SubstringNode '" 
-                + node + "' had " + "incorrect syntax" );
+            NamingException ne = new NamingException( "SubstringNode '" + node + "' had " + "incorrect syntax" );
             ne.setRootCause( pse );
             throw ne;
         }
-        
+
         /*
          * Cycle through the attribute values testing normalized version 
          * obtained from using the substring matching rule's normalizer.
          * The test uses the comparator obtained from the appropriate 
          * substring matching rule.
-         */ 
+         */
         NamingEnumeration list = attr.getAll();
-        
-        while ( list.hasMore() ) 
+
+        while ( list.hasMore() )
         {
-            String value = ( String ) 
-                normalizer.normalize( list.next() );
-            
+            String value = ( String ) normalizer.normalize( list.next() );
+
             // Once match is found cleanup and return true
-            
-            if ( regex.matcher( value ).matches() ) 
+
+            if ( regex.matcher( value ).matches() )
             {
                 list.close();
                 return true;

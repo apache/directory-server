@@ -16,12 +16,14 @@
  */
 package org.apache.directory.server.kerberos.kdc;
 
+
 import java.io.BufferedInputStream;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+
 
 public class TestUtils
 {
@@ -35,7 +37,7 @@ public class TestUtils
 
         try
         {
-            char[] buf = new char[ 2048 ];
+            char[] buf = new char[2048];
             int len = 0;
             while ( len >= 0 )
             {
@@ -61,22 +63,25 @@ public class TestUtils
         return isca;
     }
 
+
     public static byte[] getBytesFromResource( String resource ) throws IOException
     {
         InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream( resource );
 
         BufferedInputStream stream = new BufferedInputStream( is );
         int len = stream.available();
-        byte[] bytes = new byte[ len ];
+        byte[] bytes = new byte[len];
         stream.read( bytes, 0, len );
 
         return bytes;
     }
 
+
     public static void hexdump( byte[] data )
     {
         hexdump( data, true );
     }
+
 
     public static void hexdump( byte[] data, boolean delimit )
     {
@@ -90,14 +95,14 @@ public class TestUtils
         int lineLength = 0;
         for ( int ii = 0; ii < data.length; ii++ )
         {
-            System.out.print( byte2hexString( data[ ii ] ) + " " );
+            System.out.print( byte2hexString( data[ii] ) + " " );
             lineLength++;
-            
+
             if ( lineLength == 8 )
             {
                 System.out.print( "  " );
             }
-            
+
             if ( lineLength == 16 )
             {
                 System.out.println();
@@ -112,57 +117,62 @@ public class TestUtils
         }
     }
 
-    public static final String[] hex_digit = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-            "a", "b", "c", "d", "e", "f" };
+    public static final String[] hex_digit =
+        { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" };
+
 
     public static String byte2hexString( byte x )
     {
         String s = "";
         for ( int ii = 0; ii < 2; ii++ )
         {
-            s = hex_digit[ ( ( ( x ) & 0xff ) & ( 15 << ( ii * 4 ) ) ) >>> ( ii * 4 ) ] + s;
+            s = hex_digit[( ( ( x ) & 0xff ) & ( 15 << ( ii * 4 ) ) ) >>> ( ii * 4 )] + s;
         }
 
         return s;
     }
+
 
     public static String int2hexString( int x )
     {
         String s = "";
         for ( int ii = 0; ii < 8; ii++ )
         {
-            s = hex_digit[ ( x & ( 15 << ( ii * 4 ) ) ) >>> ( ii * 4 ) ] + s;
+            s = hex_digit[( x & ( 15 << ( ii * 4 ) ) ) >>> ( ii * 4 )] + s;
         }
 
         return s;
     }
+
 
     public static String int2binString( int x )
     {
         String s = "";
         for ( int ii = 0; ii < 32; ii++ )
         {
-            if ( ( ii > 0 ) && ( ii % 4 == 0 ) ) 
+            if ( ( ii > 0 ) && ( ii % 4 == 0 ) )
             {
                 s = " " + s;
             }
 
-            s = hex_digit[ ( x & ( 1 << ii ) ) >>> ii ] + s;
+            s = hex_digit[( x & ( 1 << ii ) ) >>> ii] + s;
         }
 
         return s;
     }
+
 
     public static String long2hexString( long x )
     {
         String s = "";
         for ( int ii = 0; ii < 16; ii++ )
         {
-            s = hex_digit[ (int) ( ( x & ( 15L << ( ii * 4 ) ) ) >>> ( ii * 4 ) ) ] + s;
+            s = hex_digit[( int ) ( ( x & ( 15L << ( ii * 4 ) ) ) >>> ( ii * 4 ) )] + s;
         }
 
         return s;
     }
+
 
     public static String long2binString( long x )
     {
@@ -174,21 +184,24 @@ public class TestUtils
                 s = " " + s;
             }
 
-            s = hex_digit[ (int) ( ( x & ( 1L << ii ) ) >>> ii ) ] + s;
+            s = hex_digit[( int ) ( ( x & ( 1L << ii ) ) >>> ii )] + s;
         }
 
         return s;
     }
+
 
     public static String byte2hexString( byte[] input )
     {
         return byte2hexString( input, 0, input.length );
     }
 
+
     public static String byte2hexString( byte[] input, int offset )
     {
         return byte2hexString( input, offset, input.length );
     }
+
 
     public static String byte2hexString( byte[] input, int offset, int length )
     {
@@ -197,7 +210,7 @@ public class TestUtils
         {
             if ( ii + offset < input.length )
             {
-                result += byte2hexString( input[ ii + offset ] );
+                result += byte2hexString( input[ii + offset] );
             }
         }
 

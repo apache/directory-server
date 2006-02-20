@@ -18,12 +18,14 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.partition.DirectoryPartition;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapName;
+
 
 /**
  * A {@link Configuration} that removed the attached {@link DirectoryPartition} in
@@ -35,24 +37,27 @@ import org.apache.directory.shared.ldap.name.LdapName;
 public class RemoveDirectoryPartitionConfiguration extends Configuration
 {
     private static final long serialVersionUID = -6690435863387769527L;
-    
+
     private final Name suffix;
 
-    public RemoveDirectoryPartitionConfiguration( String suffix ) throws NamingException
+
+    public RemoveDirectoryPartitionConfiguration(String suffix) throws NamingException
     {
         this( new LdapName( suffix.trim() ) );
     }
-    
-    public RemoveDirectoryPartitionConfiguration( Name suffix )
+
+
+    public RemoveDirectoryPartitionConfiguration(Name suffix)
     {
-        if( suffix == null )
+        if ( suffix == null )
         {
             throw new NullPointerException( "suffix" );
         }
-        
+
         this.suffix = suffix;
     }
-    
+
+
     public Name getSuffix()
     {
         return suffix;

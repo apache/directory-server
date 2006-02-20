@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.ntp.messages;
 
+
 public class NtpMessage
 {
     private LeapIndicatorType leapIndicator;
@@ -35,10 +36,11 @@ public class NtpMessage
     private NtpTimeStamp receiveTimestamp;
     private NtpTimeStamp transmitTimestamp;
 
-    public NtpMessage( LeapIndicatorType leapIndicator, int versionNumber, ModeType mode, StratumType stratumType,
-            byte pollInterval, byte precision, int rootDelay, int rootDispersion,
-            ReferenceIdentifier referenceIdentifier, NtpTimeStamp referenceTimestamp, NtpTimeStamp originateTimestamp,
-            NtpTimeStamp receiveTimestamp, NtpTimeStamp transmitTimestamp )
+
+    public NtpMessage(LeapIndicatorType leapIndicator, int versionNumber, ModeType mode, StratumType stratumType,
+        byte pollInterval, byte precision, int rootDelay, int rootDispersion, ReferenceIdentifier referenceIdentifier,
+        NtpTimeStamp referenceTimestamp, NtpTimeStamp originateTimestamp, NtpTimeStamp receiveTimestamp,
+        NtpTimeStamp transmitTimestamp)
     {
         this.leapIndicator = leapIndicator;
         this.versionNumber = versionNumber;
@@ -55,6 +57,7 @@ public class NtpMessage
         this.transmitTimestamp = transmitTimestamp;
     }
 
+
     /**
      * @return Returns the Leap Indicator.
      */
@@ -62,6 +65,7 @@ public class NtpMessage
     {
         return leapIndicator;
     }
+
 
     /**
      * @return Returns the Mode.
@@ -71,6 +75,7 @@ public class NtpMessage
         return mode;
     }
 
+
     /**
      * @return Returns the Originate Timestamp.
      */
@@ -78,6 +83,7 @@ public class NtpMessage
     {
         return originateTimestamp;
     }
+
 
     /**
      * @return Returns the Poll Interval.
@@ -87,6 +93,7 @@ public class NtpMessage
         return pollInterval;
     }
 
+
     /**
      * @return Returns the Precision.
      */
@@ -94,6 +101,7 @@ public class NtpMessage
     {
         return precision;
     }
+
 
     /**
      * @return Returns the Receive Timestamp.
@@ -103,6 +111,7 @@ public class NtpMessage
         return receiveTimestamp;
     }
 
+
     /**
      * @return Returns the Reference Identifier.
      */
@@ -110,6 +119,7 @@ public class NtpMessage
     {
         return referenceIdentifier;
     }
+
 
     /**
      * @return Returns the Reference Timestamp.
@@ -119,6 +129,7 @@ public class NtpMessage
         return referenceTimestamp;
     }
 
+
     /**
      * @return Returns the Root Delay.
      */
@@ -126,6 +137,7 @@ public class NtpMessage
     {
         return rootDelay;
     }
+
 
     /**
      * @return Returns the Root Dispersion.
@@ -135,6 +147,7 @@ public class NtpMessage
         return rootDispersion;
     }
 
+
     /**
      * @return Returns the Stratum.
      */
@@ -143,6 +156,7 @@ public class NtpMessage
         return stratumType;
     }
 
+
     /**
      * @return Returns the Transmit Timestamp.
      */
@@ -150,6 +164,7 @@ public class NtpMessage
     {
         return transmitTimestamp;
     }
+
 
     /**
      * @return Returns the Version Number.

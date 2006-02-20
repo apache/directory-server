@@ -16,11 +16,13 @@
  */
 package org.apache.directory.server.kerberos.sam;
 
+
 import javax.naming.directory.DirContext;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.kerberos.messages.value.SamType;
+import org.apache.directory.server.kerberos.shared.messages.value.SamType;
+
 
 /**
  * Single-use Authentication Mechanism verifier (subsystem) interface.
@@ -46,8 +48,10 @@ public interface SamVerifier
     /** Starts one of many pluggable SAM type subsystem*/
     void startup() throws SamException;
 
+
     /** Shuts down one of many pluggable SAM type subsystem*/
     void shutdown();
+
 
     /**
      * SamVerifiers require a KeyIntegrityChecker to calculate the integrity of
@@ -61,6 +65,7 @@ public interface SamVerifier
      */
     void setIntegrityChecker( KeyIntegrityChecker keyChecker );
 
+
     /**
      * Verifies the single use password supplied.
      *
@@ -69,12 +74,14 @@ public interface SamVerifier
      */
     KerberosKey verify( KerberosPrincipal principal, byte[] sad ) throws SamException;
 
+
     /**
      * Gets the registered SAM algorithm type implemented by this SamVerifier.
      *
      * @return the type value for the SAM algorithm used to verify the SUP.
      */
     SamType getSamType();
+
 
     /** sets the user context where users are stored for the primary realm */
     void setUserContext( DirContext userContext );

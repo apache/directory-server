@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.ntp.service;
 
+
 import org.apache.directory.server.ntp.NtpService;
 import org.apache.directory.server.ntp.messages.LeapIndicatorType;
 import org.apache.directory.server.ntp.messages.ModeType;
@@ -25,6 +26,7 @@ import org.apache.directory.server.ntp.messages.NtpMessageModifier;
 import org.apache.directory.server.ntp.messages.NtpTimeStamp;
 import org.apache.directory.server.ntp.messages.ReferenceIdentifier;
 import org.apache.directory.server.ntp.messages.StratumType;
+
 
 public class NtpServiceImpl implements NtpService
 {
@@ -36,8 +38,8 @@ public class NtpServiceImpl implements NtpService
         modifier.setVersionNumber( 4 );
         modifier.setMode( ModeType.SERVER );
         modifier.setStratum( StratumType.PRIMARY_REFERENCE );
-        modifier.setPollInterval( (byte) 0x04 );
-        modifier.setPrecision( (byte) 0xFA );
+        modifier.setPollInterval( ( byte ) 0x04 );
+        modifier.setPrecision( ( byte ) 0xFA );
         modifier.setRootDelay( 0 );
         modifier.setRootDispersion( 0 );
         modifier.setReferenceIdentifier( ReferenceIdentifier.LOCL );

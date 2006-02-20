@@ -16,22 +16,24 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import java.net.InetAddress;
 
+import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.service.LockBox;
+import org.apache.directory.server.kerberos.shared.service.VerifyAuthHeader;
 import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.kerberos.messages.ApplicationRequest;
-import org.apache.kerberos.messages.components.Authenticator;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.messages.value.EncryptionKey;
-import org.apache.kerberos.replay.ReplayCache;
-import org.apache.kerberos.service.LockBox;
-import org.apache.kerberos.service.VerifyAuthHeader;
+
 
 public class VerifyServiceTicketAuthHeader extends VerifyAuthHeader
 {
     public boolean execute( Context context ) throws Exception
     {
-        ChangePasswordContext changepwContext = (ChangePasswordContext) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
 
         ApplicationRequest authHeader = changepwContext.getAuthHeader();
         Ticket ticket = changepwContext.getTicket();
@@ -43,7 +45,7 @@ public class VerifyServiceTicketAuthHeader extends VerifyAuthHeader
         LockBox lockBox = changepwContext.getLockBox();
 
         Authenticator authenticator = verifyAuthHeader( authHeader, ticket, serverKey, clockSkew, replayCache,
-                emptyAddressesAllowed, clientAddress, lockBox );
+            emptyAddressesAllowed, clientAddress, lockBox );
 
         changepwContext.setAuthenticator( authenticator );
 

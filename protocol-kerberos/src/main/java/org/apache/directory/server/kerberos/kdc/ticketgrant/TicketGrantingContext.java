@@ -16,13 +16,15 @@
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
+
 import org.apache.directory.server.kerberos.kdc.KdcContext;
-import org.apache.kerberos.messages.ApplicationRequest;
-import org.apache.kerberos.messages.components.Authenticator;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.messages.value.EncryptionKey;
-import org.apache.kerberos.replay.ReplayCache;
-import org.apache.kerberos.store.PrincipalStoreEntry;
+import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+
 
 public class TicketGrantingContext extends KdcContext
 {
@@ -38,6 +40,7 @@ public class TicketGrantingContext extends KdcContext
     private PrincipalStoreEntry ticketPrincipalEntry;
     private PrincipalStoreEntry requestPrincipalEntry;
 
+
     /**
      * @return Returns the requestPrincipalEntry.
      */
@@ -45,6 +48,7 @@ public class TicketGrantingContext extends KdcContext
     {
         return requestPrincipalEntry;
     }
+
 
     /**
      * @param requestPrincipalEntry The requestPrincipalEntry to set.
@@ -54,6 +58,7 @@ public class TicketGrantingContext extends KdcContext
         this.requestPrincipalEntry = requestPrincipalEntry;
     }
 
+
     /**
      * @return Returns the ticketPrincipalEntry.
      */
@@ -61,6 +66,7 @@ public class TicketGrantingContext extends KdcContext
     {
         return ticketPrincipalEntry;
     }
+
 
     /**
      * @param ticketPrincipalEntry The ticketPrincipalEntry to set.
@@ -70,6 +76,7 @@ public class TicketGrantingContext extends KdcContext
         this.ticketPrincipalEntry = ticketPrincipalEntry;
     }
 
+
     /**
      * @return Returns the replayCache.
      */
@@ -77,6 +84,7 @@ public class TicketGrantingContext extends KdcContext
     {
         return replayCache;
     }
+
 
     /**
      * @param replayCache The replayCache to set.
@@ -86,6 +94,7 @@ public class TicketGrantingContext extends KdcContext
         this.replayCache = replayCache;
     }
 
+
     /**
      * @return Returns the authenticator.
      */
@@ -93,6 +102,7 @@ public class TicketGrantingContext extends KdcContext
     {
         return authenticator;
     }
+
 
     /**
      * @param authenticator The authenticator to set.
@@ -102,6 +112,7 @@ public class TicketGrantingContext extends KdcContext
         this.authenticator = authenticator;
     }
 
+
     /**
      * @return Returns the newTicket.
      */
@@ -109,6 +120,7 @@ public class TicketGrantingContext extends KdcContext
     {
         return newTicket;
     }
+
 
     /**
      * @param newTicket The newTicket to set.
@@ -118,6 +130,7 @@ public class TicketGrantingContext extends KdcContext
         this.newTicket = newTicket;
     }
 
+
     /**
      * @return Returns the sessionKey.
      */
@@ -125,6 +138,7 @@ public class TicketGrantingContext extends KdcContext
     {
         return sessionKey;
     }
+
 
     /**
      * @param sessionKey The sessionKey to set.
@@ -134,6 +148,7 @@ public class TicketGrantingContext extends KdcContext
         this.sessionKey = sessionKey;
     }
 
+
     /**
      * @return Returns the tgt.
      */
@@ -141,6 +156,7 @@ public class TicketGrantingContext extends KdcContext
     {
         return tgt;
     }
+
 
     /**
      * @param tgt The tgt to set.
@@ -150,6 +166,7 @@ public class TicketGrantingContext extends KdcContext
         this.tgt = tgt;
     }
 
+
     /**
      * @return Returns the authHeader.
      */
@@ -157,6 +174,7 @@ public class TicketGrantingContext extends KdcContext
     {
         return authHeader;
     }
+
 
     /**
      * @param authHeader The authHeader to set.

@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.kerberos.sam;
 
+
 import java.util.HashMap;
 import java.util.Hashtable;
 
@@ -23,7 +24,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.security.auth.kerberos.KerberosKey;
 
-import org.apache.kerberos.store.PrincipalStoreEntry;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+
 
 /**
  * The Subsystem that enables the Kerberos server to use plugable Single-use
@@ -49,6 +51,7 @@ public final class SamSubsystem
     private DirContext userContext;
     private String userBaseRdn;
 
+
     /**
      * Gets the singleton instance of the SamSubsystem.
      *
@@ -64,6 +67,7 @@ public final class SamSubsystem
         return instance;
     }
 
+
     /**
      * Sets the KeyIntegrityChecker used by the entire SamSubsystem.
      *
@@ -73,6 +77,7 @@ public final class SamSubsystem
     {
         this.keyChecker = keyChecker;
     }
+
 
     /**
      * Uses the principal entry information to load the approapriate SamVerifier
@@ -100,7 +105,7 @@ public final class SamSubsystem
 
         if ( verifiers.containsKey( entry.getSamType() ) )
         {
-            verifier = (SamVerifier) verifiers.get( entry.getSamType() );
+            verifier = ( SamVerifier ) verifiers.get( entry.getSamType() );
 
             return verifier.verify( entry.getPrincipal(), sad );
         }
@@ -125,17 +130,17 @@ public final class SamSubsystem
             throw new SamException( entry.getSamType(), msg );
         }
 
-        String fqcn = (String) env.get( key );
+        String fqcn = ( String ) env.get( key );
 
         try
         {
             Class c = Class.forName( fqcn );
 
-            verifier = (SamVerifier) c.newInstance();
+            verifier = ( SamVerifier ) c.newInstance();
 
             try
             {
-                verifier.setUserContext( (DirContext) userContext.lookup( userBaseRdn ) );
+                verifier.setUserContext( ( DirContext ) userContext.lookup( userBaseRdn ) );
             }
             catch ( NamingException e )
             {
@@ -185,6 +190,7 @@ public final class SamSubsystem
             throw new SamException( entry.getSamType(), msg, e );
         }
     }
+
 
     /**
      * Sets the context under which user entries can be found.

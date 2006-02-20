@@ -47,7 +47,7 @@ public abstract class AbstractAuthenticator implements Authenticator
      *
      * @param type the type of this authenticator (e.g. <tt>'simple'</tt>, <tt>'none'</tt>...)
      */
-    protected AbstractAuthenticator( String type )
+    protected AbstractAuthenticator(String type)
     {
         this.authenticatorType = type;
     }
@@ -62,6 +62,7 @@ public abstract class AbstractAuthenticator implements Authenticator
         return factoryCfg;
     }
 
+
     /**
      * Returns the configuration of this authenticator.
      */
@@ -69,6 +70,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     {
         return cfg;
     }
+
 
     public String getAuthenticatorType()
     {
@@ -81,7 +83,8 @@ public abstract class AbstractAuthenticator implements Authenticator
      * <tt>configuration</tt>, and calls {@link #doInit()} method.
      * Please put your initialization code into {@link #doInit()}.
      */
-    public final void init( DirectoryServiceConfiguration factoryCfg, AuthenticatorConfiguration cfg ) throws NamingException
+    public final void init( DirectoryServiceConfiguration factoryCfg, AuthenticatorConfiguration cfg )
+        throws NamingException
     {
         this.factoryCfg = factoryCfg;
         this.cfg = cfg;
@@ -95,6 +98,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     protected void doInit() throws NamingException
     {
     }
+
 
     /**
      * Calls {@link #doDestroy()} method, and clears default properties
@@ -114,12 +118,14 @@ public abstract class AbstractAuthenticator implements Authenticator
         }
     }
 
+
     /**
      * Implement your deinitialization code here.
      */
     protected void doDestroy()
     {
     }
+
 
     public abstract LdapPrincipal authenticate( ServerContext ctx ) throws NamingException;
 
@@ -134,7 +140,8 @@ public abstract class AbstractAuthenticator implements Authenticator
      * @throws NamingException if there is a problem parsing <tt>name</tt>
      */
     // does not seem to be used
-    protected static LdapPrincipal createLdapPrincipal( String name, AuthenticationLevel authenticationLeve ) throws NamingException
+    protected static LdapPrincipal createLdapPrincipal( String name, AuthenticationLevel authenticationLeve )
+        throws NamingException
     {
         LdapName principalDn = new LdapName( name );
         return new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );

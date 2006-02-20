@@ -28,7 +28,6 @@ import org.apache.directory.shared.ldap.schema.ComparableComparator;
 import org.apache.directory.shared.ldap.util.BigIntegerComparator;
 
 
-
 /**
  * A producer of Comparator objects for the eve schema.
  *
@@ -47,12 +46,10 @@ public class ApacheComparatorProducer extends AbstractBootstrapProducer
     // BootstrapProducer Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see org.apache.directory.server.core.schema.bootstrap.BootstrapProducer#produce(org.apache.directory.server.core.schema.bootstrap.BootstrapRegistries, ProducerCallback)
      */
-    public void produce( BootstrapRegistries registries, ProducerCallback cb )
-        throws NamingException
+    public void produce( BootstrapRegistries registries, ProducerCallback cb ) throws NamingException
     {
         Comparator comparator;
 

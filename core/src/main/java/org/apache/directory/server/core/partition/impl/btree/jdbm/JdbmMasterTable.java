@@ -39,26 +39,28 @@ import org.apache.directory.shared.ldap.util.BigIntegerComparator;
 public class JdbmMasterTable extends JdbmTable implements MasterTable
 {
     private static final StringComparator STRCOMP = new StringComparator();
-    private static final SerializableComparator BIG_INTEGER_COMPARATOR =
-        new SerializableComparator( "1.2.6.1.4.1.18060.1.1.1.2.2" )
-        {
-            private static final long serialVersionUID = 4048791282048841016L;
+    private static final SerializableComparator BIG_INTEGER_COMPARATOR = new SerializableComparator(
+        "1.2.6.1.4.1.18060.1.1.1.2.2" )
+    {
+        private static final long serialVersionUID = 4048791282048841016L;
 
-            public int compare( Object o1, Object o2 )
-            {
-                return BigIntegerComparator.INSTANCE.compare( o1, o2 );
-            }
-        };
-    private static final SerializableComparator STRING_COMPARATOR =
-        new SerializableComparator( "1.2.6.1.4.1.18060.1.1.1.2.3" )
-        {
-            private static final long serialVersionUID = 3258689922792961845L;
 
-            public int compare( Object o1, Object o2 )
-            {
-                return STRCOMP.compare( o1, o2 );
-            }
-        };
+        public int compare( Object o1, Object o2 )
+        {
+            return BigIntegerComparator.INSTANCE.compare( o1, o2 );
+        }
+    };
+    private static final SerializableComparator STRING_COMPARATOR = new SerializableComparator(
+        "1.2.6.1.4.1.18060.1.1.1.2.3" )
+    {
+        private static final long serialVersionUID = 3258689922792961845L;
+
+
+        public int compare( Object o1, Object o2 )
+        {
+            return STRCOMP.compare( o1, o2 );
+        }
+    };
     /**  */
     private JdbmTable adminTbl = null;
 
@@ -69,14 +71,13 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @param recMan the jdbm record manager
      * @throws NamingException if there is an error opening the Db file.
      */
-    public JdbmMasterTable( RecordManager recMan )
-        throws NamingException
+    public JdbmMasterTable(RecordManager recMan) throws NamingException
     {
         super( DBF, recMan, BIG_INTEGER_COMPARATOR );
         adminTbl = new JdbmTable( "admin", recMan, STRING_COMPARATOR );
         String seqValue = ( String ) adminTbl.get( SEQPROP_KEY );
-        
-        if ( null == seqValue ) 
+
+        if ( null == seqValue )
         {
             adminTbl.put( SEQPROP_KEY, BigInteger.ZERO.toString() );
         }
@@ -137,11 +138,11 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
     {
         BigInteger id = null;
 
-        synchronized ( adminTbl ) 
+        synchronized ( adminTbl )
         {
             id = new BigInteger( ( String ) adminTbl.get( SEQPROP_KEY ) );
-            
-            if ( null == id ) 
+
+            if ( null == id )
             {
                 adminTbl.put( SEQPROP_KEY, BigInteger.ZERO.toString() );
                 id = BigInteger.ZERO;
@@ -167,17 +168,16 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
         BigInteger lastVal = null;
         BigInteger nextVal = null;
 
-        synchronized ( adminTbl ) 
+        synchronized ( adminTbl )
         {
-            lastVal = new BigInteger( ( String ) 
-                adminTbl.get( SEQPROP_KEY ) );
-            
-            if ( null == lastVal ) 
+            lastVal = new BigInteger( ( String ) adminTbl.get( SEQPROP_KEY ) );
+
+            if ( null == lastVal )
             {
                 adminTbl.put( SEQPROP_KEY, BigInteger.ONE.toString() );
                 return BigInteger.ONE;
-            } 
-            else 
+            }
+            else
             {
                 nextVal = lastVal.add( BigInteger.ONE );
                 adminTbl.put( SEQPROP_KEY, nextVal.toString() );
@@ -197,7 +197,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      */
     public String getProperty( String property ) throws NamingException
     {
-        synchronized ( adminTbl ) 
+        synchronized ( adminTbl )
         {
             return ( String ) adminTbl.get( property );
         }
@@ -213,7 +213,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      */
     public void setProperty( String property, String value ) throws NamingException
     {
-        synchronized ( adminTbl ) 
+        synchronized ( adminTbl )
         {
             adminTbl.put( property, value );
         }

@@ -168,7 +168,6 @@ public class CreateContextTest extends AbstractAdminTestCase
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
 
-
         /*
          * fail on recreate attempt for ou=testing00,ou=system
          */

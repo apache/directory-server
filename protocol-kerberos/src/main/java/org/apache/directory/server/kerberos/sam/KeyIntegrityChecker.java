@@ -16,7 +16,9 @@
  */
 package org.apache.directory.server.kerberos.sam;
 
+
 import javax.security.auth.kerberos.KerberosKey;
+
 
 /**
  * Checks the integrity of a kerberos key to decode-decrypt an encrypted

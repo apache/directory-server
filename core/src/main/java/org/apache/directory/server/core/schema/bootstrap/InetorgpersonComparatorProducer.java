@@ -29,7 +29,6 @@ import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.NormalizingComparator;
 
 
-
 /**
  * A producer of Comparator objects for the inetorgperson schema.  This code has been
  * automatically generated using schema files in the OpenLDAP format along with
@@ -51,12 +50,10 @@ public class InetorgpersonComparatorProducer extends AbstractBootstrapProducer
     // BootstrapProducer Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see org.apache.directory.server.core.schema.bootstrap.BootstrapProducer#produce(BootstrapRegistries, org.apache.directory.server.core.schema.bootstrap.ProducerCallback)
      */
-    public void produce( BootstrapRegistries registries, ProducerCallback cb )
-        throws NamingException
+    public void produce( BootstrapRegistries registries, ProducerCallback cb ) throws NamingException
     {
 
         Comparator comparator;
@@ -65,43 +62,39 @@ public class InetorgpersonComparatorProducer extends AbstractBootstrapProducer
          * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.3
          * =========================================================
 
-            ( 2.5.13.5 NAME 'caseExactMatch'
-              SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         ( 2.5.13.5 NAME 'caseExactMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
-            ( 2.5.13.7 NAME 'caseExactSubstringsMatch'
-              SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         ( 2.5.13.7 NAME 'caseExactSubstringsMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
 
-            ( 2.5.13.12 NAME 'caseIgnoreListSubstringsMatch'
-              SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         ( 2.5.13.12 NAME 'caseIgnoreListSubstringsMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
 
-        */
+         */
 
-        comparator = new NormalizingComparator(
-                new CachingNormalizer( new DeepTrimNormalizer() ),
-                new ComparableComparator() );
+        comparator = new NormalizingComparator( new CachingNormalizer( new DeepTrimNormalizer() ),
+            new ComparableComparator() );
         cb.schemaObjectProduced( this, "2.5.13.5", comparator );
 
-        comparator = new NormalizingComparator(
-                new CachingNormalizer( new DeepTrimNormalizer() ),
-                new ComparableComparator() );
+        comparator = new NormalizingComparator( new CachingNormalizer( new DeepTrimNormalizer() ),
+            new ComparableComparator() );
         cb.schemaObjectProduced( this, "2.5.13.7", comparator );
 
-        comparator = new NormalizingComparator(
-                new CachingNormalizer( new DeepTrimToLowerNormalizer() ),
-                new ComparableComparator() );
+        comparator = new NormalizingComparator( new CachingNormalizer( new DeepTrimToLowerNormalizer() ),
+            new ComparableComparator() );
         cb.schemaObjectProduced( this, "2.5.13.12", comparator );
 
         /*
          * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.4
          * =========================================================
 
-            ( 1.3.6.1.4.1.1466.109.114.3 NAME 'caseIgnoreIA5SubstringsMatch'
-              SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
-        */
+         ( 1.3.6.1.4.1.1466.109.114.3 NAME 'caseIgnoreIA5SubstringsMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
 
-        comparator = new NormalizingComparator(
-                new CachingNormalizer( new DeepTrimToLowerNormalizer() ),
-                new ComparableComparator() );
+        comparator = new NormalizingComparator( new CachingNormalizer( new DeepTrimToLowerNormalizer() ),
+            new ComparableComparator() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.109.114.3", comparator );
     }
 }

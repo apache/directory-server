@@ -17,10 +17,12 @@
 
 package org.apache.directory.server.ntp.messages;
 
+
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+
 
 /**
  * NTP timestamps are represented as a 64-bit unsigned fixed-point number,
@@ -47,12 +49,14 @@ public class NtpTimeStamp
     private long seconds = 0;
     private long fraction = 0;
 
+
     public NtpTimeStamp()
     {
         this( new Date() );
     }
 
-    public NtpTimeStamp( Date date )
+
+    public NtpTimeStamp(Date date)
     {
         long msSinceStartOfNtpEpoch = date.getTime() - NTP_EPOCH_DIFFERENCE;
 
@@ -60,7 +64,8 @@ public class NtpTimeStamp
         fraction = ( ( msSinceStartOfNtpEpoch % 1000 ) * 0x100000000L ) / 1000;
     }
 
-    public NtpTimeStamp( ByteBuffer data )
+
+    public NtpTimeStamp(ByteBuffer data)
     {
         for ( int ii = 0; ii < 4; ii++ )
         {
@@ -73,26 +78,28 @@ public class NtpTimeStamp
         }
     }
 
+
     public void writeTo( ByteBuffer buffer )
     {
-        byte[] bytes = new byte[ 8 ];
+        byte[] bytes = new byte[8];
 
         long temp = seconds;
         for ( int ii = 3; ii >= 0; ii-- )
         {
-            bytes[ ii ] = (byte) ( temp % 256 );
+            bytes[ii] = ( byte ) ( temp % 256 );
             temp = temp / 256;
         }
 
         temp = fraction;
         for ( int ii = 7; ii >= 4; ii-- )
         {
-            bytes[ ii ] = (byte) ( temp % 256 );
+            bytes[ii] = ( byte ) ( temp % 256 );
             temp = temp / 256;
         }
 
         buffer.put( bytes );
     }
+
 
     public String toString()
     {
@@ -104,6 +111,7 @@ public class NtpTimeStamp
             return "org.apache.ntp.message.NtpTimeStamp[ date = " + dateFormat.format( date ) + " ]";
         }
     }
+
 
     public boolean equals( Object o )
     {
@@ -117,9 +125,10 @@ public class NtpTimeStamp
             return false;
         }
 
-        NtpTimeStamp that = (NtpTimeStamp) o;
+        NtpTimeStamp that = ( NtpTimeStamp ) o;
         return ( this.seconds == that.seconds ) && ( this.fraction == that.fraction );
     }
+
 
     private int makePositive( byte b )
     {

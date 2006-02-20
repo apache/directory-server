@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.core.tools.schema;
 
+
 /**
  * A monitor for the OpenLdap parser.
  *
@@ -26,7 +27,9 @@ public interface ParserMonitor
 {
     void matchedProduction( String prod );
 
+
     void startedParse( String s );
+
 
     void finishedParse( String s );
 }

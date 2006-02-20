@@ -49,30 +49,25 @@ public class AbstractBootstrapSchema implements BootstrapSchema
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
-    protected AbstractBootstrapSchema( String schemaName )
+    protected AbstractBootstrapSchema(String schemaName)
     {
         this( null, schemaName, null, null );
     }
 
 
-    protected AbstractBootstrapSchema( String owner, String schemaName )
+    protected AbstractBootstrapSchema(String owner, String schemaName)
     {
         this( owner, schemaName, null, null );
     }
 
 
-    protected AbstractBootstrapSchema( String owner, String schemaName,
-                                       String packageName )
+    protected AbstractBootstrapSchema(String owner, String schemaName, String packageName)
     {
         this( owner, schemaName, packageName, null );
     }
 
 
-    protected AbstractBootstrapSchema( String owner,
-                                       String schemaName,
-                                       String packageName,
-                                       String[] dependencies )
+    protected AbstractBootstrapSchema(String owner, String schemaName, String packageName, String[] dependencies)
     {
         if ( owner == null )
         {

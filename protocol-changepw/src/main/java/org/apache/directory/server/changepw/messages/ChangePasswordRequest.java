@@ -16,16 +16,19 @@
  */
 package org.apache.directory.server.changepw.messages;
 
-import org.apache.kerberos.messages.ApplicationRequest;
-import org.apache.kerberos.messages.application.PrivateMessage;
+
+import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
+
 
 public class ChangePasswordRequest extends AbstractPasswordMessage
 {
     private ApplicationRequest authHeader;
     private PrivateMessage privateMessage;
 
-    public ChangePasswordRequest( short messageLength, short versionNumber, short authHeaderLength,
-            ApplicationRequest authHeader, PrivateMessage privateMessage )
+
+    public ChangePasswordRequest(short messageLength, short versionNumber, short authHeaderLength,
+        ApplicationRequest authHeader, PrivateMessage privateMessage)
     {
         super( messageLength, versionNumber, authHeaderLength );
 
@@ -33,10 +36,12 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
         this.privateMessage = privateMessage;
     }
 
+
     public ApplicationRequest getAuthHeader()
     {
         return authHeader;
     }
+
 
     public PrivateMessage getPrivateMessage()
     {

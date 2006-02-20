@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.core;
 
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -30,6 +31,7 @@ import org.apache.directory.server.core.configuration.Configuration;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
 import org.apache.directory.server.core.partition.DirectoryPartition;
 
+
 /**
  * Provides JNDI service to {@link AbstractContextFactory}.
  *
@@ -40,6 +42,7 @@ public abstract class DirectoryService
 {
     private static final Map instances = new HashMap();
 
+
     /**
      * Returns the default instance.  This method is identical with calling
      * <tt>getInstance( Configuration.DEFAULT_INSTANCE_ID )</tt>.
@@ -48,7 +51,8 @@ public abstract class DirectoryService
     {
         return getInstance( Configuration.DEFAULT_INSTANCE_ID );
     }
-    
+
+
     /**
      * Returns {@link DirectoryService} with the specified instance ID.
      */
@@ -56,15 +60,16 @@ public abstract class DirectoryService
     {
         instanceId = instanceId.trim();
         DirectoryService service = ( DirectoryService ) instances.get( instanceId );
-        if( service == null )
+        if ( service == null )
         {
             service = new DefaultDirectoryService( instanceId );
             instances.put( instanceId, service );
         }
-        
+
         return service;
     }
-    
+
+
     /**
      * Returns all instances of instantiated {@link DirectoryService}.
      */
@@ -72,6 +77,7 @@ public abstract class DirectoryService
     {
         return new HashSet( instances.values() );
     }
+
 
     /**
      * Starts up this service.
@@ -82,36 +88,42 @@ public abstract class DirectoryService
      * @throws NamingException if failed to start up
      */
     public abstract void startup( DirectoryServiceListener listener, Hashtable environment ) throws NamingException;
-    
+
+
     /**
      * Shuts down this service.
      * 
      * @throws NamingException if failed to shut down
      */
     public abstract void shutdown() throws NamingException;
-    
+
+
     /**
      * Calls {@link DirectoryPartition#sync()} for all registered {@link DirectoryPartition}s.
      * @throws NamingException if synchronization failed
      */
     public abstract void sync() throws NamingException;
-    
+
+
     /**
      * Returns <tt>true</tt> if this service is started.
      */
     public abstract boolean isStarted();
-    
+
+
     /**
      * Returns the configuration of this service.
      */
     public abstract DirectoryServiceConfiguration getConfiguration();
+
 
     /**
      * Returns an anonymous JNDI {@link Context} with the specified <tt>baseName</tt>
      * @throws NamingException if failed to create a context
      */
     public abstract Context getJndiContext( String baseName ) throws NamingException;
-    
+
+
     /**
      * Returns a JNDI {@link Context} with the specified authentication information
      * (<tt>principal</tt>, <tt>credential</tt>, and <tt>authentication</tt>) and
@@ -122,5 +134,6 @@ public abstract class DirectoryService
      * @param authentication {@link Context#SECURITY_AUTHENTICATION} value
      * @throws NamingException if failed to create a context
      */
-    public abstract Context getJndiContext( String principal, byte[] credential, String authentication, String baseName ) throws NamingException;
+    public abstract Context getJndiContext( String principal, byte[] credential, String authentication, String baseName )
+        throws NamingException;
 }

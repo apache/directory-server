@@ -79,10 +79,10 @@ public class EventService extends BaseInterceptor
      * @param namingListener the naming listener to register
      */
     public void addNamingListener( EventContext ctx, Name name, ExprNode filter, SearchControls searchControls,
-                                   NamingListener namingListener )
+        NamingListener namingListener )
     {
-        ScopeNode scope = new ScopeNode( DerefAliasesEnum.NEVERDEREFALIASES, name.toString(),
-                searchControls.getSearchScope() );
+        ScopeNode scope = new ScopeNode( DerefAliasesEnum.NEVERDEREFALIASES, name.toString(), searchControls
+            .getSearchScope() );
         BranchNode and = new BranchNode( BranchNode.AND );
         and.addNode( scope );
         and.addNode( filter );
@@ -161,8 +161,8 @@ public class EventService extends BaseInterceptor
             {
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
                 Binding binding = new Binding( upName, entry, false );
-                nclistener.objectAdded( new NamingEvent( rec.getEventContext(),
-                        NamingEvent.OBJECT_ADDED, binding, null, entry ) );
+                nclistener.objectAdded( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_ADDED, binding,
+                    null, entry ) );
             }
         }
     }
@@ -188,8 +188,8 @@ public class EventService extends BaseInterceptor
             {
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
                 Binding binding = new Binding( name.toString(), entry, false );
-                nclistener.objectRemoved( new NamingEvent( rec.getEventContext(),
-                        NamingEvent.OBJECT_REMOVED, null, binding, entry ) );
+                nclistener.objectRemoved( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_REMOVED, null,
+                    binding, entry ) );
             }
         }
     }
@@ -215,11 +215,12 @@ public class EventService extends BaseInterceptor
                 ObjectChangeListener oclistener = ( ObjectChangeListener ) listener;
                 Binding before = new Binding( name.toString(), oriEntry, false );
                 Binding after = new Binding( name.toString(), entry, false );
-                oclistener.objectChanged( new NamingEvent( rec.getEventContext(),
-                        NamingEvent.OBJECT_CHANGED, after, before, mods ) );
+                oclistener.objectChanged( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_CHANGED, after,
+                    before, mods ) );
             }
         }
     }
+
 
     public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
     {
@@ -269,8 +270,8 @@ public class EventService extends BaseInterceptor
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
                 Binding oldBinding = new Binding( oldName.toString(), entry, false );
                 Binding newBinding = new Binding( newName.toString(), entry, false );
-                nclistener.objectRenamed( new NamingEvent( rec.getEventContext(),
-                        NamingEvent.OBJECT_RENAMED, newBinding, oldBinding, entry ) );
+                nclistener.objectRenamed( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_RENAMED,
+                    newBinding, oldBinding, entry ) );
             }
         }
     }
@@ -287,7 +288,7 @@ public class EventService extends BaseInterceptor
 
 
     public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
-            throws NamingException
+        throws NamingException
     {
         super.move( next, oriChildName, newParentName, newRn, deleteOldRn );
         Name newName = ( Name ) newParentName.clone();
@@ -346,7 +347,6 @@ public class EventService extends BaseInterceptor
         return selecting;
     }
 
-
     class EventSourceRecord
     {
         private Name base;
@@ -355,7 +355,9 @@ public class EventService extends BaseInterceptor
         private EventContext context;
         private NamingListener listener;
 
-        public EventSourceRecord( Name base, ExprNode filter, EventContext context, SearchControls controls, NamingListener listener )
+
+        public EventSourceRecord(Name base, ExprNode filter, EventContext context, SearchControls controls,
+            NamingListener listener)
         {
             this.filter = filter;
             this.context = context;
@@ -364,25 +366,30 @@ public class EventService extends BaseInterceptor
             this.listener = listener;
         }
 
+
         public NamingListener getNamingListener()
         {
             return listener;
         }
+
 
         public ExprNode getFilter()
         {
             return filter;
         }
 
+
         public EventContext getEventContext()
         {
             return context;
         }
 
+
         public Name getBase()
         {
             return base;
         }
+
 
         public SearchControls getSearchControls()
         {

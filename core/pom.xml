@@ -4,16 +4,15 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC1-SNAPSHOT</version>
+    <version>1.0-RC1</version>
   </parent>
   <artifactId>apacheds-core</artifactId>
   <name>ApacheDS Core</name>
   <packaging>jar</packaging>
   <description>
-     Server's core contains all backend subsystems. It depends on protocol 
-     and uses it with seda to service LDAP requests. The core contains the 
-     JNDI provider, interceptor framework, interceptor services, the schema 
-     subsystem and the database subsystem. Hence the core is the heart of the server.
+     Server's core contains the JNDI provider, interceptors, schema, and
+     database subsystems.  The core is the heart of the server without protocols
+     enabled.
   </description>
   <!-- <distributionManagement>
     <site>

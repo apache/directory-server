@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.core.tools.schema;
 
+
 import org.apache.directory.server.core.tools.schema.ParserMonitor;
 
 
@@ -39,6 +40,7 @@ public class ConsoleParserMonitor implements ParserMonitor
         }
     }
 
+
     public void startedParse( String s )
     {
         if ( System.getProperties().containsKey( TRACE_KEY ) )
@@ -46,6 +48,7 @@ public class ConsoleParserMonitor implements ParserMonitor
             System.out.println( s );
         }
     }
+
 
     public void finishedParse( String s )
     {

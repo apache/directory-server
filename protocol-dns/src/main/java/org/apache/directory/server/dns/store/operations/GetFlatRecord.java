@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.dns.store.operations;
 
+
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -34,6 +35,7 @@ import org.apache.directory.server.dns.messages.ResourceRecordModifier;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
 
+
 /**
  * A JNDI context operation for looking up a Resource Record with flat attributes.
  *
@@ -47,13 +49,15 @@ public class GetFlatRecord implements ContextOperation
     /** The name of the question to get. */
     private final QuestionRecord question;
 
+
     /**
      * Creates the action to be used against the embedded JNDI provider.
      */
-    public GetFlatRecord( QuestionRecord question )
+    public GetFlatRecord(QuestionRecord question)
     {
         this.question = question;
     }
+
 
     /**
      * Note that the base is a relative path from the exiting context.
@@ -78,7 +82,7 @@ public class GetFlatRecord implements ContextOperation
 
         if ( answer.hasMore() )
         {
-            SearchResult result = (SearchResult) answer.next();
+            SearchResult result = ( SearchResult ) answer.next();
 
             Attributes attrs = result.getAttributes();
 
@@ -93,6 +97,7 @@ public class GetFlatRecord implements ContextOperation
         return record;
     }
 
+
     /**
      * Marshals a RecordStoreEntry from an Attributes object.
      *
@@ -106,10 +111,10 @@ public class GetFlatRecord implements ContextOperation
 
         Attribute attr;
 
-        String dnsName = ( attr = attrs.get( DnsAttribute.NAME ) ) != null ? (String) attr.get() : null;
-        String dnsType = ( attr = attrs.get( DnsAttribute.TYPE ) ) != null ? (String) attr.get() : null;
-        String dnsClass = ( attr = attrs.get( DnsAttribute.CLASS ) ) != null ? (String) attr.get() : null;
-        String dnsTtl = ( attr = attrs.get( DnsAttribute.TTL ) ) != null ? (String) attr.get() : null;
+        String dnsName = ( attr = attrs.get( DnsAttribute.NAME ) ) != null ? ( String ) attr.get() : null;
+        String dnsType = ( attr = attrs.get( DnsAttribute.TYPE ) ) != null ? ( String ) attr.get() : null;
+        String dnsClass = ( attr = attrs.get( DnsAttribute.CLASS ) ) != null ? ( String ) attr.get() : null;
+        String dnsTtl = ( attr = attrs.get( DnsAttribute.TTL ) ) != null ? ( String ) attr.get() : null;
 
         modifier.setDnsName( dnsName );
         modifier.setDnsType( RecordType.getTypeByName( dnsType ) );
@@ -120,8 +125,8 @@ public class GetFlatRecord implements ContextOperation
 
         while ( ids.hasMore() )
         {
-            String id = (String) ids.next();
-            modifier.put( id, (String) attrs.get( id ).get() );
+            String id = ( String ) ids.next();
+            modifier.put( id, ( String ) attrs.get( id ).get() );
         }
 
         return modifier.getEntry();

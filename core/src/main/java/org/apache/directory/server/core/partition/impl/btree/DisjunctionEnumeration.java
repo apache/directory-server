@@ -37,7 +37,7 @@ import javax.naming.NamingException;
 public class DisjunctionEnumeration implements NamingEnumeration
 {
     /** The underlying child enumerations */
-    private final NamingEnumeration [] children;
+    private final NamingEnumeration[] children;
     /** LUT used to avoid returning duplicates */
     private final Map candidates = new HashMap();
     /** Index of current cursor used */
@@ -53,7 +53,6 @@ public class DisjunctionEnumeration implements NamingEnumeration
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-    
 
     /**
      * Creates a DisjunctionEnumeration over a set of child NamingEnumerations.
@@ -63,26 +62,25 @@ public class DisjunctionEnumeration implements NamingEnumeration
      * @param children array of child NamingInstances
      * @throws NamingException if something goes wrong
      */
-    public DisjunctionEnumeration( NamingEnumeration [] children )
-        throws NamingException
+    public DisjunctionEnumeration(NamingEnumeration[] children) throws NamingException
     {
         this.children = children;
 
         // Close this cursor if their are no children.
-        if ( children.length <= 0 ) 
+        if ( children.length <= 0 )
         {
             hasMore = false;
             return;
         }
 
         // Advance to the first cursor that has a candidate for us.
-        while ( ! children[index].hasMore() ) 
+        while ( !children[index].hasMore() )
         {
             index++;
 
             // Close and return if we exhaust the cursors without finding a
             // valid candidate to return.
-            if ( index >= children.length ) 
+            if ( index >= children.length )
             {
                 close();
                 return;
@@ -99,7 +97,6 @@ public class DisjunctionEnumeration implements NamingEnumeration
     // ------------------------------------------------------------------------
     // java.util.Enumeration Implementation Methods 
     // ------------------------------------------------------------------------
-    
 
     /**
      * @see java.util.Enumeration#nextElement()
@@ -115,8 +112,8 @@ public class DisjunctionEnumeration implements NamingEnumeration
             throw new NoSuchElementException();
         }
     }
-    
-    
+
+
     /**
      * @see java.util.Enumeration#hasMoreElements()
      */
@@ -124,12 +121,11 @@ public class DisjunctionEnumeration implements NamingEnumeration
     {
         return hasMore();
     }
-    
+
 
     // ------------------------------------------------------------------------
     // NamingEnumeration Method Implementations
     // ------------------------------------------------------------------------
-    
 
     /**
      * Advances this Cursor one position.  Duplicates are not returned so if
@@ -145,18 +141,18 @@ public class DisjunctionEnumeration implements NamingEnumeration
         // Store the last prefetched candidate to return in candidate
         candidate.copy( prefetched );
 
-        do 
+        do
         {
             // Advance to a Cursor that has the next valid candidate for us.
-            while ( ! children[index].hasMore() ) 
+            while ( !children[index].hasMore() )
             {
                 index++;
-        
+
                 /* Close and return existing prefetched candidate if we
                  * have exhausted the underlying Cursors without finding a
                  * valid candidate to return.
                  */
-                if ( index >= children.length ) 
+                if ( index >= children.length )
                 {
                     close();
                     return candidate;
@@ -169,7 +165,8 @@ public class DisjunctionEnumeration implements NamingEnumeration
 
             // Break through do/while if the candidate is seen for the first
             // time, meaning we have not returned it already.
-        } while ( candidates.containsKey( prefetched.getEntryId() ) );
+        }
+        while ( candidates.containsKey( prefetched.getEntryId() ) );
 
         // Add candidate to LUT of encountered candidates.
         candidates.put( candidate.getEntryId(), candidate.getEntryId() );
@@ -201,8 +198,8 @@ public class DisjunctionEnumeration implements NamingEnumeration
     {
         Throwable throwable = null;
         hasMore = false;
-        
-        for ( int ii = 0; ii < children.length; ii++ ) 
+
+        for ( int ii = 0; ii < children.length; ii++ )
         {
             try
             {
@@ -215,7 +212,7 @@ public class DisjunctionEnumeration implements NamingEnumeration
                 throwable = t;
             }
         }
-        
+
         if ( null != throwable && throwable instanceof NamingException )
         {
             throw ( NamingException ) throwable;

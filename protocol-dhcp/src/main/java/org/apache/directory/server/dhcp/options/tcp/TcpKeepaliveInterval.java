@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.tcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies the whether or not the client should send TCP
@@ -32,17 +34,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class TcpKeepaliveInterval extends DhcpOption
 {
-	private byte[] tcpKeepaliveInterval;
-	
-	public TcpKeepaliveInterval( byte[] tcpKeepaliveInterval )
-	{
-		super( 39, 1 );
-		this.tcpKeepaliveInterval = tcpKeepaliveInterval;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( tcpKeepaliveInterval );
-	}
-}
+    private byte[] tcpKeepaliveInterval;
 
+
+    public TcpKeepaliveInterval(byte[] tcpKeepaliveInterval)
+    {
+        super( 39, 1 );
+        this.tcpKeepaliveInterval = tcpKeepaliveInterval;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( tcpKeepaliveInterval );
+    }
+}

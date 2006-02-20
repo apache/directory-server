@@ -16,16 +16,19 @@
  */
 package org.apache.directory.server.changepw.messages;
 
-import org.apache.kerberos.messages.application.ApplicationReply;
-import org.apache.kerberos.messages.application.PrivateMessage;
+
+import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
+import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
+
 
 public class ChangePasswordReply extends AbstractPasswordMessage
 {
     private ApplicationReply applicationReply;
     private PrivateMessage privateMessage;
 
-    public ChangePasswordReply( short messageLength, short versionNumber, short authHeaderLength,
-            ApplicationReply applicationReply, PrivateMessage privateMessage )
+
+    public ChangePasswordReply(short messageLength, short versionNumber, short authHeaderLength,
+        ApplicationReply applicationReply, PrivateMessage privateMessage)
     {
         super( messageLength, versionNumber, authHeaderLength );
 
@@ -33,10 +36,12 @@ public class ChangePasswordReply extends AbstractPasswordMessage
         this.privateMessage = privateMessage;
     }
 
+
     public ApplicationReply getApplicationReply()
     {
         return applicationReply;
     }
+
 
     public PrivateMessage getPrivateMessage()
     {

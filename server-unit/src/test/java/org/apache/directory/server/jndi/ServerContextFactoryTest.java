@@ -30,6 +30,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
+import org.apache.directory.server.core.configuration.ConfigurationException;
 import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 
@@ -46,6 +47,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
     {
     }
 
+
     public void setUp() throws Exception
     {
         BasicAttributes attrs;
@@ -53,12 +55,12 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         Set pcfgs = new HashSet();
 
         MutableDirectoryPartitionConfiguration pcfg;
-        
+
         // Add partition 'testing'
         pcfg = new MutableDirectoryPartitionConfiguration();
         pcfg.setName( "testing" );
         pcfg.setSuffix( "ou=testing" );
-        
+
         indexedAttrs = new HashSet();
         indexedAttrs.add( "ou" );
         indexedAttrs.add( "objectClass" );
@@ -74,20 +76,20 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         attr.add( "testing" );
         attrs.put( attr );
         pcfg.setContextEntry( attrs );
-        
+
         pcfgs.add( pcfg );
-        
+
         // Add partition 'example'
         pcfg = new MutableDirectoryPartitionConfiguration();
         pcfg.setName( "example" );
         pcfg.setSuffix( "dc=example" );
-        
+
         indexedAttrs = new HashSet();
         indexedAttrs.add( "ou" );
         indexedAttrs.add( "dc" );
         indexedAttrs.add( "objectClass" );
         pcfg.setIndexedAttributes( indexedAttrs );
-        
+
         attrs = new BasicAttributes( true );
         attr = new BasicAttribute( "objectClass" );
         attr.add( "top" );
@@ -98,14 +100,14 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         attr.add( "example" );
         attrs.put( attr );
         pcfg.setContextEntry( attrs );
-        
+
         pcfgs.add( pcfg );
 
         // Add partition 'MixedCase'
         pcfg = new MutableDirectoryPartitionConfiguration();
         pcfg.setName( "mixedcase" );
         pcfg.setSuffix( "dc=MixedCase" );
-        
+
         indexedAttrs = new HashSet();
         indexedAttrs.add( "dc" );
         indexedAttrs.add( "objectClass" );
@@ -121,13 +123,14 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         attr.add( "MixedCase" );
         attrs.put( attr );
         pcfg.setContextEntry( attrs );
-        
+
         pcfgs.add( pcfg );
-        
+
         configuration.setContextPartitionConfigurations( pcfgs );
 
         super.setUp();
     }
+
 
     /**
      * Makes sure the system context has the right attributes and values.
@@ -272,5 +275,26 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         assertTrue( attribute.contains( "top" ) );
 
         assertTrue( attribute.contains( "domain" ) );
+    }
+
+    public void testBadPartition() throws Exception
+    {
+        MutableDirectoryPartitionConfiguration pcfg;
+
+        // Add partition 'test=testing'
+        pcfg = new MutableDirectoryPartitionConfiguration();
+        pcfg.setName( "testing" );
+        
+        try
+        {
+            pcfg.setSuffix( "ou=test=testing" );
+        }
+        catch ( ConfigurationException ce )
+        {
+            assertTrue( true );
+            return;
+        }
+        
+        fail();
     }
 }

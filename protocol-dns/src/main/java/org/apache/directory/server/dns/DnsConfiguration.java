@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.dns;
 
+
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +25,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.configuration.ConfigurationException;
 import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+
 
 public class DnsConfiguration extends ServiceConfiguration
 {
@@ -41,6 +43,7 @@ public class DnsConfiguration extends ServiceConfiguration
     /** the default prefix */
     private static final String DEFAULT_PREFIX = "dns.";
 
+
     /**
      * Creates a new instance with default settings.
      */
@@ -49,22 +52,25 @@ public class DnsConfiguration extends ServiceConfiguration
         this( getDefaultConfig(), LoadStrategy.LDAP );
     }
 
+
     /**
      * Creates a new instance with default settings that operates on the
      * {@link DirectoryService} with the specified ID.
      */
-    public DnsConfiguration( String instanceId )
+    public DnsConfiguration(String instanceId)
     {
         this( getDefaultConfig(), LoadStrategy.LDAP );
         setInstanceId( instanceId );
     }
 
-    public DnsConfiguration( Map properties )
+
+    public DnsConfiguration(Map properties)
     {
         this( properties, LoadStrategy.LDAP );
     }
 
-    public DnsConfiguration( Map properties, int strategy )
+
+    public DnsConfiguration(Map properties, int strategy)
     {
         if ( properties == null )
         {
@@ -83,6 +89,7 @@ public class DnsConfiguration extends ServiceConfiguration
         }
     }
 
+
     public static Map getDefaultConfig()
     {
         Map defaults = new HashMap();
@@ -93,11 +100,12 @@ public class DnsConfiguration extends ServiceConfiguration
         return defaults;
     }
 
+
     public boolean isDifferent( Dictionary config )
     {
         int port = getPort();
 
-        if ( port == Integer.parseInt( (String) config.get( IP_PORT_KEY ) ) )
+        if ( port == Integer.parseInt( ( String ) config.get( IP_PORT_KEY ) ) )
         {
             return false;
         }
@@ -105,10 +113,12 @@ public class DnsConfiguration extends ServiceConfiguration
         return true;
     }
 
+
     public String getName()
     {
         return DEFAULT_NAME;
     }
+
 
     public int getPort()
     {
@@ -121,6 +131,7 @@ public class DnsConfiguration extends ServiceConfiguration
 
         return Integer.parseInt( DEFAULT_IP_PORT );
     }
+
 
     public int getBufferSize()
     {

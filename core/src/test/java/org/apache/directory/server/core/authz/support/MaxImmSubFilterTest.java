@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.*;
 
 import javax.naming.Name;
@@ -53,16 +54,13 @@ import org.apache.directory.shared.ldap.name.LdapName;
  */
 public class MaxImmSubFilterTest extends TestCase
 {
-    private static final Collection EMPTY_COLLECTION =
-        Collections.unmodifiableCollection( new ArrayList() );
-    private static final Set EMPTY_SET =
-        Collections.unmodifiableSet( new HashSet() );
+    private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
+    private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
 
     private static final Name ROOTDSE_NAME = new LdapName();
     private static final Name ENTRY_NAME;
     private static final Collection PROTECTED_ITEMS = new ArrayList();
     private static final Attributes ENTRY = new BasicAttributes();
-
 
     static
     {
@@ -70,7 +68,7 @@ public class MaxImmSubFilterTest extends TestCase
         {
             ENTRY_NAME = new LdapName( "ou=test, ou=system" );
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             throw new Error();
         }
@@ -78,68 +76,56 @@ public class MaxImmSubFilterTest extends TestCase
         PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
     }
 
+
     public void testWrongScope() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
         Collection tuples = new ArrayList();
-        tuples.add( new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION,
-                EMPTY_SET, true, 0 ) );
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        Assert.assertEquals(
-                tuples, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null,
-                        null, null, ENTRY_NAME, null, null, ENTRY, null ) );
+        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null,
+            null, ENTRY_NAME, null, null, ENTRY, null ) );
 
-        Assert.assertEquals(
-                tuples, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null,
-                        null, null, null, null, ENTRY_NAME, null, null, ENTRY, null ) );
+        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
+            null, null, ENTRY_NAME, null, null, ENTRY, null ) );
     }
+
 
     public void testRootDSE() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
 
         Collection tuples = new ArrayList();
-        tuples.add( new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION,
-                EMPTY_SET, true, 0 ) );
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        Assert.assertEquals(
-                tuples, filter.filter(
-                        tuples, OperationScope.ENTRY,
-                        null, null, null, null, null, ROOTDSE_NAME, null, null, ENTRY, null ) );
+        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null,
+            ROOTDSE_NAME, null, null, ENTRY, null ) );
     }
+
 
     public void testZeroTuple() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
 
-        Assert.assertEquals(
-                0, filter.filter(
-                        EMPTY_COLLECTION, OperationScope.ENTRY,
-                        null, null, null, null, null, ENTRY_NAME, null, null, ENTRY, null ).size() );
+        Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ENTRY, null, null, null, null, null,
+            ENTRY_NAME, null, null, ENTRY, null ).size() );
     }
+
 
     public void testDenialTuple() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
         Collection tuples = new ArrayList();
-        tuples.add( new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS,
-                EMPTY_SET, false, 0 ) );
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, false, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        Assert.assertEquals(
-                tuples, filter.filter(
-                        tuples, OperationScope.ENTRY, null, null, null,
-                        null, null, ENTRY_NAME, null, null, ENTRY, null ) );
+        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null,
+            ENTRY_NAME, null, null, ENTRY, null ) );
     }
 
 
@@ -147,40 +133,36 @@ public class MaxImmSubFilterTest extends TestCase
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
         Collection tuples = new ArrayList();
-        tuples.add( new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS,
-                EMPTY_SET, true, 0 ) );
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, true, 0 ) );
 
-        Assert.assertEquals(
-                1, filter.filter(
-                        tuples, OperationScope.ENTRY, new MockProxy(1), null, null,
-                        null, null, ENTRY_NAME, null, null, ENTRY, null ).size() );
+        Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, new MockProxy( 1 ), null, null, null,
+            null, ENTRY_NAME, null, null, ENTRY, null ).size() );
 
-        Assert.assertEquals(
-                0, filter.filter(
-                        tuples, OperationScope.ENTRY, new MockProxy(3), null, null,
-                        null, null, ENTRY_NAME, null, null, ENTRY, null ).size() );
+        Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, new MockProxy( 3 ), null, null, null,
+            null, ENTRY_NAME, null, null, ENTRY, null ).size() );
     }
-
 
     class MockProxy extends DirectoryPartitionNexusProxy
     {
         final int count;
 
-        public MockProxy( int count )
+
+        public MockProxy(int count)
         {
             super( new DeadContext(), new MockDirectoryService() );
             this.count = count;
         }
 
 
-        public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
+        public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
+            throws NamingException
         {
             return new BogusEnumeration( count );
         }
 
 
-        public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls, Collection bypass ) throws NamingException
+        public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls,
+            Collection bypass ) throws NamingException
         {
             return new BogusEnumeration( count );
         }
@@ -214,22 +196,22 @@ public class MaxImmSubFilterTest extends TestCase
 
         public DirectoryServiceConfiguration getConfiguration()
         {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+            return null; //To change body of implemented methods use File | Settings | File Templates.
         }
 
 
         public Context getJndiContext( String baseName ) throws NamingException
         {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+            return null; //To change body of implemented methods use File | Settings | File Templates.
         }
 
 
-        public Context getJndiContext( String principal, byte[] credential, String authentication, String baseName ) throws NamingException
+        public Context getJndiContext( String principal, byte[] credential, String authentication, String baseName )
+            throws NamingException
         {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+            return null; //To change body of implemented methods use File | Settings | File Templates.
         }
     }
-
 
     class BogusEnumeration implements NamingEnumeration
     {
@@ -237,7 +219,7 @@ public class MaxImmSubFilterTest extends TestCase
         int ii;
 
 
-        public BogusEnumeration( int count )
+        public BogusEnumeration(int count)
         {
             this.count = count;
         }

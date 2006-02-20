@@ -15,6 +15,7 @@
  */
 package org.apache.directory.server.protocol.shared.chain;
 
+
 /**
  * <p>A {@link Command} encapsulates a unit of processing work to be
  * performed, whose purpose is to examine and/or modify the state of a

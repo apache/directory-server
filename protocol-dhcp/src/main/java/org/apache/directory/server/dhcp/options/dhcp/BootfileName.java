@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option is used to identify a bootfile when the 'file' field in
@@ -29,17 +31,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class BootfileName extends DhcpOption
 {
-	private byte[] bootFileName;
-	
-	public BootfileName( byte[] bootFileName )
-	{
-		super( 67, 1 );
-		this.bootFileName = bootFileName;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( bootFileName );
-	}
-}
+    private byte[] bootFileName;
 
+
+    public BootfileName(byte[] bootFileName)
+    {
+        super( 67, 1 );
+        this.bootFileName = bootFileName;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( bootFileName );
+    }
+}

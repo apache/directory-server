@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -42,17 +43,16 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 public class MicroOperationFilter implements ACITupleFilter
 {
     public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
-                              Collection userGroupNames, Name userName, Attributes userEntry,
-                              AuthenticationLevel authenticationLevel, Name entryName, String attrId,
-                              Object attrValue, Attributes entry, Collection microOperations )
-            throws NamingException
+        Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
+        Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+        throws NamingException
     {
-        if( tuples.size() == 0 )
+        if ( tuples.size() == 0 )
         {
             return tuples;
         }
 
-        for( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
 
@@ -63,17 +63,17 @@ public class MicroOperationFilter implements ACITupleFilter
              */
 
             boolean retain = true;
-            for( Iterator j = microOperations.iterator(); j.hasNext(); )
+            for ( Iterator j = microOperations.iterator(); j.hasNext(); )
             {
                 MicroOperation microOp = ( MicroOperation ) j.next();
-                if( ! tuple.getMicroOperations().contains( microOp ) )
+                if ( !tuple.getMicroOperations().contains( microOp ) )
                 {
                     retain = false;
                     break;
                 }
             }
 
-            if( !retain )
+            if ( !retain )
             {
                 i.remove();
             }

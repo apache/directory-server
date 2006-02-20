@@ -66,10 +66,10 @@ public class ServerSystemPreferences extends AbstractPreferences
     private LdapContext ctx;
 
     /** the changes (ModificationItems) representing cached alterations to preferences */
-    private ArrayList changes = new ArrayList(3);
+    private ArrayList changes = new ArrayList( 3 );
 
     /** maps changes based on key: key->list of mods (on same key) */
-    private HashMap keyToChange = new HashMap(3);
+    private HashMap keyToChange = new HashMap( 3 );
 
 
     /**
@@ -83,7 +83,7 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
         cfg.setAllowAnonymousAccess( true );
-        
+
         Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, PreferencesUtils.SYSPREF_BASE );
@@ -97,10 +97,11 @@ public class ServerSystemPreferences extends AbstractPreferences
             throw new ServerSystemPreferenceException( "Failed to open.", e );
         }
     }
-    
+
+
     public synchronized void close()
     {
-        if( this.parent() != null )
+        if ( this.parent() != null )
         {
             throw new ServerSystemPreferenceException( "Cannot close child preferences." );
         }
@@ -123,7 +124,7 @@ public class ServerSystemPreferences extends AbstractPreferences
     /**
      * Creates a preferences object using a relative name.
      */
-    public ServerSystemPreferences( ServerSystemPreferences parent, String name )
+    public ServerSystemPreferences(ServerSystemPreferences parent, String name)
     {
         super( parent, name );
         LdapContext parentCtx = parent.getLdapContext();
@@ -155,7 +156,6 @@ public class ServerSystemPreferences extends AbstractPreferences
     // ------------------------------------------------------------------------
     // Utility Methods
     // ------------------------------------------------------------------------
-
 
     /**
      * Wrapps this ServerPreferences object as a Dictionary.
@@ -208,14 +208,12 @@ public class ServerSystemPreferences extends AbstractPreferences
     // Protected SPI Methods
     // ------------------------------------------------------------------------
 
-
     protected void flushSpi() throws BackingStoreException
     {
         if ( ctx == null )
         {
             throw new BackingStoreException( "Ldap context not available for " + super.absolutePath() );
         }
-
 
         if ( changes.isEmpty() )
         {
@@ -259,7 +257,6 @@ public class ServerSystemPreferences extends AbstractPreferences
         {
             throw new BackingStoreException( "Ldap context not available for " + super.absolutePath() );
         }
-
 
         if ( changes.isEmpty() )
         {

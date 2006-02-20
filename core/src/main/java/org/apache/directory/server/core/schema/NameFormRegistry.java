@@ -41,7 +41,8 @@ public interface NameFormRegistry
      * registration operation is not supported
      */
     void register( String schema, NameForm nameForm ) throws NamingException;
-    
+
+
     /**
      * Looks up a nameForm by its unique Object Identifier or by name.
      * 
@@ -50,6 +51,7 @@ public interface NameFormRegistry
      * @throws NamingException if the NameForm does not exist
      */
     NameForm lookup( String id ) throws NamingException;
+
 
     /**
      * Gets the name of the schema this schema object is associated with.
@@ -60,6 +62,7 @@ public interface NameFormRegistry
      */
     String getSchemaName( String id ) throws NamingException;
 
+
     /**
      * Checks to see if an nameForm exists.
      * 
@@ -69,10 +72,11 @@ public interface NameFormRegistry
      */
     boolean hasNameForm( String id );
 
+
     /**
      * Lists all the NameForms within this registry.
      *
      * @return an Iterator over all the NameForms within this registry
-     */ 
+     */
     Iterator list();
 }

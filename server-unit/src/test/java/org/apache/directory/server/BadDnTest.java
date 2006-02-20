@@ -72,17 +72,16 @@ public class BadDnTest extends AbstractServerTest
      * Test with bindDn that is under a naming context but points to non-existant user.
      * @todo make this pass: see http://issues.apache.org/jira/browse/DIREVE-339
      */
-//    public void testBadBindDnMalformed() throws Exception
-//    {
-//        try
-//        {
-//            bind( "system", "blah" );
-//            fail( "should never get here due to a " );
-//        }
-//        catch ( InvalidNameException e ){}
-//    }
+    //    public void testBadBindDnMalformed() throws Exception
+    //    {
+    //        try
+    //        {
+    //            bind( "system", "blah" );
+    //            fail( "should never get here due to a " );
+    //        }
+    //        catch ( InvalidNameException e ){}
+    //    }
 
-    
     /**
      * Test with bindDn that is under a naming context but points to non-existant user.
      */

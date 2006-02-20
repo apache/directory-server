@@ -76,7 +76,8 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
     protected AbstractContextFactory()
     {
     }
-    
+
+
     public final synchronized Context getInitialContext( Hashtable env ) throws NamingException
     {
         Configuration cfg = Configuration.toConfiguration( env );
@@ -89,59 +90,60 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         DirectoryService service = DirectoryService.getInstance( cfg.getInstanceId() );
 
         // Execute configuration
-        if( cfg instanceof ShutdownConfiguration )
+        if ( cfg instanceof ShutdownConfiguration )
         {
             service.shutdown();
         }
-        else if( cfg instanceof SyncConfiguration )
+        else if ( cfg instanceof SyncConfiguration )
         {
             service.sync();
         }
-        else if( cfg instanceof StartupConfiguration )
+        else if ( cfg instanceof StartupConfiguration )
         {
             service.startup( this, env );
         }
-        else if( cfg instanceof AddDirectoryPartitionConfiguration )
+        else if ( cfg instanceof AddDirectoryPartitionConfiguration )
         {
-            new DirectoryPartitionNexusProxy(
-                    service.getJndiContext( principal, credential, authentication, "" ),
-                    service).addContextPartition( ( ( AddDirectoryPartitionConfiguration ) cfg ).getDirectoryPartitionConfiguration() );
+            new DirectoryPartitionNexusProxy( service.getJndiContext( principal, credential, authentication, "" ),
+                service ).addContextPartition( ( ( AddDirectoryPartitionConfiguration ) cfg )
+                .getDirectoryPartitionConfiguration() );
         }
-        else if( cfg instanceof RemoveDirectoryPartitionConfiguration )
+        else if ( cfg instanceof RemoveDirectoryPartitionConfiguration )
         {
-            new DirectoryPartitionNexusProxy(
-                    service.getJndiContext( principal, credential, authentication, "" ),
-                    service).removeContextPartition( ( ( RemoveDirectoryPartitionConfiguration ) cfg ).getSuffix() );
+            new DirectoryPartitionNexusProxy( service.getJndiContext( principal, credential, authentication, "" ),
+                service ).removeContextPartition( ( ( RemoveDirectoryPartitionConfiguration ) cfg ).getSuffix() );
         }
-        else if( service == null )
+        else if ( service == null )
         {
             throw new NamingException( "Unknown configuration: " + cfg );
         }
-        
+
         return service.getJndiContext( principal, credential, authentication, providerUrl );
     }
+
 
     public static String getProviderUrl( Hashtable env )
     {
         String providerUrl;
         Object value;
         value = env.get( Context.PROVIDER_URL );
-        if( value == null )
+        if ( value == null )
         {
             value = "";
         }
         providerUrl = value.toString();
-        
+
         env.put( Context.PROVIDER_URL, providerUrl );
-        
+
         return providerUrl;
     }
+
 
     public static String getAuthentication( Hashtable env )
     {
         String authentication;
         Object value = env.get( Context.SECURITY_AUTHENTICATION );
-        if( value == null )
+        if ( value == null )
         {
             authentication = "none";
         }
@@ -149,25 +151,26 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         {
             authentication = value.toString();
         }
-        
+
         env.put( Context.SECURITY_AUTHENTICATION, authentication );
-        
+
         return authentication;
     }
+
 
     public static byte[] getCredential( Hashtable env ) throws ConfigurationException
     {
         byte[] credential;
         Object value = env.get( Context.SECURITY_CREDENTIALS );
-        if( value == null )
+        if ( value == null )
         {
             credential = null;
         }
-        else if( value instanceof String )
+        else if ( value instanceof String )
         {
             credential = ( ( String ) value ).getBytes();
         }
-        else if( value instanceof byte[] )
+        else if ( value instanceof byte[] )
         {
             credential = ( byte[] ) value;
         }
@@ -175,8 +178,8 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         {
             throw new ConfigurationException( "Can't convert '" + Context.SECURITY_CREDENTIALS + "' to byte[]." );
         }
-        
-        if( credential != null )
+
+        if ( credential != null )
         {
             env.put( Context.SECURITY_CREDENTIALS, credential );
         }
@@ -184,11 +187,12 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         return credential;
     }
 
+
     public static String getPrincipal( Hashtable env )
     {
         String principal;
         Object value = env.get( Context.SECURITY_PRINCIPAL );
-        if( value == null )
+        if ( value == null )
         {
             principal = null;
         }
@@ -197,7 +201,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
             principal = value.toString();
             env.put( Context.SECURITY_PRINCIPAL, principal );
         }
-        
+
         return principal;
     }
 }

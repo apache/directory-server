@@ -16,19 +16,21 @@
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.service.GetPrincipalStoreEntry;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.kerberos.exceptions.ErrorType;
-import org.apache.kerberos.service.GetPrincipalStoreEntry;
-import org.apache.kerberos.store.PrincipalStore;
-import org.apache.kerberos.store.PrincipalStoreEntry;
+
 
 public class GetRequestPrincipalEntry extends GetPrincipalStoreEntry
 {
     public boolean execute( Context context ) throws Exception
     {
-        TicketGrantingContext tgsContext = (TicketGrantingContext) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
 
         KerberosPrincipal principal = tgsContext.getRequest().getServerPrincipal();
         PrincipalStore store = tgsContext.getStore();

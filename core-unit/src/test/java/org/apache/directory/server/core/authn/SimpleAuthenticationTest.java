@@ -72,12 +72,12 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
      */
     protected void setUp() throws Exception
     {
-        super.doDelete = !( getName().equals("test1AdminAccountCreation") ||
-                getName().equals("test2AccountExistsOnRestart") );
+        super.doDelete = !( getName().equals( "test1AdminAccountCreation" ) || getName().equals(
+            "test2AccountExistsOnRestart" ) );
 
-        if ( getName().equals( "test5BuildDbNoPassWithPrincAuthNone" ) ||
-                getName().equals( "test6BuildDbNoPassNotAdminPrinc" ) ||
-             getName().equals( "test4BuildDbNoPassNoPrincAuthNone" ) )
+        if ( getName().equals( "test5BuildDbNoPassWithPrincAuthNone" )
+            || getName().equals( "test6BuildDbNoPassNotAdminPrinc" )
+            || getName().equals( "test4BuildDbNoPassNoPrincAuthNone" ) )
         {
             return;
         }
@@ -112,7 +112,7 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
         DirContext ctx = ( DirContext ) sysRoot.lookup( "uid=admin" );
         Attributes attrs = ctx.getAttributes( "" );
         performAdminAccountChecks( attrs );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ));
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ) );
     }
 
 
@@ -127,7 +127,7 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
         Attributes attrs = ctx.getAttributes( "" );
 
         performAdminAccountChecks( attrs );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ));
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ) );
     }
 
 
@@ -176,14 +176,14 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
         tearDown();
         Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
-        
+
         configuration.setAllowAnonymousAccess( false );
         try
         {
             setSysRoot( env );
             fail( "should not get here due to exception" );
         }
-        catch( LdapNoPermissionException e )
+        catch ( LdapNoPermissionException e )
         {
         }
         tearDown();
@@ -206,12 +206,12 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
         {
             initial.lookup( "uid=admin" );
             fail( "should not get here due to exception cuz anonymous user is "
-                    + "not allowed read access to the admin account entry" );
+                + "not allowed read access to the admin account entry" );
         }
-        catch( LdapConfigurationException e )
+        catch ( LdapConfigurationException e )
         {
         }
-        catch( LdapNoPermissionException e )
+        catch ( LdapNoPermissionException e )
         {
         }
     }
@@ -240,7 +240,7 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
             setSysRoot( env );
             fail( "should not get here due to exception" );
         }
-        catch( ConfigurationException e )
+        catch ( ConfigurationException e )
         {
         }
     }
@@ -269,7 +269,7 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
             setSysRoot( env );
             fail( "should not get here due to exception" );
         }
-        catch( ConfigurationException e )
+        catch ( ConfigurationException e )
         {
         }
     }

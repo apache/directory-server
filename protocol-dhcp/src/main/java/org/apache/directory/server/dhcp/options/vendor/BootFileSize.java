@@ -24,23 +24,26 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class BootFileSize extends DhcpOption
 {
-	private byte[] bootFileSize;
-	
-	public BootFileSize( byte[] bootFileSize )
-	{
-		super( 13, 2 );
-		this.bootFileSize = bootFileSize;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( bootFileSize );
-	}
-}
+    private byte[] bootFileSize;
 
+
+    public BootFileSize(byte[] bootFileSize)
+    {
+        super( 13, 2 );
+        this.bootFileSize = bootFileSize;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( bootFileSize );
+    }
+}

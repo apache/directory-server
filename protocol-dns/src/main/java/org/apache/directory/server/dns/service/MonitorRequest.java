@@ -16,14 +16,17 @@
  */
 package org.apache.directory.server.dns.service;
 
+
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class MonitorRequest extends MonitorMessage
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorRequest.class );
+
 
     public boolean execute( Context context ) throws Exception
     {
@@ -31,7 +34,7 @@ public class MonitorRequest extends MonitorMessage
         {
             try
             {
-                DnsContext dnsContext = (DnsContext) context;
+                DnsContext dnsContext = ( DnsContext ) context;
 
                 log.debug( monitorMessage( dnsContext.getRequest(), "request" ) );
             }

@@ -57,27 +57,27 @@ public class ReferralTest extends AbstractAdminTestCase
     private static final boolean SUNJNDI = false;
     private boolean sunjndi = System.getProperty( "sunjndi" ) != null || SUNJNDI;
     TestData td = new TestData();
-    
-    
+
+
     public void setUp() throws Exception
     {
-        if ( ! sunjndi )
+        if ( !sunjndi )
         {
             super.setUp();
         }
-        
+
         addReferralEntry();
     }
-    
-    
+
+
     public void tearDown() throws Exception
     {
         if ( td.refCtx != null )
         {
             td.refCtx.close();
         }
-        
-        if ( ! sunjndi )
+
+        if ( !sunjndi )
         {
             super.tearDown();
         }
@@ -87,7 +87,7 @@ public class ReferralTest extends AbstractAdminTestCase
         }
     }
 
-    
+
     /*
      * NOTE: We may encounter conflicting circumstances where the ManageDsaIT control
      * is included in the request controls yet the Context.REFERRAL is set to 
@@ -108,11 +108,11 @@ public class ReferralTest extends AbstractAdminTestCase
      */
     private LdapContext getSystemRoot() throws NamingException
     {
-        if ( ! sunjndi )
+        if ( !sunjndi )
         {
             return sysRoot;
         }
-        
+
         Hashtable env = new Hashtable();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://hertz.karasulu.homeip.net:10390/ou=system" );
@@ -121,16 +121,16 @@ public class ReferralTest extends AbstractAdminTestCase
         env.put( "java.naming.security.authentication", "simple" );
         return new InitialLdapContext( env, null );
     }
-    
-    
-    class TestData {
+
+    class TestData
+    {
         LdapContext rootCtx;
         Name ctxDn;
         LdapContext refCtx;
         List refs;
     }
-    
-    
+
+
     public void addReferralEntry() throws NamingException
     {
         String ref0 = "ldap://fermi:10389/ou=users,ou=system";
@@ -141,7 +141,7 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
         // Adds a referral entry regardless of referral handling settings
         // -------------------------------------------------------------------
-        
+
         // Add a referral entry ( should be fine with or without the control )
         Attributes referral = new BasicAttributes( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "referral" );
@@ -153,13 +153,27 @@ public class ReferralTest extends AbstractAdminTestCase
 
         // Just in case if server is a remote server destroy remaing referral
         td.rootCtx.addToEnvironment( Context.REFERRAL, "ignore" );
-        try { td.rootCtx.destroySubcontext( "uid=akarasulu,ou=users" ); } catch( NameNotFoundException e ) { e.printStackTrace(); }
-        try { td.rootCtx.destroySubcontext( "ou=users" ); } catch( NameNotFoundException e ) { e.printStackTrace(); }
+        try
+        {
+            td.rootCtx.destroySubcontext( "uid=akarasulu,ou=users" );
+        }
+        catch ( NameNotFoundException e )
+        {
+            e.printStackTrace();
+        }
+        try
+        {
+            td.rootCtx.destroySubcontext( "ou=users" );
+        }
+        catch ( NameNotFoundException e )
+        {
+            e.printStackTrace();
+        }
         try
         {
             td.refCtx = ( LdapContext ) td.rootCtx.createSubcontext( "ou=users", referral );
         }
-        catch( NameAlreadyBoundException e )
+        catch ( NameAlreadyBoundException e )
         {
             td.refCtx = ( LdapContext ) td.rootCtx.lookup( "ou=users" );
         }
@@ -168,19 +182,18 @@ public class ReferralTest extends AbstractAdminTestCase
         assertTrue( referral.get( "objectClass" ).contains( "referral" ) );
     }
 
-    
+
     public void checkAncestorReferrals( ReferralException e ) throws Exception
     {
         assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
-        assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com", 
-            e.getReferralInfo() );
+        assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
         assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
         assertFalse( e.skipReferral() );
     }
 
-    
+
     public void checkParentReferrals( ReferralException e ) throws Exception
     {
         assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
@@ -190,8 +203,8 @@ public class ReferralTest extends AbstractAdminTestCase
         assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
         assertFalse( e.skipReferral() );
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for an add operation with the parent context being a referral.
@@ -211,18 +224,18 @@ public class ReferralTest extends AbstractAdminTestCase
         userEntry.put( "sn", "karasulu" );
         userEntry.put( "cn", "alex karasulu" );
 
-        try 
+        try
         {
             td.refCtx.createSubcontext( "cn=alex karasulu", userEntry );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkParentReferrals( e );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for an add operation with an ancestor context being a referral.
@@ -242,18 +255,18 @@ public class ReferralTest extends AbstractAdminTestCase
         userEntry.put( "sn", "karasulu" );
         userEntry.put( "cn", "alex karasulu" );
 
-        try 
+        try
         {
             td.refCtx.createSubcontext( "cn=alex karasulu,ou=apache", userEntry );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkAncestorReferrals( e );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for an delete operation with the parent context being a referral.
@@ -269,18 +282,18 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             td.refCtx.destroySubcontext( "cn=alex karasulu" );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkParentReferrals( e );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a delete operation with an ancestor context being a referral.
@@ -296,18 +309,18 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             td.refCtx.destroySubcontext( "cn=alex karasulu,ou=apache" );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkAncestorReferrals( e );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for an delete operation with the parent context being a referral.
@@ -323,7 +336,7 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             if ( td.refCtx instanceof ServerLdapContext )
             {
@@ -337,13 +350,13 @@ public class ReferralTest extends AbstractAdminTestCase
             }
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkParentReferrals( e );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a compare operation with an ancestor context being a referral.
@@ -359,7 +372,7 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             if ( td.refCtx instanceof ServerLdapContext )
             {
@@ -373,13 +386,13 @@ public class ReferralTest extends AbstractAdminTestCase
             }
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkAncestorReferrals( e );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a modify operation with the parent context being a referral.
@@ -395,19 +408,19 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
-            td.refCtx.modifyAttributes( "cn=alex karasulu", DirContext.ADD_ATTRIBUTE, 
-                new BasicAttributes( "description", "just some text", true ) );
+            td.refCtx.modifyAttributes( "cn=alex karasulu", DirContext.ADD_ATTRIBUTE, new BasicAttributes(
+                "description", "just some text", true ) );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkParentReferrals( e );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a modify operation with an ancestor context being a referral.
@@ -423,19 +436,19 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
-            td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", DirContext.ADD_ATTRIBUTE, 
-                new BasicAttributes( "description", "just some text", true ) );
+            td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", DirContext.ADD_ATTRIBUTE, new BasicAttributes(
+                "description", "just some text", true ) );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkAncestorReferrals( e );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a modify operation with the parent context being a referral.
@@ -451,20 +464,20 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
-            ModificationItem[] mods = new ModificationItem[] { new ModificationItem( 
-                DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
+            ModificationItem[] mods = new ModificationItem[]
+                { new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
             td.refCtx.modifyAttributes( "cn=alex karasulu", mods );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkParentReferrals( e );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a modify operation with an ancestor context being a referral.
@@ -480,20 +493,20 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
-            ModificationItem[] mods = new ModificationItem[] { new ModificationItem( 
-                DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
+            ModificationItem[] mods = new ModificationItem[]
+                { new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
             td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", mods );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkAncestorReferrals( e );
         }
     }
 
-    
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a modify rdn interceptor operation (corresponds to a subset of the modify 
@@ -510,18 +523,18 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             td.refCtx.rename( "cn=alex karasulu", "cn=aok" );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkParentReferrals( e );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a modify rdn interceptor operation (corresponds to a subset of the modify 
@@ -538,18 +551,18 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             td.refCtx.rename( "cn=alex karasulu,ou=apache", "cn=aok,ou=apache" );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkAncestorReferrals( e );
         }
     }
 
-    
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a move interceptor operation (corresponds to a subset of the modify 
@@ -566,18 +579,18 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             td.refCtx.rename( "cn=alex karasulu", "cn=alex karasulu,ou=groups" );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkParentReferrals( e );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a move interceptor operation (corresponds to a subset of the modify 
@@ -594,18 +607,18 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             td.refCtx.rename( "cn=alex karasulu,ou=apache", "cn=alex karasulu,ou=groups" );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkAncestorReferrals( e );
         }
     }
 
-    
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a move interceptor operation (corresponds to a subset of the modify 
@@ -622,18 +635,18 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             td.refCtx.rename( "cn=alex karasulu", "cn=aok,ou=groups" );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkParentReferrals( e );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a move interceptor operation (corresponds to a subset of the modify 
@@ -650,18 +663,18 @@ public class ReferralTest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             td.refCtx.rename( "cn=alex karasulu,ou=apache", "cn=aok,ou=groups" );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             checkAncestorReferrals( e );
         }
     }
 
-    
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a move interceptor operation (corresponds to a subset of the modify 
@@ -679,18 +692,18 @@ public class ReferralTest extends AbstractAdminTestCase
 
         createLocalUser();
         td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             td.rootCtx.rename( "cn=akarasulu", "cn=akarasulu,ou=users" );
             fail( "Should fail here throwing a LdapNamingException with ResultCodeEnum = AFFECTSMULTIPLEDSAS" );
         }
-        catch( LdapNamingException e )
+        catch ( LdapNamingException e )
         {
             assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTSMULTIPLEDSAS );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a move interceptor operation (corresponds to a subset of the modify 
@@ -708,18 +721,18 @@ public class ReferralTest extends AbstractAdminTestCase
 
         createDeepLocalUser();
         td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             td.rootCtx.rename( "cn=akarasulu,ou=deep", "cn=akarasulu,ou=users" );
             fail( "Should fail here throwing a LdapNamingException with ResultCodeEnum = AFFECTSMULTIPLEDSAS" );
         }
-        catch( LdapNamingException e )
+        catch ( LdapNamingException e )
         {
             assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTSMULTIPLEDSAS );
         }
     }
 
-    
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a move interceptor operation (corresponds to a subset of the modify 
@@ -737,18 +750,18 @@ public class ReferralTest extends AbstractAdminTestCase
 
         createLocalUser();
         td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             td.rootCtx.rename( "cn=akarasulu", "cn=aok,ou=users" );
             fail( "Should fail here throwing a LdapNamingException with ResultCodeEnum = AFFECTSMULTIPLEDSAS" );
         }
-        catch( LdapNamingException e )
+        catch ( LdapNamingException e )
         {
             assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTSMULTIPLEDSAS );
         }
     }
-    
-    
+
+
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for a move interceptor operation (corresponds to a subset of the modify 
@@ -766,18 +779,18 @@ public class ReferralTest extends AbstractAdminTestCase
 
         createDeepLocalUser();
         td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        try 
+        try
         {
             td.rootCtx.rename( "cn=akarasulu,ou=deep", "cn=aok,ou=users" );
             fail( "Should fail here throwing a LdapNamingException with ResultCodeEnum = AFFECTSMULTIPLEDSAS" );
         }
-        catch( LdapNamingException e )
+        catch ( LdapNamingException e )
         {
             assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTSMULTIPLEDSAS );
         }
     }
-    
-    
+
+
     public void createLocalUser() throws Exception
     {
         LdapContext userCtx = null;
@@ -786,12 +799,18 @@ public class ReferralTest extends AbstractAdminTestCase
         referral.put( "cn", "akarasulu" );
         referral.put( "sn", "karasulu" );
 
-        try { td.rootCtx.destroySubcontext( "uid=akarasulu" ); } catch( NameNotFoundException e ) {}
+        try
+        {
+            td.rootCtx.destroySubcontext( "uid=akarasulu" );
+        }
+        catch ( NameNotFoundException e )
+        {
+        }
         try
         {
             userCtx = ( LdapContext ) td.rootCtx.createSubcontext( "cn=akarasulu", referral );
         }
-        catch( NameAlreadyBoundException e )
+        catch ( NameAlreadyBoundException e )
         {
             td.refCtx = ( LdapContext ) td.rootCtx.lookup( "cn=akarasulu" );
         }
@@ -799,8 +818,8 @@ public class ReferralTest extends AbstractAdminTestCase
         assertTrue( referral.get( "cn" ).contains( "akarasulu" ) );
         assertTrue( referral.get( "sn" ).contains( "karasulu" ) );
     }
-    
-    
+
+
     public void createDeepLocalUser() throws Exception
     {
         LdapContext userCtx = null;
@@ -809,14 +828,26 @@ public class ReferralTest extends AbstractAdminTestCase
         referral.put( "cn", "akarasulu" );
         referral.put( "sn", "karasulu" );
 
-        try { td.rootCtx.destroySubcontext( "uid=akarasulu,ou=deep" ); } catch( NameNotFoundException e ) {}
-        try { td.rootCtx.destroySubcontext( "ou=deep" ); } catch( NameNotFoundException e ) {}
+        try
+        {
+            td.rootCtx.destroySubcontext( "uid=akarasulu,ou=deep" );
+        }
+        catch ( NameNotFoundException e )
+        {
+        }
+        try
+        {
+            td.rootCtx.destroySubcontext( "ou=deep" );
+        }
+        catch ( NameNotFoundException e )
+        {
+        }
         try
         {
             td.rootCtx.createSubcontext( "ou=deep" );
             userCtx = ( LdapContext ) td.rootCtx.createSubcontext( "cn=akarasulu,ou=deep", referral );
         }
-        catch( NameAlreadyBoundException e )
+        catch ( NameAlreadyBoundException e )
         {
             td.refCtx = ( LdapContext ) td.rootCtx.lookup( "cn=akarasulu,ou=deep" );
         }
@@ -824,8 +855,8 @@ public class ReferralTest extends AbstractAdminTestCase
         assertTrue( referral.get( "cn" ).contains( "akarasulu" ) );
         assertTrue( referral.get( "sn" ).contains( "karasulu" ) );
     }
-    
-    
+
+
     public void testSearchBaseIsReferral() throws Exception
     {
         SearchControls controls = new SearchControls();
@@ -836,7 +867,7 @@ public class ReferralTest extends AbstractAdminTestCase
             td.rootCtx.search( "ou=users", "(objectClass=*)", controls );
             fail( "should never get here" );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             assertEquals( "ldap://fermi:10389/ou=users,ou=system??sub", e.getReferralInfo() );
             assertTrue( e.skipReferral() );
@@ -847,7 +878,7 @@ public class ReferralTest extends AbstractAdminTestCase
         }
     }
 
-    
+
     public void testSearchBaseParentIsReferral() throws Exception
     {
         SearchControls controls = new SearchControls();
@@ -857,7 +888,7 @@ public class ReferralTest extends AbstractAdminTestCase
         {
             td.refCtx.search( "cn=alex karasulu", "(objectClass=*)", controls );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             assertEquals( "ldap://fermi:10389/cn=alex karasulu,ou=users,ou=system??base", e.getReferralInfo() );
             assertTrue( e.skipReferral() );
@@ -868,7 +899,7 @@ public class ReferralTest extends AbstractAdminTestCase
         }
     }
 
-    
+
     public void testSearchBaseAncestorIsReferral() throws Exception
     {
         SearchControls controls = new SearchControls();
@@ -878,18 +909,20 @@ public class ReferralTest extends AbstractAdminTestCase
         {
             td.refCtx.search( "cn=alex karasulu,ou=apache", "(objectClass=*)", controls );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             assertEquals( "ldap://fermi:10389/cn=alex karasulu,ou=apache,ou=users,ou=system??base", e.getReferralInfo() );
             assertTrue( e.skipReferral() );
-            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com??base", e.getReferralInfo() );
+            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com??base", e
+                .getReferralInfo() );
             assertTrue( e.skipReferral() );
-            assertEquals( "ldap://maxwell:10389/cn=alex karasulu,ou=apache,ou=users,ou=system??base", e.getReferralInfo() );
+            assertEquals( "ldap://maxwell:10389/cn=alex karasulu,ou=apache,ou=users,ou=system??base", e
+                .getReferralInfo() );
             assertFalse( e.skipReferral() );
         }
     }
 
-    
+
     public void testSearchContinuations() throws Exception
     {
         SearchControls controls = new SearchControls();
@@ -898,29 +931,29 @@ public class ReferralTest extends AbstractAdminTestCase
         Map results = new HashMap();
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult) list.next();
-            results.put ( result.getName(), result );
+            SearchResult result = ( SearchResult ) list.next();
+            results.put( result.getName(), result );
         }
-        
+
         assertNotNull( results.get( "ou=users,ou=system" ) );
-        
+
         // -------------------------------------------------------------------
         // Now we will throw exceptions when searching for referrals 
         // -------------------------------------------------------------------
-        
+
         td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
         list = td.rootCtx.search( "", "(objectClass=*)", controls );
         results = new HashMap();
-        
+
         try
         {
             while ( list.hasMore() )
             {
                 SearchResult result = ( SearchResult ) list.next();
-                results.put ( result.getName(), result );
+                results.put( result.getName(), result );
             }
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             assertEquals( "ldap://fermi:10389/ou=users,ou=system??sub", e.getReferralInfo() );
             assertTrue( e.skipReferral() );
@@ -929,24 +962,24 @@ public class ReferralTest extends AbstractAdminTestCase
             assertEquals( "ldap://maxwell:10389/ou=users,ou=system??sub", e.getReferralInfo() );
             assertFalse( e.skipReferral() );
         }
-        
+
         assertNull( results.get( "ou=users" ) );
 
         // try again but this time with single level scope
-        
+
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         list = td.rootCtx.search( "", "(objectClass=*)", controls );
         results = new HashMap();
-        
+
         try
         {
             while ( list.hasMore() )
             {
                 SearchResult result = ( SearchResult ) list.next();
-                results.put ( result.getName(), result );
+                results.put( result.getName(), result );
             }
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             assertEquals( "ldap://fermi:10389/ou=users,ou=system??base", e.getReferralInfo() );
             assertTrue( e.skipReferral() );
@@ -955,7 +988,7 @@ public class ReferralTest extends AbstractAdminTestCase
             assertEquals( "ldap://maxwell:10389/ou=users,ou=system??base", e.getReferralInfo() );
             assertFalse( e.skipReferral() );
         }
-        
+
         assertNull( results.get( "ou=users" ) );
     }
 }

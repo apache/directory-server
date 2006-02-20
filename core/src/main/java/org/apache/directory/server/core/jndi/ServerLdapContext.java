@@ -56,7 +56,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param env the JNDI environment parameters
      * @throws NamingException the context cannot be created
      */
-    public ServerLdapContext( DirectoryService service, Hashtable env ) throws NamingException
+    public ServerLdapContext(DirectoryService service, Hashtable env) throws NamingException
     {
         super( service, env );
     }
@@ -71,7 +71,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    ServerLdapContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws NamingException
+    ServerLdapContext(DirectoryService service, LdapPrincipal principal, Name dn) throws NamingException
     {
         super( service, principal, dn );
     }
@@ -91,8 +91,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @see javax.naming.ldap.LdapContext#newInstance(
      * javax.naming.ldap.Control[])
      */
-    public LdapContext newInstance( Control[] requestControls )
-        throws NamingException
+    public LdapContext newInstance( Control[] requestControls ) throws NamingException
     {
         ServerLdapContext ctx = new ServerLdapContext( getService(), getPrincipal(), getDn() );
         ctx.setRequestControls( requestControls );
@@ -150,7 +149,6 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     // Additional ApacheDS Specific JNDI Functionality
     // ------------------------------------------------------------------------
 
-
     /**
      * Explicitly exposes an LDAP compare operation which JNDI does not
      * directly provide.  All normalization and schema checking etcetera
@@ -166,10 +164,10 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public boolean compare( Name name, String oid, Object value ) throws NamingException
     {
-       return super.getNexusProxy().compare( name, oid, value );
+        return super.getNexusProxy().compare( name, oid, value );
     }
-    
-    
+
+
     /**
      * Calling this method tunnels an unbind call down into the partition holding 
      * the bindDn.  The bind() counter part is not exposed because it is automatically
@@ -183,17 +181,17 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         String bindDn = ( String ) getEnvironment().get( Context.SECURITY_PRINCIPAL );
         super.getNexusProxy().unbind( new LdapName( bindDn ) );
     }
-    
-    
+
+
     private transient ReferralService refService;
     public boolean isReferral( String name ) throws NamingException
     {
         if ( refService == null )
         {
-            refService = ( ReferralService ) getService().getConfiguration().getInterceptorChain().
-                get( ReferralService.NAME );
+            refService = ( ReferralService ) getService().getConfiguration().getInterceptorChain().get(
+                ReferralService.NAME );
         }
-        
+
         return refService.isReferral( name );
     }
 }

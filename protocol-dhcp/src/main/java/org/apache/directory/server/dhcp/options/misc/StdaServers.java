@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * The StreetTalk Directory Assistance (STDA) server option specifies a
@@ -30,9 +32,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class StdaServers extends AddressListOption
 {
-	public StdaServers( byte[] stdaServer )
-	{
-		super( 76, stdaServer );
-	}
+    public StdaServers(byte[] stdaServer)
+    {
+        super( 76, stdaServer );
+    }
 }
-

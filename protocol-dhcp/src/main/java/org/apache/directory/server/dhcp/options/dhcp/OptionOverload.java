@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option is used to indicate that the DHCP 'sname' or 'file'
@@ -42,17 +44,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class OptionOverload extends DhcpOption
 {
-	private byte[] optionOverload;
-	
-	public OptionOverload( byte[] optionOverload )
-	{
-		super( 52, 1 );
-		this.optionOverload = optionOverload;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( optionOverload );
-	}
-}
+    private byte[] optionOverload;
 
+
+    public OptionOverload(byte[] optionOverload)
+    {
+        super( 52, 1 );
+        this.optionOverload = optionOverload;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( optionOverload );
+    }
+}

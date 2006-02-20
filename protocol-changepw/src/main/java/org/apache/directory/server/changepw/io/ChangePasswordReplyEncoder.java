@@ -17,14 +17,16 @@
 
 package org.apache.directory.server.changepw.io;
 
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.changepw.messages.ChangePasswordReply;
-import org.apache.kerberos.io.encoder.ApplicationReplyEncoder;
-import org.apache.kerberos.io.encoder.PrivateMessageEncoder;
-import org.apache.kerberos.messages.application.ApplicationReply;
-import org.apache.kerberos.messages.application.PrivateMessage;
+import org.apache.directory.server.kerberos.shared.io.encoder.ApplicationReplyEncoder;
+import org.apache.directory.server.kerberos.shared.io.encoder.PrivateMessageEncoder;
+import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
+import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
+
 
 public class ChangePasswordReplyEncoder
 {
@@ -42,13 +44,13 @@ public class ChangePasswordReplyEncoder
 
         short headerLength = 6;
 
-        short messageLength = (short) ( headerLength + encodedAppReply.length + privateBytes.length );
+        short messageLength = ( short ) ( headerLength + encodedAppReply.length + privateBytes.length );
 
         short protocolVersion = 1;
 
         buf.putShort( messageLength );
         buf.putShort( protocolVersion );
-        buf.putShort( (short) encodedAppReply.length );
+        buf.putShort( ( short ) encodedAppReply.length );
 
         buf.put( encodedAppReply );
         buf.put( privateBytes );

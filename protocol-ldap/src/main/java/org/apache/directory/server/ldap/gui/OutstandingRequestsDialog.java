@@ -37,11 +37,11 @@ public class OutstandingRequestsDialog extends JDialog
     private JButton jButton1 = null;
     private JButton jButton2 = null;
 
-    
+
     /**
      * This is the default constructor
      */
-    public OutstandingRequestsDialog( JFrame owner, IoSession session )
+    public OutstandingRequestsDialog(JFrame owner, IoSession session)
     {
         super( owner, true );
         this.session = session;
@@ -62,7 +62,7 @@ public class OutstandingRequestsDialog extends JDialog
      */
     private void initialize()
     {
-        this.setSize(549, 341);
+        this.setSize( 549, 341 );
         this.setContentPane( getJContentPane() );
     }
 
@@ -78,7 +78,7 @@ public class OutstandingRequestsDialog extends JDialog
         {
             jContentPane = new JPanel();
             jContentPane.setLayout( new BorderLayout() );
-            jContentPane.add(getJPanel(), java.awt.BorderLayout.CENTER);
+            jContentPane.add( getJPanel(), java.awt.BorderLayout.CENTER );
         }
         return jContentPane;
     }
@@ -94,10 +94,10 @@ public class OutstandingRequestsDialog extends JDialog
         if ( jPanel == null )
         {
             jPanel = new JPanel();
-            jPanel.setLayout(new BorderLayout());
-            jPanel.add(getJScrollPane(), java.awt.BorderLayout.CENTER);
-            jPanel.add(getJPanel1(), java.awt.BorderLayout.SOUTH);
-            jPanel.add(getJPanel2(), java.awt.BorderLayout.NORTH);
+            jPanel.setLayout( new BorderLayout() );
+            jPanel.add( getJScrollPane(), java.awt.BorderLayout.CENTER );
+            jPanel.add( getJPanel1(), java.awt.BorderLayout.SOUTH );
+            jPanel.add( getJPanel2(), java.awt.BorderLayout.NORTH );
         }
         return jPanel;
     }
@@ -113,7 +113,7 @@ public class OutstandingRequestsDialog extends JDialog
         if ( jScrollPane == null )
         {
             jScrollPane = new JScrollPane();
-            jScrollPane.setViewportView(getJTable());
+            jScrollPane.setViewportView( getJTable() );
         }
         return jScrollPane;
     }
@@ -132,14 +132,16 @@ public class OutstandingRequestsDialog extends JDialog
         }
 
         setRequestsModel();
-        jTable.getSelectionModel().addListSelectionListener( new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e)
+        jTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
+        {
+            public void valueChanged( ListSelectionEvent e )
             {
                 int row = jTable.getSelectedRow();
                 if ( row > -1 )
                 {
                     jButton2.setEnabled( true );
-                    AbandonableRequest req = ( ( OutstandingRequestsModel ) jTable.getModel() ).getAbandonableRequest( row );
+                    AbandonableRequest req = ( ( OutstandingRequestsModel ) jTable.getModel() )
+                        .getAbandonableRequest( row );
                     jTextArea.setText( req.toString() );
                     jTextArea.setEnabled( true );
                 }
@@ -149,14 +151,15 @@ public class OutstandingRequestsDialog extends JDialog
                     jTextArea.setText( "" );
                     jTextArea.setEnabled( false );
                 }
-            }});
+            }
+        } );
         return jTable;
     }
 
-    
+
     private void setRequestsModel()
     {
-        AbandonableRequest[] requests; 
+        AbandonableRequest[] requests;
         Map reqsMap = SessionRegistry.getSingleton().getOutstandingRequests( session );
         if ( reqsMap != null )
         {
@@ -167,7 +170,7 @@ public class OutstandingRequestsDialog extends JDialog
         {
             requests = EMPTY_REQUEST_ARRAY;
         }
-        
+
         jTable.setModel( new OutstandingRequestsModel( requests ) );
     }
 
@@ -182,8 +185,8 @@ public class OutstandingRequestsDialog extends JDialog
         if ( jPanel1 == null )
         {
             jPanel1 = new JPanel();
-            jPanel1.add(getJButton(), null);
-            jPanel1.add(getJButton1(), null);
+            jPanel1.add( getJButton(), null );
+            jPanel1.add( getJButton1(), null );
         }
         return jPanel1;
     }
@@ -199,10 +202,10 @@ public class OutstandingRequestsDialog extends JDialog
         if ( jButton == null )
         {
             jButton = new JButton();
-            jButton.setText("Done");
+            jButton.setText( "Done" );
             jButton.addActionListener( new java.awt.event.ActionListener()
             {
-                public void actionPerformed(java.awt.event.ActionEvent e)
+                public void actionPerformed( java.awt.event.ActionEvent e )
                 {
                     OutstandingRequestsDialog.this.setVisible( false );
                     OutstandingRequestsDialog.this.dispose();
@@ -223,12 +226,12 @@ public class OutstandingRequestsDialog extends JDialog
         if ( jPanel2 == null )
         {
             jPanel2 = new JPanel();
-            jPanel2.setLayout(new BorderLayout());
-            jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Request", 
-                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
-                javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null));
-            jPanel2.add(getJButton2(), java.awt.BorderLayout.WEST);
-            jPanel2.add(getJTextArea(), java.awt.BorderLayout.CENTER);
+            jPanel2.setLayout( new BorderLayout() );
+            jPanel2.setBorder( javax.swing.BorderFactory.createTitledBorder( null, "Request",
+                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null ) );
+            jPanel2.add( getJButton2(), java.awt.BorderLayout.WEST );
+            jPanel2.add( getJTextArea(), java.awt.BorderLayout.CENTER );
         }
         return jPanel2;
     }
@@ -245,7 +248,7 @@ public class OutstandingRequestsDialog extends JDialog
         {
             jTextArea = new JTextArea();
         }
-        
+
         jTextArea.setEnabled( false );
         jTextArea.setEditable( false );
         return jTextArea;
@@ -262,10 +265,10 @@ public class OutstandingRequestsDialog extends JDialog
         if ( jButton1 == null )
         {
             jButton1 = new JButton();
-            jButton1.setText("Refresh");
+            jButton1.setText( "Refresh" );
             jButton1.addActionListener( new java.awt.event.ActionListener()
             {
-                public void actionPerformed(java.awt.event.ActionEvent e)
+                public void actionPerformed( java.awt.event.ActionEvent e )
                 {
                     setRequestsModel();
                     jTextArea.setText( "" );
@@ -288,14 +291,15 @@ public class OutstandingRequestsDialog extends JDialog
         if ( jButton2 == null )
         {
             jButton2 = new JButton();
-            jButton2.setText("Abandon");
+            jButton2.setText( "Abandon" );
             jButton2.setEnabled( false );
             jButton2.addActionListener( new java.awt.event.ActionListener()
             {
-                public void actionPerformed(java.awt.event.ActionEvent e)
+                public void actionPerformed( java.awt.event.ActionEvent e )
                 {
                     int row = jTable.getSelectedRow();
-                    AbandonableRequest req = ( ( OutstandingRequestsModel ) jTable.getModel() ).getAbandonableRequest( row );
+                    AbandonableRequest req = ( ( OutstandingRequestsModel ) jTable.getModel() )
+                        .getAbandonableRequest( row );
                     req.abandon();
                     SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
                     setRequestsModel();
@@ -304,4 +308,4 @@ public class OutstandingRequestsDialog extends JDialog
         }
         return jButton2;
     }
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+} //  @jve:decl-index=0:visual-constraint="10,10"

@@ -16,12 +16,14 @@
  */
 package org.apache.directory.server.dns.service;
 
+
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.messages.MessageType;
 import org.apache.directory.server.dns.messages.OpCode;
 import org.apache.directory.server.dns.messages.QuestionRecords;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+
 
 public abstract class MonitorMessage extends CommandBase
 {

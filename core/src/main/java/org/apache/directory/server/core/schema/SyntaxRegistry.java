@@ -41,7 +41,8 @@ public interface SyntaxRegistry
      * does not exist.
      */
     Syntax lookup( String id ) throws NamingException;
-    
+
+
     /**
      * Registers a Syntax with this registry.  
      * 
@@ -52,6 +53,7 @@ public interface SyntaxRegistry
      */
     void register( String schema, Syntax syntax ) throws NamingException;
 
+
     /**
      * Gets the name of the schema this schema object is associated with.
      *
@@ -61,6 +63,7 @@ public interface SyntaxRegistry
      */
     String getSchemaName( String id ) throws NamingException;
 
+
     /**
      * Checks to see if a Syntax exists.  Backing store failures simply return
      * false.
@@ -69,6 +72,7 @@ public interface SyntaxRegistry
      * @return true if a Syntax definition exists for the id, false otherwise
      */
     boolean hasSyntax( String id );
+
 
     /**
      * Lists all the Syntaxes within this registry.

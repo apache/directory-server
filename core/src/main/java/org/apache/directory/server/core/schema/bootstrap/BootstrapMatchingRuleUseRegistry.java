@@ -49,7 +49,6 @@ public class BootstrapMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates an empty BootstrapMatchingRuleUseRegistry.
      */
@@ -76,14 +75,12 @@ public class BootstrapMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-
-    public void register( String schema, MatchingRuleUse matchingRuleUse )
-        throws NamingException
+    public void register( String schema, MatchingRuleUse matchingRuleUse ) throws NamingException
     {
         if ( byName.containsKey( matchingRuleUse.getName() ) )
         {
-            NamingException e = new NamingException( "matchingRuleUse w/ name "
-                + matchingRuleUse.getName() + " has already been registered!" );
+            NamingException e = new NamingException( "matchingRuleUse w/ name " + matchingRuleUse.getName()
+                + " has already been registered!" );
             monitor.registerFailed( matchingRuleUse, e );
             throw e;
         }
@@ -96,10 +93,9 @@ public class BootstrapMatchingRuleUseRegistry implements MatchingRuleUseRegistry
 
     public MatchingRuleUse lookup( String name ) throws NamingException
     {
-        if ( ! byName.containsKey( name ) )
+        if ( !byName.containsKey( name ) )
         {
-            NamingException e = new NamingException( "matchingRuleUse w/ name "
-                + name + " not registered!" );
+            NamingException e = new NamingException( "matchingRuleUse w/ name " + name + " not registered!" );
             monitor.lookupFailed( name, e );
             throw e;
         }
@@ -123,8 +119,7 @@ public class BootstrapMatchingRuleUseRegistry implements MatchingRuleUseRegistry
             return ( String ) nameToSchema.get( id );
         }
 
-        throw new NamingException( "Name " + id + " not found in name to " +
-            "schema name map!" );
+        throw new NamingException( "Name " + id + " not found in name to " + "schema name map!" );
     }
 
 

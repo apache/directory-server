@@ -64,9 +64,9 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
     final IoSession session;
     final SearchRequest req;
     final PersistentSearchControl control;
-    
-    
-    PersistentSearchListener( ServerLdapContext ctx, IoSession session, SearchRequest req ) 
+
+
+    PersistentSearchListener(ServerLdapContext ctx, IoSession session, SearchRequest req)
     {
         this.session = session;
         this.req = req;
@@ -74,8 +74,8 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
         this.ctx = ctx;
         this.control = ( PersistentSearchControl ) req.getControls().get( PersistentSearchControl.CONTROL_OID );
     }
-    
-    
+
+
     public void abandon() throws NamingException
     {
         // must abandon the operation 
@@ -94,9 +94,9 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
          * SO DON'T SEND BACK ANYTHING!!!!!
          */
     }
-    
-    
-    public void namingExceptionThrown( NamingExceptionEvent evt ) 
+
+
+    public void namingExceptionThrown( NamingExceptionEvent evt )
     {
         // must abandon the operation and send response done with an
         // error message if this occurs because something is wrong
@@ -109,7 +109,7 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
         {
             log.error( "Attempt to remove listener from context failed", e );
         }
-        
+
         /*
          * From RFC 2251 Section 4.11:
          * 
@@ -136,7 +136,7 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
         }
 
         ResultCodeEnum code = null;
-        if( evt.getException() instanceof LdapException )
+        if ( evt.getException() instanceof LdapException )
         {
             code = ( ( LdapException ) evt.getException() ).getResultCode();
         }
@@ -148,23 +148,22 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
         LdapResult result = req.getResultResponse().getLdapResult();
         result.setResultCode( code );
         result.setErrorMessage( msg );
-        if ( ( evt.getException().getResolvedName() != null ) &&
-                ( ( code == ResultCodeEnum.NOSUCHOBJECT ) ||
-                  ( code == ResultCodeEnum.ALIASPROBLEM ) ||
-                  ( code == ResultCodeEnum.INVALIDDNSYNTAX ) ||
-                  ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+        if ( ( evt.getException().getResolvedName() != null )
+            && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
+                || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
         {
             result.setMatchedDn( evt.getException().getResolvedName().toString() );
         }
         session.write( req.getResultResponse() );
     }
 
-    
+
     public void objectChanged( NamingEvent evt )
     {
         // send the entry back
         sendEntry( evt );
     }
+
 
     public void objectAdded( NamingEvent evt )
     {
@@ -172,11 +171,13 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
         sendEntry( evt );
     }
 
+
     public void objectRemoved( NamingEvent evt )
     {
         // send the entry back
         sendEntry( evt );
     }
+
 
     public void objectRenamed( NamingEvent evt )
     {
@@ -184,7 +185,8 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
         sendEntry( evt );
     }
 
-    private void sendEntry( NamingEvent evt ) 
+
+    private void sendEntry( NamingEvent evt )
     {
         /*
          * @todo eventually you'll want to add the changeNumber once we move 
@@ -198,11 +200,12 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
             ecControl = new EntryChangeControl();
             respEntry.add( ecControl );
         }
-        
+
         switch ( evt.getType() )
         {
-            case( NamingEvent.OBJECT_ADDED ):
-                if ( ! control.isNotificationEnabled( ChangeType.ADD ) ) return;
+            case ( NamingEvent.OBJECT_ADDED  ):
+                if ( !control.isNotificationEnabled( ChangeType.ADD ) )
+                    return;
                 respEntry.setObjectName( evt.getNewBinding().getName() );
                 respEntry.setAttributes( ( Attributes ) evt.getChangeInfo() );
                 if ( ecControl != null )
@@ -210,8 +213,9 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
                     ecControl.setChangeType( ChangeType.ADD );
                 }
                 break;
-            case( NamingEvent.OBJECT_CHANGED ):
-                if ( ! control.isNotificationEnabled( ChangeType.MODIFY ) ) return;
+            case ( NamingEvent.OBJECT_CHANGED  ):
+                if ( !control.isNotificationEnabled( ChangeType.MODIFY ) )
+                    return;
                 respEntry.setObjectName( evt.getOldBinding().getName() );
                 respEntry.setAttributes( ( Attributes ) evt.getOldBinding().getObject() );
                 if ( ecControl != null )
@@ -219,8 +223,9 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
                     ecControl.setChangeType( ChangeType.MODIFY );
                 }
                 break;
-            case( NamingEvent.OBJECT_REMOVED ):
-                if ( ! control.isNotificationEnabled( ChangeType.DELETE ) ) return;
+            case ( NamingEvent.OBJECT_REMOVED  ):
+                if ( !control.isNotificationEnabled( ChangeType.DELETE ) )
+                    return;
                 respEntry.setObjectName( evt.getOldBinding().getName() );
                 respEntry.setAttributes( ( Attributes ) evt.getOldBinding().getObject() );
                 if ( ecControl != null )
@@ -228,8 +233,9 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
                     ecControl.setChangeType( ChangeType.DELETE );
                 }
                 break;
-            case( NamingEvent.OBJECT_RENAMED ):
-                if ( ! control.isNotificationEnabled( ChangeType.MODDN ) ) return;
+            case ( NamingEvent.OBJECT_RENAMED  ):
+                if ( !control.isNotificationEnabled( ChangeType.MODDN ) )
+                    return;
                 respEntry.setObjectName( evt.getNewBinding().getName() );
                 respEntry.setAttributes( ( Attributes ) evt.getNewBinding().getObject() );
                 if ( ecControl != null )
@@ -241,7 +247,7 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
             default:
                 return;
         }
-        
+
         session.write( respEntry );
     }
 

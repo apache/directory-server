@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dhcp.options;
 
+
 import java.nio.ByteBuffer;
 
 
@@ -31,17 +32,18 @@ import java.nio.ByteBuffer;
  */
 public abstract class AddressListOption extends DhcpOption
 {
-	private byte[] value;
-	
-	public AddressListOption( int tag, byte[] value )
-	{
-		super( tag, value.length );
-		this.value = value;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( value );
-	}
-}
+    private byte[] value;
 
+
+    public AddressListOption(int tag, byte[] value)
+    {
+        super( tag, value.length );
+        this.value = value;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( value );
+    }
+}

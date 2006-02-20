@@ -44,8 +44,7 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
     }
 
 
-    public void produce( BootstrapRegistries registries, ProducerCallback cb )
-            throws NamingException
+    public void produce( BootstrapRegistries registries, ProducerCallback cb ) throws NamingException
     {
         SyntaxChecker syntaxChecker;
 
@@ -147,7 +146,6 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
         syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.20" );
         cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
 
-
         /* 20 Enhanced Guide                  Y  1.3.6.1.4.1.1466.115.121.1.21
          * 21 Facsimile Telephone Number      Y  1.3.6.1.4.1.1466.115.121.1.22
          * 22 Fax                             N  1.3.6.1.4.1.1466.115.121.1.23
@@ -188,7 +186,6 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
 
         syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.30" );
         cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
 
         /* 30 Matching Rule Use Description   Y  1.3.6.1.4.1.1466.115.121.1.31
          * 31 Mail Preference                 Y  1.3.6.1.4.1.1466.115.121.1.32
@@ -231,7 +228,6 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
         syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.40" );
         cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
 
-
         /*
          * 40 Postal Address                  Y  1.3.6.1.4.1.1466.115.121.1.41
          * 41 Protocol Information            Y  1.3.6.1.4.1.1466.115.121.1.42
@@ -273,7 +269,6 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
 
         syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.50" );
         cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
 
         /*
          * 50 Teletex Terminal Identifier     Y  1.3.6.1.4.1.1466.115.121.1.51

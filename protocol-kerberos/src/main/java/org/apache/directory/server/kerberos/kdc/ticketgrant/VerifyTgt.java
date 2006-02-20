@@ -16,18 +16,20 @@
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.service.VerifyTicket;
 import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.service.VerifyTicket;
+
 
 public class VerifyTgt extends VerifyTicket
 {
     public boolean execute( Context context ) throws Exception
     {
-        TicketGrantingContext tgsContext = (TicketGrantingContext) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
         KdcConfiguration config = tgsContext.getConfig();
         Ticket tgt = tgsContext.getTgt();
         String primaryRealm = config.getPrimaryRealm();

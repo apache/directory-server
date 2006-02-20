@@ -16,7 +16,9 @@
  */
 package org.apache.directory.server.changepw.value;
 
-import org.apache.kerberos.messages.value.PrincipalName;
+
+import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
+
 
 public class ChangePasswordData
 {
@@ -24,22 +26,26 @@ public class ChangePasswordData
     private PrincipalName principalName;
     private String realm;
 
-    public ChangePasswordData( byte[] password, PrincipalName principalName, String realm )
+
+    public ChangePasswordData(byte[] password, PrincipalName principalName, String realm)
     {
         this.password = password;
         this.principalName = principalName;
         this.realm = realm;
     }
 
+
     public byte[] getPassword()
     {
         return password;
     }
 
+
     public PrincipalName getPrincipalName()
     {
         return principalName;
     }
+
 
     public String getRealm()
     {

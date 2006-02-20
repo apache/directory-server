@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.dns.service;
 
+
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.messages.DnsMessageModifier;
 import org.apache.directory.server.dns.messages.MessageType;
@@ -25,11 +26,12 @@ import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
 
+
 public class BuildReply extends CommandBase
 {
     public boolean execute( Context context ) throws Exception
     {
-        DnsContext dnsContext = (DnsContext) context;
+        DnsContext dnsContext = ( DnsContext ) context;
         ResourceRecords records = dnsContext.getResourceRecords();
         DnsMessage request = dnsContext.getRequest();
 

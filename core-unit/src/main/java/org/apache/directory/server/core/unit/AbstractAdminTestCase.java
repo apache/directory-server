@@ -21,7 +21,7 @@ package org.apache.directory.server.core.unit;
  * A simple testcase for testing JNDI provider functionality.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 190555 $
+ * @version $Rev$
  */
 public abstract class AbstractAdminTestCase extends AbstractTestCase
 {

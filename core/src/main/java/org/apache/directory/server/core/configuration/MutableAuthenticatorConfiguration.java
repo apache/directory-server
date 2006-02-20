@@ -18,7 +18,9 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 import org.apache.directory.server.core.authn.Authenticator;
+
 
 /**
  * A mutable version of {@link AuthenticatorConfiguration}.
@@ -26,8 +28,7 @@ import org.apache.directory.server.core.authn.Authenticator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MutableAuthenticatorConfiguration extends
-        AuthenticatorConfiguration
+public class MutableAuthenticatorConfiguration extends AuthenticatorConfiguration
 {
 
     /**
@@ -37,10 +38,12 @@ public class MutableAuthenticatorConfiguration extends
     {
     }
 
+
     public void setAuthenticator( Authenticator authenticator )
     {
         super.setAuthenticator( authenticator );
     }
+
 
     public void setName( String name )
     {

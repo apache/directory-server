@@ -16,20 +16,22 @@
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
+
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
+import org.apache.directory.server.kerberos.shared.crypto.checksum.RsaMd5Checksum;
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.crypto.checksum.ChecksumEngine;
-import org.apache.kerberos.crypto.checksum.ChecksumType;
-import org.apache.kerberos.crypto.checksum.RsaMd5Checksum;
-import org.apache.kerberos.exceptions.ErrorType;
-import org.apache.kerberos.exceptions.KerberosException;
-import org.apache.kerberos.messages.value.Checksum;
+
 
 public class VerifyBodyChecksum extends CommandBase
 {
     public boolean execute( Context context ) throws Exception
     {
-        TicketGrantingContext tgsContext = (TicketGrantingContext) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
         byte[] bodyBytes = tgsContext.getRequest().getBodyBytes();
         Checksum checksum = tgsContext.getAuthenticator().getChecksum();
 
@@ -37,6 +39,7 @@ public class VerifyBodyChecksum extends CommandBase
 
         return CONTINUE_CHAIN;
     }
+
 
     private void verifyChecksum( Checksum checksum, byte[] bytes ) throws KerberosException
     {

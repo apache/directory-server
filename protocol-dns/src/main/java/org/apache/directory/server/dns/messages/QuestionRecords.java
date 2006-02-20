@@ -17,38 +17,46 @@
 
 package org.apache.directory.server.dns.messages;
 
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+
 public class QuestionRecords
 {
     private List questionRecords;
+
 
     public QuestionRecords()
     {
         this.questionRecords = new ArrayList();
     }
 
-    public QuestionRecords( int initialCapacity )
+
+    public QuestionRecords(int initialCapacity)
     {
         this.questionRecords = new ArrayList( initialCapacity );
     }
+
 
     public void add( QuestionRecord question )
     {
         questionRecords.add( question );
     }
 
+
     public int size()
     {
         return questionRecords.size();
     }
 
+
     public Iterator iterator()
     {
         return questionRecords.iterator();
     }
+
 
     public String toString()
     {
@@ -58,7 +66,7 @@ public class QuestionRecords
 
         while ( it.hasNext() )
         {
-            QuestionRecord question = (QuestionRecord) it.next();
+            QuestionRecord question = ( QuestionRecord ) it.next();
             sb.append( "\n\t" + "dnsName                    " + question.getDomainName() );
             sb.append( "\n\t" + "dnsType                    " + question.getRecordType() );
             sb.append( "\n\t" + "dnsClass                   " + question.getRecordClass() );

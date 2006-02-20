@@ -86,12 +86,8 @@ public class SubentryService extends BaseInterceptor
 
     public static final String COLLECTIVE_INNERAREA = "collectiveAttributeInnerArea";
 
-    public static final String[] SUBENTRY_OPATTRS = {
-        AUTONOUMOUS_AREA_SUBENTRY,
-        AC_SUBENTRY,
-        SCHEMA_AREA_SUBENTRY,
-        COLLECTIVE_ATTRIBUTE_SUBENTRIES
-    };
+    public static final String[] SUBENTRY_OPATTRS =
+        { AUTONOUMOUS_AREA_SUBENTRY, AC_SUBENTRY, SCHEMA_AREA_SUBENTRY, COLLECTIVE_ATTRIBUTE_SUBENTRIES };
 
     private static final Logger log = LoggerFactory.getLogger( SubentryService.class );
 
@@ -109,8 +105,8 @@ public class SubentryService extends BaseInterceptor
         super.init( factoryCfg, cfg );
         this.nexus = factoryCfg.getPartitionNexus();
         this.factoryCfg = factoryCfg;
-        ConcreteNameComponentNormalizer ncn = new ConcreteNameComponentNormalizer(
-                factoryCfg.getGlobalRegistries().getAttributeTypeRegistry() );
+        ConcreteNameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( factoryCfg.getGlobalRegistries()
+            .getAttributeTypeRegistry() );
         ssParser = new SubtreeSpecificationParser( ncn );
         dnParser = new DnParser( ncn );
         evaluator = new SubtreeEvaluator( factoryCfg.getGlobalRegistries().getOidRegistry() );
@@ -120,7 +116,8 @@ public class SubentryService extends BaseInterceptor
         ExprNode filter = new SimpleNode( "objectclass", "subentry", LeafNode.EQUALITY );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[] { "subtreeSpecification" } );
+        controls.setReturningAttributes( new String[]
+            { "subtreeSpecification" } );
 
         // search each namingContext for subentries
         while ( suffixes.hasNext() )
@@ -155,16 +152,15 @@ public class SubentryService extends BaseInterceptor
     // Methods/Code dealing with Subentry Visibility
     // -----------------------------------------------------------------------
 
-
     public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( base );
         Invocation invocation = InvocationStack.getInstance().peek();
 
-        if ( ! isSubentryVisible( invocation ) )
+        if ( !isSubentryVisible( invocation ) )
         {
-            return new SearchResultFilteringEnumeration( e, new SearchControls(), 
-                invocation, new HideSubentriesFilter() );
+            return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation,
+                new HideSubentriesFilter() );
         }
 
         return e;
@@ -172,7 +168,7 @@ public class SubentryService extends BaseInterceptor
 
 
     public NamingEnumeration search( NextInterceptor nextInterceptor, Name base, Map env, ExprNode filter,
-            SearchControls searchCtls ) throws NamingException
+        SearchControls searchCtls ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -184,12 +180,12 @@ public class SubentryService extends BaseInterceptor
         }
 
         // for subtree and one level scope we filter
-        if ( ! isSubentryVisible( invocation ) )
+        if ( !isSubentryVisible( invocation ) )
         {
             return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideSubentriesFilter() );
         }
         else
-        {            
+        {
             return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideEntriesFilter() );
         }
     }
@@ -230,7 +226,6 @@ public class SubentryService extends BaseInterceptor
     // -----------------------------------------------------------------------
     // Methods dealing with entry and subentry addition
     // -----------------------------------------------------------------------
-
 
     /**
      * Evaluates the set of subentry subtrees upon an entry and returns the
@@ -291,8 +286,7 @@ public class SubentryService extends BaseInterceptor
                             subentryAttrs.put( operational );
                         }
                     }
-                    else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) ||
-                              role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
+                    else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) || role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
                     {
                         operational = subentryAttrs.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                         if ( operational == null )
@@ -303,11 +297,12 @@ public class SubentryService extends BaseInterceptor
                     }
                     else
                     {
-                        throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '"
-                                + role + "' in administrative point of subentry " + subentryDnStr + ". The values of this attribute"
-                                + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
-                                + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
-                                + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
+                        throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '" + role
+                            + "' in administrative point of subentry " + subentryDnStr
+                            + ". The values of this attribute"
+                            + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
+                            + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
+                            + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
                     }
 
                     operational.add( subentryDn.toString() );
@@ -335,9 +330,9 @@ public class SubentryService extends BaseInterceptor
             if ( administrativeRole == null || administrativeRole.size() <= 0 )
             {
                 throw new LdapNoSuchAttributeException( "Administration point " + apName
-                        + " does not contain an administrativeRole attribute! An"
-                        + " administrativeRole attribute in the administrative point is"
-                        + " required to add a subordinate subentry." );
+                    + " does not contain an administrativeRole attribute! An"
+                    + " administrativeRole attribute in the administrative point is"
+                    + " required to add a subordinate subentry." );
             }
 
             /* ----------------------------------------------------------------
@@ -386,7 +381,8 @@ public class SubentryService extends BaseInterceptor
             ExprNode filter = new PresenceNode( "objectclass" );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[] { "+", "*" } );
+            controls.setReturningAttributes( new String[]
+                { "+", "*" } );
 
             NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
             while ( subentries.hasMore() )
@@ -448,8 +444,8 @@ public class SubentryService extends BaseInterceptor
                                 entry.put( operational );
                             }
                         }
-                        else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) ||
-                                  role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
+                        else if ( role.equalsIgnoreCase( COLLECTIVE_AREA )
+                            || role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
                         {
                             operational = entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                             if ( operational == null )
@@ -460,8 +456,12 @@ public class SubentryService extends BaseInterceptor
                         }
                         else
                         {
-                            throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '"
-                                    + role + "' in administrative point of subentry " + subentryDnStr + ". The values of this attribute"
+                            throw new LdapInvalidAttributeValueException(
+                                "Encountered invalid administrativeRole '"
+                                    + role
+                                    + "' in administrative point of subentry "
+                                    + subentryDnStr
+                                    + ". The values of this attribute"
                                     + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
                                     + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
                                     + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
@@ -480,7 +480,6 @@ public class SubentryService extends BaseInterceptor
     // -----------------------------------------------------------------------
     // Methods dealing subentry deletion
     // -----------------------------------------------------------------------
-
 
     public void delete( NextInterceptor next, Name name ) throws NamingException
     {
@@ -509,7 +508,8 @@ public class SubentryService extends BaseInterceptor
             ExprNode filter = new PresenceNode( "objectclass" );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[] { "+", "*" } );
+            controls.setReturningAttributes( new String[]
+                { "+", "*" } );
 
             NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
             while ( subentries.hasMore() )
@@ -534,7 +534,6 @@ public class SubentryService extends BaseInterceptor
     // -----------------------------------------------------------------------
     // Methods dealing subentry name changes
     // -----------------------------------------------------------------------
-
 
     /**
      * Checks to see if an entry being renamed has a descendant that is an
@@ -596,7 +595,7 @@ public class SubentryService extends BaseInterceptor
             }
 
             // need to remove references to the subentry
-            if ( isOldNameSelected && ! isNewNameSelected )
+            if ( isOldNameSelected && !isNewNameSelected )
             {
                 for ( int ii = 0; ii < SUBENTRY_OPATTRS.length; ii++ )
                 {
@@ -617,7 +616,7 @@ public class SubentryService extends BaseInterceptor
                 }
             }
             // need to add references to the subentry
-            else if ( isNewNameSelected && ! isOldNameSelected )
+            else if ( isNewNameSelected && !isOldNameSelected )
             {
                 for ( int ii = 0; ii < SUBENTRY_OPATTRS.length; ii++ )
                 {
@@ -670,7 +669,8 @@ public class SubentryService extends BaseInterceptor
             ExprNode filter = new PresenceNode( "objectclass" );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[] { "+", "*" } );
+            controls.setReturningAttributes( new String[]
+                { "+", "*" } );
             NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
             while ( subentries.hasMore() )
             {
@@ -710,7 +710,7 @@ public class SubentryService extends BaseInterceptor
 
 
     public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
-            throws NamingException
+        throws NamingException
     {
         Attributes entry = nexus.lookup( oriChildName );
         Attribute objectClasses = entry.get( "objectClass" );
@@ -736,7 +736,8 @@ public class SubentryService extends BaseInterceptor
             ExprNode filter = new PresenceNode( "objectclass" );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[] { "+", "*" } );
+            controls.setReturningAttributes( new String[]
+                { "+", "*" } );
             NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
             while ( subentries.hasMore() )
             {
@@ -746,7 +747,8 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate.get( "objectClass" ) ) )
                 {
-                    nexus.modify( dn, getOperationalModsForReplace( oriChildName, newName, administrativeRole, candidate ) );
+                    nexus.modify( dn, getOperationalModsForReplace( oriChildName, newName, administrativeRole,
+                        candidate ) );
                 }
             }
         }
@@ -799,7 +801,8 @@ public class SubentryService extends BaseInterceptor
             ExprNode filter = new PresenceNode( "objectclass" );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[] { "+", "*" } );
+            controls.setReturningAttributes( new String[]
+                { "+", "*" } );
             NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
             while ( subentries.hasMore() )
             {
@@ -809,7 +812,8 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate.get( "objectClass" ) ) )
                 {
-                    nexus.modify( dn, getOperationalModsForReplace( oriChildName, newName, administrativeRole, candidate ) );
+                    nexus.modify( dn, getOperationalModsForReplace( oriChildName, newName, administrativeRole,
+                        candidate ) );
                 }
             }
         }
@@ -840,7 +844,6 @@ public class SubentryService extends BaseInterceptor
     // -----------------------------------------------------------------------
     // Methods dealing subentry modification
     // -----------------------------------------------------------------------
-
 
     public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
     {
@@ -874,7 +877,8 @@ public class SubentryService extends BaseInterceptor
             ExprNode filter = new PresenceNode( "objectClass" );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[] { "+", "*" } );
+            controls.setReturningAttributes( new String[]
+                { "+", "*" } );
             NamingEnumeration subentries = nexus.search( oldBaseDn, factoryCfg.getEnvironment(), filter, controls );
             while ( subentries.hasMore() )
             {
@@ -957,7 +961,8 @@ public class SubentryService extends BaseInterceptor
             ExprNode filter = new PresenceNode( "objectClass" );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[] { "+", "*" } );
+            controls.setReturningAttributes( new String[]
+                { "+", "*" } );
             NamingEnumeration subentries = nexus.search( oldBaseDn, factoryCfg.getEnvironment(), filter, controls );
             while ( subentries.hasMore() )
             {
@@ -1001,9 +1006,8 @@ public class SubentryService extends BaseInterceptor
     // Utility Methods
     // -----------------------------------------------------------------------
 
-
     private ModificationItem[] getOperationalModsForReplace( Name oldName, Name newName, Attribute administrativeRole,
-                                                             Attributes entry ) throws NamingException
+        Attributes entry ) throws NamingException
     {
         List modList = new ArrayList();
         NamingEnumeration roles = administrativeRole.getAll();
@@ -1054,8 +1058,7 @@ public class SubentryService extends BaseInterceptor
                     operational.add( newName.toString() );
                 }
             }
-            else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) ||
-                      role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
+            else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) || role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
             {
                 operational = ( Attribute ) entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES ).clone();
                 if ( operational == null )
@@ -1071,11 +1074,11 @@ public class SubentryService extends BaseInterceptor
             }
             else
             {
-                throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '"
-                        + role + "' in administrative point of subentry " + oldName + ". The values of this attribute"
-                        + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
-                        + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
-                        + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
+                throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '" + role
+                    + "' in administrative point of subentry " + oldName + ". The values of this attribute"
+                    + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
+                    + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
+                    + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
             }
 
             modList.add( new ModificationItem( DirContext.REPLACE_ATTRIBUTE, operational ) );
@@ -1096,7 +1099,7 @@ public class SubentryService extends BaseInterceptor
      * @throws NamingException if there are problems accessing attributes
      */
     private Attributes getSubentryOperatationalAttributes( Name name, Attribute administrativeRole )
-            throws NamingException
+        throws NamingException
     {
         Attributes operational = new LockableAttributesImpl();
         NamingEnumeration roles = administrativeRole.getAll();
@@ -1137,8 +1140,7 @@ public class SubentryService extends BaseInterceptor
                     operational.get( SCHEMA_AREA_SUBENTRY ).add( name.toString() );
                 }
             }
-            else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) ||
-                      role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
+            else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) || role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
             {
                 if ( operational.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES ) == null )
                 {
@@ -1151,11 +1153,11 @@ public class SubentryService extends BaseInterceptor
             }
             else
             {
-                throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '"
-                        + role + "' in administrative point of subentry " + name + ". The values of this attribute are"
-                        + " constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
-                        + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
-                        + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
+                throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '" + role
+                    + "' in administrative point of subentry " + name + ". The values of this attribute are"
+                    + " constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
+                    + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
+                    + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
             }
         }
 
@@ -1213,7 +1215,8 @@ public class SubentryService extends BaseInterceptor
      * of the subentry
      * @return the set of modifications needed to update the entry
      */
-    public ModificationItem[] getOperationalModsForAdd( Attributes entry, Attributes operational ) throws NamingException
+    public ModificationItem[] getOperationalModsForAdd( Attributes entry, Attributes operational )
+        throws NamingException
     {
         List modList = new ArrayList();
 
@@ -1251,22 +1254,22 @@ public class SubentryService extends BaseInterceptor
         return mods;
     }
 
-
     /**
      * SearchResultFilter used to filter out subentries based on objectClass values.
      */
     public class HideSubentriesFilter implements SearchResultFilter
     {
-        public boolean accept(Invocation invocation, SearchResult result, SearchControls controls) throws NamingException
+        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+            throws NamingException
         {
             String dn = result.getName();
-            
+
             // see if we can get a match without normalization
             if ( subtrees.containsKey( dn ) )
             {
                 return false;
             }
-            
+
             // see if we can use objectclass if present
             Attribute objectClasses = result.getAttributes().get( "objectClass" );
             if ( objectClasses != null )
@@ -1275,12 +1278,12 @@ public class SubentryService extends BaseInterceptor
                 {
                     return false;
                 }
-                
+
                 if ( objectClasses.contains( SUBENTRY_OBJECTCLASS_OID ) )
                 {
                     return false;
                 }
-                
+
                 for ( int ii = 0; ii < objectClasses.size(); ii++ )
                 {
                     String oc = ( String ) objectClasses.get( ii );
@@ -1289,22 +1292,21 @@ public class SubentryService extends BaseInterceptor
                         return false;
                     }
                 }
-                
+
                 return true;
             }
 
-            if ( ! result.isRelative() )
+            if ( !result.isRelative() )
             {
                 String normalizedDn = dnParser.parse( dn ).toString();
                 return !subtrees.containsKey( normalizedDn );
             }
-            
+
             Name name = dnParser.parse( invocation.getCaller().getNameInNamespace() );
             name.addAll( dnParser.parse( result.getName() ) );
             return !subtrees.containsKey( name.toString() );
         }
     }
-
 
     /**
      * SearchResultFilter used to filter out normal entries but shows subentries based on 
@@ -1312,16 +1314,17 @@ public class SubentryService extends BaseInterceptor
      */
     public class HideEntriesFilter implements SearchResultFilter
     {
-        public boolean accept(Invocation invocation, SearchResult result, SearchControls controls) throws NamingException
+        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+            throws NamingException
         {
             String dn = result.getName();
-            
+
             // see if we can get a match without normalization
             if ( subtrees.containsKey( dn ) )
             {
                 return true;
             }
-            
+
             // see if we can use objectclass if present
             Attribute objectClasses = result.getAttributes().get( "objectClass" );
             if ( objectClasses != null )
@@ -1330,12 +1333,12 @@ public class SubentryService extends BaseInterceptor
                 {
                     return true;
                 }
-                
+
                 if ( objectClasses.contains( SUBENTRY_OBJECTCLASS_OID ) )
                 {
                     return true;
                 }
-                
+
                 for ( int ii = 0; ii < objectClasses.size(); ii++ )
                 {
                     String oc = ( String ) objectClasses.get( ii );
@@ -1344,16 +1347,16 @@ public class SubentryService extends BaseInterceptor
                         return true;
                     }
                 }
-                
+
                 return false;
             }
 
-            if ( ! result.isRelative() )
+            if ( !result.isRelative() )
             {
                 String normalizedDn = dnParser.parse( dn ).toString();
                 return subtrees.containsKey( normalizedDn );
             }
-            
+
             Name name = dnParser.parse( invocation.getCaller().getNameInNamespace() );
             name.addAll( dnParser.parse( result.getName() ) );
             return subtrees.containsKey( name.toString() );

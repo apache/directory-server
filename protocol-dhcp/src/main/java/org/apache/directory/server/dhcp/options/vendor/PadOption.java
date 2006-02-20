@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * The pad option can be used to cause subsequent fields to align on
@@ -29,16 +31,16 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class PadOption extends DhcpOption
 {
-	public PadOption()
-	{
-		super( 0, 1 );
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		/**
-		 * This option has no value
-		 */
-	}
-}
+    public PadOption()
+    {
+        super( 0, 1 );
+    }
 
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        /**
+         * This option has no value
+         */
+    }
+}

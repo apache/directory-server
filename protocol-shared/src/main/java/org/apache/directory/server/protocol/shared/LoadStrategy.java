@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.protocol.shared;
 
+
 import java.util.Map;
+
 
 /**
  * Load strategy interface for configuration properties.
@@ -29,6 +31,7 @@ public interface LoadStrategy
 {
     public static final int LDAP = 1;
     public static final int PROPS = 2;
+
 
     public Map load( String prefix, Map properties );
 }

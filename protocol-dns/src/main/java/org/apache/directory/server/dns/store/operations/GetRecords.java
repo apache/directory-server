@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.store.operations;
 
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +43,7 @@ import org.apache.directory.server.dns.messages.ResourceRecordModifier;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
 
+
 /**
  * A JNDI context operation for looking up Resource Records from an embedded JNDI provider.
  *
@@ -55,10 +57,11 @@ public class GetRecords implements ContextOperation
     /** The name of the question to get. */
     private final QuestionRecord question;
 
+
     /**
      * Creates the action to be used against the embedded JNDI provider.
      */
-    public GetRecords( QuestionRecord question )
+    public GetRecords(QuestionRecord question)
     {
         this.question = question;
     }
@@ -105,6 +108,7 @@ public class GetRecords implements ContextOperation
         OBJECTCLASS_TO_TYPE = Collections.unmodifiableMap( objectClassToType );
     }
 
+
     /**
      * Note that the base is a relative path from the exiting context.
      * It is not a DN.
@@ -122,7 +126,7 @@ public class GetRecords implements ContextOperation
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        String filter = "(objectClass=" + (String) TYPE_TO_OBJECTCLASS.get( type ) + ")";
+        String filter = "(objectClass=" + ( String ) TYPE_TO_OBJECTCLASS.get( type ) + ")";
 
         NamingEnumeration list = ctx.search( transformDomainName( name ), filter, controls );
 
@@ -130,7 +134,7 @@ public class GetRecords implements ContextOperation
 
         while ( list.hasMore() )
         {
-            SearchResult result = (SearchResult) list.next();
+            SearchResult result = ( SearchResult ) list.next();
             Name relative = getRelativeName( ctx.getNameInNamespace(), result.getName() );
 
             set.add( getRecord( result.getAttributes(), relative ) );
@@ -138,6 +142,7 @@ public class GetRecords implements ContextOperation
 
         return set;
     }
+
 
     /**
      * Marshals a RecordStoreEntry from an Attributes object.
@@ -160,7 +165,7 @@ public class GetRecords implements ContextOperation
 
         if ( attr != null )
         {
-            modifier.setDnsName( (String) attr.get() );
+            modifier.setDnsName( ( String ) attr.get() );
         }
         else
         {
@@ -176,7 +181,7 @@ public class GetRecords implements ContextOperation
 
         if ( attr != null )
         {
-            modifier.setDnsType( RecordType.getTypeByName( (String) attr.get() ) );
+            modifier.setDnsType( RecordType.getTypeByName( ( String ) attr.get() ) );
         }
         else
         {
@@ -184,23 +189,24 @@ public class GetRecords implements ContextOperation
         }
 
         // class defaults to SOA CLASS
-        String dnsClass = ( attr = attrs.get( DnsAttribute.CLASS ) ) != null ? (String) attr.get() : SOA_CLASS;
+        String dnsClass = ( attr = attrs.get( DnsAttribute.CLASS ) ) != null ? ( String ) attr.get() : SOA_CLASS;
         modifier.setDnsClass( RecordClass.getTypeByName( dnsClass ) );
 
         // ttl defaults to SOA MINIMUM
-        String dnsTtl = ( attr = attrs.get( DnsAttribute.TTL ) ) != null ? (String) attr.get() : SOA_MINIMUM;
+        String dnsTtl = ( attr = attrs.get( DnsAttribute.TTL ) ) != null ? ( String ) attr.get() : SOA_MINIMUM;
         modifier.setDnsTtl( Integer.parseInt( dnsTtl ) );
 
         NamingEnumeration ids = attrs.getIDs();
 
         while ( ids.hasMore() )
         {
-            String id = (String) ids.next();
-            modifier.put( id, (String) attrs.get( id ).get() );
+            String id = ( String ) ids.next();
+            modifier.put( id, ( String ) attrs.get( id ).get() );
         }
 
         return modifier.getEntry();
     }
+
 
     /**
      * Uses the algorithm in <a href="http://www.faqs.org/rfcs/rfc2247.html">RFC 2247</a>
@@ -224,6 +230,7 @@ public class GetRecords implements ContextOperation
         return buf.toString();
     }
 
+
     /**
      * Uses the algorithm in <a href="http://www.faqs.org/rfcs/rfc2247.html">RFC 2247</a>
      * to transform a distinguished name into an Internet domain name.
@@ -244,17 +251,18 @@ public class GetRecords implements ContextOperation
         return domainName;
     }
 
+
     private RecordType getType( Attribute objectClass ) throws NamingException
     {
         NamingEnumeration list = objectClass.getAll();
 
         while ( list.hasMore() )
         {
-            String value = (String) list.next();
+            String value = ( String ) list.next();
 
             if ( !value.equals( "apacheDnsAbstractRecord" ) )
             {
-                RecordType type = (RecordType) OBJECTCLASS_TO_TYPE.get( value );
+                RecordType type = ( RecordType ) OBJECTCLASS_TO_TYPE.get( value );
 
                 if ( type == null )
                 {
@@ -267,6 +275,7 @@ public class GetRecords implements ContextOperation
 
         throw new NamingException( "ResourceRecord requires STRUCTURAL objectClass" );
     }
+
 
     private Name getRelativeName( String nameInNamespace, String baseDn ) throws NamingException
     {
@@ -293,6 +302,7 @@ public class GetRecords implements ContextOperation
 
         return searchBaseDn;
     }
+
 
     private Name getDomainComponents( Name name ) throws NamingException
     {

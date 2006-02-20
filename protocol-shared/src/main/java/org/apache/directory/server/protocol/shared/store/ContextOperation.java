@@ -16,10 +16,12 @@
  */
 package org.apache.directory.server.protocol.shared.store;
 
+
 import java.io.Serializable;
 
 import javax.naming.Name;
 import javax.naming.directory.DirContext;
+
 
 /**
  * Interface to support the command pattern with JNDI contexts.

@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.perinterface;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies whether or not the client may assume that all
@@ -33,17 +35,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class AllSubnetsAreLocal extends DhcpOption
 {
-	private byte[] allSubnetsAreLocal;
-	
-	public AllSubnetsAreLocal( byte[] allSubnetsAreLocal )
-	{
-		super( 27, 1 );
-		this.allSubnetsAreLocal = allSubnetsAreLocal;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( allSubnetsAreLocal );
-	}
-}
+    private byte[] allSubnetsAreLocal;
 
+
+    public AllSubnetsAreLocal(byte[] allSubnetsAreLocal)
+    {
+        super( 27, 1 );
+        this.allSubnetsAreLocal = allSubnetsAreLocal;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( allSubnetsAreLocal );
+    }
+}

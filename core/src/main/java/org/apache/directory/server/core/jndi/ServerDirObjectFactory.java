@@ -58,6 +58,7 @@ public interface ServerDirObjectFactory extends DirObjectFactory
      */
     String getObjectClassId();
 
+
     /**
      * Gets the Class instance associated with this ObjectFactory.  Objects to
      * be created by this ObjectFactory will be of this type, a subclass of

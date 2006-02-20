@@ -49,11 +49,11 @@ public class DeleteHandler implements MessageHandler
     private static final Logger log = LoggerFactory.getLogger( DeleteHandler.class );
     private static Control[] EMPTY_CONTROLS = new Control[0];
 
-    
+
     public void messageReceived( IoSession session, Object request )
     {
         DeleteRequest req = ( DeleteRequest ) request;
-        LdapResult result = req.getResultResponse().getLdapResult(); 
+        LdapResult result = req.getResultResponse().getLdapResult();
 
         try
         {
@@ -69,7 +69,7 @@ public class DeleteHandler implements MessageHandler
             ctx.setRequestControls( ( Control[] ) req.getControls().values().toArray( EMPTY_CONTROLS ) );
             ctx.destroySubcontext( req.getName() );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             ReferralImpl refs = new ReferralImpl();
             result.setReferral( refs );
@@ -81,11 +81,11 @@ public class DeleteHandler implements MessageHandler
             {
                 refs.addLdapUrl( ( String ) e.getReferralInfo() );
             }
-            while( e.skipReferral() );
+            while ( e.skipReferral() );
             session.write( req.getResultResponse() );
             return;
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             String msg = "failed to delete entry " + req.getName();
 
@@ -95,7 +95,7 @@ public class DeleteHandler implements MessageHandler
             }
 
             ResultCodeEnum code;
-            if( e instanceof LdapException )
+            if ( e instanceof LdapException )
             {
                 code = ( ( LdapException ) e ).getResultCode();
             }
@@ -106,11 +106,9 @@ public class DeleteHandler implements MessageHandler
 
             result.setResultCode( code );
             result.setErrorMessage( msg );
-            if ( ( e.getResolvedName() != null ) &&
-                    ( ( code == ResultCodeEnum.NOSUCHOBJECT ) ||
-                      ( code == ResultCodeEnum.ALIASPROBLEM ) ||
-                      ( code == ResultCodeEnum.INVALIDDNSYNTAX ) ||
-                      ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+            if ( ( e.getResolvedName() != null )
+                && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
+                    || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
             {
                 result.setMatchedDn( e.getResolvedName().toString() );
             }

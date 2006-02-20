@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.core.authn;
 
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
@@ -39,6 +40,7 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * A simple {@link Authenticator} that authenticates clear text passwords
@@ -71,7 +73,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     /**
      * Creates a new instance.
      */
-    public SimpleAuthenticator( )
+    public SimpleAuthenticator()
     {
         super( "simple" );
     }
@@ -101,7 +103,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         String principal;
 
-        if ( ! ctx.getEnvironment().containsKey( Context.SECURITY_PRINCIPAL ) )
+        if ( !ctx.getEnvironment().containsKey( Context.SECURITY_PRINCIPAL ) )
         {
             throw new LdapAuthenticationException();
         }
@@ -124,21 +126,21 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         try
         {
-            userEntry = proxy.lookup( principalDn, new String[] { "userPassword" }, USERLOOKUP_BYPASS );
+            userEntry = proxy.lookup( principalDn, new String[]
+                { "userPassword" }, USERLOOKUP_BYPASS );
 
             if ( userEntry == null )
             {
                 throw new LdapAuthenticationException( "Failed to lookup user for authentication: " + principal );
             }
         }
-        catch( Exception cause )
+        catch ( Exception cause )
         {
             log.error( "Authentication error : " + cause.getMessage() );
             LdapAuthenticationException e = new LdapAuthenticationException();
             e.setRootCause( e );
             throw e;
         }
-
 
         Object userPassword;
 
@@ -148,41 +150,57 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         boolean credentialsMatch = false;
 
-        if (userPasswordAttr == null) {
+        if ( userPasswordAttr == null )
+        {
             userPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
-        } else {
+        }
+        else
+        {
             userPassword = userPasswordAttr.get();
 
-            if (userPassword instanceof String) {
-                userPassword = ((String) userPassword).getBytes();
+            if ( userPassword instanceof String )
+            {
+                userPassword = ( ( String ) userPassword ).getBytes();
             }
         }
 
         // Check if password is stored as a message digest, i.e. one-way
         // encrypted
-        if (this.isPasswordOneWayEncrypted(userPassword)) {
-            try {
+        if ( this.isPasswordOneWayEncrypted( userPassword ) )
+        {
+            try
+            {
                 // create a corresponding digested password from creds
-                String algorithm = this.getAlgorithmForHashedPassword(userPassword);
-                String digestedCredits = this.createDigestedPassword(algorithm, creds);
+                String algorithm = this.getAlgorithmForHashedPassword( userPassword );
+                String digestedCredits = this.createDigestedPassword( algorithm, creds );
 
-                credentialsMatch = ArrayUtils.isEquals(digestedCredits.getBytes(), userPassword);
-            } catch (NoSuchAlgorithmException nsae) {
-                log.warn("Password stored with unknown algorithm.", nsae);
-            } catch (IllegalArgumentException e) {
-                log.warn("Exception during authentication", e);
+                credentialsMatch = ArrayUtils.isEquals( digestedCredits.getBytes(), userPassword );
             }
-        } else {
+            catch ( NoSuchAlgorithmException nsae )
+            {
+                log.warn( "Password stored with unknown algorithm.", nsae );
+            }
+            catch ( IllegalArgumentException e )
+            {
+                log.warn( "Exception during authentication", e );
+            }
+        }
+        else
+        {
             // password is not stored one-way encrypted
-            credentialsMatch = ArrayUtils.isEquals(creds, userPassword);
+            credentialsMatch = ArrayUtils.isEquals( creds, userPassword );
         }
 
-        if (credentialsMatch) {
-            return new LdapPrincipal(principalDn, AuthenticationLevel.SIMPLE);
-        } else {
+        if ( credentialsMatch )
+        {
+            return new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
+        }
+        else
+        {
             throw new LdapAuthenticationException();
         }
     }
+
 
     /**
      * Checks if the argument is one-way encryped. If it is a string or a
@@ -194,16 +212,20 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      *            agument, either a string or a byte-array
      * @return true, if the value is a digested password with algorithm included
      */
-    protected boolean isPasswordOneWayEncrypted(Object password)
+    protected boolean isPasswordOneWayEncrypted( Object password )
     {
         boolean result = false;
-        try {
-            String algorithm = getAlgorithmForHashedPassword(password);
-            result = (algorithm != null);
-        } catch (IllegalArgumentException ignored) {
+        try
+        {
+            String algorithm = getAlgorithmForHashedPassword( password );
+            result = ( algorithm != null );
+        }
+        catch ( IllegalArgumentException ignored )
+        {
         }
         return result;
     }
+
 
     /**
      * Get the algorithm of a password, which is stored in the form "{XYZ}...".
@@ -215,33 +237,44 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      *            either a String or a byte[]
      * @return included message digest alorithm, if any
      */
-    protected String getAlgorithmForHashedPassword(Object password) throws IllegalArgumentException
+    protected String getAlgorithmForHashedPassword( Object password ) throws IllegalArgumentException
     {
         String result = null;
 
         // Check if password arg is string or byte[]
         String sPassword = null;
-        if (password instanceof byte[]) {
-            sPassword = new String((byte[]) password);
-        } else if (password instanceof String) {
-            sPassword = (String) password;
-        } else {
-            throw new IllegalArgumentException("password is neither a String nor a byte-Array.");
+        if ( password instanceof byte[] )
+        {
+            sPassword = new String( ( byte[] ) password );
+        }
+        else if ( password instanceof String )
+        {
+            sPassword = ( String ) password;
+        }
+        else
+        {
+            throw new IllegalArgumentException( "password is neither a String nor a byte-Array." );
         }
 
-        if (sPassword != null && sPassword.length() > 2 && sPassword.charAt(0) == '{' && sPassword.indexOf('}') > -1) {
-            int algPosEnd = sPassword.indexOf('}');
-            String algorithm = sPassword.substring(1, algPosEnd);
-            try {
-                MessageDigest.getInstance(algorithm);
+        if ( sPassword != null && sPassword.length() > 2 && sPassword.charAt( 0 ) == '{'
+            && sPassword.indexOf( '}' ) > -1 )
+        {
+            int algPosEnd = sPassword.indexOf( '}' );
+            String algorithm = sPassword.substring( 1, algPosEnd );
+            try
+            {
+                MessageDigest.getInstance( algorithm );
                 result = algorithm;
-            } catch (NoSuchAlgorithmException e) {
-                log.warn("Unknown message digest algorithm in password: " + algorithm, e);
+            }
+            catch ( NoSuchAlgorithmException e )
+            {
+                log.warn( "Unknown message digest algorithm in password: " + algorithm, e );
             }
         }
 
         return result;
     }
+
 
     /**
      * Creates a digested password. For a given hash algorithm and a password
@@ -263,37 +296,45 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      *             if password is neither a String nor a byte[], or algorithm is
      *             not known to java.security.MessageDigest class
      */
-    protected String createDigestedPassword(String algorithm, Object password) throws NoSuchAlgorithmException,
-            IllegalArgumentException
+    protected String createDigestedPassword( String algorithm, Object password ) throws NoSuchAlgorithmException,
+        IllegalArgumentException
     {
         // Check if password arg is string or byte[]
         byte[] data = null;
-        if (password instanceof byte[]) {
-            data = (byte[]) password;
-        } else if (password instanceof String) {
-            data = ((String) password).getBytes();
-        } else {
-            throw new IllegalArgumentException("password is neither a String nor a byte-Array.");
+        if ( password instanceof byte[] )
+        {
+            data = ( byte[] ) password;
+        }
+        else if ( password instanceof String )
+        {
+            data = ( ( String ) password ).getBytes();
+        }
+        else
+        {
+            throw new IllegalArgumentException( "password is neither a String nor a byte-Array." );
         }
 
         // create message digest object
         MessageDigest digest = null;
-        try {
-            digest = MessageDigest.getInstance(algorithm);
-        } catch (NoSuchAlgorithmException nsae) {
-            throw new IllegalArgumentException(nsae.getMessage());
+        try
+        {
+            digest = MessageDigest.getInstance( algorithm );
+        }
+        catch ( NoSuchAlgorithmException nsae )
+        {
+            throw new IllegalArgumentException( nsae.getMessage() );
         }
 
         // calculate hashed value of password
-        byte[] fingerPrint = digest.digest(data);
-        char[] encoded = Base64.encode(fingerPrint);
+        byte[] fingerPrint = digest.digest( data );
+        char[] encoded = Base64.encode( fingerPrint );
 
         // create return result of form "{alg}bbbbbbb"
         StringBuffer result = new StringBuffer();
-        result.append('{');
-        result.append(algorithm);
-        result.append('}');
-        result.append(encoded);
+        result.append( '{' );
+        result.append( algorithm );
+        result.append( '}' );
+        result.append( encoded );
 
         return result.toString();
     }

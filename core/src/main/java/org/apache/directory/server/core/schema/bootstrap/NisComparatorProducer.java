@@ -49,23 +49,20 @@ public class NisComparatorProducer extends AbstractBootstrapProducer
     // BootstrapProducer Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see org.apache.directory.server.core.schema.bootstrap.BootstrapProducer#produce(BootstrapRegistries, ProducerCallback)
      */
-    public void produce( BootstrapRegistries registries, ProducerCallback cb )
-        throws NamingException
+    public void produce( BootstrapRegistries registries, ProducerCallback cb ) throws NamingException
     {
         Comparator comparator;
 
         /* Really an openLDAP matching rule but its used in he nis so its here
          *
-            ( 1.3.6.1.4.1.4203.1.2.1 NAME 'caseExactIA5SubstringsMatch'
-             SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+         ( 1.3.6.1.4.1.4203.1.2.1 NAME 'caseExactIA5SubstringsMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
          */
-        comparator = new NormalizingComparator(
-                new CachingNormalizer( new DeepTrimNormalizer() ),
-                new ComparableComparator() );
+        comparator = new NormalizingComparator( new CachingNormalizer( new DeepTrimNormalizer() ),
+            new ComparableComparator() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.4203.1.2.1", comparator );
     }
 }

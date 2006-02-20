@@ -34,8 +34,7 @@ import javax.naming.NamingEnumeration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class TupleEnumeration
-    implements NamingEnumeration
+public class TupleEnumeration implements NamingEnumeration
 {
     private final Object key;
     private final Iterator iterator;
@@ -48,14 +47,14 @@ public class TupleEnumeration
      * @param key the keys whose duplicate values are to be returned
      * @param iterator the underlying iterator this cursor uses
      */
-    public TupleEnumeration( Object key, Iterator iterator )
+    public TupleEnumeration(Object key, Iterator iterator)
     {
         this.key = key;
         tuple.setKey( key );
         this.iterator = iterator;
     }
 
-    
+
     /**
      * Gets the next value as a Tuple.
      *
@@ -107,7 +106,7 @@ public class TupleEnumeration
     /**
      * @see javax.naming.NamingEnumeration#close()
      */
-    public void close() 
-    { 
+    public void close()
+    {
     }
 }

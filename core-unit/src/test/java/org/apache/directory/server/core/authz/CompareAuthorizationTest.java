@@ -53,7 +53,7 @@ public class CompareAuthorizationTest extends AbstractAuthorizationTest
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
     public boolean checkCanCompareTelephoneNumberAs( String uid, String password, String entryRdn, String number )
-            throws NamingException
+        throws NamingException
     {
         // create the entry with the telephoneNumber attribute to compare
         Attributes testEntry = new BasicAttributes( "ou", "testou", true );
@@ -61,14 +61,14 @@ public class CompareAuthorizationTest extends AbstractAuthorizationTest
         testEntry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
-        testEntry.put( "telephoneNumber", "867-5309" );  // jenny don't change your number
+        testEntry.put( "telephoneNumber", "867-5309" ); // jenny don't change your number
 
         DirContext adminContext = getContextAsAdmin();
 
         try
         {
             // create the entry as admin
-            LdapName userName = new LdapName( "uid="+uid+",ou=users,ou=system" );
+            LdapName userName = new LdapName( "uid=" + uid + ",ou=users,ou=system" );
             adminContext.createSubcontext( entryRdn, testEntry );
 
             // compare the telephone numbers
@@ -106,15 +106,11 @@ public class CompareAuthorizationTest extends AbstractAuthorizationTest
 
         // Gives grantCompare, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorAdd", "{ " +
-                "identificationTag \"addAci\", " +
-                "precedence 14, " +
-                "authenticationLevel none, " +
-                "itemOrUserFirst userFirst: { " +
-                "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " +
-                "userPermissions { { " +
-                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-                "grantsAndDenials { grantCompare, grantRead, grantBrowse } } } } }" );
+        createAccessControlSubentry( "administratorAdd", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
+            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { { "
+            + "protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "grantsAndDenials { grantCompare, grantRead, grantBrowse } } } } }" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group
@@ -142,15 +138,11 @@ public class CompareAuthorizationTest extends AbstractAuthorizationTest
         assertFalse( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
 
         // now add a subentry that enables user billyd to compare an entry below ou=system
-        createAccessControlSubentry( "billydAdd", "{ " +
-                "identificationTag \"addAci\", " +
-                "precedence 14, " +
-                "authenticationLevel none, " +
-                "itemOrUserFirst userFirst: { " +
-                "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
-                "userPermissions { { " +
-                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-                "grantsAndDenials { grantCompare, grantRead, grantBrowse } } } } }" );
+        createAccessControlSubentry( "billydAdd", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
+            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + "userPermissions { { "
+            + "protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "grantsAndDenials { grantCompare, grantRead, grantBrowse } } } } }" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
@@ -171,15 +163,11 @@ public class CompareAuthorizationTest extends AbstractAuthorizationTest
         assertFalse( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
 
         // now add a subentry that enables user billyd to compare an entry below ou=system
-        createAccessControlSubentry( "billyAddBySubtree", "{ " +
-                "identificationTag \"addAci\", " +
-                "precedence 14, " +
-                "authenticationLevel none, " +
-                "itemOrUserFirst userFirst: { " +
-                "userClasses { subtree { { base \"ou=users,ou=system\" } } }, " +
-                "userPermissions { { " +
-                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-                "grantsAndDenials { grantCompare, grantRead, grantBrowse } } } } }" );
+        createAccessControlSubentry( "billyAddBySubtree", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
+            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { subtree { { base \"ou=users,ou=system\" } } }, " + "userPermissions { { "
+            + "protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "grantsAndDenials { grantCompare, grantRead, grantBrowse } } } } }" );
 
         // should work now that billyd is authorized by the subtree userClass
         assertTrue( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
@@ -200,22 +188,19 @@ public class CompareAuthorizationTest extends AbstractAuthorizationTest
         assertFalse( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
 
         // now add a subentry that enables anyone to add an entry below ou=system
-        createAccessControlSubentry( "anybodyAdd", "{ " +
-                "identificationTag \"addAci\", " +
-                "precedence 14, " +
-                "authenticationLevel none, " +
-                "itemOrUserFirst userFirst: { " +
-                "userClasses { allUsers }, " +
-                "userPermissions { { " +
-                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-                "grantsAndDenials { grantCompare, grantRead, grantBrowse } } } } }" );
+        createAccessControlSubentry( "anybodyAdd", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
+            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
+            + "userPermissions { { " + "protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "grantsAndDenials { grantCompare, grantRead, grantBrowse } } } } }" );
 
         // see if we can now compare that test entry's number which we could not before
         // should work with billyd now that all users are authorized
         assertTrue( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
     }
-    
-    public void testPasswordCompare() throws NamingException {
+
+
+    public void testPasswordCompare() throws NamingException
+    {
         DirContext adminCtx = getContextAsAdmin();
         Attributes user = new BasicAttributes( "uid", "bob", true );
         user.put( "userPassword", "bobspassword".getBytes() );
@@ -230,7 +215,7 @@ public class CompareAuthorizationTest extends AbstractAuthorizationTest
         adminCtx.createSubcontext( "uid=bob,ou=users", user );
 
         ServerLdapContext ctx = ( ServerLdapContext ) adminCtx.lookup( "" );
-        assertTrue(ctx.compare(new LdapName( "uid=bob,ou=users,ou=system"), "userPassword", "bobspassword"));
+        assertTrue( ctx.compare( new LdapName( "uid=bob,ou=users,ou=system" ), "userPassword", "bobspassword" ) );
     }
-    
+
 }

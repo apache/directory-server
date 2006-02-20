@@ -24,23 +24,26 @@
  */
 package org.apache.directory.server.dhcp.options.perhost;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class MaximumDatagramSize extends DhcpOption
 {
-	private byte[] maximumDatagramSize;
-	
-	public MaximumDatagramSize( byte[] maximumDatagramSize )
-	{
-		super( 22, 2 );
-		this.maximumDatagramSize = maximumDatagramSize;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( maximumDatagramSize );
-	}
-}
+    private byte[] maximumDatagramSize;
 
+
+    public MaximumDatagramSize(byte[] maximumDatagramSize)
+    {
+        super( 22, 2 );
+        this.maximumDatagramSize = maximumDatagramSize;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( maximumDatagramSize );
+    }
+}

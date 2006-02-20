@@ -83,7 +83,7 @@ public class TupleCache
      *
      * @param factoryCfg the context factory configuration for the server
      */
-    public TupleCache( DirectoryServiceConfiguration factoryCfg ) throws NamingException
+    public TupleCache(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
         this.nexus = factoryCfg.getPartitionNexus();
         AttributeTypeRegistry registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
@@ -151,7 +151,7 @@ public class TupleCache
     {
         // only do something if the entry contains prescriptiveACI
         Attribute aci = entry.get( ACI_ATTR );
-        if ( ! hasPrescriptiveACI( entry ) )
+        if ( !hasPrescriptiveACI( entry ) )
         {
             return;
         }
@@ -167,7 +167,7 @@ public class TupleCache
             }
             catch ( ParseException e )
             {
-                String msg = "ACIItem parser failure on '"+item+"'. Cannnot add ACITuples to TupleCache.";
+                String msg = "ACIItem parser failure on '" + item + "'. Cannnot add ACITuples to TupleCache.";
                 log.warn( msg, e );
             }
 
@@ -178,8 +178,8 @@ public class TupleCache
 
 
     public void subentryDeleted( Name normName, Attributes entry ) throws NamingException
-    {                                                                                      
-        if ( ! hasPrescriptiveACI( entry ) )
+    {
+        if ( !hasPrescriptiveACI( entry ) )
         {
             return;
         }
@@ -190,7 +190,7 @@ public class TupleCache
 
     public void subentryModified( Name normName, ModificationItem[] mods, Attributes entry ) throws NamingException
     {
-        if ( ! hasPrescriptiveACI( entry ) )
+        if ( !hasPrescriptiveACI( entry ) )
         {
             return;
         }
@@ -210,7 +210,7 @@ public class TupleCache
 
     public void subentryModified( Name normName, int modOp, Attributes mods, Attributes entry ) throws NamingException
     {
-        if ( ! hasPrescriptiveACI( entry ) )
+        if ( !hasPrescriptiveACI( entry ) )
         {
             return;
         }
@@ -220,7 +220,7 @@ public class TupleCache
             subentryDeleted( normName, entry );
             subentryAdded( normName.toString(), normName, entry );
         }
-    }                                                     
+    }
 
 
     public List getACITuples( String subentryDn )

@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.Collection;
 
 import javax.naming.Name;
@@ -59,10 +60,8 @@ public interface ACITupleFilter
      * @return the collection of filtered tuples
      * @throws NamingException if failed to filter the specifiec tuples
      */
-    Collection filter(
-            Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
-            Collection userGroupNames, Name userName, Attributes userEntry,
-            AuthenticationLevel authenticationLevel,
-            Name entryName, String attrId, Object attrValue, Attributes entry,
-            Collection microOperations ) throws NamingException;
+    Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
+        Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
+        Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+        throws NamingException;
 }

@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * This option specifies a list of IP addresses indicating NIS+ servers
@@ -29,9 +31,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class NisPlusServers extends AddressListOption
 {
-	public NisPlusServers( byte[] nisPlusServers )
-	{
-		super( 65, nisPlusServers );
-	}
+    public NisPlusServers(byte[] nisPlusServers)
+    {
+        super( 65, nisPlusServers );
+    }
 }
-

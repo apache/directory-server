@@ -28,23 +28,26 @@
  */
 package org.apache.directory.server.dhcp.options.perhost;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class PolicyFilter extends DhcpOption
 {
-	private byte[] policyFilter;
-	
-	public PolicyFilter( byte[] policyFilter )
-	{
-		super( 21, 8 );
-		this.policyFilter = policyFilter;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( policyFilter );
-	}
-}
+    private byte[] policyFilter;
 
+
+    public PolicyFilter(byte[] policyFilter)
+    {
+        super( 21, 8 );
+        this.policyFilter = policyFilter;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( policyFilter );
+    }
+}

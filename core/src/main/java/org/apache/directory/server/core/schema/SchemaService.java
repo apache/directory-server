@@ -91,16 +91,16 @@ public class SchemaService extends BaseInterceptor
      * a binary attribute tranforming filter: String -> byte[]
      */
     private BinaryAttributeFilter binaryAttributeFilter;
-    
+
     private TopFilter topFilter;
-    
+
     private List filters = new ArrayList();
 
     /**
      * the global schema object registries
      */
     private GlobalRegistries globalRegistries;
-    
+
     private Set binaries;
 
     /**
@@ -112,6 +112,7 @@ public class SchemaService extends BaseInterceptor
      * The time when the server started up.
      */
     private String startUpTimeStamp;
+
 
     /**
      * Creates a schema service interceptor.
@@ -160,9 +161,8 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor,
-                                     Name base, Map env, ExprNode filter,
-                                     SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor, Name base, Map env, ExprNode filter,
+        SearchControls searchCtls ) throws NamingException
     {
         // check to make sure the DN searched for is a subentry
         if ( !subschemaSubentryDn.equals( base.toString() ) )
@@ -177,15 +177,12 @@ public class SchemaService extends BaseInterceptor
             return new SearchResultFilteringEnumeration( e, searchCtls, invocation, filters );
         }
 
-        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
-                filter instanceof SimpleNode )
+        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE && filter instanceof SimpleNode )
         {
             SimpleNode node = ( SimpleNode ) filter;
 
-            if ( node.getAttribute().equalsIgnoreCase( "objectClass" ) &&
-                    node.getValue().equalsIgnoreCase( "subschema" ) &&
-                    node.getAssertionType() == SimpleNode.EQUALITY
-            )
+            if ( node.getAttribute().equalsIgnoreCase( "objectClass" )
+                && node.getValue().equalsIgnoreCase( "subschema" ) && node.getAssertionType() == SimpleNode.EQUALITY )
             {
                 // call.setBypass( true );
                 Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
@@ -193,8 +190,7 @@ public class SchemaService extends BaseInterceptor
                 return new SingletonEnumeration( result );
             }
         }
-        else if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
-                    filter instanceof PresenceNode )
+        else if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE && filter instanceof PresenceNode )
         {
             PresenceNode node = ( PresenceNode ) filter;
 
@@ -337,7 +333,6 @@ public class SchemaService extends BaseInterceptor
         // timeestamps are hacks for now until the schema is actually updateable these
         // use the servers startup time stamp for both modify and create timestamps
 
-
         if ( returnAllOperationalAttributes || set.contains( "createtimestamp" ) )
         {
             attr = new LockableAttributeImpl( "createTimestamp" );
@@ -436,7 +431,7 @@ public class SchemaService extends BaseInterceptor
         OidRegistry oidRegistry = globalRegistries.getOidRegistry();
         ObjectClassRegistry registry = globalRegistries.getObjectClassRegistry();
 
-        if ( ! oidRegistry.hasOid( attrId ) )
+        if ( !oidRegistry.hasOid( attrId ) )
         {
             return false;
         }
@@ -512,20 +507,20 @@ public class SchemaService extends BaseInterceptor
             return new LockableAttributeImpl( "objectClasses" );
         }
 
-        switch( modOp )
+        switch ( modOp )
         {
-            case( DirContext.ADD_ATTRIBUTE ):
+            case ( DirContext.ADD_ATTRIBUTE  ):
                 return AttributeUtils.getUnion( existing, changes );
-            case( DirContext.REPLACE_ATTRIBUTE ):
+            case ( DirContext.REPLACE_ATTRIBUTE  ):
                 return ( Attribute ) changes.clone();
-            case( DirContext.REMOVE_ATTRIBUTE ):
+            case ( DirContext.REMOVE_ATTRIBUTE  ):
                 return AttributeUtils.getDifference( existing, changes );
             default:
                 throw new InternalError( "" );
         }
     }
-    
-    
+
+
     /**
      * Given the objectClasses for an entry, this method adds missing ancestors 
      * in the hierarchy except for top which it removes.  This is used for this
@@ -535,24 +530,25 @@ public class SchemaService extends BaseInterceptor
      * @param objectClassAttr the objectClass attribute to modify
      * @throws NamingException if there are problems 
      */
-    public static void alterObjectClasses( Attribute objectClassAttr, ObjectClassRegistry registry ) throws NamingException
+    public static void alterObjectClasses( Attribute objectClassAttr, ObjectClassRegistry registry )
+        throws NamingException
     {
-        if ( ! objectClassAttr.getID().equalsIgnoreCase( "objectClass" ) )
+        if ( !objectClassAttr.getID().equalsIgnoreCase( "objectClass" ) )
         {
-            throw new LdapNamingException( "Expecting an objectClass attribute but got " + objectClassAttr.getID(), 
+            throw new LdapNamingException( "Expecting an objectClass attribute but got " + objectClassAttr.getID(),
                 ResultCodeEnum.OPERATIONSERROR );
         }
-        
+
         Set objectClasses = new HashSet();
         for ( int ii = 0; ii < objectClassAttr.size(); ii++ )
         {
             String val = ( String ) objectClassAttr.get( ii );
-            if ( ! val.equalsIgnoreCase( "top" ) )
+            if ( !val.equalsIgnoreCase( "top" ) )
             {
                 objectClasses.add( val.toLowerCase() );
             }
         }
-        
+
         for ( int ii = 0; ii < objectClassAttr.size(); ii++ )
         {
             String val = ( String ) objectClassAttr.get( ii );
@@ -560,15 +556,15 @@ public class SchemaService extends BaseInterceptor
             {
                 objectClassAttr.remove( val );
             }
-            
+
             ObjectClass objectClass = registry.lookup( val );
-            
+
             // cannot use Collections.addAll(Collection, Object[]) since it's 1.5
             ObjectClass top = registry.lookup( "top" );
             ObjectClass[] superiors = objectClass.getSuperClasses();
             for ( int jj = 0; jj < superiors.length; jj++ )
             {
-                if ( superiors[jj] != top && ! objectClasses.contains( superiors[jj].getName().toLowerCase() ) )
+                if ( superiors[jj] != top && !objectClasses.contains( superiors[jj].getName().toLowerCase() ) )
                 {
                     objectClassAttr.add( superiors[jj].getName() );
                 }
@@ -580,7 +576,7 @@ public class SchemaService extends BaseInterceptor
     public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
-        Attribute objectClass = getResultantObjectClasses( modOp, mods.get( "objectClass"), entry.get( "objectClass" ) );
+        Attribute objectClass = getResultantObjectClasses( modOp, mods.get( "objectClass" ), entry.get( "objectClass" ) );
         ObjectClassRegistry ocRegistry = this.globalRegistries.getObjectClassRegistry();
         AttributeTypeRegistry atRegistry = this.globalRegistries.getAttributeTypeRegistry();
 
@@ -590,7 +586,7 @@ public class SchemaService extends BaseInterceptor
             String id = ( String ) changes.next();
             Attribute change = mods.get( id );
 
-            if ( ! atRegistry.hasAttributeType( change.getID() ) && ! objectClass.contains( "extensibleObject" ) )
+            if ( !atRegistry.hasAttributeType( change.getID() ) && !objectClass.contains( "extensibleObject" ) )
             {
                 throw new LdapInvalidAttributeIdentifierException( "unrecognized attributeID " + change.getID() );
             }
@@ -602,9 +598,8 @@ public class SchemaService extends BaseInterceptor
 
             // for required attributes we need to check if all values are removed
             // if so then we have a schema violation that must be thrown
-            if ( modOp == DirContext.REMOVE_ATTRIBUTE &&
-                 isRequired( change.getID(), objectClass ) &&
-                 isCompleteRemoval( change, entry ) )
+            if ( modOp == DirContext.REMOVE_ATTRIBUTE && isRequired( change.getID(), objectClass )
+                && isCompleteRemoval( change, entry ) )
             {
                 throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
             }
@@ -628,38 +623,38 @@ public class SchemaService extends BaseInterceptor
         {
             Attribute alteredObjectClass = ( Attribute ) objectClass.clone();
             alterObjectClasses( alteredObjectClass, ocRegistry );
-            
-            if ( ! alteredObjectClass.equals( objectClass ) )
+
+            if ( !alteredObjectClass.equals( objectClass ) )
             {
                 Attribute ocMods = mods.get( "objectClass" );
-                switch( modOp )
+                switch ( modOp )
                 {
-                    case( DirContext.ADD_ATTRIBUTE ):
+                    case ( DirContext.ADD_ATTRIBUTE  ):
                         if ( ocMods.contains( "top" ) )
                         {
                             ocMods.remove( "top" );
                         }
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
-                            if ( ! objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
                             {
                                 ocMods.add( alteredObjectClass.get( ii ) );
                             }
                         }
                         break;
-                    case( DirContext.REMOVE_ATTRIBUTE ):
+                    case ( DirContext.REMOVE_ATTRIBUTE  ):
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
-                            if ( ! objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
                             {
                                 ocMods.remove( alteredObjectClass.get( ii ) );
                             }
                         }
                         break;
-                    case( DirContext.REPLACE_ATTRIBUTE ):
+                    case ( DirContext.REPLACE_ATTRIBUTE  ):
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
-                            if ( ! objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
                             {
                                 ocMods.add( alteredObjectClass.get( ii ) );
                             }
@@ -669,7 +664,7 @@ public class SchemaService extends BaseInterceptor
                 }
             }
         }
-        
+
         next.modify( name, modOp, mods );
     }
 
@@ -679,14 +674,14 @@ public class SchemaService extends BaseInterceptor
         Attributes entry = nexus.lookup( name );
         Set modset = new HashSet();
         ModificationItem objectClassMod = null;
-                    
+
         for ( int ii = 0; ii < mods.length; ii++ )
         {
             if ( mods[ii].getAttribute().getID().equalsIgnoreCase( "objectclass" ) )
             {
                 objectClassMod = mods[ii];
             }
-            
+
             StringBuffer keybuf = new StringBuffer();
             keybuf.append( mods[ii].getModificationOp() );
             keybuf.append( mods[ii].getAttribute().getID() );
@@ -694,9 +689,9 @@ public class SchemaService extends BaseInterceptor
             {
                 keybuf.append( mods[ii].getAttribute().get( jj ) );
             }
-            if ( ! modset.add( keybuf.toString() ) && mods[ii].getModificationOp() == DirContext.ADD_ATTRIBUTE )
+            if ( !modset.add( keybuf.toString() ) && mods[ii].getModificationOp() == DirContext.ADD_ATTRIBUTE )
             {
-                throw new LdapAttributeInUseException( "found two copies of the following modification item: " 
+                throw new LdapAttributeInUseException( "found two copies of the following modification item: "
                     + mods[ii] );
             }
         }
@@ -708,8 +703,8 @@ public class SchemaService extends BaseInterceptor
         }
         else
         {
-            objectClass = getResultantObjectClasses( objectClassMod.getModificationOp(),
-                    objectClassMod.getAttribute(), entry.get( "objectClass" ) );
+            objectClass = getResultantObjectClasses( objectClassMod.getModificationOp(), objectClassMod.getAttribute(),
+                entry.get( "objectClass" ) );
         }
 
         ObjectClassRegistry ocRegistry = this.globalRegistries.getObjectClassRegistry();
@@ -720,7 +715,7 @@ public class SchemaService extends BaseInterceptor
             int modOp = mods[ii].getModificationOp();
             Attribute change = mods[ii].getAttribute();
 
-            if ( ! atRegistry.hasAttributeType( change.getID() ) && ! objectClass.contains( "extensibleObject" ) )
+            if ( !atRegistry.hasAttributeType( change.getID() ) && !objectClass.contains( "extensibleObject" ) )
             {
                 throw new LdapInvalidAttributeIdentifierException();
             }
@@ -739,7 +734,8 @@ public class SchemaService extends BaseInterceptor
                     throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
                 }
                 SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, change );
-                SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change, objectClass );
+                SchemaChecker
+                    .preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change, objectClass );
             }
 
             if ( modOp == DirContext.REPLACE_ATTRIBUTE )
@@ -755,38 +751,38 @@ public class SchemaService extends BaseInterceptor
         {
             Attribute alteredObjectClass = ( Attribute ) objectClass.clone();
             alterObjectClasses( alteredObjectClass, ocRegistry );
-            
-            if ( ! alteredObjectClass.equals( objectClass ) )
+
+            if ( !alteredObjectClass.equals( objectClass ) )
             {
                 Attribute ocMods = objectClassMod.getAttribute();
-                switch( objectClassMod.getModificationOp() )
+                switch ( objectClassMod.getModificationOp() )
                 {
-                    case( DirContext.ADD_ATTRIBUTE ):
+                    case ( DirContext.ADD_ATTRIBUTE  ):
                         if ( ocMods.contains( "top" ) )
                         {
                             ocMods.remove( "top" );
                         }
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
-                            if ( ! objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
                             {
                                 ocMods.add( alteredObjectClass.get( ii ) );
                             }
                         }
                         break;
-                    case( DirContext.REMOVE_ATTRIBUTE ):
+                    case ( DirContext.REMOVE_ATTRIBUTE  ):
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
-                            if ( ! objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
                             {
                                 ocMods.remove( alteredObjectClass.get( ii ) );
                             }
                         }
                         break;
-                    case( DirContext.REPLACE_ATTRIBUTE ):
+                    case ( DirContext.REPLACE_ATTRIBUTE  ):
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
-                            if ( ! objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
                             {
                                 ocMods.add( alteredObjectClass.get( ii ) );
                             }
@@ -800,14 +796,14 @@ public class SchemaService extends BaseInterceptor
         next.modify( name, mods );
     }
 
-    
+
     private void filterTop( Attributes entry ) throws NamingException
     {
         // add top if objectClass is included and missing top
         Attribute oc = entry.get( "objectClass" );
         if ( oc != null )
         {
-            if ( ! oc.contains( "top" ) )
+            if ( !oc.contains( "top" ) )
             {
                 oc.add( "top" );
             }
@@ -818,13 +814,13 @@ public class SchemaService extends BaseInterceptor
     private void filterBinaryAttributes( Attributes entry ) throws NamingException
     {
         long t0 = -1;
-        
+
         if ( log.isDebugEnabled() )
         {
             t0 = System.currentTimeMillis();
-            log.debug( "Filtering entry " + AttributeUtils.toString( entry ) );  
+            log.debug( "Filtering entry " + AttributeUtils.toString( entry ) );
         }
-        
+
         /*
          * start converting values of attributes to byte[]s which are not
          * human readable and those that are in the binaries set
@@ -868,14 +864,13 @@ public class SchemaService extends BaseInterceptor
                 entry.put( binary );
             }
         }
-        
+
         if ( log.isDebugEnabled() )
         {
             long t1 = System.currentTimeMillis();
-            log.debug( "Time to filter entry = " + (t1 - t0) + " ms" );
+            log.debug( "Time to filter entry = " + ( t1 - t0 ) + " ms" );
         }
     }
-
 
     /**
      * A special filter over entry attributes which replaces Attribute String values with their respective byte[]
@@ -887,7 +882,8 @@ public class SchemaService extends BaseInterceptor
      */
     private class BinaryAttributeFilter implements SearchResultFilter
     {
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) throws NamingException
+        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+            throws NamingException
         {
             filterBinaryAttributes( result.getAttributes() );
             return true;
@@ -899,12 +895,14 @@ public class SchemaService extends BaseInterceptor
      */
     private class TopFilter implements SearchResultFilter
     {
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) throws NamingException
+        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+            throws NamingException
         {
             filterTop( result.getAttributes() );
             return true;
         }
     }
+
 
     /**
      * Check that all the attributes exist in the schema for this entry.
@@ -915,13 +913,13 @@ public class SchemaService extends BaseInterceptor
         NamingEnumeration attrEnum = attrs.getIDs();
         while ( attrEnum.hasMoreElements() )
         {
-            String name = (String)attrEnum.nextElement();
-            if ( ! atRegistry.hasAttributeType( name ) )
+            String name = ( String ) attrEnum.nextElement();
+            if ( !atRegistry.hasAttributeType( name ) )
             {
                 throw new LdapInvalidAttributeIdentifierException( name + " not found in attribute registry!" );
             }
         }
-        
+
         alterObjectClasses( attrs.get( "objectClass" ), this.globalRegistries.getObjectClassRegistry() );
         next.add( upName, normName, attrs );
     }

@@ -28,15 +28,14 @@ import org.apache.directory.server.core.schema.SerializableComparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class KeyOnlyComparator
-    implements TupleComparator, Serializable
+public class KeyOnlyComparator implements TupleComparator, Serializable
 {
     private static final long serialVersionUID = 3544956549803161397L;
 
     private SerializableComparator keyComparator = null;
 
 
-    public KeyOnlyComparator( SerializableComparator comparator )
+    public KeyOnlyComparator(SerializableComparator comparator)
     {
         keyComparator = comparator;
     }

@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dns.messages;
 
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 
 public final class ProtocolType implements Comparable
 {
@@ -74,47 +76,52 @@ public final class ProtocolType implements Comparable
     /**
      * These two lines are all that's necessary to export a List of VALUES.
      */
-    private static final ProtocolType[] values = { NULL, ICMP, IGMP, GGP, ST, TCP, UCL, EGP, IGP, BBN_RCC_MON, NVP_II,
-            PUP, ARGUS, EMCON, XNET, CHAOS, UDP, MUX, DCN_MEAS, HMP, PRM, XNS_IDP, TRUNK_1, TRUNK_2, LEAF_1, LEAF_2,
-            RDP, IRTP, ISO_TP4, NETBLT, MFE_NSP, MERIT_INP, SEP, CFTP, SAT_EXPAK, MIT_SUBNET, RVD, IPPC, SAT_MON, IPCV,
-            BR_SAT_MON, WB_MON, WB_EXPAK };
+    private static final ProtocolType[] values =
+        { NULL, ICMP, IGMP, GGP, ST, TCP, UCL, EGP, IGP, BBN_RCC_MON, NVP_II, PUP, ARGUS, EMCON, XNET, CHAOS, UDP, MUX,
+            DCN_MEAS, HMP, PRM, XNS_IDP, TRUNK_1, TRUNK_2, LEAF_1, LEAF_2, RDP, IRTP, ISO_TP4, NETBLT, MFE_NSP,
+            MERIT_INP, SEP, CFTP, SAT_EXPAK, MIT_SUBNET, RVD, IPPC, SAT_MON, IPCV, BR_SAT_MON, WB_MON, WB_EXPAK };
 
     public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     private final String name;
     private final int ordinal;
 
+
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private ProtocolType( int ordinal, String name )
+    private ProtocolType(int ordinal, String name)
     {
         this.ordinal = ordinal;
         this.name = name;
     }
+
 
     public String toString()
     {
         return name;
     }
 
+
     public int compareTo( Object that )
     {
-        return ordinal - ( (ProtocolType) that ).ordinal;
+        return ordinal - ( ( ProtocolType ) that ).ordinal;
     }
+
 
     public static ProtocolType getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
         {
-            if ( values[ ii ].ordinal == type )
+            if ( values[ii].ordinal == type )
             {
-                return values[ ii ];
+                return values[ii];
             }
         }
 
         return NULL;
     }
+
 
     public int getOrdinal()
     {

@@ -16,11 +16,13 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.service.CheckPasswordPolicy;
 
 import junit.framework.TestCase;
+
 
 /**
  * Tests {@link CheckPasswordPolicy}.
@@ -36,6 +38,7 @@ public class CheckPasswordPolicyTest extends TestCase
 
     private CheckPasswordPolicy policy = new CheckPasswordPolicy();
 
+
     public void testGoodPassword()
     {
         String username = "Enrique Rodriguez";
@@ -46,6 +49,7 @@ public class CheckPasswordPolicyTest extends TestCase
         assertTrue( policy.isValid( username, password, passwordLength, categoryCount, tokenSize ) );
     }
 
+
     public void testBadPassword()
     {
         String username = "Erin Randall";
@@ -55,6 +59,7 @@ public class CheckPasswordPolicyTest extends TestCase
         assertFalse( policy.isValidUsernameSubstring( username, password, tokenSize ) );
         assertFalse( policy.isValid( username, password, passwordLength, categoryCount, tokenSize ) );
     }
+
 
     public void testPrincipalAsUsername()
     {

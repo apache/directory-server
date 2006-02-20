@@ -17,13 +17,11 @@
 package org.apache.directory.server.core.unit;
 
 
-
-
 /**
  * Adds extra code to perform operations as another user besides the admin user.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 190555 $
+ * @version $Rev$
  */
 public abstract class AbstractNonAdminTestCase extends AbstractTestCase
 {

@@ -16,61 +16,56 @@
  */
 package org.apache.directory.server.kerberos.kdc;
 
+
+import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.messages.ErrorMessage;
-import org.apache.kerberos.messages.KdcReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class MonitorReply extends CommandBase
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorReply.class );
 
+
     public boolean execute( Context context ) throws Exception
     {
-        KdcContext kdcContext = (KdcContext) context;
+        KdcContext kdcContext = ( KdcContext ) context;
         Object message = kdcContext.getReply();
-        
+
         if ( message instanceof KdcReply )
         {
-            KdcReply reply = (KdcReply) message;
-            
+            KdcReply reply = ( KdcReply ) message;
+
             if ( log.isDebugEnabled() )
             {
-                log.debug( "Responding to authentication request with reply:"
-                        + "\n\tclient realm:          " + reply.getClientRealm()
-                        + "\n\tserver realm:          " + reply.getServerRealm()
-                        + "\n\tserverPrincipal:       " + reply.getServerPrincipal()
-                        + "\n\tclientPrincipal:       " + reply.getClientPrincipal()
-                        + "\n\thostAddresses:         " + reply.getClientAddresses()
-                        + "\n\tstart time:            " + reply.getStartTime()
-                        + "\n\tend time:              " + reply.getEndTime()
-                        + "\n\tauth time:             " + reply.getAuthTime()
-                        + "\n\trenew till time:       " + reply.getRenewTill()
-                        + "\n\tmessageType:           " + reply.getMessageType()
-                        + "\n\tnonce:                 " + reply.getNonce()
-                        + "\n\tprotocolVersionNumber: " + reply.getProtocolVersionNumber()
-                         );
+                log.debug( "Responding to authentication request with reply:" + "\n\tclient realm:          "
+                    + reply.getClientRealm() + "\n\tserver realm:          " + reply.getServerRealm()
+                    + "\n\tserverPrincipal:       " + reply.getServerPrincipal() + "\n\tclientPrincipal:       "
+                    + reply.getClientPrincipal() + "\n\thostAddresses:         " + reply.getClientAddresses()
+                    + "\n\tstart time:            " + reply.getStartTime() + "\n\tend time:              "
+                    + reply.getEndTime() + "\n\tauth time:             " + reply.getAuthTime()
+                    + "\n\trenew till time:       " + reply.getRenewTill() + "\n\tmessageType:           "
+                    + reply.getMessageType() + "\n\tnonce:                 " + reply.getNonce()
+                    + "\n\tprotocolVersionNumber: " + reply.getProtocolVersionNumber() );
             }
         }
         else
         {
             if ( message instanceof ErrorMessage )
             {
-                ErrorMessage error = (ErrorMessage) message;
-                
+                ErrorMessage error = ( ErrorMessage ) message;
+
                 if ( log.isDebugEnabled() )
                 {
-                    log.debug( "Responding to authentication request with error:"
-                            + "\n\tserverPrincipal:       " + error.getServerPrincipal()
-                            + "\n\tclientPrincipal:       " + error.getClientPrincipal()
-                            + "\n\tserver time:           " + error.getClientTime()
-                            + "\n\tclient time:           " + error.getServerTime()
-                            + "\n\terror code:            " + error.getErrorCode()
-                            + "\n\texplanatory text:      " + error.getExplanatoryText()
-                             );
+                    log.debug( "Responding to authentication request with error:" + "\n\tserverPrincipal:       "
+                        + error.getServerPrincipal() + "\n\tclientPrincipal:       " + error.getClientPrincipal()
+                        + "\n\tserver time:           " + error.getClientTime() + "\n\tclient time:           "
+                        + error.getServerTime() + "\n\terror code:            " + error.getErrorCode()
+                        + "\n\texplanatory text:      " + error.getExplanatoryText() );
                 }
             }
         }

@@ -147,14 +147,14 @@ public class DestroyContextTest extends AbstractAdminTestCase
         /*
          * delete ou=testing00,ou=system
          */
-        sysRoot.destroySubcontext( "ou=testing00");
+        sysRoot.destroySubcontext( "ou=testing00" );
 
         try
         {
             sysRoot.lookup( "ou=testing00" );
             fail( "ou=testing00, ou=system should not exist" );
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             assertTrue( e instanceof LdapNameNotFoundException );
         }
@@ -162,14 +162,14 @@ public class DestroyContextTest extends AbstractAdminTestCase
         /*
          * delete ou=subtest,ou=testing01,ou=system
          */
-        sysRoot.destroySubcontext( "ou=subtest,ou=testing01");
+        sysRoot.destroySubcontext( "ou=subtest,ou=testing01" );
 
         try
         {
             sysRoot.lookup( "ou=subtest,ou=testing01" );
             fail( "ou=subtest,ou=testing01,ou=system should not exist" );
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             assertTrue( e instanceof LdapNameNotFoundException );
         }
@@ -177,34 +177,32 @@ public class DestroyContextTest extends AbstractAdminTestCase
         /*
          * delete ou=testing01,ou=system
          */
-        sysRoot.destroySubcontext( "ou=testing01");
+        sysRoot.destroySubcontext( "ou=testing01" );
 
         try
         {
             sysRoot.lookup( "ou=testing01" );
             fail( "ou=testing01, ou=system should not exist" );
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             assertTrue( e instanceof LdapNameNotFoundException );
         }
 
-
         /*
          * delete ou=testing01,ou=system
          */
-        sysRoot.destroySubcontext( "ou=testing02");
+        sysRoot.destroySubcontext( "ou=testing02" );
 
         try
         {
             sysRoot.lookup( "ou=testing02" );
             fail( "ou=testing02, ou=system should not exist" );
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             assertTrue( e instanceof LdapNameNotFoundException );
         }
     }
-
 
 }

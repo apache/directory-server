@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dns.messages;
 
+
 import java.util.Map;
+
 
 /**
  * The answer, authority, and additional sections all share the same
@@ -83,8 +85,9 @@ public class ResourceRecordImpl implements ResourceRecord
      */
     private Map attributes;
 
-    public ResourceRecordImpl( String domainName, RecordType recordType, RecordClass recordClass, int timeToLive,
-            Map attributes )
+
+    public ResourceRecordImpl(String domainName, RecordType recordType, RecordClass recordClass, int timeToLive,
+        Map attributes)
     {
         this.domainName = domainName;
         this.recordType = recordType;
@@ -92,6 +95,7 @@ public class ResourceRecordImpl implements ResourceRecord
         this.timeToLive = timeToLive;
         this.attributes = attributes;
     }
+
 
     /**
      * @return Returns the domainName.
@@ -101,6 +105,7 @@ public class ResourceRecordImpl implements ResourceRecord
         return domainName;
     }
 
+
     /**
      * @return Returns the recordType.
      */
@@ -108,6 +113,7 @@ public class ResourceRecordImpl implements ResourceRecord
     {
         return recordType;
     }
+
 
     /**
      * @return Returns the recordClass.
@@ -117,6 +123,7 @@ public class ResourceRecordImpl implements ResourceRecord
         return recordClass;
     }
 
+
     /**
      * @return Returns the timeToLive.
      */
@@ -125,13 +132,15 @@ public class ResourceRecordImpl implements ResourceRecord
         return timeToLive;
     }
 
+
     /**
      * @return Returns the value for the id.
      */
     public String get( String id )
     {
-        return (String) attributes.get( id );
+        return ( String ) attributes.get( id );
     }
+
 
     public boolean equals( Object o )
     {
@@ -145,20 +154,22 @@ public class ResourceRecordImpl implements ResourceRecord
             return false;
         }
 
-        ResourceRecordImpl that = (ResourceRecordImpl) o;
+        ResourceRecordImpl that = ( ResourceRecordImpl ) o;
 
         return ( this.domainName.equals( that.domainName ) ) && ( this.recordType == that.recordType )
-                && ( this.recordClass == that.recordClass );
+            && ( this.recordClass == that.recordClass );
     }
+
 
     public int hashCode()
     {
         return domainName.hashCode() + recordType.hashCode() + recordClass.hashCode();
     }
 
+
     public String toString()
     {
         return getClass().getName() + " [ " + domainName + " ( " + recordType + " " + recordClass + " " + timeToLive
-                + " " + attributes.size() + " ) ]";
+            + " " + attributes.size() + " ) ]";
     }
 }

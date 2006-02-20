@@ -73,15 +73,17 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public void destroy() {}
+    public void destroy()
+    {
+    }
 
 
     // ------------------------------------------------------------------------
     // Normalize all Name based arguments for ContextPartition interface operations
     // ------------------------------------------------------------------------
 
-
-    public void add( NextInterceptor nextInterceptor, String upName, Name normName, Attributes attrs ) throws NamingException
+    public void add( NextInterceptor nextInterceptor, String upName, Name normName, Attributes attrs )
+        throws NamingException
     {
         normName = parser.parse( normName.toString() );
         nextInterceptor.add( upName, normName, attrs );
@@ -95,7 +97,8 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs ) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs )
+        throws NamingException
     {
         name = parser.parse( name.toString() );
         nextInterceptor.modify( name, modOp, attrs );
@@ -109,7 +112,8 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn )
+        throws NamingException
     {
         name = parser.parse( name.toString() );
         nextInterceptor.modifyRn( name, newRn, deleteOldRn );
@@ -124,7 +128,8 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor, Name name, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, Name name, Name newParentName, String newRn, boolean deleteOldRn )
+        throws NamingException
     {
         name = parser.parse( name.toString() );
         newParentName = parser.parse( newParentName.toString() );
@@ -132,16 +137,15 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor,
-                                     Name base, Map env, ExprNode filter,
-                                     SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor, Name base, Map env, ExprNode filter,
+        SearchControls searchCtls ) throws NamingException
     {
         base = parser.parse( base.toString() );
 
         if ( filter.isLeaf() )
         {
             LeafNode ln = ( LeafNode ) filter;
-            if ( ! registry.hasAttributeType( ln.getAttribute() ) )
+            if ( !registry.hasAttributeType( ln.getAttribute() ) )
             {
                 StringBuffer buf = new StringBuffer();
                 buf.append( "undefined filter based on undefined attributeType '" );
@@ -155,14 +159,15 @@ public class NormalizationService extends BaseInterceptor
         filter.accept( visitor );
 
         // check that after pruning we have valid branch node at the top
-        if ( ! filter.isLeaf() )
+        if ( !filter.isLeaf() )
         {
             BranchNode child = ( BranchNode ) filter;
 
             // if the remaining filter branch node has no children return an empty enumeration
             if ( child.getChildren().size() == 0 )
             {
-                log.warn( "Undefined branchnode filter without child nodes not evaluted at all.  Returning empty enumeration." );
+                log
+                    .warn( "Undefined branchnode filter without child nodes not evaluted at all.  Returning empty enumeration." );
                 return new EmptyEnumeration();
             }
 
@@ -215,7 +220,6 @@ public class NormalizationService extends BaseInterceptor
     // Normalize all Name based arguments for other interface operations
     // ------------------------------------------------------------------------
 
-
     public Name getMatchedName( NextInterceptor nextInterceptor, Name name, boolean normalized ) throws NamingException
     {
         name = parser.parse( name.toString() );
@@ -236,7 +240,6 @@ public class NormalizationService extends BaseInterceptor
         return next.compare( name, oid, value );
     }
 
-
     /**
      * A normalizer that normalizes each name component specifically according to
      * the attribute type of the name component.
@@ -248,6 +251,7 @@ public class NormalizationService extends BaseInterceptor
             AttributeType type = registry.lookup( name );
             return ( String ) type.getEquality().getNormalizer().normalize( value );
         }
+
 
         public String normalizeByName( String name, byte[] value ) throws NamingException
         {
@@ -262,6 +266,7 @@ public class NormalizationService extends BaseInterceptor
             AttributeType type = registry.lookup( oid );
             return ( String ) type.getEquality().getNormalizer().normalize( value );
         }
+
 
         public boolean isDefined( String id )
         {

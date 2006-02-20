@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.*;
 
 import javax.naming.Name;
@@ -46,6 +47,7 @@ public class MaxImmSubFilter implements ACITupleFilter
     private final ExprNode childrenFilter;
     private final SearchControls childrenSearchControls;
 
+
     public MaxImmSubFilter()
     {
         childrenFilter = new PresenceNode( "objectClass" );
@@ -53,45 +55,49 @@ public class MaxImmSubFilter implements ACITupleFilter
         childrenSearchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
     }
 
-    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+
+    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
+        Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
+        Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+        throws NamingException
     {
-        if( entryName.size() == 0 )
+        if ( entryName.size() == 0 )
         {
             return tuples;
         }
 
-        if( tuples.size() == 0 )
+        if ( tuples.size() == 0 )
         {
             return tuples;
         }
 
-        if( scope != OperationScope.ENTRY )
+        if ( scope != OperationScope.ENTRY )
         {
             return tuples;
         }
 
         int immSubCount = -1;
 
-        for( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            if( !tuple.isGrant() )
+            if ( !tuple.isGrant() )
             {
                 continue;
             }
 
-            for( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
+            for ( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
             {
                 ProtectedItem item = ( ProtectedItem ) j.next();
-                if( item instanceof ProtectedItem.MaxImmSub )
+                if ( item instanceof ProtectedItem.MaxImmSub )
                 {
-                    if( immSubCount < 0 )
+                    if ( immSubCount < 0 )
                     {
                         immSubCount = getImmSubCount( proxy, entryName );
                     }
 
                     ProtectedItem.MaxImmSub mis = ( ProtectedItem.MaxImmSub ) item;
-                    if( immSubCount >= mis.getValue() )
+                    if ( immSubCount >= mis.getValue() )
                     {
                         i.remove();
                         break;
@@ -102,7 +108,6 @@ public class MaxImmSubFilter implements ACITupleFilter
 
         return tuples;
     }
-
 
     public static final Collection SEARCH_BYPASS;
     static
@@ -126,20 +131,19 @@ public class MaxImmSubFilter implements ACITupleFilter
         NamingEnumeration e = null;
         try
         {
-            e = proxy.search(
-                entryName.getPrefix( 1 ), new HashMap(),
-                childrenFilter, childrenSearchControls, SEARCH_BYPASS );
+            e = proxy.search( entryName.getPrefix( 1 ), new HashMap(), childrenFilter, childrenSearchControls,
+                SEARCH_BYPASS );
 
-            while( e.hasMore() )
+            while ( e.hasMore() )
             {
                 e.next();
-                cnt ++;
+                cnt++;
             }
 
         }
         finally
         {
-            if( e != null )
+            if ( e != null )
             {
                 e.close();
             }

@@ -30,10 +30,10 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SyntaxCheckerRegistryMonitorAdapter 
-    implements SyntaxCheckerRegistryMonitor
+public class SyntaxCheckerRegistryMonitorAdapter implements SyntaxCheckerRegistryMonitor
 {
     private static final Logger log = LoggerFactory.getLogger( SyntaxCheckerRegistryMonitorAdapter.class );
+
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.SyntaxCheckerRegistryMonitor#registered(
@@ -43,7 +43,7 @@ public class SyntaxCheckerRegistryMonitorAdapter
     {
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.SyntaxCheckerRegistryMonitor#lookedUp(
      * org.apache.eve.schema.SyntaxChecker)
@@ -52,7 +52,7 @@ public class SyntaxCheckerRegistryMonitorAdapter
     {
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.SyntaxCheckerRegistryMonitor#lookupFailed(
      * java.lang.String, javax.naming.NamingException)
@@ -65,13 +65,12 @@ public class SyntaxCheckerRegistryMonitorAdapter
         }
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.schema.SyntaxCheckerRegistryMonitor#registerFailed(
      * org.apache.eve.schema.SyntaxChecker, javax.naming.NamingException)
      */
-    public void registerFailed( String oid, SyntaxChecker syntaxChecker,
-                                NamingException fault )
+    public void registerFailed( String oid, SyntaxChecker syntaxChecker, NamingException fault )
     {
         if ( fault != null )
         {

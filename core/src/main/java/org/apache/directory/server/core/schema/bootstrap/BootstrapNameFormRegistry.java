@@ -52,11 +52,10 @@ public class BootstrapNameFormRegistry implements NameFormRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates an empty BootstrapNameFormRegistry.
      */
-    public BootstrapNameFormRegistry( OidRegistry oidRegistry )
+    public BootstrapNameFormRegistry(OidRegistry oidRegistry)
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
@@ -80,13 +79,12 @@ public class BootstrapNameFormRegistry implements NameFormRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-
     public void register( String schema, NameForm nameForm ) throws NamingException
     {
         if ( byOid.containsKey( nameForm.getOid() ) )
         {
-            NamingException e = new NamingException( "nameForm w/ OID " +
-                nameForm.getOid() + " has already been registered!" );
+            NamingException e = new NamingException( "nameForm w/ OID " + nameForm.getOid()
+                + " has already been registered!" );
             monitor.registerFailed( nameForm, e );
             throw e;
         }
@@ -102,10 +100,9 @@ public class BootstrapNameFormRegistry implements NameFormRegistry
     {
         id = oidRegistry.getOid( id );
 
-        if ( ! byOid.containsKey( id ) )
+        if ( !byOid.containsKey( id ) )
         {
-            NamingException e = new NamingException( "nameForm w/ OID " + id
-                + " not registered!" );
+            NamingException e = new NamingException( "nameForm w/ OID " + id + " not registered!" );
             monitor.lookupFailed( id, e );
             throw e;
         }
@@ -142,8 +139,7 @@ public class BootstrapNameFormRegistry implements NameFormRegistry
             return ( String ) oidToSchema.get( id );
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " +
-            "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
     }
 
 

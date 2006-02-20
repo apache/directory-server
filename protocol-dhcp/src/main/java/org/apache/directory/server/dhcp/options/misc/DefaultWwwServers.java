@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * The WWW server option specifies a list of WWW available to the
@@ -29,9 +31,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class DefaultWwwServers extends AddressListOption
 {
-	public DefaultWwwServers( byte[] defaultWwwServer )
-	{
-		super( 72, defaultWwwServer );
-	}
+    public DefaultWwwServers(byte[] defaultWwwServer)
+    {
+        super( 72, defaultWwwServer );
+    }
 }
-

@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option is used by a DHCP server to provide an error message to a
@@ -33,17 +35,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class Message extends DhcpOption
 {
-	private byte[] message;
-	
-	public Message( byte[] message )
-	{
-		super( 56, 1 );
-		this.message = message;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( message );
-	}
-}
+    private byte[] message;
 
+
+    public Message(byte[] message)
+    {
+        super( 56, 1 );
+        this.message = message;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( message );
+    }
+}

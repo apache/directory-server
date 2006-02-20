@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dhcp.io;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.DhcpException;
@@ -27,66 +28,65 @@ import org.apache.directory.server.dhcp.messages.MessageType;
 
 public class DhcpMessageDecoder
 {
-	/**
-	 * Convert a byte buffer into a DhcpMessage.
-	 * 
-	 * @return a DhcpMessage.
-	 * @param buffer ByteBuffer to convert to a DhcpMessage object
-	 */
-	public DhcpMessage decode( ByteBuffer buffer ) throws DhcpException
-	{
-		/**
-		 * TODO - need to figure out why the buffer needs to be rewound.
-		 */
-		buffer.rewind();
-		
-		DhcpMessageModifier modifier = new DhcpMessageModifier();
-		
-		modifier.setMessageType( MessageType.DHCPDISCOVER );
-		
-		modifier.setOpCode( buffer.get() );
-		modifier.setHardwareAddressType( buffer.get() );
-		
-		short hardwareAddressLength = (short)( buffer.get() & 0xff );
-		
-		modifier.setHardwareAddressLength( (byte)hardwareAddressLength );
-		modifier.setHardwareOptions( buffer.get() );
-		
-		modifier.setTransactionId( buffer.getInt() );
-		modifier.setSeconds( buffer.getShort() );
-		modifier.setFlags( buffer.getShort() );
-		
-		byte[] nextFourBytes = new byte[ 4 ];
-		
-		buffer.get( nextFourBytes );
-		modifier.setActualClientAddress( nextFourBytes );
-		
-		buffer.get( nextFourBytes );
-		modifier.setAssignedClientAddress( nextFourBytes );
-		
-		buffer.get( nextFourBytes );
-		modifier.setNextServerAddress( nextFourBytes );
-		
-		buffer.get( nextFourBytes );
-		modifier.setRelayAgentAddress( nextFourBytes );
-		
-		byte[] clientHardwareAddress = new byte[ 16 ];
-		
-		buffer.get( clientHardwareAddress );
-		modifier.setClientHardwareAddress( clientHardwareAddress );
-		
-		byte[] serverHostname = new byte[ 64 ];
-		buffer.get( serverHostname );
-		modifier.setServerHostname( serverHostname );
-		
-		byte[] bootFileName = new byte[ 128 ];
-		buffer.get( bootFileName );
-		modifier.setBootFileName( bootFileName );
-		
-		DhcpOptionsDecoder decoder = new DhcpOptionsDecoder();
-		modifier.setOptions( decoder.decode( buffer ) );
-		
-		return modifier.getDhcpMessage();
-	}
-}
+    /**
+     * Convert a byte buffer into a DhcpMessage.
+     * 
+     * @return a DhcpMessage.
+     * @param buffer ByteBuffer to convert to a DhcpMessage object
+     */
+    public DhcpMessage decode( ByteBuffer buffer ) throws DhcpException
+    {
+        /**
+         * TODO - need to figure out why the buffer needs to be rewound.
+         */
+        buffer.rewind();
 
+        DhcpMessageModifier modifier = new DhcpMessageModifier();
+
+        modifier.setMessageType( MessageType.DHCPDISCOVER );
+
+        modifier.setOpCode( buffer.get() );
+        modifier.setHardwareAddressType( buffer.get() );
+
+        short hardwareAddressLength = ( short ) ( buffer.get() & 0xff );
+
+        modifier.setHardwareAddressLength( ( byte ) hardwareAddressLength );
+        modifier.setHardwareOptions( buffer.get() );
+
+        modifier.setTransactionId( buffer.getInt() );
+        modifier.setSeconds( buffer.getShort() );
+        modifier.setFlags( buffer.getShort() );
+
+        byte[] nextFourBytes = new byte[4];
+
+        buffer.get( nextFourBytes );
+        modifier.setActualClientAddress( nextFourBytes );
+
+        buffer.get( nextFourBytes );
+        modifier.setAssignedClientAddress( nextFourBytes );
+
+        buffer.get( nextFourBytes );
+        modifier.setNextServerAddress( nextFourBytes );
+
+        buffer.get( nextFourBytes );
+        modifier.setRelayAgentAddress( nextFourBytes );
+
+        byte[] clientHardwareAddress = new byte[16];
+
+        buffer.get( clientHardwareAddress );
+        modifier.setClientHardwareAddress( clientHardwareAddress );
+
+        byte[] serverHostname = new byte[64];
+        buffer.get( serverHostname );
+        modifier.setServerHostname( serverHostname );
+
+        byte[] bootFileName = new byte[128];
+        buffer.get( bootFileName );
+        modifier.setBootFileName( bootFileName );
+
+        DhcpOptionsDecoder decoder = new DhcpOptionsDecoder();
+        modifier.setOptions( decoder.decode( buffer ) );
+
+        return modifier.getDhcpMessage();
+    }
+}

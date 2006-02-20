@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * This option specifies a list of X Window System Font servers
@@ -29,9 +31,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class XWindowFontServers extends AddressListOption
 {
-	public XWindowFontServers( byte[] xWindowFontServer )
-	{
-		super( 48, xWindowFontServer );
-	}
+    public XWindowFontServers(byte[] xWindowFontServer)
+    {
+        super( 48, xWindowFontServer );
+    }
 }
-

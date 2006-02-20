@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option is used to identify a TFTP server when the 'sname' field
@@ -29,17 +31,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class TftpServerName extends DhcpOption
 {
-	private byte[] tftpServerName;
-	
-	public TftpServerName( byte[] tftpServerName )
-	{
-		super( 66, 1 );
-		this.tftpServerName = tftpServerName;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( tftpServerName );
-	}
-}
+    private byte[] tftpServerName;
 
+
+    public TftpServerName(byte[] tftpServerName)
+    {
+        super( 66, 1 );
+        this.tftpServerName = tftpServerName;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( tftpServerName );
+    }
+}

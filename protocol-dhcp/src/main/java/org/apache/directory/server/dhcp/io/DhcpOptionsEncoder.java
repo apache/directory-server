@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dhcp.io;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
@@ -26,22 +27,22 @@ import org.apache.directory.server.dhcp.options.vendor.EndOption;
 
 public class DhcpOptionsEncoder
 {
-	private static final byte[] VENDOR_MAGIC_COOKIE =
-			{ (byte) 99, (byte) 130, (byte) 83, (byte) 99 };
-	
+    private static final byte[] VENDOR_MAGIC_COOKIE =
+        { ( byte ) 99, ( byte ) 130, ( byte ) 83, ( byte ) 99 };
+
+
     public void encode( OptionsField options, ByteBuffer message )
     {
-    	message.put( VENDOR_MAGIC_COOKIE );
+        message.put( VENDOR_MAGIC_COOKIE );
 
-		DhcpOption[] optionsArray = options.toArray();
-		
-		for ( int ii=0; ii < optionsArray.length; ii++ )
-		{
-			optionsArray[ ii ].writeTo( message );
-		}
-		
-		DhcpOption endOption = new EndOption();
-		endOption.writeTo( message );
-	}
+        DhcpOption[] optionsArray = options.toArray();
+
+        for ( int ii = 0; ii < optionsArray.length; ii++ )
+        {
+            optionsArray[ii].writeTo( message );
+        }
+
+        DhcpOption endOption = new EndOption();
+        endOption.writeTo( message );
+    }
 }
-

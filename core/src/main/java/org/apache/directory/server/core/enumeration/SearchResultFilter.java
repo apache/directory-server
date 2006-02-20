@@ -45,6 +45,5 @@ public interface SearchResultFilter
      * @return true if the result is to be returned, false if it is to be
      * discarded from the result set
      */
-    boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
-        throws NamingException;
+    boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) throws NamingException;
 }

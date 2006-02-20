@@ -52,11 +52,10 @@ public class BootstrapDitContentRuleRegistry implements DITContentRuleRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates an empty BootstrapDitContentRuleRegistry.
      */
-    public BootstrapDitContentRuleRegistry( OidRegistry oidRegistry )
+    public BootstrapDitContentRuleRegistry(OidRegistry oidRegistry)
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
@@ -80,18 +79,17 @@ public class BootstrapDitContentRuleRegistry implements DITContentRuleRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-
     public void register( String schema, DITContentRule dITContentRule ) throws NamingException
     {
         if ( byOid.containsKey( dITContentRule.getOid() ) )
         {
-            NamingException e = new NamingException( "dITContentRule w/ OID " +
-                dITContentRule.getOid() + " has already been registered!" );
+            NamingException e = new NamingException( "dITContentRule w/ OID " + dITContentRule.getOid()
+                + " has already been registered!" );
             monitor.registerFailed( dITContentRule, e );
             throw e;
         }
 
-        oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() ) ;
+        oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() );
         byOid.put( dITContentRule.getOid(), dITContentRule );
         oidToSchema.put( dITContentRule.getOid(), schema );
         monitor.registered( dITContentRule );
@@ -102,10 +100,9 @@ public class BootstrapDitContentRuleRegistry implements DITContentRuleRegistry
     {
         id = oidRegistry.getOid( id );
 
-        if ( ! byOid.containsKey( id ) )
+        if ( !byOid.containsKey( id ) )
         {
-            NamingException e = new NamingException( "dITContentRule w/ OID "
-                + id + " not registered!" );
+            NamingException e = new NamingException( "dITContentRule w/ OID " + id + " not registered!" );
             monitor.lookupFailed( id, e );
             throw e;
         }
@@ -142,8 +139,7 @@ public class BootstrapDitContentRuleRegistry implements DITContentRuleRegistry
             return ( String ) oidToSchema.get( id );
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " +
-            "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
     }
 
 

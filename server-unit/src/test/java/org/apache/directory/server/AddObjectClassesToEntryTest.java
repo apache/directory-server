@@ -75,7 +75,7 @@ public class AddObjectClassesToEntryTest extends AbstractServerTest
      */
     public void tearDown() throws Exception
     {
-        ctx.unbind(RDN);
+        ctx.unbind( RDN );
         ctx.close();
         ctx = null;
         super.tearDown();
@@ -90,20 +90,20 @@ public class AddObjectClassesToEntryTest extends AbstractServerTest
      */
     public void testSetUpTearDown() throws NamingException
     {
-        DirContext person = (DirContext) ctx.lookup(RDN);
-        assertNotNull(person);
+        DirContext person = ( DirContext ) ctx.lookup( RDN );
+        assertNotNull( person );
 
         // Check object classes
 
-        Attributes attributes = person.getAttributes("");
-        Attribute ocls = attributes.get("objectClass");
+        Attributes attributes = person.getAttributes( "" );
+        Attribute ocls = attributes.get( "objectClass" );
 
-        String[] expectedOcls = { "top", "person" };
+        String[] expectedOcls =
+            { "top", "person" };
         for ( int i = 0; i < expectedOcls.length; i++ )
         {
             String name = expectedOcls[i];
-            assertTrue( "object class " + name + " is NOT present when it should be!",
-                    ocls.contains( name ) );
+            assertTrue( "object class " + name + " is NOT present when it should be!", ocls.contains( name ) );
         }
     }
 
@@ -118,25 +118,25 @@ public class AddObjectClassesToEntryTest extends AbstractServerTest
 
         // modify object classes, add two more
         Attributes attributes = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute("objectClass");
-        ocls.add("organizationalPerson");
-        ocls.add("inetOrgPerson");
-        attributes.put(ocls);
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "organizationalPerson" );
+        ocls.add( "inetOrgPerson" );
+        attributes.put( ocls );
 
-        DirContext person = (DirContext) ctx.lookup(RDN);
-        person.modifyAttributes("", DirContext.ADD_ATTRIBUTE, attributes);
+        DirContext person = ( DirContext ) ctx.lookup( RDN );
+        person.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, attributes );
 
         // Read again from directory
-        person = (DirContext) ctx.lookup(RDN);
-        attributes = person.getAttributes("");
-        Attribute newOcls = attributes.get("objectClass");
+        person = ( DirContext ) ctx.lookup( RDN );
+        attributes = person.getAttributes( "" );
+        Attribute newOcls = attributes.get( "objectClass" );
 
-        String[] expectedOcls = { "top", "person", "organizationalPerson",
-                "inetOrgPerson" };
-        for (int i = 0; i < expectedOcls.length; i++) {
+        String[] expectedOcls =
+            { "top", "person", "organizationalPerson", "inetOrgPerson" };
+        for ( int i = 0; i < expectedOcls.length; i++ )
+        {
             String name = expectedOcls[i];
-            assertTrue("object class " + name + " is present", newOcls
-                    .contains(name));
+            assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
         }
     }
 
@@ -152,17 +152,17 @@ public class AddObjectClassesToEntryTest extends AbstractServerTest
 
         // modify object classes, add two more
         Attributes attributes = new BasicAttributes( true );
-        Attribute desc = new BasicAttribute("description", newDescription);
-        attributes.put(desc);
+        Attribute desc = new BasicAttribute( "description", newDescription );
+        attributes.put( desc );
 
-        DirContext person = (DirContext) ctx.lookup(RDN);
-        person.modifyAttributes("", DirContext.REPLACE_ATTRIBUTE, attributes);
+        DirContext person = ( DirContext ) ctx.lookup( RDN );
+        person.modifyAttributes( "", DirContext.REPLACE_ATTRIBUTE, attributes );
 
         // Read again from directory
-        person = (DirContext) ctx.lookup(RDN);
-        attributes = person.getAttributes("");
-        Attribute newDesc = attributes.get("description");
+        person = ( DirContext ) ctx.lookup( RDN );
+        attributes = person.getAttributes( "" );
+        Attribute newDesc = attributes.get( "description" );
 
-        assertTrue("new Description", newDesc.contains(newDescription));
+        assertTrue( "new Description", newDesc.contains( newDescription ) );
     }
 }

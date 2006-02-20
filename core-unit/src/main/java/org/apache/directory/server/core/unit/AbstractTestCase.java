@@ -44,43 +44,32 @@ import org.apache.directory.shared.ldap.ldif.LdifIterator;
 import org.apache.directory.shared.ldap.ldif.LdifParserImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
-                                                                                                            
+
 /**
  * A simple testcase for testing JNDI provider functionality.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 280870 $
+ * @version $Rev$
  */
 public abstract class AbstractTestCase extends TestCase
 {
-    public static final String LDIF = "dn: uid=akarasulu,ou=users,ou=system\n" +
-            "cn: Alex Karasulu\n" +
-            "sn: Karasulu\n" +
-            "givenname: Alex\n" +
-            "objectclass: top\n" +
-            "objectclass: person\n" +
-            "objectclass: organizationalPerson\n" +
-            "objectclass: inetOrgPerson\n" +
-            "ou: Engineering\n" +
-            "ou: People\n" +
-            "l: Bogusville\n" +
-            "uid: akarasulu\n" +
-            "mail: akarasulu@apache.org\n" +
-            "telephonenumber: +1 408 555 4798\n" +
-            "facsimiletelephonenumber: +1 408 555 9751\n" +
-            "roomnumber: 4612\n" +
-            "userpassword: test\n";
-    
+    public static final String LDIF = "dn: uid=akarasulu,ou=users,ou=system\n" + "cn: Alex Karasulu\n"
+        + "sn: Karasulu\n" + "givenname: Alex\n" + "objectclass: top\n" + "objectclass: person\n"
+        + "objectclass: organizationalPerson\n" + "objectclass: inetOrgPerson\n" + "ou: Engineering\n" + "ou: People\n"
+        + "l: Bogusville\n" + "uid: akarasulu\n" + "mail: akarasulu@apache.org\n"
+        + "telephonenumber: +1 408 555 4798\n" + "facsimiletelephonenumber: +1 408 555 9751\n" + "roomnumber: 4612\n"
+        + "userpassword: test\n";
+
     private final String username;
-    
+
     private final String password;
 
     /** the context root for the system partition */
     protected LdapContext sysRoot;
-    
+
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
-    
+
     protected MutableStartupConfiguration configuration = new MutableStartupConfiguration();
 
     /** A testEntries of entries as Attributes to add to the DIT for testing */
@@ -92,11 +81,12 @@ public abstract class AbstractTestCase extends TestCase
     /** Load resources relative to this class */
     private Class loadClass;
 
-    private Hashtable overrides = new Hashtable(); 
+    private Hashtable overrides = new Hashtable();
 
-    protected AbstractTestCase( String username, String password )
+
+    protected AbstractTestCase(String username, String password)
     {
-        if( username == null || password == null )
+        if ( username == null || password == null )
         {
             throw new NullPointerException();
         }
@@ -104,7 +94,7 @@ public abstract class AbstractTestCase extends TestCase
         this.username = username;
         this.password = password;
     }
-    
+
 
     /**
      * Sets the LDIF path as a relative resource path to use with the
@@ -259,14 +249,14 @@ public abstract class AbstractTestCase extends TestCase
     protected LdapContext setSysRoot( Hashtable env ) throws NamingException
     {
         Hashtable envFinal = new Hashtable( env );
-        if ( ! envFinal.containsKey( Context.PROVIDER_URL ) )
+        if ( !envFinal.containsKey( Context.PROVIDER_URL ) )
         {
             envFinal.put( Context.PROVIDER_URL, "ou=system" );
         }
-        
+
         envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         envFinal.putAll( overrides );
-        
+
         // We have to initiate the first run as an admin at least.
         Hashtable adminEnv = new Hashtable( envFinal );
         adminEnv.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -277,6 +267,7 @@ public abstract class AbstractTestCase extends TestCase
         // OK, now let's get an appropriate context.
         return sysRoot = new InitialLdapContext( envFinal, null );
     }
+
 
     /**
      * Overrides default JNDI environment properties.  Please call this method
@@ -312,7 +303,13 @@ public abstract class AbstractTestCase extends TestCase
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
 
-        try { new InitialContext( env ); } catch( Exception e ) {}
+        try
+        {
+            new InitialContext( env );
+        }
+        catch ( Exception e )
+        {
+        }
         sysRoot = null;
         Runtime.getRuntime().gc();
         testEntries.clear();

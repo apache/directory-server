@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.core.schema;
 
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
@@ -42,15 +43,15 @@ import junit.framework.TestCase;
 public class SchemaServiceTest extends TestCase
 {
     ObjectClassRegistry registry = null;
-    
-    
+
+
     public void setUp() throws Exception
     {
         if ( registry != null )
         {
             return;
         }
-        
+
         BootstrapRegistries registries = new BootstrapRegistries();
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         loader.load( new ApacheSchema(), registries );
@@ -60,12 +61,12 @@ public class SchemaServiceTest extends TestCase
         loader.load( new SystemSchema(), registries );
         registry = registries.getObjectClassRegistry();
     }
-    
-    
-    public void testAlterObjectClassesBogusAttr() throws NamingException 
+
+
+    public void testAlterObjectClassesBogusAttr() throws NamingException
     {
         Attribute attr = new BasicAttribute( "blah", "blah" );
-        
+
         try
         {
             SchemaService.alterObjectClasses( attr, registry );
@@ -80,25 +81,25 @@ public class SchemaServiceTest extends TestCase
         SchemaService.alterObjectClasses( attr, registry );
         assertEquals( 0, attr.size() );
     }
-    
-    
-    public void testAlterObjectClassesNoAttrValue() throws NamingException 
+
+
+    public void testAlterObjectClassesNoAttrValue() throws NamingException
     {
         Attribute attr = new BasicAttribute( "objectClass" );
         SchemaService.alterObjectClasses( attr, registry );
         assertEquals( 0, attr.size() );
     }
-    
-    
-    public void testAlterObjectClassesTopAttrValue() throws NamingException 
+
+
+    public void testAlterObjectClassesTopAttrValue() throws NamingException
     {
         Attribute attr = new BasicAttribute( "objectClass", "top" );
         SchemaService.alterObjectClasses( attr, registry );
         assertEquals( 0, attr.size() );
     }
-    
-    
-    public void testAlterObjectClassesInetOrgPersonAttrValue() throws NamingException 
+
+
+    public void testAlterObjectClassesInetOrgPersonAttrValue() throws NamingException
     {
         Attribute attr = new BasicAttribute( "objectClass", "inetOrgPerson" );
         SchemaService.alterObjectClasses( attr, registry );
@@ -109,7 +110,7 @@ public class SchemaServiceTest extends TestCase
     }
 
 
-    public void testAlterObjectClassesOverlapping() throws NamingException 
+    public void testAlterObjectClassesOverlapping() throws NamingException
     {
         Attribute attr = new BasicAttribute( "objectClass", "inetOrgPerson" );
         attr.add( "residentialPerson" );
@@ -122,7 +123,7 @@ public class SchemaServiceTest extends TestCase
     }
 
 
-    public void testAlterObjectClassesOverlappingAndDsa() throws NamingException 
+    public void testAlterObjectClassesOverlappingAndDsa() throws NamingException
     {
         Attribute attr = new BasicAttribute( "objectClass", "inetOrgPerson" );
         attr.add( "residentialPerson" );

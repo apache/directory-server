@@ -16,13 +16,15 @@
  */
 package org.apache.directory.server.kerberos.kdc;
 
+
 import java.net.InetAddress;
 
+import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
+import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
+import org.apache.directory.server.kerberos.shared.service.LockBox;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.chain.impl.ContextBase;
-import org.apache.kerberos.messages.KdcRequest;
-import org.apache.kerberos.messages.KerberosMessage;
-import org.apache.kerberos.service.LockBox;
-import org.apache.kerberos.store.PrincipalStore;
+
 
 public class KdcContext extends ContextBase
 {
@@ -35,6 +37,7 @@ public class KdcContext extends ContextBase
     private InetAddress clientAddress;
     private LockBox lockBox;
 
+
     /**
      * @return Returns the config.
      */
@@ -42,6 +45,7 @@ public class KdcContext extends ContextBase
     {
         return config;
     }
+
 
     /**
      * @param config The config to set.
@@ -51,6 +55,7 @@ public class KdcContext extends ContextBase
         this.config = config;
     }
 
+
     /**
      * @return Returns the store.
      */
@@ -58,6 +63,7 @@ public class KdcContext extends ContextBase
     {
         return store;
     }
+
 
     /**
      * @param store The store to set.
@@ -67,6 +73,7 @@ public class KdcContext extends ContextBase
         this.store = store;
     }
 
+
     /**
      * @return Returns the request.
      */
@@ -74,6 +81,7 @@ public class KdcContext extends ContextBase
     {
         return request;
     }
+
 
     /**
      * @param request The request to set.
@@ -83,6 +91,7 @@ public class KdcContext extends ContextBase
         this.request = request;
     }
 
+
     /**
      * @return Returns the reply.
      */
@@ -90,6 +99,7 @@ public class KdcContext extends ContextBase
     {
         return reply;
     }
+
 
     /**
      * @param reply The reply to set.
@@ -99,6 +109,7 @@ public class KdcContext extends ContextBase
         this.reply = reply;
     }
 
+
     /**
      * @return Returns the clientAddress.
      */
@@ -106,6 +117,7 @@ public class KdcContext extends ContextBase
     {
         return clientAddress;
     }
+
 
     /**
      * @param clientAddress The clientAddress to set.
@@ -115,6 +127,7 @@ public class KdcContext extends ContextBase
         this.clientAddress = clientAddress;
     }
 
+
     /**
      * @return Returns the lockBox.
      */
@@ -122,6 +135,7 @@ public class KdcContext extends ContextBase
     {
         return lockBox;
     }
+
 
     /**
      * @param lockBox The lockBox to set.

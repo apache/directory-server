@@ -43,7 +43,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class Service implements DaemonApplication 
+public class Service implements DaemonApplication
 {
     private static final Logger log = LoggerFactory.getLogger( Service.class );
     private Properties env;
@@ -66,14 +66,14 @@ public class Service implements DaemonApplication
             cfg = ( MutableServerStartupConfiguration ) factory.getBean( "configuration" );
             env = ( Properties ) factory.getBean( "environment" );
         }
-        else if ( args.length > 0 && new File( args[0] ).exists() )  // hack that takes server.xml file argument
+        else if ( args.length > 0 && new File( args[0] ).exists() ) // hack that takes server.xml file argument
         {
             log.info( "server: loading settings from ", args[0] );
             ApplicationContext factory = null;
             factory = new FileSystemXmlApplicationContext( new File( args[0] ).toURL().toString() );
             cfg = ( MutableServerStartupConfiguration ) factory.getBean( "configuration" );
             env = ( Properties ) factory.getBean( "environment" );
-            }
+        }
         else
         {
             log.info( "server: using default settings ..." );
@@ -83,37 +83,37 @@ public class Service implements DaemonApplication
 
         env.setProperty( Context.PROVIDER_URL, "ou=system" );
         env.setProperty( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
-        
+
         if ( install != null )
         {
             cfg.setWorkingDirectory( install.getPartitionsDirectory() );
         }
-        
+
         env.putAll( cfg.toJndiEnvironment() );
         new InitialDirContext( env );
 
         workerThread = new Thread( worker, "SynchWorkerThread" );
 
-        if (log.isInfoEnabled())
+        if ( log.isInfoEnabled() )
         {
-            log.info( "server: started in {} milliseconds", ( System.currentTimeMillis() - startTime ) + "");
+            log.info( "server: started in {} milliseconds", ( System.currentTimeMillis() - startTime ) + "" );
         }
     }
-    
-    
+
+
     public void synch() throws Exception
     {
         env.putAll( new SyncConfiguration().toJndiEnvironment() );
         new InitialDirContext( env );
     }
-    
+
 
     public void start()
     {
         workerThread.start();
         return;
     }
-    
+
 
     public void stop( String[] args ) throws Exception
     {
@@ -122,33 +122,33 @@ public class Service implements DaemonApplication
         {
             worker.lock.notify();
         }
-        
+
         while ( startNoWait && workerThread.isAlive() )
         {
             log.info( "Waiting for SynchWorkerThread to die." );
             workerThread.join( 500 );
         }
-        
+
         env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
         new InitialDirContext( env );
     }
 
 
-    public void destroy() 
+    public void destroy()
     {
     }
-
 
     class SynchWorker implements Runnable
     {
         Object lock = new Object();
         boolean stop = false;
-        
+
+
         public void run()
         {
-            while ( ! stop )
+            while ( !stop )
             {
-                synchronized( lock )
+                synchronized ( lock )
                 {
                     try
                     {
@@ -159,7 +159,7 @@ public class Service implements DaemonApplication
                         log.warn( "SynchWorker failed to wait on lock.", e );
                     }
                 }
-                
+
                 try
                 {
                     synch();
@@ -171,15 +171,14 @@ public class Service implements DaemonApplication
             }
         }
     }
-    
-    
-    public static final String BANNER = 
-        "           _                     _          ____  ____   \n" +
-        "          / \\   _ __   __ _  ___| |__   ___|  _ \\/ ___|  \n" +
-        "         / _ \\ | '_ \\ / _` |/ __| '_ \\ / _ \\ | | \\___ \\   \n" +
-        "        / ___ \\| |_) | (_| | (__| | | |  __/ |_| |___) |  \n" +
-        "       /_/   \\_\\ .__/ \\__,_|\\___|_| |_|\\___|____/|____/   \n" +
-        "               |_|                                                               \n";
+
+    public static final String BANNER = "           _                     _          ____  ____   \n"
+        + "          / \\   _ __   __ _  ___| |__   ___|  _ \\/ ___|  \n"
+        + "         / _ \\ | '_ \\ / _` |/ __| '_ \\ / _ \\ | | \\___ \\   \n"
+        + "        / ___ \\| |_) | (_| | (__| | | |  __/ |_| |___) |  \n"
+        + "       /_/   \\_\\ .__/ \\__,_|\\___|_| |_|\\___|____/|____/   \n"
+        + "               |_|                                                               \n";
+
 
     public static void printBanner()
     {

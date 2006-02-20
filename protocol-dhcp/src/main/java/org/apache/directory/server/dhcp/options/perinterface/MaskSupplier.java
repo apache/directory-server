@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.perinterface;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies whether or not the client should respond to
@@ -31,17 +33,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class MaskSupplier extends DhcpOption
 {
-	private byte[] maskSupplier;
-	
-	public MaskSupplier( byte[] maskSupplier )
-	{
-		super( 30, 1 );
-		this.maskSupplier = maskSupplier;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( maskSupplier );
-	}
-}
+    private byte[] maskSupplier;
 
+
+    public MaskSupplier(byte[] maskSupplier)
+    {
+        super( 30, 1 );
+        this.maskSupplier = maskSupplier;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( maskSupplier );
+    }
+}

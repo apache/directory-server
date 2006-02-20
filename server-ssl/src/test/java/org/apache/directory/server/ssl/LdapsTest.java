@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.ssl;
 
+
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Hashtable;
@@ -39,7 +40,7 @@ import org.apache.mina.util.AvailablePortFinder;
  * 
  * @author szoerner
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 365899 $
+ * @version $Rev$
  */
 public class LdapsTest extends AbstractServerTest
 {
@@ -54,7 +55,7 @@ public class LdapsTest extends AbstractServerTest
     public void setUp() throws Exception
     {
         doDelete( configuration.getWorkingDirectory() );
-        
+
         int ldapsPort = AvailablePortFinder.getNextAvailable( 8192 );
         configuration.setEnableLdaps( true );
         configuration.setLdapsCertificatePassword( "boguspw" );
@@ -64,13 +65,12 @@ public class LdapsTest extends AbstractServerTest
         InputStream in = getClass().getResourceAsStream( "/bogus.cert" );
         configuration.getLdapsCertificateFile().getParentFile().mkdirs();
 
-        FileOutputStream out = new FileOutputStream(
-                configuration.getLdapsCertificateFile() );
+        FileOutputStream out = new FileOutputStream( configuration.getLdapsCertificateFile() );
 
-        for( ;; )
+        for ( ;; )
         {
             int c = in.read();
-            if( c < 0 )
+            if ( c < 0 )
             {
                 break;
             }
@@ -79,7 +79,7 @@ public class LdapsTest extends AbstractServerTest
 
         in.close();
         out.close();
-        
+
         doDelete = false;
         super.setUp();
         doDelete = true;
@@ -100,7 +100,7 @@ public class LdapsTest extends AbstractServerTest
      */
     public void tearDown() throws Exception
     {
-        ctx.unbind(RDN);
+        ctx.unbind( RDN );
         ctx.close();
         ctx = null;
         super.tearDown();

@@ -16,26 +16,29 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.messages.components.Authenticator;
-import org.apache.kerberos.store.PrincipalStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class ProcessPasswordChange extends CommandBase
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( ProcessPasswordChange.class );
 
+
     public boolean execute( Context context ) throws Exception
     {
-        ChangePasswordContext changepwContext = (ChangePasswordContext) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
 
         PrincipalStore store = changepwContext.getStore();
         Authenticator authenticator = changepwContext.getAuthenticator();

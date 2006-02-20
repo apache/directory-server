@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.dns.service;
 
+
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.messages.DnsMessageModifier;
@@ -29,15 +30,18 @@ import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class DnsExceptionHandler extends CommandBase implements Filter
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( DnsExceptionHandler.class );
 
+
     public boolean execute( Context context ) throws Exception
     {
         return CONTINUE_CHAIN;
     }
+
 
     public boolean postprocess( Context context, Exception exception )
     {
@@ -46,8 +50,8 @@ public class DnsExceptionHandler extends CommandBase implements Filter
             return CONTINUE_CHAIN;
         }
 
-        DnsContext dnsContext = (DnsContext) context;
-        DnsException de = (DnsException) exception;
+        DnsContext dnsContext = ( DnsContext ) context;
+        DnsException de = ( DnsException ) exception;
         DnsMessage message = dnsContext.getRequest();
 
         if ( log.isDebugEnabled() )

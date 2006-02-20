@@ -62,7 +62,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
      *
      * @param type the producer type
      */
-    protected AbstractBootstrapProducer( ProducerTypeEnum type )
+    protected AbstractBootstrapProducer(ProducerTypeEnum type)
     {
         this.type = type;
     }
@@ -77,29 +77,22 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
     }
 
 
-    protected static BootstrapSyntax
-        newSyntax( String oid, BootstrapRegistries registries )
+    protected static BootstrapSyntax newSyntax( String oid, BootstrapRegistries registries )
     {
         return new BootstrapSyntax( oid, registries.getSyntaxCheckerRegistry() );
     }
 
 
-
-    protected static BootstrapAttributeType
-        newAttributeType( String oid, BootstrapRegistries registries )
+    protected static BootstrapAttributeType newAttributeType( String oid, BootstrapRegistries registries )
     {
         return new BootstrapAttributeType( oid, registries );
     }
 
 
-
-    protected static BootstrapObjectClass
-        newObjectClass( String oid, BootstrapRegistries registries )
+    protected static BootstrapObjectClass newObjectClass( String oid, BootstrapRegistries registries )
     {
         return new BootstrapObjectClass( oid, registries );
     }
-
-
 
     /**
      * A mutable Syntax for the bootstrap phase that uses the
@@ -110,7 +103,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         final SyntaxCheckerRegistry registry;
 
 
-        protected BootstrapSyntax( String oid, SyntaxCheckerRegistry registry )
+        protected BootstrapSyntax(String oid, SyntaxCheckerRegistry registry)
         {
             super( oid );
             this.registry = registry;
@@ -135,7 +128,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
 
 
-        public SyntaxChecker getSyntaxChecker( ) throws NamingException
+        public SyntaxChecker getSyntaxChecker() throws NamingException
         {
             return registry.lookup( getOid() );
         }
@@ -147,7 +140,6 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
     }
 
-
     public static class BootstrapMatchingRule extends AbstractMatchingRule
     {
         final SyntaxRegistry syntaxRegistry;
@@ -156,7 +148,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         String syntaxOid;
 
 
-        protected BootstrapMatchingRule( String oid, BootstrapRegistries registries )
+        protected BootstrapMatchingRule(String oid, BootstrapRegistries registries)
         {
             super( oid );
             this.syntaxRegistry = registries.getSyntaxRegistry();
@@ -170,15 +162,18 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             super.setNames( names );
         }
 
+
         public void setSyntaxOid( String syntaxOid )
         {
             this.syntaxOid = syntaxOid;
         }
 
+
         public void setDescription( String description )
         {
             super.setDescription( description );
         }
+
 
         public void setObsolete( boolean isObsolete )
         {
@@ -188,23 +183,23 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
 
         // accessors
 
-
         public Syntax getSyntax() throws NamingException
         {
             return syntaxRegistry.lookup( syntaxOid );
         }
+
 
         public Comparator getComparator() throws NamingException
         {
             return comparatorRegistry.lookup( getOid() );
         }
 
+
         public Normalizer getNormalizer() throws NamingException
         {
             return normalizerRegistry.lookup( getOid() );
         }
     }
-
 
     /**
      * A concrete mutable attributeType implementation for bootstrapping which
@@ -224,7 +219,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         private String syntaxId;
 
 
-        protected BootstrapAttributeType( String oid, BootstrapRegistries registries )
+        protected BootstrapAttributeType(String oid, BootstrapRegistries registries)
         {
             super( oid );
 
@@ -233,10 +228,12 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             attributeTypeRegistry = registries.getAttributeTypeRegistry();
         }
 
+
         public void setSuperiorId( String superiorId )
         {
             this.superiorId = superiorId;
         }
+
 
         public AttributeType getSuperior() throws NamingException
         {
@@ -248,10 +245,12 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             return this.attributeTypeRegistry.lookup( superiorId );
         }
 
+
         public void setNames( String[] names )
         {
             super.setNames( names );
         }
+
 
         public MatchingRule getEquality() throws NamingException
         {
@@ -268,10 +267,12 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             return null;
         }
 
+
         public void setEqualityId( String equalityId )
         {
             this.equalityId = equalityId;
         }
+
 
         public MatchingRule getSubstr() throws NamingException
         {
@@ -288,10 +289,12 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             return null;
         }
 
+
         public void setSubstrId( String substrId )
         {
             this.substrId = substrId;
         }
+
 
         public MatchingRule getOrdering() throws NamingException
         {
@@ -308,15 +311,18 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             return null;
         }
 
+
         public void setOrderingId( String orderingId )
         {
             this.orderingId = orderingId;
         }
 
+
         public void setSyntaxId( String syntaxId )
         {
             this.syntaxId = syntaxId;
         }
+
 
         public Syntax getSyntax() throws NamingException
         {
@@ -333,35 +339,42 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             return null;
         }
 
+
         public void setSingleValue( boolean singleValue )
         {
             super.setSingleValue( singleValue );
         }
+
 
         public void setCollective( boolean collective )
         {
             super.setCollective( collective );
         }
 
+
         public void setCanUserModify( boolean canUserModify )
         {
             super.setCanUserModify( canUserModify );
         }
+
 
         public void setObsolete( boolean obsolete )
         {
             super.setObsolete( obsolete );
         }
 
+
         public void setDescription( String description )
         {
             super.setDescription( description );
         }
 
+
         public void setUsage( UsageEnum usage )
         {
             super.setUsage( usage );
         }
+
 
         public void setLength( int length )
         {
@@ -369,13 +382,11 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
     }
 
-
     /**
      * A concrete mutable objectClass implementation for bootstrapping which
      * uses registries for dynamically resolving dependent objects.
      */
-    public static class BootstrapObjectClass extends AbstractSchemaObject
-        implements ObjectClass
+    public static class BootstrapObjectClass extends AbstractSchemaObject implements ObjectClass
     {
         private final ObjectClassRegistry objectClassRegistry;
         private final AttributeTypeRegistry attributeTypeRegistry;
@@ -397,7 +408,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
          * @param oid the OID of the new objectClass
          * @param registries the bootstrap registries to use for resolving dependent objects
          */
-        protected BootstrapObjectClass( String oid, BootstrapRegistries registries )
+        protected BootstrapObjectClass(String oid, BootstrapRegistries registries)
         {
             super( oid );
 
@@ -410,7 +421,6 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         // ObjectClass Accessors
         // --------------------------------------------------------------------
 
-
         public ObjectClass[] getSuperClasses() throws NamingException
         {
             if ( superClasses == null )
@@ -418,7 +428,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
                 superClasses = new ObjectClass[superClassIds.length];
             }
 
-            for( int ii = 0; ii < superClassIds.length; ii++ )
+            for ( int ii = 0; ii < superClassIds.length; ii++ )
             {
                 superClasses[ii] = objectClassRegistry.lookup( superClassIds[ii] );
             }
@@ -452,7 +462,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
                 mustList = new AttributeType[mustListIds.length];
             }
 
-            for( int ii = 0; ii < mustListIds.length; ii++ )
+            for ( int ii = 0; ii < mustListIds.length; ii++ )
             {
                 mustList[ii] = attributeTypeRegistry.lookup( mustListIds[ii] );
             }
@@ -474,7 +484,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
                 mayList = new AttributeType[mayListIds.length];
             }
 
-            for( int ii = 0; ii < mayListIds.length; ii++ )
+            for ( int ii = 0; ii < mayListIds.length; ii++ )
             {
                 mayList[ii] = attributeTypeRegistry.lookup( mayListIds[ii] );
             }
@@ -493,22 +503,22 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         // SchemaObject Mutators
         // --------------------------------------------------------------------
 
-
         public void setObsolete( boolean obsolete )
         {
             super.setObsolete( obsolete );
         }
+
 
         public void setNames( String[] names )
         {
             super.setNames( names );
         }
 
+
         public void setDescription( String description )
         {
             super.setDescription( description );
         }
-
 
     }
 }

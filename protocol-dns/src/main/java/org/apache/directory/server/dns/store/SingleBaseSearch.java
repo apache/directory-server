@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.store;
 
+
 import java.util.Hashtable;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * A JNDI-backed search strategy implementation.  This search strategy searches a
  * single base DN for resource records.
@@ -47,7 +49,8 @@ public class SingleBaseSearch implements SearchStrategy
 
     private DirContext ctx;
 
-    SingleBaseSearch( DnsConfiguration config, InitialContextFactory factory )
+
+    SingleBaseSearch(DnsConfiguration config, InitialContextFactory factory)
     {
         Hashtable env = new Hashtable( config.toJndiEnvironment() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
@@ -55,20 +58,22 @@ public class SingleBaseSearch implements SearchStrategy
 
         try
         {
-            ctx = (DirContext) factory.getInitialContext( env );
+            ctx = ( DirContext ) factory.getInitialContext( env );
         }
         catch ( NamingException ne )
         {
             log.error( ne.getMessage(), ne );
-            String message = "Failed to get initial context " + (String) env.get( Context.PROVIDER_URL );
+            String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
             throw new ConfigurationException( message, ne );
         }
     }
 
+
     public Set getRecords( QuestionRecord question ) throws Exception
     {
-        return (Set) execute( new GetRecords( question ) );
+        return ( Set ) execute( new GetRecords( question ) );
     }
+
 
     private Object execute( ContextOperation operation ) throws Exception
     {

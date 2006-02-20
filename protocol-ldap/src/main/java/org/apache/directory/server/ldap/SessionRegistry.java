@@ -52,7 +52,7 @@ public class SessionRegistry
 
     /** the set of client contexts */
     private final Map contexts = new HashMap();
-    
+
     /** outstanding requests for a session */
     private final Map requests = new HashMap();
 
@@ -88,7 +88,7 @@ public class SessionRegistry
      *
      * @param env the properties associated with this SessionRegistry
      */
-    SessionRegistry( Hashtable env )
+    SessionRegistry(Hashtable env)
     {
         if ( s_singleton == null )
         {
@@ -98,7 +98,6 @@ public class SessionRegistry
         {
             throw new IllegalStateException( "there can only be one singlton" );
         }
-
 
         if ( env == null )
         {
@@ -158,7 +157,7 @@ public class SessionRegistry
     {
         return removeOutstandingRequest( session, new Integer( messageId ) );
     }
-    
+
 
     /**
      * Removes an outstanding request from the session's outstanding request map.
@@ -173,12 +172,13 @@ public class SessionRegistry
         synchronized ( requests )
         {
             Map reqmap = ( Map ) requests.get( session );
-            if ( reqmap == null ) return null;
+            if ( reqmap == null )
+                return null;
             return ( Request ) reqmap.remove( id );
         }
     }
 
-    
+
     /**
      * Returns a shallow copied map of all outstanding requests for an IoSession.
      * 
@@ -194,7 +194,7 @@ public class SessionRegistry
         }
         return new HashMap( reqmap );
     }
-    
+
 
     /**
      * Overload that does not require boxing of primitive messageId.
@@ -208,6 +208,7 @@ public class SessionRegistry
         return getOutstandingRequest( session, new Integer( abandonedId ) );
     }
 
+
     /**
      * Gets an outstanding request by messageId for a session.
      * 
@@ -218,11 +219,12 @@ public class SessionRegistry
     public Request getOutstandingRequest( IoSession session, Integer id )
     {
         Map reqmap = ( Map ) requests.get( session );
-        if ( reqmap == null ) return null;
+        if ( reqmap == null )
+            return null;
         return ( Request ) reqmap.get( id );
     }
-    
-    
+
+
     public IoSession[] getSessions()
     {
         IoSession[] sessions;
@@ -233,8 +235,8 @@ public class SessionRegistry
         }
         return sessions;
     }
-    
-    
+
+
     /**
      * Gets the InitialContext to the root of the system that was gotten for
      * client.  If the context is not present then there was no bind operation
@@ -251,11 +253,11 @@ public class SessionRegistry
      * @return the InitialContext or null
      */
     public LdapContext getLdapContext( IoSession session, Control[] connCtls, boolean allowAnonymous )
-            throws NamingException
+        throws NamingException
     {
         LdapContext ctx = null;
 
-        synchronized( contexts )
+        synchronized ( contexts )
         {
             ctx = ( LdapContext ) contexts.get( session );
         }
@@ -293,7 +295,7 @@ public class SessionRegistry
         else if ( ctx != null && allowAnonymous )
         {
             ServerLdapContext slc = null;
-            if ( ! ( ctx instanceof ServerLdapContext ) )
+            if ( !( ctx instanceof ServerLdapContext ) )
             {
                 slc = ( ServerLdapContext ) ctx.lookup( "" );
             }
@@ -325,12 +327,11 @@ public class SessionRegistry
      * @param connCtls connection controls if any to use if creating anon context
      * @return the InitialContext or null
      */
-    public LdapContext getLdapContextOnRootDSEAccess( IoSession session, Control[] connCtls )
-            throws NamingException
+    public LdapContext getLdapContextOnRootDSEAccess( IoSession session, Control[] connCtls ) throws NamingException
     {
         LdapContext ctx = null;
 
-        synchronized( contexts )
+        synchronized ( contexts )
         {
             ctx = ( LdapContext ) contexts.get( session );
         }
@@ -370,7 +371,7 @@ public class SessionRegistry
      */
     public void setLdapContext( IoSession session, LdapContext ictx )
     {
-        synchronized( contexts )
+        synchronized ( contexts )
         {
             contexts.put( session, ictx );
         }
@@ -384,27 +385,27 @@ public class SessionRegistry
      */
     public void remove( IoSession session )
     {
-        synchronized( contexts )
+        synchronized ( contexts )
         {
             contexts.remove( session );
         }
-        
+
         Map reqmap = null;
-        synchronized( requests )
+        synchronized ( requests )
         {
             reqmap = ( Map ) requests.remove( session );
         }
-        
+
         if ( reqmap == null || reqmap.isEmpty() )
         {
             return;
         }
-        
+
         Iterator list = reqmap.values().iterator();
         while ( list.hasNext() )
         {
             Object request = list.next();
-            
+
             if ( request instanceof AbandonableRequest )
             {
                 ( ( AbandonableRequest ) request ).abandon();

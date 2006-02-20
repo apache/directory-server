@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.tcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies the default TTL that the client should use when
@@ -30,17 +32,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class TcpDefaultTimeToLive extends DhcpOption
 {
-	private byte[] tcpDefaultTimeToLive;
-	
-	public TcpDefaultTimeToLive( byte[] tcpDefaultTimeToLive )
-	{
-		super( 37, 1 );
-		this.tcpDefaultTimeToLive = tcpDefaultTimeToLive;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( tcpDefaultTimeToLive );
-	}
-}
+    private byte[] tcpDefaultTimeToLive;
 
+
+    public TcpDefaultTimeToLive(byte[] tcpDefaultTimeToLive)
+    {
+        super( 37, 1 );
+        this.tcpDefaultTimeToLive = tcpDefaultTimeToLive;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( tcpDefaultTimeToLive );
+    }
+}

@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,6 +44,7 @@ import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.schema.bootstrap.*;
 import org.apache.directory.server.core.subtree.SubentryService;
 
+
 /**
  * A {@link Configuration} that starts up ApacheDS.
  *
@@ -60,11 +62,12 @@ public class StartupConfiguration extends Configuration
     private boolean accessControlEnabled = false; // turn off by default
     private Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
     private List interceptorConfigurations; // Set<InterceptorConfiguration>
-    
+
     private Set bootstrapSchemas; // Set<BootstrapSchema>
     private Set contextPartitionConfigurations = new HashSet(); // Set<ContextPartitionConfiguration>
     private List testEntries = new ArrayList(); // List<Attributes>
-    
+
+
     /**
      * Creates a new instance with default settings.
      */
@@ -75,11 +78,12 @@ public class StartupConfiguration extends Configuration
         setDefaultInterceptorConfigurations();
     }
 
+
     /**
      * Creates a new instance with default settings that operates on the
      * {@link DirectoryService} with the specified ID.
      */
-    public StartupConfiguration( String instanceId )
+    public StartupConfiguration(String instanceId)
     {
         setDefaultAuthenticatorConfigurations();
         setDefaultBootstrapSchemas();
@@ -87,13 +91,14 @@ public class StartupConfiguration extends Configuration
         setInstanceId( instanceId );
     }
 
+
     private void setDefaultAuthenticatorConfigurations()
     {
-        Set set; 
-        
+        Set set;
+
         // Set default authenticator configurations
         set = new HashSet();
-        
+
         MutableAuthenticatorConfiguration authCfg;
 
         // Anonymous
@@ -107,48 +112,50 @@ public class StartupConfiguration extends Configuration
         authCfg.setName( "Simple" );
         authCfg.setAuthenticator( new SimpleAuthenticator() );
         set.add( authCfg );
-        
+
         setAuthenticatorConfigurations( set );
     }
+
 
     private void setDefaultBootstrapSchemas()
     {
         Set set;
         // Set default bootstrap schemas
         set = new HashSet();
-        
+
         set.add( new CoreSchema() );
-        set.add( new CosineSchema() );        
-        set.add( new ApacheSchema() );        
-        set.add( new InetorgpersonSchema() );        
-        set.add( new JavaSchema() );        
+        set.add( new CosineSchema() );
+        set.add( new ApacheSchema() );
+        set.add( new InetorgpersonSchema() );
+        set.add( new JavaSchema() );
         set.add( new SystemSchema() );
         set.add( new CollectiveSchema() );
 
         setBootstrapSchemas( set );
     }
 
+
     private void setDefaultInterceptorConfigurations()
     {
         // Set default interceptor chains
         InterceptorConfiguration interceptorCfg;
         List list = new ArrayList();
-        
+
         interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "normalizationService" );
         interceptorCfg.setInterceptor( new NormalizationService() );
         list.add( interceptorCfg );
-        
+
         interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "authenticationService" );
         interceptorCfg.setInterceptor( new AuthenticationService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "referralService" );
+        interceptorCfg.setName( ReferralService.NAME );
         interceptorCfg.setInterceptor( new ReferralService() );
         list.add( interceptorCfg );
-        
+
         interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "authorizationService" );
         interceptorCfg.setInterceptor( new AuthorizationService() );
@@ -163,12 +170,12 @@ public class StartupConfiguration extends Configuration
         interceptorCfg.setName( "exceptionService" );
         interceptorCfg.setInterceptor( new ExceptionService() );
         list.add( interceptorCfg );
-        
+
         interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "schemaService" );
         interceptorCfg.setInterceptor( new SchemaService() );
         list.add( interceptorCfg );
-        
+
         interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "subentryService" );
         interceptorCfg.setInterceptor( new SubentryService() );
@@ -192,6 +199,7 @@ public class StartupConfiguration extends Configuration
         setInterceptorConfigurations( list );
     }
 
+
     /**
      * Returns {@link AuthenticatorConfiguration}s to use for authenticating clients.
      */
@@ -200,31 +208,32 @@ public class StartupConfiguration extends Configuration
         return ConfigurationUtil.getClonedSet( authenticatorConfigurations );
     }
 
+
     /**
      * Sets {@link AuthenticatorConfiguration}s to use for authenticating clients.
      */
     protected void setAuthenticatorConfigurations( Set authenticatorConfigurations )
     {
-        Set newSet = ConfigurationUtil.getTypeSafeSet(
-                authenticatorConfigurations, AuthenticatorConfiguration.class );
-        
+        Set newSet = ConfigurationUtil.getTypeSafeSet( authenticatorConfigurations, AuthenticatorConfiguration.class );
+
         Set names = new HashSet();
         Iterator i = newSet.iterator();
-        while( i.hasNext() )
+        while ( i.hasNext() )
         {
             AuthenticatorConfiguration cfg = ( AuthenticatorConfiguration ) i.next();
             cfg.validate();
-            
+
             String name = cfg.getName();
-            if( names.contains( name ) )
+            if ( names.contains( name ) )
             {
                 throw new ConfigurationException( "Duplicate authenticator name: " + name );
             }
             names.add( name );
         }
-        
+
         this.authenticatorConfigurations = newSet;
     }
+
 
     /**
      * Returns {@link BootstrapSchema}s to load while bootstrapping.
@@ -234,14 +243,15 @@ public class StartupConfiguration extends Configuration
         return ConfigurationUtil.getClonedSet( bootstrapSchemas );
     }
 
+
     /**
      * Sets {@link BootstrapSchema}s to load while bootstrapping.
      */
     protected void setBootstrapSchemas( Set bootstrapSchemas )
     {
-        this.bootstrapSchemas = ConfigurationUtil.getTypeSafeSet(
-                bootstrapSchemas, BootstrapSchema.class );
+        this.bootstrapSchemas = ConfigurationUtil.getTypeSafeSet( bootstrapSchemas, BootstrapSchema.class );
     }
+
 
     /**
      * Returns {@link DirectoryPartitionConfiguration}s to configure context partitions.
@@ -251,31 +261,33 @@ public class StartupConfiguration extends Configuration
         return ConfigurationUtil.getClonedSet( contextPartitionConfigurations );
     }
 
+
     /**
      * Sets {@link DirectoryPartitionConfiguration}s to configure context partitions.
      */
     protected void setContextPartitionConfigurations( Set contextParitionConfigurations )
     {
-        Set newSet = ConfigurationUtil.getTypeSafeSet(
-                contextParitionConfigurations, DirectoryPartitionConfiguration.class );
-        
+        Set newSet = ConfigurationUtil.getTypeSafeSet( contextParitionConfigurations,
+            DirectoryPartitionConfiguration.class );
+
         Set names = new HashSet();
         Iterator i = newSet.iterator();
-        while( i.hasNext() )
+        while ( i.hasNext() )
         {
             DirectoryPartitionConfiguration cfg = ( DirectoryPartitionConfiguration ) i.next();
             cfg.validate();
 
             String name = cfg.getName();
-            if( names.contains( name ) )
+            if ( names.contains( name ) )
             {
                 throw new ConfigurationException( "Duplicate partition name: " + name );
             }
             names.add( name );
         }
-        
+
         this.contextPartitionConfigurations = newSet;
     }
+
 
     /**
      * Returns <tt>true</tt> if access control checks are enbaled.
@@ -285,6 +297,7 @@ public class StartupConfiguration extends Configuration
         return accessControlEnabled;
     }
 
+
     /**
      * Sets whether to enable basic access control checks or not
      */
@@ -292,6 +305,7 @@ public class StartupConfiguration extends Configuration
     {
         this.accessControlEnabled = accessControlEnabled;
     }
+
 
     /**
      * Returns <tt>true</tt> if anonymous access is allowed.
@@ -301,6 +315,7 @@ public class StartupConfiguration extends Configuration
         return allowAnonymousAccess;
     }
 
+
     /**
      * Sets whether to allow anonymous access or not
      */
@@ -308,6 +323,7 @@ public class StartupConfiguration extends Configuration
     {
         this.allowAnonymousAccess = enableAnonymousAccess;
     }
+
 
     /**
      * Returns interceptor chain.
@@ -317,23 +333,23 @@ public class StartupConfiguration extends Configuration
         return ConfigurationUtil.getClonedList( interceptorConfigurations );
     }
 
+
     /**
      * Sets interceptor chain.
      */
     protected void setInterceptorConfigurations( List interceptorConfigurations )
     {
-        List newList = ConfigurationUtil.getTypeSafeList(
-                interceptorConfigurations, InterceptorConfiguration.class );
-        
+        List newList = ConfigurationUtil.getTypeSafeList( interceptorConfigurations, InterceptorConfiguration.class );
+
         Set names = new HashSet();
         Iterator i = newList.iterator();
-        while( i.hasNext() )
+        while ( i.hasNext() )
         {
             InterceptorConfiguration cfg = ( InterceptorConfiguration ) i.next();
             cfg.validate();
 
             String name = cfg.getName();
-            if( names.contains( name ) )
+            if ( names.contains( name ) )
             {
                 throw new ConfigurationException( "Duplicate interceptor name: " + name );
             }
@@ -342,6 +358,7 @@ public class StartupConfiguration extends Configuration
 
         this.interceptorConfigurations = interceptorConfigurations;
     }
+
 
     /**
      * Returns test directory entries({@link Attributes}) to be loaded while
@@ -352,27 +369,29 @@ public class StartupConfiguration extends Configuration
         return ConfigurationUtil.getClonedAttributesList( testEntries );
     }
 
+
     /**
      * Sets test directory entries({@link Attributes}) to be loaded while
      * bootstrapping.
      */
     protected void setTestEntries( List testEntries )
     {
-         testEntries = ConfigurationUtil.getClonedAttributesList(
-                ConfigurationUtil.getTypeSafeList( testEntries, Attributes.class ) );
-         
-         Iterator i = testEntries.iterator();
-         while( i.hasNext() )
-         {
-             Attributes entry = ( Attributes ) i.next();
-             if( entry.get( "dn" ) == null )
-             {
-                 throw new ConfigurationException( "Test entries must have DN attributes" );
-             }
-         }
+        testEntries = ConfigurationUtil.getClonedAttributesList( ConfigurationUtil.getTypeSafeList( testEntries,
+            Attributes.class ) );
 
-         this.testEntries = testEntries;
+        Iterator i = testEntries.iterator();
+        while ( i.hasNext() )
+        {
+            Attributes entry = ( Attributes ) i.next();
+            if ( entry.get( "dn" ) == null )
+            {
+                throw new ConfigurationException( "Test entries must have DN attributes" );
+            }
+        }
+
+        this.testEntries = testEntries;
     }
+
 
     /**
      * Returns working directory (counterpart of <tt>var/lib</tt>).
@@ -382,6 +401,7 @@ public class StartupConfiguration extends Configuration
         return workingDirectory;
     }
 
+
     /**
      * Sets working directory (counterpart of <tt>var/lib</tt>).
      */
@@ -389,19 +409,20 @@ public class StartupConfiguration extends Configuration
     {
         this.workingDirectory = workingDirectory;
     }
-    
+
+
     public void validate()
     {
         setWorkingDirectory( workingDirectory );
     }
 
-    
+
     protected void setShutdownHookEnabled( boolean shutdownHookEnabled )
     {
         this.shutdownHookEnabled = shutdownHookEnabled;
     }
-    
-    
+
+
     public boolean isShutdownHookEnabled()
     {
         return shutdownHookEnabled;
@@ -412,8 +433,8 @@ public class StartupConfiguration extends Configuration
     {
         this.exitVmOnShutdown = exitVmOnShutdown;
     }
-    
-    
+
+
     public boolean isExitVmOnShutdown()
     {
         return exitVmOnShutdown;

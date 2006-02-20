@@ -23,23 +23,26 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
+
 public class DomainName extends DhcpOption
 {
-	private byte[] domainName;
-	
-	public DomainName( byte[] domainName )
-	{
-		super( 15, 1 );
-		this.domainName = domainName;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( domainName );
-	}
-}
+    private byte[] domainName;
 
+
+    public DomainName(byte[] domainName)
+    {
+        super( 15, 1 );
+        this.domainName = domainName;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( domainName );
+    }
+}

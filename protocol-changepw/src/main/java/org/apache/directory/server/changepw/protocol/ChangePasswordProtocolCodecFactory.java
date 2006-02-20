@@ -17,29 +17,34 @@
 
 package org.apache.directory.server.changepw.protocol;
 
+
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
+
 public class ChangePasswordProtocolCodecFactory implements ProtocolCodecFactory
 {
-    private static final ChangePasswordProtocolCodecFactory INSTANCE = 
-        new ChangePasswordProtocolCodecFactory();
+    private static final ChangePasswordProtocolCodecFactory INSTANCE = new ChangePasswordProtocolCodecFactory();
+
 
     public static ChangePasswordProtocolCodecFactory getInstance()
     {
         return INSTANCE;
     }
 
+
     private ChangePasswordProtocolCodecFactory()
     {
     }
-    
+
+
     public ProtocolEncoder getEncoder()
     {
         // Create a new encoder.
         return new ChangePasswordEncoder();
     }
+
 
     public ProtocolDecoder getDecoder()
     {

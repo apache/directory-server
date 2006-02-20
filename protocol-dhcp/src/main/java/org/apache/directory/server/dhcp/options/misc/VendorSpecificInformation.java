@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option is used by clients and servers to exchange vendor-
@@ -57,17 +59,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class VendorSpecificInformation extends DhcpOption
 {
-	private byte[] vendorSpecificInformation;
-	
-	public VendorSpecificInformation( byte[] vendorSpecificInformation )
-	{
-		super( 43, 1 );
-		this.vendorSpecificInformation = vendorSpecificInformation;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( vendorSpecificInformation );
-	}
-}
+    private byte[] vendorSpecificInformation;
 
+
+    public VendorSpecificInformation(byte[] vendorSpecificInformation)
+    {
+        super( 43, 1 );
+        this.vendorSpecificInformation = vendorSpecificInformation;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( vendorSpecificInformation );
+    }
+}

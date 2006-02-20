@@ -32,7 +32,7 @@ public class Tuple
     /** the value for this Tuple */
     private Object value;
 
-    
+
     /**
      * Do nothing default that has a null key and null value.
      */
@@ -40,21 +40,21 @@ public class Tuple
     {
         // does nothing!
     }
-    
+
 
     /**
      * Creates a Tuple using a key and a value.
      * 
      * @param key the key to set
      * @param value the value to set
-     */    
-    public Tuple( Object key, Object value )
+     */
+    public Tuple(Object key, Object value)
     {
         this.key = key;
         this.value = value;
     }
-    
-    
+
+
     /**
      * Gets the key for this Tuple.
      *
@@ -64,8 +64,8 @@ public class Tuple
     {
         return key;
     }
-    
-    
+
+
     /**
      * Sets the key for this Tuple.
      *
@@ -75,8 +75,8 @@ public class Tuple
     {
         this.key = key;
     }
-    
-    
+
+
     /**
      * Gets the value for this Tuple.
      *
@@ -86,8 +86,8 @@ public class Tuple
     {
         return value;
     }
-    
-    
+
+
     /**
      * Sets the value for this Tuple.
      *

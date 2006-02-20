@@ -39,6 +39,7 @@ public interface ComparatorRegistry
      */
     String getSchemaName( String oid ) throws NamingException;
 
+
     /**
      * Registers a Comparator with this registry.
      * 
@@ -49,7 +50,8 @@ public interface ComparatorRegistry
      *      registration operation is not supported
      */
     void register( String schema, String oid, Comparator comparator ) throws NamingException;
-    
+
+
     /**
      * Looks up a Comparator by its unique Object Identifier.
      * 
@@ -59,6 +61,7 @@ public interface ComparatorRegistry
      *      Comparator does not exist.
      */
     Comparator lookup( String oid ) throws NamingException;
+
 
     /**
      * Checks to see if a Comparator exists.  Backing store failures simply 

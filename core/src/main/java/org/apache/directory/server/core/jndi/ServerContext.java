@@ -70,7 +70,7 @@ public abstract class ServerContext implements EventContext
 
     /** The directory service which owns this context **/
     private final DirectoryService service;
-    
+
     /** The interceptor proxy to the backend nexus */
     private final DirectoryPartitionNexus nexusProxy;
 
@@ -86,10 +86,10 @@ public abstract class ServerContext implements EventContext
     /** The Principal associated with this context */
     private LdapPrincipal principal;
 
+
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
-
 
     /**
      * Must be called by all subclasses to initialize the nexus proxy and the
@@ -105,13 +105,13 @@ public abstract class ServerContext implements EventContext
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
-    protected ServerContext( DirectoryService service, Hashtable env ) throws NamingException
+    protected ServerContext(DirectoryService service, Hashtable env) throws NamingException
     {
         this.service = service;
-        
+
         // set references to cloned env and the proxy
         this.nexusProxy = new DirectoryPartitionNexusProxy( this, service );
-        
+
         DirectoryServiceConfiguration cfg = service.getConfiguration();
         this.env = ( Hashtable ) cfg.getEnvironment().clone();
         this.env.putAll( env );
@@ -119,11 +119,12 @@ public abstract class ServerContext implements EventContext
         dn = props.getProviderDn();
 
         // need to issue a bind operation here
-        this.nexusProxy.bind( props.getBindDn(), props.getCredentials(), 
-            props.getAuthenticationMechanisms(), props.getSaslAuthId() );
+        this.nexusProxy.bind( props.getBindDn(), props.getCredentials(), props.getAuthenticationMechanisms(), props
+            .getSaslAuthId() );
 
-        if ( dn.size() == 0 ) return;
-        if ( ! nexusProxy.hasEntry( dn ) )
+        if ( dn.size() == 0 )
+            return;
+        if ( !nexusProxy.hasEntry( dn ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
@@ -140,14 +141,15 @@ public abstract class ServerContext implements EventContext
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected ServerContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws NamingException
+    protected ServerContext(DirectoryService service, LdapPrincipal principal, Name dn) throws NamingException
     {
         this.service = service;
         this.dn = ( LdapName ) dn.clone();
 
         this.env = ( Hashtable ) service.getConfiguration().getEnvironment().clone();
         this.env.put( PROVIDER_URL, dn.toString() );
-        this.nexusProxy = new DirectoryPartitionNexusProxy( this, service );;
+        this.nexusProxy = new DirectoryPartitionNexusProxy( this, service );
+        ;
         this.principal = principal;
     }
 
@@ -163,6 +165,7 @@ public abstract class ServerContext implements EventContext
     {
         return service;
     }
+
 
     /**
      * Gets the principal of the authenticated user which also happens to own
@@ -190,7 +193,6 @@ public abstract class ServerContext implements EventContext
     // Protected Accessor Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the RootNexus proxy.
      *
@@ -198,7 +200,7 @@ public abstract class ServerContext implements EventContext
      */
     protected DirectoryPartitionNexus getNexusProxy()
     {
-       return nexusProxy ;
+        return nexusProxy;
     }
 
 
@@ -217,7 +219,6 @@ public abstract class ServerContext implements EventContext
     // JNDI Context Interface Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see javax.naming.Context#close()
      */
@@ -226,8 +227,8 @@ public abstract class ServerContext implements EventContext
         Iterator list = listeners.iterator();
         while ( list.hasNext() )
         {
-            ( ( DirectoryPartitionNexusProxy ) this.nexusProxy )
-                    .removeNamingListener( this, ( NamingListener ) list.next() );
+            ( ( DirectoryPartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, ( NamingListener ) list
+                .next() );
         }
     }
 
@@ -293,7 +294,7 @@ public abstract class ServerContext implements EventContext
         attributes.put( rdnAttribute, rdnValue );
         attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.JCONTAINER_ATTR );
         attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.TOP_ATTR );
-        
+
         /*
          * Add the new context to the server which as a side effect adds 
          * operational attributes to the attributes refering instance which
@@ -337,7 +338,7 @@ public abstract class ServerContext implements EventContext
     {
         bind( new LdapName( name ), obj );
     }
-    
+
 
     /**
      * @see javax.naming.Context#bind(javax.naming.Name, java.lang.Object)
@@ -435,7 +436,7 @@ public abstract class ServerContext implements EventContext
         String newRdn = newName.get( newName.size() - 1 );
         String oldRdn = oldName.get( oldName.size() - 1 );
         boolean delOldRdn = true;
-            
+
         /*
          * Attempt to use the java.naming.ldap.deleteRDN environment property
          * to get an override for the deleteOldRdn option to modifyRdn.  
@@ -443,7 +444,7 @@ public abstract class ServerContext implements EventContext
         if ( null != env.get( DELETE_OLD_RDN_PROP ) )
         {
             String delOldRdnStr = ( String ) env.get( DELETE_OLD_RDN_PROP );
-            delOldRdn = ! delOldRdnStr.equals( "false" );
+            delOldRdn = !delOldRdnStr.equals( "false" );
             delOldRdn = delOldRdn || delOldRdnStr.equals( "no" );
             delOldRdn = delOldRdn || delOldRdnStr.equals( "0" );
         }
@@ -565,18 +566,18 @@ public abstract class ServerContext implements EventContext
             // Give back serialized object and not a context
             return JavaLdapSupport.deserialize( attributes );
         }
-        
+
         // Initialize and return a context since the entry is not a java object
         ServerLdapContext ctx = new ServerLdapContext( service, principal, target );
-            
+
         // Need to add controls to propagate extended ldap operational env
-        Control [] controls = ( ( ServerLdapContext ) this ).getRequestControls();
+        Control[] controls = ( ( ServerLdapContext ) this ).getRequestControls();
 
         if ( null != controls )
-        {    
-            ctx.setRequestControls( ( Control [] ) controls.clone() );
+        {
+            ctx.setRequestControls( ( Control[] ) controls.clone() );
         }
-        
+
         return ctx;
     }
 
@@ -664,7 +665,7 @@ public abstract class ServerContext implements EventContext
         PresenceNode filter = new PresenceNode( "objectClass" );
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        return nexusProxy.search( base , getEnvironment(), filter, ctls );
+        return nexusProxy.search( base, getEnvironment(), filter, ctls );
     }
 
 
@@ -703,11 +704,11 @@ public abstract class ServerContext implements EventContext
          *          head of the prefix is found.
          *      3). Return the remainder of the fqn or Dn after chewing off some
          */
-         
+
         // 1). Find the Dn for name and walk it from the head to tail
         Name fqn = buildTarget( name );
         String head = prefix.get( 0 );
-        
+
         // 2). Walk the fqn trying to match for the head of the prefix
         while ( fqn.size() > 0 )
         {
@@ -716,7 +717,8 @@ public abstract class ServerContext implements EventContext
             {
                 return fqn;
             }
-            else // 2). Remove name components from the Dn until a match 
+            else
+            // 2). Remove name components from the Dn until a match 
             {
                 fqn.remove( 0 );
             }
@@ -732,14 +734,13 @@ public abstract class ServerContext implements EventContext
     // EventContext implementations
     // ------------------------------------------------------------------------
 
-
     public void addNamingListener( Name name, int scope, NamingListener namingListener ) throws NamingException
     {
         ExprNode filter = new PresenceNode( "objectClass" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( scope );
-        ( ( DirectoryPartitionNexusProxy ) this.nexusProxy )
-                .addNamingListener( this, buildTarget( name ), filter, controls, namingListener );
+        ( ( DirectoryPartitionNexusProxy ) this.nexusProxy ).addNamingListener( this, buildTarget( name ), filter,
+            controls, namingListener );
         listeners.add( namingListener );
     }
 
@@ -777,8 +778,7 @@ public abstract class ServerContext implements EventContext
     // ------------------------------------------------------------------------
     // Utility Methods to Reduce Code
     // ------------------------------------------------------------------------
-    
-    
+
     /**
      * Clones this context's DN and adds the components of the name relative to 
      * this context to the left hand side of this context's cloned DN. 
@@ -792,7 +792,7 @@ public abstract class ServerContext implements EventContext
     {
         // Clone our DN or absolute path
         LdapName target = ( LdapName ) dn.clone();
-        
+
         // Add to left hand side of cloned DN the relative name arg
         target.addAll( target.size(), relativeName );
         return target;

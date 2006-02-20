@@ -52,11 +52,10 @@ public class BootstrapObjectClassRegistry implements ObjectClassRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates an empty BootstrapObjectClassRegistry.
      */
-    public BootstrapObjectClassRegistry( OidRegistry oidRegistry )
+    public BootstrapObjectClassRegistry(OidRegistry oidRegistry)
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
@@ -80,13 +79,12 @@ public class BootstrapObjectClassRegistry implements ObjectClassRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-
     public void register( String schema, ObjectClass objectClass ) throws NamingException
     {
         if ( byOid.containsKey( objectClass.getOid() ) )
         {
-            NamingException e = new NamingException( "objectClass w/ OID " +
-                objectClass.getOid() + " has already been registered!" );
+            NamingException e = new NamingException( "objectClass w/ OID " + objectClass.getOid()
+                + " has already been registered!" );
             monitor.registerFailed( objectClass, e );
             throw e;
         }
@@ -102,10 +100,9 @@ public class BootstrapObjectClassRegistry implements ObjectClassRegistry
     {
         id = oidRegistry.getOid( id );
 
-        if ( ! byOid.containsKey( id ) )
+        if ( !byOid.containsKey( id ) )
         {
-            NamingException e = new NamingException( "objectClass w/ OID "
-                + id + " not registered!" );
+            NamingException e = new NamingException( "objectClass w/ OID " + id + " not registered!" );
             monitor.lookupFailed( id, e );
             throw e;
         }
@@ -142,8 +139,7 @@ public class BootstrapObjectClassRegistry implements ObjectClassRegistry
             return ( String ) oidToSchema.get( id );
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " +
-            "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
     }
 
 

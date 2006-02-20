@@ -35,12 +35,14 @@ public interface ObjectClassRegistryMonitor
      */
     void registered( ObjectClass objectClass );
 
+
     /**
      * Monitors when a Comparator is successfully looked up.
      *
      * @param objectClass the ObjectClass successfully lookedup
      */
     void lookedUp( ObjectClass objectClass );
+
 
     /**
      * Monitors when a lookup attempt fails.
@@ -49,6 +51,7 @@ public interface ObjectClassRegistryMonitor
      * @param fault the exception to be thrown for the fault
      */
     void lookupFailed( String oid, Throwable fault );
+
 
     /**
      * Monitors when a registration attempt fails.

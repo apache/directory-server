@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dns.messages;
 
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 
 public final class ServiceType implements Comparable
 {
@@ -111,51 +113,56 @@ public final class ServiceType implements Comparable
     /**
      * These two lines are all that's necessary to export a List of VALUES.
      */
-    private static final ServiceType[] values = { NULL, RJE, ECHO, DISCARD, USERS, DAYTIME, QUOTE, CHARGEN, FTP_DATA,
-            FTP, TELNET, SMTP, NSW_FE, MSG_ICP, MSG_AUTH, DSP, TIME, RLP, GRAPHICS, NAMESERVER, NICKNAME, MPM_FLAGS,
-            MPM, MPM_SND, NI_FTP, LOGIN, LA_MAINT, DOMAIN, ISI_GL, NI_MAIL, VIA_FTP, TACACS_DS, BOOTPS, BOOTPC, TFTP,
-            NETRJS_1, NETRJS_2, NETRJS_3, NETRJS_4, FINGER, HOSTS2_NS, SU_MIT_TG, MIT_DOV, DCP, SUPDUP, SWIFT_RVF,
-            TACNEWS, METAGRAM, HOSTNAME, ISO_TSAP, X400, X400_SND, CSNET_NS, RTELNET, POP_2, SUNRPC, AUTH, SFTP,
-            UUCP_PATH, NNTP, ERPC, NTP, LOCUS_MAP, LOCUS_CON, PWDGEN, CISCO_FNA, CISCO_TNA, CISCO_SYS, STATSRV,
-            INGRES_NET, LOC_SRV, PROFILE, NETBIOS_NS, NETBIOS_DGM, NETBIOS_SSN, EMFIS_DATA, EMFIS_CNTL, BL_IDM,
-            SUR_MEAS, LINK };
+    private static final ServiceType[] values =
+        { NULL, RJE, ECHO, DISCARD, USERS, DAYTIME, QUOTE, CHARGEN, FTP_DATA, FTP, TELNET, SMTP, NSW_FE, MSG_ICP,
+            MSG_AUTH, DSP, TIME, RLP, GRAPHICS, NAMESERVER, NICKNAME, MPM_FLAGS, MPM, MPM_SND, NI_FTP, LOGIN, LA_MAINT,
+            DOMAIN, ISI_GL, NI_MAIL, VIA_FTP, TACACS_DS, BOOTPS, BOOTPC, TFTP, NETRJS_1, NETRJS_2, NETRJS_3, NETRJS_4,
+            FINGER, HOSTS2_NS, SU_MIT_TG, MIT_DOV, DCP, SUPDUP, SWIFT_RVF, TACNEWS, METAGRAM, HOSTNAME, ISO_TSAP, X400,
+            X400_SND, CSNET_NS, RTELNET, POP_2, SUNRPC, AUTH, SFTP, UUCP_PATH, NNTP, ERPC, NTP, LOCUS_MAP, LOCUS_CON,
+            PWDGEN, CISCO_FNA, CISCO_TNA, CISCO_SYS, STATSRV, INGRES_NET, LOC_SRV, PROFILE, NETBIOS_NS, NETBIOS_DGM,
+            NETBIOS_SSN, EMFIS_DATA, EMFIS_CNTL, BL_IDM, SUR_MEAS, LINK };
 
     public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     private final String name;
     private final int ordinal;
 
+
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private ServiceType( int ordinal, String name )
+    private ServiceType(int ordinal, String name)
     {
         this.ordinal = ordinal;
         this.name = name;
     }
+
 
     public String toString()
     {
         return name;
     }
 
+
     public int compareTo( Object that )
     {
-        return ordinal - ( (ServiceType) that ).ordinal;
+        return ordinal - ( ( ServiceType ) that ).ordinal;
     }
+
 
     public static ServiceType getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
         {
-            if ( values[ ii ].ordinal == type )
+            if ( values[ii].ordinal == type )
             {
-                return values[ ii ];
+                return values[ii];
             }
         }
 
         return NULL;
     }
+
 
     public int getOrdinal()
     {

@@ -4,10 +4,13 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC1-SNAPSHOT</version>
+    <version>1.0-RC1</version>
   </parent>
   <artifactId>apacheds-server-sar</artifactId>
   <name>ApacheDS Server Sar (JBoss 3.x)</name>
+  <description>
+    A server archive file for ApacheDS to run within a JBoss 3.x instance
+  </description>
   <packaging>sar</packaging>  
   <dependencies>
     <dependency>
@@ -18,7 +21,7 @@
     <dependency>
       <groupId>org.apache.directory.daemon</groupId>
       <artifactId>daemon-bootstrappers</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>jboss</groupId>

@@ -42,6 +42,7 @@ public interface OidRegistry
      */
     String getOid( String name ) throws NamingException;
 
+
     /**
      * Checks to see if an identifier, oid or name exists within this registry.
      *
@@ -49,6 +50,7 @@ public interface OidRegistry
      * @return true if the id exists false otherwise
      */
     boolean hasOid( String id );
+
 
     /**
      * Gets the primary name associated with an OID.  The primary name is the
@@ -59,7 +61,8 @@ public interface OidRegistry
      * @throws NamingException if oid does not exist
      */
     String getPrimaryName( String oid ) throws NamingException;
-    
+
+
     /**
      * Gets the names associated with an OID.  An OID is unique however it may 
      * have many names used to refer to it.  A good example is the cn and
@@ -73,14 +76,16 @@ public interface OidRegistry
      * @throws NamingException if oid does not exist
      */
     List getNameSet( String oid ) throws NamingException;
-    
+
+
     /**
      * Lists all the OIDs within the registry.  This may be a really big list.
      * 
      * @return all the OIDs registered
      */
     Iterator list();
-    
+
+
     /**
      * Adds an OID name pair to the registry.
      * 
@@ -88,12 +93,14 @@ public interface OidRegistry
      * @param oid the OID to add or associate a new name with
      */
     void register( String name, String oid );
-    
+
+
     /**
      * Get the map of all the oids by their name
      * @return The Map that contains all the oids
      */
     public Map getOidByName();
+
 
     /**
      * Get the map of all the oids by their name

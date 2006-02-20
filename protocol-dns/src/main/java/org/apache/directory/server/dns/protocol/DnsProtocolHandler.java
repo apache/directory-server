@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.dns.protocol;
 
+
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.service.DnsContext;
@@ -30,6 +31,7 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class DnsProtocolHandler implements IoHandler
 {
     private static final Logger log = LoggerFactory.getLogger( DnsProtocolHandler.class );
@@ -39,7 +41,8 @@ public class DnsProtocolHandler implements IoHandler
 
     private Command dnsService;
 
-    public DnsProtocolHandler( DnsConfiguration config, RecordStore store )
+
+    public DnsProtocolHandler(DnsConfiguration config, RecordStore store)
     {
         this.config = config;
         this.store = store;
@@ -47,29 +50,32 @@ public class DnsProtocolHandler implements IoHandler
         dnsService = new DomainNameServiceChain();
     }
 
+
     public void sessionCreated( IoSession session ) throws Exception
     {
         log.debug( "{} CREATED", session.getRemoteAddress() );
-        
-        session.getFilterChain().addFirst(
-                "codec",
-                new ProtocolCodecFilter( DnsProtocolCodecFactory.getInstance() ) );
+
+        session.getFilterChain().addFirst( "codec", new ProtocolCodecFilter( DnsProtocolCodecFactory.getInstance() ) );
     }
+
 
     public void sessionOpened( IoSession session )
     {
         log.debug( "{} OPENED", session.getRemoteAddress() );
     }
 
+
     public void sessionClosed( IoSession session )
     {
         log.debug( "{} CLOSED", session.getRemoteAddress() );
     }
 
+
     public void sessionIdle( IoSession session, IdleStatus status )
     {
         log.debug( "{} IDLE({})", session.getRemoteAddress(), status );
     }
+
 
     public void exceptionCaught( IoSession session, Throwable cause )
     {
@@ -77,11 +83,12 @@ public class DnsProtocolHandler implements IoHandler
         session.close();
     }
 
+
     public void messageReceived( IoSession session, Object message )
     {
         log.debug( "{} RCVD: {}", session.getRemoteAddress(), message );
 
-        DnsMessage request = (DnsMessage) message;
+        DnsMessage request = ( DnsMessage ) message;
 
         try
         {
@@ -99,6 +106,7 @@ public class DnsProtocolHandler implements IoHandler
             log.error( e.getMessage(), e );
         }
     }
+
 
     public void messageSent( IoSession session, Object message )
     {

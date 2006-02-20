@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import org.apache.directory.server.dhcp.options.AddressOption;
+
 
 /**
  * This option is used in a client request (DHCPDISCOVER) to allow the
@@ -27,9 +29,8 @@ import org.apache.directory.server.dhcp.options.AddressOption;
  */
 public class RequestedIpAddress extends AddressOption
 {
-	public RequestedIpAddress( byte[] requestedIpAddress )
-	{
-		super( 50, requestedIpAddress );
-	}
+    public RequestedIpAddress(byte[] requestedIpAddress)
+    {
+        super( 50, requestedIpAddress );
+    }
 }
-

@@ -17,10 +17,12 @@
 
 package org.apache.directory.server.dns.io.encoder;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
+
 
 /**
  * 3.3.9. MX RDATA format
@@ -54,7 +56,7 @@ public class MailExchangeRecordEncoder extends ResourceRecordEncoder
         byteBuffer.put( encodeDomainName( record.get( DnsAttribute.DOMAIN_NAME ) ) );
 
         byteBuffer.flip();
-        byte[] bytes = new byte[ byteBuffer.remaining() ];
+        byte[] bytes = new byte[byteBuffer.remaining()];
         byteBuffer.get( bytes, 0, bytes.length );
 
         return bytes;

@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,6 +40,7 @@ import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 
+
 /**
  * Tests {@link MaxValueCountFilter}.
  *
@@ -47,21 +49,19 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
  */
 public class MaxValueCountFilterTest extends TestCase
 {
-    private static final Collection EMPTY_COLLECTION =
-        Collections.unmodifiableCollection( new ArrayList() );
-    private static final Set EMPTY_SET =
-        Collections.unmodifiableSet( new HashSet() );
-    
+    private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
+    private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
+
     private static final Collection PROTECTED_ITEMS = new ArrayList();
     private static final Attributes ENTRY = new BasicAttributes();
     private static final Attributes FULL_ENTRY = new BasicAttributes();
-    
+
     static
     {
         Collection mvcItems = new ArrayList();
         mvcItems.add( new MaxValueCountItem( "testAttr", 2 ) );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxValueCount( mvcItems ) );
-        
+
         ENTRY.put( "testAttr", "1" );
 
         Attribute attr = new BasicAttribute( "testAttr" );
@@ -69,56 +69,45 @@ public class MaxValueCountFilterTest extends TestCase
         attr.add( "2" );
         FULL_ENTRY.put( attr );
     }
-    
+
+
     public void testWrongScope() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
         Collection tuples = new ArrayList();
-        tuples.add( new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION,
-                EMPTY_SET, true, 0 ) );
-        
-        tuples = Collections.unmodifiableCollection( tuples );
-        
-        Assert.assertEquals(
-                tuples, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null,
-                        null, null, null, null, null, null, null ) );
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 ) );
 
-        Assert.assertEquals(
-                tuples, filter.filter(
-                        tuples, OperationScope.ENTRY, null, null, null,
-                        null, null, null, null, null, null, null ) );
+        tuples = Collections.unmodifiableCollection( tuples );
+
+        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null,
+            null, null, null, null, null, null ) );
+
+        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null,
+            null, null, null, null ) );
     }
-    
+
+
     public void testZeroTuple() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
-        
-        Assert.assertEquals(
-                0, filter.filter(
-                        EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE,
-                        null, null, null, null, null, null, null, null, null, null ).size() );
+
+        Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
+            null, null, null, null, null, null, null, null ).size() );
     }
-    
+
+
     public void testDenialTuple() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
         Collection tuples = new ArrayList();
-        tuples.add( new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS,
-                EMPTY_SET, false, 0 ) );
-        
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, false, 0 ) );
+
         tuples = Collections.unmodifiableCollection( tuples );
-        
-        Assert.assertEquals(
-                tuples, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-                        null, null, null, "testAttr", null, ENTRY, null ) );
-        Assert.assertEquals(
-                tuples, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-                        null, null, null, "testAttr", null, FULL_ENTRY, null ) );
+
+        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
+            null, null, null, "testAttr", null, ENTRY, null ) );
+        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
+            null, null, null, "testAttr", null, FULL_ENTRY, null ) );
     }
 
 
@@ -126,18 +115,12 @@ public class MaxValueCountFilterTest extends TestCase
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
         Collection tuples = new ArrayList();
-        tuples.add( new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS,
-                EMPTY_SET, true, 0 ) );
-        
-        Assert.assertEquals(
-                1, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-                        null, null, null, "testAttr", null, ENTRY, null ).size() );
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, true, 0 ) );
 
-        Assert.assertEquals(
-                0, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-                        null, null, null, "testAttr", null, FULL_ENTRY, null ).size() );
+        Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
+            null, null, "testAttr", null, ENTRY, null ).size() );
+
+        Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
+            null, null, "testAttr", null, FULL_ENTRY, null ).size() );
     }
 }

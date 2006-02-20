@@ -16,14 +16,16 @@
  */
 package org.apache.directory.server.kerberos.kdc.authentication;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.kerberos.kdc.KdcContext;
-import org.apache.kerberos.messages.components.Ticket;
-import org.apache.kerberos.messages.value.EncryptionKey;
-import org.apache.kerberos.replay.ReplayCache;
-import org.apache.kerberos.store.PrincipalStoreEntry;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+
 
 public class AuthenticationContext extends KdcContext
 {
@@ -39,6 +41,7 @@ public class AuthenticationContext extends KdcContext
     private PrincipalStoreEntry clientEntry;
     private PrincipalStoreEntry serverEntry;
 
+
     /**
      * @return Returns the serverEntry.
      */
@@ -46,6 +49,7 @@ public class AuthenticationContext extends KdcContext
     {
         return serverEntry;
     }
+
 
     /**
      * @param serverEntry The serverEntry to set.
@@ -55,6 +59,7 @@ public class AuthenticationContext extends KdcContext
         this.serverEntry = serverEntry;
     }
 
+
     /**
      * @return Returns the clientEntry.
      */
@@ -62,6 +67,7 @@ public class AuthenticationContext extends KdcContext
     {
         return clientEntry;
     }
+
 
     /**
      * @param clientEntry The clientEntry to set.
@@ -71,6 +77,7 @@ public class AuthenticationContext extends KdcContext
         this.clientEntry = clientEntry;
     }
 
+
     /**
      * @return Returns the checksumEngines.
      */
@@ -78,6 +85,7 @@ public class AuthenticationContext extends KdcContext
     {
         return checksumEngines;
     }
+
 
     /**
      * @param checksumEngines The checksumEngines to set.
@@ -87,6 +95,7 @@ public class AuthenticationContext extends KdcContext
         this.checksumEngines = checksumEngines;
     }
 
+
     /**
      * @return Returns the replayCache.
      */
@@ -94,6 +103,7 @@ public class AuthenticationContext extends KdcContext
     {
         return replayCache;
     }
+
 
     /**
      * @param replayCache The replayCache to set.
@@ -103,6 +113,7 @@ public class AuthenticationContext extends KdcContext
         this.replayCache = replayCache;
     }
 
+
     /**
      * @return Returns the clientKey.
      */
@@ -110,6 +121,7 @@ public class AuthenticationContext extends KdcContext
     {
         return clientKey;
     }
+
 
     /**
      * @param clientKey The clientKey to set.
@@ -119,6 +131,7 @@ public class AuthenticationContext extends KdcContext
         this.clientKey = clientKey;
     }
 
+
     /**
      * @return Returns the sessionKey.
      */
@@ -126,6 +139,7 @@ public class AuthenticationContext extends KdcContext
     {
         return sessionKey;
     }
+
 
     /**
      * @param sessionKey The sessionKey to set.
@@ -135,6 +149,7 @@ public class AuthenticationContext extends KdcContext
         this.sessionKey = sessionKey;
     }
 
+
     /**
      * @return Returns the ticket.
      */
@@ -142,6 +157,7 @@ public class AuthenticationContext extends KdcContext
     {
         return ticket;
     }
+
 
     /**
      * @param ticket The ticket to set.

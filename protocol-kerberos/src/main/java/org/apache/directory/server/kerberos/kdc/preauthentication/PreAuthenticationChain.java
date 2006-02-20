@@ -16,7 +16,9 @@
  */
 package org.apache.directory.server.kerberos.kdc.preauthentication;
 
+
 import org.apache.directory.server.protocol.shared.chain.impl.ChainBase;
+
 
 public class PreAuthenticationChain extends ChainBase
 {

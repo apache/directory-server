@@ -41,7 +41,8 @@ public interface AttributeTypeRegistry
      * the registration operation is not supported
      */
     void register( String schema, AttributeType attributeType ) throws NamingException;
-    
+
+
     /**
      * Looks up an AttributeType by its unique Object Identifier or by its
      * unique name.
@@ -52,6 +53,7 @@ public interface AttributeTypeRegistry
      */
     AttributeType lookup( String id ) throws NamingException;
 
+
     /**
      * Gets the name of the schema this schema object is associated with.
      *
@@ -61,6 +63,7 @@ public interface AttributeTypeRegistry
      */
     String getSchemaName( String id ) throws NamingException;
 
+
     /**
      * Checks to see if an AttributeType exists.
      * 
@@ -69,6 +72,7 @@ public interface AttributeTypeRegistry
      * otherwise
      */
     boolean hasAttributeType( String id );
+
 
     /**
      * Gets an Iterator over the AttributeTypes within this registry.

@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,11 +26,12 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.messages.components.Authenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * A basic password policy check using well-established methods.
@@ -42,9 +44,10 @@ public class CheckPasswordPolicy extends CommandBase
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( CheckPasswordPolicy.class );
 
+
     public boolean execute( Context context ) throws Exception
     {
-        ChangePasswordContext changepwContext = (ChangePasswordContext) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
 
         ChangePasswordConfiguration config = changepwContext.getConfig();
         Authenticator authenticator = changepwContext.getAuthenticator();
@@ -70,6 +73,7 @@ public class CheckPasswordPolicy extends CommandBase
         throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR, explanatoryData );
     }
 
+
     /**
      * Tests that:
      * The password is at least six characters long.
@@ -79,8 +83,9 @@ public class CheckPasswordPolicy extends CommandBase
     boolean isValid( String username, String password, int passwordLength, int categoryCount, int tokenSize )
     {
         return isValidPasswordLength( password, passwordLength ) && isValidCategoryCount( password, categoryCount )
-                && isValidUsernameSubstring( username, password, tokenSize );
+            && isValidUsernameSubstring( username, password, tokenSize );
     }
+
 
     /**
      * The password is at least six characters long.
@@ -89,6 +94,7 @@ public class CheckPasswordPolicy extends CommandBase
     {
         return password.length() >= passwordLength;
     }
+
 
     /**
      * The password contains characters from at least three of the following four categories:
@@ -108,25 +114,25 @@ public class CheckPasswordPolicy extends CommandBase
 
         for ( int ii = 0; ii < characters.length; ii++ )
         {
-            if ( Character.isLowerCase( characters[ ii ] ) )
+            if ( Character.isLowerCase( characters[ii] ) )
             {
                 lowercase = 1;
             }
             else
             {
-                if ( Character.isUpperCase( characters[ ii ] ) )
+                if ( Character.isUpperCase( characters[ii] ) )
                 {
                     uppercase = 1;
                 }
                 else
                 {
-                    if ( Character.isDigit( characters[ ii ] ) )
+                    if ( Character.isDigit( characters[ii] ) )
                     {
                         digit = 1;
                     }
                     else
                     {
-                        if ( !Character.isLetterOrDigit( characters[ ii ] ) )
+                        if ( !Character.isLetterOrDigit( characters[ii] ) )
                         {
                             nonAlphaNumeric = 1;
                         }
@@ -137,6 +143,7 @@ public class CheckPasswordPolicy extends CommandBase
 
         return ( uppercase + lowercase + digit + nonAlphaNumeric ) >= categoryCount;
     }
+
 
     /**
      * The password does not contain three letter (or more) tokens from the user's account name.
@@ -156,9 +163,9 @@ public class CheckPasswordPolicy extends CommandBase
 
         for ( int ii = 0; ii < tokens.length; ii++ )
         {
-            if ( tokens[ ii ].length() >= tokenSize )
+            if ( tokens[ii].length() >= tokenSize )
             {
-                if ( password.matches( "(?i).*" + tokens[ ii ] + ".*" ) )
+                if ( password.matches( "(?i).*" + tokens[ii] + ".*" ) )
                 {
                     return false;
                 }
@@ -168,8 +175,9 @@ public class CheckPasswordPolicy extends CommandBase
         return true;
     }
 
+
     private String buildErrorMessage( String username, String password, int passwordLength, int categoryCount,
-            int tokenSize )
+        int tokenSize )
     {
         List violations = new ArrayList();
 
@@ -194,7 +202,7 @@ public class CheckPasswordPolicy extends CommandBase
 
         while ( it.hasNext() )
         {
-            sb.append( (String) it.next() );
+            sb.append( ( String ) it.next() );
 
             if ( it.hasNext() )
             {

@@ -42,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-
 public class SessionsFrame extends JFrame
 {
     private static final Logger log = LoggerFactory.getLogger( SessionsFrame.class );
@@ -72,19 +71,20 @@ public class SessionsFrame extends JFrame
     private JMenuItem strongAuthRequiredItem = null;
     private JPanel southPanel = null;
     private JMenuItem showRequests = null;
-//    private JPopupMenu popupMenu = null;
-//    private JMenuItem jMenuItem = null;
-//    private JMenu jMenu = null;
-//    private JMenuItem jMenuItem1 = null;
-//    private JMenuItem jMenuItem2 = null;
-//    private JMenuItem jMenuItem3 = null;
-//    private JMenuItem jMenuItem4 = null;
+    //    private JPopupMenu popupMenu = null;
+    //    private JMenuItem jMenuItem = null;
+    //    private JMenu jMenu = null;
+    //    private JMenuItem jMenuItem1 = null;
+    //    private JMenuItem jMenuItem2 = null;
+    //    private JMenuItem jMenuItem3 = null;
+    //    private JMenuItem jMenuItem4 = null;
     private JButton refreshButton = null;
-    
-    
+
     private IoSession selected;
     private JMenuItem unbindItem = null;
     private JMenuItem bindItem = null;
+
+ 
     /**
      * This is the default constructor
      */
@@ -102,13 +102,13 @@ public class SessionsFrame extends JFrame
      */
     private void initialize()
     {
-        this.setSize(789, 436);
+        this.setSize( 789, 436 );
         this.setJMenuBar( getMainMenuBar() );
         this.setContentPane( getJContentPane() );
-        this.setTitle("Sessions");
+        this.setTitle( "Sessions" );
         this.addWindowListener( new java.awt.event.WindowAdapter()
         {
-            public void windowClosing(java.awt.event.WindowEvent e)
+            public void windowClosing( java.awt.event.WindowEvent e )
             {
                 SessionsFrame.this.setVisible( false );
                 SessionsFrame.this.dispose();
@@ -128,7 +128,7 @@ public class SessionsFrame extends JFrame
         {
             jContentPane = new JPanel();
             jContentPane.setLayout( new BorderLayout() );
-            jContentPane.add(getMainPanel(), java.awt.BorderLayout.CENTER);
+            jContentPane.add( getMainPanel(), java.awt.BorderLayout.CENTER );
         }
         return jContentPane;
     }
@@ -144,10 +144,10 @@ public class SessionsFrame extends JFrame
         if ( mainPanel == null )
         {
             mainPanel = new JPanel();
-            mainPanel.setLayout(new BorderLayout());
-            mainPanel.add(getFilterPanel(), java.awt.BorderLayout.NORTH);
-            mainPanel.add(getSessionsPane(), java.awt.BorderLayout.CENTER);
-            mainPanel.add(getSouthPanel(), java.awt.BorderLayout.SOUTH);
+            mainPanel.setLayout( new BorderLayout() );
+            mainPanel.add( getFilterPanel(), java.awt.BorderLayout.NORTH );
+            mainPanel.add( getSessionsPane(), java.awt.BorderLayout.CENTER );
+            mainPanel.add( getSouthPanel(), java.awt.BorderLayout.SOUTH );
         }
         return mainPanel;
     }
@@ -163,8 +163,8 @@ public class SessionsFrame extends JFrame
         if ( sessionsPane == null )
         {
             sessionsPane = new JScrollPane();
-            sessionsPane.setName("jScrollPane");
-            sessionsPane.setViewportView(getSessionsTable());
+            sessionsPane.setName( "jScrollPane" );
+            sessionsPane.setViewportView( getSessionsTable() );
         }
         return sessionsPane;
     }
@@ -180,45 +180,46 @@ public class SessionsFrame extends JFrame
         if ( sessionsTable == null )
         {
             sessionsTable = new JTable();
-            sessionsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-//            sessionsTable.addMouseListener( new java.awt.event.MouseAdapter()
-//            {
-//                public void mouseReleased(java.awt.event.MouseEvent e)
-//                {
-//                    if ( e.getButton() == MouseEvent.BUTTON3 )
-//                    {
-//                        if ( popupMenu == null )
-//                        {
-//                            popupMenu = SessionsFrame.this.getSessionsPopupMenu();
-//                        }
-//                        popupMenu.setVisible( false );
-//                    }
-//                }
-//
-//                public void mousePressed(java.awt.event.MouseEvent e)
-//                {
-//                    if ( e.getButton() == MouseEvent.BUTTON3 )
-//                    {
-//                        if ( popupMenu == null )
-//                        {
-//                            popupMenu = SessionsFrame.this.getSessionsPopupMenu();
-//                        }
-//                        Point location = e.getComponent().getLocationOnScreen();
-//                        popupMenu.setLocation( location.x + e.getPoint().x, location.y + e.getPoint().y );
-//                        popupMenu.setVisible( true );
-//                    }
-//                }
-//            } );
+            sessionsTable.setSelectionMode( javax.swing.ListSelectionModel.SINGLE_SELECTION );
+            //            sessionsTable.addMouseListener( new java.awt.event.MouseAdapter()
+            //            {
+            //                public void mouseReleased(java.awt.event.MouseEvent e)
+            //                {
+            //                    if ( e.getButton() == MouseEvent.BUTTON3 )
+            //                    {
+            //                        if ( popupMenu == null )
+            //                        {
+            //                            popupMenu = SessionsFrame.this.getSessionsPopupMenu();
+            //                        }
+            //                        popupMenu.setVisible( false );
+            //                    }
+            //                }
+            //
+            //                public void mousePressed(java.awt.event.MouseEvent e)
+            //                {
+            //                    if ( e.getButton() == MouseEvent.BUTTON3 )
+            //                    {
+            //                        if ( popupMenu == null )
+            //                        {
+            //                            popupMenu = SessionsFrame.this.getSessionsPopupMenu();
+            //                        }
+            //                        Point location = e.getComponent().getLocationOnScreen();
+            //                        popupMenu.setLocation( location.x + e.getPoint().x, location.y + e.getPoint().y );
+            //                        popupMenu.setVisible( true );
+            //                    }
+            //                }
+            //            } );
             sessionsTable.setModel( new SessionsModel( SessionRegistry.getSingleton().getSessions() ) );
-            sessionsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener() {
-                public void valueChanged(ListSelectionEvent e)
+            sessionsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
+            {
+                public void valueChanged( ListSelectionEvent e )
                 {
                     int row = sessionsTable.getSelectedRow();
                     if ( row == -1 )
                     {
                         selected = null;
                     }
-                    else 
+                    else
                     {
                         selected = ( ( SessionsModel ) sessionsTable.getModel() ).getIoSession( row );
                         closeItem.setEnabled( true );
@@ -226,7 +227,7 @@ public class SessionsFrame extends JFrame
                         showRequests.setEnabled( true );
                     }
                 }
-            });
+            } );
         }
         return sessionsTable;
     }
@@ -242,10 +243,11 @@ public class SessionsFrame extends JFrame
         if ( filterPanel == null )
         {
             filterPanel = new JPanel();
-            filterPanel.setLayout(new BoxLayout(getFilterPanel(), BoxLayout.X_AXIS));
-            filterPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
-            filterPanel.add(getFilterButton(), null);
-            filterPanel.add(getFilterText(), null);
+            filterPanel.setLayout( new BoxLayout( getFilterPanel(), BoxLayout.X_AXIS ) );
+            filterPanel.setBorder( javax.swing.BorderFactory
+                .createEtchedBorder( javax.swing.border.EtchedBorder.RAISED ) );
+            filterPanel.add( getFilterButton(), null );
+            filterPanel.add( getFilterText(), null );
         }
         return filterPanel;
     }
@@ -261,7 +263,7 @@ public class SessionsFrame extends JFrame
         if ( filterButton == null )
         {
             filterButton = new JButton();
-            filterButton.setText("Filter");
+            filterButton.setText( "Filter" );
         }
         return filterButton;
     }
@@ -292,8 +294,8 @@ public class SessionsFrame extends JFrame
         if ( menuBar == null )
         {
             menuBar = new JMenuBar();
-            menuBar.add(getMenuFile());
-            menuBar.add(getMenuSession());
+            menuBar.add( getMenuFile() );
+            menuBar.add( getMenuSession() );
         }
         return menuBar;
     }
@@ -309,8 +311,8 @@ public class SessionsFrame extends JFrame
         if ( menuFile == null )
         {
             menuFile = new JMenu();
-            menuFile.setText("File");
-            menuFile.add(getExitItem());
+            menuFile.setText( "File" );
+            menuFile.add( getExitItem() );
         }
         return menuFile;
     }
@@ -326,10 +328,10 @@ public class SessionsFrame extends JFrame
         if ( exitItem == null )
         {
             exitItem = new JMenuItem();
-            exitItem.setText("exit");
+            exitItem.setText( "exit" );
             exitItem.addActionListener( new java.awt.event.ActionListener()
             {
-                public void actionPerformed(java.awt.event.ActionEvent e)
+                public void actionPerformed( java.awt.event.ActionEvent e )
                 {
                     SessionsFrame.this.setVisible( false );
                     SessionsFrame.this.dispose();
@@ -350,14 +352,14 @@ public class SessionsFrame extends JFrame
         if ( menuSession == null )
         {
             menuSession = new JMenu();
-            menuSession.setText("Session");
-            menuSession.add(getCloseItem());
+            menuSession.setText( "Session" );
+            menuSession.add( getCloseItem() );
             closeItem.setEnabled( false );
-            menuSession.add(getMenuSendNoD());
+            menuSession.add( getMenuSendNoD() );
             menuSendNoD.setEnabled( false );
-            menuSession.add(getShowRequests());
-            menuSession.add(getUnbindItem());
-            menuSession.add(getBindItem());
+            menuSession.add( getShowRequests() );
+            menuSession.add( getUnbindItem() );
+            menuSession.add( getBindItem() );
             showRequests.setEnabled( false );
         }
         return menuSession;
@@ -374,10 +376,10 @@ public class SessionsFrame extends JFrame
         if ( closeItem == null )
         {
             closeItem = new JMenuItem();
-            closeItem.setText("close");
+            closeItem.setText( "close" );
             closeItem.addActionListener( new java.awt.event.ActionListener()
             {
-                public void actionPerformed(java.awt.event.ActionEvent e)
+                public void actionPerformed( java.awt.event.ActionEvent e )
                 {
                     SessionRegistry.getSingleton().terminateSession( selected );
                     try
@@ -395,7 +397,7 @@ public class SessionsFrame extends JFrame
         return closeItem;
     }
 
-    
+
     /**
      * This method initializes jMenu	
      * 	
@@ -406,10 +408,10 @@ public class SessionsFrame extends JFrame
         if ( menuSendNoD == null )
         {
             menuSendNoD = new JMenu();
-            menuSendNoD.setText("Send NoD");
-            menuSendNoD.add(getUnavailableItem());
-            menuSendNoD.add(getProtocolErrorItem());
-            menuSendNoD.add(getStrongAuthRequiredItem());
+            menuSendNoD.setText( "Send NoD" );
+            menuSendNoD.add( getUnavailableItem() );
+            menuSendNoD.add( getProtocolErrorItem() );
+            menuSendNoD.add( getStrongAuthRequiredItem() );
         }
         return menuSendNoD;
     }
@@ -425,12 +427,12 @@ public class SessionsFrame extends JFrame
         if ( unavailableItem == null )
         {
             unavailableItem = new JMenuItem();
-            unavailableItem.setText("unavailable");
+            unavailableItem.setText( "unavailable" );
             unavailableItem.addActionListener( new java.awt.event.ActionListener()
             {
-                public void actionPerformed(java.awt.event.ActionEvent e)
+                public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    selected.write( NoticeOfDisconnect.UNAVAILABLE ); 
+                    selected.write( NoticeOfDisconnect.UNAVAILABLE );
                     try
                     {
                         Thread.sleep( 250 );
@@ -457,12 +459,12 @@ public class SessionsFrame extends JFrame
         if ( protocolErrorItem == null )
         {
             protocolErrorItem = new JMenuItem();
-            protocolErrorItem.setText("protocolError");
+            protocolErrorItem.setText( "protocolError" );
             protocolErrorItem.addActionListener( new java.awt.event.ActionListener()
             {
-                public void actionPerformed(java.awt.event.ActionEvent e)
+                public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    selected.write( NoticeOfDisconnect.PROTOCOLERROR ); 
+                    selected.write( NoticeOfDisconnect.PROTOCOLERROR );
                     try
                     {
                         Thread.sleep( 250 );
@@ -489,12 +491,12 @@ public class SessionsFrame extends JFrame
         if ( strongAuthRequiredItem == null )
         {
             strongAuthRequiredItem = new JMenuItem();
-            strongAuthRequiredItem.setText("strongAuthRequired");
+            strongAuthRequiredItem.setText( "strongAuthRequired" );
             strongAuthRequiredItem.addActionListener( new java.awt.event.ActionListener()
             {
-                public void actionPerformed(java.awt.event.ActionEvent e)
+                public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    WriteFuture future = selected.write( NoticeOfDisconnect.STRONGAUTHREQUIRED ); 
+                    WriteFuture future = selected.write( NoticeOfDisconnect.STRONGAUTHREQUIRED );
                     try
                     {
                         future.join( 1000 );
@@ -513,23 +515,22 @@ public class SessionsFrame extends JFrame
     }
 
 
-//    /**
-//     * This method initializes jPopupMenu	
-//     * 	
-//     * @return javax.swing.JPopupMenu	
-//     */
-//    private JPopupMenu getSessionsPopupMenu()
-//    {
-//        if ( popupMenu == null )
-//        {
-//            popupMenu = new JPopupMenu();
-//            popupMenu.add(getJMenuItem());
-//            popupMenu.add(getJMenu());
-//            popupMenu.add(getJMenuItem4());
-//        }
-//        return popupMenu;
-//    }
-
+    //    /**
+    //     * This method initializes jPopupMenu	
+    //     * 	
+    //     * @return javax.swing.JPopupMenu	
+    //     */
+    //    private JPopupMenu getSessionsPopupMenu()
+    //    {
+    //        if ( popupMenu == null )
+    //        {
+    //            popupMenu = new JPopupMenu();
+    //            popupMenu.add(getJMenuItem());
+    //            popupMenu.add(getJMenu());
+    //            popupMenu.add(getJMenuItem4());
+    //        }
+    //        return popupMenu;
+    //    }
 
     /**
      * This method initializes jPanel	
@@ -541,8 +542,9 @@ public class SessionsFrame extends JFrame
         if ( southPanel == null )
         {
             southPanel = new JPanel();
-            southPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
-            southPanel.add(getRefreshButton(), null);
+            southPanel
+                .setBorder( javax.swing.BorderFactory.createEtchedBorder( javax.swing.border.EtchedBorder.RAISED ) );
+            southPanel.add( getRefreshButton(), null );
         }
         return southPanel;
     }
@@ -558,18 +560,19 @@ public class SessionsFrame extends JFrame
         if ( showRequests == null )
         {
             showRequests = new JMenuItem();
-            showRequests.setText("show requests");
+            showRequests.setText( "show requests" );
             showRequests.addActionListener( new java.awt.event.ActionListener()
             {
-                public void actionPerformed(java.awt.event.ActionEvent e)
+                public void actionPerformed( java.awt.event.ActionEvent e )
                 {
                     OutstandingRequestsDialog dialog = new OutstandingRequestsDialog( SessionsFrame.this, selected );
-                    dialog.addWindowListener( new WindowAdapter() {
-                        public void windowClosed(WindowEvent e)
+                    dialog.addWindowListener( new WindowAdapter()
+                    {
+                        public void windowClosed( WindowEvent e )
                         {
                             e.getWindow().dispose();
                         }
-                    });
+                    } );
                     dialog.setVisible( true );
                 }
             } );
@@ -578,103 +581,103 @@ public class SessionsFrame extends JFrame
     }
 
 
-//    /**
-//     * This method initializes jMenuItem	
-//     * 	
-//     * @return javax.swing.JMenuItem	
-//     */
-//    private JMenuItem getJMenuItem()
-//    {
-//        if ( jMenuItem == null )
-//        {
-//            jMenuItem = new JMenuItem();
-//            jMenuItem.setText("close");
-//        }
-//        return jMenuItem;
-//    }
-//
-//
-//    /**
-//     * This method initializes jMenu	
-//     * 	
-//     * @return javax.swing.JMenu	
-//     */
-//    private JMenu getJMenu()
-//    {
-//        if ( jMenu == null )
-//        {
-//            jMenu = new JMenu();
-//            jMenu.setText("Send NoD");
-//            jMenu.add(getJMenuItem1());
-//            jMenu.add(getJMenuItem2());
-//            jMenu.add(getJMenuItem3());
-//        }
-//        return jMenu;
-//    }
-//
-//
-//    /**
-//     * This method initializes jMenuItem1	
-//     * 	
-//     * @return javax.swing.JMenuItem	
-//     */
-//    private JMenuItem getJMenuItem1()
-//    {
-//        if ( jMenuItem1 == null )
-//        {
-//            jMenuItem1 = new JMenuItem();
-//            jMenuItem1.setText("unavailable");
-//        }
-//        return jMenuItem1;
-//    }
-//
-//
-//    /**
-//     * This method initializes jMenuItem2	
-//     * 	
-//     * @return javax.swing.JMenuItem	
-//     */
-//    private JMenuItem getJMenuItem2()
-//    {
-//        if ( jMenuItem2 == null )
-//        {
-//            jMenuItem2 = new JMenuItem();
-//            jMenuItem2.setText("protocolError");
-//        }
-//        return jMenuItem2;
-//    }
-//
-//
-//    /**
-//     * This method initializes jMenuItem3	
-//     * 	
-//     * @return javax.swing.JMenuItem	
-//     */
-//    private JMenuItem getJMenuItem3()
-//    {
-//        if ( jMenuItem3 == null )
-//        {
-//            jMenuItem3 = new JMenuItem();
-//            jMenuItem3.setText("strongAuthRequired");
-//        }
-//        return jMenuItem3;
-//    }
-//
-//
-//    /**
-//     * This method initializes jMenuItem4	
-//     * 	
-//     * @return javax.swing.JMenuItem	
-//     */
-//    private JMenuItem getJMenuItem4()
-//    {
-//        if ( jMenuItem4 == null )
-//        {
-//            jMenuItem4 = new JMenuItem();
-//            jMenuItem4.setText("show requests");
-//        }
-//        return jMenuItem4;
-//    }
+    //    /**
+    //     * This method initializes jMenuItem	
+    //     * 	
+    //     * @return javax.swing.JMenuItem	
+    //     */
+    //    private JMenuItem getJMenuItem()
+    //    {
+    //        if ( jMenuItem == null )
+    //        {
+    //            jMenuItem = new JMenuItem();
+    //            jMenuItem.setText("close");
+    //        }
+    //        return jMenuItem;
+    //    }
+    //
+    //
+    //    /**
+    //     * This method initializes jMenu	
+    //     * 	
+    //     * @return javax.swing.JMenu	
+    //     */
+    //    private JMenu getJMenu()
+    //    {
+    //        if ( jMenu == null )
+    //        {
+    //            jMenu = new JMenu();
+    //            jMenu.setText("Send NoD");
+    //            jMenu.add(getJMenuItem1());
+    //            jMenu.add(getJMenuItem2());
+    //            jMenu.add(getJMenuItem3());
+    //        }
+    //        return jMenu;
+    //    }
+    //
+    //
+    //    /**
+    //     * This method initializes jMenuItem1	
+    //     * 	
+    //     * @return javax.swing.JMenuItem	
+    //     */
+    //    private JMenuItem getJMenuItem1()
+    //    {
+    //        if ( jMenuItem1 == null )
+    //        {
+    //            jMenuItem1 = new JMenuItem();
+    //            jMenuItem1.setText("unavailable");
+    //        }
+    //        return jMenuItem1;
+    //    }
+    //
+    //
+    //    /**
+    //     * This method initializes jMenuItem2	
+    //     * 	
+    //     * @return javax.swing.JMenuItem	
+    //     */
+    //    private JMenuItem getJMenuItem2()
+    //    {
+    //        if ( jMenuItem2 == null )
+    //        {
+    //            jMenuItem2 = new JMenuItem();
+    //            jMenuItem2.setText("protocolError");
+    //        }
+    //        return jMenuItem2;
+    //    }
+    //
+    //
+    //    /**
+    //     * This method initializes jMenuItem3	
+    //     * 	
+    //     * @return javax.swing.JMenuItem	
+    //     */
+    //    private JMenuItem getJMenuItem3()
+    //    {
+    //        if ( jMenuItem3 == null )
+    //        {
+    //            jMenuItem3 = new JMenuItem();
+    //            jMenuItem3.setText("strongAuthRequired");
+    //        }
+    //        return jMenuItem3;
+    //    }
+    //
+    //
+    //    /**
+    //     * This method initializes jMenuItem4	
+    //     * 	
+    //     * @return javax.swing.JMenuItem	
+    //     */
+    //    private JMenuItem getJMenuItem4()
+    //    {
+    //        if ( jMenuItem4 == null )
+    //        {
+    //            jMenuItem4 = new JMenuItem();
+    //            jMenuItem4.setText("show requests");
+    //        }
+    //        return jMenuItem4;
+    //    }
 
     /**
      * This method initializes jButton2	
@@ -689,7 +692,7 @@ public class SessionsFrame extends JFrame
             refreshButton.setText( REFRESH_COMMAND );
             refreshButton.addActionListener( new java.awt.event.ActionListener()
             {
-                public void actionPerformed(java.awt.event.ActionEvent e)
+                public void actionPerformed( java.awt.event.ActionEvent e )
                 {
                     if ( e.getActionCommand() == REFRESH_COMMAND )
                     {
@@ -701,7 +704,7 @@ public class SessionsFrame extends JFrame
         return refreshButton;
     }
 
-    
+
     private void refresh()
     {
         log.info( "Refreshing Sessions UI" );
@@ -710,7 +713,7 @@ public class SessionsFrame extends JFrame
         menuSendNoD.setEnabled( false );
         showRequests.setEnabled( false );
         unbindItem.setEnabled( isServiceBound );
-        bindItem.setEnabled( ! isServiceBound );
+        bindItem.setEnabled( !isServiceBound );
     }
 
 
@@ -724,8 +727,8 @@ public class SessionsFrame extends JFrame
     {
         this.ldapService = ldapService;
     }
-    
-    
+
+
     public void setRequestor( IoSession requestor )
     {
         this.requestor = requestor;
@@ -742,37 +745,36 @@ public class SessionsFrame extends JFrame
         if ( unbindItem == null )
         {
             unbindItem = new JMenuItem();
-            unbindItem.setText("Unbind Service");
+            unbindItem.setText( "Unbind Service" );
             unbindItem.setEnabled( isServiceBound );
             unbindItem.addActionListener( new java.awt.event.ActionListener()
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    int input = JOptionPane.showConfirmDialog( SessionsFrame.this, 
-                        "Selecting no will send a notice of disconnect ONLY.  " +
-                        "\nSelecting yes will send both.  Cancel will abort unbind.", 
-                        "Send graceful disconnect before disconnect notice?", 
-                        JOptionPane.YES_NO_CANCEL_OPTION );
+                    int input = JOptionPane.showConfirmDialog( SessionsFrame.this,
+                        "Selecting no will send a notice of disconnect ONLY.  "
+                            + "\nSelecting yes will send both.  Cancel will abort unbind.",
+                        "Send graceful disconnect before disconnect notice?", JOptionPane.YES_NO_CANCEL_OPTION );
                     IoAcceptor acceptor = minaRegistry.getAcceptor( ldapService.getTransportType() );
                     List sessions = new ArrayList( acceptor.getManagedSessions( ldapService.getAddress() ) );
-//                    ServerLdapContext ctx;
-//                    try
-//                    {
-//                        ctx = ( ServerLdapContext ) SessionRegistry.getSingleton()
-//                            .getLdapContext( requestor, null, false );
-//                    }
-//                    catch ( NamingException ne )
-//                    {
-//                        JOptionPane.showInternalMessageDialog( SessionsFrame.this, 
-//                            ne.getMessage(), "Encountered an Error", JOptionPane.ERROR_MESSAGE );
-//                        log.warn( "Could not access requestor's context.", ne );
-//                        return;
-//                    }
-//                    DirectoryService service = ctx.getService();
-//                    StartupConfiguration cfg = service.getConfiguration().getStartupConfiguration();
+                    //                    ServerLdapContext ctx;
+                    //                    try
+                    //                    {
+                    //                        ctx = ( ServerLdapContext ) SessionRegistry.getSingleton()
+                    //                            .getLdapContext( requestor, null, false );
+                    //                    }
+                    //                    catch ( NamingException ne )
+                    //                    {
+                    //                        JOptionPane.showInternalMessageDialog( SessionsFrame.this, 
+                    //                            ne.getMessage(), "Encountered an Error", JOptionPane.ERROR_MESSAGE );
+                    //                        log.warn( "Could not access requestor's context.", ne );
+                    //                        return;
+                    //                    }
+                    //                    DirectoryService service = ctx.getService();
+                    //                    StartupConfiguration cfg = service.getConfiguration().getStartupConfiguration();
                     // might add an exit vm feature using the default from the 
                     // configuration property
-                    
+
                     if ( input == JOptionPane.CANCEL_OPTION )
                     {
                         return;
@@ -783,10 +785,10 @@ public class SessionsFrame extends JFrame
                         minaRegistry.unbind( ldapService );
                         isServiceBound = false;
                         unbindItem.setEnabled( isServiceBound );
-                        bindItem.setEnabled( ! isServiceBound );
-                        JOptionPane.showMessageDialog( SessionsFrame.this, "Ldap service for " + 
-                            ldapService.getAddress() + " has been successfully unbound.", 
-                            "Success!", JOptionPane.INFORMATION_MESSAGE );
+                        bindItem.setEnabled( !isServiceBound );
+                        JOptionPane.showMessageDialog( SessionsFrame.this, "Ldap service for "
+                            + ldapService.getAddress() + " has been successfully unbound.", "Success!",
+                            JOptionPane.INFORMATION_MESSAGE );
                         refresh();
                         return;
                     }
@@ -796,16 +798,15 @@ public class SessionsFrame extends JFrame
                         setCenteredPosition( SessionsFrame.this, dialog );
                         dialog.setModal( true );
                         dialog.setVisible( true );
-                        
 
                         if ( dialog.isSendCanceled() )
                         {
                             log.debug( "GracefulShutdown was canceled." );
-                            JOptionPane.showMessageDialog( SessionsFrame.this, "Shutdown has been canceled.", 
+                            JOptionPane.showMessageDialog( SessionsFrame.this, "Shutdown has been canceled.",
                                 "Graceful Shutdown Aborted", JOptionPane.OK_OPTION );
                             return;
                         }
-                        
+
                         log.debug( "GracefulShutdown parameters captured." );
                         int timeOffline = dialog.getTimeOffline();
                         int delay = dialog.getDelay();
@@ -814,8 +815,8 @@ public class SessionsFrame extends JFrame
                         minaRegistry.unbind( ldapService );
                         isServiceBound = false;
                         unbindItem.setEnabled( isServiceBound );
-                        bindItem.setEnabled( ! isServiceBound ); 
-                        
+                        bindItem.setEnabled( !isServiceBound );
+
                         // do progress dialog with bypass button to wait for delay time
                         if ( delay > 0 )
                         {
@@ -827,12 +828,12 @@ public class SessionsFrame extends JFrame
                             t.start();
                             progress.setVisible( true );
                         }
-                        
+
                         // now send the notice of disconnect
                         GracefulShutdownHandler.sendNoticeOfDisconnect( sessions, requestor );
-                        JOptionPane.showMessageDialog( SessionsFrame.this, "Ldap service for " + 
-                            ldapService.getAddress() + " has been successfully unbound.", 
-                            "Success!", JOptionPane.OK_OPTION );
+                        JOptionPane.showMessageDialog( SessionsFrame.this, "Ldap service for "
+                            + ldapService.getAddress() + " has been successfully unbound.", "Success!",
+                            JOptionPane.OK_OPTION );
                         refresh();
                     }
                 }
@@ -841,7 +842,7 @@ public class SessionsFrame extends JFrame
         return unbindItem;
     }
 
-    
+
     private void setCenteredPosition( JFrame frame, Component comp )
     {
         Point pt = new Point();
@@ -849,9 +850,9 @@ public class SessionsFrame extends JFrame
         Dimension screenSize = tk.getScreenSize();
         pt.x = ( screenSize.width - frame.getWidth() ) / 2;
         pt.y = ( screenSize.height - frame.getHeight() ) / 2;
-        
-        pt.x += ( frame.getWidth() - comp.getWidth() )/2;
-        pt.y += ( frame.getHeight() - comp.getHeight() )/2;
+
+        pt.x += ( frame.getWidth() - comp.getWidth() ) / 2;
+        pt.y += ( frame.getHeight() - comp.getHeight() ) / 2;
         comp.setLocation( pt );
     }
 
@@ -866,31 +867,30 @@ public class SessionsFrame extends JFrame
         if ( bindItem == null )
         {
             bindItem = new JMenuItem();
-            bindItem.setText("Bind Service");
+            bindItem.setText( "Bind Service" );
             unbindItem.setEnabled( !isServiceBound );
             bindItem.addActionListener( new java.awt.event.ActionListener()
+            {
+                public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    public void actionPerformed( java.awt.event.ActionEvent e )
+                    try
                     {
-                        try
-                        {
-                            minaRegistry.bind( ldapService, getLdapProvider() );
-                            JOptionPane.showMessageDialog( SessionsFrame.this, 
-                                "Ldap service " + ldapService.getAddress() + " has been successfully bound.\n"
-                                + " Clients may now connect to the server once again.", 
-                                "Success!", JOptionPane.INFORMATION_MESSAGE );  
-                            isServiceBound = true;
-                            unbindItem.setEnabled( isServiceBound );
-                            bindItem.setEnabled( ! isServiceBound );
-                        }
-                        catch ( IOException e1 )
-                        {
-                            log.error( "failed to rebind ldap service", e1 );
-                            JOptionPane.showMessageDialog( SessionsFrame.this, e1.getMessage(), "Error encountered!", 
-                                JOptionPane.ERROR_MESSAGE );
-                        }
+                        minaRegistry.bind( ldapService, getLdapProvider() );
+                        JOptionPane.showMessageDialog( SessionsFrame.this, "Ldap service " + ldapService.getAddress()
+                            + " has been successfully bound.\n" + " Clients may now connect to the server once again.",
+                            "Success!", JOptionPane.INFORMATION_MESSAGE );
+                        isServiceBound = true;
+                        unbindItem.setEnabled( isServiceBound );
+                        bindItem.setEnabled( !isServiceBound );
                     }
-                });
+                    catch ( IOException e1 )
+                    {
+                        log.error( "failed to rebind ldap service", e1 );
+                        JOptionPane.showMessageDialog( SessionsFrame.this, e1.getMessage(), "Error encountered!",
+                            JOptionPane.ERROR_MESSAGE );
+                    }
+                }
+            } );
         }
         return bindItem;
     }
@@ -906,4 +906,4 @@ public class SessionsFrame extends JFrame
     {
         return ldapProvider;
     }
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+} //  @jve:decl-index=0:visual-constraint="10,10"

@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 /**
  * An enumeration that represents the scope of user operation.
  *
@@ -30,24 +31,26 @@ public class OperationScope
      * An operation that affects the whole entry.
      */
     public static final OperationScope ENTRY = new OperationScope( "Entry" );
-    
+
     /**
      * An operation that affects all values in an attribute type.
      */
     public static final OperationScope ATTRIBUTE_TYPE = new OperationScope( "Attribute Type" );
-    
+
     /**
      * An operation that affects the specific value in an attribute type.
      */
     public static final OperationScope ATTRIBUTE_TYPE_AND_VALUE = new OperationScope( "Attribute Type & Value" );
-    
+
     private final String name;
-    
-    private OperationScope( String name )
+
+
+    private OperationScope(String name)
     {
         this.name = name;
     }
-    
+
+
     /**
      * Return the name of this scope.
      */
@@ -55,6 +58,7 @@ public class OperationScope
     {
         return name;
     }
+
 
     /**
      * Returns the name of this scope.

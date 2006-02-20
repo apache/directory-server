@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.changepw.messages;
 
+
 abstract public class AbstractPasswordMessage
 {
     // ChangePassword protocol version number
@@ -25,23 +26,26 @@ abstract public class AbstractPasswordMessage
     private short versionNumber;
     private short authHeaderLength;
 
-    protected AbstractPasswordMessage( short messageLength, short versionNumber,
-            short authHeaderLength )
+
+    protected AbstractPasswordMessage(short messageLength, short versionNumber, short authHeaderLength)
     {
         this.messageLength = messageLength;
         this.versionNumber = versionNumber;
         this.authHeaderLength = authHeaderLength;
     }
 
+
     public short getMessageLength()
     {
         return messageLength;
     }
 
+
     public short getVersionNumber()
     {
         return versionNumber;
     }
+
 
     public short getAuthHeaderLength()
     {

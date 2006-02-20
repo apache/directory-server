@@ -55,15 +55,16 @@ public class ChangeListener
         control.setReturnECs( true );
         control.setCritical( true );
         control.setChangeTypes( PersistentSearchControl.ALL_CHANGES );
-        Control[] ctxCtls = new Control[] { control };
-        
+        Control[] ctxCtls = new Control[]
+            { control };
+
         try
         {
             Control[] respCtls;
             ctx.setRequestControls( ctxCtls );
             EntryChangeControl ecCtl = null;
             NamingEnumeration list = ctx.search( "", "objectClass=*", null );
-            while( list.hasMore() )
+            while ( list.hasMore() )
             {
                 SearchResult result = ( SearchResult ) list.next();
                 if ( result instanceof HasControls )
@@ -71,9 +72,9 @@ public class ChangeListener
                     respCtls = ( ( HasControls ) result ).getControls();
                     if ( respCtls != null )
                     {
-                        for ( int ii = 0; ii < respCtls.length; ii ++ )
+                        for ( int ii = 0; ii < respCtls.length; ii++ )
                         {
-                            if ( respCtls[ii].getID().equals( 
+                            if ( respCtls[ii].getID().equals(
                                 org.apache.directory.shared.ldap.message.EntryChangeControl.CONTROL_OID ) )
                             {
                                 EntryChangeControlDecoder decoder = new EntryChangeControlDecoder();
@@ -82,7 +83,7 @@ public class ChangeListener
                         }
                     }
                 }
-                
+
                 StringBuffer buf = new StringBuffer();
                 buf.append( "DN: " ).append( result.getName() ).append( "\n" );
                 if ( ecCtl != null )
@@ -93,38 +94,45 @@ public class ChangeListener
                     buf.append( "        previousDN   : " ).append( ecCtl.getPreviousDn() ).append( "\n" );
                     buf.append( "        changeNumber : " ).append( ecCtl.getChangeNumber() ).append( "\n" );
                 }
-                
+
                 System.out.println( buf.toString() );
-                
+
                 if ( ecCtl != null )
                 {
                     System.out.println( "==============================================" );
                 }
             }
         }
-        catch( Exception e ) 
+        catch ( Exception e )
         {
             e.printStackTrace();
         }
     }
-    
-    
+
     static class ShutdownHook implements Runnable
     {
         final Context ctx;
-        
-        ShutdownHook( Context ctx )
+
+
+        ShutdownHook(Context ctx)
         {
             this.ctx = ctx;
         }
-        
+
+
         public void run()
         {
             if ( ctx != null )
             {
-                try { ctx.close(); } catch( Exception e ){ e.printStackTrace(); };
+                try
+                {
+                    ctx.close();
+                }
+                catch ( Exception e )
+                {
+                    e.printStackTrace();
+                };
             }
         }
     }
 }
-

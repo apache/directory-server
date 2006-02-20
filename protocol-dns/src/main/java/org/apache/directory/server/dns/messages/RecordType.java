@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dns.messages;
 
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 
 public class RecordType implements Comparable
 {
@@ -74,7 +76,7 @@ public class RecordType implements Comparable
     public static final RecordType NSEC = new RecordType( 47, "NSEC", "Next Secure Name" );
     public static final RecordType DNSKEY = new RecordType( 48, "DNSKEY", "DNSSEC Key" );
     public static final RecordType TKEY = new RecordType( 249, "TKEY",
-            "Transaction key - used to compute a shared secret or exchange a key" );
+        "Transaction key - used to compute a shared secret or exchange a key" );
     public static final RecordType TSIG = new RecordType( 250, "TSIG", "Transaction signature" );
     public static final RecordType IXFR = new RecordType( 251, "IXFR", "Incremental zone transfer" );
     public static final RecordType AXFR = new RecordType( 252, "AXFR", "Request for transfer of an entire zone" );
@@ -85,10 +87,10 @@ public class RecordType implements Comparable
     /**
      * These two lines are all that's necessary to export a List of VALUES.
      */
-    private static final RecordType[] values = { A, NS, MD, MF, CNAME, SOA, MB, MG, MR, NULL, WKS, PTR, HINFO, MINFO,
-            MX, TXT, RP, AFSDB, X25, ISDN, RT, NSAP, NSAP_PTR, SIG, KEY, PX, GPOS, AAAA, LOC, NXT, EID, NIMLOC, SRV,
-            ATMA, NAPTR, KX, CERT, A6, DNAME, OPT, APL, DS, SSHFP, RRSIG, NSEC, DNSKEY, TKEY, TSIG, IXFR, AXFR, MAILB,
-            MAILA, ANY };
+    private static final RecordType[] values =
+        { A, NS, MD, MF, CNAME, SOA, MB, MG, MR, NULL, WKS, PTR, HINFO, MINFO, MX, TXT, RP, AFSDB, X25, ISDN, RT, NSAP,
+            NSAP_PTR, SIG, KEY, PX, GPOS, AAAA, LOC, NXT, EID, NIMLOC, SRV, ATMA, NAPTR, KX, CERT, A6, DNAME, OPT, APL,
+            DS, SSHFP, RRSIG, NSEC, DNSKEY, TKEY, TSIG, IXFR, AXFR, MAILB, MAILA, ANY };
 
     public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
@@ -96,61 +98,69 @@ public class RecordType implements Comparable
     private final String code;
     private final int ordinal;
 
+
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private RecordType( int ordinal, String code, String name )
+    private RecordType(int ordinal, String code, String name)
     {
         this.ordinal = ordinal;
         this.code = code;
         this.name = name;
     }
 
+
     public String toString()
     {
         return name;
     }
 
+
     public int compareTo( Object that )
     {
-        return ordinal - ( (RecordType) that ).ordinal;
+        return ordinal - ( ( RecordType ) that ).ordinal;
     }
+
 
     public static RecordType getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
         {
-            if ( values[ ii ].ordinal == type )
+            if ( values[ii].ordinal == type )
             {
-                return values[ ii ];
+                return values[ii];
             }
         }
 
         return A;
     }
+
 
     public static RecordType getTypeByName( String type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
         {
-            if ( values[ ii ].code.equalsIgnoreCase( type ) )
+            if ( values[ii].code.equalsIgnoreCase( type ) )
             {
-                return values[ ii ];
+                return values[ii];
             }
         }
 
         return A;
     }
+
 
     public int getOrdinal()
     {
         return ordinal;
     }
 
+
     public String getCode()
     {
         return code;
     }
+
 
     public static boolean isResourceRecord( RecordType resourceType )
     {

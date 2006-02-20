@@ -1,5 +1,5 @@
 /*
- *   @(#) $Id: SSLSocketFactory.java 365899 2006-01-04 12:24:30Z trustin $
+ *   @(#) $Id$
  *
  *   Copyright 2004 The Apache Software Foundation
  *
@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.ssl.support;
 
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -26,11 +27,12 @@ import java.security.GeneralSecurityException;
 
 import javax.net.SocketFactory;
 
+
 /**
  * Simple Socket factory to create sockets with or without SSL enabled.
  * If SSL enabled a "bougus" SSL Context is used (suitable for test purposes)
  * 
- * @version $Rev: 365899 $, $Date: 2006-01-04 21:24:30 +0900 (수, 04  1월 2006) $
+ * @version $Rev$, $Date$
  */
 public class SSLSocketFactory extends SocketFactory
 {
@@ -40,20 +42,22 @@ public class SSLSocketFactory extends SocketFactory
 
     private static javax.net.SocketFactory factory = null;
 
+
     public static SocketFactory getDefault()
     {
         return new SSLSocketFactory();
     }
+
 
     public SSLSocketFactory()
     {
         super();
     }
 
-    public Socket createSocket( String arg1, int arg2 ) throws IOException,
-            UnknownHostException
+
+    public Socket createSocket( String arg1, int arg2 ) throws IOException, UnknownHostException
     {
-        if( isSslEnabled() )
+        if ( isSslEnabled() )
         {
             return getSSLFactory().createSocket( arg1, arg2 );
         }
@@ -63,11 +67,11 @@ public class SSLSocketFactory extends SocketFactory
         }
     }
 
-    public Socket createSocket( String arg1, int arg2, InetAddress arg3,
-                               int arg4 ) throws IOException,
-            UnknownHostException
+
+    public Socket createSocket( String arg1, int arg2, InetAddress arg3, int arg4 ) throws IOException,
+        UnknownHostException
     {
-        if( isSslEnabled() )
+        if ( isSslEnabled() )
         {
             return getSSLFactory().createSocket( arg1, arg2, arg3, arg4 );
         }
@@ -77,10 +81,10 @@ public class SSLSocketFactory extends SocketFactory
         }
     }
 
-    public Socket createSocket( InetAddress arg1, int arg2 )
-            throws IOException
+
+    public Socket createSocket( InetAddress arg1, int arg2 ) throws IOException
     {
-        if( isSslEnabled() )
+        if ( isSslEnabled() )
         {
             return getSSLFactory().createSocket( arg1, arg2 );
         }
@@ -90,10 +94,10 @@ public class SSLSocketFactory extends SocketFactory
         }
     }
 
-    public Socket createSocket( InetAddress arg1, int arg2, InetAddress arg3,
-                               int arg4 ) throws IOException
+
+    public Socket createSocket( InetAddress arg1, int arg2, InetAddress arg3, int arg4 ) throws IOException
     {
-        if( isSslEnabled() )
+        if ( isSslEnabled() )
         {
             return getSSLFactory().createSocket( arg1, arg2, arg3, arg4 );
         }
@@ -102,26 +106,27 @@ public class SSLSocketFactory extends SocketFactory
             return new Socket( arg1, arg2, arg3, arg4 );
         }
     }
+
 
     public static javax.net.SocketFactory getSocketFactory()
     {
-        if( factory == null )
+        if ( factory == null )
         {
             factory = new SSLSocketFactory();
         }
         return factory;
     }
 
+
     private javax.net.ssl.SSLSocketFactory getSSLFactory()
     {
-        if( sslFactory == null )
+        if ( sslFactory == null )
         {
             try
             {
-                sslFactory = BogusSSLContextFactory.getInstance( false )
-                        .getSocketFactory();
+                sslFactory = BogusSSLContextFactory.getInstance( false ).getSocketFactory();
             }
-            catch( GeneralSecurityException e )
+            catch ( GeneralSecurityException e )
             {
                 throw new RuntimeException( "could not create SSL socket", e );
             }
@@ -129,10 +134,12 @@ public class SSLSocketFactory extends SocketFactory
         return sslFactory;
     }
 
+
     public static boolean isSslEnabled()
     {
         return sslEnabled;
     }
+
 
     public static void setSslEnabled( boolean newSslEnabled )
     {

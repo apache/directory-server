@@ -17,8 +17,10 @@
 
 package org.apache.directory.server.dns.io.encoder;
 
+
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
+
 
 /**
  * 3.3.1. CNAME RDATA format

@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.core.tools.schema;
 
+
 /**
  * Document me.
  *
@@ -24,5 +25,5 @@ package org.apache.directory.server.core.tools.schema;
  */
 public class OpenLdapAttributeTypeParser
 {
-    
+
 }

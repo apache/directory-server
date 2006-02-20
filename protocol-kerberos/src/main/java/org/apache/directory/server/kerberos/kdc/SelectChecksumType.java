@@ -16,11 +16,13 @@
  */
 package org.apache.directory.server.kerberos.kdc;
 
+
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.crypto.checksum.ChecksumType;
-import org.apache.kerberos.exceptions.ErrorType;
-import org.apache.kerberos.exceptions.KerberosException;
+
 
 public class SelectChecksumType extends CommandBase
 {
@@ -36,15 +38,16 @@ public class SelectChecksumType extends CommandBase
         return CONTINUE_CHAIN;
     }
 
+
     protected boolean isAllowedChecksumType( ChecksumType requestedType, ChecksumType[] configuredTypes )
     {
-            for ( int ii = 0; ii < configuredTypes.length; ii++ )
+        for ( int ii = 0; ii < configuredTypes.length; ii++ )
+        {
+            if ( requestedType == configuredTypes[ii] )
             {
-                if ( requestedType == configuredTypes[ ii ] )
-                {
-                    return true;
-                }
+                return true;
             }
+        }
 
         return false;
     }

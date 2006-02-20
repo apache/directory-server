@@ -37,7 +37,8 @@ public interface OidRegistryMonitor
      * @param oid the OID argument and return value
      */
     void getOidWithOid( String oid );
-    
+
+
     /**
      * Monitors when an OID is resolved successfully for a name.
      *  
@@ -45,7 +46,8 @@ public interface OidRegistryMonitor
      * @param oid the OID returned for the name
      */
     void oidResolved( String name, String oid );
-    
+
+
     /**
      * Monitors when an OID is resolved successfully by using a normalized form
      * of the name.
@@ -55,7 +57,8 @@ public interface OidRegistryMonitor
      * @param oid the OID returned for the name
      */
     void oidResolved( String name, String normalized, String oid );
-    
+
+
     /**
      * Monitors when resolution of an OID by name fails.
      * 
@@ -63,7 +66,8 @@ public interface OidRegistryMonitor
      * @param fault the exception thrown for the failure after this call
      */
     void oidResolutionFailed( String name, NamingException fault );
-    
+
+
     /**
      * Monitors when a name lookups fail due to the use of an unknown OID.
      *  
@@ -71,7 +75,8 @@ public interface OidRegistryMonitor
      * @param fault the exception thrown for the failure after this call
      */
     void oidDoesNotExist( String oid, NamingException fault );
-    
+
+
     /**
      * Monitors situations where a primary name is resolved for a OID.
      * 
@@ -80,6 +85,7 @@ public interface OidRegistryMonitor
      */
     void nameResolved( String oid, String primaryName );
 
+
     /**
      * Monitors situations where a names are resolved for a OID.
      * 
@@ -87,7 +93,8 @@ public interface OidRegistryMonitor
      * @param names the names found for the OID
      */
     void namesResolved( String oid, List names );
-    
+
+
     /**
      * Monitors the successful registration of a name for an OID.
      * 

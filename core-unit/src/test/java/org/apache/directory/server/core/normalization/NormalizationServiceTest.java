@@ -36,8 +36,8 @@ public final class NormalizationServiceTest extends AbstractAdminTestCase
     {
         super.setLoadClass( getClass() );
     }
-    
-    
+
+
     public void testDireve308Example() throws NamingException
     {
         Attributes attrs = sysRoot.getAttributes( "ou=corporate category\\, operations,ou=direct report view" );

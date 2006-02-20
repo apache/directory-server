@@ -75,9 +75,7 @@ public class BootstrapSchemaLoader
     /** the callback that just calls register() */
     private final ProducerCallback cb = new ProducerCallback()
     {
-        public void schemaObjectProduced( BootstrapProducer producer,
-                                          String registryKey,
-                                          Object schemaObject )
+        public void schemaObjectProduced( BootstrapProducer producer, String registryKey, Object schemaObject )
             throws NamingException
         {
             register( producer.getType(), registryKey, schemaObject );
@@ -95,7 +93,6 @@ public class BootstrapSchemaLoader
     }
 
 
-
     /**
      * Loads a set of schemas by loading and running all producers for each
      * dependent schema first.
@@ -104,10 +101,9 @@ public class BootstrapSchemaLoader
      * @param registries the registries to fill with producer created objects
      * @throws NamingException if there are any failures during this process
      */
-    public final void load( Collection bootstrapSchemas, BootstrapRegistries registries )
-        throws NamingException
+    public final void load( Collection bootstrapSchemas, BootstrapRegistries registries ) throws NamingException
     {
-        BootstrapSchema[] schemas = new BootstrapSchema[ bootstrapSchemas.size() ];
+        BootstrapSchema[] schemas = new BootstrapSchema[bootstrapSchemas.size()];
         schemas = ( BootstrapSchema[] ) bootstrapSchemas.toArray( schemas );
         HashMap loaded = new HashMap();
         HashMap notLoaded = new HashMap();
@@ -116,9 +112,9 @@ public class BootstrapSchemaLoader
         {
             notLoaded.put( schemas[ii].getSchemaName(), schemas[ii] );
         }
-        
+
         BootstrapSchema schema;
-        
+
         // Create system schema and kick it off by loading system which
         // will never depend on anything.
         schema = new SystemSchema();
@@ -148,10 +144,8 @@ public class BootstrapSchemaLoader
      * @throws NamingException if there is a cycle detected and/or another
      * failure results while loading, producing and or registering schema objects
      */
-    public final void loadDepsFirst( Stack beenthere, HashMap notLoaded,
-                                     BootstrapSchema schema,
-                                     BootstrapRegistries registries )
-        throws NamingException
+    public final void loadDepsFirst( Stack beenthere, HashMap notLoaded, BootstrapSchema schema,
+        BootstrapRegistries registries ) throws NamingException
     {
         beenthere.push( schema.getSchemaName() );
         String[] deps = schema.getDependencies();
@@ -172,7 +166,7 @@ public class BootstrapSchemaLoader
          */
         for ( int ii = 0; ii < deps.length; ii++ )
         {
-            if ( ! notLoaded.containsKey( deps[ii] ) )
+            if ( !notLoaded.containsKey( deps[ii] ) )
             {
                 continue;
             }
@@ -183,8 +177,7 @@ public class BootstrapSchemaLoader
             {
                 // push again so we show the cycle in output
                 beenthere.push( dep.getSchemaName() );
-                throw new NamingException( "schema dependency cycle detected: "
-                    + beenthere );
+                throw new NamingException( "schema dependency cycle detected: " + beenthere );
             }
 
             loadDepsFirst( beenthere, notLoaded, dep, registries );
@@ -204,8 +197,7 @@ public class BootstrapSchemaLoader
      * @param registries the registries to fill with producer created objects
      * @throws NamingException if there are any failures during this process
      */
-    public final void load( BootstrapSchema schema, BootstrapRegistries registries )
-        throws NamingException
+    public final void load( BootstrapSchema schema, BootstrapRegistries registries ) throws NamingException
     {
         this.registries.set( registries );
         this.schemas.set( schema );
@@ -224,7 +216,6 @@ public class BootstrapSchemaLoader
     // Utility Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * Registers objects
      *
@@ -234,86 +225,85 @@ public class BootstrapSchemaLoader
      * @throws NamingException if there are problems when registering the object
      * in any of the registries
      */
-    private void register( ProducerTypeEnum type, String id,
-                           Object schemaObject ) throws NamingException
+    private void register( ProducerTypeEnum type, String id, Object schemaObject ) throws NamingException
     {
         BootstrapSchema schema = ( BootstrapSchema ) this.schemas.get();
         BootstrapRegistries registries = ( BootstrapRegistries ) this.registries.get();
 
-        switch( type.getValue() )
+        switch ( type.getValue() )
         {
-            case( ProducerTypeEnum.NORMALIZER_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.NORMALIZER_PRODUCER_VAL  ):
                 Normalizer normalizer = ( Normalizer ) schemaObject;
                 NormalizerRegistry normalizerRegistry;
                 normalizerRegistry = registries.getNormalizerRegistry();
                 normalizerRegistry.register( schema.getSchemaName(), id, normalizer );
                 break;
-            case( ProducerTypeEnum.COMPARATOR_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.COMPARATOR_PRODUCER_VAL  ):
                 Comparator comparator = ( Comparator ) schemaObject;
                 ComparatorRegistry comparatorRegistry;
                 comparatorRegistry = registries.getComparatorRegistry();
                 comparatorRegistry.register( schema.getSchemaName(), id, comparator );
                 break;
-            case( ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER_VAL  ):
                 SyntaxChecker syntaxChecker = ( SyntaxChecker ) schemaObject;
                 SyntaxCheckerRegistry syntaxCheckerRegistry;
                 syntaxCheckerRegistry = registries.getSyntaxCheckerRegistry();
                 syntaxCheckerRegistry.register( schema.getSchemaName(), id, syntaxChecker );
                 break;
-            case( ProducerTypeEnum.SYNTAX_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.SYNTAX_PRODUCER_VAL  ):
                 Syntax syntax = ( Syntax ) schemaObject;
                 SyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();
                 syntaxRegistry.register( schema.getSchemaName(), syntax );
                 break;
-            case( ProducerTypeEnum.MATCHING_RULE_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.MATCHING_RULE_PRODUCER_VAL  ):
                 MatchingRule matchingRule = ( MatchingRule ) schemaObject;
                 MatchingRuleRegistry matchingRuleRegistry;
                 matchingRuleRegistry = registries.getMatchingRuleRegistry();
                 matchingRuleRegistry.register( schema.getSchemaName(), matchingRule );
                 break;
-            case( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER_VAL  ):
                 AttributeType attributeType = ( AttributeType ) schemaObject;
                 AttributeTypeRegistry attributeTypeRegistry;
                 attributeTypeRegistry = registries.getAttributeTypeRegistry();
                 attributeTypeRegistry.register( schema.getSchemaName(), attributeType );
                 break;
-            case( ProducerTypeEnum.OBJECT_CLASS_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.OBJECT_CLASS_PRODUCER_VAL  ):
                 ObjectClass objectClass = ( ObjectClass ) schemaObject;
                 ObjectClassRegistry objectClassRegistry;
                 objectClassRegistry = registries.getObjectClassRegistry();
                 objectClassRegistry.register( schema.getSchemaName(), objectClass );
                 break;
-            case( ProducerTypeEnum.MATCHING_RULE_USE_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.MATCHING_RULE_USE_PRODUCER_VAL  ):
                 MatchingRuleUse matchingRuleUse = ( MatchingRuleUse ) schemaObject;
                 MatchingRuleUseRegistry matchingRuleUseRegistry;
                 matchingRuleUseRegistry = registries.getMatchingRuleUseRegistry();
                 matchingRuleUseRegistry.register( schema.getSchemaName(), matchingRuleUse );
                 break;
-            case( ProducerTypeEnum.DIT_CONTENT_RULE_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.DIT_CONTENT_RULE_PRODUCER_VAL  ):
                 DITContentRule ditContentRule = ( DITContentRule ) schemaObject;
                 DITContentRuleRegistry ditContentRuleRegistry;
                 ditContentRuleRegistry = registries.getDitContentRuleRegistry();
                 ditContentRuleRegistry.register( schema.getSchemaName(), ditContentRule );
                 break;
-            case( ProducerTypeEnum.NAME_FORM_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.NAME_FORM_PRODUCER_VAL  ):
                 NameForm nameForm = ( NameForm ) schemaObject;
                 NameFormRegistry nameFormRegistry;
                 nameFormRegistry = registries.getNameFormRegistry();
                 nameFormRegistry.register( schema.getSchemaName(), nameForm );
                 break;
-            case( ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER_VAL  ):
                 DITStructureRule ditStructureRule = ( DITStructureRule ) schemaObject;
                 DITStructureRuleRegistry ditStructureRuleRegistry;
                 ditStructureRuleRegistry = registries.getDitStructureRuleRegistry();
                 ditStructureRuleRegistry.register( schema.getSchemaName(), ditStructureRule );
                 break;
-            case( ProducerTypeEnum.STATE_FACTORY_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.STATE_FACTORY_PRODUCER_VAL  ):
                 ServerDirStateFactory stateFactory = ( ServerDirStateFactory ) schemaObject;
                 StateFactoryRegistry stateFactoryRegistry;
                 stateFactoryRegistry = registries.getStateFactoryRegistry();
                 stateFactoryRegistry.register( stateFactory );
                 break;
-            case( ProducerTypeEnum.OBJECT_FACTORY_PRODUCER_VAL ):
+            case ( ProducerTypeEnum.OBJECT_FACTORY_PRODUCER_VAL  ):
                 ServerDirObjectFactory objectFactory = ( ServerDirObjectFactory ) schemaObject;
                 ObjectFactoryRegistry objectFactoryRegistry;
                 objectFactoryRegistry = registries.getObjectFactoryRegistry();
@@ -333,8 +323,7 @@ public class BootstrapSchemaLoader
      * @param producerBase the producer's base name
      * @throws NamingException if there are failures loading classes
      */
-    private BootstrapProducer getProducer( BootstrapSchema schema, String producerBase )
-        throws NamingException
+    private BootstrapProducer getProducer( BootstrapSchema schema, String producerBase ) throws NamingException
     {
         Class clazz = null;
         boolean failedTargetLoad = false;
@@ -361,10 +350,9 @@ public class BootstrapSchemaLoader
             }
             catch ( ClassNotFoundException e )
             {
-                NamingException ne = new NamingException( "Failed to load " +
-                    producerBase + " for " + schema.getSchemaName()
-                    + " schema using following classes: "  + targetClassName
-                    + ", " + defaultClassName );
+                NamingException ne = new NamingException( "Failed to load " + producerBase + " for "
+                    + schema.getSchemaName() + " schema using following classes: " + targetClassName + ", "
+                    + defaultClassName );
                 ne.setRootCause( e );
                 throw ne;
             }

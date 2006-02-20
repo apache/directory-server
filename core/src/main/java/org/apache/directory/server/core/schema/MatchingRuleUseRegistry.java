@@ -43,7 +43,8 @@ public interface MatchingRuleUseRegistry
      * the registration operation is not supported
      */
     void register( String schema, MatchingRuleUse matchingRuleUse ) throws NamingException;
-    
+
+
     /**
      * Looks up an matchingRuleUse by its name.
      * 
@@ -52,6 +53,7 @@ public interface MatchingRuleUseRegistry
      * @throws NamingException if the MatchingRuleUse does not exist
      */
     MatchingRuleUse lookup( String name ) throws NamingException;
+
 
     /**
      * Gets the name of the schema this schema object is associated with.
@@ -62,6 +64,7 @@ public interface MatchingRuleUseRegistry
      */
     String getSchemaName( String name ) throws NamingException;
 
+
     /**
      * Checks to see if an matchingRuleUse exists.
      * 
@@ -70,6 +73,7 @@ public interface MatchingRuleUseRegistry
      * otherwise
      */
     boolean hasMatchingRuleUse( String name );
+
 
     /**
      * Lists all the MatchingRuleUses within this registry.

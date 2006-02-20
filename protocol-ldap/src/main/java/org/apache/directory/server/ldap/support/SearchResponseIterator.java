@@ -70,7 +70,7 @@ class SearchResponseIterator implements Iterator
      * @param req the search request to generate responses to
      * @param underlying the underlying JNDI enumeration containing SearchResults
      */
-    public SearchResponseIterator( SearchRequest req, ServerLdapContext ctx, NamingEnumeration underlying, int scope )
+    public SearchResponseIterator(SearchRequest req, ServerLdapContext ctx, NamingEnumeration underlying, int scope)
     {
         this.req = req;
         this.ctx = ctx;
@@ -79,7 +79,7 @@ class SearchResponseIterator implements Iterator
 
         try
         {
-            if( underlying.hasMore() )
+            if ( underlying.hasMore() )
             {
                 SearchResult result = ( SearchResult ) underlying.next();
 
@@ -88,7 +88,8 @@ class SearchResponseIterator implements Iterator
                  * local variable for the following call to next()
                  */
                 Attribute ref = result.getAttributes().get( "ref" );
-                if( ! ctx.isReferral( result.getName() ) || req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
+                if ( !ctx.isReferral( result.getName() )
+                    || req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
                 {
                     SearchResponseEntry respEntry;
                     respEntry = new SearchResponseEntryImpl( req.getMessageId() );
@@ -102,7 +103,7 @@ class SearchResponseIterator implements Iterator
                     respRef = new SearchResponseReferenceImpl( req.getMessageId() );
                     respRef.setReferral( new ReferralImpl() );
 
-                    for( int ii = 0; ii < ref.size(); ii ++ )
+                    for ( int ii = 0; ii < ref.size(); ii++ )
                     {
                         String url;
 
@@ -111,13 +112,13 @@ class SearchResponseIterator implements Iterator
                             url = ( String ) ref.get( ii );
                             respRef.getReferral().addLdapUrl( url );
                         }
-                        catch( NamingException e )
+                        catch ( NamingException e )
                         {
                             try
                             {
                                 underlying.close();
                             }
-                            catch( Throwable t )
+                            catch ( Throwable t )
                             {
                             }
 
@@ -130,13 +131,13 @@ class SearchResponseIterator implements Iterator
                 }
             }
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             try
             {
                 this.underlying.close();
             }
-            catch( Exception e2 )
+            catch ( Exception e2 )
             {
             }
 
@@ -144,26 +145,26 @@ class SearchResponseIterator implements Iterator
         }
     }
 
-    
+
     public boolean hasNext()
     {
         return !done;
     }
 
-    
+
     public Object next()
     {
         Object next = prefetched;
         SearchResult result = null;
 
         // if we're done we got nothing to give back
-        if( done )
+        if ( done )
         {
             throw new NoSuchElementException();
         }
 
         // if respDone has been assembled this is our last object to return
-        if( respDone != null )
+        if ( respDone != null )
         {
             done = true;
             return respDone;
@@ -179,7 +180,7 @@ class SearchResponseIterator implements Iterator
              * If we have more results from the underlying cursorr then
              * we just set the result and build the response object below.
              */
-            if( underlying.hasMore() )
+            if ( underlying.hasMore() )
             {
                 result = ( SearchResult ) underlying.next();
             }
@@ -189,7 +190,7 @@ class SearchResponseIterator implements Iterator
                 {
                     underlying.close();
                 }
-                catch( Throwable t )
+                catch ( Throwable t )
                 {
                 }
 
@@ -199,13 +200,13 @@ class SearchResponseIterator implements Iterator
                 return next;
             }
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             try
             {
                 underlying.close();
             }
-            catch( Throwable t )
+            catch ( Throwable t )
             {
             }
 
@@ -225,19 +226,19 @@ class SearchResponseIterator implements Iterator
         {
             isReferral = ctx.isReferral( result.getName() );
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             log.error( "failed to determine if " + result.getName() + " is a referral", e );
             throw new RuntimeException( e );
         }
-        
-        
+
         // we may need to lookup the object again if the ref attribute was filtered out
         if ( isReferral && ref == null )
         {
             try
             {
-                ref = ctx.getAttributes( result.getName(), new String[]{ "ref" } ).get( "ref" );
+                ref = ctx.getAttributes( result.getName(), new String[]
+                    { "ref" } ).get( "ref" );
             }
             catch ( NamingException e )
             {
@@ -245,8 +246,9 @@ class SearchResponseIterator implements Iterator
                 throw new RuntimeException( e );
             }
         }
-        
-        if( ! isReferral || req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )        {
+
+        if ( !isReferral || req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
+        {
             SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
             respEntry.setAttributes( result.getAttributes() );
             respEntry.setObjectName( result.getName() );
@@ -257,7 +259,6 @@ class SearchResponseIterator implements Iterator
             SearchResponseReference respRef = new SearchResponseReferenceImpl( req.getMessageId() );
             respRef.setReferral( new ReferralImpl() );
 
-            
             for ( int ii = 0; ii < ref.size(); ii++ )
             {
                 String val;
@@ -267,12 +268,12 @@ class SearchResponseIterator implements Iterator
                 }
                 catch ( NamingException e1 )
                 {
-                    log.error( "failed to access referral url." ); 
+                    log.error( "failed to access referral url." );
                     try
                     {
                         underlying.close();
                     }
-                    catch( Throwable t )
+                    catch ( Throwable t )
                     {
                     }
 
@@ -280,14 +281,14 @@ class SearchResponseIterator implements Iterator
                     respDone = getResponse( req, e1 );
                     return next;
                 }
-                
+
                 // need to add non-ldap URLs as-is
-                if ( ! val.startsWith( "ldap" ) )
+                if ( !val.startsWith( "ldap" ) )
                 {
                     respRef.getReferral().addLdapUrl( val );
                     continue;
                 }
-                
+
                 // parse the ref value and normalize the DN according to schema 
                 LdapURL ldapUrl = new LdapURL();
                 try
@@ -296,12 +297,14 @@ class SearchResponseIterator implements Iterator
                 }
                 catch ( LdapURLEncodingException e )
                 {
-                    log.error( "Bad URL ("+ val +") for ref in " + result.getName() + ".  Reference will be ignored." ); 
+                    log
+                        .error( "Bad URL (" + val + ") for ref in " + result.getName()
+                            + ".  Reference will be ignored." );
                     try
                     {
                         underlying.close();
                     }
-                    catch( Throwable t )
+                    catch ( Throwable t )
                     {
                     }
 
@@ -309,7 +312,7 @@ class SearchResponseIterator implements Iterator
                     respDone = getResponse( req, e );
                     return next;
                 }
-                
+
                 StringBuffer buf = new StringBuffer();
                 buf.append( ldapUrl.getScheme() );
                 buf.append( ldapUrl.getHost() );
@@ -321,25 +324,25 @@ class SearchResponseIterator implements Iterator
                 buf.append( "/" );
                 buf.append( ldapUrl.getDn() );
                 buf.append( "??" );
-                
+
                 switch ( scope )
                 {
-                    case( SearchControls.SUBTREE_SCOPE ):
+                    case ( SearchControls.SUBTREE_SCOPE  ):
                         buf.append( "sub" );
                         break;
-                        
+
                     // if we search for one level and encounter a referral then search
                     // must be continued at that node using base level search scope
-                    case( SearchControls.ONELEVEL_SCOPE ):
+                    case ( SearchControls.ONELEVEL_SCOPE  ):
                         buf.append( "base" );
                         break;
-                    case( SearchControls.OBJECT_SCOPE ):
+                    case ( SearchControls.OBJECT_SCOPE  ):
                         buf.append( "base" );
                         break;
                     default:
                         throw new IllegalStateException( "Unknown recognized search scope: " + scope );
                 }
-                
+
                 respRef.getReferral().addLdapUrl( buf.toString() );
             }
 
@@ -349,7 +352,7 @@ class SearchResponseIterator implements Iterator
         return next;
     }
 
-    
+
     /**
      * Unsupported so it throws an exception.
      *
@@ -371,7 +374,7 @@ class SearchResponseIterator implements Iterator
 
         SearchResponseDone resp = ( SearchResponseDone ) req.getResultResponse();
         ResultCodeEnum code = null;
-        if( e instanceof LdapException )
+        if ( e instanceof LdapException )
         {
             code = ( ( LdapException ) e ).getResultCode();
         }
@@ -382,15 +385,13 @@ class SearchResponseIterator implements Iterator
 
         resp.getLdapResult().setResultCode( code );
         resp.getLdapResult().setErrorMessage( msg );
-        
+
         if ( e instanceof NamingException )
         {
-            NamingException ne = ( NamingException ) e; 
-            if ( ( ne.getResolvedName() != null ) &&
-                    ( ( code == ResultCodeEnum.NOSUCHOBJECT ) ||
-                      ( code == ResultCodeEnum.ALIASPROBLEM ) ||
-                      ( code == ResultCodeEnum.INVALIDDNSYNTAX ) ||
-                      ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+            NamingException ne = ( NamingException ) e;
+            if ( ( ne.getResolvedName() != null )
+                && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
+                    || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
             {
                 resp.getLdapResult().setMatchedDn( ne.getResolvedName().toString() );
             }

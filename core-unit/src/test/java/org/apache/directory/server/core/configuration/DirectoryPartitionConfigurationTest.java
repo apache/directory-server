@@ -48,10 +48,10 @@ public class DirectoryPartitionConfigurationTest extends AbstractAdminTestCase
     {
     }
 
+
     public void testAddAndRemove() throws Exception
     {
-        MutableDirectoryPartitionConfiguration partitionCfg =
-            new MutableDirectoryPartitionConfiguration();
+        MutableDirectoryPartitionConfiguration partitionCfg = new MutableDirectoryPartitionConfiguration();
         partitionCfg.setName( "removable" );
         partitionCfg.setSuffix( "ou=removable" );
         Attributes ctxEntry = new BasicAttributes( true );
@@ -59,30 +59,28 @@ public class DirectoryPartitionConfigurationTest extends AbstractAdminTestCase
         ctxEntry.put( "ou", "removable" );
         partitionCfg.setContextEntry( ctxEntry );
         partitionCfg.setContextPartition( new JdbmDirectoryPartition() );
-        
+
         // Test AddContextPartition
-        AddDirectoryPartitionConfiguration addCfg =
-            new AddDirectoryPartitionConfiguration( partitionCfg );
-        
+        AddDirectoryPartitionConfiguration addCfg = new AddDirectoryPartitionConfiguration( partitionCfg );
+
         Hashtable env = new Hashtable();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.putAll( addCfg.toJndiEnvironment() );
-        
+
         Context ctx = new InitialContext( env );
         Assert.assertNotNull( ctx.lookup( "ou=removable" ) );
-        
+
         // Test removeContextPartition
-        RemoveDirectoryPartitionConfiguration removeCfg =
-            new RemoveDirectoryPartitionConfiguration( "ou=removable" );
+        RemoveDirectoryPartitionConfiguration removeCfg = new RemoveDirectoryPartitionConfiguration( "ou=removable" );
         env.putAll( removeCfg.toJndiEnvironment() );
-        
+
         ctx = new InitialContext( env );
         try
         {
             ctx.lookup( "ou=removable" );
             Assert.fail( "NameNotFoundException should be thrown." );
         }
-        catch( NameNotFoundException e )
+        catch ( NameNotFoundException e )
         {
             // Partition is removed.
         }

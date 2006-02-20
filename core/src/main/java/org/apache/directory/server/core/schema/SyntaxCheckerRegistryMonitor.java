@@ -38,6 +38,7 @@ public interface SyntaxCheckerRegistryMonitor
      */
     void registered( String oid, SyntaxChecker syntaxChecker );
 
+
     /**
      * Monitors when a SyntaxChecker is successfully looked up.
      * 
@@ -46,6 +47,7 @@ public interface SyntaxCheckerRegistryMonitor
      */
     void lookedUp( String oid, SyntaxChecker syntaxChecker );
 
+
     /**
      * Monitors when a lookup attempt fails.
      * 
@@ -53,7 +55,8 @@ public interface SyntaxCheckerRegistryMonitor
      * @param fault the exception to be thrown for the fault
      */
     void lookupFailed( String oid, NamingException fault );
-    
+
+
     /**
      * Monitors when a registration attempt fails.
      * 

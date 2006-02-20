@@ -72,7 +72,7 @@ public class ModifyHandler implements MessageHandler
             Object[] mods = req.getModificationItems().toArray( EMPTY );
             ctx.modifyAttributes( req.getName(), ( ModificationItem[] ) mods );
         }
-        catch( ReferralException e )
+        catch ( ReferralException e )
         {
             ReferralImpl refs = new ReferralImpl();
             result.setReferral( refs );
@@ -84,7 +84,7 @@ public class ModifyHandler implements MessageHandler
             {
                 refs.addLdapUrl( ( String ) e.getReferralInfo() );
             }
-            while( e.skipReferral() );
+            while ( e.skipReferral() );
             session.write( req.getResultResponse() );
             return;
         }
@@ -99,7 +99,7 @@ public class ModifyHandler implements MessageHandler
             ResultCodeEnum code;
             if ( e instanceof LdapException )
             {
-                code = ( ( LdapException ) e ).getResultCode() ;
+                code = ( ( LdapException ) e ).getResultCode();
             }
             else
             {
@@ -108,11 +108,9 @@ public class ModifyHandler implements MessageHandler
 
             result.setResultCode( code );
             result.setErrorMessage( msg );
-            if ( ( e.getResolvedName() != null ) &&
-                    ( ( code == ResultCodeEnum.NOSUCHOBJECT ) ||
-                      ( code == ResultCodeEnum.ALIASPROBLEM ) ||
-                      ( code == ResultCodeEnum.INVALIDDNSYNTAX ) ||
-                      ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+            if ( ( e.getResolvedName() != null )
+                && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
+                    || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
             {
                 result.setMatchedDn( e.getResolvedName().toString() );
             }

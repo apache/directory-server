@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.protocol.shared;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -63,6 +64,7 @@ import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Base class for testing protocol providers against the JNDI provider.
  *
@@ -83,6 +85,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
     protected CoreContextFactory factory;
     protected Hashtable env;
 
+
     protected void setUp() throws Exception
     {
         env = new Hashtable( setUpPartition() );
@@ -96,12 +99,14 @@ public abstract class AbstractBackingStoreTest extends TestCase
         factory = new CoreContextFactory();
     }
 
+
     protected void loadPartition( String partition, String ldifFile ) throws NamingException
     {
         env.put( Context.PROVIDER_URL, partition );
-        DirContext ctx = (DirContext) factory.getInitialContext( env );
+        DirContext ctx = ( DirContext ) factory.getInitialContext( env );
         load( ctx, ldifFile );
     }
+
 
     /**
      * Test that the system partition was set up properly.
@@ -111,26 +116,29 @@ public abstract class AbstractBackingStoreTest extends TestCase
     protected void doTestSystemPartition() throws Exception
     {
         env.put( Context.PROVIDER_URL, "ou=system" );
-        DirContext ctx = (DirContext) factory.getInitialContext( env );
+        DirContext ctx = ( DirContext ) factory.getInitialContext( env );
         Attributes attributes = ctx.getAttributes( "cn=A,dc=www,dc=apache,dc=org,ou=Zones" );
         assertEquals( 3, attributes.size() );
     }
+
 
     protected void doTestApacheZone() throws Exception
     {
         env.put( Context.PROVIDER_URL, "dc=apache,dc=org" );
-        DirContext ctx = (DirContext) factory.getInitialContext( env );
+        DirContext ctx = ( DirContext ) factory.getInitialContext( env );
         Attributes attributes = ctx.getAttributes( "cn=A,dc=www,dc=apache,dc=org,ou=Zones" );
         assertEquals( 3, attributes.size() );
     }
 
+
     protected void doTestExampleZone() throws Exception
     {
         env.put( Context.PROVIDER_URL, "dc=example,dc=com" );
-        DirContext ctx = (DirContext) factory.getInitialContext( env );
+        DirContext ctx = ( DirContext ) factory.getInitialContext( env );
         Attributes attributes = ctx.getAttributes( "cn=A,dc=www,dc=example,dc=com,ou=Zones" );
         assertEquals( 3, attributes.size() );
     }
+
 
     protected Hashtable setUpPartition()
     {
@@ -154,6 +162,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
 
         return config.toJndiEnvironment();
     }
+
 
     private DirectoryPartitionConfiguration getExamplePartition()
     {
@@ -181,6 +190,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         return partConfig;
     }
 
+
     private DirectoryPartitionConfiguration getApachePartition()
     {
         MutableDirectoryPartitionConfiguration partConfig = new MutableDirectoryPartitionConfiguration();
@@ -207,6 +217,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         return partConfig;
     }
 
+
     /**
      * Shuts down the backing store, optionally deleting the database directory.
      *
@@ -230,6 +241,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         doDelete( config.getWorkingDirectory() );
     }
 
+
     /**
      * Deletes the working directory.
      */
@@ -249,6 +261,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         }
     }
 
+
     private void recursiveRemoveDir( File directory )
     {
         String[] filelist = directory.list();
@@ -256,7 +269,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
 
         for ( int ii = 0; ii < filelist.length; ii++ )
         {
-            tmpFile = new File( directory.getAbsolutePath(), filelist[ ii ] );
+            tmpFile = new File( directory.getAbsolutePath(), filelist[ii] );
             if ( tmpFile.isDirectory() )
             {
                 recursiveRemoveDir( tmpFile );
@@ -272,6 +285,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
 
         directory.delete();
     }
+
 
     /**
      * Opens the LDIF file and loads the entries into the context.
@@ -290,17 +304,17 @@ public abstract class AbstractBackingStoreTest extends TestCase
 
             while ( iterator.hasNext() )
             {
-                String ldif = (String) iterator.next();
+                String ldif = ( String ) iterator.next();
 
                 Attributes attributes = new LockableAttributesImpl();
                 ldifParser.parse( attributes, ldif );
 
-                String dn = (String) attributes.remove( "dn" ).get();
+                String dn = ( String ) attributes.remove( "dn" ).get();
 
                 if ( attributes.get( "objectClass" ).contains( "krb5KDCEntry" ) )
                 {
-                    String pw = (String) attributes.get( "userpassword" ).get();
-                    String krbPrincipal = (String) attributes.get( KerberosAttribute.PRINCIPAL ).get();
+                    String pw = ( String ) attributes.get( "userpassword" ).get();
+                    String krbPrincipal = ( String ) attributes.get( KerberosAttribute.PRINCIPAL ).get();
 
                     KerberosPrincipal principal = new KerberosPrincipal( krbPrincipal );
                     KerberosKey key = new KerberosKey( principal, pw.toCharArray(), "DES" );
@@ -354,13 +368,13 @@ public abstract class AbstractBackingStoreTest extends TestCase
 
             while ( iterator.hasNext() )
             {
-                String ldif = (String) iterator.next();
+                String ldif = ( String ) iterator.next();
 
                 Attributes attributes = new LockableAttributesImpl();
 
                 ldifParser.parse( attributes, ldif );
 
-                String dn = (String) attributes.remove( "dn" ).get();
+                String dn = ( String ) attributes.remove( "dn" ).get();
 
                 rdn = getRelativeName( ctx.getNameInNamespace(), dn );
 
@@ -392,6 +406,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
             return;
         }
     }
+
 
     /**
      * Tries to find an LDIF file either on the file system or packaged within a jar.
@@ -425,6 +440,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         return in;
     }
 
+
     protected Name getRelativeName( String nameInNamespace, String baseDn ) throws NamingException
     {
         Properties props = new Properties();
@@ -450,6 +466,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
 
         return searchBaseDn;
     }
+
 
     /*
      * escape LDAP filter characters as \HH (hex value).
@@ -481,6 +498,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         return escapedBuf.toString();
     }
 
+
     protected void printAttr( Attributes attrs, String id )
     {
         if ( attrs == null || id == null )
@@ -492,7 +510,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         try
         {
             Attribute attr;
-            String a = ( attr = attrs.get( id ) ) != null ? (String) attr.get() : null;
+            String a = ( attr = attrs.get( id ) ) != null ? ( String ) attr.get() : null;
             System.out.println( attr.getID() + ":\t" + a );
         }
         catch ( NamingException e )
@@ -500,6 +518,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
             e.printStackTrace();
         }
     }
+
 
     protected void printAttrs( Attributes attrs )
     {
@@ -513,7 +532,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         {
             for ( NamingEnumeration ae = attrs.getAll(); ae.hasMore(); )
             {
-                final Attribute attr = (Attribute) ae.next();
+                final Attribute attr = ( Attribute ) ae.next();
 
                 for ( NamingEnumeration e = attr.getAll(); e.hasMore(); )
                 {

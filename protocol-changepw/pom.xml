@@ -4,11 +4,13 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC1-SNAPSHOT</version>
+    <version>1.0-RC1</version>
   </parent>
-  <version>0.7-SNAPSHOT</version>
   <artifactId>apacheds-protocol-changepw</artifactId>
   <name>ApacheDS Protocol Change Password</name>
+  <description>
+    The Change Password protocol provider for ApacheDS
+  </description>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
@@ -20,7 +22,7 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-kerberos-shared</artifactId>
-      <version>0.7-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
   </dependencies>
 </project>

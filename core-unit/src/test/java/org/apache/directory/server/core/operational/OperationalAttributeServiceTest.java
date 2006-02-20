@@ -75,8 +75,7 @@ public class OperationalAttributeServiceTest extends AbstractAdminTestCase
         ctls.setReturningAttributes( new String[]
             { "ou", "createTimestamp", "creatorsName" } );
 
-        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP,
-                DerefAliasesEnum.NEVERDEREFALIASES_NAME );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES_NAME );
         NamingEnumeration list;
         list = sysRoot.search( "", "(ou=testing00)", ctls );
         SearchResult result = ( SearchResult ) list.next();
@@ -113,7 +112,8 @@ public class OperationalAttributeServiceTest extends AbstractAdminTestCase
         assertNull( attributes.get( "createTimestamp" ) );
 
         // now we ask for all the op attributes and check to get them
-        String[] ids = new String[] { "creatorsName", "createTimestamp" };
+        String[] ids = new String[]
+            { "creatorsName", "createTimestamp" };
         controls.setReturningAttributes( ids );
         list = sysRoot.search( "", "(objectClass=*)", controls );
         result = ( SearchResult ) list.next();
@@ -136,8 +136,9 @@ public class OperationalAttributeServiceTest extends AbstractAdminTestCase
      */
     public void testConfirmNonAdminUserDnIsCreatorsName() throws NamingException
     {
-        Attributes attributes = sysRoot.getAttributes( "uid=akarasulu,ou=users", new String[] { "creatorsName" } );
-        
+        Attributes attributes = sysRoot.getAttributes( "uid=akarasulu,ou=users", new String[]
+            { "creatorsName" } );
+
         assertFalse( "uid=akarasulu,ou=users,ou=system".equals( attributes.get( "creatorsName" ).get() ) );
     }
 }

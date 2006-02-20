@@ -16,11 +16,13 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
+import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.messages.ApplicationRequest;
-import org.apache.kerberos.messages.components.Ticket;
+
 
 /*
  * differs from the TGS getAuthHeader by not verifying the presence of TGS_REQ
@@ -29,8 +31,8 @@ public class GetAuthHeader extends CommandBase
 {
     public boolean execute( Context context ) throws Exception
     {
-        ChangePasswordContext changepwContext = (ChangePasswordContext) context;
-        ChangePasswordRequest request = (ChangePasswordRequest) changepwContext.getRequest();
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
+        ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
 
         ApplicationRequest authHeader = request.getAuthHeader();
         Ticket ticket = authHeader.getTicket();

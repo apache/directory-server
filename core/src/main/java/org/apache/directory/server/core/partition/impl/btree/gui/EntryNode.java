@@ -42,45 +42,43 @@ import org.apache.directory.shared.ldap.name.LdapName;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EntryNode
-	implements TreeNode
+public class EntryNode implements TreeNode
 {
     private final BTreeDirectoryPartition partition;
     private final EntryNode parent;
-	private final Attributes entry;
+    private final Attributes entry;
     private final ArrayList children;
     private final BigInteger id;
 
 
-    public EntryNode( BigInteger id, EntryNode parent, BTreeDirectoryPartition partition,
-        Attributes entry, HashMap map )
+    public EntryNode(BigInteger id, EntryNode parent, BTreeDirectoryPartition partition, Attributes entry, HashMap map)
     {
         this( id, parent, partition, entry, map, null, null );
     }
 
 
-    public EntryNode( BigInteger id, EntryNode parent, BTreeDirectoryPartition db,
-        Attributes entry, HashMap map, ExprNode exprNode,
-        SearchEngine engine )
+    public EntryNode(BigInteger id, EntryNode parent, BTreeDirectoryPartition db, Attributes entry, HashMap map,
+        ExprNode exprNode, SearchEngine engine)
     {
         this.partition = db;
         this.id = id;
-		this.entry = entry;
+        this.entry = entry;
         this.children = new ArrayList();
 
         if ( parent == null )
         {
             this.parent = this;
-        } 
-        else 
+        }
+        else
         {
             this.parent = parent;
         }
 
-		try {
+        try
+        {
             ArrayList records = new ArrayList();
             NamingEnumeration childList = db.list( id );
-            while( childList.hasMore() )
+            while ( childList.hasMore() )
             {
                 IndexRecord old = ( IndexRecord ) childList.next();
                 IndexRecord newRec = new IndexRecord();
@@ -90,8 +88,8 @@ public class EntryNode
             childList.close();
 
             Iterator list = records.iterator();
-            
-            while( list.hasNext() )
+
+            while ( list.hasNext() )
             {
                 IndexRecord rec = ( IndexRecord ) list.next();
 
@@ -99,12 +97,12 @@ public class EntryNode
                 {
                     if ( db.getChildCount( rec.getEntryId() ) == 0 )
                     {
-                        if( engine.evaluate( exprNode, rec.getEntryId() ) )
+                        if ( engine.evaluate( exprNode, rec.getEntryId() ) )
                         {
                             Attributes newEntry = db.lookup( rec.getEntryId() );
-                            EntryNode child = new EntryNode( rec.getEntryId(),
-                                    this, db, newEntry, map, exprNode, engine);
-                            children.add(child);
+                            EntryNode child = new EntryNode( rec.getEntryId(), this, db, newEntry, map, exprNode,
+                                engine );
+                            children.add( child );
                         }
                         else
                         {
@@ -114,21 +112,19 @@ public class EntryNode
                     else
                     {
                         Attributes newEntry = db.lookup( rec.getEntryId() );
-                        EntryNode child = new EntryNode( rec.getEntryId(),
-                            this, db, newEntry, map, exprNode, engine );
+                        EntryNode child = new EntryNode( rec.getEntryId(), this, db, newEntry, map, exprNode, engine );
                         children.add( child );
                     }
-                } 
+                }
                 else
                 {
                     Attributes newEntry = db.lookup( rec.getEntryId() );
-                    EntryNode child = new EntryNode( rec.getEntryId(), this,
-                        db, newEntry, map );
+                    EntryNode child = new EntryNode( rec.getEntryId(), this, db, newEntry, map );
                     children.add( child );
                 }
             }
-        } 
-        catch ( Exception e ) 
+        }
+        catch ( Exception e )
         {
             e.printStackTrace();
         }
@@ -151,7 +147,7 @@ public class EntryNode
 
     public TreeNode getChildAt( int childIndex )
     {
-		return ( TreeNode ) children.get( childIndex );
+        return ( TreeNode ) children.get( childIndex );
     }
 
 
@@ -179,34 +175,33 @@ public class EntryNode
     }
 
 
-    public String getEntryDn()
-        throws NamingException
+    public String getEntryDn() throws NamingException
     {
         return partition.getEntryDn( id );
     }
-    
+
 
     public String toString()
     {
         StringBuffer buf = new StringBuffer();
-        
+
         try
         {
             LdapName dn = new LdapName( partition.getEntryDn( id ) );
             buf.append( "(" ).append( id ).append( ") " );
             buf.append( dn.getRdn() );
         }
-        catch( NamingException e )
+        catch ( NamingException e )
         {
             e.printStackTrace();
             buf.append( "ERROR: " + e.getMessage() );
         }
-        
+
         if ( children.size() > 0 )
         {
             buf.append( " [" ).append( children.size() ).append( "]" );
         }
-        
+
         return buf.toString();
     }
 
@@ -215,8 +210,8 @@ public class EntryNode
     {
         return entry;
     }
-    
-    
+
+
     public BigInteger getEntryId()
     {
         return id;

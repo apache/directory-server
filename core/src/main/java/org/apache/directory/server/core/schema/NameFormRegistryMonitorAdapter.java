@@ -32,7 +32,8 @@ import org.slf4j.LoggerFactory;
 public class NameFormRegistryMonitorAdapter implements NameFormRegistryMonitor
 {
     private static final Logger log = LoggerFactory.getLogger( NameFormRegistryMonitorAdapter.class );
-    
+
+
     public void registered( NameForm nameForm )
     {
     }

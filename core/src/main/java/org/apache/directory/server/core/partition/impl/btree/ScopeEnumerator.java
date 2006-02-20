@@ -42,7 +42,7 @@ public class ScopeEnumerator implements Enumerator
     private ScopeEvaluator evaluator = null;
 
 
-    public ScopeEnumerator( BTreeDirectoryPartition db, ScopeEvaluator evaluator )
+    public ScopeEnumerator(BTreeDirectoryPartition db, ScopeEvaluator evaluator)
     {
         this.db = db;
         this.evaluator = evaluator;
@@ -63,20 +63,19 @@ public class ScopeEnumerator implements Enumerator
         final ScopeNode snode = ( ScopeNode ) node;
         final BigInteger id = db.getEntryId( snode.getBaseDn() );
 
-        switch( snode.getScope() )
+        switch ( snode.getScope() )
         {
-        case( SearchControls.OBJECT_SCOPE ):
-            final IndexRecord record = new IndexRecord();
-            record.setEntryId( id );
-            record.setIndexKey( snode.getBaseDn() );
-            return new SingletonEnumeration( record ); 
-        case( SearchControls.ONELEVEL_SCOPE ):
-            return enumerateChildren( snode.getBaseDn(),
-                snode.getDerefAliases().derefInSearching() );
-        case( SearchControls.SUBTREE_SCOPE ):
-            return enumerateDescendants( snode );
-        default:
-            throw new NamingException( "Unrecognized search scope!" );
+            case ( SearchControls.OBJECT_SCOPE  ):
+                final IndexRecord record = new IndexRecord();
+                record.setEntryId( id );
+                record.setIndexKey( snode.getBaseDn() );
+                return new SingletonEnumeration( record );
+            case ( SearchControls.ONELEVEL_SCOPE  ):
+                return enumerateChildren( snode.getBaseDn(), snode.getDerefAliases().derefInSearching() );
+            case ( SearchControls.SUBTREE_SCOPE  ):
+                return enumerateDescendants( snode );
+            default:
+                throw new NamingException( "Unrecognized search scope!" );
         }
     }
 
@@ -92,20 +91,19 @@ public class ScopeEnumerator implements Enumerator
      * @throws NamingException if any failures occur while accessing system
      * indices.
      */
-    private NamingEnumeration enumerateChildren( String dn, boolean deref )
-        throws NamingException
+    private NamingEnumeration enumerateChildren( String dn, boolean deref ) throws NamingException
     {
         Index idx = db.getHierarchyIndex();
         final BigInteger id = db.getEntryId( dn );
         final NamingEnumeration children = idx.listIndices( id );
-        
+
         /*
          * If alias dereferencing is not enabled while searching then we just
          * return the enumeration of the base entry's children.
          */
-        if ( ! deref )
+        if ( !deref )
         {
-           return children; 
+            return children;
         }
 
         /* ====================================================================
@@ -122,16 +120,16 @@ public class ScopeEnumerator implements Enumerator
         // List all entries brought into one level scope at base by aliases
         idx = db.getOneAliasIndex();
         NamingEnumeration aliasIntroduced = idx.listIndices( id );
-        
+
         // Still need to use assertion enum to weed out aliases
-        NamingEnumeration nonAliasChildren = new IndexAssertionEnumeration( 
-            children, new AssertNotAlias() );
-        
+        NamingEnumeration nonAliasChildren = new IndexAssertionEnumeration( children, new AssertNotAlias() );
+
         // Combine both into one enumeration
-        NamingEnumeration [] all = {nonAliasChildren, aliasIntroduced}; 
+        NamingEnumeration[] all =
+            { nonAliasChildren, aliasIntroduced };
         return new DisjunctionEnumeration( all );
     }
-    
+
 
     /**
      * Constructs an enumeration over all entries within subtree scope even
@@ -143,8 +141,7 @@ public class ScopeEnumerator implements Enumerator
      * @throws NamingException if any failures occur while accessing system
      * indices.
      */
-    private NamingEnumeration enumerateDescendants( final ScopeNode node )
-        throws NamingException
+    private NamingEnumeration enumerateDescendants( final ScopeNode node ) throws NamingException
     {
         Index idx = null;
 
@@ -152,20 +149,18 @@ public class ScopeEnumerator implements Enumerator
          * If we do not dereference while searching then we simply return any
          * entry that is not a descendant of the base.
          */
-        if ( ! node.getDerefAliases().derefInSearching() )
+        if ( !node.getDerefAliases().derefInSearching() )
         {
             // Gets a NamingEnumeration over all elements
             idx = db.getNdnIndex();
             NamingEnumeration underlying = idx.listIndices();
-            return new IndexAssertionEnumeration( underlying, 
-                new AssertDescendant( node ) );
+            return new IndexAssertionEnumeration( underlying, new AssertDescendant( node ) );
         }
 
         // Create an assertion to assert or evaluate an expression
         IndexAssertion assertion = new IndexAssertion()
         {
-            public boolean assertCandidate( IndexRecord rec )
-                throws NamingException
+            public boolean assertCandidate( IndexRecord rec ) throws NamingException
             {
                 return evaluator.evaluate( node, rec );
             }
@@ -177,7 +172,6 @@ public class ScopeEnumerator implements Enumerator
         return new IndexAssertionEnumeration( underlying, assertion );
     }
 
-
     /**
      * Asserts an entry is a descendant.
      */
@@ -186,13 +180,13 @@ public class ScopeEnumerator implements Enumerator
         /** Scope node with base and alias info */
         private final ScopeNode scope;
 
-        
+
         /**
          * Creates a assertion using a ScopeNode to determine the search base.
          *
          * @param node the scope node with search base
          */
-        AssertDescendant( final ScopeNode node )
+        AssertDescendant(final ScopeNode node)
         {
             scope = node;
         }
@@ -209,8 +203,7 @@ public class ScopeEnumerator implements Enumerator
             String dn = db.getEntryDn( record.getEntryId() );
             return dn.endsWith( scope.getBaseDn() );
         }
-    }    
-
+    }
 
     /**
      * Asserts an entry is NOT an alias.
@@ -225,13 +218,13 @@ public class ScopeEnumerator implements Enumerator
         public boolean assertCandidate( IndexRecord record ) throws NamingException
         {
             Index aliasIdx = db.getAliasIndex();
-               
+
             if ( null == aliasIdx.reverseLookup( record.getEntryId() ) )
             {
                 return true;
             }
-               
+
             return false;
-        } 
+        }
     }
 }

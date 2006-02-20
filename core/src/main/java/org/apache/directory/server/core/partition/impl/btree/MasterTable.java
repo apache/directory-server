@@ -37,6 +37,7 @@ public interface MasterTable extends Table
     /** the sequence key - stores last sequence value in the admin table */
     String SEQPROP_KEY = "__sequence__";
 
+
     /**
      * Gets the Attributes of an entry from this MasterTable.
      *
@@ -45,7 +46,8 @@ public interface MasterTable extends Table
      * @throws NamingException if there is a read error on the underlying Db.
      */
     Attributes get( BigInteger id ) throws NamingException;
-    
+
+
     /**
      * Puts the Attributes of an entry into this master table at an index 
      * specified by id.  Used both to create new entries and update existing 
@@ -57,7 +59,8 @@ public interface MasterTable extends Table
      * @throws NamingException if there is a write error on the underlying Db.
      */
     Attributes put( Attributes entry, BigInteger id ) throws NamingException;
-        
+
+
     /**
      * Deletes a entry from the master table at an index specified by id.
      *
@@ -66,6 +69,7 @@ public interface MasterTable extends Table
      * @throws NamingException if there is a write error on the underlying Db
      */
     Attributes delete( BigInteger id ) throws NamingException;
+
 
     /**
      * Get's the current id value from this master database's sequence without
@@ -76,7 +80,8 @@ public interface MasterTable extends Table
      * read.
      */
     BigInteger getCurrentId() throws NamingException;
-    
+
+
     /**
      * Get's the next value from this SequenceBDb.  This has the side-effect of
      * changing the current sequence values perminantly in memory and on disk.
@@ -86,7 +91,8 @@ public interface MasterTable extends Table
      * read and writen to.
      */
     BigInteger getNextId() throws NamingException;
-    
+
+
     /**
      * Gets a persistant property stored in the admin table of this MasterTable.
      *
@@ -95,7 +101,8 @@ public interface MasterTable extends Table
      * @throws NamingException when the underlying admin table cannot be read
      */
     String getProperty( String property ) throws NamingException;
-        
+
+
     /**
      * Sets a persistant property stored in the admin table of this MasterTable.
      *

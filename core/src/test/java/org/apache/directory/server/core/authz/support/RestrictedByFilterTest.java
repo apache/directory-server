@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,6 +40,7 @@ import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 
+
 /**
  * Tests {@link RestrictedByFilter}.
  *
@@ -47,72 +49,61 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
  */
 public class RestrictedByFilterTest extends TestCase
 {
-    private static final Collection EMPTY_COLLECTION =
-        Collections.unmodifiableCollection( new ArrayList() );
-    private static final Set EMPTY_SET =
-        Collections.unmodifiableSet( new HashSet() );
-    
+    private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
+    private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
+
     private static final Collection PROTECTED_ITEMS = new ArrayList();
     private static final Attributes ENTRY = new BasicAttributes();
-    
+
     static
     {
         Collection mvcItems = new ArrayList();
         mvcItems.add( new RestrictedByItem( "choice", "option" ) );
         PROTECTED_ITEMS.add( new ProtectedItem.RestrictedBy( mvcItems ) );
-        
+
         Attribute attr = new BasicAttribute( "option" );
         attr.add( "1" );
         attr.add( "2" );
-        
+
         ENTRY.put( attr );
     }
-    
+
+
     public void testWrongScope() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection tuples = new ArrayList();
-        tuples.add( new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION,
-                EMPTY_SET, true, 0 ) );
-        
-        tuples = Collections.unmodifiableCollection( tuples );
-        
-        Assert.assertEquals(
-                tuples, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null,
-                        null, null, null, null, null, null, null ) );
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 ) );
 
-        Assert.assertEquals(
-                tuples, filter.filter(
-                        tuples, OperationScope.ENTRY, null, null, null,
-                        null, null, null, null, null, null, null ) );
+        tuples = Collections.unmodifiableCollection( tuples );
+
+        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null,
+            null, null, null, null, null, null ) );
+
+        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null,
+            null, null, null, null ) );
     }
-    
+
+
     public void testZeroTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
-        
-        Assert.assertEquals(
-                0, filter.filter(
-                        EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE,
-                        null, null, null, null, null, null, null, null, null, null ).size() );
+
+        Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
+            null, null, null, null, null, null, null, null ).size() );
     }
-    
+
+
     public void testDenialTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection tuples = new ArrayList();
-        tuples.add( new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS,
-                EMPTY_SET, false, 0 ) );
-        
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, false, 0 ) );
+
         tuples = Collections.unmodifiableCollection( tuples );
-        
-        Assert.assertEquals(
-                tuples, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-                        null, null, null, "testAttr", null, ENTRY, null ) );
+
+        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
+            null, null, null, "testAttr", null, ENTRY, null ) );
     }
 
 
@@ -120,23 +111,15 @@ public class RestrictedByFilterTest extends TestCase
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection tuples = new ArrayList();
-        tuples.add( new ACITuple(
-                EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS,
-                EMPTY_SET, true, 0 ) );
-        
-        Assert.assertEquals(
-                1, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-                        null, null, null, "choice", "1", ENTRY, null ).size() );
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, true, 0 ) );
 
-        Assert.assertEquals(
-                1, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-                        null, null, null, "choice", "2", ENTRY, null ).size() );
+        Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
+            null, null, "choice", "1", ENTRY, null ).size() );
 
-        Assert.assertEquals(
-                0, filter.filter(
-                        tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-                        null, null, null, "choice", "3", ENTRY, null ).size() );
+        Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
+            null, null, "choice", "2", ENTRY, null ).size() );
+
+        Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
+            null, null, "choice", "3", ENTRY, null ).size() );
     }
 }

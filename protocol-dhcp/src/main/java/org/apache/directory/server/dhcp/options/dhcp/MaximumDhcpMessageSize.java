@@ -17,9 +17,11 @@
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This option specifies the maximum length DHCP message that it is
@@ -33,17 +35,18 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class MaximumDhcpMessageSize extends DhcpOption
 {
-	private byte[] maximumDhcpMessageSize;
-	
-	public MaximumDhcpMessageSize( byte[] maximumDhcpMessageSize )
-	{
-		super( 57, 2 );
-		this.maximumDhcpMessageSize = maximumDhcpMessageSize;
-	}
-	
-	protected void valueToByteBuffer( ByteBuffer out )
-	{
-		out.put( maximumDhcpMessageSize );
-	}
-}
+    private byte[] maximumDhcpMessageSize;
 
+
+    public MaximumDhcpMessageSize(byte[] maximumDhcpMessageSize)
+    {
+        super( 57, 2 );
+        this.maximumDhcpMessageSize = maximumDhcpMessageSize;
+    }
+
+
+    protected void valueToByteBuffer( ByteBuffer out )
+    {
+        out.put( maximumDhcpMessageSize );
+    }
+}

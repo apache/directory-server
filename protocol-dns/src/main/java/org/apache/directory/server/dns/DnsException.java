@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dns;
 
+
 import org.apache.directory.server.dns.messages.ResponseCode;
+
 
 /**
  * The root of the DNS exception hierarchy.
@@ -34,17 +36,19 @@ public class DnsException extends Exception
      */
     private final int responseCode;
 
+
     /**
      * Creates a DnsException with a response code.
      *
      * @param responseCode the response code associated with this DnsException
      */
-    public DnsException( ResponseCode responseCode )
+    public DnsException(ResponseCode responseCode)
     {
         super( responseCode.getMessage() );
 
         this.responseCode = responseCode.getOrdinal();
     }
+
 
     /**
      * Gets the protocol response code associated with this DnsException.

@@ -18,8 +18,10 @@
  */
 package org.apache.directory.server.core.configuration;
 
+
 import org.apache.directory.server.core.partition.DirectoryPartition;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+
 
 /**
  * A {@link Configuration} that adds a new {@link DirectoryPartition} to
@@ -31,24 +33,27 @@ import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 public class AddDirectoryPartitionConfiguration extends Configuration
 {
     private static final long serialVersionUID = -6690435863387769527L;
-    
+
     private final DirectoryPartitionConfiguration directoryPartitionConfiguration;
 
-    public AddDirectoryPartitionConfiguration( DirectoryPartitionConfiguration directoryPartitionConfiguration )
+
+    public AddDirectoryPartitionConfiguration(DirectoryPartitionConfiguration directoryPartitionConfiguration)
     {
-        if( directoryPartitionConfiguration == null )
+        if ( directoryPartitionConfiguration == null )
         {
             throw new NullPointerException( "directoryPartitionConfiguration" );
         }
-        
+
         this.directoryPartitionConfiguration = directoryPartitionConfiguration;
     }
-    
+
+
     public DirectoryPartitionConfiguration getDirectoryPartitionConfiguration()
     {
         return directoryPartitionConfiguration;
     }
-    
+
+
     public void validate()
     {
         directoryPartitionConfiguration.validate();

@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.protocol.shared.catalog;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
 
+
 /**
  * A JNDI context operation for building a catalog.
  *
@@ -42,6 +44,7 @@ public class GetCatalog implements ContextOperation
     private static final String ENTRY = "apacheCatalogEntry";
     private static final String ENTRY_NAME = "apacheCatalogEntryName";
     private static final String ENTRY_BASEDN = "apacheCatalogEntryBaseDn";
+
 
     /**
      * Note that the base is relative to the existing context.
@@ -59,13 +62,13 @@ public class GetCatalog implements ContextOperation
 
         while ( list.hasMore() )
         {
-            SearchResult result = (SearchResult) list.next();
+            SearchResult result = ( SearchResult ) list.next();
 
             Attributes attrs = result.getAttributes();
             Attribute attr;
 
-            String name = ( attr = attrs.get( ENTRY_NAME ) ) != null ? (String) attr.get() : null;
-            String basedn = ( attr = attrs.get( ENTRY_BASEDN ) ) != null ? (String) attr.get() : null;
+            String name = ( attr = attrs.get( ENTRY_NAME ) ) != null ? ( String ) attr.get() : null;
+            String basedn = ( attr = attrs.get( ENTRY_BASEDN ) ) != null ? ( String ) attr.get() : null;
 
             catalog.put( name, basedn );
         }

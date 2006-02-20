@@ -17,14 +17,23 @@
 
 package org.apache.directory.server.dns.protocol;
 
+
 import org.apache.directory.server.dns.AbstractDnsTestCase;
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.protocol.DnsDecoder;
 import org.apache.mina.common.ByteBuffer;
 
+
 public class DnsMessageDecoderTest extends AbstractDnsTestCase
 {
     private ByteBuffer requestByteBuffer;
+
+
+    public DnsMessageDecoderTest()
+    {
+        super( DnsMessageDecoderTest.class );
+    }
+
 
     public void testParseQuery() throws Exception
     {
@@ -35,6 +44,7 @@ public class DnsMessageDecoderTest extends AbstractDnsTestCase
 
         print( dnsRequest );
     }
+
 
     public void testParseResponse() throws Exception
     {

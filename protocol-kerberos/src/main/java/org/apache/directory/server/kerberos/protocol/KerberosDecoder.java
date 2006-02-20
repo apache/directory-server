@@ -16,22 +16,26 @@
  */
 package org.apache.directory.server.kerberos.protocol;
 
+
 import java.io.IOException;
 
-import org.apache.kerberos.io.decoder.KdcRequestDecoder;
+import org.apache.directory.server.kerberos.shared.io.decoder.KdcRequestDecoder;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
+
 public class KerberosDecoder implements ProtocolDecoder
 {
     private KdcRequestDecoder decoder = new KdcRequestDecoder();
+
 
     public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws IOException
     {
         out.write( decoder.decode( in.buf() ) );
     }
+
 
     public void dispose( IoSession session ) throws Exception
     {

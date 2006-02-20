@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest
  */
 public class GracefulShutdownCommand extends ToolCommand
 {
-    public static final String PORT_RANGE = "(" + AvailablePortFinder.MIN_PORT_NUMBER + ", " 
+    public static final String PORT_RANGE = "(" + AvailablePortFinder.MIN_PORT_NUMBER + ", "
         + AvailablePortFinder.MAX_PORT_NUMBER + ")";
 
     private static final int DELAY_MAX = 86400;
@@ -52,7 +52,7 @@ public class GracefulShutdownCommand extends ToolCommand
     private int delay;
     private int timeOffline;
 
-    
+
     protected GracefulShutdownCommand()
     {
         super( "graceful" );
@@ -61,11 +61,13 @@ public class GracefulShutdownCommand extends ToolCommand
     private boolean isWaiting;
     private boolean isSuccess = false;
     private Thread executeThread = null;
+
+
     public void execute( CommandLine cmd ) throws Exception
     {
         executeThread = Thread.currentThread();
         processOptions( cmd );
-        
+
         if ( isDebugEnabled() )
         {
             System.out.println( "Parameters for GracefulShutdown extended request:" );
@@ -75,7 +77,7 @@ public class GracefulShutdownCommand extends ToolCommand
             System.out.println( "delay = " + delay );
             System.out.println( "timeOffline = " + timeOffline );
         }
-        
+
         Hashtable env = new Hashtable();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://" + host + ":" + port );
@@ -84,10 +86,10 @@ public class GracefulShutdownCommand extends ToolCommand
         env.put( "java.naming.security.authentication", "simple" );
 
         LdapContext ctx = new InitialLdapContext( env, null );
-        if ( ! isQuietEnabled() )
+        if ( !isQuietEnabled() )
         {
-            System.out.println( "Connection to the server established.\n"+
-                "Sending extended request and blocking for shutdown:" );
+            System.out.println( "Connection to the server established.\n"
+                + "Sending extended request and blocking for shutdown:" );
             isWaiting = true;
             Thread t = new Thread( new Ticker() );
             t.start();
@@ -97,7 +99,7 @@ public class GracefulShutdownCommand extends ToolCommand
             ctx.extendedOperation( new GracefulShutdownRequest( 0, timeOffline, delay ) );
             isSuccess = true;
         }
-        catch( Throwable t )
+        catch ( Throwable t )
         {
             isSuccess = false;
             System.err.print( "failed with error: " + t.getMessage() );
@@ -105,14 +107,14 @@ public class GracefulShutdownCommand extends ToolCommand
         isWaiting = false;
         ctx.close();
     }
-    
-    
+
     class Ticker implements Runnable
     {
         public void run()
         {
-            if ( ! isQuietEnabled() ) System.out.print( "[waiting for shutdown] " );
-            while( isWaiting )
+            if ( !isQuietEnabled() )
+                System.out.print( "[waiting for shutdown] " );
+            while ( isWaiting )
             {
                 try
                 {
@@ -123,11 +125,13 @@ public class GracefulShutdownCommand extends ToolCommand
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                if ( ! isQuietEnabled() ) System.out.print( "." );
+                if ( !isQuietEnabled() )
+                    System.out.print( "." );
             }
             if ( isSuccess )
             {
-                if ( ! isQuietEnabled() ) System.out.println( "\n[shutdown complete]" );
+                if ( !isQuietEnabled() )
+                    System.out.println( "\n[shutdown complete]" );
                 try
                 {
                     executeThread.join( 1000 );
@@ -140,7 +144,8 @@ public class GracefulShutdownCommand extends ToolCommand
             }
             else
             {
-                if ( ! isQuietEnabled() ) System.out.println( "\n[shutdown failed]" );
+                if ( !isQuietEnabled() )
+                    System.out.println( "\n[shutdown failed]" );
                 try
                 {
                     executeThread.join( 1000 );
@@ -161,12 +166,12 @@ public class GracefulShutdownCommand extends ToolCommand
         {
             System.out.println( "Processing options for graceful shutdown ..." );
         }
-        
+
         // -------------------------------------------------------------------
         // figure out and error check the port value
         // -------------------------------------------------------------------
 
-        if ( cmd.hasOption( 'p' ) )   // - user provided port w/ -p takes precedence
+        if ( cmd.hasOption( 'p' ) ) // - user provided port w/ -p takes precedence
         {
             String val = cmd.getOptionValue( 'p' );
             try
@@ -178,20 +183,20 @@ public class GracefulShutdownCommand extends ToolCommand
                 System.err.println( "port value of '" + val + "' is not a number" );
                 System.exit( 1 );
             }
-            
+
             if ( port > AvailablePortFinder.MAX_PORT_NUMBER )
             {
-                System.err.println( "port value of '" + val + "' is larger than max port number: " 
+                System.err.println( "port value of '" + val + "' is larger than max port number: "
                     + AvailablePortFinder.MAX_PORT_NUMBER );
                 System.exit( 1 );
             }
             else if ( port < AvailablePortFinder.MIN_PORT_NUMBER )
             {
-                System.err.println( "port value of '" + val + "' is smaller than the minimum port number: " 
+                System.err.println( "port value of '" + val + "' is smaller than the minimum port number: "
                     + AvailablePortFinder.MIN_PORT_NUMBER );
                 System.exit( 1 );
             }
-            
+
             if ( isDebugEnabled() )
             {
                 System.out.println( "port overriden by -p option: " + port );
@@ -200,7 +205,7 @@ public class GracefulShutdownCommand extends ToolCommand
         else if ( getConfiguration() != null )
         {
             port = getConfiguration().getLdapPort();
-            
+
             if ( isDebugEnabled() )
             {
                 System.out.println( "port overriden by server.xml configuration: " + port );
@@ -210,7 +215,7 @@ public class GracefulShutdownCommand extends ToolCommand
         {
             System.out.println( "port set to default: " + port );
         }
-        
+
         // -------------------------------------------------------------------
         // figure out the host value
         // -------------------------------------------------------------------
@@ -218,7 +223,7 @@ public class GracefulShutdownCommand extends ToolCommand
         if ( cmd.hasOption( 'h' ) )
         {
             host = cmd.getOptionValue( 'h' );
-            
+
             if ( isDebugEnabled() )
             {
                 System.out.println( "host overriden by -h option: " + host );
@@ -228,7 +233,7 @@ public class GracefulShutdownCommand extends ToolCommand
         {
             System.out.println( "host set to default: " + host );
         }
-        
+
         // -------------------------------------------------------------------
         // figure out the password value
         // -------------------------------------------------------------------
@@ -246,7 +251,7 @@ public class GracefulShutdownCommand extends ToolCommand
         {
             System.out.println( "password set to default: " + password );
         }
-        
+
         // -------------------------------------------------------------------
         // figure out the delay value
         // -------------------------------------------------------------------
@@ -263,11 +268,10 @@ public class GracefulShutdownCommand extends ToolCommand
                 System.err.println( "delay value of '" + val + "' is not a number" );
                 System.exit( 1 );
             }
-            
+
             if ( delay > DELAY_MAX )
             {
-                System.err.println( "delay value of '" + val 
-                    + "' is larger than max delay (seconds) allowed: " 
+                System.err.println( "delay value of '" + val + "' is larger than max delay (seconds) allowed: "
                     + DELAY_MAX );
                 System.exit( 1 );
             }
@@ -276,7 +280,7 @@ public class GracefulShutdownCommand extends ToolCommand
                 System.err.println( "delay value of '" + val + "' is less than zero and makes no sense" );
                 System.exit( 1 );
             }
-            
+
             if ( isDebugEnabled() )
             {
                 System.out.println( "delay seconds overriden by -e option: " + delay );
@@ -287,7 +291,6 @@ public class GracefulShutdownCommand extends ToolCommand
             System.out.println( "Using default delay value of " + delay );
         }
 
-    
         // -------------------------------------------------------------------
         // figure out the timeOffline value
         // -------------------------------------------------------------------
@@ -304,12 +307,11 @@ public class GracefulShutdownCommand extends ToolCommand
                 System.err.println( "timeOffline value of '" + val + "' is not a number" );
                 System.exit( 1 );
             }
-            
+
             if ( timeOffline > TIME_OFFLINE_MAX )
             {
-                System.err.println( "timeOffline value of '" + val 
-                    + "' is larger than max timeOffline (minutes) allowed: " 
-                    + TIME_OFFLINE_MAX );
+                System.err.println( "timeOffline value of '" + val
+                    + "' is larger than max timeOffline (minutes) allowed: " + TIME_OFFLINE_MAX );
                 System.exit( 1 );
             }
             else if ( timeOffline < 0 )
@@ -317,7 +319,7 @@ public class GracefulShutdownCommand extends ToolCommand
                 System.err.println( "timeOffline value of '" + val + "' is less than zero and makes no sense" );
                 System.exit( 1 );
             }
-            
+
             if ( isDebugEnabled() )
             {
                 System.out.println( "timeOffline seconds overriden by -t option: " + timeOffline );
@@ -336,7 +338,7 @@ public class GracefulShutdownCommand extends ToolCommand
         Option op = new Option( "h", "host", true, "server host: defaults to localhost" );
         op.setRequired( false );
         opts.addOption( op );
-        op = new Option(  "p", "port", true, "server port: defaults to 10389 or server.xml specified port" );
+        op = new Option( "p", "port", true, "server port: defaults to 10389 or server.xml specified port" );
         op.setRequired( false );
         opts.addOption( op );
         op = new Option( "e", "delay", true, "delay (seconds) before shutdown: defaults to 0" );
@@ -345,8 +347,7 @@ public class GracefulShutdownCommand extends ToolCommand
         op = new Option( "w", "password", true, "the apacheds administrator's password: defaults to secret" );
         op.setRequired( false );
         opts.addOption( op );
-        op = new Option( "t", "time-offline", true, 
-            "server offline time (minutes): defaults to 0 (indefinate)" );
+        op = new Option( "t", "time-offline", true, "server offline time (minutes): defaults to 0 (indefinate)" );
         op.setRequired( false );
         opts.addOption( op );
         op = new Option( "i", "install-path", true, "path to apacheds installation directory" );

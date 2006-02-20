@@ -7,7 +7,7 @@
     <version>1.0</version>
   </parent>
   <groupId>org.apache.directory.server</groupId>
-  <version>1.0-RC1-SNAPSHOT</version>
+  <version>1.0-RC1</version>
   <artifactId>build</artifactId>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
@@ -55,7 +55,7 @@
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
-      <version>0.9.4</version>
+      <version>0.9.5</version>
     </dependency>
   </dependencies>
 

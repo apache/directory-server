@@ -37,7 +37,7 @@ public abstract class AbstractSyntaxChecker implements SyntaxChecker
      *
      * @param oid the unique OID for the SyntaxChecker.
      */
-    public AbstractSyntaxChecker( String oid )
+    public AbstractSyntaxChecker(String oid)
     {
         this.oid = oid;
     }

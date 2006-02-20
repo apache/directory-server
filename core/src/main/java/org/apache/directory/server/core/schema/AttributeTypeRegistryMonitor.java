@@ -35,12 +35,14 @@ public interface AttributeTypeRegistryMonitor
      */
     void registered( AttributeType attributeType );
 
+
     /**
      * Monitors when a Comparator is successfully looked up.
      *
      * @param attributeType the AttributeType successfully lookedup
      */
     void lookedUp( AttributeType attributeType );
+
 
     /**
      * Monitors when a lookup attempt fails.
@@ -49,6 +51,7 @@ public interface AttributeTypeRegistryMonitor
      * @param fault the exception to be thrown for the fault
      */
     void lookupFailed( String oid, Throwable fault );
+
 
     /**
      * Monitors when a registration attempt fails.

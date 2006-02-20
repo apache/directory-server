@@ -17,7 +17,9 @@
 
 package org.apache.directory.server.dhcp.options.misc;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 /**
  * The POP3 server option specifies a list of POP3 available to the
@@ -29,9 +31,8 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class Pop3Servers extends AddressListOption
 {
-	public Pop3Servers( byte[] pop3Server )
-	{
-		super( 70, pop3Server );
-	}
+    public Pop3Servers(byte[] pop3Server)
+    {
+        super( 70, pop3Server );
+    }
 }
-

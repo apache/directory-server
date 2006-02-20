@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.ntp.protocol;
 
+
 import org.apache.directory.server.ntp.NtpService;
 import org.apache.directory.server.ntp.messages.NtpMessage;
 import org.apache.directory.server.ntp.service.NtpServiceImpl;
@@ -27,12 +28,14 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class NtpProtocolHandler implements IoHandler
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( NtpProtocolHandler.class );
 
     private NtpService ntpService = new NtpServiceImpl();
+
 
     public void sessionCreated( IoSession session ) throws Exception
     {
@@ -44,6 +47,7 @@ public class NtpProtocolHandler implements IoHandler
         session.getFilterChain().addFirst( "codec", new ProtocolCodecFilter( NtpProtocolCodecFactory.getInstance() ) );
     }
 
+
     public void sessionOpened( IoSession session )
     {
         if ( log.isDebugEnabled() )
@@ -51,6 +55,7 @@ public class NtpProtocolHandler implements IoHandler
             log.debug( session.getRemoteAddress() + " OPENED" );
         }
     }
+
 
     public void sessionClosed( IoSession session )
     {
@@ -60,6 +65,7 @@ public class NtpProtocolHandler implements IoHandler
         }
     }
 
+
     public void sessionIdle( IoSession session, IdleStatus status )
     {
         if ( log.isDebugEnabled() )
@@ -68,11 +74,13 @@ public class NtpProtocolHandler implements IoHandler
         }
     }
 
+
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         log.error( session.getRemoteAddress() + " EXCEPTION", cause );
         session.close();
     }
+
 
     public void messageReceived( IoSession session, Object message )
     {
@@ -81,10 +89,11 @@ public class NtpProtocolHandler implements IoHandler
             log.debug( session.getRemoteAddress() + " RCVD: " + message );
         }
 
-        NtpMessage reply = ntpService.getReplyFor( (NtpMessage) message );
+        NtpMessage reply = ntpService.getReplyFor( ( NtpMessage ) message );
 
         session.write( reply );
     }
+
 
     public void messageSent( IoSession session, Object message )
     {

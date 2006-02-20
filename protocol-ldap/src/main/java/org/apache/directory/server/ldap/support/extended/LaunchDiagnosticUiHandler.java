@@ -52,7 +52,7 @@ import org.apache.mina.registry.ServiceRegistry;
 public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 {
     public static final Set EXTENSION_OIDS;
-    
+
     static
     {
         Set set = new HashSet( 3 );
@@ -60,31 +60,33 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
         set.add( LaunchDiagnosticUiResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
-    
+
     private Service ldapService;
     private ServiceRegistry minaRegistry;
     private LdapProtocolProvider ldapProvider;
-    
-    
+
+
     public String getOid()
     {
         return LaunchDiagnosticUiRequest.EXTENSION_OID;
     }
 
-    
-    public void handleExtendedOperation( IoSession requestor, SessionRegistry registry, ExtendedRequest req ) throws NamingException 
+
+    public void handleExtendedOperation( IoSession requestor, SessionRegistry registry, ExtendedRequest req )
+        throws NamingException
     {
         LdapContext ctx = registry.getLdapContext( requestor, null, false );
         ctx = ( LdapContext ) ctx.lookup( "" );
-        
+
         if ( ctx instanceof ServerLdapContext )
         {
             ServerLdapContext slc = ( ServerLdapContext ) ctx;
             DirectoryService service = slc.getService();
-            
-            if ( ! slc.getPrincipal().getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
+
+            if ( !slc.getPrincipal().getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
             {
-                requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId(), ResultCodeEnum.INSUFFICIENTACCESSRIGHTS ) );
+                requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId(),
+                    ResultCodeEnum.INSUFFICIENTACCESSRIGHTS ) );
                 return;
             }
 
@@ -102,24 +104,24 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
                     BTreeDirectoryPartition btPartition = ( BTreeDirectoryPartition ) partition;
                     PartitionFrame frame = new PartitionFrame( btPartition, btPartition.getSearchEngine() );
                     Point pos = getCenteredPosition( frame );
-                    pos.y = launchedWindowCount*20 + pos.y;
+                    pos.y = launchedWindowCount * 20 + pos.y;
                     double multiplier = getAspectRatio() * 20.0;
-                    pos.x =  ( int ) ( launchedWindowCount * multiplier ) + pos.x;
+                    pos.x = ( int ) ( launchedWindowCount * multiplier ) + pos.x;
                     frame.setLocation( pos );
                     frame.setVisible( true );
                     launchedWindowCount++;
                 }
             }
-            
+
             SessionsFrame sessions = new SessionsFrame();
             sessions.setMinaRegistry( minaRegistry );
             sessions.setLdapService( ldapService );
             sessions.setRequestor( requestor );
             sessions.setLdapProvider( ldapProvider.getHandler() );
             Point pos = getCenteredPosition( sessions );
-            pos.y = launchedWindowCount*20 + pos.y;
+            pos.y = launchedWindowCount * 20 + pos.y;
             double multiplier = getAspectRatio() * 20.0;
-            pos.x =  ( int ) ( launchedWindowCount * multiplier ) + pos.x;
+            pos.x = ( int ) ( launchedWindowCount * multiplier ) + pos.x;
             sessions.setLocation( pos );
             sessions.setVisible( true );
             return;
@@ -127,16 +129,16 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 
         requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId(), ResultCodeEnum.OPERATIONSERROR ) );
     }
-    
-    
+
+
     public double getAspectRatio()
     {
         Toolkit tk = Toolkit.getDefaultToolkit();
         Dimension screenSize = tk.getScreenSize();
         return ( double ) screenSize.getWidth() / ( double ) screenSize.getHeight();
     }
-    
-    
+
+
     public Point getCenteredPosition( JFrame frame )
     {
         Point pt = new Point();

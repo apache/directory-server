@@ -17,6 +17,7 @@
 
 package org.apache.directory.server.protocol.shared;
 
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -27,6 +28,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 
 /**
  * Adapter to add the Map interface to Dictionary's.  Many of the OSGi interfaces use
@@ -39,10 +41,12 @@ public class MapAdapter implements Map
 {
     private Dictionary dictionary;
 
-    public MapAdapter( Dictionary dictionary )
+
+    public MapAdapter(Dictionary dictionary)
     {
         this.dictionary = dictionary;
     }
+
 
     /**
      * @see java.util.Map#clear()
@@ -52,6 +56,7 @@ public class MapAdapter implements Map
         dictionary = new Hashtable();
     }
 
+
     /**
      * @see java.util.Map#containsKey(java.lang.Object)
      */
@@ -60,6 +65,7 @@ public class MapAdapter implements Map
         return Collections.list( dictionary.keys() ).contains( key );
     }
 
+
     /**
      * @see java.util.Map#containsValue(java.lang.Object)
      */
@@ -67,6 +73,7 @@ public class MapAdapter implements Map
     {
         return Collections.list( dictionary.elements() ).contains( value );
     }
+
 
     /**
      * @see java.util.Map#entrySet()
@@ -87,6 +94,7 @@ public class MapAdapter implements Map
         return map.entrySet();
     }
 
+
     /**
      * @see java.util.Map#get(java.lang.Object)
      */
@@ -94,6 +102,7 @@ public class MapAdapter implements Map
     {
         return dictionary.get( key );
     }
+
 
     /**
      * @see java.util.Map#isEmpty()
@@ -103,6 +112,7 @@ public class MapAdapter implements Map
         return dictionary.isEmpty();
     }
 
+
     /**
      * @see java.util.Map#keySet()
      */
@@ -111,6 +121,7 @@ public class MapAdapter implements Map
         return new HashSet( Collections.list( dictionary.keys() ) );
     }
 
+
     /**
      * @see java.util.Map#put(java.lang.Object, java.lang.Object)
      */
@@ -118,6 +129,7 @@ public class MapAdapter implements Map
     {
         return dictionary.put( arg0, arg1 );
     }
+
 
     /**
      * @see java.util.Map#putAll(java.util.Map)
@@ -128,10 +140,11 @@ public class MapAdapter implements Map
 
         while ( it.hasNext() )
         {
-            Map.Entry entry = (Map.Entry) it.next();
+            Map.Entry entry = ( Map.Entry ) it.next();
             dictionary.put( entry.getKey(), entry.getValue() );
         }
     }
+
 
     /**
      * @see java.util.Map#remove(java.lang.Object)
@@ -141,6 +154,7 @@ public class MapAdapter implements Map
         return dictionary.remove( key );
     }
 
+
     /**
      * @see java.util.Map#size()
      */
@@ -148,6 +162,7 @@ public class MapAdapter implements Map
     {
         return dictionary.size();
     }
+
 
     /**
      * @see java.util.Map#values()

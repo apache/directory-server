@@ -53,31 +53,34 @@ public interface DirectoryPartition
     /** 
      * The aliased Dn attribute name: aliasedObjectName for LDAP and
      * aliasedEntryName or X.500.
-     */ 
+     */
     String ALIAS_ATTRIBUTE = "aliasedObjectName";
+
 
     /**
      * Initializes this partition.
      */
     void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException;
-    
-    
+
+
     /**
      * Deinitialized this partition.
      */
     void destroy();
+
 
     /**
      * Checks to see if this partition is initialized or not.
      */
     boolean isInitialized();
 
+
     /**
      * Flushes any changes made to this partition now.
      */
     void sync() throws NamingException;
 
-    
+
     /**
      * Gets the distinguished/absolute name of the suffix for all entries
      * stored within this ContextPartition.
@@ -90,7 +93,7 @@ public interface DirectoryPartition
      */
     Name getSuffix( boolean normalized ) throws NamingException;
 
-    
+
     /**
      * Deletes a leaf entry from this ContextPartition: non-leaf entries cannot be 
      * deleted until this operation has been applied to their children.
@@ -98,8 +101,9 @@ public interface DirectoryPartition
      * @param name the normalized distinguished/absolute name of the entry to
      * delete from this ContextPartition.
      * @throws NamingException if there are any problems
-     */ 
+     */
     void delete( Name name ) throws NamingException;
+
 
     /**
      * Adds an entry to this ContextPartition.
@@ -110,6 +114,7 @@ public interface DirectoryPartition
      * @throws NamingException if there are any problems
      */
     void add( String userProvidedName, Name normalizedName, Attributes entry ) throws NamingException;
+
 
     /**
      * Modifies an entry by adding, removing or replacing a set of attributes.
@@ -129,6 +134,7 @@ public interface DirectoryPartition
      */
     void modify( Name name, int modOp, Attributes attributes ) throws NamingException;
 
+
     /**
      * Modifies an entry by using a combination of adds, removes or replace 
      * operations using a set of ModificationItems.
@@ -138,7 +144,8 @@ public interface DirectoryPartition
      * @throws NamingException if there are any problems
      * @see ModificationItem
      */
-    void modify( Name name, ModificationItem [] items ) throws NamingException;
+    void modify( Name name, ModificationItem[] items ) throws NamingException;
+
 
     /**
      * A specialized form of one level search used to return a minimal set of 
@@ -151,7 +158,8 @@ public interface DirectoryPartition
      * @throws NamingException if there are any problems
      */
     NamingEnumeration list( Name baseName ) throws NamingException;
-    
+
+
     /**
      * Conducts a search against this ContextPartition.  Namespace specific
      * parameters for search are contained within the environment using
@@ -169,8 +177,9 @@ public interface DirectoryPartition
      * <a href="http://java.sun.com/j2se/1.4.2/docs/api/
      * javax/naming/directory/SearchResult.html">SearchResult</a>.
      */
-    NamingEnumeration search( Name baseName, Map environment, ExprNode filter,
-        SearchControls searchControls ) throws NamingException;
+    NamingEnumeration search( Name baseName, Map environment, ExprNode filter, SearchControls searchControls )
+        throws NamingException;
+
 
     /**
      * Looks up an entry by distinguished/absolute name.  This is a simplified
@@ -183,6 +192,7 @@ public interface DirectoryPartition
      */
     Attributes lookup( Name name ) throws NamingException;
 
+
     /**
      * Looks up an entry by distinguished/absolute name.  This is a simplified
      * version of the search operation used to point read an entry used for
@@ -194,7 +204,8 @@ public interface DirectoryPartition
      * @return an Attributes object representing the entry
      * @throws NamingException if there are any problems
      */
-    Attributes lookup( Name name, String [] attrIds ) throws NamingException;
+    Attributes lookup( Name name, String[] attrIds ) throws NamingException;
+
 
     /**
      * Fast operation to check and see if a particular entry exists.
@@ -206,6 +217,7 @@ public interface DirectoryPartition
      */
     boolean hasEntry( Name name ) throws NamingException;
 
+
     /**
      * Checks to see if name is a context suffix.
      *
@@ -214,6 +226,7 @@ public interface DirectoryPartition
      * @throws NamingException if there are any problems
      */
     boolean isSuffix( Name name ) throws NamingException;
+
 
     /**
      * Modifies an entry by changing its relative name. Optionally attributes
@@ -228,8 +241,8 @@ public interface DirectoryPartition
      * from the entry if set to true, and has no affect if set to false
      * @throws NamingException if there are any problems
      */
-    void modifyRn( Name name, String newRn, boolean deleteOldRn )
-        throws NamingException;
+    void modifyRn( Name name, String newRn, boolean deleteOldRn ) throws NamingException;
+
 
     /**
      * Transplants a child entry, to a position in the namespace under a new
@@ -242,6 +255,7 @@ public interface DirectoryPartition
      * @throws NamingException if there are any problems
      */
     void move( Name oldName, Name newParentName ) throws NamingException;
+
 
     /**
      * Transplants a child entry, to a position in the namespace under a new
@@ -260,9 +274,9 @@ public interface DirectoryPartition
      * from the entry if set to true, and has no affect if set to false
      * @throws NamingException if there are any problems
      */
-    void move( Name oldName, Name newParentName, String newRn,
-               boolean deleteOldRn ) throws NamingException;
-    
+    void move( Name oldName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException;
+
+
     /**
      * Represents a bind operation issued to authenticate a client.  Partitions
      * need not support this operation.  This operation is here to enable those
@@ -276,6 +290,7 @@ public interface DirectoryPartition
      * @throws NamingException if something goes wrong
      */
     void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException;
+
 
     /**
      * Represents an unbind operation issued by an authenticated client.  Partitions

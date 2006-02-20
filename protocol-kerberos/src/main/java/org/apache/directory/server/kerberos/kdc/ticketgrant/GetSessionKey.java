@@ -16,28 +16,32 @@
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
+
 import java.security.SecureRandom;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.service.DesStringToKey;
 import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.kerberos.crypto.encryption.EncryptionType;
-import org.apache.kerberos.messages.value.EncryptionKey;
-import org.apache.kerberos.service.DesStringToKey;
+
 
 public class GetSessionKey extends DesStringToKey
 {
     private static final SecureRandom random = new SecureRandom();
 
+
     public boolean execute( Context context ) throws Exception
     {
-        TicketGrantingContext tgsContext = (TicketGrantingContext) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
         tgsContext.setSessionKey( getNewSessionKey() );
 
         return CONTINUE_CHAIN;
     }
 
+
     private EncryptionKey getNewSessionKey()
     {
-        byte[] confounder = new byte[ 8 ];
+        byte[] confounder = new byte[8];
 
         // SecureRandom.nextBytes is already synchronized
         random.nextBytes( confounder );

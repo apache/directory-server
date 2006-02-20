@@ -26,13 +26,14 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 public class TimeServers extends AddressListOption
 {
-	public TimeServers( byte[] timeServers )
-	{
-		super( 4, timeServers );
-	}
+    public TimeServers(byte[] timeServers)
+    {
+        super( 4, timeServers );
+    }
 }
-

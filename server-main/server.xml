@@ -48,7 +48,7 @@
     </property>
     <property name="ldifFilters">
       <list>
-        <bean class="org.apache.protocol.common.store.Krb5KdcEntryFilter"/>
+        <bean class="org.apache.directory.server.protocol.shared.store.Krb5KdcEntryFilter"/>
       </list>
     </property>-->
 

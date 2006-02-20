@@ -25,13 +25,14 @@
  */
 package org.apache.directory.server.dhcp.options.vendor;
 
+
 import org.apache.directory.server.dhcp.options.AddressListOption;
+
 
 public class CookieServers extends AddressListOption
 {
-	public CookieServers( byte[] cookieServers )
-	{
-		super( 8, cookieServers );
-	}
+    public CookieServers(byte[] cookieServers)
+    {
+        super( 8, cookieServers );
+    }
 }
-

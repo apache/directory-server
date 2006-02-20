@@ -4,11 +4,13 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC1-SNAPSHOT</version>
+    <version>1.0-RC1</version>
   </parent>
   <groupId>org.apache.directory.server</groupId>
-  <version>0.7.1-SNAPSHOT</version>
   <artifactId>apacheds-protocol-shared</artifactId>
+  <description>
+    Shared library that is used by all protocol providers in ApacheDS
+  </description>
   <name>ApacheDS Protocol Shared</name>
   <packaging>jar</packaging>  
   <dependencies>
@@ -34,7 +36,7 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core</artifactId>
-      <version>1.0-RC1-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
   </dependencies>
   <build>

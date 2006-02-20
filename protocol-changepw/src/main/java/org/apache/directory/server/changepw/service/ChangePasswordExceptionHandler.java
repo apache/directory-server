@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.changepw.service;
 
+
 import java.nio.ByteBuffer;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -23,16 +24,17 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier;
+import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.protocol.shared.chain.Command;
 import org.apache.directory.server.protocol.shared.chain.Context;
 import org.apache.directory.server.protocol.shared.chain.Filter;
 import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
-import org.apache.kerberos.exceptions.KerberosException;
-import org.apache.kerberos.messages.ErrorMessage;
-import org.apache.kerberos.messages.ErrorMessageModifier;
-import org.apache.kerberos.messages.value.KerberosTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * A {@link Command} for helping convert a {@link ChangePasswordException} into
@@ -45,10 +47,12 @@ public class ChangePasswordExceptionHandler extends CommandBase implements Filte
 {
     private static final Logger log = LoggerFactory.getLogger( ChangePasswordExceptionHandler.class );
 
+
     public boolean execute( Context context ) throws Exception
     {
         return CONTINUE_CHAIN;
     }
+
 
     public boolean postprocess( Context context, Exception exception )
     {
@@ -66,9 +70,9 @@ public class ChangePasswordExceptionHandler extends CommandBase implements Filte
             log.info( exception.getMessage() );
         }
 
-        ChangePasswordContext changepwContext = (ChangePasswordContext) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
         ChangePasswordConfiguration config = changepwContext.getConfig();
-        ChangePasswordException cpe = (ChangePasswordException) exception;
+        ChangePasswordException cpe = ( ChangePasswordException ) exception;
 
         ErrorMessage errorMessage = getErrorMessage( config.getChangepwPrincipal(), cpe );
 
@@ -79,6 +83,7 @@ public class ChangePasswordExceptionHandler extends CommandBase implements Filte
 
         return STOP_CHAIN;
     }
+
 
     private ErrorMessage getErrorMessage( KerberosPrincipal principal, KerberosException exception )
     {
@@ -96,9 +101,10 @@ public class ChangePasswordExceptionHandler extends CommandBase implements Filte
         return modifier.getErrorMessage();
     }
 
+
     private byte[] buildExplanatoryData( KerberosException exception )
     {
-        short resultCode = (short) exception.getErrorCode();
+        short resultCode = ( short ) exception.getErrorCode();
         byte[] resultString = exception.getExplanatoryData();
 
         ByteBuffer byteBuffer = ByteBuffer.allocate( 256 );
@@ -106,7 +112,7 @@ public class ChangePasswordExceptionHandler extends CommandBase implements Filte
         byteBuffer.put( resultString );
 
         byteBuffer.flip();
-        byte[] explanatoryData = new byte[ byteBuffer.remaining() ];
+        byte[] explanatoryData = new byte[byteBuffer.remaining()];
         byteBuffer.get( explanatoryData, 0, explanatoryData.length );
 
         return explanatoryData;

@@ -70,12 +70,12 @@ public class GroupCache
      *
      * @param factoryCfg the context factory configuration for the server
      */
-    public GroupCache( DirectoryServiceConfiguration factoryCfg ) throws NamingException
+    public GroupCache(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
         this.nexus = factoryCfg.getPartitionNexus();
         this.env = ( Hashtable ) factoryCfg.getEnvironment().clone();
-        this.parser = new DnParser( new ConcreteNameComponentNormalizer(
-                factoryCfg.getGlobalRegistries().getAttributeTypeRegistry() ) );
+        this.parser = new DnParser( new ConcreteNameComponentNormalizer( factoryCfg.getGlobalRegistries()
+            .getAttributeTypeRegistry() ) );
         initialize();
     }
 
@@ -288,17 +288,17 @@ public class GroupCache
 
         switch ( modOp )
         {
-            case ( DirContext.ADD_ATTRIBUTE ):
+            case ( DirContext.ADD_ATTRIBUTE  ):
                 addMembers( memberSet, members );
                 break;
-            case ( DirContext.REPLACE_ATTRIBUTE ):
+            case ( DirContext.REPLACE_ATTRIBUTE  ):
                 if ( members.size() > 0 )
                 {
                     memberSet.clear();
                     addMembers( memberSet, members );
                 }
                 break;
-            case ( DirContext.REMOVE_ATTRIBUTE ):
+            case ( DirContext.REMOVE_ATTRIBUTE  ):
                 removeMembers( memberSet, members );
                 break;
             default:
@@ -405,7 +405,10 @@ public class GroupCache
         }
         catch ( NamingException e )
         {
-            log.warn( "Malformed member DN.  Could not find groups for member in GroupCache. Returning empty set for groups!", e );
+            log
+                .warn(
+                    "Malformed member DN.  Could not find groups for member in GroupCache. Returning empty set for groups!",
+                    e );
             return Collections.EMPTY_SET;
         }
 

@@ -26,7 +26,6 @@ import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
-
 /**
  * A producer of Normalizer objects for the inetorgperson schema.  This code has been
  * automatically generated using schema files in the OpenLDAP format along with
@@ -48,26 +47,24 @@ public class InetorgpersonNormalizerProducer extends AbstractBootstrapProducer
     // BootstrapProducer Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see BootstrapProducer#produce(BootstrapRegistries, ProducerCallback)
      */
-    public void produce( BootstrapRegistries registries, ProducerCallback cb )
-        throws NamingException
+    public void produce( BootstrapRegistries registries, ProducerCallback cb ) throws NamingException
     {
         /*
          * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.3
          * =========================================================
 
-            ( 2.5.13.5 NAME 'caseExactMatch'
-              SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         ( 2.5.13.5 NAME 'caseExactMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
-            ( 2.5.13.7 NAME 'caseExactSubstringsMatch'
-              SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         ( 2.5.13.7 NAME 'caseExactSubstringsMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
 
-            ( 2.5.13.12 NAME 'caseIgnoreListSubstringsMatch'
-              SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
-        */
+         ( 2.5.13.12 NAME 'caseIgnoreListSubstringsMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
 
         Normalizer normalizer;
 
@@ -84,9 +81,9 @@ public class InetorgpersonNormalizerProducer extends AbstractBootstrapProducer
          * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.4
          * =========================================================
 
-            ( 1.3.6.1.4.1.1466.109.114.3 NAME 'caseIgnoreIA5SubstringsMatch'
-              SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
-        */
+         ( 1.3.6.1.4.1.1466.109.114.3 NAME 'caseIgnoreIA5SubstringsMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
 
         normalizer = new CachingNormalizer( new DeepTrimToLowerNormalizer() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.109.114.3", normalizer );
