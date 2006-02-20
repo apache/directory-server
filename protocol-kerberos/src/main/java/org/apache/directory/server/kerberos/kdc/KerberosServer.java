@@ -19,14 +19,13 @@ package org.apache.directory.server.kerberos.kdc;
 
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Dictionary;
 
 import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.TransportType;
-import org.apache.mina.registry.Service;
-import org.apache.mina.registry.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,18 +43,16 @@ public class KerberosServer
     private static final Logger log = LoggerFactory.getLogger( KerberosServer.class );
 
     private KdcConfiguration config;
-    private ServiceRegistry registry;
+    private IoAcceptor acceptor;
     private PrincipalStore store;
 
     private IoHandler handler;
-    private Service tcpService;
-    private Service udpService;
 
 
-    public KerberosServer(KdcConfiguration config, ServiceRegistry registry, PrincipalStore store)
+    public KerberosServer(KdcConfiguration config, IoAcceptor acceptor, PrincipalStore store)
     {
         this.config = config;
-        this.registry = registry;
+        this.acceptor = acceptor;
         this.store = store;
 
         String name = config.getName();
@@ -65,11 +62,7 @@ public class KerberosServer
         {
             handler = new KerberosProtocolHandler( new KdcConfiguration(), this.store );
 
-            udpService = new Service( name, TransportType.DATAGRAM, port );
-            tcpService = new Service( name, TransportType.SOCKET, port );
-
-            registry.bind( udpService, handler );
-            registry.bind( tcpService, handler );
+            acceptor.bind( new InetSocketAddress( port ), handler );
 
             log.debug( name + " listening on port " + port );
         }
@@ -88,13 +81,10 @@ public class KerberosServer
 
     public void destroy()
     {
-        registry.unbind( udpService );
-        registry.unbind( tcpService );
+        acceptor.unbind( new InetSocketAddress( config.getPort() ) );
 
-        registry = null;
+        acceptor = null;
         handler = null;
-        udpService = null;
-        tcpService = null;
 
         log.debug( config.getName() + " has stopped listening on port " + config.getPort() );
     }
