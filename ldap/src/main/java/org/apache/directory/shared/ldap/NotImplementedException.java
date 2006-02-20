@@ -16,7 +16,7 @@
  */
 
 /*
- $Id: NotImplementedException.java,v 1.4 2003/07/29 21:17:34 akarasulu Exp $
+ $Id$
 
  -- (c) LDAPd Group                                                    --
  -- Please refer to the LICENSE.txt file in the root directory of      --

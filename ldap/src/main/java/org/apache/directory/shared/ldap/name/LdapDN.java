@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.util.DNUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1093,6 +1094,11 @@ public class LdapDN /* extends LdapString */implements Name
     {
         String type = StringTools.trim( atav.getType() );
 
+        if ( ( type.startsWith( "oid." ) ) || ( type.startsWith( "OID." ) ) )
+        {
+            type = type.substring( 4 );
+        }
+
         if ( StringTools.isNotEmpty( StringTools.lowerCase( type ) ) )
         {
             OidNormalizer oidNormalizer = ( OidNormalizer ) oids.get( type );
@@ -1153,6 +1159,11 @@ public class LdapDN /* extends LdapString */implements Name
         else
         {
             String type = StringTools.trim( rdn.getType() );
+            
+            if ( ( type.startsWith( "oid." ) ) || ( type.startsWith( "OID." ) ) )
+            {
+                type = type.substring( 4 );
+            }
 
             if ( StringTools.isNotEmpty( StringTools.lowerCase( type ) ) )
             {

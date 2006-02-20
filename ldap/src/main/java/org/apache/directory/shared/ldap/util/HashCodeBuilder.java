@@ -88,7 +88,7 @@ import java.lang.reflect.Modifier;
  * @author Gary Gregory
  * @author Pete Gieser
  * @since 1.0
- * @version $Id: HashCodeBuilder.java,v 1.22 2004/08/15 02:17:13 bayard Exp $
+ * @version $Id$
  */
 public class HashCodeBuilder
 {

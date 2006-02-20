@@ -116,7 +116,7 @@ import org.slf4j.LoggerFactory;
  * A Twix to Snickers Message transformer.
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
- *         $Rev: 157671 $
+ *         $Rev$
  */
 public class TwixTransformer implements TransformerSpi
 {

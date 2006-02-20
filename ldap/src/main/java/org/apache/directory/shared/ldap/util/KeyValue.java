@@ -24,7 +24,7 @@ package org.apache.directory.shared.ldap.util;
  * two get methods.
  * 
  * @since Commons Collections 3.0
- * @version $Revision$ $Date: 2004/02/18 01:15:42 $
+ * @version $Revision$ $Date$
  * @author Stephen Colebourne
  */
 public interface KeyValue

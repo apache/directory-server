@@ -522,4 +522,30 @@ public class LdapDnParserTest extends TestCase
         assertEquals( cn, result.toString() );
 
     }
+
+    /**
+     * Test to check that even with a non escaped char, the DN is parsed ok
+     * or at least an error is generated. 
+     * 
+     * @throws NamingException
+     *             if anything goes wrong on parse()
+     */
+    public final void testNonEscapedChars() throws NamingException
+    {
+        NameParser parser = LdapDnParser.getNameParser();
+        String input = "ou=ou=test";
+        
+        try
+        {
+            parser.parse( input ).toString();
+        }
+        catch ( NamingException ne )
+        {
+            assertTrue( true );
+            return;
+        }
+        
+        fail( "Should never rech this point" );
+    }
+
 }

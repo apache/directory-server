@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: SubstringNode.java,v 1.10 2003/10/17 00:10:42 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group
  * -- Please refer to the LICENSE.txt file in the root directory of      --

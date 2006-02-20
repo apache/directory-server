@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: EmptyEnumeration.java,v 1.1 2003/09/16 05:29:44 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --

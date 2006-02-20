@@ -39,7 +39,7 @@ import java.nio.channels.WritableByteChannel;
  * Twix LDAP BER provider's encoder.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 158973 $
+ * @version $Rev$
  */
 public class TwixEncoder implements ProviderEncoder
 {

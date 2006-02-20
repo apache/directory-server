@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
  *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
  *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 56478 $
+ * @version $Rev$
  */
 public class LdapSchemaViolationException extends SchemaViolationException implements LdapException
 {

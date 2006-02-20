@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: Base64.java,v 1.3 2003/08/01 05:31:31 akarasulu Exp $
+ * $Id$
  * $Prologue$
  *
  * -- (c) LDAPd Group                                                    --

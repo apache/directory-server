@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: LdifComposer.java,v 1.4 2003/07/31 21:44:49 akarasulu Exp $
+ * $Id$
  * $Prologue$
  *
  * -- (c) LDAPd Group                                                    --

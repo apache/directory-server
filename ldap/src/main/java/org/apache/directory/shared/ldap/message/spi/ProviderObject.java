@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: ProviderObject.java,v 1.1 2003/04/10 21:02:45 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --

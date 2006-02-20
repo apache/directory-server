@@ -27,7 +27,7 @@ package org.apache.directory.shared.asn1.codec;
  * </p>
  * 
  * @author Apache Software Foundation
- * @version $Id: Encoder.java,v 1.10 2004/02/29 04:08:31 tobrien Exp $
+ * @version $Id$
  */
 public interface Encoder
 {

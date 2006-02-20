@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: Response.java,v 1.6 2003/05/02 04:03:13 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --

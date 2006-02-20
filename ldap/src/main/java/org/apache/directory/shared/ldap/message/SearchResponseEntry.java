@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: SearchResponseEntry.java,v 1.5 2003/08/21 20:44:32 jmachols Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --

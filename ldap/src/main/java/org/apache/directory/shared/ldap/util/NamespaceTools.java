@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: NamespaceTools.java,v 1.6 2003/09/23 07:13:26 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --

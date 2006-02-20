@@ -126,7 +126,14 @@ public class LdapDnParser implements NameParser
                     && ( StringTools.isCharASCII( chars, pos, ';' ) == false ) )
                 {
 
-                    break;
+                    if ( pos != chars.length )
+                    {
+                        throw new InvalidNameException( "Bad DN : " + new String( chars ) );
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
 
                 chars[pos] = ',';

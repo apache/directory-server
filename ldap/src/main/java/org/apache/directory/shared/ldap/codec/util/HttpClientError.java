@@ -1,7 +1,7 @@
 /*
  * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/HttpClientError.java,v 1.4 2004/05/13 04:03:25 mbecke Exp $
- * $Revision: 155418 $
- * $Date: 2005-02-26 08:01:52 -0500 (Sat, 26 Feb 2005) $
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  *
@@ -34,7 +34,7 @@ package org.apache.directory.shared.ldap.codec.util;
  * Signals that an error has occurred.
  * 
  * @author Ortwin Gl?ck
- * @version $Revision: 155418 $ $Date: 2005-02-26 08:01:52 -0500 (Sat, 26 Feb
+ * @version $Revision$ $Date: 2005-02-26 08:01:52 -0500 (Sat, 26 Feb
  *          2005) $
  * @since 3.0
  */

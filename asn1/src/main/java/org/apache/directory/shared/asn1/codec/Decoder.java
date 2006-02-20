@@ -32,7 +32,7 @@ package org.apache.directory.shared.asn1.codec;
  * </p>
  * 
  * @author Apache Software Foundation
- * @version $Id: Decoder.java,v 1.9 2004/02/29 04:08:31 tobrien Exp $
+ * @version $Id$
  */
 public interface Decoder
 {

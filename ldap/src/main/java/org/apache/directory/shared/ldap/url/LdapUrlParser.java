@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: LdapUrlParser.java,v 1.1 2003/07/25 21:41:48 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --

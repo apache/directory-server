@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: AssertionNode.java,v 1.4 2003/10/15 01:59:57 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group
  * -- Please refer to the LICENSE.txt file in the root directory of      --

@@ -31,7 +31,7 @@ import java.util.Map;
  * @author Stephen Colebourne
  * @author Gary Gregory
  * @since 1.0
- * @version $Id: EnumUtils.java,v 1.12 2004/02/23 04:34:20 ggregory Exp $
+ * @version $Id$
  */
 public class EnumUtils
 {

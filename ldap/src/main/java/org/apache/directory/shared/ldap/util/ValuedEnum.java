@@ -126,7 +126,7 @@ import java.util.List;
  * @author Apache Avalon project
  * @author Stephen Colebourne
  * @since 1.0
- * @version $Id: ValuedEnum.java,v 1.16 2004/02/23 04:34:20 ggregory Exp $
+ * @version $Id$
  */
 public abstract class ValuedEnum extends Enum
 {

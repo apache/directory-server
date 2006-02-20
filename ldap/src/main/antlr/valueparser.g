@@ -43,6 +43,18 @@ options {
     }
 
 
+    NameComponentNormalizer getNormalizer()
+    {
+        return m_normalizer;
+    }
+
+
+    boolean isNormalizing()
+    {
+        return m_normalizer != null;
+    }
+
+
     void setOid( boolean a_isOid )
     {
         m_isOid = a_isOid ;

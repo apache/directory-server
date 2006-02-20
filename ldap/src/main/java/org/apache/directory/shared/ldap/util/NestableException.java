@@ -97,7 +97,7 @@ import java.io.PrintWriter;
  * @author <a href="mailto:knielsen@apache.org">Kasper Nielsen</a>
  * @author <a href="mailto:steven@caswell.name">Steven Caswell</a>
  * @since 1.0
- * @version $Id: NestableException.java,v 1.12 2004/08/04 18:41:09 ggregory Exp $
+ * @version $Id$
  */
 public class NestableException extends Exception implements Nestable
 {

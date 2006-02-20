@@ -280,7 +280,7 @@ import java.util.Map;
  * @author Chris Webb
  * @author Mike Bowler
  * @since 1.0
- * @version $Id: Enum.java,v 1.28 2004/02/23 04:34:20 ggregory Exp $
+ * @version $Id$
  */
 public abstract class Enum implements Comparable, Serializable
 {

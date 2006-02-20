@@ -99,7 +99,7 @@ package org.apache.directory.shared.ldap.util;
  * @author Gary Gregory
  * @author Pete Gieser
  * @since 1.0
- * @version $Id: ToStringBuilder.java,v 1.35 2004/07/01 17:40:10 ggregory Exp $
+ * @version $Id$
  */
 public class ToStringBuilder
 {

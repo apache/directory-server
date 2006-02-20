@@ -69,19 +69,6 @@ public final class MessageDecoder implements ProviderDecoder
      * Creates a MessageDecoder using default properties for enabling a BER
      * library provider.
      * 
-     * @throws MessageException
-     *             if there is a problem creating this decoder.
-     */
-    public MessageDecoder() throws MessageException
-    {
-        this( Provider.getEnvironment() );
-    }
-
-
-    /**
-     * Creates a MessageDecoder using default properties for enabling a BER
-     * library provider.
-     * 
      * @param env
      *            The Map of environment parameters.
      * @throws MessageException
@@ -90,7 +77,13 @@ public final class MessageDecoder implements ProviderDecoder
     public MessageDecoder(final Hashtable env) throws MessageException
     {
         this.env = ( Hashtable ) env.clone();
-        this.provider = Provider.getProvider( this.env );
+        
+        // We need to get the encoder class name
+        Hashtable providerEnv = Provider.getEnvironment();
+        
+        this.env.put( Provider.BERLIB_PROVIDER, providerEnv.get( Provider.BERLIB_PROVIDER ) );
+        this.provider = Provider.getProvider( providerEnv );
+
         Set binaries;
 
         if ( env.containsKey( BINARY_KEY ) )

@@ -38,7 +38,7 @@ import java.io.File;
  * @author Tetsuya Kaneuchi
  * @author Rafal Krupinski
  * @since 1.0
- * @version $Id: SystemUtils.java,v 1.35 2004/08/30 21:21:18 ggregory Exp $
+ * @version $Id$
  */
 public class SystemUtils
 {

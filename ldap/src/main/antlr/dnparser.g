@@ -21,93 +21,98 @@ header {
 	 */
     package org.apache.directory.shared.ldap.name;
 
-    import java.util.ArrayList ;
+    import java.util.ArrayList;
+    import org.apache.directory.shared.ldap.util.StringTools;
 }
 
-class antlrNameParser extends Parser ;
+class antlrNameParser extends Parser;
 
 options {
-	importVocab = antlrType ;
-    defaultErrorHandler = false ;
+	importVocab = antlrType;
+    defaultErrorHandler = false;
 }
 {
-    private antlrValueParser m_valueParser = 
-        new antlrValueParser(getInputState()) ;
+    private antlrValueParser valueParser = new antlrValueParser( getInputState() );
 
     
     public void setNormalizer(NameComponentNormalizer a_normalizer)
     {
-        m_valueParser.setNormalizer(a_normalizer) ;
+        valueParser.setNormalizer(a_normalizer);
     }  
 }
 
 
-name returns [ArrayList l_list]
+name returns [ArrayList list]
 {
-    String l_comp0 = null ;
-    String l_comp1 = null ;
-	l_list = new ArrayList() ;
+    String comp0 = null;
+    String comp1 = null;
+	list = new ArrayList();
 }
-	:	l_comp0=nameComponent
+	:	comp0=nameComponent
         {
-            l_list.add(l_comp0) ;
+            list.add( comp0 );
         }
-        ( ( COMMA | SEMI ) l_comp1=nameComponent
+        ( ( COMMA | SEMI ) comp1=nameComponent
             {
-                l_list.add(l_comp1) ;
+                list.add( comp1);
             }
         )* DN_TERMINATOR 
 	;
 
 
-nameComponent returns [String l_comp]
+nameComponent returns [String comp]
 {
-    l_comp = null ;
-    String l_tav0 = null ;
-    String l_tav1 = null ;
-    StringBuffer l_buf = new StringBuffer() ;
+    comp = null;
+    String tav0 = null;
+    String tav1 = null;
+    StringBuffer buf = new StringBuffer();
 }
-        : l_tav0=attributeTypeAndValue
+        : tav0=attributeTypeAndValue
         {
-            l_buf.append(l_tav0) ;
+            buf.append( tav0 );
         }
-        ( PLUS l_tav1=attributeTypeAndValue 
+        ( PLUS tav1=attributeTypeAndValue 
             {
-                l_buf.append('+').append(l_tav1) ;
+                buf.append('+').append( tav1 );
             }
         )*
         {
-            l_comp = l_buf.toString() ;
+            comp = buf.toString();
         }
-    ;
+   ;
 
 
 attributeTypeAndValue returns [String tav]
 {
-    tav = null ;
-    StringBuffer buf = new StringBuffer() ;
-    String lhs = null ;
+    tav = null;
+    StringBuffer buf = new StringBuffer();
+    String lhs = null;
 }
 	:	( attr:ATTRIBUTE 
             {
-                lhs = attr.getText() ;
-				m_valueParser.setOid(false) ;
+                lhs = attr.getText();
+				valueParser.setOid( false );
             }
         | oiddn:OIDDN
             {
-                lhs = oiddn.getText().substring( "OID.".length() ) ;
-                m_valueParser.setOid(true) ;
+                lhs = oiddn.getText().substring( "OID.".length() );
+                valueParser.setOid( true );
             }
         | oid:OID
             {
-                lhs = oid.getText() ;
-                m_valueParser.setOid(true) ;
+                lhs = oid.getText();
+                valueParser.setOid( true );
             }
         ) EQUAL
 		{
-            m_valueParser.setLhs(lhs) ;
-            buf.append(lhs) ;
-            buf.append('=').append(m_valueParser.value()) ;
-            tav = buf.toString() ;
+		    if ( valueParser.isNormalizing() )
+		    {
+		    	lhs = StringTools.lowerCase( lhs );
+		    }
+		    
+            valueParser.setLhs( lhs );
+            buf.append( lhs );
+            buf.append( '=' ).append( valueParser.value() );
+            tav = buf.toString();
 		}
 	;

@@ -21,7 +21,7 @@ package org.apache.directory.shared.asn1.codec;
  * Defines common decoding methods for byte array decoders.
  * 
  * @author Apache Software Foundation
- * @version $Id: BinaryDecoder.java,v 1.10 2004/06/15 18:14:15 ggregory Exp $
+ * @version $Id$
  */
 public interface BinaryDecoder extends Decoder
 {

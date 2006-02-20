@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: PresenceNode.java,v 1.7 2003/10/14 04:59:23 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group
  * -- Please refer to the LICENSE.txt file in the root directory of      --

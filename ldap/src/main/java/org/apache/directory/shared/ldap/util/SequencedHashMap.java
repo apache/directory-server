@@ -38,7 +38,7 @@ import java.util.*;
  * or use explicit synchronization controls.
  * 
  * @since Commons Collections 2.0
- * @version $Revision$ $Date: 2004/02/18 01:15:42 $
+ * @version $Revision$ $Date$
  * @author Michael A. Smith
  * @author Daniel Rall
  * @author Henning P. Schmiedehausen

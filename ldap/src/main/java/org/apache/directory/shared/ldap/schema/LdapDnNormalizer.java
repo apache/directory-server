@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.name.LdapDnParser;
  * A distinguished name normalizer that works with a schema or without.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 359114 $
+ * @version $Rev$
  */
 public class LdapDnNormalizer implements Normalizer
 {

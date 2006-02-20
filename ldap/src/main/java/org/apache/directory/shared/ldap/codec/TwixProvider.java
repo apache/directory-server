@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
  * The Twix specific BER provider for LDAP.
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
- *         $Rev: 157671 $
+ *         $Rev$
  */
 public class TwixProvider extends Provider
 {

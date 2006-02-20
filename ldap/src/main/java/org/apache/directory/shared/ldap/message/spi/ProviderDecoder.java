@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: Decoder.java,v 1.2 2003/04/22 14:54:55 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --

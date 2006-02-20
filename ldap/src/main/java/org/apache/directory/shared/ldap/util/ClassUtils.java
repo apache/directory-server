@@ -37,7 +37,7 @@ import java.util.Map;
  * @author Gary Gregory
  * @author Norm Deane
  * @since 2.0
- * @version $Id: ClassUtils.java,v 1.30 2004/06/30 18:33:58 ggregory Exp $
+ * @version $Id$
  */
 public class ClassUtils
 {

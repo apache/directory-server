@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: LdapName.java,v 1.11 2003/09/23 07:13:26 akarasulu Exp $
+ * $Id$
  * $Prologue$
  *
  * -- (c) LDAPd Group                                                    --

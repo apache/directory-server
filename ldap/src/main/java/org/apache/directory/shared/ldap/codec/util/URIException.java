@@ -1,7 +1,7 @@
 /*
  * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/URIException.java,v 1.12 2004/09/30 18:53:20 olegk Exp $
- * $Revision: 155418 $
- * $Date: 2005-02-26 08:01:52 -0500 (Sat, 26 Feb 2005) $
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  *
@@ -35,7 +35,7 @@ package org.apache.directory.shared.ldap.codec.util;
  * 
  * @author <a href="mailto:jericho at apache.org">Sung-Gu</a>
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
- * @version $Revision: 155418 $ $Date: 2002/03/14 15:14:01
+ * @version $Revision$ $Date: 2002/03/14 15:14:01
  */
 public class URIException extends Exception
 {

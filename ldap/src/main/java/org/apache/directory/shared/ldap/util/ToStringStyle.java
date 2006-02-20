@@ -48,7 +48,7 @@ import java.util.Map;
  * @author Gary Gregory
  * @author Pete Gieser
  * @since 1.0
- * @version $Id: ToStringStyle.java,v 1.32 2004/07/01 17:40:10 ggregory Exp $
+ * @version $Id$
  */
 public abstract class ToStringStyle implements Serializable
 {

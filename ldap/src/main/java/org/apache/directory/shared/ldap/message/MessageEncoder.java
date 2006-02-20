@@ -53,19 +53,6 @@ public final class MessageEncoder implements ProviderEncoder
      * Creates a MessageEncoder using default properties for enabling a BER
      * library provider.
      * 
-     * @throws MessageException
-     *             if the encoder cannot be created.
-     */
-    public MessageEncoder() throws MessageException
-    {
-        this( Provider.getEnvironment() );
-    }
-
-
-    /**
-     * Creates a MessageEncoder using default properties for enabling a BER
-     * library provider.
-     * 
      * @param env
      *            The Map of environment parameters.
      * @throws MessageException
@@ -73,7 +60,10 @@ public final class MessageEncoder implements ProviderEncoder
      */
     public MessageEncoder(final Hashtable env) throws MessageException
     {
-        this.provider = Provider.getProvider( ( Hashtable ) env.clone() );
+        // We need to get the encoder class name
+        Hashtable providerEnv = Provider.getEnvironment();
+        
+        this.provider = Provider.getProvider( Provider.getEnvironment() );
         this.encoder = provider.getEncoder();
         this.transformer = provider.getTransformer();
     }

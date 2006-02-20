@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: Provider.java,v 1.9 2003/08/06 02:59:24 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --
@@ -26,18 +26,9 @@
 package org.apache.directory.shared.ldap.message.spi;
 
 
-import org.apache.directory.shared.ldap.util.StringTools;
-
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import java.util.List;
 import java.util.Properties;
 import java.util.Hashtable;
 import java.util.Set;
@@ -308,107 +299,10 @@ public abstract class Provider
      */
     public static Properties getEnvironment()
     {
-        String cp = System.getProperty( "java.class.path" );
-        FileFilter filter = new FileFilter()
-        {
-            public boolean accept( File file )
-            {
-                return ( file.exists() && file.isDirectory() );
-            }
-        };
-
-        List paths = StringTools.getPaths( cp, filter );
-        Properties env = null;
-
-        // Loop through directories in classpath looking for berlib.properties
-        for ( int ii = 0; ii < paths.size(); ii++ )
-        {
-            File dir = new File( ( String ) paths.get( ii ) );
-            File propFile = new File( dir, BERLIB_PROPFILE );
-
-            if ( propFile.exists() )
-            {
-                env = new Properties();
-
-                try
-                {
-                    env.load( new FileInputStream( propFile ) );
-                }
-                catch ( FileNotFoundException fnfe )
-                {
-                    ProviderException pe = new ProviderException( null, "Failed to load " + propFile.getAbsolutePath() );
-                    pe.addThrowable( fnfe );
-                }
-                catch ( IOException ioe )
-                {
-                    ProviderException pe = new ProviderException( null, "Failed to load " + propFile.getAbsolutePath() );
-                    pe.addThrowable( ioe );
-                }
-
-                findMonitor( env );
-                monitor.propsFound( propFile.getAbsolutePath(), env );
-
-                break;
-            }
-        }
-
-        File javaHome = new File( System.getProperty( "java.home" ), "lib" );
-        File userHome = new File( System.getProperty( "user.home" ) );
-        File wkdirHome = new File( System.getProperty( "user.dir" ) );
-
-        // If prop file not on classpath so we try lookin for it other places
-        if ( env == null )
-        {
-            File propFile = new File( javaHome, BERLIB_PROPFILE );
-
-            if ( !propFile.exists() )
-            {
-                propFile = new File( userHome, BERLIB_PROPFILE );
-            }
-
-            if ( !propFile.exists() )
-            {
-                propFile = new File( wkdirHome, BERLIB_PROPFILE );
-            }
-
-            if ( propFile.exists() )
-            {
-                env = new Properties();
-
-                try
-                {
-                    env.load( new FileInputStream( propFile ) );
-                }
-                catch ( FileNotFoundException fnfe )
-                {
-                    ProviderException pe = new ProviderException( null, "Failed to load " + propFile.getAbsolutePath() );
-                    pe.addThrowable( fnfe );
-                }
-                catch ( IOException ioe )
-                {
-                    ProviderException pe = new ProviderException( null, "Failed to load " + propFile.getAbsolutePath() );
-                    pe.addThrowable( ioe );
-                }
-
-                findMonitor( env );
-                monitor.propsFound( propFile.getAbsolutePath(), env );
-            }
-        }
-
-        // Attempt to override or add values off of JVM command-line parameter.
-        if ( System.getProperties().containsKey( BERLIB_PROVIDER ) && ( System.getProperty( BERLIB_PROVIDER ) != null ) )
-        {
-            env = new Properties();
-            env.setProperty( BERLIB_PROVIDER, System.getProperty( BERLIB_PROVIDER ) );
-        }
-
         // Prop file not on classpath so we complain and use the default!
-        if ( env == null )
-        {
-            env = new Properties();
-            env.setProperty( BERLIB_PROVIDER, DEFAULT_PROVIDER );
-            monitor.usingDefaults( USING_DEFAULTS_MSG, env );
-        }
+        Properties env = new Properties();
+        env.setProperty( BERLIB_PROVIDER, DEFAULT_PROVIDER );
+        monitor.usingDefaults( USING_DEFAULTS_MSG, env );
 
         return env;
     }

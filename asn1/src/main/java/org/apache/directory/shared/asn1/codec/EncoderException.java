@@ -24,7 +24,7 @@ package org.apache.directory.shared.asn1.codec;
  * of the expected range.
  * 
  * @author Apache Software Foundation
- * @version $Id: EncoderException.java,v 1.12 2004/09/09 13:39:08 ggregory Exp $
+ * @version $Id$
  */
 public class EncoderException extends Exception
 {

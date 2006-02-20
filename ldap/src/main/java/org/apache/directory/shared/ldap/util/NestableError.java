@@ -25,7 +25,7 @@ import java.io.PrintWriter;
  * 
  * @author <a href="mailto:dlr@finemaltcoding.com">Daniel Rall</a>
  * @since 1.0
- * @version $Id: NestableError.java,v 1.8 2004/02/18 22:54:04 ggregory Exp $
+ * @version $Id$
  */
 public class NestableError extends Error implements Nestable
 {

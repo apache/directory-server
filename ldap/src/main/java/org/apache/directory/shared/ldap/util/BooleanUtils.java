@@ -30,7 +30,7 @@ package org.apache.directory.shared.ldap.util;
  * @author Matthew Hawthorne
  * @author Gary Gregory
  * @since 2.0
- * @version $Id: BooleanUtils.java,v 1.18 2004/02/18 22:59:50 ggregory Exp $
+ * @version $Id$
  */
 public class BooleanUtils
 {

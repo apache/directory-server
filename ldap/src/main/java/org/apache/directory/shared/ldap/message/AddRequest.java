@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: AddRequest.java,v 1.7 2003/07/31 21:44:48 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --

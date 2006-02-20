@@ -46,7 +46,7 @@ import java.util.Map;
  * anyway.
  * 
  * @since Commons Collections 2.0
- * @version $Revision$ $Date: 2004/03/14 15:33:57 $
+ * @version $Revision$ $Date$
  * @author Christopher Berry
  * @author James Strachan
  * @author Stephen Colebourne

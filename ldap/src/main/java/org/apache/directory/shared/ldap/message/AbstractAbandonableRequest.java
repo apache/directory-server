@@ -26,7 +26,7 @@ import java.util.Observer;
  * type.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 359829 $
+ * @version $Rev$
  */
 public class AbstractAbandonableRequest extends AbstractRequest implements AbandonableRequest
 {
@@ -55,8 +55,15 @@ public class AbstractAbandonableRequest extends AbstractRequest implements Aband
     public void abandon()
     {
         if ( abandoned )
+        {
             return;
+        }
+        
         abandoned = true;
+        if ( o == null )
+        {
+            o = new RequestObservable();
+        }
         o.setChanged();
         o.notifyObservers();
         o.deleteObservers();
