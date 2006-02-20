@@ -19,14 +19,13 @@ package org.apache.directory.server.dns;
 
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Dictionary;
 
 import org.apache.directory.server.dns.protocol.DnsProtocolHandler;
 import org.apache.directory.server.dns.store.RecordStore;
+import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.TransportType;
-import org.apache.mina.registry.Service;
-import org.apache.mina.registry.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,18 +36,15 @@ public class DnsServer
     private static final Logger log = LoggerFactory.getLogger( DnsServer.class );
 
     private DnsConfiguration config;
-    private ServiceRegistry registry;
+    private IoAcceptor acceptor;
     private RecordStore store;
 
     private IoHandler handler;
-    private Service tcpService;
-    private Service udpService;
 
-
-    public DnsServer(DnsConfiguration config, ServiceRegistry registry, RecordStore store)
+    public DnsServer(DnsConfiguration config, IoAcceptor acceptor, RecordStore store)
     {
         this.config = config;
-        this.registry = registry;
+        this.acceptor = acceptor;
         this.store = store;
 
         String name = config.getName();
@@ -58,11 +54,7 @@ public class DnsServer
         {
             handler = new DnsProtocolHandler( config, this.store );
 
-            udpService = new Service( name, TransportType.DATAGRAM, port );
-            tcpService = new Service( name, TransportType.SOCKET, port );
-
-            registry.bind( udpService, handler );
-            registry.bind( tcpService, handler );
+            acceptor.bind( new InetSocketAddress( port ), handler );
 
             log.debug( "{} listening on port {}", name, new Integer( port ) );
         }
@@ -81,13 +73,10 @@ public class DnsServer
 
     public void destroy()
     {
-        registry.unbind( udpService );
-        registry.unbind( tcpService );
+        acceptor.unbind( new InetSocketAddress( config.getPort() ) );
 
-        registry = null;
+        acceptor= null;
         handler = null;
-        udpService = null;
-        tcpService = null;
 
         log.debug( "{} has stopped listening on port {}", config.getName(), new Integer( config.getPort() ) );
     }
