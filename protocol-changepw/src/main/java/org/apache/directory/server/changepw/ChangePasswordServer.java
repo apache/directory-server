@@ -19,14 +19,13 @@ package org.apache.directory.server.changepw;
 
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Dictionary;
 
 import org.apache.directory.server.changepw.protocol.ChangePasswordProtocolHandler;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.TransportType;
-import org.apache.mina.registry.Service;
-import org.apache.mina.registry.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,18 +43,15 @@ public class ChangePasswordServer
     private static final Logger log = LoggerFactory.getLogger( ChangePasswordServer.class );
 
     private ChangePasswordConfiguration config;
-    private ServiceRegistry registry;
+    private IoAcceptor acceptor;
     private PrincipalStore store;
 
     private IoHandler handler;
-    private Service tcpService;
-    private Service udpService;
 
-
-    public ChangePasswordServer(ChangePasswordConfiguration config, ServiceRegistry registry, PrincipalStore store)
+    public ChangePasswordServer(ChangePasswordConfiguration config, IoAcceptor acceptor, PrincipalStore store)
     {
         this.config = config;
-        this.registry = registry;
+        this.acceptor = acceptor;
         this.store = store;
 
         String name = config.getName();
@@ -65,11 +61,7 @@ public class ChangePasswordServer
         {
             handler = new ChangePasswordProtocolHandler( config, this.store );
 
-            udpService = new Service( name, TransportType.DATAGRAM, port );
-            tcpService = new Service( name, TransportType.SOCKET, port );
-
-            registry.bind( udpService, handler );
-            registry.bind( tcpService, handler );
+            acceptor.bind( new InetSocketAddress( port ), handler );
 
             log.debug( "{} listening on port {}", name, new Integer( port ) );
         }
@@ -88,13 +80,10 @@ public class ChangePasswordServer
 
     public void destroy()
     {
-        registry.unbind( udpService );
-        registry.unbind( tcpService );
+        acceptor.unbind( new InetSocketAddress( config.getPort() ) );
 
-        registry = null;
+        acceptor = null;
         handler = null;
-        udpService = null;
-        tcpService = null;
 
         log.debug( "{} has stopped listening on port {}", config.getName(), new Integer( config.getPort() ) );
     }
