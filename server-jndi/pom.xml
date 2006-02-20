@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC1</version>
+    <version>1.0-RC1-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-server-jndi</artifactId>
   <name>ApacheDS Server JNDI</name>

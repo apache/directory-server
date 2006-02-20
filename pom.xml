@@ -7,7 +7,7 @@
     <version>1.0</version>
   </parent>
   <groupId>org.apache.directory.server</groupId>
-  <version>1.0-RC1</version>
+  <version>1.0-RC1-SNAPSHOT</version>
   <artifactId>build</artifactId>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
