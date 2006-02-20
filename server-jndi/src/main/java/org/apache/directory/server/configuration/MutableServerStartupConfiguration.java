@@ -24,9 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.mina.registry.ServiceRegistry;
-
-
 /**
  * A mutable version of {@link ServerStartupConfiguration}.
  *
@@ -119,12 +116,6 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     public void setLdapsPort( int ldapsPort )
     {
         super.setLdapsPort( ldapsPort );
-    }
-
-
-    public void setMinaServiceRegistry( ServiceRegistry minaServiceRegistry )
-    {
-        super.setMinaServiceRegistry( minaServiceRegistry );
     }
 
 

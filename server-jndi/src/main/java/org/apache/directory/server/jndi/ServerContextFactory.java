@@ -57,11 +57,10 @@ import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoFilterChainBuilder;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.common.TransportType;
 import org.apache.mina.common.WriteFuture;
-import org.apache.mina.registry.Service;
-import org.apache.mina.registry.ServiceRegistry;
+import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
+import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,12 +78,17 @@ public class ServerContextFactory extends CoreContextFactory
     private static final Logger log = LoggerFactory.getLogger( ServerContextFactory.class.getName() );
     private static final String LDIF_FILES_DN = "ou=loadedLdifFiles,ou=configuration,ou=system";
 
-    private static Service ldapService;
-    private static Service ldapsService;
-    private static KerberosServer kdcServer;
-    private static ChangePasswordServer changePasswordServer;
-    private static NtpServer ntpServer;
-    private static ServiceRegistry minaRegistry;
+    protected static final IoAcceptor tcpAcceptor = new SocketAcceptor();
+    protected static final IoAcceptor udpAcceptor = new DatagramAcceptor();
+
+    private static boolean ldapStarted;
+    private static boolean ldapsStarted;
+    private static KerberosServer tcpKdcServer;
+    private static KerberosServer udpKdcServer;
+    private static ChangePasswordServer tcpChangePasswordServer;
+    private static ChangePasswordServer udpChangePasswordServer;
+    private static NtpServer tcpNtpServer;
+    private static NtpServer udpNtpServer;
     private DirectoryService directoryService;
 
 
@@ -94,57 +98,80 @@ public class ServerContextFactory extends CoreContextFactory
     }
 
 
-    protected ServiceRegistry getMinaRegistry()
-    {
-        return minaRegistry;
-    }
-
-
     public void afterShutdown( DirectoryService service )
     {
-        if ( minaRegistry != null )
+        ServerStartupConfiguration cfg = ( ServerStartupConfiguration ) service.getConfiguration();
+        
+        if ( ldapStarted )
         {
-            if ( ldapService != null )
-            {
-                stopLDAP0( ldapService );
-                ldapService = null;
-            }
+            stopLDAP0( cfg.getLdapPort() );
+            ldapStarted = false;
+        }
 
-            if ( ldapsService != null )
-            {
-                stopLDAP0( ldapsService );
-                ldapsService = null;
-            }
+        if ( ldapsStarted )
+        {
+            stopLDAP0( cfg.getLdapsPort() );
+            ldapsStarted = false;
+        }
 
-            if ( kdcServer != null )
+        if ( tcpKdcServer != null )
+        {
+            tcpKdcServer.destroy();
+            if ( log.isInfoEnabled() )
             {
-                kdcServer.destroy();
-                if ( log.isInfoEnabled() )
-                {
-                    log.info( "Unbind of KRB5 Service complete: " + kdcServer );
-                }
-                kdcServer = null;
+                log.info( "Unbind of KRB5 Service (TCP) complete: " + tcpKdcServer );
             }
+            tcpKdcServer = null;
+        }
 
-            if ( changePasswordServer != null )
+        if ( udpKdcServer != null )
+        {
+            udpKdcServer.destroy();
+            if ( log.isInfoEnabled() )
             {
-                changePasswordServer.destroy();
-                if ( log.isInfoEnabled() )
-                {
-                    log.info( "Unbind of Change Password Service complete: " + changePasswordServer );
-                }
-                changePasswordServer = null;
+                log.info( "Unbind of KRB5 Service (UDP) complete: " + udpKdcServer );
             }
+            udpKdcServer = null;
+        }
 
-            if ( ntpServer != null )
+        if ( tcpChangePasswordServer != null )
+        {
+            tcpChangePasswordServer.destroy();
+            if ( log.isInfoEnabled() )
             {
-                ntpServer.destroy();
-                if ( log.isInfoEnabled() )
-                {
-                    log.info( "Unbind of NTP Service complete: " + ntpServer );
-                }
-                ntpServer = null;
+                log.info( "Unbind of Change Password Service (TCP) complete: " + tcpChangePasswordServer );
             }
+            tcpChangePasswordServer = null;
+        }
+
+        if ( udpChangePasswordServer != null )
+        {
+            udpChangePasswordServer.destroy();
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "Unbind of Change Password Service (UDP) complete: " + udpChangePasswordServer );
+            }
+            udpChangePasswordServer = null;
+        }
+
+        if ( tcpNtpServer != null )
+        {
+            tcpNtpServer.destroy();
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "Unbind of NTP Service (TCP) complete: " + tcpNtpServer );
+            }
+            tcpNtpServer = null;
+        }
+
+        if ( udpNtpServer != null )
+        {
+            udpNtpServer.destroy();
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "Unbind of NTP Service complete: " + udpNtpServer );
+            }
+            udpNtpServer = null;
         }
     }
 
@@ -159,7 +186,6 @@ public class ServerContextFactory extends CoreContextFactory
 
         if ( cfg.isEnableNetworking() )
         {
-            setupRegistry( cfg );
             startLDAP( cfg, env );
             startLDAPS( cfg, env );
             startKerberos( cfg, env );
@@ -169,7 +195,7 @@ public class ServerContextFactory extends CoreContextFactory
     }
 
 
-    private void ensureLdifFileBase( DirContext root ) throws NamingException
+    private void ensureLdifFileBase( DirContext root )
     {
         Attributes entry = new BasicAttributes( "ou", "loadedLdifFiles", true );
         entry.put( "objectClass", "top" );
@@ -209,7 +235,7 @@ public class ServerContextFactory extends CoreContextFactory
     }
 
 
-    private Attributes getLdifFileEntry( DirContext root, File ldif ) throws NamingException
+    private Attributes getLdifFileEntry( DirContext root, File ldif )
     {
         String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
         StringBuffer buf = new StringBuffer();
@@ -231,7 +257,7 @@ public class ServerContextFactory extends CoreContextFactory
     }
 
 
-    private String getCanonical( File file ) throws NamingException
+    private String getCanonical( File file )
     {
         String canonical = null;
         try
@@ -337,15 +363,6 @@ public class ServerContextFactory extends CoreContextFactory
 
 
     /**
-     * Starts up the MINA registry so various protocol providers can be started.
-     */
-    private void setupRegistry( ServerStartupConfiguration cfg )
-    {
-        minaRegistry = cfg.getMinaServiceRegistry();
-    }
-
-
-    /**
      * Starts up the LDAP protocol provider to service LDAP requests
      *
      * @throws NamingException if there are problems starting the LDAP provider
@@ -359,8 +376,7 @@ public class ServerContextFactory extends CoreContextFactory
             return;
         }
 
-        Service service = new Service( "LDAP", TransportType.SOCKET, new InetSocketAddress( port ) );
-        startLDAP0( cfg, env, service, new DefaultIoFilterChainBuilder() );
+        startLDAP0( cfg, env, port, new DefaultIoFilterChainBuilder() );
     }
 
 
@@ -403,12 +419,11 @@ public class ServerContextFactory extends CoreContextFactory
             throw ( NamingException ) new NamingException( "Failed to load LDAPS initializer." ).initCause( e );
         }
 
-        Service service = new Service( "LDAPS", TransportType.SOCKET, new InetSocketAddress( cfg.getLdapsPort() ) );
-        startLDAP0( cfg, env, service, chain );
+        startLDAP0( cfg, env, cfg.getLdapsPort(), chain );
     }
 
 
-    private void startLDAP0( ServerStartupConfiguration cfg, Hashtable env, Service service,
+    private void startLDAP0( ServerStartupConfiguration cfg, Hashtable env, int port,
         IoFilterChainBuilder chainBuilder ) throws LdapNamingException, LdapConfigurationException
     {
         // Register all extended operation handlers.
@@ -419,8 +434,6 @@ public class ServerContextFactory extends CoreContextFactory
             ExtendedOperationHandler h = ( ExtendedOperationHandler ) i.next();
             protocolProvider.addExtendedOperationHandler( h );
             log.info( "Added Extended Request Handler: " + h.getOid() );
-            h.setLdapService( service );
-            h.setServiceRegistry( minaRegistry );
             h.setLdapProvider( protocolProvider );
             DirectoryPartitionNexus nexus = directoryService.getConfiguration().getPartitionNexus();
             nexus.registerSupportedExtensions( h.getExtensionOids() );
@@ -429,22 +442,21 @@ public class ServerContextFactory extends CoreContextFactory
         try
         {
             // Disable the disconnection of the clients on unbind
-            IoAcceptor acceptor = minaRegistry.getAcceptor( service.getTransportType() );
-            acceptor.setDisconnectClientsOnUnbind( false );
-            ( ( SocketAcceptor ) acceptor ).setReuseAddress( true );
+            SocketAcceptorConfig acceptorCfg = new SocketAcceptorConfig();
+            acceptorCfg.setDisconnectOnUnbind( false );
+            acceptorCfg.setReuseAddress( true );
+            acceptorCfg.setFilterChainBuilder( chainBuilder );
 
-            minaRegistry.bind( service, protocolProvider.getHandler(), chainBuilder );
-            ldapService = service;
+            tcpAcceptor.bind( new InetSocketAddress( port ), protocolProvider.getHandler(), acceptorCfg );
 
             if ( log.isInfoEnabled() )
             {
-                log.info( "Successful bind of " + service.getName() + " Service completed: " + ldapService );
+                log.info( "Successful bind of an LDAP Service (" + port + ") is complete." );
             }
         }
         catch ( IOException e )
         {
-            String msg = "Failed to bind the " + service.getName() + " protocol service to the service registry: "
-                + service;
+            String msg = "Failed to bind an LDAP service (" + port + ") to the service registry.";
             LdapConfigurationException lce = new LdapConfigurationException( msg );
             lce.setRootCause( e );
             log.error( msg, e );
@@ -461,7 +473,8 @@ public class ServerContextFactory extends CoreContextFactory
             {
                 KdcConfiguration kdcConfiguration = new KdcConfiguration( env, LoadStrategy.PROPS );
                 PrincipalStore kdcStore = new JndiPrincipalStoreImpl( kdcConfiguration, this );
-                kdcServer = new KerberosServer( kdcConfiguration, minaRegistry, kdcStore );
+                tcpKdcServer = new KerberosServer( kdcConfiguration, tcpAcceptor, kdcStore );
+                udpKdcServer = new KerberosServer( kdcConfiguration, udpAcceptor, kdcStore );
             }
             catch ( Throwable t )
             {
@@ -480,7 +493,8 @@ public class ServerContextFactory extends CoreContextFactory
                 ChangePasswordConfiguration changePasswordConfiguration = new ChangePasswordConfiguration( env,
                     LoadStrategy.PROPS );
                 PrincipalStore store = new JndiPrincipalStoreImpl( changePasswordConfiguration, this );
-                changePasswordServer = new ChangePasswordServer( changePasswordConfiguration, minaRegistry, store );
+                tcpChangePasswordServer = new ChangePasswordServer( changePasswordConfiguration, tcpAcceptor, store );
+                udpChangePasswordServer = new ChangePasswordServer( changePasswordConfiguration, udpAcceptor, store );
             }
             catch ( Throwable t )
             {
@@ -497,7 +511,8 @@ public class ServerContextFactory extends CoreContextFactory
             try
             {
                 NtpConfiguration ntpConfig = new NtpConfiguration( env, LoadStrategy.PROPS );
-                ntpServer = new NtpServer( ntpConfig, minaRegistry );
+                tcpNtpServer = new NtpServer( ntpConfig, tcpAcceptor );
+                udpNtpServer = new NtpServer( ntpConfig, udpAcceptor );
             }
             catch ( Throwable t )
             {
@@ -507,64 +522,58 @@ public class ServerContextFactory extends CoreContextFactory
     }
 
 
-    private void stopLDAP0( Service service )
+    private void stopLDAP0( int port )
     {
-        if ( ldapService != null )
+        try
         {
+            // we should unbind the service before we begin sending the notice 
+            // of disconnect so new connections are not formed while we process
+            List writeFutures = new ArrayList();
 
+            // If the socket has already been unbound as with a successful 
+            // GracefulShutdownRequest then this will complain that the service
+            // is not bound - this is ok because the GracefulShutdown has already
+            // sent notices to to the existing active sessions
+            List sessions = null;
             try
             {
-                // we should unbind the service before we begin sending the notice 
-                // of disconnect so new connections are not formed while we process
-                List writeFutures = new ArrayList();
-                IoAcceptor acceptor = minaRegistry.getAcceptor( service.getTransportType() );
+                sessions = new ArrayList( tcpAcceptor.getManagedSessions( new InetSocketAddress( port ) ) );
+            }
+            catch ( IllegalArgumentException e )
+            {
+                log.warn( "Seems like the LDAP service (" + port + ") has already been unbound." );
+                return;
+            }
 
-                // If the socket has already been unbound as with a successful 
-                // GracefulShutdownRequest then this will complain that the service
-                // is not bound - this is ok because the GracefulShutdown has already
-                // sent notices to to the existing active sessions
-                List sessions = null;
-                try
-                {
-                    sessions = new ArrayList( acceptor.getManagedSessions( service.getAddress() ) );
-                }
-                catch ( IllegalArgumentException e )
-                {
-                    log.warn( "Seems like the LDAP service " + service + " has already been unbound." );
-                    return;
-                }
+            tcpAcceptor.unbind( new InetSocketAddress( port ) );
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "Unbind of an LDAP service (" + port + ") is complete." );
+                log.info( "Sending notice of disconnect to existing clients sessions." );
+            }
 
-                minaRegistry.unbind( service );
-                if ( log.isInfoEnabled() )
+            // Send Notification of Disconnection messages to all connected clients.
+            if ( sessions != null )
+            {
+                for ( Iterator i = sessions.iterator(); i.hasNext(); )
                 {
-                    log.info( "Unbind of " + service.getName() + " Service complete: " + ldapService );
-                    log.info( "Sending notice of disconnect to existing clients sessions." );
-                }
-
-                // Send Notification of Disconnection messages to all connected clients.
-                if ( sessions != null )
-                {
-                    for ( Iterator i = sessions.iterator(); i.hasNext(); )
-                    {
-                        IoSession session = ( IoSession ) i.next();
-                        writeFutures.add( session.write( NoticeOfDisconnect.UNAVAILABLE ) );
-                    }
-                }
-
-                // And close the connections when the NoDs are sent.
-                Iterator sessionIt = sessions.iterator();
-                for ( Iterator i = writeFutures.iterator(); i.hasNext(); )
-                {
-                    WriteFuture future = ( WriteFuture ) i.next();
-                    future.join( 1000 );
-                    ( ( IoSession ) sessionIt.next() ).close();
+                    IoSession session = ( IoSession ) i.next();
+                    writeFutures.add( session.write( NoticeOfDisconnect.UNAVAILABLE ) );
                 }
             }
-            catch ( Exception e )
+
+            // And close the connections when the NoDs are sent.
+            Iterator sessionIt = sessions.iterator();
+            for ( Iterator i = writeFutures.iterator(); i.hasNext(); )
             {
-                log.warn( "Failed to sent NoD.", e );
+                WriteFuture future = ( WriteFuture ) i.next();
+                future.join( 1000 );
+                ( ( IoSession ) sessionIt.next() ).close();
             }
         }
-
+        catch ( Exception e )
+        {
+            log.warn( "Failed to sent NoD.", e );
+        }
     }
 }

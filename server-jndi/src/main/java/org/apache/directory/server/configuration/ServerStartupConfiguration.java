@@ -30,8 +30,6 @@ import org.apache.directory.server.core.configuration.ConfigurationUtil;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
-import org.apache.mina.registry.ServiceRegistry;
-import org.apache.mina.registry.SimpleServiceRegistry;
 
 
 /**
@@ -45,7 +43,6 @@ public class ServerStartupConfiguration extends StartupConfiguration
     private static final long serialVersionUID = -7138616822614155454L;
 
     private boolean enableNetworking = true;
-    private ServiceRegistry minaServiceRegistry = new SimpleServiceRegistry();
     private int ldapPort = 389;
     private int ldapsPort = 636;
     private File ldapsCertificateFile = new File( this.getWorkingDirectory().getPath() + File.separator
@@ -196,7 +193,6 @@ public class ServerStartupConfiguration extends StartupConfiguration
     /**
      * Returns the path of the X509 (or JKS) certificate file for LDAPS.
      * The default value is <tt>"&lt;WORKDIR&gt;/certificates/server.cert"</tt>. 
-     * @return
      */
     public File getLdapsCertificateFile()
     {
@@ -241,30 +237,6 @@ public class ServerStartupConfiguration extends StartupConfiguration
             throw new ConfigurationException( "LdapsCertificatePassword cannot be null." );
         }
         this.ldapsCertificatePassword = ldapsCertificatePassword;
-    }
-
-
-    /**
-     * Returns <a href="http://directory.apache.org/subprojects/network/">MINA</a>
-     * {@link ServiceRegistry} that will be used by ApacheDS.
-     */
-    public ServiceRegistry getMinaServiceRegistry()
-    {
-        return minaServiceRegistry;
-    }
-
-
-    /**
-     * Sets <a href="http://directory.apache.org/subprojects/network/">MINA</a>
-     * {@link ServiceRegistry} that will be used by ApacheDS.
-     */
-    protected void setMinaServiceRegistry( ServiceRegistry minaServiceRegistry )
-    {
-        if ( minaServiceRegistry == null )
-        {
-            throw new ConfigurationException( "MinaServiceRegistry cannot be null" );
-        }
-        this.minaServiceRegistry = minaServiceRegistry;
     }
 
 
