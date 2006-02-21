@@ -204,7 +204,7 @@ public class DirectoryPartitionConfiguration
         }
         catch ( NamingException e )
         {
-            throw new LdapConfigurationException( "Failed to normalize the suffix: " + suffix, e );
+            throw new LdapConfigurationException( "Failed to parse the suffix: " + suffix, e );
         }
         this.suffix = suffix;
     }
