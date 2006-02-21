@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.filter.BranchNormalizedVisitor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 
@@ -446,5 +447,118 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
         String reqFilterString = buf.toString();
 
         return myFilterString.equals( reqFilterString );
+    }
+
+    /**
+     * Return a string the represent a SearchRequest
+     */
+    public String toString()
+    {
+        StringBuffer    sb = new StringBuffer();
+
+        sb.append( "    SearchRequest\n" );
+        sb.append( "        baseDn : '" ).append( baseDn ).append( "'\n" );
+        
+        if ( filter != null )
+        {
+            sb.append( "        filter : '" );
+            filter.printToBuffer( sb );
+            sb.append( "'\n" );
+        }
+        
+        sb.append( "        scope : " );
+        
+        switch ( scope.getValue() )
+        {
+            case LdapConstants.SCOPE_BASE_OBJECT:
+                sb.append( "base object" );
+                break;
+
+            case LdapConstants.SCOPE_SINGLE_LEVEL:
+                sb.append( "single level" );
+                break;
+
+            case LdapConstants.SCOPE_WHOLE_SUBTREE:
+                sb.append( "whole subtree" );
+                break;
+        }
+        
+        sb.append( '\n' );
+        
+        sb.append( "        typesOnly : " ).append( typesOnly ).append( '\n' );
+
+        if ( sizeLimit == 0 )
+        {
+            sb.append( "no limit" );
+        }
+        else
+        {
+            sb.append( sizeLimit );
+        }
+
+        sb.append( '\n' );
+
+        sb.append( "        Time Limit : " );
+
+        if ( timeLimit == 0 )
+        {
+            sb.append( "no limit" );
+        }
+        else
+        {
+            sb.append( timeLimit );
+        }
+
+        sb.append( '\n' );
+
+        sb.append( "        Deref Aliases : " );
+
+        switch ( derefAliases.getValue() )
+        {
+            case LdapConstants.NEVER_DEREF_ALIASES:
+                sb.append( "never Deref Aliases" );
+                break;
+
+            case LdapConstants.DEREF_IN_SEARCHING:
+                sb.append( "deref In Searching" );
+                break;
+
+            case LdapConstants.DEREF_FINDING_BASE_OBJ:
+                sb.append( "deref Finding Base Obj" );
+                break;
+
+            case LdapConstants.DEREF_ALWAYS:
+                sb.append( "deref Always" );
+                break;
+        }
+
+        sb.append( '\n' );
+        sb.append( "        attributes : " );
+
+        boolean         isFirst = true;
+
+        if ( attributes != null )
+        {
+            Iterator it = attributes.iterator();
+            
+            while ( it.hasNext() )
+            {
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    sb.append( ", " );
+                }
+                
+                sb.append( '\'' ).append( (String)it.next() ).append( '\'' );
+            }
+            
+        }
+
+        sb.append( '\n' );
+
+        return sb.toString();
     }
 }
