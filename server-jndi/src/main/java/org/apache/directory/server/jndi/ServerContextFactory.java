@@ -100,7 +100,8 @@ public class ServerContextFactory extends CoreContextFactory
 
     public void afterShutdown( DirectoryService service )
     {
-        ServerStartupConfiguration cfg = ( ServerStartupConfiguration ) service.getConfiguration();
+        ServerStartupConfiguration cfg = ( ServerStartupConfiguration ) 
+            service.getConfiguration().getStartupConfiguration();
         
         if ( ldapStarted )
         {
