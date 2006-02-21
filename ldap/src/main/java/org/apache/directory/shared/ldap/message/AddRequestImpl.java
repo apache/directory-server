@@ -219,7 +219,7 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
         }
         else
         {
-            AttributeUtils.toString( "            ", attributes );
+            sb.append( AttributeUtils.toString( "            ", attributes ) );
         }
 
         return sb.toString();
