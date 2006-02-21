@@ -49,11 +49,21 @@ public class LdapConfigurationException extends ConfigurationException implement
 
 
     /**
-     * @see javax.naming.NoPermissionException#NoPermissionException(String)
+     * @see javax.naming.NoPermissionException#NoPermissionException( String )
      */
-    public LdapConfigurationException(String explanation)
+    public LdapConfigurationException( String explanation )
     {
         super( explanation );
+    }
+
+
+    /**
+     * @see javax.naming.NoPermissionException#NoPermissionException( String )
+     */
+    public LdapConfigurationException( String explanation, Throwable t )
+    {
+        super( explanation );
+        super.setRootCause( t );
     }
 
 
