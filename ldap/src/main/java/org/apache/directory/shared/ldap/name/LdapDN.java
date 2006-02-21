@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
-import org.apache.directory.shared.ldap.util.DNUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

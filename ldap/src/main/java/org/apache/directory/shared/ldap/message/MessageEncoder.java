@@ -60,9 +60,6 @@ public final class MessageEncoder implements ProviderEncoder
      */
     public MessageEncoder(final Hashtable env) throws MessageException
     {
-        // We need to get the encoder class name
-        Hashtable providerEnv = Provider.getEnvironment();
-        
         this.provider = Provider.getProvider( Provider.getEnvironment() );
         this.encoder = provider.getEncoder();
         this.transformer = provider.getTransformer();
