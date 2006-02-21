@@ -297,7 +297,7 @@ public class DirectoryService extends ServiceMBeanSupport implements DirectorySe
     }
 
 
-    private Set addCustomPartition()
+    private Set addCustomPartition() throws NamingException
     {
         BasicAttributes attrs;
         Set indexedAttrs;

@@ -140,7 +140,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
     }
 
 
-    protected Hashtable setUpPartition()
+    protected Hashtable setUpPartition() throws NamingException
     {
         config = new MutableStartupConfiguration();
 
@@ -164,7 +164,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
     }
 
 
-    private DirectoryPartitionConfiguration getExamplePartition()
+    private DirectoryPartitionConfiguration getExamplePartition() throws NamingException
     {
         MutableDirectoryPartitionConfiguration partConfig = new MutableDirectoryPartitionConfiguration();
         partConfig.setName( "example" );
@@ -191,7 +191,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
     }
 
 
-    private DirectoryPartitionConfiguration getApachePartition()
+    private DirectoryPartitionConfiguration getApachePartition() throws NamingException
     {
         MutableDirectoryPartitionConfiguration partConfig = new MutableDirectoryPartitionConfiguration();
         partConfig.setName( "apache" );

@@ -32,6 +32,7 @@ import org.apache.directory.server.core.partition.DirectoryPartition;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmDirectoryPartition;
 import org.apache.directory.server.core.schema.MatchingRuleRegistry;
+import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.name.LdapName;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
@@ -194,7 +195,7 @@ public class DirectoryPartitionConfiguration
     /**
      * Sets the suffix of the {@link DirectoryPartition}.
      */
-    protected void setSuffix( String suffix )
+    protected void setSuffix( String suffix ) throws NamingException
     {
         suffix = suffix.trim();
         try
@@ -203,7 +204,7 @@ public class DirectoryPartitionConfiguration
         }
         catch ( NamingException e )
         {
-            throw new ConfigurationException( "Failed to normalize the suffix: " + suffix );
+            throw new LdapConfigurationException( "Failed to normalize the suffix: " + suffix, e );
         }
         this.suffix = suffix;
     }

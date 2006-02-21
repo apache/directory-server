@@ -30,9 +30,9 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
-import org.apache.directory.server.core.configuration.ConfigurationException;
 import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 
 
 /**
@@ -277,6 +277,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         assertTrue( attribute.contains( "domain" ) );
     }
 
+    
     public void testBadPartition() throws Exception
     {
         MutableDirectoryPartitionConfiguration pcfg;
@@ -289,7 +290,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         {
             pcfg.setSuffix( "ou=test=testing" );
         }
-        catch ( ConfigurationException ce )
+        catch ( LdapConfigurationException ce )
         {
             assertTrue( true );
             return;

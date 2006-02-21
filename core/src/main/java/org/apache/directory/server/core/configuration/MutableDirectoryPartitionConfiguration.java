@@ -21,6 +21,7 @@ package org.apache.directory.server.core.configuration;
 
 import java.util.Set;
 
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.partition.DirectoryPartition;
@@ -66,7 +67,7 @@ public class MutableDirectoryPartitionConfiguration extends DirectoryPartitionCo
     }
 
 
-    public void setSuffix( String suffix )
+    public void setSuffix( String suffix ) throws NamingException
     {
         super.setSuffix( suffix );
     }
