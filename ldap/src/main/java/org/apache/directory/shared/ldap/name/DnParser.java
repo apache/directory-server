@@ -213,18 +213,41 @@ public class DnParser implements NameParser
         {
             String msg = "Parser failure on name:\n\t" + name;
             msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( e );
-
+            try
+            {
+                init();
+            }
+            catch ( IOException e1 )
+            {
+                log.error( "cannot reinitialize the parser", e1 );
+            }
             throw new LdapInvalidNameException( msg, ResultCodeEnum.INVALIDDNSYNTAX );
         }
         catch ( TokenStreamException e2 )
         {
             String msg = "Parser failure on name:\n\t" + name;
             msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( e2 );
+            try
+            {
+                init();
+            }
+            catch ( IOException e1 )
+            {
+                log.error( "cannot reinitialize the parser", e1 );
+            }
             throw new LdapInvalidNameException( msg, ResultCodeEnum.INVALIDDNSYNTAX );
         }
         catch ( NestableRuntimeException e )
         {
             Throwable throwable = e.getCause();
+            try
+            {
+                init();
+            }
+            catch ( IOException e1 )
+            {
+                log.error( "cannot reinitialize the parser", e1 );
+            }
             if ( throwable instanceof NamingException )
             {
                 NamingException ne = ( NamingException ) throwable;
