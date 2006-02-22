@@ -14,12 +14,6 @@
      database subsystems.  The core is the heart of the server without protocols
      enabled.
   </description>
-  <!-- <distributionManagement>
-    <site>
-      <id>apache.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/apacheds-core/</url>
-    </site>
-  </distributionManagement> -->
   <dependencies>
     <dependency>
       <groupId>commons-io</groupId>

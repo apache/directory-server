@@ -14,7 +14,7 @@
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
-  <url>http://directory.apache.org/newsite/projects/apacheds/</url>
+  <url>http://directory.apache.org/subprojects/apacheds/</url>
 
   <pluginRepositories>
     <pluginRepository>
@@ -27,7 +27,7 @@
   <distributionManagement>
     <site>
       <id>apache.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/projects/apacheds/</url>
+      <url>scp://minotaur.apache.org/www/directory.apache.org/subprojects/apacheds/</url>
     </site>
   </distributionManagement>
 
@@ -121,6 +121,7 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
@@ -158,7 +159,7 @@ Use JDK 1.5 to make sure these modules build.
     </developer>
     <developer>
       <id>akarasulu</id>
-      <url>http://directory.apache.org/newsite/community/who/akarasulu.html</url>
+      <url>http://directory.apache.org/community/who/akarasulu.html</url>
     </developer>
     <developer>
       <id>bayard</id>
@@ -171,15 +172,15 @@ Use JDK 1.5 to make sure these modules build.
     </developer>
     <developer>
       <id>elecharny</id>
-      <url>http://directory.apache.org/newsite/community/who/elecharny.html</url>
+      <url>http://directory.apache.org/community/who/elecharny.html</url>
     </developer>
     <developer>
       <id>erodriguez</id>
-      <url>http://directory.apache.org/newsite/community/who/erodriguez.html</url>
+      <url>http://directory.apache.org/community/who/erodriguez.html</url>
     </developer>
     <developer>
       <id>ersiner</id>
-      <url>http://directory.apache.org/newsite/community/who/ersiner.html</url>
+      <url>http://directory.apache.org/community/who/ersiner.html</url>
     </developer>
     <developer>
       <id>jmachols</id>
@@ -198,11 +199,11 @@ Use JDK 1.5 to make sure these modules build.
     </developer>
     <developer>
       <id>szoerner</id>
-      <url>http://directory.apache.org/newsite/community/who/szoerner.html</url>
+      <url>http://directory.apache.org/community/who/szoerner.html</url>
     </developer>
     <developer>
       <id>trustin</id>
-      <url>http://directory.apache.org/newsite/community/who/trustin.html</url>
+      <url>http://directory.apache.org/community/who/trustin.html</url>
     </developer>
     <developer>
       <id>vtence</id>
