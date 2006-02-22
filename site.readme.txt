@@ -1,6 +1,6 @@
 ##############  W O R K  I N  P R O G R E S S  ############## 
 
-To generate the whole site for this project change to the
+To generate the site for ApacheDS Project change to the
 master project's root directory and execute
 
 	mvn site --non-recursive
@@ -8,21 +8,6 @@ master project's root directory and execute
 The site will be generated at
 
 	target/site
-
-API documentation does not get generated automatically during
-maven's site phase. To achieve it you need to execute
-
-	./resources/sh-scripts/apidocs.sh
-
-API documentation will be generated at
-
-	target/site/docs/api
-
-If you want to customize api documentation generation have a
-look at the script (especially for setting packages to be
-excluded) by executing
-
-	vi ./resources/sh-scripts/apidocs.sh
 
 For deploying the site to the remote server you need to
 configure the Apache Web Server access parameters
