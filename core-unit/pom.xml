@@ -38,7 +38,7 @@
   </dependencies>
   <profiles>
     <profile>
-    <id>no-regression-tests</id>
+    <id>no-integration-tests</id>
     <activation>
       <activeByDefault>true</activeByDefault>
     </activation>
@@ -49,11 +49,11 @@
           <configuration>
             <excludes>
               <!-- TODO
-                Need to rename all regression tests to have Regression
+                Need to rename all integration tests to have Integration
                 in the name of the test so we can change the exclude below
                 to only refer to these tests rather than all tests like so:
                 
-                <exclude>**/*Regression*Test*</exclude>
+                <exclude>**/*Integration*Test*</exclude>
                 -->
               <exclude>**/*Test.java</exclude>
             </excludes>
@@ -71,8 +71,8 @@
                           W A R N I N G
                           -------------
                   
-Regression tests have been disabled.  To enable regression tests
-run maven with the -Dregressions switch or -P regressions switch.
+Integration tests have been disabled.  To enable integration
+tests run maven with the -Dinstegration.
 =================================================================
                     </echo>
                   </tasks>
@@ -87,9 +87,9 @@ run maven with the -Dregressions switch or -P regressions switch.
       </build>
     </profile>
     <profile>
-      <id>regressions</id>
+      <id>integration</id>
       <activation>
-        <property><name>regressions</name></property>
+        <property><name>integration</name></property>
       </activation>
     </profile>
   </profiles>
