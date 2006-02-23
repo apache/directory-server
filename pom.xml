@@ -10,7 +10,7 @@
   <artifactId>build</artifactId>
   <name>Apache Directory Shared</name>
   <packaging>pom</packaging>  
-  <version>0.9.5-SNAPSHOT</version>
+  <version>0.9.5</version>
   <modules>
     <module>asn1</module>
     <module>ldap</module>

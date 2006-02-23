@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.shared</groupId>
     <artifactId>build</artifactId>
-    <version>0.9.5-SNAPSHOT</version>
+    <version>0.9.5</version>
   </parent>
   <artifactId>shared-asn1</artifactId>
   <name>Apache Directory ASN.1 Shared</name>
