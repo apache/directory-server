@@ -146,7 +146,6 @@
                   <filtered>true</filtered>
                 </packagedFile>
               </packagedFiles>
-              <!--  doSudo>true</doSudo -->
               <id>linux-jsvc-rpm</id>
               <rpmSpecificationFile>rpm-apacheds.spec</rpmSpecificationFile>
               <finalName>
@@ -161,7 +160,7 @@
           <innoTargets>
             <innoTarget>
               <id>windows-xp-procrun</id>
-              <innoConfigurationFile>inno-apacheds.iss</innoConfigurationFile>
+              <innoConfigurationFile>src/main/installers/inno-apacheds.iss</innoConfigurationFile>
               <finalName>
                 apacheds-${pom.version}-win32-setup
               </finalName>
