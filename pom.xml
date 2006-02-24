@@ -10,7 +10,7 @@
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>build</artifactId>
-  <version>1.0-RC1</version>
+  <version>1.0-RC2-SNAPSHOT</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 

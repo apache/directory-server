@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC1</version>
+    <version>1.0-RC2-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-server-installers</artifactId>
   <name>ApacheDS Server Installers</name>
@@ -128,7 +128,7 @@
             </packagedFile>
           </packagedFiles>
           <svnBaseUrl>
-            http://svn.apache.org/repos/asf/directory/releases/apacheds/1.0-RC1
+            http://svn.apache.org/repos/asf/directory/branches/apacheds/1.0
           </svnBaseUrl>
           <packageSources>true</packageSources>
           <packageDocs>true</packageDocs>
