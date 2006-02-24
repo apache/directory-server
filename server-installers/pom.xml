@@ -147,7 +147,7 @@
                 </packagedFile>
               </packagedFiles>
               <id>linux-jsvc-rpm</id>
-              <rpmSpecificationFile>rpm-apacheds.spec</rpmSpecificationFile>
+              <rpmSpecificationFile>src/main/installers/rpm-apacheds.spec</rpmSpecificationFile>
               <finalName>
                 apacheds-${pom.version}-linux-i386.rpm
               </finalName>
