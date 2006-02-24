@@ -183,7 +183,7 @@
                 </packagedFile>
               </packagedFiles>
               <id>linux-jsvc</id>
-              <izPackInstallFile>izpack-unix.xml</izPackInstallFile>
+              <izPackInstallFile>src/main/installers/izpack-unix.xml</izPackInstallFile>
               <finalName>
                 apacheds-${pom.version}-linux-i386-setup.jar
               </finalName>
@@ -206,7 +206,7 @@
                 apacheds-${pom.version}-solaris-sparc-setup.jar
               </finalName>
               <id>solaris-jsvc-sparc</id>
-              <izPackInstallFile>izpack-unix.xml</izPackInstallFile>
+              <izPackInstallFile>src/main/installers/izpack-unix.xml</izPackInstallFile>
               <osName>sunos</osName>
               <osFamily>unix</osFamily>
               <osArch>sparc</osArch>
@@ -223,7 +223,7 @@
                 </packagedFile>
               </packagedFiles>
               <id>solaris-jsvc-i386</id>
-              <izPackInstallFile>izpack-unix.xml</izPackInstallFile>
+              <izPackInstallFile>src/main/installers/izpack-unix.xml</izPackInstallFile>
               <finalName>
                 apacheds-${pom.version}-solaris-i386-setup.jar
               </finalName>
@@ -243,7 +243,7 @@
                 </packagedFile>
               </packagedFiles>
               <id>macosx-jsvc</id>
-              <izPackInstallFile>izpack-mac.xml</izPackInstallFile>
+              <izPackInstallFile>src/main/installers/izpack-mac.xml</izPackInstallFile>
               <finalName>
                 apacheds-${pom.version}-macosx-ppc-setup.jar
               </finalName>

@@ -18,6 +18,8 @@ package org.apache.directory.server.tools;
 
 
 import java.util.Hashtable;
+
+import javax.naming.CommunicationException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -101,8 +103,21 @@ public class GracefulShutdownCommand extends ToolCommand
         }
         catch ( Throwable t )
         {
-            isSuccess = false;
-            System.err.print( "failed with error: " + t.getMessage() );
+            /*
+             * Sometimes because of timing issues we show a failure when the 
+             * shutdown has succeeded so we should check if the server is up
+             * before we set success to false.
+             */
+            try
+            {
+                new InitialLdapContext( env, null );
+                isSuccess = false;
+                System.err.print( "shutdown request failed with error: " + t.getMessage() );
+            }
+            catch( CommunicationException e )
+            {
+                isSuccess = true;
+            }
         }
         isWaiting = false;
         ctx.close();
