@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.shared</groupId>
     <artifactId>build</artifactId>
-    <version>0.9.5</version>
+    <version>0.9.6-SNAPSHOT</version>
   </parent>
   <artifactId>shared-ldap</artifactId>
   <name>Apache Directory Protocol Ldap Shared</name>
