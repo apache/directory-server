@@ -2,7 +2,7 @@
 
 OUTPUTDIR='target/site/docs/api'
 
-SOURCEPATH=$(find . -name src | awk '{ print $1"/main/java" }' | tr '\n' ':')
+SOURCEPATH=$(find . -maxdepth 4 -name src | awk '{ print $1"/main/java" }' | tr '\n' ':')
 
 PACKAGES='org.apache.directory.server'
 
