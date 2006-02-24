@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.directory</groupId>
+  <version>1.0.1</version>
+  <artifactId>build</artifactId>
+  <name>Apache Directory Build</name>
+  <inceptionYear>2004</inceptionYear>
+  <packaging>pom</packaging>
+  <modules>
+    <module>mina</module>
+    <module>apacheds</module>
+    <module>shared</module>
+    <module>daemon</module>
+  </modules>
+  <dependencies>
+   <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <repositories>
+    <!-- Mirrors for release jars: will add 3 just in case -->
+    <repository>
+      <id>playboy.mirror</id>
+      <name>Apache Repository @ Playboy</name>
+      <url>http://mirrors.playboy.com/apache/maven-repository/</url>
+    </repository>
+    <repository>
+      <id>seekmeup.mirror</id>
+      <name>Apache Repository @ Seekmeup</name>
+      <url>http://apache.seekmeup.com/apache/maven-repository/</url>
+    </repository>
+    <repository>
+      <id>mirrormax.mirror</id>
+      <name>Apache Repository @ MirrorMax</name>
+      <url>http://apache.mirrormax.net/apache/maven-repository/</url>
+    </repository>
+    
+    <!-- For snapshots (no release jars or non-apache jars)           -->
+    <repository>
+      <id>apache.snapshots</id>
+      <name>Apache Snapshot Repository</name>
+      <url>http://cvs.apache.org/maven-snapshot-repository</url>
+    </repository>
+    
+    <!-- Temp repo for 3rd party jars that are not in ibiblio.org yet.-->
+    <!-- Artifacts in repo should be requested for ibiblio upload &   -->
+    <!-- removed from this repository - this repo will disappear.     -->
+    <repository>
+      <id>safehaus</id>
+      <name>Alternate Repository for Missing Ibiblio Artifacts</name>
+      <url>http://m2.safehaus.org</url>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>snapshots</id>
+      <name>snapshot plugins</name>
+      <url>http://snapshots.maven.codehaus.org/maven2</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>apache.snapshots</id>
+      <url>
+        scpexe://cvs.apache.org/www/cvs.apache.org/maven-snapshot-repository
+      </url>
+    </snapshotRepository>
+    <repository>
+      <name>ASF Mirrored M2 Distributions</name>
+      <id>apache.snapshots</id>
+      <url>
+        scpexe://minotaur.apache.org/www/www.apache.org/dist/maven-repository
+      </url>
+    </repository>
+
+  </distributionManagement>
+
+  <licenses>
+    <license>
+      <name>Apache Software License 2.0</name>
+      <url>http://directory.apache.org/license.html</url>
+    </license>
+  </licenses>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.4</source>
+          <target>1.4</target>
+        </configuration>
+      </plugin>
+    </plugins>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+         <artifactId>wagon-ssh-external</artifactId>
+         <version>1.0-alpha-5</version>
+      </extension>
+    </extensions>
+  </build>
+</project>
