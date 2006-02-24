@@ -55,9 +55,11 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoAcceptor;
+import org.apache.mina.common.IoFilter;
 import org.apache.mina.common.IoFilterChainBuilder;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.WriteFuture;
+import org.apache.mina.filter.ThreadPoolFilter;
 import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
@@ -80,6 +82,13 @@ public class ServerContextFactory extends CoreContextFactory
 
     protected static final IoAcceptor tcpAcceptor = new SocketAcceptor();
     protected static final IoAcceptor udpAcceptor = new DatagramAcceptor();
+
+    static
+    {
+        IoFilter threadPool = new ThreadPoolFilter();
+        tcpAcceptor.getFilterChain().addFirst( "threadPool", threadPool );
+        udpAcceptor.getFilterChain().addFirst( "threadPool", threadPool );
+    }
 
     private static boolean ldapStarted;
     private static boolean ldapsStarted;
