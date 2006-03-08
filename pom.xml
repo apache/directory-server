@@ -69,6 +69,8 @@
         <jdk>1.5</jdk>
       </activation>
       <modules>
+        <module>maven-osgi-plugin</module>
+
         <module>core</module>
         <module>core-shared</module>
         <module>core-plugin</module>
@@ -100,6 +102,8 @@
         <jdk>1.4</jdk>
       </activation>
       <modules>
+        <module>maven-osgi-plugin</module>
+
         <module>core</module>
         <module>core-shared</module>
         <module>core-plugin</module>
