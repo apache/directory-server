@@ -197,19 +197,43 @@ objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.7
     STRUCTURAL
     MUST ( unixFilePath ) )
 
+#attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.21
+#    NAME 'fqcn'
+#    DESC 'The fully qualified class name of a java class'
+#	 EQUALITY caseExactIA5Match
+#	 SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+#
+#attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.22
+#    NAME 'byteCode'
+#	 DESC 'The actual byte code for a java class'
+#	 SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 SINGLE-VALUE )
+#
+#objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.8
+#    NAME 'javaClass'
+#    SUP top
+#    STRUCTURAL
+#    MUST ( fqcn $ byteCode ) )
+
 attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.21
-    NAME 'fqcn'
-	DESC 'The fully qualified class name of a java class'
-	EQUALITY caseExactIA5Match
-	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+    NAME 'fullyQualifiedClassName'
+    DESC 'The fully qualified name for a (Java) class'
+	 EQUALITY caseExactIA5Match
+	 SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
 
 attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.22
     NAME 'byteCode'
-	DESC 'The actual byte code for a java class'
-	SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 SINGLE-VALUE )
+	 DESC 'The actual byte code for a (Java) class'
+	 SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 SINGLE-VALUE )
 
 objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.8
     NAME 'javaClass'
     SUP top
     STRUCTURAL
-    MUST ( fqcn $ byteCode ) )
+    MUST ( fullyQualifiedClassName $ byteCode ) )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.23
+    NAME 'classLoaderDefaultSearchContext'
+    DESC 'The default search context for the Ldap Class Loader'
+    SUP distinguishedName
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
