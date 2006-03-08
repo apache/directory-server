@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.core.schema;
+package org.apache.directory.server.core.schema.global;
 
 
 import java.util.HashMap;
@@ -23,29 +23,33 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.schema.bootstrap.BootstrapNameFormRegistry;
-import org.apache.directory.shared.ldap.schema.NameForm;
+import org.apache.directory.server.core.schema.DITStructureRuleRegistry;
+import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.core.schema.bootstrap.BootstrapDitStructureRuleRegistry;
+import org.apache.directory.shared.ldap.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.util.JoinIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
- * A plain old java object implementation of an NameFormRegistry.
+ * A plain old java object implementation of an DITStructureRuleRegistry.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class GlobalNameFormRegistry implements NameFormRegistry
+public class GlobalDitStructureRuleRegistry implements DITStructureRuleRegistry
 {
-    /** maps an OID to an NameForm */
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( GlobalDitStructureRuleRegistry.class );
+    /** maps an OID to an DITStructureRule */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private NameFormRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
-    private BootstrapNameFormRegistry bootstrap;
+    private BootstrapDitStructureRuleRegistry bootstrap;
 
 
     // ------------------------------------------------------------------------
@@ -53,15 +57,13 @@ public class GlobalNameFormRegistry implements NameFormRegistry
     // ------------------------------------------------------------------------
 
     /**
-     * Creates an empty BootstrapNameFormRegistry.
+     * Creates an empty BootstrapDitStructureRuleRegistry.
      */
-    public GlobalNameFormRegistry(BootstrapNameFormRegistry bootstrap, OidRegistry oidRegistry)
+    public GlobalDitStructureRuleRegistry( BootstrapDitStructureRuleRegistry bootstrap, OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new NameFormRegistryMonitorAdapter();
-
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
         {
@@ -70,69 +72,67 @@ public class GlobalNameFormRegistry implements NameFormRegistry
     }
 
 
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( NameFormRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
-
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
 
-    public void register( String schema, NameForm dITContentRule ) throws NamingException
+    
+    public void register( String schema, DITStructureRule dITStructureRule ) throws NamingException
     {
-        if ( byOid.containsKey( dITContentRule.getOid() ) || bootstrap.hasNameForm( dITContentRule.getOid() ) )
+        if ( byOid.containsKey( dITStructureRule.getOid() )
+            || bootstrap.hasDITStructureRule( dITStructureRule.getOid() ) )
         {
-            NamingException e = new NamingException( "dITContentRule w/ OID " + dITContentRule.getOid()
+            NamingException e = new NamingException( "dITStructureRule w/ OID " + dITStructureRule.getOid()
                 + " has already been registered!" );
-            monitor.registerFailed( dITContentRule, e );
             throw e;
         }
 
-        oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() );
-        byOid.put( dITContentRule.getOid(), dITContentRule );
-        oidToSchema.put( dITContentRule.getOid(), schema );
-        monitor.registered( dITContentRule );
+        oidRegistry.register( dITStructureRule.getName(), dITStructureRule.getOid() );
+        byOid.put( dITStructureRule.getOid(), dITStructureRule );
+        oidToSchema.put( dITStructureRule.getOid(), schema );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered dITStructureRule: " + dITStructureRule );
+        }
     }
 
 
-    public NameForm lookup( String id ) throws NamingException
+    public DITStructureRule lookup( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
 
         if ( byOid.containsKey( id ) )
         {
-            NameForm dITContentRule = ( NameForm ) byOid.get( id );
-            monitor.lookedUp( dITContentRule );
-            return dITContentRule;
+            DITStructureRule dITStructureRule = ( DITStructureRule ) byOid.get( id );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up dITStructureRule: " + dITStructureRule );
+            }
+            return dITStructureRule;
         }
 
-        if ( bootstrap.hasNameForm( id ) )
+        if ( bootstrap.hasDITStructureRule( id ) )
         {
-            NameForm dITContentRule = bootstrap.lookup( id );
-            monitor.lookedUp( dITContentRule );
-            return dITContentRule;
+            DITStructureRule dITStructureRule = bootstrap.lookup( id );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up dITStructureRule: " + dITStructureRule );
+            }
+            return dITStructureRule;
         }
 
-        NamingException e = new NamingException( "dITContentRule w/ OID " + id + " not registered!" );
-        monitor.lookupFailed( id, e );
+        NamingException e = new NamingException( "dITStructureRule w/ OID " + id + " not registered!" );
         throw e;
     }
 
 
-    public boolean hasNameForm( String id )
+    public boolean hasDITStructureRule( String id )
     {
         if ( oidRegistry.hasOid( id ) )
         {
             try
             {
-                return byOid.containsKey( oidRegistry.getOid( id ) ) || bootstrap.hasNameForm( id );
+                return byOid.containsKey( oidRegistry.getOid( id ) ) || bootstrap.hasDITStructureRule( id );
             }
             catch ( NamingException e )
             {
@@ -153,7 +153,7 @@ public class GlobalNameFormRegistry implements NameFormRegistry
             return ( String ) oidToSchema.get( id );
         }
 
-        if ( bootstrap.hasNameForm( id ) )
+        if ( bootstrap.hasDITStructureRule( id ) )
         {
             return bootstrap.getSchemaName( id );
         }

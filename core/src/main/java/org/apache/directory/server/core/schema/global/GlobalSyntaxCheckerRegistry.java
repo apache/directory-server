@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.core.schema;
+package org.apache.directory.server.core.schema.global;
 
 
 import java.util.HashMap;
@@ -22,42 +22,44 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.schema.bootstrap.BootstrapNormalizerRegistry;
-import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.server.core.schema.SyntaxCheckerRegistry;
+import org.apache.directory.server.core.schema.bootstrap.BootstrapSyntaxCheckerRegistry;
+import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
- * A simple POJO implementation of the NormalizerRegistry service interface.
+ * A simple POJO implementation of the SyntaxCheckerRegistry service interface.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class GlobalNormalizerRegistry implements NormalizerRegistry
+public class GlobalSyntaxCheckerRegistry implements SyntaxCheckerRegistry
 {
-    /** the normalizers in this registry */
-    private final Map normalizers;
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( GlobalSyntaxCheckerRegistry.class );
+    /** the syntaxCheckers in this registry */
+    private final Map syntaxCheckers;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
-    /** the monitor for delivering callback events */
-    private NormalizerRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
-    private BootstrapNormalizerRegistry bootstrap;
+    private BootstrapSyntaxCheckerRegistry bootstrap;
 
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
+    
     /**
-     * Creates a default NormalizerRegistry by initializing the map and the
+     * Creates a default SyntaxCheckerRegistry by initializing the map and the
      * montior.
      */
-    public GlobalNormalizerRegistry(BootstrapNormalizerRegistry bootstrap)
+    public GlobalSyntaxCheckerRegistry(BootstrapSyntaxCheckerRegistry bootstrap)
     {
         this.oidToSchema = new HashMap();
-        this.normalizers = new HashMap();
-        this.monitor = new NormalizerRegistryMonitorAdapter();
-
+        this.syntaxCheckers = new HashMap();
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
         {
@@ -65,65 +67,66 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
         }
     }
 
-
-    /**
-     * Sets the monitor used by this registry.
-     *
-     * @param monitor the monitor to set for registry event callbacks
-     */
-    public void setMonitor( NormalizerRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
-
+    
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
 
-    public void register( String schema, String oid, Normalizer normalizer ) throws NamingException
+    
+    /*
+     * TODO: why supply the oid here if SyntaxCheckers contain the oid value of their 
+     * syntax as a property?
+     */
+    public void register( String schema, String oid, SyntaxChecker syntaxChecker ) throws NamingException
     {
-        if ( normalizers.containsKey( oid ) || bootstrap.hasNormalizer( oid ) )
+        if ( syntaxCheckers.containsKey( oid ) || bootstrap.hasSyntaxChecker( oid ) )
         {
-            NamingException e = new NamingException( "Normalizer with OID " + oid + " already registered!" );
-            monitor.registerFailed( oid, normalizer, e );
+            NamingException e = new NamingException( "SyntaxChecker with OID " + oid + " already registered!" );
             throw e;
         }
 
         oidToSchema.put( oid, schema );
-        normalizers.put( oid, normalizer );
-        monitor.registered( oid, normalizer );
+        syntaxCheckers.put( oid, syntaxChecker );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered syntax checker for syntax: " + oid );
+        }
     }
 
 
-    public Normalizer lookup( String oid ) throws NamingException
+    public SyntaxChecker lookup( String oid ) throws NamingException
     {
-        Normalizer c;
+        SyntaxChecker c;
         NamingException e;
 
-        if ( normalizers.containsKey( oid ) )
+        if ( syntaxCheckers.containsKey( oid ) )
         {
-            c = ( Normalizer ) normalizers.get( oid );
-            monitor.lookedUp( oid, c );
+            c = ( SyntaxChecker ) syntaxCheckers.get( oid );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "lookup succeeded for syntax checker of syntax: " + oid );
+            }
             return c;
         }
 
-        if ( bootstrap.hasNormalizer( oid ) )
+        if ( bootstrap.hasSyntaxChecker( oid ) )
         {
             c = bootstrap.lookup( oid );
-            monitor.lookedUp( oid, c );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "lookup succeeded for syntax checker of syntax: " + oid );
+            }
             return c;
         }
 
-        e = new NamingException( "Normalizer not found for OID: " + oid );
-        monitor.lookupFailed( oid, e );
+        e = new NamingException( "SyntaxChecker not found for OID: " + oid );
         throw e;
     }
 
 
-    public boolean hasNormalizer( String oid )
+    public boolean hasSyntaxChecker( String oid )
     {
-        return normalizers.containsKey( oid ) || bootstrap.hasNormalizer( oid );
+        return syntaxCheckers.containsKey( oid ) || bootstrap.hasSyntaxChecker( oid );
     }
 
 
@@ -139,7 +142,7 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
             return ( String ) oidToSchema.get( oid );
         }
 
-        if ( bootstrap.hasNormalizer( oid ) )
+        if ( bootstrap.hasSyntaxChecker( oid ) )
         {
             return bootstrap.getSchemaName( oid );
         }

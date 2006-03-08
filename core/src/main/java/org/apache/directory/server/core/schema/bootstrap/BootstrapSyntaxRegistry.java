@@ -25,9 +25,9 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.schema.SyntaxRegistry;
-import org.apache.directory.server.core.schema.SyntaxRegistryMonitor;
-import org.apache.directory.server.core.schema.SyntaxRegistryMonitorAdapter;
 import org.apache.directory.shared.ldap.schema.Syntax;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -39,14 +39,14 @@ import org.apache.directory.shared.ldap.schema.Syntax;
  */
 public class BootstrapSyntaxRegistry implements SyntaxRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( BootstrapSyntaxRegistry.class );
     /** a map of entries using an OID for the key and a Syntax for the value */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
     /** the OID oidRegistry this oidRegistry uses to register new syntax OIDs */
     private final OidRegistry oidRegistry;
-    /** a monitor used to track noteable oidRegistry events */
-    private SyntaxRegistryMonitor monitor = null;
 
 
     // ------------------------------------------------------------------------
@@ -61,7 +61,6 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
         this.oidRegistry = registry;
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
-        this.monitor = new SyntaxRegistryMonitorAdapter();
     }
 
 
@@ -69,9 +68,7 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
     // SyntaxRegistry interface methods
     // ------------------------------------------------------------------------
 
-    /**
-     * @see org.apache.directory.server.core.schema.SyntaxRegistry#lookup(java.lang.String)
-     */
+    
     public Syntax lookup( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
@@ -79,39 +76,37 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
         if ( byOid.containsKey( id ) )
         {
             Syntax syntax = ( Syntax ) byOid.get( id );
-            monitor.lookedUp( syntax );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up using id '" + id + "': " + syntax );
+            }
             return syntax;
         }
 
         NamingException fault = new NamingException( "Unknown syntax OID " + id );
-        monitor.lookupFailed( id, fault );
         throw fault;
     }
 
 
-    /**
-     * @see org.apache.directory.server.core.schema.SyntaxRegistry#register(String,Syntax)
-     */
     public void register( String schema, Syntax syntax ) throws NamingException
     {
         if ( byOid.containsKey( syntax.getOid() ) )
         {
             NamingException e = new NamingException( "syntax w/ OID " + syntax.getOid()
                 + " has already been registered!" );
-            monitor.registerFailed( syntax, e );
             throw e;
         }
 
         oidRegistry.register( syntax.getName(), syntax.getOid() );
         byOid.put( syntax.getOid(), syntax );
         oidToSchema.put( syntax.getOid(), schema );
-        monitor.registered( syntax );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered syntax: " + syntax );
+        }
     }
 
 
-    /**
-     * @see org.apache.directory.server.core.schema.SyntaxRegistry#hasSyntax(java.lang.String)
-     */
     public boolean hasSyntax( String id )
     {
         if ( oidRegistry.hasOid( id ) )
@@ -139,32 +134,6 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
         }
 
         throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
-    }
-
-
-    // ------------------------------------------------------------------------
-    // package friendly monitor methods
-    // ------------------------------------------------------------------------
-
-    /**
-     * Gets the monitor for this oidRegistry.
-     * 
-     * @return the monitor
-     */
-    SyntaxRegistryMonitor getMonitor()
-    {
-        return monitor;
-    }
-
-
-    /**
-     * Sets the monitor for this oidRegistry.
-     * 
-     * @param monitor the monitor to set
-     */
-    void setMonitor( SyntaxRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
     }
 
 

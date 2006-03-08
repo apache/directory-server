@@ -24,10 +24,10 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.DITContentRuleRegistry;
-import org.apache.directory.server.core.schema.DITContentRuleRegistryMonitor;
-import org.apache.directory.server.core.schema.DITContentRuleRegistryMonitorAdapter;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,14 +38,14 @@ import org.apache.directory.shared.ldap.schema.DITContentRule;
  */
 public class BootstrapDitContentRuleRegistry implements DITContentRuleRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( BootstrapDitContentRuleRegistry.class );
     /** maps an OID to an DITContentRule */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private DITContentRuleRegistryMonitor monitor;
 
 
     // ------------------------------------------------------------------------
@@ -60,18 +60,6 @@ public class BootstrapDitContentRuleRegistry implements DITContentRuleRegistry
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new DITContentRuleRegistryMonitorAdapter();
-    }
-
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( DITContentRuleRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
     }
 
 
@@ -79,20 +67,23 @@ public class BootstrapDitContentRuleRegistry implements DITContentRuleRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
+    
     public void register( String schema, DITContentRule dITContentRule ) throws NamingException
     {
         if ( byOid.containsKey( dITContentRule.getOid() ) )
         {
             NamingException e = new NamingException( "dITContentRule w/ OID " + dITContentRule.getOid()
                 + " has already been registered!" );
-            monitor.registerFailed( dITContentRule, e );
             throw e;
         }
 
         oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() );
         byOid.put( dITContentRule.getOid(), dITContentRule );
         oidToSchema.put( dITContentRule.getOid(), schema );
-        monitor.registered( dITContentRule );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registed dITContentRule: " + dITContentRule );
+        }
     }
 
 
@@ -103,12 +94,14 @@ public class BootstrapDitContentRuleRegistry implements DITContentRuleRegistry
         if ( !byOid.containsKey( id ) )
         {
             NamingException e = new NamingException( "dITContentRule w/ OID " + id + " not registered!" );
-            monitor.lookupFailed( id, e );
             throw e;
         }
 
         DITContentRule dITContentRule = ( DITContentRule ) byOid.get( id );
-        monitor.lookedUp( dITContentRule );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "lookup with id '" + id + "' of dITContentRule: " + dITContentRule );
+        }
         return dITContentRule;
     }
 

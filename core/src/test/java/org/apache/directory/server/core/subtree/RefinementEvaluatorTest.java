@@ -22,9 +22,9 @@ import junit.framework.TestCase;
 import javax.naming.NamingException;
 import javax.naming.directory.BasicAttribute;
 
-import org.apache.directory.server.core.schema.GlobalRegistries;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.schema.bootstrap.*;
+import org.apache.directory.server.core.schema.global.GlobalRegistries;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
 import org.apache.directory.shared.ldap.filter.BranchNode;

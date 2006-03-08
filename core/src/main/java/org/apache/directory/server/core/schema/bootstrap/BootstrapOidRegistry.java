@@ -27,8 +27,8 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.OidRegistry;
-import org.apache.directory.server.core.schema.OidRegistryMonitor;
-import org.apache.directory.server.core.schema.OidRegistryMonitorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,14 +40,12 @@ import org.apache.directory.server.core.schema.OidRegistryMonitorAdapter;
  */
 public class BootstrapOidRegistry implements OidRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( BootstrapOidRegistry.class );
     /** Maps OID to a name or a list of names if more than one name exists */
     private Map byOid = new HashMap();
-
     /** Maps several names to an OID */
     private Map byName = new HashMap();
-
-    /** Default OidRegistryMonitor */
-    private OidRegistryMonitor monitor = new OidRegistryMonitorAdapter();
 
 
     /**
@@ -65,7 +63,10 @@ public class BootstrapOidRegistry implements OidRegistry
          */
         if ( Character.isDigit( name.charAt( 0 ) ) )
         {
-            monitor.getOidWithOid( name );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up OID with OID: " + name );
+            }
             return name;
         }
 
@@ -73,7 +74,10 @@ public class BootstrapOidRegistry implements OidRegistry
         if ( byName.containsKey( name ) )
         {
             String oid = ( String ) byName.get( name );
-            monitor.oidResolved( name, oid );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up OID '" + oid + "' with id '" + name + "'" );
+            }
             return oid;
         }
 
@@ -88,7 +92,10 @@ public class BootstrapOidRegistry implements OidRegistry
         if ( !name.equals( lowerCase ) && byName.containsKey( lowerCase ) )
         {
             String oid = ( String ) byName.get( lowerCase );
-            monitor.oidResolved( name, lowerCase, oid );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up OID '" + oid + "' with id '" + name + "'" );
+            }
 
             // We expect to see this version of the key again so we add it
             byName.put( name, oid );
@@ -97,7 +104,6 @@ public class BootstrapOidRegistry implements OidRegistry
 
         NamingException fault = new NamingException( "OID for name '" + name + "' was not "
             + "found within the OID registry" );
-        monitor.oidResolutionFailed( name, fault );
         throw fault;
     }
 
@@ -127,18 +133,23 @@ public class BootstrapOidRegistry implements OidRegistry
         if ( null == value )
         {
             NamingException fault = new NamingException( "OID '" + oid + "' was not found within the OID registry" );
-            monitor.oidDoesNotExist( oid, fault );
             throw fault;
         }
 
         if ( value instanceof String )
         {
-            monitor.nameResolved( oid, ( String ) value );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up primary name '" + value + "' with OID '" + oid + "'" );
+            }
             return ( String ) value;
         }
 
         String name = ( String ) ( ( List ) value ).get( 0 );
-        monitor.nameResolved( oid, name );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "looked up primary name '" + name + "' with OID '" + oid + "'" );
+        }
         return name;
     }
 
@@ -153,18 +164,23 @@ public class BootstrapOidRegistry implements OidRegistry
         if ( null == value )
         {
             NamingException fault = new NamingException( "OID '" + oid + "' was not found within the OID registry" );
-            monitor.oidDoesNotExist( oid, fault );
             throw fault;
         }
 
         if ( value instanceof String )
         {
             List list = Collections.singletonList( value );
-            monitor.namesResolved( oid, list );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up names '" + list + "' for OID '" + oid + "'" );
+            }
             return list;
         }
 
-        monitor.namesResolved( oid, ( List ) value );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "looked up names '" + value + "' for OID '" + oid + "'" );
+        }
         return ( List ) value;
     }
 
@@ -275,28 +291,9 @@ public class BootstrapOidRegistry implements OidRegistry
         }
 
         byOid.put( oid, value );
-        monitor.registered( name, oid );
-    }
-
-
-    /**
-     * Gets the monitor.
-     * 
-     * @return the monitor
-     */
-    OidRegistryMonitor getMonitor()
-    {
-        return monitor;
-    }
-
-
-    /**
-     * Sets the monitor.
-     * 
-     * @param monitor monitor to set.
-     */
-    void setMonitor( OidRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registed name '" + name + "' with OID: " + oid );
+        }
     }
 }

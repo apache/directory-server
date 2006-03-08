@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.core.schema;
+package org.apache.directory.server.core.schema.global;
 
 
 import java.util.ArrayList;
@@ -23,6 +23,19 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.core.schema.ComparatorRegistry;
+import org.apache.directory.server.core.schema.DITContentRuleRegistry;
+import org.apache.directory.server.core.schema.DITStructureRuleRegistry;
+import org.apache.directory.server.core.schema.MatchingRuleRegistry;
+import org.apache.directory.server.core.schema.MatchingRuleUseRegistry;
+import org.apache.directory.server.core.schema.NameFormRegistry;
+import org.apache.directory.server.core.schema.NormalizerRegistry;
+import org.apache.directory.server.core.schema.ObjectClassRegistry;
+import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.core.schema.Registries;
+import org.apache.directory.server.core.schema.SyntaxCheckerRegistry;
+import org.apache.directory.server.core.schema.SyntaxRegistry;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapAttributeTypeRegistry;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapComparatorRegistry;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapDitContentRuleRegistry;

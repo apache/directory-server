@@ -23,10 +23,10 @@ import javax.naming.directory.*;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.schema.GlobalRegistries;
 import org.apache.directory.server.core.schema.ObjectClassRegistry;
 import org.apache.directory.server.core.schema.SchemaChecker;
 import org.apache.directory.server.core.schema.bootstrap.*;
+import org.apache.directory.server.core.schema.global.GlobalRegistries;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapName;

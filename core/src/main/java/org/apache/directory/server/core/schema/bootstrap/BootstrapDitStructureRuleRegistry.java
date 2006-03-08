@@ -24,10 +24,10 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.DITStructureRuleRegistry;
-import org.apache.directory.server.core.schema.DITStructureRuleRegistryMonitor;
-import org.apache.directory.server.core.schema.DITStructureRuleRegistryMonitorAdapter;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,20 +38,21 @@ import org.apache.directory.shared.ldap.schema.DITStructureRule;
  */
 public class BootstrapDitStructureRuleRegistry implements DITStructureRuleRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( BootstrapDitStructureRuleRegistry.class );
     /** maps an OID to an DITStructureRule */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private DITStructureRuleRegistryMonitor monitor;
 
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
+    
     /**
      * Creates an empty BootstrapDitStructureRuleRegistry.
      */
@@ -59,19 +60,7 @@ public class BootstrapDitStructureRuleRegistry implements DITStructureRuleRegist
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
-        this.monitor = new DITStructureRuleRegistryMonitorAdapter();
         this.oidRegistry = oidRegistry;
-    }
-
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( DITStructureRuleRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
     }
 
 
@@ -85,14 +74,16 @@ public class BootstrapDitStructureRuleRegistry implements DITStructureRuleRegist
         {
             NamingException e = new NamingException( "dITStructureRule w/ OID " + dITStructureRule.getOid()
                 + " has already been registered!" );
-            monitor.registerFailed( dITStructureRule, e );
             throw e;
         }
 
         oidToSchema.put( dITStructureRule.getOid(), schema );
         oidRegistry.register( dITStructureRule.getName(), dITStructureRule.getOid() );
         byOid.put( dITStructureRule.getOid(), dITStructureRule );
-        monitor.registered( dITStructureRule );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered dITStructureRule: " + dITStructureRule );
+        }
     }
 
 
@@ -103,12 +94,14 @@ public class BootstrapDitStructureRuleRegistry implements DITStructureRuleRegist
         if ( !byOid.containsKey( id ) )
         {
             NamingException e = new NamingException( "dITStructureRule w/ OID " + id + " not registered!" );
-            monitor.lookupFailed( id, e );
             throw e;
         }
 
         DITStructureRule dITStructureRule = ( DITStructureRule ) byOid.get( id );
-        monitor.lookedUp( dITStructureRule );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "lookup with id '" + id + "' for dITStructureRule: " + dITStructureRule );
+        }
         return dITStructureRule;
     }
 

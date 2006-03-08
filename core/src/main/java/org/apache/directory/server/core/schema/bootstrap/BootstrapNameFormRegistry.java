@@ -24,10 +24,10 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.NameFormRegistry;
-import org.apache.directory.server.core.schema.NameFormRegistryMonitor;
-import org.apache.directory.server.core.schema.NameFormRegistryMonitorAdapter;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.schema.NameForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,14 +38,14 @@ import org.apache.directory.shared.ldap.schema.NameForm;
  */
 public class BootstrapNameFormRegistry implements NameFormRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( BootstrapNameFormRegistry.class );
     /** maps an OID to an NameForm */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private NameFormRegistryMonitor monitor;
 
 
     // ------------------------------------------------------------------------
@@ -60,18 +60,6 @@ public class BootstrapNameFormRegistry implements NameFormRegistry
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new NameFormRegistryMonitorAdapter();
-    }
-
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( NameFormRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
     }
 
 
@@ -85,14 +73,16 @@ public class BootstrapNameFormRegistry implements NameFormRegistry
         {
             NamingException e = new NamingException( "nameForm w/ OID " + nameForm.getOid()
                 + " has already been registered!" );
-            monitor.registerFailed( nameForm, e );
             throw e;
         }
 
         oidToSchema.put( nameForm.getOid(), schema );
         oidRegistry.register( nameForm.getName(), nameForm.getOid() );
         byOid.put( nameForm.getOid(), nameForm );
-        monitor.registered( nameForm );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered nameForm: " + nameForm );
+        }
     }
 
 
@@ -103,12 +93,14 @@ public class BootstrapNameFormRegistry implements NameFormRegistry
         if ( !byOid.containsKey( id ) )
         {
             NamingException e = new NamingException( "nameForm w/ OID " + id + " not registered!" );
-            monitor.lookupFailed( id, e );
             throw e;
         }
 
         NameForm nameForm = ( NameForm ) byOid.get( id );
-        monitor.lookedUp( nameForm );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "lookup with id '"+ id + "' of nameForm: " + nameForm );
+        }
         return nameForm;
     }
 

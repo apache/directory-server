@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.core.schema;
+package org.apache.directory.server.core.schema.global;
 
 
 import java.util.HashMap;
@@ -23,29 +23,33 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.schema.bootstrap.BootstrapSyntaxRegistry;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.server.core.schema.ObjectClassRegistry;
+import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.core.schema.bootstrap.BootstrapObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.util.JoinIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
- * A plain old java object implementation of an SyntaxRegistry.
+ * A plain old java object implementation of an ObjectClassRegistry.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class GlobalSyntaxRegistry implements SyntaxRegistry
+public class GlobalObjectClassRegistry implements ObjectClassRegistry
 {
-    /** maps an OID to an Syntax */
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( GlobalObjectClassRegistry.class );
+    /** maps an OID to an ObjectClass */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private SyntaxRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
-    private BootstrapSyntaxRegistry bootstrap;
+    private BootstrapObjectClassRegistry bootstrap;
 
 
     // ------------------------------------------------------------------------
@@ -53,15 +57,13 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
     // ------------------------------------------------------------------------
 
     /**
-     * Creates an empty BootstrapSyntaxRegistry.
+     * Creates an empty BootstrapObjectClassRegistry.
      */
-    public GlobalSyntaxRegistry(BootstrapSyntaxRegistry bootstrap, OidRegistry oidRegistry)
+    public GlobalObjectClassRegistry(BootstrapObjectClassRegistry bootstrap, OidRegistry oidRegistry)
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new SyntaxRegistryMonitorAdapter();
-
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
         {
@@ -70,69 +72,65 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
     }
 
 
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( SyntaxRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
-
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
 
-    public void register( String schema, Syntax dITContentRule ) throws NamingException
+    
+    public void register( String schema, ObjectClass objectClass ) throws NamingException
     {
-        if ( byOid.containsKey( dITContentRule.getOid() ) || bootstrap.hasSyntax( dITContentRule.getOid() ) )
+        if ( byOid.containsKey( objectClass.getOid() ) || bootstrap.hasObjectClass( objectClass.getOid() ) )
         {
-            NamingException e = new NamingException( "dITContentRule w/ OID " + dITContentRule.getOid()
+            NamingException e = new NamingException( "dITContentRule w/ OID " + objectClass.getOid()
                 + " has already been registered!" );
-            monitor.registerFailed( dITContentRule, e );
             throw e;
         }
 
-        oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() );
-        byOid.put( dITContentRule.getOid(), dITContentRule );
-        oidToSchema.put( dITContentRule.getOid(), schema );
-        monitor.registered( dITContentRule );
+        oidRegistry.register( objectClass.getName(), objectClass.getOid() );
+        byOid.put( objectClass.getOid(), objectClass );
+        oidToSchema.put( objectClass.getOid(), schema );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered objectClass: " + objectClass );
+        }
     }
 
 
-    public Syntax lookup( String id ) throws NamingException
+    public ObjectClass lookup( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
-
         if ( byOid.containsKey( id ) )
         {
-            Syntax dITContentRule = ( Syntax ) byOid.get( id );
-            monitor.lookedUp( dITContentRule );
-            return dITContentRule;
+            ObjectClass oc = ( ObjectClass ) byOid.get( id );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up objectClass: " + oc );
+            }
+            return oc;
         }
 
-        if ( bootstrap.hasSyntax( id ) )
+        if ( bootstrap.hasObjectClass( id ) )
         {
-            Syntax dITContentRule = bootstrap.lookup( id );
-            monitor.lookedUp( dITContentRule );
-            return dITContentRule;
+            ObjectClass oc = bootstrap.lookup( id );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up objectClass: " + oc );
+            }
+            return oc;
         }
 
         NamingException e = new NamingException( "dITContentRule w/ OID " + id + " not registered!" );
-        monitor.lookupFailed( id, e );
         throw e;
     }
 
 
-    public boolean hasSyntax( String id )
+    public boolean hasObjectClass( String id )
     {
         if ( oidRegistry.hasOid( id ) )
         {
             try
             {
-                return byOid.containsKey( oidRegistry.getOid( id ) ) || bootstrap.hasSyntax( id );
+                return byOid.containsKey( oidRegistry.getOid( id ) ) || bootstrap.hasObjectClass( id );
             }
             catch ( NamingException e )
             {
@@ -153,7 +151,7 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
             return ( String ) oidToSchema.get( id );
         }
 
-        if ( bootstrap.hasSyntax( id ) )
+        if ( bootstrap.hasObjectClass( id ) )
         {
             return bootstrap.getSchemaName( id );
         }

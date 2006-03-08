@@ -19,9 +19,9 @@ package org.apache.directory.server.core.subtree;
 
 import junit.framework.TestCase;
 
-import org.apache.directory.server.core.schema.GlobalRegistries;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.schema.bootstrap.*;
+import org.apache.directory.server.core.schema.global.GlobalRegistries;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;

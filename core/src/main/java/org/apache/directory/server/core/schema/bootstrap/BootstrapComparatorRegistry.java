@@ -24,9 +24,10 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.ComparatorRegistry;
-import org.apache.directory.server.core.schema.ComparatorRegistryMonitor;
-import org.apache.directory.server.core.schema.ComparatorRegistryMonitorAdapter;
 import org.apache.directory.server.core.schema.SerializableComparator;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,12 +38,12 @@ import org.apache.directory.server.core.schema.SerializableComparator;
  */
 public class BootstrapComparatorRegistry implements ComparatorRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( BootstrapComparatorRegistry.class );
     /** the comparators in this registry */
     private final Map comparators;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
-    /** the monitor for delivering callback events */
-    private ComparatorRegistryMonitor monitor;
 
 
     // ------------------------------------------------------------------------
@@ -57,20 +58,7 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
     {
         this.oidToSchema = new HashMap();
         this.comparators = new HashMap();
-        this.monitor = new ComparatorRegistryMonitorAdapter();
-
         SerializableComparator.setRegistry( this );
-    }
-
-
-    /**
-     * Sets the monitor used by this registry.
-     *
-     * @param monitor the monitor to set for registry event callbacks
-     */
-    public void setMonitor( ComparatorRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
     }
 
 
@@ -78,18 +66,21 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
+    
     public void register( String schema, String oid, Comparator comparator ) throws NamingException
     {
         if ( comparators.containsKey( oid ) )
         {
             NamingException e = new NamingException( "Comparator with OID " + oid + " already registered!" );
-            monitor.registerFailed( oid, comparator, e );
             throw e;
         }
 
         oidToSchema.put( oid, schema );
         comparators.put( oid, comparator );
-        monitor.registered( oid, comparator );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registed comparator with OID: " + oid );
+        }
     }
 
 
@@ -98,12 +89,14 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
         if ( comparators.containsKey( oid ) )
         {
             Comparator c = ( Comparator ) comparators.get( oid );
-            monitor.lookedUp( oid, c );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up comparator with OID: " + oid );
+            }
             return c;
         }
 
         NamingException e = new NamingException( "Comparator not found for OID: " + oid );
-        monitor.lookupFailed( oid, e );
         throw e;
     }
 

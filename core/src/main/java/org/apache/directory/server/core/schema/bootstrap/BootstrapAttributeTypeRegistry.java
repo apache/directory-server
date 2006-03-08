@@ -24,10 +24,11 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.AttributeTypeRegistryMonitor;
-import org.apache.directory.server.core.schema.AttributeTypeRegistryMonitorAdapter;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,14 +39,14 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  */
 public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( BootstrapAttributeTypeRegistry.class );
     /** maps an OID to an AttributeType */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private AttributeTypeRegistryMonitor monitor;
 
 
     // ------------------------------------------------------------------------
@@ -60,18 +61,6 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new AttributeTypeRegistryMonitorAdapter();
-    }
-
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( AttributeTypeRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
     }
 
 
@@ -79,13 +68,13 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
+    
     public void register( String schema, AttributeType attributeType ) throws NamingException
     {
         if ( byOid.containsKey( attributeType.getOid() ) )
         {
             NamingException e = new NamingException( "attributeType w/ OID " + attributeType.getOid()
                 + " has already been registered!" );
-            monitor.registerFailed( attributeType, e );
             throw e;
         }
 
@@ -97,7 +86,10 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
 
         oidToSchema.put( attributeType.getOid(), schema );
         byOid.put( attributeType.getOid(), attributeType );
-        monitor.registered( attributeType );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registed attributeType: " + attributeType );
+        }
     }
 
 
@@ -108,12 +100,14 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
         if ( !byOid.containsKey( id ) )
         {
             NamingException e = new NamingException( "attributeType w/ OID " + id + " not registered!" );
-            monitor.lookupFailed( id, e );
             throw e;
         }
 
         AttributeType attributeType = ( AttributeType ) byOid.get( id );
-        monitor.lookedUp( attributeType );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "lookup with id" + id + "' of attributeType: " + attributeType );
+        }
         return attributeType;
     }
 

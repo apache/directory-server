@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.core.schema;
+package org.apache.directory.server.core.schema.global;
 
 
 import java.util.HashMap;
@@ -23,9 +23,13 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.core.schema.MatchingRuleUseRegistry;
+import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapMatchingRuleUseRegistry;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.util.JoinIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,14 +40,14 @@ import org.apache.directory.shared.ldap.util.JoinIterator;
  */
 public class GlobalMatchingRuleUseRegistry implements MatchingRuleUseRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( GlobalMatchingRuleUseRegistry.class );
     /** maps an OID to an MatchingRuleUse */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private MatchingRuleUseRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapMatchingRuleUseRegistry bootstrap;
 
@@ -60,8 +64,6 @@ public class GlobalMatchingRuleUseRegistry implements MatchingRuleUseRegistry
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new MatchingRuleUseRegistryMonitorAdapter();
-
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
         {
@@ -70,35 +72,27 @@ public class GlobalMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     }
 
 
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( MatchingRuleUseRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
-
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
 
-    public void register( String schema, MatchingRuleUse dITContentRule ) throws NamingException
+    
+    public void register( String schema, MatchingRuleUse ruleUse ) throws NamingException
     {
-        if ( byOid.containsKey( dITContentRule.getOid() ) || bootstrap.hasMatchingRuleUse( dITContentRule.getOid() ) )
+        if ( byOid.containsKey( ruleUse.getOid() ) || bootstrap.hasMatchingRuleUse( ruleUse.getOid() ) )
         {
-            NamingException e = new NamingException( "dITContentRule w/ OID " + dITContentRule.getOid()
+            NamingException e = new NamingException( "matchingRuleUse w/ OID " + ruleUse.getOid()
                 + " has already been registered!" );
-            monitor.registerFailed( dITContentRule, e );
             throw e;
         }
 
-        oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() );
-        byOid.put( dITContentRule.getOid(), dITContentRule );
-        oidToSchema.put( dITContentRule.getOid(), schema );
-        monitor.registered( dITContentRule );
+        oidRegistry.register( ruleUse.getName(), ruleUse.getOid() );
+        byOid.put( ruleUse.getOid(), ruleUse );
+        oidToSchema.put( ruleUse.getOid(), schema );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered matchingRuleUse: " + ruleUse );
+        }
     }
 
 
@@ -108,20 +102,25 @@ public class GlobalMatchingRuleUseRegistry implements MatchingRuleUseRegistry
 
         if ( byOid.containsKey( id ) )
         {
-            MatchingRuleUse dITContentRule = ( MatchingRuleUse ) byOid.get( id );
-            monitor.lookedUp( dITContentRule );
-            return dITContentRule;
+            MatchingRuleUse ruleUse = ( MatchingRuleUse ) byOid.get( id );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up matchingRuleUse: " + ruleUse );
+            }
+            return ruleUse;
         }
 
         if ( bootstrap.hasMatchingRuleUse( id ) )
         {
-            MatchingRuleUse dITContentRule = bootstrap.lookup( id );
-            monitor.lookedUp( dITContentRule );
-            return dITContentRule;
+            MatchingRuleUse ruleUse = bootstrap.lookup( id );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up matchingRuleUse: " + ruleUse );
+            }
+            return ruleUse;
         }
 
-        NamingException e = new NamingException( "dITContentRule w/ OID " + id + " not registered!" );
-        monitor.lookupFailed( id, e );
+        NamingException e = new NamingException( "matchingRuleUse w/ OID " + id + " not registered!" );
         throw e;
     }
 

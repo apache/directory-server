@@ -24,7 +24,7 @@ import javax.naming.Context;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
-import org.apache.directory.server.core.schema.GlobalRegistries;
+import org.apache.directory.server.core.schema.global.GlobalRegistries;
 
 
 /**

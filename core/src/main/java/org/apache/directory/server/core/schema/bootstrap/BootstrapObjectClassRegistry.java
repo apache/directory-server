@@ -24,10 +24,10 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.ObjectClassRegistry;
-import org.apache.directory.server.core.schema.ObjectClassRegistryMonitor;
-import org.apache.directory.server.core.schema.ObjectClassRegistryMonitorAdapter;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,14 +38,14 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
  */
 public class BootstrapObjectClassRegistry implements ObjectClassRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( BootstrapObjectClassRegistry.class );
     /** maps an OID to an ObjectClass */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private ObjectClassRegistryMonitor monitor;
 
 
     // ------------------------------------------------------------------------
@@ -60,39 +60,30 @@ public class BootstrapObjectClassRegistry implements ObjectClassRegistry
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new ObjectClassRegistryMonitorAdapter();
     }
 
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( ObjectClassRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
-
+    
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
 
+    
     public void register( String schema, ObjectClass objectClass ) throws NamingException
     {
         if ( byOid.containsKey( objectClass.getOid() ) )
         {
             NamingException e = new NamingException( "objectClass w/ OID " + objectClass.getOid()
                 + " has already been registered!" );
-            monitor.registerFailed( objectClass, e );
             throw e;
         }
 
         oidRegistry.register( objectClass.getName(), objectClass.getOid() );
         byOid.put( objectClass.getOid(), objectClass );
         oidToSchema.put( objectClass.getOid(), schema );
-        monitor.registered( objectClass );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered objectClass: " + objectClass );
+        }
     }
 
 
@@ -103,12 +94,14 @@ public class BootstrapObjectClassRegistry implements ObjectClassRegistry
         if ( !byOid.containsKey( id ) )
         {
             NamingException e = new NamingException( "objectClass w/ OID " + id + " not registered!" );
-            monitor.lookupFailed( id, e );
             throw e;
         }
 
         ObjectClass objectClass = ( ObjectClass ) byOid.get( id );
-        monitor.lookedUp( objectClass );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "looked objectClass with OID '" + id + "' and got back " + objectClass );
+        }
         return objectClass;
     }
 

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.core.schema;
+package org.apache.directory.server.core.schema.global;
 
 
 import java.util.Comparator;
@@ -23,7 +23,11 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.core.schema.ComparatorRegistry;
+import org.apache.directory.server.core.schema.SerializableComparator;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapComparatorRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,12 +38,12 @@ import org.apache.directory.server.core.schema.bootstrap.BootstrapComparatorRegi
  */
 public class GlobalComparatorRegistry implements ComparatorRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( GlobalComparatorRegistry.class );
     /** the comparators in this registry */
     private final Map comparators;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
-    /** the monitor for delivering callback events */
-    private ComparatorRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapComparatorRegistry bootstrap;
 
@@ -52,15 +56,12 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
      * Creates a default ComparatorRegistry by initializing the map and the
      * montior.
      */
-    public GlobalComparatorRegistry(BootstrapComparatorRegistry bootstrap)
+    public GlobalComparatorRegistry( BootstrapComparatorRegistry bootstrap )
     {
         this.oidToSchema = new HashMap();
         this.comparators = new HashMap();
-        this.monitor = new ComparatorRegistryMonitorAdapter();
-
         // override bootstrap registry used by serializable comparators
         SerializableComparator.setRegistry( this );
-
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
         {
@@ -69,33 +70,25 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
     }
 
 
-    /**
-     * Sets the monitor used by this registry.
-     *
-     * @param monitor the monitor to set for registry event callbacks
-     */
-    public void setMonitor( ComparatorRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
-
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
 
+    
     public void register( String schema, String oid, Comparator comparator ) throws NamingException
     {
         if ( comparators.containsKey( oid ) || bootstrap.hasComparator( oid ) )
         {
             NamingException e = new NamingException( "Comparator with OID " + oid + " already registered!" );
-            monitor.registerFailed( oid, comparator, e );
             throw e;
         }
 
         oidToSchema.put( oid, schema );
         comparators.put( oid, comparator );
-        monitor.registered( oid, comparator );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered comparator with OID '" + oid + "':" + comparator );
+        }
     }
 
 
@@ -107,19 +100,24 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
         if ( comparators.containsKey( oid ) )
         {
             c = ( Comparator ) comparators.get( oid );
-            monitor.lookedUp( oid, c );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up comparator with OID '" + oid + "':" + c );
+            }
             return c;
         }
 
         if ( bootstrap.hasComparator( oid ) )
         {
             c = bootstrap.lookup( oid );
-            monitor.lookedUp( oid, c );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up comparator with OID '" + oid + "':" + c );
+            }
             return c;
         }
 
         e = new NamingException( "Comparator not found for OID: " + oid );
-        monitor.lookupFailed( oid, e );
         throw e;
     }
 

@@ -24,10 +24,11 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.MatchingRuleRegistry;
-import org.apache.directory.server.core.schema.MatchingRuleRegistryMonitor;
-import org.apache.directory.server.core.schema.MatchingRuleRegistryMonitorAdapter;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,20 +39,21 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
  */
 public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( BootstrapMatchingRuleRegistry.class );
     /** a map using an OID for the key and a MatchingRule for the value */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** a monitor used to track noteable registry events */
-    private MatchingRuleRegistryMonitor monitor = null;
 
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
+    
     /**
      * Creates a BootstrapMatchingRuleRegistry using existing MatchingRulees
      * for lookups.
@@ -62,7 +64,6 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
         this.byOid = new HashMap();
-        this.monitor = new MatchingRuleRegistryMonitorAdapter();
     }
 
 
@@ -79,13 +80,15 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
 
         if ( byOid.containsKey( id ) )
         {
-            MatchingRule MatchingRule = ( MatchingRule ) byOid.get( id );
-            monitor.lookedUp( MatchingRule );
-            return MatchingRule;
+            MatchingRule matchingRule = ( MatchingRule ) byOid.get( id );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "lookup with id '"+id+"' of matchingRule: " + matchingRule );
+            }
+            return matchingRule;
         }
 
         NamingException fault = new NamingException( "Unknown MatchingRule OID " + id );
-        monitor.lookupFailed( id, fault );
         throw fault;
     }
 
@@ -99,7 +102,6 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
         {
             NamingException e = new NamingException( "matchingRule w/ OID " + matchingRule.getOid()
                 + " has already been registered!" );
-            monitor.registerFailed( matchingRule, e );
             throw e;
         }
 
@@ -112,7 +114,10 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
         }
 
         byOid.put( matchingRule.getOid(), matchingRule );
-        monitor.registered( matchingRule );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registed matchingRule: " + matchingRule);
+        }
     }
 
 
@@ -146,32 +151,6 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
         }
 
         throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
-    }
-
-
-    // ------------------------------------------------------------------------
-    // package friendly monitor methods
-    // ------------------------------------------------------------------------
-
-    /**
-     * Gets the monitor for this registry.
-     * 
-     * @return the monitor
-     */
-    MatchingRuleRegistryMonitor getMonitor()
-    {
-        return monitor;
-    }
-
-
-    /**
-     * Sets the monitor for this registry.
-     * 
-     * @param monitor the monitor to set
-     */
-    void setMonitor( MatchingRuleRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
     }
 
 

@@ -23,9 +23,9 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.SyntaxCheckerRegistry;
-import org.apache.directory.server.core.schema.SyntaxCheckerRegistryMonitor;
-import org.apache.directory.server.core.schema.SyntaxCheckerRegistryMonitorAdapter;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,12 +36,12 @@ import org.apache.directory.shared.ldap.schema.SyntaxChecker;
  */
 public class BootstrapSyntaxCheckerRegistry implements SyntaxCheckerRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( BootstrapSyntaxCheckerRegistry.class );
     /** a map by OID of SyntaxCheckers */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
-    /** the monitor to use for callback event notifications */
-    private SyntaxCheckerRegistryMonitor monitor;
 
 
     // ------------------------------------------------------------------------
@@ -55,18 +55,6 @@ public class BootstrapSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
-        this.monitor = new SyntaxCheckerRegistryMonitorAdapter();
-    }
-
-
-    /**
-     * Sets the monitor used to deliver notification events to via callbacks.
-     *
-     * @param monitor the monitor to recieve callback events
-     */
-    public void setMonitor( SyntaxCheckerRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
     }
 
 
@@ -74,18 +62,21 @@ public class BootstrapSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
+    
     public void register( String schema, String oid, SyntaxChecker syntaxChecker ) throws NamingException
     {
         if ( byOid.containsKey( oid ) )
         {
             NamingException e = new NamingException( "SyntaxChecker with OID " + oid + " already registered!" );
-            monitor.registerFailed( oid, syntaxChecker, e );
             throw e;
         }
 
         byOid.put( oid, syntaxChecker );
         oidToSchema.put( oid, schema );
-        monitor.registered( oid, syntaxChecker );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered syntaxChecher for OID " + oid );
+        }
     }
 
 
@@ -94,13 +85,15 @@ public class BootstrapSyntaxCheckerRegistry implements SyntaxCheckerRegistry
         if ( !byOid.containsKey( oid ) )
         {
             NamingException e = new NamingException( "SyntaxChecker for OID " + oid + " not found!" );
-            monitor.lookupFailed( oid, e );
             throw e;
         }
 
         SyntaxChecker syntaxChecker = ( SyntaxChecker ) byOid.get( oid );
-        monitor.lookedUp( oid, syntaxChecker );
-        return null;
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "looked up syntaxChecher with OID " + oid );
+        }
+        return syntaxChecker;
     }
 
 

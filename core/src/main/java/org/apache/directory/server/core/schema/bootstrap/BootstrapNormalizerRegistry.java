@@ -23,9 +23,9 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.NormalizerRegistry;
-import org.apache.directory.server.core.schema.NormalizerRegistryMonitor;
-import org.apache.directory.server.core.schema.NormalizerRegistryMonitorAdapter;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,12 +36,12 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  */
 public class BootstrapNormalizerRegistry implements NormalizerRegistry
 {
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( BootstrapNormalizerRegistry.class );
     /** a map of Normalizers looked up by OID */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
-    /** the monitor used to deliver callback notification events */
-    private NormalizerRegistryMonitor monitor;
 
 
     // ------------------------------------------------------------------------
@@ -55,18 +55,6 @@ public class BootstrapNormalizerRegistry implements NormalizerRegistry
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
-        this.monitor = new NormalizerRegistryMonitorAdapter();
-    }
-
-
-    /**
-     * Sets the monitor used to deliver notification events to via callbacks.
-     *
-     * @param monitor the monitor to recieve callback events
-     */
-    public void setMonitor( NormalizerRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
     }
 
 
@@ -74,18 +62,21 @@ public class BootstrapNormalizerRegistry implements NormalizerRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
+    
     public void register( String schema, String oid, Normalizer normalizer ) throws NamingException
     {
         if ( byOid.containsKey( oid ) )
         {
             NamingException e = new NamingException( "Normalizer already " + "registered for OID " + oid );
-            monitor.registerFailed( oid, normalizer, e );
             throw e;
         }
 
         oidToSchema.put( oid, schema );
         byOid.put( oid, normalizer );
-        monitor.registered( oid, normalizer );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered normalizer with oid: " + oid );
+        }
     }
 
 
@@ -94,12 +85,14 @@ public class BootstrapNormalizerRegistry implements NormalizerRegistry
         if ( !byOid.containsKey( oid ) )
         {
             NamingException e = new NamingException( "Normalizer for OID " + oid + " does not exist!" );
-            monitor.lookupFailed( oid, e );
             throw e;
         }
 
         Normalizer normalizer = ( Normalizer ) byOid.get( oid );
-        monitor.lookedUp( oid, normalizer );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered normalizer with oid: " + oid );
+        }
         return normalizer;
     }
 

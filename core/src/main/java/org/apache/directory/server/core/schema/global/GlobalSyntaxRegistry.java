@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.core.schema;
+package org.apache.directory.server.core.schema.global;
 
 
 import java.util.HashMap;
@@ -23,29 +23,33 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.schema.bootstrap.BootstrapMatchingRuleRegistry;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.core.schema.SyntaxRegistry;
+import org.apache.directory.server.core.schema.bootstrap.BootstrapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.util.JoinIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
- * A plain old java object implementation of an MatchingRuleRegistry.
+ * A plain old java object implementation of an SyntaxRegistry.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class GlobalMatchingRuleRegistry implements MatchingRuleRegistry
+public class GlobalSyntaxRegistry implements SyntaxRegistry
 {
-    /** maps an OID to an MatchingRule */
+    /** static class logger */
+    private final static Logger log = LoggerFactory.getLogger( GlobalSyntaxRegistry.class );
+    /** maps an OID to an Syntax */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private MatchingRuleRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
-    private BootstrapMatchingRuleRegistry bootstrap;
+    private BootstrapSyntaxRegistry bootstrap;
 
 
     // ------------------------------------------------------------------------
@@ -53,15 +57,13 @@ public class GlobalMatchingRuleRegistry implements MatchingRuleRegistry
     // ------------------------------------------------------------------------
 
     /**
-     * Creates an empty BootstrapMatchingRuleRegistry.
+     * Creates an empty BootstrapSyntaxRegistry.
      */
-    public GlobalMatchingRuleRegistry(BootstrapMatchingRuleRegistry bootstrap, OidRegistry oidRegistry)
+    public GlobalSyntaxRegistry(BootstrapSyntaxRegistry bootstrap, OidRegistry oidRegistry)
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new MatchingRuleRegistryMonitorAdapter();
-
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
         {
@@ -70,69 +72,66 @@ public class GlobalMatchingRuleRegistry implements MatchingRuleRegistry
     }
 
 
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( MatchingRuleRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
-
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
 
-    public void register( String schema, MatchingRule dITContentRule ) throws NamingException
+    public void register( String schema, Syntax syntax ) throws NamingException
     {
-        if ( byOid.containsKey( dITContentRule.getOid() ) || bootstrap.hasMatchingRule( dITContentRule.getOid() ) )
+        if ( byOid.containsKey( syntax.getOid() ) || bootstrap.hasSyntax( syntax.getOid() ) )
         {
-            NamingException e = new NamingException( "dITContentRule w/ OID " + dITContentRule.getOid()
+            NamingException e = new NamingException( "Sytax w/ OID " + syntax.getOid() 
                 + " has already been registered!" );
-            monitor.registerFailed( dITContentRule, e );
             throw e;
         }
 
-        oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() );
-        byOid.put( dITContentRule.getOid(), dITContentRule );
-        oidToSchema.put( dITContentRule.getOid(), schema );
-        monitor.registered( dITContentRule );
+        oidRegistry.register( syntax.getName(), syntax.getOid() );
+        byOid.put( syntax.getOid(), syntax );
+        oidToSchema.put( syntax.getOid(), schema );
+        
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "registered syntax: " + syntax );
+        }
     }
 
 
-    public MatchingRule lookup( String id ) throws NamingException
+    public Syntax lookup( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
 
         if ( byOid.containsKey( id ) )
         {
-            MatchingRule dITContentRule = ( MatchingRule ) byOid.get( id );
-            monitor.lookedUp( dITContentRule );
-            return dITContentRule;
+            Syntax syntax = ( Syntax ) byOid.get( id );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up syntax: " + syntax );
+            }
+            return syntax;
         }
 
-        if ( bootstrap.hasMatchingRule( id ) )
+        if ( bootstrap.hasSyntax( id ) )
         {
-            MatchingRule dITContentRule = bootstrap.lookup( id );
-            monitor.lookedUp( dITContentRule );
-            return dITContentRule;
+            Syntax syntax = bootstrap.lookup( id );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "looked up syntax: " + syntax );
+            }
+            return syntax;
         }
 
         NamingException e = new NamingException( "dITContentRule w/ OID " + id + " not registered!" );
-        monitor.lookupFailed( id, e );
         throw e;
     }
 
 
-    public boolean hasMatchingRule( String id )
+    public boolean hasSyntax( String id )
     {
         if ( oidRegistry.hasOid( id ) )
         {
             try
             {
-                return byOid.containsKey( oidRegistry.getOid( id ) ) || bootstrap.hasMatchingRule( id );
+                return byOid.containsKey( oidRegistry.getOid( id ) ) || bootstrap.hasSyntax( id );
             }
             catch ( NamingException e )
             {
@@ -153,7 +152,7 @@ public class GlobalMatchingRuleRegistry implements MatchingRuleRegistry
             return ( String ) oidToSchema.get( id );
         }
 
-        if ( bootstrap.hasMatchingRule( id ) )
+        if ( bootstrap.hasSyntax( id ) )
         {
             return bootstrap.getSchemaName( id );
         }
