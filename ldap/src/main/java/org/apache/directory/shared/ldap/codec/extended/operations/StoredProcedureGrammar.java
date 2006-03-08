@@ -34,19 +34,6 @@ import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedur
 /**
  * ASN.1 BER Grammar for Stored Procedure Extended Operation
  * 
- * <pre>
- * StoredProcedure ::= SEQUENCE {
- *    language OCTETSTRING,
- *    procedure OCTETSTRING,
- *    parameters SEQUENCE OF Parameter {
- *       Parameter ::= SEQUENCE OF {
- *          type OCTETSTRING,
- *          value OCTETSTRING
- *       }
- *    }
- * } 
- * </pre>
- * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
@@ -279,7 +266,7 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
                             StoredProcedureParameter parameter = storedProcedure.getCurrentParameter();
                             parameter.setValue( parameterValue );
 
-                            // We can now add a new Parameter to the pojo
+                            // We can now add a new Parameter to the procedure
                             storedProcedure.addParameter( parameter );
 
                             if ( log.isDebugEnabled() )

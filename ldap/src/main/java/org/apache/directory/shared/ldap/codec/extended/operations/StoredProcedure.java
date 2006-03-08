@@ -25,19 +25,6 @@ import java.util.List;
 /**
  * Stored Procedure Extended Operation bean
  * 
- * <pre>
- * StoredProcedure ::= SEQUENCE {
- *    language OCTETSTRING,
- *    procedure OCTETSTRING,
- *    parameters SEQUENCE OF Parameter {
- *       Parameter ::= SEQUENCE OF {
- *          type OCTETSTRING,
- *          value OCTETSTRING
- *       }
- *    }
- * } 
- * </pre>
- * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class StoredProcedure
