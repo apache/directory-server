@@ -53,6 +53,8 @@
     <res id="InfoPanel.info" src="${app.readme}" />
     <res id="ImgPacksPanel.img.0" src="${app.icon}" />
     <res id="ImgPacksPanel.img.1" src="${app.icon}" />
+    <res id="ImgPacksPanel.img.2" src="${app.icon}" />
+    <res id="ImgPacksPanel.img.3" src="${app.icon}" />
     <res id="shortcutSpec.xml" src="${unix.shortcuts}" />
     <res id="Unix_shortcutSpec.xml" src="${unix.shortcuts}" />
     <res id="userInputSpec.xml" src="${user.input}" />
@@ -70,18 +72,35 @@
   </panels>
 
   <packs>
+    <pack name="Init Script (root only)" required="no">
+      <description>Init script installable only by root</description>
+      <singlefile os="unix" src="bin/${server.init}" target="/etc/init.d/${app}" />
+      <parsable os="unix" targetfile="/etc/init.d/${app}" type="shell" />
+      <executable os="unix" targetfile="/etc/init.d/${app}" stage="never" keep="true" />
+    </pack>
+    <pack name="Sources" required="no">
+      <description>ApacheDS Sources</description>
+      <fileset dir="${image.basedir}" targetdir="$INSTALL_PATH/">
+        <include name="src/**"/>
+      </fileset>
+    </pack>
+    <pack name="Documentation" required="no">
+      <description>ApacheDS Documentation</description>
+      <fileset dir="${image.basedir}" targetdir="$INSTALL_PATH/">
+        <include name="docs/**"/>
+      </fileset>
+    </pack>
     <pack name="Binaries" required="yes">
       <description>Binary Executables</description>
       <fileset dir="${image.basedir}" targetdir="$INSTALL_PATH">
         <include name="**/*" />
+        <exclude name="docs/**"/>
+        <exclude name="src/**"/>
       </fileset>
-    
+
       <executable os="unix" targetfile="$INSTALL_PATH/bin/${app}" stage="never" keep="true" />
-      <singlefile os="unix" src="bin/${server.init}" target="/etc/init.d/${app}" />
       <parsable os="unix" targetfile="$INSTALL_PATH/bin/${server.init}" type="shell" />
       <parsable os="unix" targetfile="$INSTALL_PATH/bin/apacheds-tools.sh" type="shell" />
-      <parsable os="unix" targetfile="/etc/init.d/${app}" type="shell" />
-      <executable os="unix" targetfile="/etc/init.d/${app}" stage="never" keep="true" />
       <executable os="unix" targetfile="$INSTALL_PATH/bin/${server.init}" stage="never" keep="true" />
       <executable os="unix" targetfile="$INSTALL_PATH/bin/apacheds-tools.sh" stage="never" keep="true" />
     </pack>
