@@ -35,7 +35,7 @@
     target="$INSTALL_PATH/bin/${server.init}"
     workingDirectory="$INSTALL_PATH/bin"
     commandLine=" start"
-    iconFile="$INSTALL_PATH/${app.icon}"
+    iconFile="$INSTALL_PATH/start.png"
     type="Application"
     encoding="UTF-8"
     description="Start ${app} Server">
@@ -52,7 +52,7 @@
     target="$INSTALL_PATH/bin/${server.init}"
     workingDirectory="$INSTALL_PATH/bin"
     commandLine=" stop"
-    iconFile="$INSTALL_PATH/${app.icon}"
+    iconFile="$INSTALL_PATH/stop.png"
     type="Application"
     encoding="UTF-8"
     description="Start ${app} Server">
@@ -70,7 +70,7 @@
     target="$INSTALL_PATH/bin/${server.init}"
     workingDirectory="$INSTALL_PATH/bin"
     commandLine=" debug"
-    iconFile="$INSTALL_PATH/${app.icon}"
+    iconFile="$INSTALL_PATH/debug.png"
     type="Application"
     encoding="UTF-8"
     description="Debug ${app} Server">
