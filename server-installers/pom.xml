@@ -127,11 +127,13 @@
               <installationBundleId>Binaries</installationBundleId>
             </packagedFile>
           </packagedFiles>
+<!--
           <svnBaseUrl>
             http://svn.apache.org/repos/asf/directory/branches/apacheds/1.0
           </svnBaseUrl>
           <packageSources>true</packageSources>
           <packageDocs>true</packageDocs>
+-->
           <applicationClass>
             org.apache.ldap.server.Service
           </applicationClass>
@@ -157,6 +159,7 @@
               <daemonFramework>jsvc</daemonFramework>
             </rpmTarget>
           </rpmTargets>
+<!--
           <innoTargets>
             <innoTarget>
               <id>windows-xp-procrun</id>
@@ -171,6 +174,7 @@
               <daemonFramework>procrun</daemonFramework>
             </innoTarget>
           </innoTargets>
+-->
           <izPackTargets>
             <izPackTarget>
               <packagedFiles>
@@ -192,6 +196,7 @@
               <osArch>i386</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
+<!--
             <izPackTarget>
               <packagedFiles>
                 <packagedFile>
@@ -252,6 +257,7 @@
               <osArch>ppc</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
+-->
           </izPackTargets>
         </configuration>
         <executions>
