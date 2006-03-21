@@ -110,7 +110,7 @@ public class SearchHandler implements MessageHandler
     /**
      * Main message handing method for search requests.
      */
-    public void messageReceived( IoSession session, Object request )
+    public void messageReceived( IoSession session, Object request ) throws Exception
     {
         ServerLdapContext ctx;
         SearchRequest req = ( SearchRequest ) request;

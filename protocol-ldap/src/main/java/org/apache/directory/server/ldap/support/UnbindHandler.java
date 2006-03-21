@@ -41,7 +41,7 @@ public class UnbindHandler implements MessageHandler
     private static final Logger log = LoggerFactory.getLogger( UnbindHandler.class );
 
 
-    public void messageReceived( IoSession session, Object request )
+    public void messageReceived( IoSession session, Object request ) throws Exception
     {
         SessionRegistry registry = SessionRegistry.getSingleton();
 

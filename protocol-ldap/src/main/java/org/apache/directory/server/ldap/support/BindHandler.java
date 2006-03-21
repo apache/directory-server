@@ -53,7 +53,7 @@ public class BindHandler implements MessageHandler
     private static final Control[] EMPTY = new Control[0];
 
 
-    public void messageReceived( IoSession session, Object request )
+    public void messageReceived( IoSession session, Object request ) throws Exception
     {
         LdapContext ctx;
         BindRequest req = ( BindRequest ) request;

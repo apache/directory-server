@@ -52,7 +52,7 @@ public class ModifyDnHandler implements MessageHandler
     private static Control[] EMPTY_CONTROLS = new Control[0];
 
 
-    public void messageReceived( IoSession session, Object request )
+    public void messageReceived( IoSession session, Object request ) throws Exception
     {
         ModifyDnRequest req = ( ModifyDnRequest ) request;
         LdapResult result = req.getResultResponse().getLdapResult();

@@ -50,7 +50,7 @@ public class DeleteHandler implements MessageHandler
     private static Control[] EMPTY_CONTROLS = new Control[0];
 
 
-    public void messageReceived( IoSession session, Object request )
+    public void messageReceived( IoSession session, Object request ) throws Exception
     {
         DeleteRequest req = ( DeleteRequest ) request;
         LdapResult result = req.getResultResponse().getLdapResult();

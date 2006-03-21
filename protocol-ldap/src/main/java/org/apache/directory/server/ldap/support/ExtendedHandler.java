@@ -73,7 +73,7 @@ public class ExtendedHandler implements MessageHandler
     }
 
 
-    public void messageReceived( IoSession session, Object request )
+    public void messageReceived( IoSession session, Object request ) throws Exception
     {
         ExtendedRequest req = ( ExtendedRequest ) request;
         ExtendedOperationHandler handler = ( ExtendedOperationHandler ) handlers.get( req.getOid() );

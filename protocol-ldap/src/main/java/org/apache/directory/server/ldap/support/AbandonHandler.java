@@ -38,7 +38,7 @@ public class AbandonHandler implements MessageHandler
     private static final Logger log = LoggerFactory.getLogger( AbandonHandler.class );
 
 
-    public void messageReceived( IoSession session, Object request )
+    public void messageReceived( IoSession session, Object request ) throws Exception
     {
         AbandonRequest req = ( AbandonRequest ) request;
         int abandonedId = req.getAbandoned();

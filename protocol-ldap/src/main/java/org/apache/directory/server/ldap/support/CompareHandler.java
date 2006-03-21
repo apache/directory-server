@@ -52,7 +52,7 @@ public class CompareHandler implements MessageHandler
     private static Control[] EMPTY_CONTROLS = new Control[0];
 
 
-    public void messageReceived( IoSession session, Object request )
+    public void messageReceived( IoSession session, Object request ) throws Exception
     {
         CompareRequest req = ( CompareRequest ) request;
         LdapResult result = req.getResultResponse().getLdapResult();
