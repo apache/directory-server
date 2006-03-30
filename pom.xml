@@ -2,7 +2,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.directory</groupId>
-  <version>1.0.1</version>
+  <version>1.0.3.1-SNAPSHOT</version>
   <artifactId>build</artifactId>
   <name>Apache Directory Build</name>
   <inceptionYear>2004</inceptionYear>
@@ -22,23 +22,6 @@
     </dependency>
   </dependencies>
   <repositories>
-    <!-- Mirrors for release jars: will add 3 just in case -->
-    <repository>
-      <id>playboy.mirror</id>
-      <name>Apache Repository @ Playboy</name>
-      <url>http://mirrors.playboy.com/apache/maven-repository/</url>
-    </repository>
-    <repository>
-      <id>seekmeup.mirror</id>
-      <name>Apache Repository @ Seekmeup</name>
-      <url>http://apache.seekmeup.com/apache/maven-repository/</url>
-    </repository>
-    <repository>
-      <id>mirrormax.mirror</id>
-      <name>Apache Repository @ MirrorMax</name>
-      <url>http://apache.mirrormax.net/apache/maven-repository/</url>
-    </repository>
-    
     <!-- For snapshots (no release jars or non-apache jars)           -->
     <repository>
       <id>apache.snapshots</id>
@@ -61,6 +44,11 @@
       <id>snapshots</id>
       <name>snapshot plugins</name>
       <url>http://snapshots.maven.codehaus.org/maven2</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>apache.snapshots</id>
+      <name>Apache Snapshot Plugins</name>
+      <url>http://cvs.apache.org/maven-snapshot-repository</url>
     </pluginRepository>
   </pluginRepositories>
 
@@ -99,12 +87,5 @@
         </configuration>
       </plugin>
     </plugins>
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-         <artifactId>wagon-ssh-external</artifactId>
-         <version>1.0-alpha-5</version>
-      </extension>
-    </extensions>
   </build>
 </project>
