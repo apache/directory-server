@@ -68,14 +68,14 @@
     <snapshotRepository>
       <id>apache.snapshots</id>
       <url>
-        scpexe://cvs.apache.org/www/cvs.apache.org/maven-snapshot-repository
+        scp://cvs.apache.org/www/cvs.apache.org/maven-snapshot-repository
       </url>
     </snapshotRepository>
     <repository>
       <name>ASF Mirrored M2 Distributions</name>
       <id>apache.snapshots</id>
       <url>
-        scpexe://minotaur.apache.org/www/www.apache.org/dist/maven-repository
+        scp://minotaur.apache.org/www/www.apache.org/dist/maven-repository
       </url>
     </repository>
 
