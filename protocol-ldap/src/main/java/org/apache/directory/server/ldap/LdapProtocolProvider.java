@@ -340,11 +340,7 @@ public class LdapProtocolProvider
     private static final class ProtocolCodecFactoryImpl implements ProtocolCodecFactory
     {
         final Hashtable env;
-        
-        // Define two static members to avoid useless object constructions
-        static Asn1CodecEncoder encoder;
-        
-        static Asn1CodecDecoder decoder;
+
 
         public ProtocolCodecFactoryImpl()
         {
@@ -358,25 +354,15 @@ public class LdapProtocolProvider
         }
 
 
-        public synchronized ProtocolEncoder getEncoder()
+        public ProtocolEncoder getEncoder()
         {
-        	if ( encoder == null )
-        	{
-        		encoder = new Asn1CodecEncoder( new MessageEncoder( env ) );
-        	}
-        	
-            return encoder;
+            return new Asn1CodecEncoder( new MessageEncoder( env ) );
         }
 
 
-        public synchronized ProtocolDecoder getDecoder()
+        public ProtocolDecoder getDecoder()
         {
-        	if ( decoder == null )
-        	{
-        		decoder = new Asn1CodecDecoder( new MessageDecoder( env ) );
-        	}
-        	
-            return decoder;
+            return new Asn1CodecDecoder( new MessageDecoder( env ) );
         }
     }
 
