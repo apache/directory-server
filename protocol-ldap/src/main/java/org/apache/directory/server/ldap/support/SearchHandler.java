@@ -112,7 +112,12 @@ public class SearchHandler implements MessageHandler
      */
     public void messageReceived( IoSession session, Object request )
     {
-        ServerLdapContext ctx;
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Message received : " + request.toString() );
+    	}
+
+    	ServerLdapContext ctx;
         SearchRequest req = ( SearchRequest ) request;
         NamingEnumeration list = null;
         String[] ids = null;
