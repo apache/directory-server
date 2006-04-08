@@ -620,18 +620,8 @@ public class SubentryService extends BaseInterceptor
             {
                 for ( int ii = 0; ii < SUBENTRY_OPATTRS.length; ii++ )
                 {
-                    int op = DirContext.REPLACE_ATTRIBUTE;
-                    Attribute opAttr = entry.get( SUBENTRY_OPATTRS[ii] );
-                    if ( opAttr != null )
-                    {
-                        opAttr = ( Attribute ) opAttr.clone();
-                    }
-                    else
-                    {
-                        op = DirContext.ADD_ATTRIBUTE;
-                        opAttr = new LockableAttributeImpl( SUBENTRY_OPATTRS[ii] );
-                    }
-
+                    int op = DirContext.ADD_ATTRIBUTE;
+                    Attribute opAttr = new LockableAttributeImpl( SUBENTRY_OPATTRS[ii] );
                     opAttr.add( subentryDn );
                     modList.add( new ModificationItem( op, opAttr ) );
                 }
