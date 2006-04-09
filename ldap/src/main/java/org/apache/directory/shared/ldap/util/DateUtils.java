@@ -18,6 +18,7 @@ package org.apache.directory.shared.ldap.util;
 
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -38,8 +39,57 @@ public class DateUtils
     {
         dateFormat.setTimeZone( UTC_TIME_ZONE );
     }
+    
+    
+    public static Date getDate( String zuluTime )
+    {
+        Calendar cal = Calendar.getInstance( UTC_TIME_ZONE );
+        cal.set( Calendar.YEAR, getYear( zuluTime ) ); 
+        cal.set( Calendar.MONTH, getMonth( zuluTime ) ); 
+        cal.set( Calendar.DAY_OF_MONTH, getDay( zuluTime ) ); 
+        cal.set( Calendar.HOUR_OF_DAY, getHour( zuluTime ) ); 
+        cal.set( Calendar.MINUTE, getMinutes( zuluTime ) );
+        cal.set( Calendar.SECOND, getSeconds( zuluTime ) );
+        return cal.getTime();
+    }
 
 
+    public static int getYear( String zuluTime )
+    {
+        return Integer.parseInt( zuluTime.substring( 0, 4 ) );
+    }
+    
+    
+    public static int getMonth( String zuluTime )
+    {
+        return Integer.parseInt( zuluTime.substring( 4, 6 ) );
+    }
+    
+    
+    public static int getDay( String zuluTime )
+    {
+        return Integer.parseInt( zuluTime.substring( 6, 8 ) );
+    }
+    
+    
+    public static int getHour( String zuluTime )
+    {
+        return Integer.parseInt( zuluTime.substring( 8, 10 ) );
+    }
+    
+    
+    public static int getMinutes( String zuluTime )
+    {
+        return Integer.parseInt( zuluTime.substring( 10, 12 ) );
+    }
+    
+    
+    public static int getSeconds( String zuluTime )
+    {
+        return Integer.parseInt( zuluTime.substring( 12, 14 ) );
+    }
+    
+    
     /**
      * Gets the generalized time using the "Z" form of the g-time-zone described
      * by [<a href=
