@@ -45,7 +45,7 @@ public class DateUtils
     {
         Calendar cal = Calendar.getInstance( UTC_TIME_ZONE );
         cal.set( Calendar.YEAR, getYear( zuluTime ) ); 
-        cal.set( Calendar.MONTH, getMonth( zuluTime ) ); 
+        cal.set( Calendar.MONTH, getMonth( zuluTime ) - 1 ); 
         cal.set( Calendar.DAY_OF_MONTH, getDay( zuluTime ) ); 
         cal.set( Calendar.HOUR_OF_DAY, getHour( zuluTime ) ); 
         cal.set( Calendar.MINUTE, getMinutes( zuluTime ) );
