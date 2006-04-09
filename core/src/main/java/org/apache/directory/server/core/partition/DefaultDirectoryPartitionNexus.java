@@ -810,7 +810,7 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
         }
         for ( Iterator oids = extensionOids.iterator(); oids.hasNext(); )
         {
-            supportedExtension.add( ( String ) oids.next() );
+            supportedExtension.add( oids.next() );
         }
     }
 }

@@ -337,7 +337,7 @@ public class SchemaChecker
         }
 
         Set rdnAttributes = getRdnAttributes( name );
-        String id = ( String ) attribute.getID();
+        String id = attribute.getID();
 
         if ( !rdnAttributes.contains( id ) )
         {

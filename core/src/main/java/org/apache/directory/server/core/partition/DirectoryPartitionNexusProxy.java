@@ -481,7 +481,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
             { name }, bypass ) );
         try
         {
-            OidRegistry registry = ( OidRegistry ) this.service.getConfiguration().getGlobalRegistries()
+            OidRegistry registry = this.service.getConfiguration().getGlobalRegistries()
                 .getOidRegistry();
 
             LdapDN.normalize( name, registry.getNameByOid() );
