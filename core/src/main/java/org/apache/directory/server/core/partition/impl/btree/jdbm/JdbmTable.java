@@ -1065,6 +1065,11 @@ public class JdbmTable implements Table
 
         try
         {
+            /*
+             * Something is seriously wrong here.  Why would we have both conditions load
+             * the value the same way from the btree.  Some code changes must have been made
+             * and something lost in this process.  Will need to figure out what happened.
+             */
             if ( !allowsDuplicates )
             {
                 val = bt.find( key );
