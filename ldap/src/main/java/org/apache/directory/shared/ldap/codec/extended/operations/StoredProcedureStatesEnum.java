@@ -61,21 +61,28 @@ public class StoredProcedureStatesEnum implements IStates
     /** Parameters Value */
     public static int PARAMETERS_VALUE = 7;
 
+    // Parameter --------------------------------------------------------------
+    /** Parameter Tag */
+    public static int PARAMETER_TAG = 8;
+
+    /** Parameter Value */
+    public static int PARAMETER_VALUE = 9;
+
     // Parameter type ---------------------------------------------------------
     /** Parameter type Tag */
-    public static int PARAMETER_TYPE_TAG = 8;
+    public static int PARAMETER_TYPE_TAG = 10;
 
     /** Parameter type Value */
-    public static int PARAMETER_TYPE_VALUE = 9;
+    public static int PARAMETER_TYPE_VALUE = 11;
 
     // Parameters value -------------------------------------------------------
     /** Parameter value Tag */
-    public static int PARAMETER_VALUE_TAG = 10;
+    public static int PARAMETER_VALUE_TAG = 12;
 
     /** Parameter value Value */
-    public static int PARAMETER_VALUE_VALUE = 11;
+    public static int PARAMETER_VALUE_VALUE = 13;
 
-    public static int LAST_STORED_PROCEDURE_STATE = 12;
+    public static int LAST_STORED_PROCEDURE_STATE = 14;
 
     //=========================================================================
     // Grammars declaration.
