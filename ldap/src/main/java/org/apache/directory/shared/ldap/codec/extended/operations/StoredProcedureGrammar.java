@@ -175,7 +175,29 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
         //    ...
         // Nothing to do. The list of parameters will be created with the first parameter.
         super.transitions[StoredProcedureStatesEnum.PARAMETERS_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.PARAMETERS_VALUE, StoredProcedureStatesEnum.PARAMETER_TYPE_TAG, null );
+            StoredProcedureStatesEnum.PARAMETERS_VALUE, StoredProcedureStatesEnum.PARAMETER_TAG, new GrammarAction(
+                "Stores the parameters" )
+            {
+                public void action( IAsn1Container container ) throws DecoderException
+                {
+                    StoredProcedureContainer storedProcedureContainer = ( StoredProcedureContainer ) container;
+                    storedProcedureContainer.grammarEndAllowed( true );
+                }
+            } );
+        
+        
+
+        // parameter SEQUENCE OF  { (Tag)
+        //    ...
+        // Nothing to do
+        super.transitions[StoredProcedureStatesEnum.PARAMETER_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
+            StoredProcedureStatesEnum.PARAMETER_TAG, StoredProcedureStatesEnum.PARAMETER_VALUE, null );
+
+        // parameter SEQUENCE OF { (Value)
+        //    ...
+        // Nothing to do. 
+        super.transitions[StoredProcedureStatesEnum.PARAMETER_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
+            StoredProcedureStatesEnum.PARAMETER_VALUE, StoredProcedureStatesEnum.PARAMETER_TYPE_TAG, null );
 
         // Parameter ::= {
         //    type OCTETSTRING, (Tag)
@@ -187,7 +209,7 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
         // Parameter ::= {
         //    type OCTETSTRING, (Value)
         //    ...
-        // Nothing to do
+        // We can create a parameter, and store its type
         super.transitions[StoredProcedureStatesEnum.PARAMETER_TYPE_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
             StoredProcedureStatesEnum.PARAMETER_TYPE_VALUE, StoredProcedureStatesEnum.PARAMETER_VALUE_TAG, new GrammarAction(
                 "Store parameter type" )
@@ -240,7 +262,7 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
         // }
         // Store the parameter value
         super.transitions[StoredProcedureStatesEnum.PARAMETER_VALUE_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.PARAMETER_VALUE_VALUE, StoredProcedureStatesEnum.PARAMETER_TYPE_TAG, new GrammarAction(
+            StoredProcedureStatesEnum.PARAMETER_VALUE_VALUE, StoredProcedureStatesEnum.PARAMETER_TAG, new GrammarAction(
                 "Store parameter value" )
             {
                 public void action( IAsn1Container container ) throws DecoderException
