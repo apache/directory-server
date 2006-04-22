@@ -18,14 +18,13 @@
 package org.apache.ldap;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.apache.ldap.common.exception.LdapNamingException;
-import org.apache.ldap.server.protocol.LdapProtocolProvider;
-import org.apache.mina.common.TransportType;
-import org.apache.mina.registry.Service;
-import org.apache.mina.registry.ServiceRegistry;
+import org.apache.directory.server.ldap.LdapProtocolProvider;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.mina.common.IoAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,34 +33,25 @@ public class LdapServer
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( LdapServer.class );
 
-    private ServiceRegistry registry;
-    private LdapProtocolProvider provider;
-    private Service tcpService;
-
     private LdapConfig config;
+    private IoAcceptor acceptor;
+    private LdapProtocolProvider provider;
 
-    private String name;
-    private int port = -1;
-
-    public LdapServer( LdapConfig config, ServiceRegistry registry, Hashtable env )
+    public LdapServer( LdapConfig config, IoAcceptor acceptor, Hashtable env )
     {
         this.config = config;
-        this.registry = registry;
+        this.acceptor = acceptor;
 
-        port = config.getPort();
-        name = config.getName();
+        String name = config.getName();
+        int port = config.getPort();
 
         try
         {
-            log.debug( name + " starting on " + port );
-
             provider = new LdapProtocolProvider( (Hashtable) env.clone() );
 
-            tcpService = new Service( name, TransportType.SOCKET, port );
+            acceptor.bind( new InetSocketAddress( port ), provider.getHandler() );
 
-            registry.bind( tcpService, provider.getHandler() );
-
-            log.debug( name + " listening on port " + port );
+            log.debug( "{} listening on port {}", name, new Integer( port ) );
         }
         catch ( LdapNamingException lne )
         {
@@ -80,12 +70,11 @@ public class LdapServer
 
     public void destroy()
     {
-        registry.unbind( tcpService );
+        acceptor.unbind( new InetSocketAddress( config.getPort() ) );
 
-        registry = null;
+        acceptor = null;
         provider = null;
-        tcpService = null;
 
-        log.debug( name + " has stopped listening on port " + port );
+        log.debug( "{} has stopped listening on port {}", config.getName(), new Integer( config.getPort() ) );
     }
 }

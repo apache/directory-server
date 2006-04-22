@@ -17,7 +17,7 @@
 
 package org.apache.kerberos;
 
-import org.ungoverned.gravity.servicebinder.GenericActivator;
+import org.apache.felix.servicebinder.GenericActivator;
 
 public class Activator extends GenericActivator
 {

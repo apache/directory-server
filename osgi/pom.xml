@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>build-osgi</artifactId>
+  <packaging>pom</packaging>
+  <name>ApacheDS OSGi Bundle Build</name>
+  <modules>
+    <module>apacheds</module>
+    <module>changepw</module>
+    <module>dns</module>
+    <module>jmx</module>
+    <module>kerberos</module>
+    <module>ldap</module>
+    <module>loader</module>
+    <module>network</module>
+    <module>ntp</module>
+  </modules>
+</project>

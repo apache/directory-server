@@ -24,14 +24,17 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.mina.registry.ServiceRegistry;
-import org.apache.protocol.common.MapAdapter;
+import org.apache.directory.server.ntp.NtpConfiguration;
+import org.apache.directory.server.ntp.NtpServer;
+import org.apache.directory.server.protocol.shared.MapAdapter;
+import org.apache.felix.servicebinder.Lifecycle;
+import org.apache.mina.common.IoAcceptor;
+import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ungoverned.gravity.servicebinder.Lifecycle;
 
 public class NtpServerFactory implements ManagedServiceFactory, Lifecycle
 {
@@ -41,7 +44,7 @@ public class NtpServerFactory implements ManagedServiceFactory, Lifecycle
     private static final String DEFAULT_PID = "org.apache.ntp.default";
 
     private ConfigurationAdmin cm;
-    private ServiceRegistry registry;
+    private IoAcceptor acceptor = new DatagramAcceptor();
 
     private Map servers = Collections.synchronizedMap( new HashMap() );
 
@@ -77,7 +80,7 @@ public class NtpServerFactory implements ManagedServiceFactory, Lifecycle
             if ( ntpServer == null || ntpServer.isDifferent( config ) )
             {
                 deleted( pid );
-                ntpServer = new NtpServer( ntpConfig, registry );
+                ntpServer = new NtpServer( ntpConfig, acceptor );
                 servers.put( pid, ntpServer );
             }
         }
@@ -142,18 +145,6 @@ public class NtpServerFactory implements ManagedServiceFactory, Lifecycle
 
             servers.clear();
         }
-    }
-
-    public void setServiceRegistry( ServiceRegistry registry )
-    {
-        this.registry = registry;
-        log.debug( getName() + " has bound to " + registry );
-    }
-
-    public void unsetServiceRegistry( ServiceRegistry registry )
-    {
-        this.registry = null;
-        log.debug( getName() + " has unbound from " + registry );
     }
 
     public void setConfigurationAdmin( ConfigurationAdmin cm )

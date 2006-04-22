@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-protocol-osgi-ldap</artifactId>
+  <name>ApacheDS LDAP Protocol Bundle</name>
+  <description>
+    The ApacheDS LDAP Network Service packaged as an OSGi bundle.
+  </description>
+  <packaging>osgi-bundle</packaging>  
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <version>1.2.19</version>
+      <!--<scope>provided</scope>-->
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.mina</groupId>
+      <artifactId>mina-core</artifactId>
+      <version>0.9.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-protocol-shared</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-protocol-ldap</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>0.8.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>0.8.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.servicebinder</artifactId>
+      <version>0.8.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix.plugins</groupId>
+        <artifactId>maven-osgi-plugin</artifactId>
+        <version>0.8.0-SNAPSHOT</version>
+        <extensions>true</extensions>
+        <configuration>
+          <osgiManifest>
+            <bundleName>ApacheDS LDAP Protocol Bundle</bundleName>
+            <bundleVendor>Apache Software Foundation</bundleVendor>
+            <bundleCategory>Network Service</bundleCategory>
+            <bundleDescription>
+              A bundle that registers the Apache Directory JNDI provider backing store.
+            </bundleDescription>
+            <bundleActivator>
+              org.apache.ldap.Activator
+            </bundleActivator>
+            <importPackage>
+              org.osgi.framework,javax.naming,javax.naming.directory,javax.naming.ldap,javax.naming.spi,org.apache.mina.registry,org.apache.mina.protocol,org.apache.mina.protocol.handler,org.apache.mina.protocol.codec,org.apache.mina.common,org.osgi.service.cm
+            </importPackage>
+            <exportPackage>
+              org.apache.directory.shared.ldap.exception,org.apache.ldap.common.filter,org.apache.ldap.server.jndi,org.apache.directory.server.core.configuration
+            </exportPackage>
+          </osgiManifest>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+

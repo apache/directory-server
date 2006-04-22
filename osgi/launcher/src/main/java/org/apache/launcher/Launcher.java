@@ -25,9 +25,9 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.felix.framework.Felix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ungoverned.oscar.Oscar;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -328,7 +328,7 @@ public class Launcher
         System.setProperty( "oscar.strict.osgi", "false" );
         System.setProperty( "oscar.embedded.execution", embedded ? "true" : "false" );
 
-        Oscar main = new Oscar();
+        new Felix();
     }
 
     /**

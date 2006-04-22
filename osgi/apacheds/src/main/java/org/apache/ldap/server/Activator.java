@@ -26,19 +26,19 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.ldap.common.message.LockableAttributeImpl;
-import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
-import org.apache.ldap.server.configuration.MutableStartupConfiguration;
-import org.apache.ldap.server.configuration.ShutdownConfiguration;
-import org.apache.ldap.server.jndi.CoreContextFactory;
-import org.apache.ldap.server.schema.bootstrap.ApacheSchema;
-import org.apache.ldap.server.schema.bootstrap.ApachednsSchema;
-import org.apache.ldap.server.schema.bootstrap.CoreSchema;
-import org.apache.ldap.server.schema.bootstrap.CosineSchema;
-import org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema;
-import org.apache.ldap.server.schema.bootstrap.Krb5kdcSchema;
-import org.apache.ldap.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
+import org.apache.directory.server.core.configuration.ShutdownConfiguration;
+import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.server.core.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.core.schema.bootstrap.ApachednsSchema;
+import org.apache.directory.server.core.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.core.schema.bootstrap.CosineSchema;
+import org.apache.directory.server.core.schema.bootstrap.InetorgpersonSchema;
+import org.apache.directory.server.core.schema.bootstrap.Krb5kdcSchema;
+import org.apache.directory.server.core.schema.bootstrap.SystemSchema;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -61,20 +61,20 @@ public class Activator implements BundleActivator
      */
     public void start( BundleContext context ) throws BundleException
     {
-        log.debug( "Starting Apache Backing Store." );
-
-        Hashtable env = new Hashtable( setUpPartition() );
-
-        env.put( Context.PROVIDER_URL, "dc=example,dc=com" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
-
-        factory = new CoreContextFactory();
-
         try
         {
+            log.debug( "Starting Apache Backing Store." );
+
+            Hashtable env = new Hashtable( setUpPartition() );
+
+            env.put( Context.PROVIDER_URL, "dc=example,dc=com" );
+            env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+            env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+            env.put( Context.SECURITY_CREDENTIALS, "secret" );
+            env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
+
+            factory = new CoreContextFactory();
+
             factory.getInitialContext( env );
         }
         catch ( NamingException ne )
@@ -120,7 +120,7 @@ public class Activator implements BundleActivator
         registration = null;
     }
 
-    private Hashtable setUpPartition()
+    private Hashtable setUpPartition() throws NamingException
     {
         MutableStartupConfiguration config = new MutableStartupConfiguration();
 

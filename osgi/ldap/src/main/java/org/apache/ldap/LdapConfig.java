@@ -21,12 +21,14 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.ldap.server.DirectoryService;
-import org.apache.ldap.server.configuration.Configuration;
-import org.apache.ldap.server.configuration.ConfigurationException;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.configuration.Configuration;
+import org.apache.directory.server.core.configuration.ConfigurationException;
 
 public class LdapConfig extends Configuration
 {
+    private static final long serialVersionUID = 6738567218407227901L;
+
     public static String LDAP_PORT_KEY = "ldap.port";
     public static String LDAPS_PORT_KEY = "ldaps.port";
 

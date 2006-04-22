@@ -26,16 +26,19 @@ import java.util.Map;
 
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.kerberos.store.JndiPrincipalStoreImpl;
-import org.apache.kerberos.store.PrincipalStore;
-import org.apache.mina.registry.ServiceRegistry;
-import org.apache.protocol.common.MapAdapter;
+import org.apache.directory.server.changepw.ChangePasswordConfiguration;
+import org.apache.directory.server.changepw.ChangePasswordServer;
+import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.directory.server.protocol.shared.MapAdapter;
+import org.apache.felix.servicebinder.Lifecycle;
+import org.apache.mina.common.IoAcceptor;
+import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ungoverned.gravity.servicebinder.Lifecycle;
 
 public class ChangePasswordServerFactory implements ManagedServiceFactory, Lifecycle
 {
@@ -45,7 +48,7 @@ public class ChangePasswordServerFactory implements ManagedServiceFactory, Lifec
     private static final String DEFAULT_PID = "org.apache.changepw.default";
 
     private ConfigurationAdmin cm;
-    private ServiceRegistry registry;
+    private IoAcceptor acceptor = new DatagramAcceptor();
     private InitialContextFactory factory;
 
     private Map servers = Collections.synchronizedMap( new HashMap() );
@@ -78,7 +81,7 @@ public class ChangePasswordServerFactory implements ManagedServiceFactory, Lifec
             {
                 deleted( pid );
                 PrincipalStore store = new JndiPrincipalStoreImpl( changepwConfig, factory );
-                changepwServer = new ChangePasswordServer( changepwConfig, registry, store );
+                changepwServer = new ChangePasswordServer( changepwConfig, acceptor, store );
                 servers.put( pid, changepwServer );
             }
         }
@@ -155,18 +158,6 @@ public class ChangePasswordServerFactory implements ManagedServiceFactory, Lifec
     {
         this.factory = null;
         log.debug( getName() + " has unbound from " + factory );
-    }
-
-    public void setServiceRegistry( ServiceRegistry registry )
-    {
-        this.registry = registry;
-        log.debug( getName() + " has bound to " + registry );
-    }
-
-    public void unsetServiceRegistry( ServiceRegistry registry )
-    {
-        this.registry = null;
-        log.debug( getName() + " has unbound from " + registry );
     }
 
     public void setConfigurationAdmin( ConfigurationAdmin cm )

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-jmx-osgi</artifactId>
+  <name>ApacheDS JMX Logger Bundle</name>
+  <description>
+    An example showing how to use a JMX subsystem with OSGi bundles.
+  </description>
+  <packaging>osgi-bundle</packaging>  
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <version>1.2.19</version>
+      <!--<scope>provided</scope>-->
+    </dependency>
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j-jmx</artifactId>
+      <version>3.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>0.8.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix.plugins</groupId>
+        <artifactId>maven-osgi-plugin</artifactId>
+        <version>0.8.0-SNAPSHOT</version>
+        <extensions>true</extensions>
+        <configuration>
+          <osgiManifest>
+            <metadataLocation>metadata.xml</metadataLocation>
+            <bundleName>ApacheDS JMX Logger Bundle</bundleName>
+            <bundleVendor>Apache Software Foundation</bundleVendor>
+            <bundleCategory>Network Service</bundleCategory>
+            <bundleDescription>
+              A bundle that registers an NTP server using the service binder.
+            </bundleDescription>
+            <bundleActivator>
+              org.apache.jmx.JmxLogger
+            </bundleActivator>
+            <importPackage>
+              org.osgi.framework
+            </importPackage>
+          </osgiManifest>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

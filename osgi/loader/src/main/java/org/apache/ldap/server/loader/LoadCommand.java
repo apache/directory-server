@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.protocol.common.store.LdifFileLoader;
+import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ungoverned.osgi.service.shell.Command;

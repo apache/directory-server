@@ -17,11 +17,13 @@
 
 package org.apache.ldap.server.loader;
 
-import org.apache.ldap.server.DirectoryService;
-import org.apache.ldap.server.configuration.Configuration;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.configuration.Configuration;
 
 public class LoaderConfiguration extends Configuration
 {
+    private static final long serialVersionUID = 5272759707383129322L;
+
     /**
      * Creates a new instance with default settings.
      */
