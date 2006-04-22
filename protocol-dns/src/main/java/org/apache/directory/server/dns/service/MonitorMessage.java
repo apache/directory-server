@@ -22,10 +22,10 @@ import org.apache.directory.server.dns.messages.MessageType;
 import org.apache.directory.server.dns.messages.OpCode;
 import org.apache.directory.server.dns.messages.QuestionRecords;
 import org.apache.directory.server.dns.messages.ResponseCode;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-public abstract class MonitorMessage extends CommandBase
+public abstract class MonitorMessage implements IoHandlerCommand
 {
     protected String monitorMessage( DnsMessage message, String direction )
     {

@@ -17,7 +17,8 @@
 package org.apache.directory.server.dns.service;
 
 
-import org.apache.directory.server.protocol.shared.chain.Context;
+import org.apache.directory.server.dns.messages.DnsMessage;
+import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,16 +28,18 @@ public class MonitorReply extends MonitorMessage
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorReply.class );
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         if ( log.isDebugEnabled() )
         {
             try
             {
-                DnsContext dnsContext = ( DnsContext ) context;
+                DnsContext dnsContext = (DnsContext) session.getAttribute( getContextKey() );
+                DnsMessage reply = dnsContext.getReply();
 
-                log.debug( monitorMessage( dnsContext.getReply(), "reply" ) );
+                log.debug( monitorMessage( reply, "reply" ) );
             }
             catch ( Exception e )
             {
@@ -45,6 +48,11 @@ public class MonitorReply extends MonitorMessage
             }
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

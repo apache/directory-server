@@ -19,15 +19,21 @@ package org.apache.directory.server.dns.protocol;
 
 
 import org.apache.directory.server.dns.DnsConfiguration;
+import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.DnsMessage;
+import org.apache.directory.server.dns.messages.DnsMessageModifier;
+import org.apache.directory.server.dns.messages.MessageType;
+import org.apache.directory.server.dns.messages.OpCode;
+import org.apache.directory.server.dns.messages.ResourceRecords;
+import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.service.DnsContext;
 import org.apache.directory.server.dns.service.DomainNameServiceChain;
 import org.apache.directory.server.dns.store.RecordStore;
-import org.apache.directory.server.protocol.shared.chain.Command;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +44,8 @@ public class DnsProtocolHandler implements IoHandler
 
     private DnsConfiguration config;
     private RecordStore store;
-
-    private Command dnsService;
+    private IoHandlerCommand dnsService;
+    private String contextKey = "context";
 
 
     public DnsProtocolHandler(DnsConfiguration config, RecordStore store)
@@ -88,22 +94,44 @@ public class DnsProtocolHandler implements IoHandler
     {
         log.debug( "{} RCVD: {}", session.getRemoteAddress(), message );
 
-        DnsMessage request = ( DnsMessage ) message;
-
         try
         {
             DnsContext dnsContext = new DnsContext();
             dnsContext.setConfig( config );
             dnsContext.setStore( store );
-            dnsContext.setRequest( request );
+            session.setAttribute( getContextKey(), dnsContext );
 
-            dnsService.execute( dnsContext );
+            dnsService.execute( null, session, message );
 
-            session.write( dnsContext.getReply() );
+            DnsMessage response = dnsContext.getReply();
+
+            session.write( response );
         }
         catch ( Exception e )
         {
             log.error( e.getMessage(), e );
+
+            DnsMessage request = (DnsMessage) message;
+            DnsException de = (DnsException) e;
+
+            DnsMessageModifier modifier = new DnsMessageModifier();
+
+            modifier.setTransactionId( request.getTransactionId() );
+            modifier.setMessageType( MessageType.RESPONSE );
+            modifier.setOpCode( OpCode.QUERY );
+            modifier.setAuthoritativeAnswer( false );
+            modifier.setTruncated( false );
+            modifier.setRecursionDesired( request.isRecursionDesired() );
+            modifier.setRecursionAvailable( false );
+            modifier.setReserved( false );
+            modifier.setAcceptNonAuthenticatedData( false );
+            modifier.setResponseCode( ResponseCode.getTypeByOrdinal( de.getResponseCode() ) );
+            modifier.setQuestionRecords( request.getQuestionRecords() );
+            modifier.setAnswerRecords( new ResourceRecords() );
+            modifier.setAuthorityRecords( new ResourceRecords() );
+            modifier.setAdditionalRecords( new ResourceRecords() );
+
+            session.write( modifier.getDnsMessage() );
         }
     }
 
@@ -111,5 +139,11 @@ public class DnsProtocolHandler implements IoHandler
     public void messageSent( IoSession session, Object message )
     {
         log.debug( "{} SENT: {}", session.getRemoteAddress(), message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

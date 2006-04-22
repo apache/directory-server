@@ -24,16 +24,14 @@ import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecords;
 import org.apache.directory.server.dns.store.RecordStore;
-import org.apache.directory.server.protocol.shared.chain.impl.ContextBase;
 
 
-public class DnsContext extends ContextBase
+public class DnsContext
 {
     private static final long serialVersionUID = -5911142975867852436L;
 
     private DnsConfiguration config;
     private RecordStore store;
-    private DnsMessage request;
     private DnsMessage reply;
     private ResourceRecords records = new ResourceRecords();
 
@@ -98,24 +96,6 @@ public class DnsContext extends ContextBase
     public void setReply( DnsMessage reply )
     {
         this.reply = reply;
-    }
-
-
-    /**
-     * @return Returns the request.
-     */
-    public DnsMessage getRequest()
-    {
-        return request;
-    }
-
-
-    /**
-     * @param request The request to set.
-     */
-    public void setRequest( DnsMessage request )
-    {
-        this.request = request;
     }
 
 

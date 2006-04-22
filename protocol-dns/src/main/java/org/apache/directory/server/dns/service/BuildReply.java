@@ -23,17 +23,19 @@ import org.apache.directory.server.dns.messages.MessageType;
 import org.apache.directory.server.dns.messages.OpCode;
 import org.apache.directory.server.dns.messages.ResourceRecords;
 import org.apache.directory.server.dns.messages.ResponseCode;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-public class BuildReply extends CommandBase
+public class BuildReply implements IoHandlerCommand
 {
-    public boolean execute( Context context ) throws Exception
+    private String contextKey = "context";
+
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        DnsContext dnsContext = ( DnsContext ) context;
+        DnsContext dnsContext = (DnsContext) session.getAttribute( getContextKey() );
         ResourceRecords records = dnsContext.getResourceRecords();
-        DnsMessage request = dnsContext.getRequest();
+        DnsMessage request = (DnsMessage) message;
 
         DnsMessageModifier modifier = new DnsMessageModifier();
 
@@ -55,6 +57,11 @@ public class BuildReply extends CommandBase
 
         dnsContext.setReply( modifier.getDnsMessage() );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

@@ -19,25 +19,26 @@ package org.apache.directory.server.dns.service;
 
 import org.apache.directory.server.dns.messages.ResourceRecords;
 import org.apache.directory.server.dns.store.RecordStore;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class MonitorContext extends CommandBase
+public class MonitorContext implements IoHandlerCommand
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorContext.class );
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         if ( log.isDebugEnabled() )
         {
             try
             {
-                DnsContext dnsContext = ( DnsContext ) context;
+                DnsContext dnsContext = (DnsContext) session.getAttribute( getContextKey() );
                 RecordStore store = dnsContext.getStore();
                 ResourceRecords records = dnsContext.getResourceRecords();
 
@@ -55,6 +56,11 @@ public class MonitorContext extends CommandBase
             }
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

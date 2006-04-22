@@ -17,7 +17,7 @@
 package org.apache.directory.server.dns.service;
 
 
-import org.apache.directory.server.protocol.shared.chain.impl.ChainBase;
+import org.apache.mina.handler.chain.IoHandlerChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Domain Name Service (DNS) Protocol (RFC 1034, 1035)
  */
-public class DomainNameServiceChain extends ChainBase
+public class DomainNameServiceChain extends IoHandlerChain
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( DomainNameServiceChain.class );
@@ -33,25 +33,23 @@ public class DomainNameServiceChain extends ChainBase
 
     public DomainNameServiceChain()
     {
-        addCommand( new DnsExceptionHandler() );
-
         if ( log.isDebugEnabled() )
         {
-            addCommand( new MonitorRequest() );
+            addLast( "monitorRequest", new MonitorRequest() );
         }
 
-        addCommand( new GetResourceRecords() );
+        addLast( "getResourceRecords", new GetResourceRecords() );
 
         if ( log.isDebugEnabled() )
         {
-            addCommand( new MonitorContext() );
+            addLast( "monitorContext", new MonitorContext() );
         }
 
-        addCommand( new BuildReply() );
+        addLast( "buildReply", new BuildReply() );
 
         if ( log.isDebugEnabled() )
         {
-            addCommand( new MonitorReply() );
+            addLast( "monitorReply", new MonitorReply() );
         }
     }
 }

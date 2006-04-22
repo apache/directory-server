@@ -21,22 +21,27 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.directory.server.dns.DnsException;
+import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.QuestionRecords;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.RecordStore;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-public class GetResourceRecords extends CommandBase
+public class GetResourceRecords implements IoHandlerCommand
 {
-    public boolean execute( Context context ) throws Exception
+    private String contextKey = "context";
+
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        DnsContext dnsContext = ( DnsContext ) context;
+        DnsContext dnsContext = (DnsContext) session.getAttribute( getContextKey() );
         RecordStore store = dnsContext.getStore();
 
-        QuestionRecords questions = dnsContext.getRequest().getQuestionRecords();
+        DnsMessage request = (DnsMessage) message;
+        QuestionRecords questions = request.getQuestionRecords();
 
         Iterator it = questions.iterator();
 
@@ -45,7 +50,7 @@ public class GetResourceRecords extends CommandBase
             dnsContext.addResourceRecords( getEntry( store, ( QuestionRecord ) it.next() ) );
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
     }
 
 
@@ -56,6 +61,10 @@ public class GetResourceRecords extends CommandBase
         try
         {
             records = store.getRecords( question );
+        }
+        catch ( LdapNameNotFoundException lnnfe )
+        {
+            throw new DnsException( ResponseCode.NAME_ERROR );
         }
         catch ( Exception e )
         {
@@ -68,5 +77,10 @@ public class GetResourceRecords extends CommandBase
         }
 
         return records;
+    }
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }
