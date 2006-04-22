@@ -5,14 +5,6 @@
     <provides service="org.osgi.service.cm.ManagedServiceFactory"/>
     <property name="service.pid" value="org.apache.kerberos.factory" type="string"/>
     <requires
-        service="org.apache.mina.registry.ServiceRegistry"
-        filter=""
-        cardinality="1..1"
-        policy="static"
-        bind-method="setServiceRegistry"
-        unbind-method="unsetServiceRegistry"
-    />
-    <requires
         service="org.osgi.service.cm.ConfigurationAdmin"
         filter=""
         cardinality="0..n"
