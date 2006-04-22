@@ -20,13 +20,13 @@ package org.apache.directory.server.kerberos.kdc;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-public class SelectChecksumType extends CommandBase
+public class SelectChecksumType implements IoHandlerCommand
 {
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         boolean isAllowedChecksumType = true;
 
@@ -35,7 +35,7 @@ public class SelectChecksumType extends CommandBase
             throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP );
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
     }
 
 

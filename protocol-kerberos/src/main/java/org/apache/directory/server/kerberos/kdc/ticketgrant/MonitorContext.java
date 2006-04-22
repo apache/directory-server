@@ -29,25 +29,26 @@ import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class MonitorContext extends CommandBase
+public class MonitorContext implements IoHandlerCommand
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorContext.class );
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         if ( log.isDebugEnabled() )
         {
             try
             {
-                TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
+                TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
 
                 PrincipalStore store = tgsContext.getStore();
                 ApplicationRequest authHeader = tgsContext.getAuthHeader();
@@ -107,6 +108,12 @@ public class MonitorContext extends CommandBase
             }
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

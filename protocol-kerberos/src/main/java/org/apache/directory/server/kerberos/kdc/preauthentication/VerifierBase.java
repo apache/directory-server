@@ -26,11 +26,18 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionType
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-public abstract class VerifierBase extends CommandBase
+public abstract class VerifierBase implements IoHandlerCommand
 {
+    private String contextKey = "context";
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
+    }
+
     public byte[] preparePreAuthenticationError()
     {
         PreAuthenticationData[] paDataSequence = new PreAuthenticationData[2];

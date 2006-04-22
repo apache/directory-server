@@ -22,15 +22,17 @@ import org.apache.directory.server.kerberos.shared.messages.components.Authentic
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-public class SealReply extends CommandBase
+public class SealReply implements IoHandlerCommand
 {
-    public boolean execute( Context ctx ) throws Exception
+    private String contextKey = "context";
+
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        TicketGrantingContext tgsContext = ( TicketGrantingContext ) ctx;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
 
         TicketGrantReply reply = ( TicketGrantReply ) tgsContext.getReply();
         Ticket tgt = tgsContext.getTgt();
@@ -50,6 +52,12 @@ public class SealReply extends CommandBase
 
         reply.setEncPart( encryptedData );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

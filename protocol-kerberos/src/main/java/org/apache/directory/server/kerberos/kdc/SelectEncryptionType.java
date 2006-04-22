@@ -20,15 +20,17 @@ package org.apache.directory.server.kerberos.kdc;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-public class SelectEncryptionType extends CommandBase
+public class SelectEncryptionType implements IoHandlerCommand
 {
-    public boolean execute( Context context ) throws Exception
+    private String contextKey = "context";
+
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        KdcContext kdcContext = ( KdcContext ) context;
+        KdcContext kdcContext = ( KdcContext ) session.getAttribute( getContextKey() );
         KdcConfiguration config = kdcContext.getConfig();
 
         EncryptionType[] requestedTypes = kdcContext.getRequest().getEType();
@@ -40,7 +42,7 @@ public class SelectEncryptionType extends CommandBase
             throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP );
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
     }
 
 
@@ -58,5 +60,11 @@ public class SelectEncryptionType extends CommandBase
         }
 
         return null;
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

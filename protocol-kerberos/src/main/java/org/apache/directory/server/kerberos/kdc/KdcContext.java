@@ -23,10 +23,9 @@ import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.server.protocol.shared.chain.impl.ContextBase;
 
 
-public class KdcContext extends ContextBase
+public class KdcContext
 {
     private static final long serialVersionUID = 6490030984626825108L;
 

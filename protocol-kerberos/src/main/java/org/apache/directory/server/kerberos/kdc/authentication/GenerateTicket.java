@@ -33,21 +33,22 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class GenerateTicket extends CommandBase
+public class GenerateTicket implements IoHandlerCommand
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( GenerateTicket.class );
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        AuthenticationContext authContext = ( AuthenticationContext ) context;
+        AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
 
         KdcRequest request = authContext.getRequest();
         LockBox lockBox = authContext.getLockBox();
@@ -176,6 +177,12 @@ public class GenerateTicket extends CommandBase
 
         authContext.setTicket( newTicket );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

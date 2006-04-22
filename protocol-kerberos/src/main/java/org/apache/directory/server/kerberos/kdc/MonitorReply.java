@@ -19,45 +19,46 @@ package org.apache.directory.server.kerberos.kdc;
 
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class MonitorReply extends CommandBase
+public class MonitorReply implements IoHandlerCommand
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorReply.class );
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        KdcContext kdcContext = ( KdcContext ) context;
-        Object message = kdcContext.getReply();
+        KdcContext kdcContext = ( KdcContext ) session.getAttribute( getContextKey() );
+        Object reply = kdcContext.getReply();
 
-        if ( message instanceof KdcReply )
+        if ( reply instanceof KdcReply )
         {
-            KdcReply reply = ( KdcReply ) message;
+            KdcReply success = ( KdcReply ) reply;
 
             if ( log.isDebugEnabled() )
             {
                 log.debug( "Responding to authentication request with reply:" + "\n\tclient realm:          "
-                    + reply.getClientRealm() + "\n\tserver realm:          " + reply.getServerRealm()
-                    + "\n\tserverPrincipal:       " + reply.getServerPrincipal() + "\n\tclientPrincipal:       "
-                    + reply.getClientPrincipal() + "\n\thostAddresses:         " + reply.getClientAddresses()
-                    + "\n\tstart time:            " + reply.getStartTime() + "\n\tend time:              "
-                    + reply.getEndTime() + "\n\tauth time:             " + reply.getAuthTime()
-                    + "\n\trenew till time:       " + reply.getRenewTill() + "\n\tmessageType:           "
-                    + reply.getMessageType() + "\n\tnonce:                 " + reply.getNonce()
-                    + "\n\tprotocolVersionNumber: " + reply.getProtocolVersionNumber() );
+                    + success.getClientRealm() + "\n\tserver realm:          " + success.getServerRealm()
+                    + "\n\tserverPrincipal:       " + success.getServerPrincipal() + "\n\tclientPrincipal:       "
+                    + success.getClientPrincipal() + "\n\thostAddresses:         " + success.getClientAddresses()
+                    + "\n\tstart time:            " + success.getStartTime() + "\n\tend time:              "
+                    + success.getEndTime() + "\n\tauth time:             " + success.getAuthTime()
+                    + "\n\trenew till time:       " + success.getRenewTill() + "\n\tmessageType:           "
+                    + success.getMessageType() + "\n\tnonce:                 " + success.getNonce()
+                    + "\n\tprotocolVersionNumber: " + success.getProtocolVersionNumber() );
             }
         }
         else
         {
-            if ( message instanceof ErrorMessage )
+            if ( reply instanceof ErrorMessage )
             {
-                ErrorMessage error = ( ErrorMessage ) message;
+                ErrorMessage error = ( ErrorMessage ) reply;
 
                 if ( log.isDebugEnabled() )
                 {
@@ -70,6 +71,12 @@ public class MonitorReply extends CommandBase
             }
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

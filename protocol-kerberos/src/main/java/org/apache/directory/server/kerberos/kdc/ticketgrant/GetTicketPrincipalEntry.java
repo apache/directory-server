@@ -23,14 +23,14 @@ import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.service.GetPrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.server.protocol.shared.chain.Context;
+import org.apache.mina.common.IoSession;
 
 
 public class GetTicketPrincipalEntry extends GetPrincipalStoreEntry
 {
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
 
         KerberosPrincipal principal = tgsContext.getTgt().getServerPrincipal();
         PrincipalStore store = tgsContext.getStore();
@@ -38,6 +38,6 @@ public class GetTicketPrincipalEntry extends GetPrincipalStoreEntry
         PrincipalStoreEntry entry = getEntry( principal, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN );
         tgsContext.setTicketPrincipalEntry( entry );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
     }
 }

@@ -19,7 +19,7 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 import org.apache.directory.server.kerberos.kdc.MonitorReply;
 import org.apache.directory.server.kerberos.kdc.MonitorRequest;
-import org.apache.directory.server.protocol.shared.chain.impl.ChainBase;
+import org.apache.mina.handler.chain.IoHandlerChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * KRB_TGS_REQ verification and KRB_TGS_REP generation
  */
-public class TicketGrantingServiceChain extends ChainBase
+public class TicketGrantingServiceChain extends IoHandlerChain
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( TicketGrantingServiceChain.class );
@@ -35,35 +35,32 @@ public class TicketGrantingServiceChain extends ChainBase
 
     public TicketGrantingServiceChain()
     {
-        super();
-        addCommand( new TicketGrantingExceptionHandler() );
-
         if ( log.isDebugEnabled() )
         {
-            addCommand( new MonitorRequest() );
+            addLast( "monitorRequest", new MonitorRequest() );
         }
 
-        addCommand( new ConfigureTicketGrantingChain() );
-        addCommand( new GetAuthHeader() );
-        addCommand( new VerifyTgt() );
-        addCommand( new GetTicketPrincipalEntry() );
-        addCommand( new VerifyTgtAuthHeader() );
-        addCommand( new VerifyBodyChecksum() );
-        addCommand( new GetRequestPrincipalEntry() );
-        addCommand( new GetSessionKey() );
-        addCommand( new GenerateTicket() );
-        addCommand( new BuildReply() );
+        addLast( "configureTicketGrantingChain", new ConfigureTicketGrantingChain() );
+        addLast( "getAuthHeader", new GetAuthHeader() );
+        addLast( "verifyTgt", new VerifyTgt() );
+        addLast( "getTicketPrincipalEntry", new GetTicketPrincipalEntry() );
+        addLast( "verifyTgtAuthHeader", new VerifyTgtAuthHeader() );
+        addLast( "verifyBodyChecksum", new VerifyBodyChecksum() );
+        addLast( "getRequestPrincipalEntry", new GetRequestPrincipalEntry() );
+        addLast( "getSessionKey", new GetSessionKey() );
+        addLast( "generateTicket", new GenerateTicket() );
+        addLast( "buildReply", new BuildReply() );
 
         if ( log.isDebugEnabled() )
         {
-            addCommand( new MonitorContext() );
+            addLast( "monitorContext", new MonitorContext() );
         }
 
         if ( log.isDebugEnabled() )
         {
-            addCommand( new MonitorReply() );
+            addLast( "monitorReply", new MonitorReply() );
         }
 
-        addCommand( new SealReply() );
+        addLast( "sealReply", new SealReply() );
     }
 }

@@ -22,7 +22,7 @@ import java.security.SecureRandom;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.service.DesStringToKey;
-import org.apache.directory.server.protocol.shared.chain.Context;
+import org.apache.mina.common.IoSession;
 
 
 public class GetSessionKey extends DesStringToKey
@@ -30,12 +30,12 @@ public class GetSessionKey extends DesStringToKey
     private static final SecureRandom random = new SecureRandom();
 
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
         tgsContext.setSessionKey( getNewSessionKey() );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
     }
 
 

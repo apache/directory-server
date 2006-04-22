@@ -17,21 +17,22 @@
 package org.apache.directory.server.kerberos.kdc;
 
 
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class MonitorContext extends CommandBase
+public class MonitorContext implements IoHandlerCommand
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorContext.class );
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        KdcContext kdcContext = ( KdcContext ) context;
+        KdcContext kdcContext = ( KdcContext ) session.getAttribute( getContextKey() );
 
         if ( log.isDebugEnabled() )
         {
@@ -40,6 +41,12 @@ public class MonitorContext extends CommandBase
                 + kdcContext.getRequest() + "\n\treply:                  " + kdcContext.getReply() );
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

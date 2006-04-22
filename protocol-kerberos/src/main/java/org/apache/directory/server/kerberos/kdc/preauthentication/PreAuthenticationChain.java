@@ -16,16 +16,16 @@
  */
 package org.apache.directory.server.kerberos.kdc.preauthentication;
 
+import org.apache.mina.handler.chain.IoHandlerChain;
 
-import org.apache.directory.server.protocol.shared.chain.impl.ChainBase;
 
 
-public class PreAuthenticationChain extends ChainBase
+
+public class PreAuthenticationChain extends IoHandlerChain
 {
     public PreAuthenticationChain()
     {
-        super();
-        addCommand( new VerifySam() );
-        addCommand( new VerifyEncryptedTimestamp() );
+        addLast( "verifySam", new VerifySam() );
+        addLast( "verifyEncryptedTimestamp", new VerifyEncryptedTimestamp() );
     }
 }

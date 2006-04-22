@@ -27,18 +27,20 @@ import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
 /*
  * differs from the changepw getAuthHeader by verifying the presence of TGS_REQ
  */
-public class GetAuthHeader extends CommandBase
+public class GetAuthHeader implements IoHandlerCommand
 {
-    public boolean execute( Context context ) throws Exception
+    private String contextKey = "context";
+
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
         KdcRequest request = tgsContext.getRequest();
 
         ApplicationRequest authHeader = getAuthHeader( request );
@@ -47,7 +49,13 @@ public class GetAuthHeader extends CommandBase
         tgsContext.setAuthHeader( authHeader );
         tgsContext.setTgt( tgt );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 
 

@@ -20,19 +20,25 @@ package org.apache.directory.server.kerberos.protocol;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import javax.security.auth.kerberos.KerberosPrincipal;
+
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationContext;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationServiceChain;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingContext;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingServiceChain;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
+import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.server.protocol.shared.chain.Command;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,9 +56,9 @@ public class KerberosProtocolHandler implements IoHandler
 
     private KdcConfiguration config;
     private PrincipalStore store;
-
-    private Command authService;
-    private Command tgsService;
+    private IoHandlerCommand authService;
+    private IoHandlerCommand tgsService;
+    private String contextKey = "context";
 
 
     public KerberosProtocolHandler(KdcConfiguration config, PrincipalStore store)
@@ -133,8 +139,9 @@ public class KerberosProtocolHandler implements IoHandler
                     authContext.setStore( store );
                     authContext.setClientAddress( clientAddress );
                     authContext.setRequest( request );
+                    session.setAttribute( getContextKey(), authContext );
 
-                    authService.execute( authContext );
+                    authService.execute( null, session, message );
 
                     session.write( authContext.getReply() );
                     break;
@@ -145,8 +152,9 @@ public class KerberosProtocolHandler implements IoHandler
                     tgsContext.setStore( store );
                     tgsContext.setClientAddress( clientAddress );
                     tgsContext.setRequest( request );
+                    session.setAttribute( getContextKey(), tgsContext );
 
-                    tgsService.execute( tgsContext );
+                    tgsService.execute( null, session, message );
 
                     session.write( tgsContext.getReply() );
                     break;
@@ -162,6 +170,10 @@ public class KerberosProtocolHandler implements IoHandler
         catch ( Exception e )
         {
             log.error( e.getMessage() );
+
+            KerberosException ke = ( KerberosException ) e;
+
+            session.write( getErrorMessage( config.getKdcPrincipal(), ke ) );
         }
     }
 
@@ -172,5 +184,28 @@ public class KerberosProtocolHandler implements IoHandler
         {
             log.debug( session.getRemoteAddress() + " SENT: " + message );
         }
+    }
+
+
+    public ErrorMessage getErrorMessage( KerberosPrincipal principal, KerberosException exception )
+    {
+        ErrorMessageModifier modifier = new ErrorMessageModifier();
+
+        KerberosTime now = new KerberosTime();
+
+        modifier.setErrorCode( exception.getErrorCode() );
+        modifier.setExplanatoryText( exception.getMessage() );
+        modifier.setServerPrincipal( principal );
+        modifier.setServerTime( now );
+        modifier.setServerMicroSecond( 0 );
+        modifier.setExplanatoryData( exception.getExplanatoryData() );
+
+        return modifier.getErrorMessage();
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

@@ -19,23 +19,21 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 
 import org.apache.directory.server.kerberos.kdc.MonitorRequest;
 import org.apache.directory.server.kerberos.kdc.preauthentication.PreAuthenticationChain;
-import org.apache.directory.server.protocol.shared.chain.impl.ChainBase;
+import org.apache.mina.handler.chain.IoHandlerChain;
 
 
-public class AuthenticationServiceChain extends ChainBase
+public class AuthenticationServiceChain extends IoHandlerChain
 {
     public AuthenticationServiceChain()
     {
-        super();
-        addCommand( new AuthenticationExceptionHandler() );
-        addCommand( new MonitorRequest() );
-        addCommand( new ConfigureAuthenticationChain() );
-        addCommand( new GetClientEntry() );
-        addCommand( new PreAuthenticationChain() );
-        addCommand( new GetServerEntry() );
-        addCommand( new GetSessionKey() );
-        addCommand( new GenerateTicket() );
-        addCommand( new BuildReply() );
-        addCommand( new SealReply() );
+        addLast( "monitorRequest", new MonitorRequest() );
+        addLast( "configureAuthenticationChain", new ConfigureAuthenticationChain() );
+        addLast( "getClientEntry", new GetClientEntry() );
+        addLast( "preAuthenticationChain", new PreAuthenticationChain() );
+        addLast( "getServerEntry", new GetServerEntry() );
+        addLast( "getSessionKey", new GetSessionKey() );
+        addLast( "generateTicket", new GenerateTicket() );
+        addLast( "buildReply", new BuildReply() );
+        addLast( "sealReply", new SealReply() );
     }
 }

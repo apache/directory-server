@@ -22,15 +22,17 @@ import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-public class BuildReply extends CommandBase
+public class BuildReply implements IoHandlerCommand
 {
-    public boolean execute( Context ctx ) throws Exception
+    private String contextKey = "context";
+
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        AuthenticationContext authContext = ( AuthenticationContext ) ctx;
+        AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
         KdcRequest request = authContext.getRequest();
         Ticket ticket = authContext.getTicket();
 
@@ -61,6 +63,12 @@ public class BuildReply extends CommandBase
 
         authContext.setReply( reply );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

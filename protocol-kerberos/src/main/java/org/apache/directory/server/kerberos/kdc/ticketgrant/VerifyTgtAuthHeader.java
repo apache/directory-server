@@ -26,14 +26,14 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.kerberos.shared.service.VerifyAuthHeader;
-import org.apache.directory.server.protocol.shared.chain.Context;
+import org.apache.mina.common.IoSession;
 
 
 public class VerifyTgtAuthHeader extends VerifyAuthHeader
 {
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
 
         ApplicationRequest authHeader = tgsContext.getAuthHeader();
         Ticket tgt = tgsContext.getTgt();
@@ -49,6 +49,6 @@ public class VerifyTgtAuthHeader extends VerifyAuthHeader
 
         tgsContext.setAuthenticator( authenticator );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
     }
 }
