@@ -28,10 +28,9 @@ import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.server.protocol.shared.chain.impl.ContextBase;
 
 
-public class ChangePasswordContext extends ContextBase
+public class ChangePasswordContext
 {
     private static final long serialVersionUID = -5124209294966799740L;
 

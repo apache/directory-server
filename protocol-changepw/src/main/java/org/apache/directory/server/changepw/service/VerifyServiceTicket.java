@@ -22,14 +22,16 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.service.VerifyTicket;
-import org.apache.directory.server.protocol.shared.chain.Context;
+import org.apache.mina.common.IoSession;
 
 
 public class VerifyServiceTicket extends VerifyTicket
 {
-    public boolean execute( Context context ) throws Exception
+    private String contextKey = "context";
+
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
         ChangePasswordConfiguration config = changepwContext.getConfig();
         Ticket ticket = changepwContext.getTicket();
         String primaryRealm = config.getPrimaryRealm();
@@ -37,6 +39,12 @@ public class VerifyServiceTicket extends VerifyTicket
 
         verifyTicket( ticket, primaryRealm, changepwPrincipal );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

@@ -20,18 +20,20 @@ package org.apache.directory.server.changepw.service;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
 /*
  * differs from the TGS getAuthHeader by not verifying the presence of TGS_REQ
  */
-public class GetAuthHeader extends CommandBase
+public class GetAuthHeader implements IoHandlerCommand
 {
-    public boolean execute( Context context ) throws Exception
+    private String contextKey = "context";
+
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
         ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
 
         ApplicationRequest authHeader = request.getAuthHeader();
@@ -40,6 +42,12 @@ public class GetAuthHeader extends CommandBase
         changepwContext.setAuthHeader( authHeader );
         changepwContext.setTicket( ticket );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

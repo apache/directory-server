@@ -20,17 +20,26 @@ package org.apache.directory.server.changepw.protocol;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+
+import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
+import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
+import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.service.ChangePasswordChain;
 import org.apache.directory.server.changepw.service.ChangePasswordContext;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier;
+import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.server.protocol.shared.chain.Command;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +50,8 @@ public class ChangePasswordProtocolHandler implements IoHandler
 
     private ChangePasswordConfiguration config;
     private PrincipalStore store;
-
-    private Command changepwService;
+    private IoHandlerCommand changepwService;
+    private String contextKey = "context";
 
 
     public ChangePasswordProtocolHandler(ChangePasswordConfiguration config, PrincipalStore store)
@@ -102,14 +111,24 @@ public class ChangePasswordProtocolHandler implements IoHandler
             changepwContext.setStore( store );
             changepwContext.setClientAddress( clientAddress );
             changepwContext.setRequest( request );
+            session.setAttribute( getContextKey(), changepwContext );
 
-            changepwService.execute( changepwContext );
+            changepwService.execute( null, session, message );
 
             session.write( changepwContext.getReply() );
         }
         catch ( Exception e )
         {
             log.error( e.getMessage() );
+
+            ChangePasswordException cpe = ( ChangePasswordException ) e;
+
+            ErrorMessage errorMessage = getErrorMessage( config.getChangepwPrincipal(), cpe );
+
+            ChangePasswordErrorModifier modifier = new ChangePasswordErrorModifier();
+            modifier.setErrorMessage( errorMessage );
+
+            session.write( modifier.getChangePasswordError() );
         }
     }
 
@@ -120,5 +139,45 @@ public class ChangePasswordProtocolHandler implements IoHandler
         {
             log.debug( "{} SENT: {}", session.getRemoteAddress(), message );
         }
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
+    }
+
+
+    private ErrorMessage getErrorMessage( KerberosPrincipal principal, KerberosException exception )
+    {
+        ErrorMessageModifier modifier = new ErrorMessageModifier();
+
+        KerberosTime now = new KerberosTime();
+
+        modifier.setErrorCode( exception.getErrorCode() );
+        modifier.setExplanatoryText( exception.getMessage() );
+        modifier.setServerPrincipal( principal );
+        modifier.setServerTime( now );
+        modifier.setServerMicroSecond( 0 );
+        modifier.setExplanatoryData( buildExplanatoryData( exception ) );
+
+        return modifier.getErrorMessage();
+    }
+
+
+    private byte[] buildExplanatoryData( KerberosException exception )
+    {
+        short resultCode = ( short ) exception.getErrorCode();
+        byte[] resultString = exception.getExplanatoryData();
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate( 256 );
+        byteBuffer.putShort( resultCode );
+        byteBuffer.put( resultString );
+
+        byteBuffer.flip();
+        byte[] explanatoryData = new byte[byteBuffer.remaining()];
+        byteBuffer.get( explanatoryData, 0, explanatoryData.length );
+
+        return explanatoryData;
     }
 }

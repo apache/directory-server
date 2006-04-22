@@ -24,21 +24,22 @@ import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class ProcessPasswordChange extends CommandBase
+public class ProcessPasswordChange implements IoHandlerCommand
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( ProcessPasswordChange.class );
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
         PrincipalStore store = changepwContext.getStore();
         Authenticator authenticator = changepwContext.getAuthenticator();
@@ -64,6 +65,12 @@ public class ProcessPasswordChange extends CommandBase
             throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_HARDERROR );
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

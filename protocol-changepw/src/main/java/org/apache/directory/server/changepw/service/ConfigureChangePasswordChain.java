@@ -20,23 +20,30 @@ package org.apache.directory.server.changepw.service;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-public class ConfigureChangePasswordChain extends CommandBase
+public class ConfigureChangePasswordChain implements IoHandlerCommand
 {
     private static final ReplayCache replayCache = new InMemoryReplayCache();
     private static final LockBox lockBox = new LockBox();
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
         changepwContext.setReplayCache( replayCache );
         changepwContext.setLockBox( lockBox );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

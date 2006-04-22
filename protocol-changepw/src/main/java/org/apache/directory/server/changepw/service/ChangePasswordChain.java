@@ -17,7 +17,7 @@
 package org.apache.directory.server.changepw.service;
 
 
-import org.apache.directory.server.protocol.shared.chain.impl.ChainBase;
+import org.apache.mina.handler.chain.IoHandlerChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Kerberos Change Password and Set Password Protocols (RFC 3244)
  */
-public class ChangePasswordChain extends ChainBase
+public class ChangePasswordChain extends IoHandlerChain
 {
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( ChangePasswordChain.class );
@@ -33,34 +33,31 @@ public class ChangePasswordChain extends ChainBase
 
     public ChangePasswordChain()
     {
-        super();
-        addCommand( new ChangePasswordExceptionHandler() );
-
         if ( log.isDebugEnabled() )
         {
-            addCommand( new MonitorRequest() );
+            addLast( "monitorRequest", new MonitorRequest() );
         }
 
-        addCommand( new ConfigureChangePasswordChain() );
-        addCommand( new GetAuthHeader() );
-        addCommand( new VerifyServiceTicket() );
-        addCommand( new GetServerEntry() );
-        addCommand( new VerifyServiceTicketAuthHeader() );
+        addLast( "configureChangePasswordChain", new ConfigureChangePasswordChain() );
+        addLast( "getAuthHeader", new GetAuthHeader() );
+        addLast( "verifyServiceTicket", new VerifyServiceTicket() );
+        addLast( "getServerEntry", new GetServerEntry() );
+        addLast( "verifyServiceTicketAuthHeader", new VerifyServiceTicketAuthHeader() );
 
-        addCommand( new ExtractPassword() );
+        addLast( "extractPassword", new ExtractPassword() );
 
         if ( log.isDebugEnabled() )
         {
-            addCommand( new MonitorContext() );
+            addLast( "monitorContext", new MonitorContext() );
         }
 
-        addCommand( new CheckPasswordPolicy() );
-        addCommand( new ProcessPasswordChange() );
-        addCommand( new BuildReply() );
+        addLast( "checkPasswordPolicy", new CheckPasswordPolicy() );
+        addLast( "processPasswordChange", new ProcessPasswordChange() );
+        addLast( "buildReply", new BuildReply() );
 
         if ( log.isDebugEnabled() )
         {
-            addCommand( new MonitorReply() );
+            addLast( "monitorReply", new MonitorReply() );
         }
     }
 }

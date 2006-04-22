@@ -22,20 +22,28 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.service.GetPrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.server.protocol.shared.chain.Context;
+import org.apache.mina.common.IoSession;
 
 
 public class GetServerEntry extends GetPrincipalStoreEntry
 {
-    public boolean execute( Context context ) throws Exception
+    private String contextKey = "context";
+
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
         KerberosPrincipal principal = changepwContext.getTicket().getServerPrincipal();
         PrincipalStore store = changepwContext.getStore();
 
         changepwContext.setServerEntry( getEntry( principal, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

@@ -27,8 +27,8 @@ import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,15 +39,16 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class CheckPasswordPolicy extends CommandBase
+public class CheckPasswordPolicy implements IoHandlerCommand
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( CheckPasswordPolicy.class );
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
         ChangePasswordConfiguration config = changepwContext.getConfig();
         Authenticator authenticator = changepwContext.getAuthenticator();
@@ -62,7 +63,7 @@ public class CheckPasswordPolicy extends CommandBase
 
         if ( isValid( username, password, passwordLength, categoryCount, tokenSize ) )
         {
-            return CONTINUE_CHAIN;
+            next.execute( session, message );
         }
 
         String explanation = buildErrorMessage( username, password, passwordLength, categoryCount, tokenSize );
@@ -211,5 +212,11 @@ public class CheckPasswordPolicy extends CommandBase
         }
 
         return sb.toString();
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }
