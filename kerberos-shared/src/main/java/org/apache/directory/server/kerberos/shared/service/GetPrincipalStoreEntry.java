@@ -23,11 +23,13 @@ import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-public abstract class GetPrincipalStoreEntry extends CommandBase
+public abstract class GetPrincipalStoreEntry implements IoHandlerCommand
 {
+    private String contextKey = "context";
+
     public PrincipalStoreEntry getEntry( KerberosPrincipal principal, PrincipalStore store, ErrorType errorType )
         throws Exception
     {
@@ -48,5 +50,11 @@ public abstract class GetPrincipalStoreEntry extends CommandBase
         }
 
         return entry;
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

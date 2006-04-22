@@ -22,19 +22,27 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
 /*
  * Shared by TGS and Changepw
  */
-public abstract class VerifyTicket extends CommandBase
+public abstract class VerifyTicket implements IoHandlerCommand
 {
+    private String contextKey = "context";
+
     public void verifyTicket( Ticket ticket, String primaryRealm, KerberosPrincipal serverPrincipal ) throws Exception
     {
         if ( !ticket.getRealm().equals( primaryRealm ) && !ticket.getServerPrincipal().equals( serverPrincipal ) )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_NOT_US );
         }
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

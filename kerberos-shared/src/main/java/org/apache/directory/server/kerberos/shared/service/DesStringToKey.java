@@ -19,7 +19,7 @@ package org.apache.directory.server.kerberos.shared.service;
 
 import java.io.UnsupportedEncodingException;
 
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.params.DESParameters;
@@ -27,8 +27,10 @@ import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 
 
-public abstract class DesStringToKey extends CommandBase
+public abstract class DesStringToKey implements IoHandlerCommand
 {
+    private String contextKey = "context";
+
     public byte[] getKey( String passPhrase )
     {
         return generateKey( passPhrase );
@@ -39,6 +41,12 @@ public abstract class DesStringToKey extends CommandBase
     public byte[] getKey( String password, String realmName, String userName )
     {
         return generateKey( password + realmName + userName );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 
 
