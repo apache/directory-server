@@ -19,5 +19,6 @@
     <module>loader</module>
     <module>network</module>
     <module>ntp</module>
+    <module>logger</module>
   </modules>
 </project>
