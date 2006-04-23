@@ -71,7 +71,7 @@ public class Activator implements BundleActivator
             env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
             env.put( Context.SECURITY_AUTHENTICATION, "simple" );
             env.put( Context.SECURITY_CREDENTIALS, "secret" );
-            env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
+            env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
             factory = new CoreContextFactory();
 

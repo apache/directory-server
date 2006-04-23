@@ -25,6 +25,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.spi.InitialContextFactory;
 
+import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public class LoadCommand implements Command
         String initialContext = components[ 2 ];
 
         Hashtable env = new Hashtable( new LoaderConfiguration().toJndiEnvironment() );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, initialContext );
 
         try
