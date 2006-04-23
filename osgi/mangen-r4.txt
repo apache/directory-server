@@ -1,0 +1,2075 @@
+============================================================
+osgi/logger/target/classes/nlog4j-1.2.19.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   com.sun.jdmk.comm
+   javax.jms
+   javax.mail
+   javax.mail.internet
+   javax.management
+   javax.naming
+   javax.xml.parsers
+   org.w3c.dom
+   org.xml.sax
+
+mangen proposed exports:
+   org.apache.log4j
+   org.slf4j
+
+
+============================================================
+osgi/logger/target/classes/antlr-2.7.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+
+mangen proposed exports:
+   antlr
+   antlr.collections.impl
+
+
+============================================================
+osgi/logger/target/classes/commons-lang-2.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+   org.apache.commons.lang
+
+
+============================================================
+osgi/logger/target/classes/shared-ldap-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr
+   antlr.collections.impl
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   org.apache.commons.collections
+   org.apache.commons.lang
+   org.apache.directory.shared.asn1
+   org.apache.directory.shared.asn1.ber
+   org.apache.directory.shared.asn1.ber.grammar
+   org.apache.directory.shared.asn1.ber.tlv
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.asn1.codec.stateful
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.asn1.util
+   org.apache.log4j
+   org.slf4j
+
+mangen proposed exports:
+   org.apache.directory.shared.ldap
+   org.apache.directory.shared.ldap.aci
+   org.apache.directory.shared.ldap.codec.extended.operations
+   org.apache.directory.shared.ldap.codec.search.controls
+   org.apache.directory.shared.ldap.codec.util
+   org.apache.directory.shared.ldap.exception
+   org.apache.directory.shared.ldap.filter
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.apache.directory.shared.ldap.message.extended
+   org.apache.directory.shared.ldap.name
+   org.apache.directory.shared.ldap.schema
+   org.apache.directory.shared.ldap.subtree
+   org.apache.directory.shared.ldap.util
+
+
+============================================================
+osgi/logger/target/classes/commons-collections-3.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+   org.apache.commons.collections
+
+
+============================================================
+osgi/logger/target/classes/xercesImpl-2.0.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.xml.parsers
+   org.w3c.dom.events
+   org.w3c.dom.html
+   org.w3c.dom.ranges
+   org.w3c.dom.traversal
+   org.xml.sax
+   org.xml.sax.ext
+   org.xml.sax.helpers
+
+mangen proposed exports:
+   org.w3c.dom
+
+
+============================================================
+osgi/logger/target/classes/shared-asn1-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+   org.apache.directory.shared.asn1
+   org.apache.directory.shared.asn1.ber
+   org.apache.directory.shared.asn1.ber.grammar
+   org.apache.directory.shared.asn1.ber.tlv
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.asn1.codec.stateful
+   org.apache.directory.shared.asn1.der
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.asn1.util
+
+
+============================================================
+osgi/logger/target/apacheds-osgi-logger-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   com.sun.jdmk.comm
+   javax.jms
+   javax.mail
+   javax.mail.internet
+   javax.management
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+   javax.xml.parsers
+   org.w3c.dom.events
+   org.w3c.dom.html
+   org.w3c.dom.ranges
+   org.w3c.dom.traversal
+   org.xml.sax
+   org.xml.sax.ext
+   org.xml.sax.helpers
+
+mangen proposed exports:
+
+
+============================================================
+osgi/apacheds/target/classes/antlr-2.7.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+
+mangen proposed exports:
+
+
+============================================================
+osgi/apacheds/target/classes/commons-lang-2.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/apacheds/target/classes/apacheds-core-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.apache.directory.shared.ldap.util
+
+mangen proposed exports:
+   org.apache.directory.server.core.schema.bootstrap
+
+
+============================================================
+osgi/apacheds/target/classes/shared-ldap-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr
+   antlr.collections.impl
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   org.apache.commons.collections
+   org.apache.commons.lang
+   org.apache.directory.shared.asn1
+   org.apache.directory.shared.asn1.ber
+   org.apache.directory.shared.asn1.ber.grammar
+   org.apache.directory.shared.asn1.ber.tlv
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.asn1.codec.stateful
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.asn1.util
+   org.apache.log4j
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/apacheds/target/classes/commons-collections-3.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/apacheds/target/classes/apacheds-core-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   jdbm
+   jdbm.btree
+   jdbm.helper
+   jdbm.recman
+   org.apache.commons.collections
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.ldap
+   org.apache.directory.shared.ldap.aci
+   org.apache.directory.shared.ldap.codec.util
+   org.apache.directory.shared.ldap.exception
+   org.apache.directory.shared.ldap.filter
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.apache.directory.shared.ldap.name
+   org.apache.directory.shared.ldap.schema
+   org.apache.directory.shared.ldap.subtree
+   org.apache.directory.shared.ldap.util
+   org.slf4j
+
+mangen proposed exports:
+   org.apache.directory.server.core
+   org.apache.directory.server.core.authn
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.core.jndi
+   org.apache.directory.server.core.partition
+   org.apache.directory.server.core.partition.impl.btree
+   org.apache.directory.server.core.partition.impl.btree.gui
+
+
+============================================================
+osgi/apacheds/target/classes/jdbm-1.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+   jdbm
+   jdbm.btree
+   jdbm.helper
+   jdbm.recman
+
+
+============================================================
+osgi/apacheds/target/classes/shared-asn1-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/apacheds/target/apacheds-core-osgi-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   org.apache.log4j
+   org.osgi.framework
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/network/target/classes/mina-core-0.9.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+   org.apache.mina.common
+   org.apache.mina.filter
+   org.apache.mina.filter.codec
+   org.apache.mina.handler.chain
+   org.apache.mina.handler.demux
+   org.apache.mina.transport.socket.nio
+   org.apache.mina.util
+
+
+============================================================
+osgi/network/target/classes/shared-asn1-0.9.5.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/network/target/classes/antlr-2.7.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+
+mangen proposed exports:
+
+
+============================================================
+osgi/network/target/classes/commons-lang-2.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/network/target/classes/mina-filter-ssl-0.9.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.net.ssl
+   org.apache.mina.common
+   org.apache.mina.util
+
+mangen proposed exports:
+
+
+============================================================
+osgi/network/target/classes/shared-ldap-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr
+   antlr.collections.impl
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   org.apache.commons.collections
+   org.apache.commons.lang
+   org.apache.directory.shared.asn1
+   org.apache.directory.shared.asn1.ber
+   org.apache.directory.shared.asn1.ber.grammar
+   org.apache.directory.shared.asn1.ber.tlv
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.asn1.codec.stateful
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.asn1.util
+   org.apache.log4j
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/network/target/classes/commons-collections-3.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/network/target/classes/mina-filter-codec-asn1-0.9.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.asn1.codec.stateful
+   org.apache.mina.common
+   org.apache.mina.filter.codec
+
+mangen proposed exports:
+   org.apache.mina.filter.codec.asn1
+
+
+============================================================
+osgi/network/target/apacheds-osgi-mina-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   javax.net.ssl
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+   org.apache.log4j
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/dns/target/classes/apacheds-protocol-dns-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.naming
+   javax.naming.directory
+   javax.naming.spi
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.protocol.shared
+   org.apache.directory.server.protocol.shared.catalog
+   org.apache.directory.server.protocol.shared.store
+   org.apache.directory.shared.ldap.exception
+   org.apache.mina.common
+   org.apache.mina.filter.codec
+   org.apache.mina.handler.chain
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/dns/target/classes/mina-core-0.9.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/dns/target/classes/apacheds-protocol-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.naming
+   javax.naming.directory
+   javax.security.auth.kerberos
+   junit.framework
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.core.jndi
+   org.apache.directory.server.core.schema.bootstrap
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.slf4j
+
+mangen proposed exports:
+   org.apache.directory.server.protocol.shared
+   org.apache.directory.server.protocol.shared.catalog
+   org.apache.directory.server.protocol.shared.store
+
+
+============================================================
+osgi/dns/target/classes/antlr-2.7.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+
+mangen proposed exports:
+
+
+============================================================
+osgi/dns/target/classes/commons-lang-2.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/dns/target/classes/apacheds-core-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.apache.directory.shared.ldap.util
+
+mangen proposed exports:
+
+
+============================================================
+osgi/dns/target/classes/shared-ldap-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr
+   antlr.collections.impl
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   org.apache.commons.collections
+   org.apache.commons.lang
+   org.apache.directory.shared.asn1
+   org.apache.directory.shared.asn1.ber
+   org.apache.directory.shared.asn1.ber.grammar
+   org.apache.directory.shared.asn1.ber.tlv
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.asn1.codec.stateful
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.asn1.util
+   org.apache.log4j
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/dns/target/classes/commons-collections-3.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/dns/target/classes/apacheds-core-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   jdbm
+   jdbm.btree
+   jdbm.helper
+   jdbm.recman
+   org.apache.commons.collections
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.ldap
+   org.apache.directory.shared.ldap.aci
+   org.apache.directory.shared.ldap.codec.util
+   org.apache.directory.shared.ldap.exception
+   org.apache.directory.shared.ldap.filter
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.apache.directory.shared.ldap.name
+   org.apache.directory.shared.ldap.schema
+   org.apache.directory.shared.ldap.subtree
+   org.apache.directory.shared.ldap.util
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/dns/target/classes/jdbm-1.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/dns/target/classes/shared-asn1-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/dns/target/apacheds-protocol-osgi-dns-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.security.auth.kerberos
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   junit.framework
+   org.apache.felix.servicebinder
+   org.apache.log4j
+   org.osgi.service.cm
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/kerberos/target/classes/apacheds-kerberos-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.naming
+   javax.naming.directory
+   javax.naming.spi
+   javax.security.auth.callback
+   javax.security.auth.kerberos
+   javax.security.auth.login
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.protocol.shared
+   org.apache.directory.server.protocol.shared.catalog
+   org.apache.directory.server.protocol.shared.store
+   org.apache.directory.shared.asn1.der
+   org.apache.directory.shared.ldap.name
+   org.apache.mina.handler.chain
+   org.bouncycastle.crypto
+   org.bouncycastle.crypto.digests
+   org.bouncycastle.crypto.engines
+   org.bouncycastle.crypto.modes
+   org.bouncycastle.crypto.params
+
+mangen proposed exports:
+   org.apache.directory.server.kerberos.shared.crypto.checksum
+   org.apache.directory.server.kerberos.shared.crypto.encryption
+   org.apache.directory.server.kerberos.shared.exceptions
+   org.apache.directory.server.kerberos.shared.io.decoder
+   org.apache.directory.server.kerberos.shared.io.encoder
+   org.apache.directory.server.kerberos.shared.messages
+   org.apache.directory.server.kerberos.shared.messages.application
+   org.apache.directory.server.kerberos.shared.messages.components
+   org.apache.directory.server.kerberos.shared.messages.value
+   org.apache.directory.server.kerberos.shared.replay
+   org.apache.directory.server.kerberos.shared.service
+   org.apache.directory.server.kerberos.shared.store
+
+
+============================================================
+osgi/kerberos/target/classes/lcrypto-jdk14-131.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+   org.bouncycastle.crypto
+   org.bouncycastle.crypto.digests
+   org.bouncycastle.crypto.engines
+   org.bouncycastle.crypto.modes
+   org.bouncycastle.crypto.params
+
+
+============================================================
+osgi/kerberos/target/classes/apacheds-protocol-kerberos-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.naming
+   javax.naming.directory
+   javax.security.auth.kerberos
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.kerberos.shared.crypto.checksum
+   org.apache.directory.server.kerberos.shared.crypto.encryption
+   org.apache.directory.server.kerberos.shared.exceptions
+   org.apache.directory.server.kerberos.shared.io.decoder
+   org.apache.directory.server.kerberos.shared.io.encoder
+   org.apache.directory.server.kerberos.shared.messages
+   org.apache.directory.server.kerberos.shared.messages.components
+   org.apache.directory.server.kerberos.shared.messages.value
+   org.apache.directory.server.kerberos.shared.replay
+   org.apache.directory.server.kerberos.shared.service
+   org.apache.directory.server.kerberos.shared.store
+   org.apache.directory.server.protocol.shared
+   org.apache.mina.common
+   org.apache.mina.filter.codec
+   org.apache.mina.handler.chain
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/kerberos/target/classes/mina-core-0.9.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/kerberos/target/classes/apacheds-protocol-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.naming
+   javax.naming.directory
+   javax.security.auth.kerberos
+   junit.framework
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.core.jndi
+   org.apache.directory.server.core.schema.bootstrap
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/kerberos/target/classes/antlr-2.7.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+
+mangen proposed exports:
+
+
+============================================================
+osgi/kerberos/target/classes/commons-lang-2.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/kerberos/target/classes/apacheds-core-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.apache.directory.shared.ldap.util
+
+mangen proposed exports:
+
+
+============================================================
+osgi/kerberos/target/classes/shared-ldap-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr
+   antlr.collections.impl
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   org.apache.commons.collections
+   org.apache.commons.lang
+   org.apache.directory.shared.asn1
+   org.apache.directory.shared.asn1.ber
+   org.apache.directory.shared.asn1.ber.grammar
+   org.apache.directory.shared.asn1.ber.tlv
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.asn1.codec.stateful
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.asn1.util
+   org.apache.log4j
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/kerberos/target/classes/commons-collections-3.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/kerberos/target/classes/apacheds-core-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   jdbm
+   jdbm.btree
+   jdbm.helper
+   jdbm.recman
+   org.apache.commons.collections
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.ldap
+   org.apache.directory.shared.ldap.aci
+   org.apache.directory.shared.ldap.codec.util
+   org.apache.directory.shared.ldap.exception
+   org.apache.directory.shared.ldap.filter
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.apache.directory.shared.ldap.name
+   org.apache.directory.shared.ldap.schema
+   org.apache.directory.shared.ldap.subtree
+   org.apache.directory.shared.ldap.util
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/kerberos/target/classes/jdbm-1.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/kerberos/target/classes/shared-asn1-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/kerberos/target/apacheds-protocol-osgi-kerberos-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.security.auth.callback
+   javax.security.auth.kerberos
+   javax.security.auth.login
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   junit.framework
+   org.apache.felix.servicebinder
+   org.apache.log4j
+   org.osgi.service.cm
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ntp/target/classes/mina-core-0.9.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ntp/target/classes/apacheds-protocol-ntp-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.protocol.shared
+   org.apache.mina.common
+   org.apache.mina.filter.codec
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ntp/target/classes/apacheds-protocol-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.naming
+   javax.naming.directory
+   javax.security.auth.kerberos
+   junit.framework
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.core.jndi
+   org.apache.directory.server.core.schema.bootstrap
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ntp/target/classes/antlr-2.7.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ntp/target/classes/commons-lang-2.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ntp/target/classes/apacheds-core-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.apache.directory.shared.ldap.util
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ntp/target/classes/shared-ldap-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr
+   antlr.collections.impl
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   org.apache.commons.collections
+   org.apache.commons.lang
+   org.apache.directory.shared.asn1
+   org.apache.directory.shared.asn1.ber
+   org.apache.directory.shared.asn1.ber.grammar
+   org.apache.directory.shared.asn1.ber.tlv
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.asn1.codec.stateful
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.asn1.util
+   org.apache.log4j
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ntp/target/classes/commons-collections-3.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ntp/target/classes/apacheds-core-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   jdbm
+   jdbm.btree
+   jdbm.helper
+   jdbm.recman
+   org.apache.commons.collections
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.ldap
+   org.apache.directory.shared.ldap.aci
+   org.apache.directory.shared.ldap.codec.util
+   org.apache.directory.shared.ldap.exception
+   org.apache.directory.shared.ldap.filter
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.apache.directory.shared.ldap.name
+   org.apache.directory.shared.ldap.schema
+   org.apache.directory.shared.ldap.subtree
+   org.apache.directory.shared.ldap.util
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ntp/target/classes/jdbm-1.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ntp/target/classes/shared-asn1-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ntp/target/apacheds-protocol-osgi-ntp-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.security.auth.kerberos
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   junit.framework
+   org.apache.felix.servicebinder
+   org.apache.log4j
+   org.osgi.service.cm
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ldap/target/classes/apacheds-protocol-ldap-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   org.apache.directory.server.core
+   org.apache.directory.server.core.authn
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.core.jndi
+   org.apache.directory.server.core.partition
+   org.apache.directory.server.core.partition.impl.btree
+   org.apache.directory.server.core.partition.impl.btree.gui
+   org.apache.directory.shared.asn1.ber
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.ldap.codec.extended.operations
+   org.apache.directory.shared.ldap.codec.search.controls
+   org.apache.directory.shared.ldap.codec.util
+   org.apache.directory.shared.ldap.exception
+   org.apache.directory.shared.ldap.filter
+   org.apache.directory.shared.ldap.message
+   org.apache.directory.shared.ldap.message.extended
+   org.apache.directory.shared.ldap.name
+   org.apache.directory.shared.ldap.util
+   org.apache.mina.common
+   org.apache.mina.filter
+   org.apache.mina.filter.codec
+   org.apache.mina.filter.codec.asn1
+   org.apache.mina.handler.demux
+   org.apache.mina.util
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ldap/target/classes/apacheds-protocol-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.naming
+   javax.naming.directory
+   javax.security.auth.kerberos
+   junit.framework
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.core.jndi
+   org.apache.directory.server.core.schema.bootstrap
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ldap/target/classes/antlr-2.7.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ldap/target/classes/commons-lang-2.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ldap/target/classes/mina-filter-ssl-0.9.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.net.ssl
+   org.apache.mina.common
+   org.apache.mina.util
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ldap/target/classes/apacheds-core-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.apache.directory.shared.ldap.util
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ldap/target/classes/shared-ldap-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr
+   antlr.collections.impl
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   org.apache.commons.collections
+   org.apache.commons.lang
+   org.apache.directory.shared.asn1
+   org.apache.directory.shared.asn1.ber
+   org.apache.directory.shared.asn1.ber.grammar
+   org.apache.directory.shared.asn1.ber.tlv
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.asn1.codec.stateful
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.asn1.util
+   org.apache.log4j
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ldap/target/classes/commons-collections-3.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ldap/target/classes/apacheds-core-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   jdbm
+   jdbm.btree
+   jdbm.helper
+   jdbm.recman
+   org.apache.commons.collections
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.ldap
+   org.apache.directory.shared.ldap.aci
+   org.apache.directory.shared.ldap.codec.util
+   org.apache.directory.shared.ldap.exception
+   org.apache.directory.shared.ldap.filter
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.apache.directory.shared.ldap.name
+   org.apache.directory.shared.ldap.schema
+   org.apache.directory.shared.ldap.subtree
+   org.apache.directory.shared.ldap.util
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ldap/target/classes/jdbm-1.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ldap/target/classes/shared-asn1-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/ldap/target/apacheds-protocol-osgi-ldap-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.net.ssl
+   javax.security.auth.kerberos
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   junit.framework
+   org.apache.felix.servicebinder
+   org.apache.log4j
+   org.apache.mina.common
+   org.apache.mina.filter.codec
+   org.apache.mina.filter.codec.asn1
+   org.apache.mina.handler.demux
+   org.apache.mina.transport.socket.nio
+   org.apache.mina.util
+   org.osgi.service.cm
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/loader/target/classes/apacheds-protocol-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.naming
+   javax.naming.directory
+   javax.security.auth.kerberos
+   junit.framework
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.core.jndi
+   org.apache.directory.server.core.schema.bootstrap
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/loader/target/classes/antlr-2.7.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+
+mangen proposed exports:
+
+
+============================================================
+osgi/loader/target/classes/commons-lang-2.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/loader/target/classes/apacheds-core-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.apache.directory.shared.ldap.util
+
+mangen proposed exports:
+
+
+============================================================
+osgi/loader/target/classes/shared-ldap-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr
+   antlr.collections.impl
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   org.apache.commons.collections
+   org.apache.commons.lang
+   org.apache.directory.shared.asn1
+   org.apache.directory.shared.asn1.ber
+   org.apache.directory.shared.asn1.ber.grammar
+   org.apache.directory.shared.asn1.ber.tlv
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.asn1.codec.stateful
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.asn1.util
+   org.apache.log4j
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/loader/target/classes/commons-collections-3.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/loader/target/classes/apacheds-core-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   jdbm
+   jdbm.btree
+   jdbm.helper
+   jdbm.recman
+   org.apache.commons.collections
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.ldap
+   org.apache.directory.shared.ldap.aci
+   org.apache.directory.shared.ldap.codec.util
+   org.apache.directory.shared.ldap.exception
+   org.apache.directory.shared.ldap.filter
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.apache.directory.shared.ldap.name
+   org.apache.directory.shared.ldap.schema
+   org.apache.directory.shared.ldap.subtree
+   org.apache.directory.shared.ldap.util
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/loader/target/classes/jdbm-1.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/loader/target/classes/shared-asn1-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/loader/target/apacheds-command-osgi-loader-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.security.auth.kerberos
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   junit.framework
+   org.apache.felix.servicebinder
+   org.apache.log4j
+   org.slf4j
+   org.ungoverned.osgi.service.shell
+
+mangen proposed exports:
+
+
+============================================================
+osgi/jmx/target/classes/antlr-2.7.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+
+mangen proposed exports:
+
+
+============================================================
+osgi/jmx/target/classes/commons-lang-2.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/jmx/target/classes/shared-ldap-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr
+   antlr.collections.impl
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   org.apache.commons.collections
+   org.apache.commons.lang
+   org.apache.directory.shared.asn1
+   org.apache.directory.shared.asn1.ber
+   org.apache.directory.shared.asn1.ber.grammar
+   org.apache.directory.shared.asn1.ber.tlv
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.asn1.codec.stateful
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.asn1.util
+   org.apache.log4j
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/jmx/target/classes/mx4j-jmx-3.0.1.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.xml.parsers
+   mx4j
+   mx4j.loading
+   mx4j.log
+   mx4j.monitor
+   mx4j.persist
+   mx4j.server
+   mx4j.timer
+   mx4j.util
+   org.w3c.dom
+
+mangen proposed exports:
+   javax.management
+
+
+============================================================
+osgi/jmx/target/classes/commons-collections-3.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/jmx/target/classes/shared-asn1-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/jmx/target/apacheds-jmx-osgi-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+   javax.xml.parsers
+   mx4j
+   mx4j.loading
+   mx4j.log
+   mx4j.monitor
+   mx4j.persist
+   mx4j.server
+   mx4j.timer
+   mx4j.util
+   org.apache.log4j
+   org.osgi.framework
+   org.slf4j
+   org.w3c.dom
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/apacheds-kerberos-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.naming
+   javax.naming.directory
+   javax.naming.spi
+   javax.security.auth.callback
+   javax.security.auth.kerberos
+   javax.security.auth.login
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.protocol.shared
+   org.apache.directory.server.protocol.shared.catalog
+   org.apache.directory.server.protocol.shared.store
+   org.apache.directory.shared.asn1.der
+   org.apache.directory.shared.ldap.name
+   org.apache.mina.handler.chain
+   org.bouncycastle.crypto
+   org.bouncycastle.crypto.digests
+   org.bouncycastle.crypto.engines
+   org.bouncycastle.crypto.modes
+   org.bouncycastle.crypto.params
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/lcrypto-jdk14-131.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/mina-core-0.9.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/apacheds-protocol-changepw-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.security.auth.kerberos
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.kerberos.shared.crypto.encryption
+   org.apache.directory.server.kerberos.shared.exceptions
+   org.apache.directory.server.kerberos.shared.io.decoder
+   org.apache.directory.server.kerberos.shared.io.encoder
+   org.apache.directory.server.kerberos.shared.messages
+   org.apache.directory.server.kerberos.shared.messages.application
+   org.apache.directory.server.kerberos.shared.messages.components
+   org.apache.directory.server.kerberos.shared.messages.value
+   org.apache.directory.server.kerberos.shared.replay
+   org.apache.directory.server.kerberos.shared.service
+   org.apache.directory.server.kerberos.shared.store
+   org.apache.directory.server.protocol.shared
+   org.apache.directory.shared.asn1.der
+   org.apache.mina.common
+   org.apache.mina.filter.codec
+   org.apache.mina.handler.chain
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/apacheds-protocol-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   javax.naming
+   javax.naming.directory
+   javax.security.auth.kerberos
+   junit.framework
+   org.apache.directory.server.core.configuration
+   org.apache.directory.server.core.jndi
+   org.apache.directory.server.core.schema.bootstrap
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/antlr-2.7.2.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   javax.swing
+   javax.swing.event
+   javax.swing.tree
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/commons-lang-2.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/apacheds-core-shared-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.apache.directory.shared.ldap.util
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/shared-ldap-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr
+   antlr.collections.impl
+   javax.naming
+   javax.naming.directory
+   javax.naming.ldap
+   org.apache.commons.collections
+   org.apache.commons.lang
+   org.apache.directory.shared.asn1
+   org.apache.directory.shared.asn1.ber
+   org.apache.directory.shared.asn1.ber.grammar
+   org.apache.directory.shared.asn1.ber.tlv
+   org.apache.directory.shared.asn1.codec
+   org.apache.directory.shared.asn1.codec.stateful
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.asn1.util
+   org.apache.log4j
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/commons-collections-3.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/apacheds-core-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   jdbm
+   jdbm.btree
+   jdbm.helper
+   jdbm.recman
+   org.apache.commons.collections
+   org.apache.directory.shared.asn1.primitives
+   org.apache.directory.shared.ldap
+   org.apache.directory.shared.ldap.aci
+   org.apache.directory.shared.ldap.codec.util
+   org.apache.directory.shared.ldap.exception
+   org.apache.directory.shared.ldap.filter
+   org.apache.directory.shared.ldap.ldif
+   org.apache.directory.shared.ldap.message
+   org.apache.directory.shared.ldap.name
+   org.apache.directory.shared.ldap.schema
+   org.apache.directory.shared.ldap.subtree
+   org.apache.directory.shared.ldap.util
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/jdbm-1.0.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/classes/shared-asn1-0.9.6-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   org.slf4j
+
+mangen proposed exports:
+
+
+============================================================
+osgi/changepw/target/apacheds-protocol-osgi-changepw-1.1.0-SNAPSHOT.jar
+============================================================
+
+Local bundle rules:
+
+mangen proposed imports:
+   antlr.actions.csharp
+   com.sun.jndi.ldap
+   javax.naming
+   javax.naming.directory
+   javax.naming.event
+   javax.naming.ldap
+   javax.naming.spi
+   javax.security.auth.callback
+   javax.security.auth.kerberos
+   javax.security.auth.login
+   javax.swing
+   javax.swing.event
+   javax.swing.table
+   javax.swing.tree
+   junit.framework
+   org.apache.felix.servicebinder
+   org.apache.log4j
+   org.osgi.service.cm
+   org.slf4j
+
+mangen proposed exports:
+
+Time elapsed: 66.985
