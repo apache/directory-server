@@ -86,7 +86,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         c.add( "normalizationService" );
         c.add( "authenticationService" );
         c.add( "authorizationService" );
-        c.add( "oldAuthorizationService" );
+        c.add( "defaultAuthorizationService" );
         c.add( "schemaService" );
         c.add( "subentryService" );
         c.add( "operationalAttributeService" );
@@ -97,7 +97,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         c = new HashSet();
         c.add( "authenticationService" );
         c.add( "authorizationService" );
-        c.add( "oldAuthorizationService" );
+        c.add( "defaultAuthorizationService" );
         c.add( "schemaService" );
         c.add( "subentryService" );
         c.add( "operationalAttributeService" );
