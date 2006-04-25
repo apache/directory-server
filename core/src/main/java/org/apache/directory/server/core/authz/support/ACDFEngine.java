@@ -126,7 +126,7 @@ public class ACDFEngine
         c.add( "normalizationService" );
         c.add( "authenticationService" );
         c.add( "authorizationService" );
-        c.add( "oldAuthorizationService" );
+        c.add( "defaultAuthorizationService" );
         c.add( "schemaService" );
         c.add( "subentryService" );
         c.add( "operationalAttributeService" );

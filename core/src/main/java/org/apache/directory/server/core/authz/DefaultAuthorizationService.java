@@ -56,7 +56,7 @@ import org.apache.directory.shared.ldap.name.DnParser;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class OldAuthorizationService extends BaseInterceptor
+public class DefaultAuthorizationService extends BaseInterceptor
 {
     /**
      * the administrator's distinguished {@link Name}
@@ -83,7 +83,7 @@ public class OldAuthorizationService extends BaseInterceptor
     /**
      * Creates a new instance.
      */
-    public OldAuthorizationService()
+    public DefaultAuthorizationService()
     {
     }
 
@@ -413,7 +413,7 @@ public class OldAuthorizationService extends BaseInterceptor
             public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
                 throws NamingException
             {
-                return OldAuthorizationService.this.isSearchable( invocation, result );
+                return DefaultAuthorizationService.this.isSearchable( invocation, result );
             }
         } );
     }
@@ -433,27 +433,28 @@ public class OldAuthorizationService extends BaseInterceptor
             public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
                 throws NamingException
             {
-                return OldAuthorizationService.this.isSearchable( invocation, result );
+                return DefaultAuthorizationService.this.isSearchable( invocation, result );
             }
         } );
     }
 
 
-    private boolean isSearchable( Invocation invocataion, SearchResult result ) throws NamingException
+    private boolean isSearchable( Invocation invocation, SearchResult result ) throws NamingException
     {
         Name dn;
+        Name principalDn = ( ( ServerContext ) invocation.getCaller() ).getPrincipal().getJndiName();
 
         synchronized ( dnParser )
         {
             dn = dnParser.parse( result.getName() );
+            principalDn = dnParser.parse( principalDn.toString() );
         }
 
-        Name principalDn = ( ( ServerContext ) invocataion.getCaller() ).getPrincipal().getJndiName();
         if ( !principalDn.equals( ADMIN_DN ) )
         {
             if ( dn.size() > 2 )
             {
-                if ( dn.startsWith( USER_BASE_DN ) || dn.startsWith( GROUP_BASE_DN ) )
+            	if ( ( dn.startsWith( USER_BASE_DN ) && ( !dn.equals( principalDn )  )) || dn.startsWith( GROUP_BASE_DN ) )
                 {
                     return false;
                 }
