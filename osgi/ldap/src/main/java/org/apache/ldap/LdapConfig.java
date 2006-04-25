@@ -32,8 +32,8 @@ public class LdapConfig extends Configuration
     public static String LDAP_PORT_KEY = "ldap.port";
     public static String LDAPS_PORT_KEY = "ldaps.port";
 
-    private static int LDAP_PORT_DEFAULT = 389;
-    private static int LDAPS_PORT_DEFAULT = 636;
+    private static String LDAP_PORT_DEFAULT = "389";
+    private static String LDAPS_PORT_DEFAULT = "636";
 
     private static String SERVICE_PID = "service.pid";
     private static String PID = "org.apache.ldap";
@@ -114,7 +114,7 @@ public class LdapConfig extends Configuration
             return Integer.parseInt( get( key ) );
         }
 
-        return LDAP_PORT_DEFAULT;
+        return Integer.parseInt( LDAP_PORT_DEFAULT );
     }
 
     public int getSecurePort()
@@ -126,7 +126,7 @@ public class LdapConfig extends Configuration
             return Integer.parseInt( get( key ) );
         }
 
-        return LDAPS_PORT_DEFAULT;
+        return Integer.parseInt( LDAPS_PORT_DEFAULT );
     }
 
     public static Map getDefaultConfig()
@@ -134,8 +134,8 @@ public class LdapConfig extends Configuration
         Map defaults = new HashMap();
 
         defaults.put( SERVICE_PID, PID );
-        defaults.put( LDAP_PORT_KEY, Integer.getInteger( LDAP_PORT_KEY, new Integer( LDAP_PORT_DEFAULT ) ) );
-        defaults.put( LDAPS_PORT_KEY, Integer.getInteger( LDAPS_PORT_KEY, new Integer( LDAPS_PORT_DEFAULT ) ) );
+        defaults.put( LDAP_PORT_KEY, LDAP_PORT_DEFAULT );
+        defaults.put( LDAPS_PORT_KEY, LDAPS_PORT_DEFAULT );
 
         return defaults;
     }
