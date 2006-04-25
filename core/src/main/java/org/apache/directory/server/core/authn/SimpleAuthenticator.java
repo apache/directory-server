@@ -61,7 +61,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         Set c = new HashSet();
         c.add( "authenticationService" );
         c.add( "authorizationService" );
-        c.add( "oldAuthorizationService" );
+        c.add( "defaultAuthorizationService" );
         c.add( "schemaService" );
         c.add( "subentryService" );
         c.add( "operationalAttributeService" );
