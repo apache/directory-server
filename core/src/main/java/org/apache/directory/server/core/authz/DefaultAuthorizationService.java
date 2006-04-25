@@ -456,11 +456,6 @@ public class DefaultAuthorizationService extends BaseInterceptor
             {
             	if ( ( dn.startsWith( USER_BASE_DN ) && ( !dn.equals( principalDn )  )) || dn.startsWith( GROUP_BASE_DN ) )
             	{
-                	/*if ( dn.equals( dnParser.parse( principalDn.toString() ) ) )
-                	{
-                		return true;
-                	}*/
-                	
                     return false;
                 }
             }
