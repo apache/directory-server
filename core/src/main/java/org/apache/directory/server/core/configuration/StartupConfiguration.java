@@ -33,7 +33,7 @@ import org.apache.directory.server.core.authn.AnonymousAuthenticator;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authn.SimpleAuthenticator;
 import org.apache.directory.server.core.authz.AuthorizationService;
-import org.apache.directory.server.core.authz.OldAuthorizationService;
+import org.apache.directory.server.core.authz.DefaultAuthorizationService;
 import org.apache.directory.server.core.collective.CollectiveAttributeService;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.exception.ExceptionService;
@@ -162,8 +162,8 @@ public class StartupConfiguration extends Configuration
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "oldAuthorizationService" );
-        interceptorCfg.setInterceptor( new OldAuthorizationService() );
+        interceptorCfg.setName( "defaultAuthorizationService" );
+        interceptorCfg.setInterceptor( new DefaultAuthorizationService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
