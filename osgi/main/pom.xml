@@ -37,7 +37,7 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
-            <phase>compile</phase>
+            <phase>package</phase>
             <configuration>
               <tasks>
                 <delete dir="${basedir}/bin"/>
@@ -64,7 +64,7 @@
         <executions>
           <execution>
             <id>copy</id>
-            <phase>package</phase>
+            <phase>install</phase>
             <goals>
               <goal>copy</goal>
             </goals>
