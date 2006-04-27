@@ -8,18 +8,31 @@
   </parent>
   <artifactId>apacheds-osgi-main</artifactId>
   <name>ApacheDS OSGi Server Main</name>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>target/generated-resources</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
             <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
             <configuration>
               <tasks>
                 <delete dir="${basedir}/bin"/>
@@ -30,13 +43,10 @@
                 <mkdir dir="${basedir}/conf"/>
                 <delete dir="${basedir}/bundle"/>
                 <mkdir dir="${basedir}/bundle"/>
-                <copy file="${basedir}/target/classes/config.properties" todir="${basedir}/conf"/>
-                <copy file="${basedir}/target/classes/log4j.properties" todir="${basedir}/conf"/>
+                <copy file="${basedir}/target/generated-resources/config.properties" todir="${basedir}/conf"/>
+                <copy file="${basedir}/target/generated-resources/log4j.properties" todir="${basedir}/conf"/>
               </tasks>
             </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>
@@ -45,72 +55,71 @@
         <artifactId>dependency-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>copy</id>
             <phase>install</phase>
             <goals>
               <goal>copy</goal>
             </goals>
             <configuration>
-                <artifactItems>
-                  <artifactItem>
-                     <groupId>org.apache.felix</groupId>
-                     <artifactId>org.apache.felix.main</artifactId>
-                     <version>0.8.0-SNAPSHOT</version>
-                     <type>jar</type>
-                     <outputDirectory>${basedir}/bin</outputDirectory>
-                     <destFileName>felix.jar</destFileName>
-                  </artifactItem>
-                  <artifactItem>
-                     <groupId>org.apache.felix</groupId>
-                     <artifactId>org.apache.felix.framework</artifactId>
-                     <version>0.8.0-SNAPSHOT</version>
-                     <type>jar</type>
-                     <outputDirectory>${basedir}/lib</outputDirectory>
-                  </artifactItem>
-                  <artifactItem>
-                     <groupId>org.apache.felix</groupId>
-                     <artifactId>org.osgi.core</artifactId>
-                     <version>0.8.0-SNAPSHOT</version>
-                     <type>jar</type>
-                     <outputDirectory>${basedir}/lib</outputDirectory>
-                  </artifactItem>
-                  <artifactItem>
-                     <groupId>org.apache.felix</groupId>
-                     <artifactId>org.apache.felix.shell</artifactId>
-                     <version>0.8.0-SNAPSHOT</version>
-                     <type>jar</type>
-                     <outputDirectory>${basedir}/bundle</outputDirectory>
-                  </artifactItem>
-                  <artifactItem>
-                     <groupId>org.apache.felix</groupId>
-                     <artifactId>org.apache.felix.shell.tui</artifactId>
-                     <version>0.8.0-SNAPSHOT</version>
-                     <type>jar</type>
-                     <outputDirectory>${basedir}/bundle</outputDirectory>
-                  </artifactItem>
-                  <artifactItem>
-                     <groupId>org.apache.felix</groupId>
-                     <artifactId>org.apache.felix.bundlerepository</artifactId>
-                     <version>0.8.0-SNAPSHOT</version>
-                     <type>jar</type>
-                     <outputDirectory>${basedir}/bundle</outputDirectory>
-                  </artifactItem>
-                  <artifactItem>
-                     <groupId>org.apache.directory.server</groupId>
-                     <artifactId>apacheds-osgi-mina</artifactId>
-                     <version>${pom.version}</version>
-                     <type>jar</type>
-                     <outputDirectory>${basedir}/bundle</outputDirectory>
-                  </artifactItem>
-                  <artifactItem>
-                     <groupId>org.apache.directory.server</groupId>
-                     <artifactId>apacheds-osgi-logger</artifactId>
-                     <version>${pom.version}</version>
-                     <type>jar</type>
-                     <outputDirectory>${basedir}/bundle</outputDirectory>
-                  </artifactItem>
-                 </artifactItems>
-               <outputDirectory>${project.build.directory}/lib</outputDirectory>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.apache.felix</groupId>
+                  <artifactId>org.apache.felix.main</artifactId>
+                  <version>0.8.0-SNAPSHOT</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bin</outputDirectory>
+                  <destFileName>felix.jar</destFileName>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.felix</groupId>
+                  <artifactId>org.apache.felix.framework</artifactId>
+                  <version>0.8.0-SNAPSHOT</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/lib</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.felix</groupId>
+                  <artifactId>org.osgi.core</artifactId>
+                  <version>0.8.0-SNAPSHOT</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/lib</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.felix</groupId>
+                  <artifactId>org.apache.felix.shell</artifactId>
+                  <version>0.8.0-SNAPSHOT</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.felix</groupId>
+                  <artifactId>org.apache.felix.shell.tui</artifactId>
+                  <version>0.8.0-SNAPSHOT</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.felix</groupId>
+                  <artifactId>org.apache.felix.bundlerepository</artifactId>
+                  <version>0.8.0-SNAPSHOT</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>apacheds-osgi-mina</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>apacheds-osgi-logger</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/lib</outputDirectory>
             </configuration>
           </execution>
         </executions>
