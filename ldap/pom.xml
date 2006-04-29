@@ -121,7 +121,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antlr-plugin</artifactId>
         <configuration>
-          <grammars>valuelexer.g valueparser.g typelexer.g dnparser.g filter-value-lexer.g filter-lexer.g filter-lexer.g filter-value-parser.g filter-parser.g subtree-specification.g ACIItem.g</grammars>
+          <grammars>valuelexer.g valueparser.g typelexer.g dnparser.g filter-value-lexer.g filter-lexer.g filter-lexer.g filter-value-parser.g filter-parser.g subtree-specification.g ACIItem.g TriggerSpecification.g</grammars>
         </configuration>
         <executions>
            <execution>
