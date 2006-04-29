@@ -1,5 +1,5 @@
 /*
- *   Copyright 2005 The Apache Software Foundation
+ *   Copyright 2006 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@ import antlr.TokenStreamException;
 
 
 /**
- * A reusable wrapper around the antlr generated parser for an ACIItem as
- * defined by X.501. This class enables the reuse of the antlr parser/lexer pair
- * without having to recreate them every time.
+ * A reusable wrapper around the ANTLR generated parser for a
+ * TriggerSpecification. This class enables the reuse of the antlr parser/lexer
+ * pair without having to recreate them every time.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 379008 $
+ * @version $Rev:$, $Date:$
  */
 public class TriggerSpecificationParser
 {
@@ -47,7 +47,7 @@ public class TriggerSpecificationParser
 
 
     /**
-     * Creates a ACIItem parser.
+     * Creates a TriggerSpecification parser.
      */
     public TriggerSpecificationParser()
     {
@@ -61,7 +61,7 @@ public class TriggerSpecificationParser
 
 
     /**
-     * Creates a normalizing ACIItem parser.
+     * Creates a normalizing TriggerSpecification parser.
      */
     public TriggerSpecificationParser(NameComponentNormalizer normalizer)
     {
@@ -70,14 +70,17 @@ public class TriggerSpecificationParser
 
         this.parser.setNormalizer( normalizer );
         this.parser.init(); // this method MUST be called while we cannot do
-        // constructor overloading for antlr generated parser
+        // constructor overloading for ANTLR generated parser
         this.isNormalizing = true;
     }
 
 
     /**
      * Initializes the plumbing by creating a pipe and coupling the parser/lexer
-     * pair with it. param spec the specification to be parsed
+     * pair with it.
+     * 
+     * @param
+     *          spec the specification to be parsed
      */
     private synchronized void reset( String spec )
     {
@@ -88,42 +91,43 @@ public class TriggerSpecificationParser
 
 
     /**
-     * Parses an ACIItem without exhausting the parser.
+     * Parses an TriggerSpecification without exhausting the parser.
      * 
      * @param spec
-     *            the specification to be parsed
+     *          the specification to be parsed
      * @return the specification bean
      * @throws ParseException
-     *             if there are any recognition errors (bad syntax)
+     *          if there are any recognition errors (bad syntax)
      */
-    public synchronized void parse( String spec ) throws ParseException
+    public synchronized TriggerSpecification parse( String spec ) throws ParseException
     {
+        TriggerSpecification triggerSpecification = null;
 
         if ( spec == null || spec.trim().equals( "" ) )
         {
-            return;
+            return null;
         }
 
         reset( spec ); // reset and initialize the parser / lexer pair
 
         try
         {
-            this.parser.wrapperEntryPoint();
+            triggerSpecification = this.parser.wrapperEntryPoint();
         }
         catch ( TokenStreamException e )
         {
-            String msg = "TokenStreamException: Parser failure on ACIItem:\n\t" + spec;
-            msg += "\nAntlr exception trace:\n";
-            e.printStackTrace();
+            String msg = "Parser failure on Trigger Specification:\n\t" + spec;
+            msg += "\nAntlr exception trace:\n" + e.getMessage();
             throw new ParseException( msg, 0 );
         }
         catch ( RecognitionException e )
         {
-            String msg = "RecognitionException: Parser failure on ACIItem:\n\t" + spec;
-            msg += "\nAntlr exception trace:\n";
-            e.printStackTrace();
+            String msg = "Parser failure on Trigger Specification:\n\t" + spec;
+            msg += "\nAntlr exception trace:\n" + e.getMessage();
             throw new ParseException( msg, e.getColumn() );
         }
+        
+        return triggerSpecification;
 
     }
 

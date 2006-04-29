@@ -18,6 +18,8 @@
 package org.apache.directory.shared.ldap.trigger;
 
 
+import org.apache.directory.shared.ldap.name.LdapName;
+
 import junit.framework.TestCase;
 
 
@@ -25,6 +27,7 @@ import junit.framework.TestCase;
  * Unit tests for {@link org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev:$, $Date:$
  */
 public class TriggerSpecificationParserTest extends TestCase
 {
@@ -54,34 +57,76 @@ public class TriggerSpecificationParserTest extends TestCase
 
     public void testWithOperationParameters() throws Exception
     {
+        TriggerSpecification triggerSpecification = null;
+        
         String spec = "BEFORE delete CALL \"BackupUtilities.backupDeletedEntry\" ($name, $deletedEntry)";
 
-        parser.parse( spec );
+        triggerSpecification = parser.parse( spec );
+        
+        assertNotNull( triggerSpecification );
     }
     
     public void testWithGenericParameters() throws Exception
     {
+        TriggerSpecification triggerSpecification = null;
+        
         String spec = "AFTER add CALL \"Logger.logAddOperation\" ($entry, $attributes, $operationPrincipal)";
 
-        parser.parse( spec );
+        triggerSpecification = parser.parse( spec );
+        
+        assertNotNull( triggerSpecification );
+        assertEquals( triggerSpecification.getActionTime(), ActionTime.AFTER );
+        assertEquals( triggerSpecification.getStoredProcedureName(), "Logger.logAddOperation" );
+        assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.ADD );
+        assertTrue( triggerSpecification.getStoredProcedureOptions().size() == 0 );
+        assertTrue( triggerSpecification.getStoredProcedureParameters().size() == 3 );
+        assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
+            StoredProcedureParameter.AddStoredProcedureParameter.ENTRY ) );
+        assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
+            StoredProcedureParameter.AddStoredProcedureParameter.ATTRIBUTES ) );
+        assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
+            StoredProcedureParameter.OPERATION_PRINCIPAL ) );
     }
     
     public void testWithLanguageOptionAndComments() throws Exception
     {
+        TriggerSpecification triggerSpecification = null;
+        
         String spec = "INSTEADOF search # do not do search \n" +
             "CALL \"RestrictionUtilities.searchNoWay\"{language \"Java\"}() # but run a procedure";
 
-        parser.parse( spec );
+        triggerSpecification = parser.parse( spec );
+        
+        assertNotNull( triggerSpecification );
+        assertEquals( triggerSpecification.getActionTime(), ActionTime.INSTEADOF );
+        assertEquals( triggerSpecification.getStoredProcedureName(), "RestrictionUtilities.searchNoWay" );
+        assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.SEARCH );
+        assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 1 );
+        assertTrue( triggerSpecification.getStoredProcedureOptions().contains( new StoredProcedureLanguageOption( "Java" ) ) );
+        assertEquals( triggerSpecification.getStoredProcedureParameters().size(),  0 );
     }
     
     public void testWithSearchContextOption() throws Exception
     {
+        TriggerSpecification triggerSpecification = null;
+        
         String spec = "BEFORE bind  # Action Time and Operation \n" +
             "CALL \"AuthUtilities.beforeBind\"  # Stored Procedure Call \n" +
             "{ searchContext { scope one } \"cn=Auth,cn=System Stored Procedures,ou=system\" }  # Stored Procedure Call Options \n" +
             "($name)  # Stored Procedure Parameter(s)";
 
-        parser.parse( spec );
+        triggerSpecification = parser.parse( spec );
+        
+        assertNotNull( triggerSpecification );
+        assertEquals( triggerSpecification.getActionTime(), ActionTime.BEFORE );
+        assertEquals( triggerSpecification.getStoredProcedureName(), "AuthUtilities.beforeBind" );
+        assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.BIND );
+        assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 1 );
+        assertTrue( triggerSpecification.getStoredProcedureOptions().contains(
+            new StoredProcedureSearchContextOption( new LdapName( "cn=Auth,cn=System Stored Procedures,ou=system" ), SearchScope.ONE  ) ) );
+        assertEquals( triggerSpecification.getStoredProcedureParameters().size(),  1 );
+        assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
+            StoredProcedureParameter.BindStoredProcedureParameter.NAME ) );
     }
     
 }
