@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC2-SNAPSHOT</version>
+    <version>1.0-RC2</version>
   </parent>
   <artifactId>apacheds-server-installers</artifactId>
   <name>ApacheDS Server Installers</name>
@@ -32,7 +32,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
-      <version>1.2.19</version>
+      <version>1.2.24</version>
     </dependency>
     <dependency>
       <groupId>commons-daemon</groupId>
@@ -159,7 +159,6 @@
               <daemonFramework>jsvc</daemonFramework>
             </rpmTarget>
           </rpmTargets>
-<!--
           <innoTargets>
             <innoTarget>
               <id>windows-xp-procrun</id>
@@ -174,7 +173,6 @@
               <daemonFramework>procrun</daemonFramework>
             </innoTarget>
           </innoTargets>
--->
           <izPackTargets>
             <izPackTarget>
               <packagedFiles>
@@ -221,7 +219,6 @@
               <osArch>i386</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
-<!--
             <izPackTarget>
               <packagedFiles>
                 <packagedFile>
@@ -351,7 +348,6 @@
               <osArch>ppc</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
--->
           </izPackTargets>
         </configuration>
         <executions>

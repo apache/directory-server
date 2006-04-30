@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-RC2-SNAPSHOT</version>
+    <version>1.0-RC2</version>
   </parent>
   <artifactId>apacheds-server-main</artifactId>
   <name>ApacheDS Server Main</name>
@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
-      <version>1.2.19</version>
+      <version>1.2.24</version>
     </dependency>
     <dependency>
       <groupId>springframework</groupId>

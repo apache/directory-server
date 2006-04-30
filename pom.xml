@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.apache.directory</groupId>
     <artifactId>build</artifactId>
-    <version>1.0.3.1-SNAPSHOT</version>
+    <version>1.0.4</version>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>build</artifactId>
-  <version>1.0-RC2-SNAPSHOT</version>
+  <version>1.0-RC2</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
@@ -33,7 +33,7 @@
 
   <issueManagement>
     <system>JIRA</system>
-    <url>http://issues.apache.org/jira/browse/DIREVE</url>
+    <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
   </issueManagement>
   
   <inceptionYear>2003</inceptionYear>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
-      <version>0.9.5.1-SNAPSHOT</version>
+      <version>0.9.5.1</version>
     </dependency>
   </dependencies>
 
