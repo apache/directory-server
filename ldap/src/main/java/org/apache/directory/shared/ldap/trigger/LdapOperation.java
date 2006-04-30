@@ -69,4 +69,23 @@ public class LdapOperation
     {
         return name;
     }
+    
+    public boolean equals( Object o )
+    {
+        if ( this == o )
+        {
+            return true;
+        }
+        
+        if ( o instanceof LdapOperation )
+        {
+            LdapOperation operation = ( LdapOperation ) o;
+            return operation.getName().equals( getName() );
+            
+        }
+        else
+        {
+            return false;
+        }
+    }
 }

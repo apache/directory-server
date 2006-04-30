@@ -99,7 +99,7 @@ public class TriggerSpecificationParser
      * @throws ParseException
      *          if there are any recognition errors (bad syntax)
      */
-    public synchronized TriggerSpecification parse( String spec ) throws ParseException
+    public synchronized TriggerSpecification parse( String spec ) throws ParseException, ConditionalParserFailureBasedOnCallerFeedback
     {
         TriggerSpecification triggerSpecification = null;
 
@@ -129,6 +129,11 @@ public class TriggerSpecificationParser
         
         return triggerSpecification;
 
+    }
+    
+    public void registerLdapOperationTokenListener( LdapOperationTokenListener listener )
+    {
+        parser.registerLdapOperationTokenListener( listener );
     }
 
 

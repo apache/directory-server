@@ -18,9 +18,9 @@
 package org.apache.directory.shared.ldap.trigger;
 
 
-import org.apache.directory.shared.ldap.name.LdapName;
-
 import junit.framework.TestCase;
+
+import org.apache.directory.shared.ldap.name.LdapName;
 
 
 /**
@@ -57,6 +57,8 @@ public class TriggerSpecificationParserTest extends TestCase
 
     public void testWithOperationParameters() throws Exception
     {
+        parser.registerLdapOperationTokenListener( GenericLdapOperationTokenListener.DelListener );
+        
         TriggerSpecification triggerSpecification = null;
         
         String spec = "BEFORE delete CALL \"BackupUtilities.backupDeletedEntry\" ($name, $deletedEntry)";
@@ -77,6 +79,8 @@ public class TriggerSpecificationParserTest extends TestCase
     
     public void testWithGenericParameters() throws Exception
     {
+        parser.registerLdapOperationTokenListener( GenericLdapOperationTokenListener.AddListener );
+        
         TriggerSpecification triggerSpecification = null;
         
         String spec = "AFTER add CALL \"Logger.logAddOperation\" ($entry, $attributes, $operationPrincipal)";
@@ -99,6 +103,8 @@ public class TriggerSpecificationParserTest extends TestCase
     
     public void testWithLanguageOptionAndComments() throws Exception
     {
+        parser.registerLdapOperationTokenListener( GenericLdapOperationTokenListener.SearchListener );
+        
         TriggerSpecification triggerSpecification = null;
         
         String spec = "INSTEADOF search # do not do search \n" +
@@ -118,6 +124,8 @@ public class TriggerSpecificationParserTest extends TestCase
     
     public void testWithSearchContextOption() throws Exception
     {
+        parser.registerLdapOperationTokenListener( GenericLdapOperationTokenListener.BindListener );
+        
         TriggerSpecification triggerSpecification = null;
         
         String spec = "BEFORE bind  # Action Time and Operation \n" +
@@ -138,6 +146,30 @@ public class TriggerSpecificationParserTest extends TestCase
         assertEquals( triggerSpecification.getStoredProcedureParameters().size(), 1 );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
             StoredProcedureParameter.BindStoredProcedureParameter.NAME ) );
+    }
+    
+    public void  testLdapOperationTokenListener() throws Exception
+    {
+        LdapOperationTokenListener expectedOperationToken = GenericLdapOperationTokenListener.CompareListener;
+        parser.registerLdapOperationTokenListener( expectedOperationToken );
+        
+        TriggerSpecification triggerSpecification = null;
+        
+        String longUnexpectedSpec = "INSTEADOF search \n" +
+            "CALL \"Search.customSearchSP\" \n" +
+                "{ searchContext { scope one } \"cn=Stored Procedures, ou=system\" } \n" +
+                    "($baseObject, $scope, $derefAliases, $sizeLimit, $timeLimit, $timeLimit, $filter, $attributes, $operationPrincipal)";
+
+        try
+        {
+            triggerSpecification = parser.parse( longUnexpectedSpec );
+            fail( "Unintended execution of this line." );
+        }
+        catch ( ConditionalParserFailureBasedOnCallerFeedback e )
+        {
+            assertEquals( e.getReadToken(), LdapOperation.SEARCH );
+            assertNull( triggerSpecification );
+        }
     }
     
 }
