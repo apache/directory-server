@@ -78,7 +78,7 @@ Building Bundled Sources
 
 The sources are bundled with the installers and can be found in the src
 directory of the installation base.  The build system used is Maven 2.  We use
-version 2.0.2 for this release.  In general we try to use the most recent 
+version 2.0.3 for this release.  In general we try to use the most recent 
 production release of Maven.  You can build the server like so:
 
    cd ${install.basedir}; cd src; mvn install 
