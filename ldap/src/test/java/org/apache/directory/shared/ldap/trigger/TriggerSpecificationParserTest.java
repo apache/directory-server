@@ -64,6 +64,15 @@ public class TriggerSpecificationParserTest extends TestCase
         triggerSpecification = parser.parse( spec );
         
         assertNotNull( triggerSpecification );
+        assertEquals( triggerSpecification.getActionTime(), ActionTime.BEFORE );
+        assertEquals( triggerSpecification.getStoredProcedureName(), "BackupUtilities.backupDeletedEntry" );
+        assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.DEL );
+        assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 0 );
+        assertEquals( triggerSpecification.getStoredProcedureParameters().size(), 2 );
+        assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
+            StoredProcedureParameter.DelStoredProcedureParameter.NAME ) );
+        assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
+            StoredProcedureParameter.DelStoredProcedureParameter.DELETED_ENTRY ) );
     }
     
     public void testWithGenericParameters() throws Exception
@@ -78,8 +87,8 @@ public class TriggerSpecificationParserTest extends TestCase
         assertEquals( triggerSpecification.getActionTime(), ActionTime.AFTER );
         assertEquals( triggerSpecification.getStoredProcedureName(), "Logger.logAddOperation" );
         assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.ADD );
-        assertTrue( triggerSpecification.getStoredProcedureOptions().size() == 0 );
-        assertTrue( triggerSpecification.getStoredProcedureParameters().size() == 3 );
+        assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 0 );
+        assertEquals( triggerSpecification.getStoredProcedureParameters().size(), 3 );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
             StoredProcedureParameter.AddStoredProcedureParameter.ENTRY ) );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
@@ -102,7 +111,8 @@ public class TriggerSpecificationParserTest extends TestCase
         assertEquals( triggerSpecification.getStoredProcedureName(), "RestrictionUtilities.searchNoWay" );
         assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.SEARCH );
         assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 1 );
-        assertTrue( triggerSpecification.getStoredProcedureOptions().contains( new StoredProcedureLanguageOption( "Java" ) ) );
+        assertTrue( triggerSpecification.getStoredProcedureOptions().contains(
+            new StoredProcedureLanguageOption( "Java" ) ) );
         assertEquals( triggerSpecification.getStoredProcedureParameters().size(),  0 );
     }
     
@@ -123,8 +133,9 @@ public class TriggerSpecificationParserTest extends TestCase
         assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.BIND );
         assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 1 );
         assertTrue( triggerSpecification.getStoredProcedureOptions().contains(
-            new StoredProcedureSearchContextOption( new LdapName( "cn=Auth,cn=System Stored Procedures,ou=system" ), SearchScope.ONE  ) ) );
-        assertEquals( triggerSpecification.getStoredProcedureParameters().size(),  1 );
+            new StoredProcedureSearchContextOption(
+                new LdapName( "cn=Auth,cn=System Stored Procedures,ou=system" ), SearchScope.ONE ) ) );
+        assertEquals( triggerSpecification.getStoredProcedureParameters().size(), 1 );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
             StoredProcedureParameter.BindStoredProcedureParameter.NAME ) );
     }
