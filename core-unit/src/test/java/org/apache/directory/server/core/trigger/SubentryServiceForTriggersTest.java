@@ -127,13 +127,9 @@ public class SubentryServiceForTriggersTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes marked = ( Attributes ) results.get( "cn=marked,ou=configuration,ou=system" );
-        Attribute autonomousSubentry = marked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
         Attribute triggerSubentries = marked.get( SubentryService.TRIGGER_SUBENTRIES );
-        assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", autonomousSubentry );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", triggerSubentries );
-        assertEquals( "cn=testsubentry,ou=system", autonomousSubentry.get() );
         assertEquals( "cn=testsubentry,ou=system", triggerSubentries.get() );
-        assertEquals( 1, autonomousSubentry.size() );
         assertEquals( 1, triggerSubentries.size() );
 
         // --------------------------------------------------------------------
@@ -141,8 +137,6 @@ public class SubentryServiceForTriggersTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes unmarked = ( Attributes ) results.get( "cn=unmarked,ou=system" );
-        assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
             .get( SubentryService.TRIGGER_SUBENTRIES ) );
     }
@@ -168,23 +162,15 @@ public class SubentryServiceForTriggersTest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = ( Attributes ) results.get( "ou=configuration,ou=system" );
-        Attribute autonomousSubentry = configuration.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
         Attribute triggerSubentries = configuration.get( SubentryService.TRIGGER_SUBENTRIES );
-        assertNotNull( "ou=configuration,ou=system should be marked", autonomousSubentry );
         assertNotNull( "ou=configuration,ou=system should be marked", triggerSubentries );
-        assertEquals( "cn=testsubentry,ou=system", autonomousSubentry.get() );
         assertEquals( "cn=testsubentry,ou=system", triggerSubentries.get() );
-        assertEquals( 1, autonomousSubentry.size() );
         assertEquals( 1, triggerSubentries.size() );
 
         Attributes interceptors = ( Attributes ) results.get( "ou=interceptors,ou=configuration,ou=system" );
-        autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
         triggerSubentries = interceptors.get( SubentryService.TRIGGER_SUBENTRIES );
-        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", autonomousSubentry );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", triggerSubentries );
-        assertEquals( "cn=testsubentry,ou=system", autonomousSubentry.get() );
         assertEquals( "cn=testsubentry,ou=system", triggerSubentries.get() );
-        assertEquals( 1, autonomousSubentry.size() );
         assertEquals( 1, triggerSubentries.size() );
 
         // --------------------------------------------------------------------
