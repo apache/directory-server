@@ -303,5 +303,8 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
 
         syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.58" );
         cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
+        
+        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.59" );
+        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
     }
 }

@@ -559,5 +559,11 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
             { "Substring Assertion" } );
         syntax.setHumanReadible( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        
+        syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.59", syntaxCheckerRegistry );
+        syntax.setNames( new String[]
+            { "Trigger Specification" } );
+        syntax.setHumanReadible( true );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
     }
 }
