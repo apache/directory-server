@@ -82,12 +82,15 @@ public class SubentryService extends BaseInterceptor
     public static final String SCHEMA_AREA_SUBENTRY = "subschemaSubentry";
 
     public static final String COLLECTIVE_AREA = "collectiveAttributeSpecificArea";
-    public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
-
     public static final String COLLECTIVE_INNERAREA = "collectiveAttributeInnerArea";
+    public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
+    
+    public static final String TRIGGER_AREA = "triggerSpecificArea";
+    public static final String TRIGGER_INNERAREA = "triggerInnerArea";
+    public static final String TRIGGER_SUBENTRIES = "triggerSubentries";
 
     public static final String[] SUBENTRY_OPATTRS =
-        { AUTONOUMOUS_AREA_SUBENTRY, AC_SUBENTRY, SCHEMA_AREA_SUBENTRY, COLLECTIVE_ATTRIBUTE_SUBENTRIES };
+        { AUTONOUMOUS_AREA_SUBENTRY, AC_SUBENTRY, SCHEMA_AREA_SUBENTRY, COLLECTIVE_ATTRIBUTE_SUBENTRIES, TRIGGER_SUBENTRIES };
 
     private static final Logger log = LoggerFactory.getLogger( SubentryService.class );
 
@@ -295,14 +298,23 @@ public class SubentryService extends BaseInterceptor
                             subentryAttrs.put( operational );
                         }
                     }
+                    else if ( role.equalsIgnoreCase( TRIGGER_AREA ) || role.equalsIgnoreCase( TRIGGER_INNERAREA ) )
+                    {
+                        operational = subentryAttrs.get( TRIGGER_SUBENTRIES );
+                        if ( operational == null )
+                        {
+                            operational = new LockableAttributeImpl( TRIGGER_SUBENTRIES );
+                            subentryAttrs.put( operational );
+                        }
+                    }
                     else
                     {
                         throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '" + role
                             + "' in administrative point of subentry " + subentryDnStr
                             + ". The values of this attribute"
                             + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
-                            + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
-                            + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
+                            + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, collectiveAttributeInnerArea,"
+                            + " triggerSpecificArea and triggerInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
                     }
 
                     operational.add( subentryDn.toString() );
@@ -454,6 +466,15 @@ public class SubentryService extends BaseInterceptor
                                 entry.put( operational );
                             }
                         }
+                        else if ( role.equalsIgnoreCase( TRIGGER_AREA ) || role.equalsIgnoreCase( TRIGGER_INNERAREA ) )
+                        {
+                            operational = entry.get( TRIGGER_SUBENTRIES );
+                            if ( operational == null )
+                            {
+                                operational = new LockableAttributeImpl( TRIGGER_SUBENTRIES );
+                                entry.put( operational );
+                            }
+                        }
                         else
                         {
                             throw new LdapInvalidAttributeValueException(
@@ -463,8 +484,8 @@ public class SubentryService extends BaseInterceptor
                                     + subentryDnStr
                                     + ". The values of this attribute"
                                     + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
-                                    + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
-                                    + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
+                                    + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, collectiveAttributeInnerArea,"
+                                    + " triggerArea and triggerInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
                         }
 
                         operational.add( subentryDn.toString() );
@@ -1062,13 +1083,27 @@ public class SubentryService extends BaseInterceptor
                     operational.add( newName.toString() );
                 }
             }
+            else if ( role.equalsIgnoreCase( TRIGGER_AREA ) || role.equalsIgnoreCase( TRIGGER_INNERAREA ) )
+            {
+                operational = ( Attribute ) entry.get( TRIGGER_SUBENTRIES ).clone();
+                if ( operational == null )
+                {
+                    operational = new LockableAttributeImpl( TRIGGER_SUBENTRIES );
+                    operational.add( newName.toString() );
+                }
+                else
+                {
+                    operational.remove( oldName.toString() );
+                    operational.add( newName.toString() );
+                }
+            }
             else
             {
                 throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '" + role
                     + "' in administrative point of subentry " + oldName + ". The values of this attribute"
                     + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
-                    + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
-                    + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
+                    + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, collectiveAttributeInnerArea,"
+                    + " triggerArea and triggerInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
             }
 
             modList.add( new ModificationItem( DirContext.REPLACE_ATTRIBUTE, operational ) );
@@ -1141,13 +1176,24 @@ public class SubentryService extends BaseInterceptor
                     operational.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES ).add( name.toString() );
                 }
             }
+            else if ( role.equalsIgnoreCase( TRIGGER_AREA ) || role.equalsIgnoreCase( TRIGGER_INNERAREA ) )
+            {
+                if ( operational.get( TRIGGER_SUBENTRIES ) == null )
+                {
+                    operational.put( TRIGGER_SUBENTRIES, name.toString() );
+                }
+                else
+                {
+                    operational.get( TRIGGER_SUBENTRIES ).add( name.toString() );
+                }
+            }
             else
             {
                 throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '" + role
                     + "' in administrative point of subentry " + name + ". The values of this attribute are"
-                    + " constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
-                    + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
-                    + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
+                    + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
+                    + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, collectiveAttributeInnerArea,"
+                    + " triggerArea and triggerInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
             }
         }
 
