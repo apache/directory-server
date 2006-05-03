@@ -93,7 +93,7 @@ public class TriggerService extends BaseInterceptor
      * @param entry the target entry that is considered as the trigger source
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addPerscriptiveAciTuples( DirectoryPartitionNexusProxy proxy, Collection triggerSpecs,
+    private void addPrescriptiveTriggerSpecs( DirectoryPartitionNexusProxy proxy, Collection triggerSpecs,
         Name dn, Attributes entry ) throws NamingException
     {
         /*
@@ -133,7 +133,7 @@ public class TriggerService extends BaseInterceptor
      * @param entry the target entry that is considered as the trigger source
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addEntryAciTuples( Collection triggerSpecs, Attributes entry ) throws NamingException
+    private void addEntryTriggerSpecs( Collection triggerSpecs, Attributes entry ) throws NamingException
     {
         Attribute entryTrigger = entry.get( ENTRY_TRIGGER_ATTR );
         if ( entryTrigger == null )
