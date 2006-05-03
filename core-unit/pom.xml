@@ -72,7 +72,7 @@
                           -------------
                   
 Integration tests have been disabled.  To enable integration
-tests run maven with the -Dinstegration.
+tests run maven with the -Dintegration.
 =================================================================
                     </echo>
                   </tasks>
