@@ -60,6 +60,8 @@ public class TriggerService extends BaseInterceptor
     private static final String TRIGGER_SUBENTRIES_ATTR = "triggerSubentries";
 
 
+    /** a triggerSpecCache that responds to add, delete, and modify attempts */
+    private TriggerSpecCache triggerSpecCache;
     /** a normalizing Trigger Specification parser */
     private TriggerSpecificationParser triggerParser;
     /** a normalizing Distinguished Name parser */
@@ -82,6 +84,7 @@ public class TriggerService extends BaseInterceptor
     public void init( DirectoryServiceConfiguration dirServCfg, InterceptorConfiguration intCfg ) throws NamingException
     {
         super.init( dirServCfg, intCfg );
+        triggerSpecCache = new TriggerSpecCache( dirServCfg );
         attrRegistry = dirServCfg.getGlobalRegistries().getAttributeTypeRegistry();
         triggerParser = new TriggerSpecificationParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
         dnParser = new DnParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
