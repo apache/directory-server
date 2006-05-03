@@ -17,8 +17,12 @@
 package org.apache.directory.server.core.trigger;
 
 
+import java.text.ParseException;
+import java.util.Collection;
+
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
@@ -33,7 +37,10 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DnParser;
+import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +80,87 @@ public class TriggerService extends BaseInterceptor
     /** whether or not this interceptor is activated */
     private boolean enabled = false;
 
+    /**
+     * Adds prescriptiveTrigger TriggerSpecificaitons to a collection of
+     * TriggerSpeficaitions by accessing the tupleCache.  The trigger specification
+     * cache is accessed for each trigger subentry associated with the entry.
+     * Note that subentries are handled differently: their parent, the administrative
+     * entry is accessed to determine the perscriptiveTriggers effecting the AP
+     * and hence the subentry which is considered to be in the same context.
+     *
+     * @param triggerSpecs the collection of trigger specifications to add to
+     * @param dn the normalized distinguished name of the entry
+     * @param entry the target entry that is considered as the trigger source
+     * @throws NamingException if there are problems accessing attribute values
+     */
+    private void addPerscriptiveAciTuples( DirectoryPartitionNexusProxy proxy, Collection triggerSpecs,
+        Name dn, Attributes entry ) throws NamingException
+    {
+        /*
+         * If the protected entry is a subentry, then the entry being evaluated
+         * for perscriptiveTriggerss is in fact the administrative entry.  By
+         * substituting the administrative entry for the actual subentry the
+         * code below this "if" statement correctly evaluates the effects of
+         * perscriptiveTrigger on the subentry.  Basically subentries are considered
+         * to be in the same naming context as their access point so the subentries
+         * effecting their parent entry applies to them as well.
+         */
+        if ( entry.get( "objectClass" ).contains( "subentry" ) )
+        {
+            Name parentDn = ( Name ) dn.clone();
+            parentDn.remove( dn.size() - 1 );
+            entry = proxy.lookup( parentDn, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+        }
+
+        Attribute subentries = entry.get( TRIGGER_SUBENTRIES_ATTR );
+        if ( subentries == null )
+        {
+            return;
+        }
+        for ( int ii = 0; ii < subentries.size(); ii++ )
+        {
+            String subentryDn = ( String ) subentries.get( ii );
+            triggerSpecs.addAll( triggerSpecCache.getSubentryTriggerSpecs( subentryDn ) );
+        }
+    }
+
+    /**
+     * Adds the set of entryTriggers to a collection of trigger specifications.
+     * The entryTrigger is parsed and tuples are generated on they fly then
+     * added to the collection.
+     *
+     * @param triggerSpecs the collection of trigger specifications to add to
+     * @param entry the target entry that is considered as the trigger source
+     * @throws NamingException if there are problems accessing attribute values
+     */
+    private void addEntryAciTuples( Collection triggerSpecs, Attributes entry ) throws NamingException
+    {
+        Attribute entryTrigger = entry.get( ENTRY_TRIGGER_ATTR );
+        if ( entryTrigger == null )
+        {
+            return;
+        }
+
+        for ( int ii = 0; ii < entryTrigger.size(); ii++ )
+        {
+            String triggerString = ( String ) entryTrigger.get( ii );
+            TriggerSpecification item;
+
+            try
+            {
+                item = triggerParser.parse( triggerString );
+            }
+            catch ( ParseException e )
+            {
+                String msg = "failed to parse entryTrigger: " + triggerString;
+                log.error( msg, e );
+                throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONSERROR );
+            }
+
+            triggerSpecs.add( item );
+        }
+    }
+    
 
     /**
      * Initializes this interceptor based service by getting a handle on the nexus.
