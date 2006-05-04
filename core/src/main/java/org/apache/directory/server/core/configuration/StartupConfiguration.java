@@ -43,6 +43,7 @@ import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.schema.bootstrap.*;
 import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.core.trigger.TriggerService;
 
 
 /**
@@ -194,6 +195,11 @@ public class StartupConfiguration extends Configuration
         interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "eventService" );
         interceptorCfg.setInterceptor( new EventService() );
+        list.add( interceptorCfg );
+        
+        interceptorCfg = new MutableInterceptorConfiguration();
+        interceptorCfg.setName( "triggerService" );
+        interceptorCfg.setInterceptor( new TriggerService() );
         list.add( interceptorCfg );
 
         setInterceptorConfigurations( list );

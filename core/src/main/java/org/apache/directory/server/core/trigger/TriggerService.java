@@ -18,9 +18,17 @@ package org.apache.directory.server.core.trigger;
 
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Name;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -34,12 +42,16 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
+import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
+import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DnParser;
+import org.apache.directory.shared.ldap.trigger.ActionTime;
+import org.apache.directory.shared.ldap.trigger.LdapOperation;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.slf4j.Logger;
@@ -78,7 +90,7 @@ public class TriggerService extends BaseInterceptor
     /** the attribute type registry */
     private AttributeTypeRegistry attrRegistry;
     /** whether or not this interceptor is activated */
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /**
      * Adds prescriptiveTrigger TriggerSpecificaitons to a collection of
@@ -177,6 +189,7 @@ public class TriggerService extends BaseInterceptor
         triggerParser = new TriggerSpecificationParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
         dnParser = new DnParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
         chain = dirServCfg.getInterceptorChain();
+        this.enabled = true; // TODO: get this from the configuration if needed
     }
 
 
@@ -197,7 +210,49 @@ public class TriggerService extends BaseInterceptor
         /**
          * 
          */
+        next.add( upName, normName, entry );
         
+        triggerSpecCache.subentryAdded( normName, entry );
+        
+    }
+    
+    public Map getActionTimeMappedTriggerSpecs( List triggerSpecs, LdapOperation ldapOperation )
+    {
+        List beforeTriggerSpecs = new ArrayList();
+        List insteadofTriggerSpecs = new ArrayList();
+        List afterTriggerSpecs = new ArrayList();
+        Map triggerSpecMap = new HashMap();
+        
+        Iterator it = triggerSpecs.iterator();
+        while ( it.hasNext() )
+        {
+            TriggerSpecification triggerSpec = ( TriggerSpecification ) it.next();
+            if ( triggerSpec.getLdapOperation().equals( ldapOperation ) )
+            {
+                if ( triggerSpec.getActionTime().equals( ActionTime.BEFORE ) )
+                {
+                    beforeTriggerSpecs.add( triggerSpec );
+                }
+                else if ( triggerSpec.getActionTime().equals( ActionTime.INSTEADOF ) )
+                {
+                    insteadofTriggerSpecs.add( triggerSpec );
+                }
+                else if ( triggerSpec.getActionTime().equals( ActionTime.AFTER ) )
+                {
+                    afterTriggerSpecs.add( triggerSpec );
+                }
+                else
+                {
+                    // TODO
+                }    
+            }
+        }
+        
+        triggerSpecMap.put( ActionTime.BEFORE, beforeTriggerSpecs );
+        triggerSpecMap.put( ActionTime.INSTEADOF, insteadofTriggerSpecs );
+        triggerSpecMap.put( ActionTime.AFTER, afterTriggerSpecs );
+        
+        return triggerSpecMap;
     }
 
 
@@ -216,11 +271,35 @@ public class TriggerService extends BaseInterceptor
             next.delete( name );
             return;
         }
-        
-        /**
-         * 
-         */
 
+        List triggerSpecs = new ArrayList();
+        addPrescriptiveTriggerSpecs( proxy, triggerSpecs, name, entry );
+        addEntryTriggerSpecs( triggerSpecs, entry );
+        Map triggerMap = getActionTimeMappedTriggerSpecs( triggerSpecs, LdapOperation.DELETE );
+        
+        List beforeTriggerSpecs = (List) triggerMap.get( ActionTime.BEFORE );
+        System.out.println( "There are " + beforeTriggerSpecs.size() + " \"BEFORE delete\" triggers associated with this entry [" + name + "] being deleted:" );
+        System.out.println( ">>> " + beforeTriggerSpecs );
+        
+        List insteadofTriggerSpecs = (List) triggerMap.get( ActionTime.INSTEADOF );
+        System.out.println( "There are " + insteadofTriggerSpecs.size() + " \"INSTEADOF delete\" triggers associated with this entry [" + name + "] being deleted:" );
+        System.out.println( ">>> " + insteadofTriggerSpecs );
+        
+        if ( insteadofTriggerSpecs.size() == 0 )
+        {
+            next.delete( name );
+            // we call subentryDeleted when there is really no INSTEADOF triggers for this method
+            triggerSpecCache.subentryDeleted( name, entry );
+        }
+        else
+        {
+            System.out.println ("Delete operation has not been performed due to the INSTEADOF trigger(s).");
+        }
+        
+        List afterTriggerSpecs = (List) triggerMap.get( ActionTime.AFTER );
+        System.out.println( "There are " + afterTriggerSpecs.size() + " \"AFTER delete\" triggers associated with this entry [" + name + "] being deleted:" );
+        System.out.println( ">>> " + afterTriggerSpecs );
+        System.out.println();
     }
 
 }

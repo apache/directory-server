@@ -135,8 +135,8 @@ public class TriggerSpecCache
     private boolean hasPrescriptiveTrigger( Attributes entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveTrigger
-        Attribute aci = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );        
-        if ( aci == null )
+        Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );        
+        if ( triggerSpec == null )
         {
             return false;
         }
@@ -152,7 +152,7 @@ public class TriggerSpecCache
         {
             return;
         }
-
+        
         List subentryTriggerSpecs = new ArrayList();
         for ( int ii = 0; ii < triggerSpec.size(); ii++ )
         {
@@ -165,7 +165,7 @@ public class TriggerSpecCache
             catch ( ParseException e )
             {
                 String msg = "TriggerSpecification parser failure on '" + item + "'. Cannnot add Trigger Specificaitons to TriggerSpecCache.";
-                log.warn( msg, e );
+                log.error( msg, e );
             }
 
             subentryTriggerSpecs.add( item );
