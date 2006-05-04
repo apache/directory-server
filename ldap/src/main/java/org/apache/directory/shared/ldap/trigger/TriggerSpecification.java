@@ -72,5 +72,70 @@ public class TriggerSpecification
     {
         return storedProcedureParameters;
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode()
+    {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + ( ( actionTime == null ) ? 0 : actionTime.hashCode() );
+        result = PRIME * result + ( ( ldapOperation == null ) ? 0 : ldapOperation.hashCode() );
+        result = PRIME * result + ( ( storedProcedureName == null ) ? 0 : storedProcedureName.hashCode() );
+        result = PRIME * result + ( ( storedProcedureOptions == null ) ? 0 : storedProcedureOptions.hashCode() );
+        result = PRIME * result + ( ( storedProcedureParameters == null ) ? 0 : storedProcedureParameters.hashCode() );
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals( Object obj )
+    {
+        if ( this == obj )
+            return true;
+        if ( obj == null )
+            return false;
+        if ( getClass() != obj.getClass() )
+            return false;
+        final TriggerSpecification other = ( TriggerSpecification ) obj;
+        if ( actionTime == null )
+        {
+            if ( other.actionTime != null )
+                return false;
+        }
+        else if ( !actionTime.equals( other.actionTime ) )
+            return false;
+        if ( ldapOperation == null )
+        {
+            if ( other.ldapOperation != null )
+                return false;
+        }
+        else if ( !ldapOperation.equals( other.ldapOperation ) )
+            return false;
+        if ( storedProcedureName == null )
+        {
+            if ( other.storedProcedureName != null )
+                return false;
+        }
+        else if ( !storedProcedureName.equals( other.storedProcedureName ) )
+            return false;
+        if ( storedProcedureOptions == null )
+        {
+            if ( other.storedProcedureOptions != null )
+                return false;
+        }
+        else if ( !storedProcedureOptions.equals( other.storedProcedureOptions ) )
+            return false;
+        if ( storedProcedureParameters == null )
+        {
+            if ( other.storedProcedureParameters != null )
+                return false;
+        }
+        else if ( !storedProcedureParameters.equals( other.storedProcedureParameters ) )
+            return false;
+        return true;
+    }
     
 }

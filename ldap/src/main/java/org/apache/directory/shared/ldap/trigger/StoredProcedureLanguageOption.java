@@ -38,29 +38,37 @@ public class StoredProcedureLanguageOption implements StoredProcedureOption
         return language;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode()
+    {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + ( ( language == null ) ? 0 : language.hashCode() );
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     public boolean equals( Object obj )
     {
-        if ( obj == this )
-        {
+        if ( this == obj )
             return true;
-        }
-        
-        if ( obj instanceof StoredProcedureLanguageOption )
-        {
-            StoredProcedureLanguageOption splo = ( StoredProcedureLanguageOption ) obj; 
-            if ( splo.getLanguage().equals( this.getLanguage() ) )
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
+        if ( obj == null )
             return false;
+        if ( getClass() != obj.getClass() )
+            return false;
+        final StoredProcedureLanguageOption other = ( StoredProcedureLanguageOption ) obj;
+        if ( language == null )
+        {
+            if ( other.language != null )
+                return false;
         }
+        else if ( !language.equals( other.language ) )
+            return false;
+        return true;
     }
 
 }

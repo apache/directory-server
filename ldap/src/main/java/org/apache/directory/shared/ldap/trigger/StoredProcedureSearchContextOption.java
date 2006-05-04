@@ -59,29 +59,45 @@ public class StoredProcedureSearchContextOption implements StoredProcedureOption
         return baseObject.toString();
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode()
+    {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + ( ( baseObject == null ) ? 0 : baseObject.hashCode() );
+        result = PRIME * result + ( ( searchScope == null ) ? 0 : searchScope.hashCode() );
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     public boolean equals( Object obj )
     {
-        if ( obj == this )
-        {
+        if ( this == obj )
             return true;
-        }
-        
-        if ( obj instanceof StoredProcedureSearchContextOption )
-        {
-            StoredProcedureSearchContextOption stsco = ( StoredProcedureSearchContextOption ) obj;
-            if ( stsco.getBaseObject().equals( this.getBaseObject() ) && stsco.getSearchScope().equals( this.getSearchScope() ) )
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
+        if ( obj == null )
             return false;
+        if ( getClass() != obj.getClass() )
+            return false;
+        final StoredProcedureSearchContextOption other = ( StoredProcedureSearchContextOption ) obj;
+        if ( baseObject == null )
+        {
+            if ( other.baseObject != null )
+                return false;
         }
+        else if ( !baseObject.equals( other.baseObject ) )
+            return false;
+        if ( searchScope == null )
+        {
+            if ( other.searchScope != null )
+                return false;
+        }
+        else if ( !searchScope.equals( other.searchScope ) )
+            return false;
+        return true;
     }
     
 }
