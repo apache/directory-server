@@ -36,7 +36,7 @@ public class LdapOperation
 
     public static final LdapOperation ADD = new LdapOperation( "add" );
 
-    public static final LdapOperation DEL = new LdapOperation( "del" );
+    public static final LdapOperation DELETE = new LdapOperation( "delete" );
 
     public static final LdapOperation MODDN = new LdapOperation( "moddn" );
 

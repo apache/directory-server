@@ -68,13 +68,13 @@ public class TriggerSpecificationParserTest extends TestCase
         assertNotNull( triggerSpecification );
         assertEquals( triggerSpecification.getActionTime(), ActionTime.BEFORE );
         assertEquals( triggerSpecification.getStoredProcedureName(), "BackupUtilities.backupDeletedEntry" );
-        assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.DEL );
+        assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.DELETE );
         assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 0 );
         assertEquals( triggerSpecification.getStoredProcedureParameters().size(), 2 );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
-            StoredProcedureParameter.DelStoredProcedureParameter.NAME ) );
+            StoredProcedureParameter.DeleteStoredProcedureParameter.NAME ) );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
-            StoredProcedureParameter.DelStoredProcedureParameter.DELETED_ENTRY ) );
+            StoredProcedureParameter.DeleteStoredProcedureParameter.DELETED_ENTRY ) );
     }
     
     public void testWithGenericParameters() throws Exception

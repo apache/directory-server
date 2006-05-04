@@ -31,17 +31,30 @@ public class GenericLdapOperationTokenListener implements LdapOperationTokenList
     public static final GenericLdapOperationTokenListener SearchListener = new GenericLdapOperationTokenListener( LdapOperation.SEARCH );
     public static final GenericLdapOperationTokenListener ModifyListener = new GenericLdapOperationTokenListener( LdapOperation.MODIFY );
     public static final GenericLdapOperationTokenListener AddListener = new GenericLdapOperationTokenListener( LdapOperation.ADD );
-    public static final GenericLdapOperationTokenListener DelListener = new GenericLdapOperationTokenListener( LdapOperation.DEL );
+    public static final GenericLdapOperationTokenListener DelListener = new GenericLdapOperationTokenListener( LdapOperation.DELETE );
     public static final GenericLdapOperationTokenListener ModDNListener = new GenericLdapOperationTokenListener( LdapOperation.MODDN );
     public static final GenericLdapOperationTokenListener CompareListener = new GenericLdapOperationTokenListener( LdapOperation.COMPARE );
     public static final GenericLdapOperationTokenListener AbandonListener = new GenericLdapOperationTokenListener( LdapOperation.ABANDON );
     public static final GenericLdapOperationTokenListener ExtendedListener = new GenericLdapOperationTokenListener( LdapOperation.EXTENDED );
+    public static final GenericLdapOperationTokenListener AnyOperationListener =
+        new GenericLdapOperationTokenListener()
+        {
+            public boolean ldapOperationTokenRead(LdapOperation ldapOperation)
+            {
+                return true;
+            };
+        };
     
     private LdapOperation ldapOperation;
     
     private GenericLdapOperationTokenListener( LdapOperation ldapOperation )
     {
         this.ldapOperation = ldapOperation;
+    }
+    
+    private GenericLdapOperationTokenListener()
+    {
+        
     }
 
     public boolean ldapOperationTokenRead( LdapOperation ldapOperation )

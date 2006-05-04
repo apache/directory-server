@@ -80,9 +80,9 @@ options
     
     private String triggerStoredProcedureName;
     
-    private List triggerStoredProcedureOptions = new ArrayList();
+    private List triggerStoredProcedureOptions;
     
-    private List triggerStoredProcedureParameters = new ArrayList();
+    private List triggerStoredProcedureParameters;
     
     /**
      * Creates a (normalizing) subordinate DnParser for parsing Names.
@@ -139,6 +139,8 @@ wrapperEntryPoint returns [ TriggerSpecification triggerSpec ]
 {
     log.debug( "entered wrapperEntryPoint()" );
     triggerSpec = null;
+    triggerStoredProcedureOptions = new ArrayList();
+    triggerStoredProcedureParameters = new ArrayList();
 }
     :
     ( SP )* triggerSpec=triggerSpecification ( SP )* EOF
@@ -182,7 +184,7 @@ ldapOperationAndStoredProcedureCall
     | searchOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.SEARCH; }
     | modifyOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.MODIFY; }
     | addOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.ADD; }
-    | delOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.DEL; }
+    | deleteOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.DELETE; }
     | modDNOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.MODDN; }
     | compareOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.COMPARE; }
     | abandonOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.ABANDON; }
@@ -283,21 +285,21 @@ addOperationAndStoredProcedureCall
     CLOSE_PARAN
     ;
 
-delOperationAndStoredProcedureCall
+deleteOperationAndStoredProcedureCall
 {
-    log.debug( "entered delOperationAndStoredProcedureCall()" );
+    log.debug( "entered deleteOperationAndStoredProcedureCall()" );
 }
     :
-    ( ID_del | ID_delete )
+    ID_delete
     {
-    	if ( caller.ldapOperationTokenRead( LdapOperation.DEL ) == false )
+    	if ( caller.ldapOperationTokenRead( LdapOperation.DELETE ) == false )
     	{
-    		throw new ConditionalParserFailureBasedOnCallerFeedback( LdapOperation.DEL );
+    		throw new ConditionalParserFailureBasedOnCallerFeedback( LdapOperation.DELETE );
     	}
     }
     theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
-        ( delStoredProcedureParameterList )?
+        ( deleteStoredProcedureParameterList )?
     CLOSE_PARAN
     ;
 
@@ -441,13 +443,13 @@ addStoredProcedureParameterList
         ( SEP ( SP )* addStoredProcedureParameter ( SP )* )*
     ;
 
-delStoredProcedureParameterList
+deleteStoredProcedureParameterList
 {
-    log.debug( "entered delStoredProcedureParameterList()" );
+    log.debug( "entered deleteStoredProcedureParameterList()" );
 }
     :
-    delStoredProcedureParameter ( SP )*
-        ( SEP ( SP )* delStoredProcedureParameter ( SP )* )*
+    deleteStoredProcedureParameter ( SP )*
+        ( SEP ( SP )* deleteStoredProcedureParameter ( SP )* )*
     ;
 
 modDNStoredProcedureParameterList
@@ -542,12 +544,12 @@ addStoredProcedureParameter
     | genericStoredProcedureParameter
     ;
 
-delStoredProcedureParameter
+deleteStoredProcedureParameter
 {
-    log.debug( "entered delStoredProcedureParameter()" );
+    log.debug( "entered deleteStoredProcedureParameter()" );
 }
-    : ID_name { triggerStoredProcedureParameters.add( StoredProcedureParameter.DelStoredProcedureParameter.NAME ); }
-    | ID_deletedEntry { triggerStoredProcedureParameters.add( StoredProcedureParameter.DelStoredProcedureParameter.DELETED_ENTRY ); }
+    : ID_name { triggerStoredProcedureParameters.add( StoredProcedureParameter.DeleteStoredProcedureParameter.NAME ); }
+    | ID_deletedEntry { triggerStoredProcedureParameters.add( StoredProcedureParameter.DeleteStoredProcedureParameter.DELETED_ENTRY ); }
     | genericStoredProcedureParameter
     ;
 
@@ -733,7 +735,6 @@ tokens
     ID_search  = "search";
     ID_modify  = "modify";
     ID_add = "add";
-    ID_del = "del";
     ID_delete = "delete";
     ID_modDN = "moddn";
     ID_compare = "compare";
@@ -768,7 +769,7 @@ tokens
     ID_entry = "$entry";
     // ID_attributes = "$attributes"; // defined before
     
-    // del specific parameters
+    // delete specific parameters
     // ID_name = "$name"; // defined before
     ID_deletedEntry = "$deletedentry";
     

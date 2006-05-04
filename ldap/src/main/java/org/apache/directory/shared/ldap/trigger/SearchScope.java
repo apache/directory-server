@@ -46,10 +46,15 @@ public class SearchScope
         return name;
     }
 
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     public String toString()
     {
-        return name;
+        return "scope" + "\"" + name + "\"";
     }
+    
 
     /* (non-Javadoc)
      * @see java.lang.Object#hashCode()

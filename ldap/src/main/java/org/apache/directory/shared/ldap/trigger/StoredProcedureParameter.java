@@ -28,9 +28,9 @@ package org.apache.directory.shared.ldap.trigger;
 public class StoredProcedureParameter
 {
 
-    public static final StoredProcedureParameter OPERATION_TIME = new StoredProcedureParameter( "operationTime" );
+    public static final StoredProcedureParameter OPERATION_TIME = new StoredProcedureParameter( "$operationTime" );
     public static final StoredProcedureParameter OPERATION_PRINCIPAL = new StoredProcedureParameter(
-        "operationPrincipal" );
+        "$operationPrincipal" );
 
     private final String name;
 
@@ -164,8 +164,8 @@ public class StoredProcedureParameter
     public static class AddStoredProcedureParameter extends StoredProcedureParameter
     {
 
-        public static final DelStoredProcedureParameter ENTRY = new DelStoredProcedureParameter( "$entry" );
-        public static final DelStoredProcedureParameter ATTRIBUTES = new DelStoredProcedureParameter( "$attributes" );
+        public static final AddStoredProcedureParameter ENTRY = new AddStoredProcedureParameter( "$entry" );
+        public static final AddStoredProcedureParameter ATTRIBUTES = new AddStoredProcedureParameter( "$attributes" );
 
 
         private AddStoredProcedureParameter( String name )
@@ -175,15 +175,15 @@ public class StoredProcedureParameter
 
     }
 
-    public static class DelStoredProcedureParameter extends StoredProcedureParameter
+    public static class DeleteStoredProcedureParameter extends StoredProcedureParameter
     {
 
-        public static final AddStoredProcedureParameter NAME = new AddStoredProcedureParameter( "$name" );
-        public static final AddStoredProcedureParameter DELETED_ENTRY = new AddStoredProcedureParameter(
+        public static final DeleteStoredProcedureParameter NAME = new DeleteStoredProcedureParameter( "$name" );
+        public static final DeleteStoredProcedureParameter DELETED_ENTRY = new DeleteStoredProcedureParameter(
             "$deletedEntry" );
 
 
-        private DelStoredProcedureParameter( String name )
+        private DeleteStoredProcedureParameter( String name )
         {
             super( name );
         }

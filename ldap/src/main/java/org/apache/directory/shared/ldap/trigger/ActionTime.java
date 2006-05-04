@@ -52,6 +52,9 @@ public class ActionTime
     }
 
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     public String toString()
     {
         return name;

@@ -49,7 +49,7 @@ public class TriggerSpecificationParser
     /**
      * Creates a TriggerSpecification parser.
      */
-    public TriggerSpecificationParser()
+    public TriggerSpecificationParser( LdapOperationTokenListener listener )
     {
         this.lexer = new ReusableAntlrTriggerSpecificationLexer( new StringReader( "" ) );
         this.parser = new ReusableAntlrTriggerSpecificationParser( lexer );
@@ -57,13 +57,22 @@ public class TriggerSpecificationParser
         this.parser.init(); // this method MUST be called while we cannot do
         // constructor overloading for antlr generated parser
         this.isNormalizing = false;
+        this.registerLdapOperationTokenListener( listener );
+    }
+    
+    /**
+     * Creates a TriggerSpecification parser.
+     */
+    public TriggerSpecificationParser()
+    {
+        this( GenericLdapOperationTokenListener.AnyOperationListener );
     }
 
 
     /**
      * Creates a normalizing TriggerSpecification parser.
      */
-    public TriggerSpecificationParser(NameComponentNormalizer normalizer)
+    public TriggerSpecificationParser( LdapOperationTokenListener listener, NameComponentNormalizer normalizer )
     {
         this.lexer = new ReusableAntlrTriggerSpecificationLexer( new StringReader( "" ) );
         this.parser = new ReusableAntlrTriggerSpecificationParser( lexer );
@@ -72,6 +81,15 @@ public class TriggerSpecificationParser
         this.parser.init(); // this method MUST be called while we cannot do
         // constructor overloading for ANTLR generated parser
         this.isNormalizing = true;
+        this.registerLdapOperationTokenListener( listener );
+    }
+    
+    /**
+     * Creates a normalizing TriggerSpecification parser.
+     */
+    public TriggerSpecificationParser( NameComponentNormalizer normalizer )
+    {
+        this( GenericLdapOperationTokenListener.AnyOperationListener, normalizer );
     }
 
 

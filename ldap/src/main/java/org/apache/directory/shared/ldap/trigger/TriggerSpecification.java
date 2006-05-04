@@ -73,6 +73,18 @@ public class TriggerSpecification
         return storedProcedureParameters;
     }
 
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    public String toString()
+    {
+        return actionTime + " " + 
+            ldapOperation +
+            " CALL \"" + storedProcedureName + "\" { " +
+            storedProcedureOptions + " } ( " + storedProcedureParameters + " )";
+    }
+
     /* (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
