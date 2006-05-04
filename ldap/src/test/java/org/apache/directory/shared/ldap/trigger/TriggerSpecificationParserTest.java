@@ -57,7 +57,7 @@ public class TriggerSpecificationParserTest extends TestCase
 
     public void testWithOperationParameters() throws Exception
     {
-        parser.registerLdapOperationTokenListener( GenericLdapOperationTokenListener.DelListener );
+        parser.registerLdapOperationTokenListener( GenericLdapOperationTokenListener.DeleteListener );
         
         TriggerSpecification triggerSpecification = null;
         
