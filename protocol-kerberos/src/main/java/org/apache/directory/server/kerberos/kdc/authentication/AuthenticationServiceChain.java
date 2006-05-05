@@ -31,6 +31,7 @@ public class AuthenticationServiceChain extends ChainBase
         addCommand( new MonitorRequest() );
         addCommand( new ConfigureAuthenticationChain() );
         addCommand( new GetClientEntry() );
+        addCommand( new VerifyPolicy() );
         addCommand( new PreAuthenticationChain() );
         addCommand( new GetServerEntry() );
         addCommand( new GetSessionKey() );
