@@ -2,7 +2,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.directory</groupId>
-  <version>1.0.4</version>
+  <version>1.0.5-SNAPSHOT</version>
   <artifactId>build</artifactId>
   <name>Apache Directory Build</name>
   <inceptionYear>2004</inceptionYear>
