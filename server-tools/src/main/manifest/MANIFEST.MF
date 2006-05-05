@@ -18,12 +18,12 @@ Class-Path: logger.jar daemon.jar bootstrapper.jar
  ../lib/commons-cli-1.0.jar 
  ../lib/jdbm-1.0.jar 
  ../lib/lcrypto-jdk14-131.jar 
- ../lib/mina-core-0.9.5-SNAPSHOT.jar 
- ../lib/mina-filter-codec-asn1-0.9.5-SNAPSHOT.jar 
- ../lib/mina-filter-ssl-0.9.5-SNAPSHOT.jar 
+ ../lib/mina-core-0.9.4.jar 
+ ../lib/mina-filter-codec-asn1-0.9.4.jar 
+ ../lib/mina-filter-ssl-0.9.4.jar 
  ../lib/oro-2.0.8.jar 
- ../lib/shared-asn1-0.9.5.2-SNAPSHOT.jar 
- ../lib/shared-ldap-0.9.5.2-SNAPSHOT.jar 
+ ../lib/shared-asn1-0.9.5.1.jar 
+ ../lib/shared-ldap-0.9.5.1.jar 
  ../lib/spring-beans-1.2.1.jar 
  ../lib/spring-context-1.2.1.jar 
  ../lib/spring-core-1.2.1.jar 
