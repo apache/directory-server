@@ -17,6 +17,7 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -57,7 +58,14 @@ public class KerberosTime implements Comparable
         kerberosTime = time.getTime();
     }
 
+    
+    public static KerberosTime getTime( String zuluTime ) throws ParseException
+    {
+        Date date = dateFormat.parse( zuluTime );
+        return new KerberosTime( date );
+    }
 
+    
     public int compareTo( Object o )
     {
         final int BEFORE = -1;

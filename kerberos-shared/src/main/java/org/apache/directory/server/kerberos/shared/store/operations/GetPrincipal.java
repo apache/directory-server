@@ -17,6 +17,8 @@
 package org.apache.directory.server.kerberos.shared.store.operations;
 
 
+import java.text.ParseException;
+
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -24,9 +26,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -70,7 +74,8 @@ public class GetPrincipal implements ContextOperation
 
         String[] attrIDs =
             { KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION, KerberosAttribute.TYPE, KerberosAttribute.KEY,
-                KerberosAttribute.SAM_TYPE };
+                KerberosAttribute.SAM_TYPE, KerberosAttribute.ACCOUNT_DISABLED, 
+                KerberosAttribute.ACCOUNT_EXPIRATION_TIME, KerberosAttribute.ACCOUNT_LOCKEDOUT };
 
         Attributes matchAttrs = new BasicAttributes( false ); // case-sensitive
         matchAttrs.put( new BasicAttribute( KerberosAttribute.PRINCIPAL, principal.getName() ) );
@@ -117,6 +122,33 @@ public class GetPrincipal implements ContextOperation
         String principal = ( String ) attrs.get( KerberosAttribute.PRINCIPAL ).get();
         String encryptionType = ( String ) attrs.get( KerberosAttribute.TYPE ).get();
         String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.VERSION ).get();
+
+        if ( attrs.get( KerberosAttribute.ACCOUNT_DISABLED ) != null )
+        {
+            String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_DISABLED ).get(); 
+            modifier.setDisabled( Boolean.parseBoolean( val.toLowerCase() ) );
+        }
+
+        if ( attrs.get( KerberosAttribute.ACCOUNT_LOCKEDOUT ) != null )
+        {
+            String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_LOCKEDOUT ).get(); 
+            modifier.setLockedOut( Boolean.parseBoolean( val.toLowerCase() ) );
+        }
+        
+        if ( attrs.get( KerberosAttribute.ACCOUNT_EXPIRATION_TIME ) != null )
+        {
+            String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_EXPIRATION_TIME ).get(); 
+            try
+            {
+                modifier.setExpiration( KerberosTime.getTime( val ) );
+            }
+            catch ( ParseException e )
+            {
+                throw new InvalidAttributeValueException( "Account expiration attribute " +
+                    KerberosAttribute.ACCOUNT_EXPIRATION_TIME 
+                    + " contained an invalid value for generalizedTime: " + val );
+            }
+        }
 
         if ( attrs.get( KerberosAttribute.SAM_TYPE ) != null )
         {
