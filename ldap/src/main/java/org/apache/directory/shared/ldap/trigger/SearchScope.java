@@ -52,7 +52,7 @@ public class SearchScope
      */
     public String toString()
     {
-        return "scope" + "\"" + name + "\"";
+        return name;
     }
     
 

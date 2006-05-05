@@ -72,8 +72,6 @@ options
     private boolean isNormalizing = false;
     private NameComponentNormalizer normalizer;
     
-    private LdapOperationTokenListener caller = null;
-    
     private ActionTime triggerActionTime;
     
     private LdapOperation triggerLdapOperation;
@@ -83,6 +81,7 @@ options
     private List triggerStoredProcedureOptions;
     
     private List triggerStoredProcedureParameters;
+    
     
     /**
      * Creates a (normalizing) subordinate DnParser for parsing Names.
@@ -114,11 +113,7 @@ options
             throw new NullPointerException( "dnParser is null: " + msg );
         }
     }
-    
-	public void registerLdapOperationTokenListener( LdapOperationTokenListener listener )
-	{
-		this.caller = listener;
-	}
+
 
     /**
      * Sets the NameComponentNormalizer for this parser's dnParser.
@@ -200,14 +195,7 @@ bindOperationAndStoredProcedureCall
     log.debug( "entered bindOperationAndStoredProcedureCall()" );
 }
     :
-    ID_bind
-    {
-    	if ( caller.ldapOperationTokenRead( LdapOperation.BIND ) == false )
-    	{
-    		throw new ConditionalParserFailureBasedOnCallerFeedback( LdapOperation.BIND  );
-    	}
-    }
-    theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_bind theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( bindStoredProcedureParameterList )?
     CLOSE_PARAN
@@ -218,14 +206,7 @@ unbindOperationAndStoredProcedureCall
     log.debug( "entered unbindOperationAndStoredProcedureCall()" );
 }
     :
-    ID_unbind
-    {
-    	if ( caller.ldapOperationTokenRead( LdapOperation.UNBIND ) == false )
-    	{
-    		throw new ConditionalParserFailureBasedOnCallerFeedback( LdapOperation.UNBIND );
-    	}
-    }
-    theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_unbind theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( unbindStoredProcedureParameterList )?
     CLOSE_PARAN
@@ -236,14 +217,7 @@ searchOperationAndStoredProcedureCall
     log.debug( "entered searchOperationAndStoredProcedureCall()" );
 }
     :
-    ID_search
-    {
-    	if ( caller.ldapOperationTokenRead( LdapOperation.SEARCH ) == false )
-    	{
-    		throw new ConditionalParserFailureBasedOnCallerFeedback( LdapOperation.SEARCH );
-    	}
-    }
-    theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_search theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( searchStoredProcedureParameterList )?
     CLOSE_PARAN
@@ -254,14 +228,7 @@ modifyOperationAndStoredProcedureCall
     log.debug( "entered modifyOperationAndStoredProcedureCall()" );
 }
     :
-    ID_modify
-    {
-    	if ( caller.ldapOperationTokenRead( LdapOperation.MODIFY ) == false )
-    	{
-    		throw new ConditionalParserFailureBasedOnCallerFeedback( LdapOperation.MODIFY );
-    	}
-    }
-    theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_modify theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( modifyStoredProcedureParameterList )?
     CLOSE_PARAN
@@ -272,14 +239,7 @@ addOperationAndStoredProcedureCall
     log.debug( "entered addOperationAndStoredProcedureCall()" );
 }
     :
-    ID_add
-    {
-    	if ( caller.ldapOperationTokenRead( LdapOperation.ADD ) == false )
-    	{
-    		throw new ConditionalParserFailureBasedOnCallerFeedback( LdapOperation.ADD );
-    	}
-    }
-    theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_add theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( addStoredProcedureParameterList )?
     CLOSE_PARAN
@@ -290,14 +250,7 @@ deleteOperationAndStoredProcedureCall
     log.debug( "entered deleteOperationAndStoredProcedureCall()" );
 }
     :
-    ID_delete
-    {
-    	if ( caller.ldapOperationTokenRead( LdapOperation.DELETE ) == false )
-    	{
-    		throw new ConditionalParserFailureBasedOnCallerFeedback( LdapOperation.DELETE );
-    	}
-    }
-    theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_delete theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( deleteStoredProcedureParameterList )?
     CLOSE_PARAN
@@ -308,14 +261,7 @@ modDNOperationAndStoredProcedureCall
     log.debug( "entered modDNOperationAndStoredProcedureCall()" );
 }
     :
-    ID_modDN
-    {
-    	if ( caller.ldapOperationTokenRead( LdapOperation.MODDN ) == false )
-    	{
-    		throw new ConditionalParserFailureBasedOnCallerFeedback( LdapOperation.MODDN );
-    	}
-    }
-    theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_modDN theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( modDNStoredProcedureParameterList )?
     CLOSE_PARAN
@@ -326,14 +272,7 @@ compareOperationAndStoredProcedureCall
     log.debug( "entered compareOperationAndStoredProcedureCall()" );
 }
     :
-    ID_compare
-    {
-    	if ( caller.ldapOperationTokenRead( LdapOperation.COMPARE ) == false )
-    	{
-    		throw new ConditionalParserFailureBasedOnCallerFeedback( LdapOperation.COMPARE );
-    	}
-    }
-    theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_compare theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( compareStoredProcedureParameterList )?
     CLOSE_PARAN
@@ -344,14 +283,7 @@ abandonOperationAndStoredProcedureCall
     log.debug( "entered abandonOperationAndStoredProcedureCall()" );
 }
     :
-    ID_abandon
-    {
-    	if ( caller.ldapOperationTokenRead( LdapOperation.ABANDON ) == false )
-    	{
-    		throw new ConditionalParserFailureBasedOnCallerFeedback( LdapOperation.ABANDON );
-    	}
-    }
-    theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_abandon theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( abandonStoredProcedureParameterList )?
     CLOSE_PARAN
@@ -362,14 +294,7 @@ extendedOperationAndStoredProcedureCall
     log.debug( "entered extendedOperationAndStoredProcedureCall()" );
 }
     :
-    ID_extended
-    {
-    	if ( caller.ldapOperationTokenRead( LdapOperation.EXTENDED ) == false )
-    	{
-    		throw new ConditionalParserFailureBasedOnCallerFeedback( LdapOperation.EXTENDED );
-    	}
-    }
-    theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_extended theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( extendedStoredProcedureParameterList )?
     CLOSE_PARAN
@@ -637,7 +562,7 @@ storedProcedureSearchContextOption returns [ StoredProcedureSearchContextOption 
     Name spSearchContext = null;
 }
     :
-    ID_searchContext ( SP )+
+    ID_searchContext ( SP )+ // FIXME: SP should not be mandatory if an OPEN_CURLY follows
         ( OPEN_CURLY ( SP )*
             ( ID_search_scope ( SP )+ searchScope=storedProcedureSearchScope ( SP )* )?
         CLOSE_CURLY ( SP )+ )?

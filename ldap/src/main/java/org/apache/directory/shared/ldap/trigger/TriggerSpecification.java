@@ -17,7 +17,10 @@
 
 package org.apache.directory.shared.ldap.trigger;
 
+import java.util.Iterator;
 import java.util.List;
+
+import org.apache.commons.lang.NullArgumentException;
 
 /**
  * The Trigger Specification Bean.
@@ -41,6 +44,14 @@ public class TriggerSpecification
     public TriggerSpecification( LdapOperation ldapOperation, ActionTime actionTime, String storedProcedureName, List storedProcedureOptions, List storedProcedureParameters )
     {
         super();
+        if ( ldapOperation == null || 
+            actionTime == null || 
+            storedProcedureName == null || 
+            storedProcedureOptions == null || 
+            storedProcedureParameters == null )
+        {
+            throw new NullArgumentException( "TriggerSpecification cannot be initialized with any NULL argument." );
+        }
         this.ldapOperation = ldapOperation;
         this.actionTime = actionTime;
         this.storedProcedureName = storedProcedureName;
@@ -79,10 +90,43 @@ public class TriggerSpecification
      */
     public String toString()
     {
-        return actionTime + " " + 
-            ldapOperation +
-            " CALL \"" + storedProcedureName + "\" { " +
-            storedProcedureOptions + " } ( " + storedProcedureParameters + " )";
+        StringBuffer buffer = new StringBuffer();
+        buffer.append( actionTime );
+        buffer.append( " " );
+        buffer.append( ldapOperation );
+        buffer.append( " CALL \"" );
+        buffer.append( storedProcedureName );
+        buffer.append( "\" { " );
+        if ( storedProcedureOptions.size() > 0 )
+        {
+            Iterator it = storedProcedureOptions.iterator();
+            while ( it.hasNext() )
+            {
+                StoredProcedureOption spOption = ( StoredProcedureOption ) it.next();
+                buffer.append( spOption );
+                if ( it.hasNext() )
+                {
+                    buffer.append( ", " );
+                }
+            }
+        }
+        buffer.append( " } ( " );
+        if ( storedProcedureParameters.size() > 0 )
+        {
+            Iterator it = storedProcedureParameters.iterator();
+            while ( it.hasNext() )
+            {
+                StoredProcedureParameter spParameter = ( StoredProcedureParameter ) it.next();
+                buffer.append( spParameter );
+                if ( it.hasNext() )
+                {
+                    buffer.append( ", " );
+                }
+            }
+        }
+        buffer.append( " )" );
+        
+        return buffer.toString();
     }
 
     /* (non-Javadoc)

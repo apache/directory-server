@@ -56,7 +56,7 @@ public class StoredProcedureSearchContextOption implements StoredProcedureOption
 
     public String toString()
     {
-        return baseObject.toString();
+        return "searchContext { scope " + searchScope + " } \"" + baseObject + "\""; 
     }
 
     /* (non-Javadoc)
