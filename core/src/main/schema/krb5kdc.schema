@@ -113,17 +113,17 @@ attributetype ( 1.3.6.1.4.1.5322.10.1.12
 attributetype ( 1.3.6.1.4.1.5322.10.1.13
   NAME 'krb5AccountDisabled'
   EQUALITY booleanMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE )
 
 attributetype ( 1.3.6.1.4.1.5322.10.1.14
   NAME 'krb5AccountLockedOut'
   EQUALITY booleanMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE )
 
 attributetype ( 1.3.6.1.4.1.5322.10.1.15
   NAME 'krb5AccountExpirationTime'
   EQUALITY generalizedTimeMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 SINGLE-VALUE )
 
 # Object class definitions
 
