@@ -29,6 +29,7 @@ public class AuthenticationServiceChain extends IoHandlerChain
         addLast( "monitorRequest", new MonitorRequest() );
         addLast( "configureAuthenticationChain", new ConfigureAuthenticationChain() );
         addLast( "getClientEntry", new GetClientEntry() );
+        addLast( "verifyPolicy", new VerifyPolicy() );
         addLast( "preAuthenticationChain", new PreAuthenticationChain() );
         addLast( "getServerEntry", new GetServerEntry() );
         addLast( "getSessionKey", new GetSessionKey() );
