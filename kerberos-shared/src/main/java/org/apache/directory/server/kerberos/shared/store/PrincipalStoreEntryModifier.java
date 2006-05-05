@@ -46,15 +46,37 @@ public class PrincipalStoreEntryModifier
     private int encryptionType;
     private SamType samType;
     private byte[] key;
+    private boolean disabled = false;
+    private boolean lockedOut = false;
+    private KerberosTime expiration = KerberosTime.INFINITY;
 
 
     public PrincipalStoreEntry getEntry()
     {
         return new PrincipalStoreEntry( commonName, userId, principal, keyVersionNumber, validStart, validEnd,
-            passwordEnd, maxLife, maxRenew, kdcFlags, encryptionType, key, realmName, samType );
+            passwordEnd, maxLife, maxRenew, kdcFlags, encryptionType, key, realmName, samType, 
+            disabled, lockedOut, expiration );
     }
 
+    
+    public void setDisabled( boolean disabled )
+    {
+        this.disabled = disabled;
+    }
+    
+    
+    public void setLockedOut( boolean lockedOut )
+    {
+        this.lockedOut = lockedOut;
+    }
+    
+    
+    public void setExpiration( KerberosTime expiration )
+    {
+        this.expiration = expiration;
+    }
 
+    
     public void setCommonName( String commonName )
     {
         this.commonName = commonName;

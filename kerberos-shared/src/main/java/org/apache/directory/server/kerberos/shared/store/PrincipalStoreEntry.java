@@ -44,11 +44,15 @@ public class PrincipalStoreEntry
     private int kdcFlags;
     private SamType samType;
     private EncryptionKey key;
+    private boolean disabled;
+    private boolean lockedOut;
+    private KerberosTime expiration;
 
 
     PrincipalStoreEntry(String commonName, String userId, KerberosPrincipal principal, int keyVersionNumber,
         KerberosTime validStart, KerberosTime validEnd, KerberosTime passwordEnd, int maxLife, int maxRenew,
-        int kdcFlags, int keyType, byte[] key, String realmName, SamType samType)
+        int kdcFlags, int keyType, byte[] key, String realmName, SamType samType, boolean disabled, 
+        boolean lockedOut, KerberosTime expiration )
     {
         this.commonName = commonName;
         this.userId = userId;
@@ -60,12 +64,31 @@ public class PrincipalStoreEntry
         this.maxRenew = maxRenew;
         this.kdcFlags = kdcFlags;
         this.realmName = realmName;
-
+        this.disabled = disabled;
+        this.lockedOut = lockedOut;
+        this.expiration = expiration;
         this.samType = samType;
-
         this.key = new EncryptionKey( EncryptionType.getTypeByOrdinal( keyType ), key, keyVersionNumber );
     }
 
+    
+    public boolean isDisabled()
+    {
+        return disabled;
+    }
+    
+    
+    public boolean isLockedOut()
+    {
+        return lockedOut;
+    }
+    
+    
+    public KerberosTime getExpiration()
+    {
+        return expiration;
+    }
+    
 
     public String getCommonName()
     {

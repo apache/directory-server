@@ -33,4 +33,10 @@ public class KerberosAttribute
     public static final String VERSION = "krb5KeyVersionNumber";
     /** the Apache specific SAM type attribute */
     public static final String SAM_TYPE = "apacheSamType";
+    /** the disabled boolean LDAP attribute for a Kerberos account */
+    public static final String ACCOUNT_DISABLED = "krb5AccountDisabled";
+    /** the lockedout boolean LDAP attribute for a Kerberos account */
+    public static final String ACCOUNT_LOCKEDOUT = "krb5AccountLockedOut";
+    /** the expiration time attribute LDAP attribute for a Kerberos account */
+    public static final String ACCOUNT_EXPIRATION_TIME = "krb5AccountExpirationTime";
 }
