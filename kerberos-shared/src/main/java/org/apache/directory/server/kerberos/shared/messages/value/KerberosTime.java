@@ -61,7 +61,11 @@ public class KerberosTime implements Comparable
     
     public static KerberosTime getTime( String zuluTime ) throws ParseException
     {
-        Date date = dateFormat.parse( zuluTime );
+        Date date = null;
+        synchronized ( dateFormat )
+        {
+            date = dateFormat.parse( zuluTime );
+        }
         return new KerberosTime( date );
     }
 
