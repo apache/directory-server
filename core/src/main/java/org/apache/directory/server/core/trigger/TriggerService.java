@@ -14,6 +14,7 @@
  *   limitations under the License.
  *
  */
+
 package org.apache.directory.server.core.trigger;
 
 
@@ -21,14 +22,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.naming.Name;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -42,11 +41,9 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
-import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DnParser;
@@ -105,9 +102,10 @@ public class TriggerService extends BaseInterceptor
      * @param entry the target entry that is considered as the trigger source
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addPrescriptiveTriggerSpecs( DirectoryPartitionNexusProxy proxy, Collection triggerSpecs,
+    private void addPrescriptiveTriggerSpecs( List triggerSpecs, DirectoryPartitionNexusProxy proxy,
         Name dn, Attributes entry ) throws NamingException
     {
+        
         /*
          * If the protected entry is a subentry, then the entry being evaluated
          * for perscriptiveTriggerss is in fact the administrative entry.  By
@@ -173,6 +171,62 @@ public class TriggerService extends BaseInterceptor
         }
     }
     
+    public Map getActionTimeMappedTriggerSpecsForOperation( List triggerSpecs, LdapOperation ldapOperation )
+    {
+        List beforeTriggerSpecs = new ArrayList();
+        List insteadofTriggerSpecs = new ArrayList();
+        List afterTriggerSpecs = new ArrayList();
+        Map triggerSpecMap = new HashMap();
+        
+        Iterator it = triggerSpecs.iterator();
+        while ( it.hasNext() )
+        {
+            TriggerSpecification triggerSpec = ( TriggerSpecification ) it.next();
+            if ( triggerSpec.getLdapOperation().equals( ldapOperation ) )
+            {
+                if ( triggerSpec.getActionTime().equals( ActionTime.BEFORE ) )
+                {
+                    beforeTriggerSpecs.add( triggerSpec );
+                }
+                else if ( triggerSpec.getActionTime().equals( ActionTime.INSTEADOF ) )
+                {
+                    insteadofTriggerSpecs.add( triggerSpec );
+                }
+                else if ( triggerSpec.getActionTime().equals( ActionTime.AFTER ) )
+                {
+                    afterTriggerSpecs.add( triggerSpec );
+                }
+                else
+                {
+                    // TODO
+                }    
+            }
+        }
+        
+        triggerSpecMap.put( ActionTime.BEFORE, beforeTriggerSpecs );
+        triggerSpecMap.put( ActionTime.INSTEADOF, insteadofTriggerSpecs );
+        triggerSpecMap.put( ActionTime.AFTER, afterTriggerSpecs );
+        
+        return triggerSpecMap;
+    }
+    
+    /*private Map getActionTimeMappedStoredProcedures( Map triggerMap )
+    {
+        Map spMap = new HashMap();
+        
+        Iterator it = triggerMap.entrySet().iterator();
+        while ( it.hasNext() )
+        {
+            Map.Entry entry = ( Entry ) it.next();
+            List triggerSpecs = ( List ) entry.getValue();
+            Iterator it = triggerSpecs.iterator();
+            while ( it.hasNext() )
+            {
+                
+            }
+        }
+    }*/
+    
 
     /**
      * Initializes this interceptor based service by getting a handle on the nexus.
@@ -215,45 +269,6 @@ public class TriggerService extends BaseInterceptor
         triggerSpecCache.subentryAdded( normName, entry );
         
     }
-    
-    public Map getActionTimeMappedTriggerSpecs( List triggerSpecs, LdapOperation ldapOperation )
-    {
-        List beforeTriggerSpecs = new ArrayList();
-        List insteadofTriggerSpecs = new ArrayList();
-        List afterTriggerSpecs = new ArrayList();
-        Map triggerSpecMap = new HashMap();
-        
-        Iterator it = triggerSpecs.iterator();
-        while ( it.hasNext() )
-        {
-            TriggerSpecification triggerSpec = ( TriggerSpecification ) it.next();
-            if ( triggerSpec.getLdapOperation().equals( ldapOperation ) )
-            {
-                if ( triggerSpec.getActionTime().equals( ActionTime.BEFORE ) )
-                {
-                    beforeTriggerSpecs.add( triggerSpec );
-                }
-                else if ( triggerSpec.getActionTime().equals( ActionTime.INSTEADOF ) )
-                {
-                    insteadofTriggerSpecs.add( triggerSpec );
-                }
-                else if ( triggerSpec.getActionTime().equals( ActionTime.AFTER ) )
-                {
-                    afterTriggerSpecs.add( triggerSpec );
-                }
-                else
-                {
-                    // TODO
-                }    
-            }
-        }
-        
-        triggerSpecMap.put( ActionTime.BEFORE, beforeTriggerSpecs );
-        triggerSpecMap.put( ActionTime.INSTEADOF, insteadofTriggerSpecs );
-        triggerSpecMap.put( ActionTime.AFTER, afterTriggerSpecs );
-        
-        return triggerSpecMap;
-    }
 
 
     public void delete( NextInterceptor next, Name name ) throws NamingException
@@ -273,17 +288,19 @@ public class TriggerService extends BaseInterceptor
         }
 
         List triggerSpecs = new ArrayList();
-        addPrescriptiveTriggerSpecs( proxy, triggerSpecs, name, entry );
+        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, name, entry );
         addEntryTriggerSpecs( triggerSpecs, entry );
-        Map triggerMap = getActionTimeMappedTriggerSpecs( triggerSpecs, LdapOperation.DELETE );
+        Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.DELETE );
+        // Map spMap = getActionTimeMappedStoredProcedures( triggerMap );
+        
         
         List beforeTriggerSpecs = (List) triggerMap.get( ActionTime.BEFORE );
-        System.out.println( "There are " + beforeTriggerSpecs.size() + " \"BEFORE delete\" triggers associated with this entry [" + name + "] being deleted:" );
-        System.out.println( ">>> " + beforeTriggerSpecs );
+        log.debug( "There are " + beforeTriggerSpecs.size() + " \"BEFORE delete\" triggers associated with this entry [" + name + "] being deleted:" );
+        log.debug( ">>> " + beforeTriggerSpecs );
         
         List insteadofTriggerSpecs = (List) triggerMap.get( ActionTime.INSTEADOF );
-        System.out.println( "There are " + insteadofTriggerSpecs.size() + " \"INSTEADOF delete\" triggers associated with this entry [" + name + "] being deleted:" );
-        System.out.println( ">>> " + insteadofTriggerSpecs );
+        log.debug( "There are " + insteadofTriggerSpecs.size() + " \"INSTEADOF delete\" triggers associated with this entry [" + name + "] being deleted:" );
+        log.debug( ">>> " + insteadofTriggerSpecs );
         
         if ( insteadofTriggerSpecs.size() == 0 )
         {
@@ -293,13 +310,12 @@ public class TriggerService extends BaseInterceptor
         }
         else
         {
-            System.out.println ("Delete operation has not been performed due to the INSTEADOF trigger(s).");
+            log.debug("Delete operation has not been performed due to the INSTEADOF trigger(s).");
         }
         
         List afterTriggerSpecs = (List) triggerMap.get( ActionTime.AFTER );
-        System.out.println( "There are " + afterTriggerSpecs.size() + " \"AFTER delete\" triggers associated with this entry [" + name + "] being deleted:" );
-        System.out.println( ">>> " + afterTriggerSpecs );
-        System.out.println();
+        log.debug( "There are " + afterTriggerSpecs.size() + " \"AFTER delete\" triggers associated with this entry [" + name + "] being deleted:" );
+        log.debug( ">>> " + afterTriggerSpecs );
     }
 
 }
