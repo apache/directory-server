@@ -18,6 +18,7 @@
 package org.apache.directory.server.changepw.protocol;
 
 
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -26,6 +27,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
+import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.service.ChangePasswordChain;
@@ -121,9 +123,9 @@ public class ChangePasswordProtocolHandler implements IoHandler
         {
             log.error( e.getMessage() );
 
-            ChangePasswordException cpe = ( ChangePasswordException ) e;
+            KerberosException ke = ( KerberosException ) e;
 
-            ErrorMessage errorMessage = getErrorMessage( config.getChangepwPrincipal(), cpe );
+            ErrorMessage errorMessage = getErrorMessage( config.getChangepwPrincipal(), ke );
 
             ChangePasswordErrorModifier modifier = new ChangePasswordErrorModifier();
             modifier.setErrorMessage( errorMessage );
@@ -168,7 +170,24 @@ public class ChangePasswordProtocolHandler implements IoHandler
     private byte[] buildExplanatoryData( KerberosException exception )
     {
         short resultCode = ( short ) exception.getErrorCode();
-        byte[] resultString = exception.getExplanatoryData();
+
+        byte[] resultString = { (byte) 0x00 };
+
+        if ( exception.getExplanatoryData() == null || exception.getExplanatoryData().length == 0 )
+        {
+            try
+            {
+                resultString = exception.getMessage().getBytes( "UTF-8" );
+            }
+            catch ( UnsupportedEncodingException uee )
+            {
+                log.error(  uee.getMessage() );
+            }
+        }
+        else
+        {
+            resultString = exception.getExplanatoryData();
+        }
 
         ByteBuffer byteBuffer = ByteBuffer.allocate( 256 );
         byteBuffer.putShort( resultCode );

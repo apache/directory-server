@@ -61,17 +61,17 @@ public class CheckPasswordPolicy implements IoHandlerCommand
         int categoryCount = config.getCategoryCountPolicy();
         int tokenSize = config.getTokenSizePolicy();
 
-        if ( isValid( username, password, passwordLength, categoryCount, tokenSize ) )
+        if ( !isValid( username, password, passwordLength, categoryCount, tokenSize ) )
         {
-            next.execute( session, message );
+            String explanation = buildErrorMessage( username, password, passwordLength, categoryCount, tokenSize );
+            log.error( explanation );
+
+            byte[] explanatoryData = explanation.getBytes( "UTF-8" );
+
+            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR, explanatoryData );
         }
 
-        String explanation = buildErrorMessage( username, password, passwordLength, categoryCount, tokenSize );
-        log.error( explanation );
-
-        byte[] explanatoryData = explanation.getBytes( "UTF-8" );
-
-        throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR, explanatoryData );
+        next.execute( session, message );
     }
 
 

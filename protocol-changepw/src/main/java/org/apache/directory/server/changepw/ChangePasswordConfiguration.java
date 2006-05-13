@@ -43,6 +43,9 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
     /** the default change password principal */
     private static final String DEFAULT_PRINCIPAL = "kadmin/changepw@EXAMPLE.COM";
 
+    /** the default change password base DN */
+    public static final String CHANGEPW_ENTRY_BASEDN = "ou=users,dc=example,dc=com";
+
     /** the prop key const for primary.realm */
     private static final String REALM_KEY = "realm";
 
@@ -243,6 +246,19 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         }
 
         return new KerberosPrincipal( DEFAULT_PRINCIPAL );
+    }
+
+
+    public String getEntryBaseDn()
+    {
+        String key = ENTRY_BASEDN_KEY;
+
+        if ( configuration.containsKey( key ) )
+        {
+            return get( key );
+        }
+
+        return CHANGEPW_ENTRY_BASEDN;
     }
 
 
