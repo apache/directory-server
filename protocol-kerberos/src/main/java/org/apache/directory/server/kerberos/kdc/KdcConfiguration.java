@@ -77,6 +77,9 @@ public class KdcConfiguration extends ServiceConfiguration
     /** the default kdc principal */
     private static final String DEFAULT_PRINCIPAL = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
 
+    /** the default kdc base DN */
+    public static final String KDC_ENTRY_BASEDN = "ou=users,dc=example,dc=com";
+
     /** the default kdc realm */
     private static final String DEFAULT_REALM = "EXAMPLE.COM";
 
@@ -222,6 +225,19 @@ public class KdcConfiguration extends ServiceConfiguration
         }
 
         return new KerberosPrincipal( DEFAULT_PRINCIPAL );
+    }
+
+
+    public String getEntryBaseDn()
+    {
+        String key = ENTRY_BASEDN_KEY;
+
+        if ( configuration.containsKey( key ) )
+        {
+            return get( key );
+        }
+
+        return KDC_ENTRY_BASEDN;
     }
 
 
