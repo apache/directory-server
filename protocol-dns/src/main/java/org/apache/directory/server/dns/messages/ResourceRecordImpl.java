@@ -86,8 +86,8 @@ public class ResourceRecordImpl implements ResourceRecord
     private Map attributes;
 
 
-    public ResourceRecordImpl(String domainName, RecordType recordType, RecordClass recordClass, int timeToLive,
-        Map attributes)
+    public ResourceRecordImpl( String domainName, RecordType recordType, RecordClass recordClass, int timeToLive,
+        Map attributes )
     {
         this.domainName = domainName;
         this.recordType = recordType;
@@ -138,7 +138,7 @@ public class ResourceRecordImpl implements ResourceRecord
      */
     public String get( String id )
     {
-        return ( String ) attributes.get( id );
+        return ( String ) attributes.get( id.toLowerCase() );
     }
 
 

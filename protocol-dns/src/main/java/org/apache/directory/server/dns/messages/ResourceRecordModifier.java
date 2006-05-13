@@ -83,6 +83,6 @@ public class ResourceRecordModifier
      */
     public void put( String id, String value )
     {
-        attributes.put( id, value );
+        attributes.put( id.toLowerCase(), value );
     }
 }

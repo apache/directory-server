@@ -29,10 +29,15 @@ import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class GetResourceRecords implements IoHandlerCommand
 {
+    /** the log for this class */
+    private static final Logger log = LoggerFactory.getLogger( GetResourceRecords.class );
+
     private String contextKey = "context";
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
@@ -64,15 +69,21 @@ public class GetResourceRecords implements IoHandlerCommand
         }
         catch ( LdapNameNotFoundException lnnfe )
         {
+            log.debug( "Name for DNS record search does not exist.", lnnfe );
+
             throw new DnsException( ResponseCode.NAME_ERROR );
         }
         catch ( Exception e )
         {
+            log.debug( "Unexpected error retrieving DNS records.", e );
+
             throw new DnsException( ResponseCode.SERVER_FAILURE );
         }
 
         if ( records == null || records.isEmpty() )
         {
+            log.debug( "The domain name referenced in the query does not exist." );
+
             throw new DnsException( ResponseCode.NAME_ERROR );
         }
 
