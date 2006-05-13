@@ -6,7 +6,7 @@
     <artifactId>build</artifactId>
     <version>1.1.0-SNAPSHOT</version>
   </parent>
-  <artifactId>apacheds-osgi-logger</artifactId>
+  <artifactId>apacheds-server-logger-osgi</artifactId>
   <name>ApacheDS Logging Library Bundle</name>
   <description>
     The logging library packaged as an OSGi bundle.
@@ -17,6 +17,24 @@
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <version>1.2.19</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>0.8.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+      <version>0.9.6-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1</artifactId>
+      <version>0.9.6-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
@@ -34,6 +52,12 @@
             <bundleDescription>
               A bundle that registers the logging library.
             </bundleDescription>
+            <bundleActivator>
+              org.apache.directory.server.logger.Activator
+            </bundleActivator>
+            <importPackage>
+              org.osgi.framework
+            </importPackage>
             <exportPackage>
               org.slf4j,org.apache.log4j
             </exportPackage>
