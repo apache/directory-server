@@ -96,7 +96,7 @@ public class ChangePassword implements ContextOperation
         String[] attrIDs =
             { KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION, KerberosAttribute.TYPE, KerberosAttribute.KEY };
 
-        Attributes matchAttrs = new BasicAttributes( false ); // case-sensitive
+        Attributes matchAttrs = new BasicAttributes( true );
         matchAttrs.put( new BasicAttribute( KerberosAttribute.PRINCIPAL, principal ) );
 
         NamingEnumeration answer = ctx.search( "", matchAttrs, attrIDs );

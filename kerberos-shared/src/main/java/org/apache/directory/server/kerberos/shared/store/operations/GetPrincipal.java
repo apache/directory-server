@@ -77,7 +77,7 @@ public class GetPrincipal implements ContextOperation
                 KerberosAttribute.SAM_TYPE, KerberosAttribute.ACCOUNT_DISABLED, 
                 KerberosAttribute.ACCOUNT_EXPIRATION_TIME, KerberosAttribute.ACCOUNT_LOCKEDOUT };
 
-        Attributes matchAttrs = new BasicAttributes( false ); // case-sensitive
+        Attributes matchAttrs = new BasicAttributes( true );
         matchAttrs.put( new BasicAttribute( KerberosAttribute.PRINCIPAL, principal.getName() ) );
 
         PrincipalStoreEntry entry = null;
