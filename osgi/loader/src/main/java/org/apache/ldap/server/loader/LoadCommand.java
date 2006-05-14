@@ -17,8 +17,11 @@
 
 package org.apache.ldap.server.loader;
 
+import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -26,6 +29,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.server.protocol.shared.store.Krb5KdcEntryFilter;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +96,10 @@ public class LoadCommand implements Command
             return;
         }
 
-        loader = new LdifFileLoader( ctx, pathToLdif );
+        List filters = new ArrayList();
+        filters.add(  new Krb5KdcEntryFilter() );
+
+        loader = new LdifFileLoader( ctx, new File( pathToLdif ), filters );
         loader.execute();
     }
 
