@@ -6,4 +6,4 @@ else
   mvn clean install
 fi
 
-java -Dlog4j.configuration=file://$(pwd)/conf/log4j.properties -jar bin/felix.jar
+java -Dlog4j.configuration=file://$(pwd)/conf/log4j.properties -jar bin/felix.jar server.xml

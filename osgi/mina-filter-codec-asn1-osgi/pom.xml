@@ -6,10 +6,10 @@
     <artifactId>build</artifactId>
     <version>1.1.0-SNAPSHOT</version>
   </parent>
-  <artifactId>mina-core-osgi</artifactId>
-  <name>ApacheDS MINA Library Bundle</name>
+  <artifactId>mina-filter-codec-asn1-osgi</artifactId>
+  <name>ApacheDS MINA ASN1 Codec Bundle</name>
   <description>
-    The ApacheDS MINA library packaged as an OSGi bundle.
+    The ApacheDS MINA ASN1 Codec packaged as an OSGi bundle.
   </description>
   <packaging>osgi-bundle</packaging>  
   <dependencies>
@@ -20,13 +20,26 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.directory.mina</groupId>
-      <artifactId>mina-core</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+      <version>0.9.6-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1</artifactId>
+      <version>0.9.6-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.mina</groupId>
-      <artifactId>mina-filter-ssl</artifactId>
+      <artifactId>mina-core</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.mina</groupId>
+      <artifactId>mina-filter-codec-asn1</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>
   </dependencies>
@@ -39,17 +52,17 @@
         <extensions>true</extensions>
         <configuration>
           <osgiManifest>
-            <bundleName>ApacheDS MINA Bundle</bundleName>
+            <bundleName>ApacheDS MINA ASN1 Codec Bundle</bundleName>
             <bundleVendor>Apache Software Foundation</bundleVendor>
             <bundleCategory>Network Service</bundleCategory>
             <bundleDescription>
               A bundle that registers the MINA library.
             </bundleDescription>
             <importPackage>
-              org.slf4j,org.apache.log4j,javax.net.ssl
+              org.apache.directory.shared.asn1.codec,org.apache.directory.shared.asn1.codec.stateful,org.apache.mina.common,org.apache.mina.filter.codec
             </importPackage>
             <exportPackage>
-              org.apache.mina.common,org.apache.mina.filter,org.apache.mina.filter.codec,org.apache.mina.handler.chain,org.apache.mina.handler.demux,org.apache.mina.transport.socket.nio,org.apache.mina.util
+              org.apache.mina.filter.codec.asn1
             </exportPackage>
           </osgiManifest>
         </configuration>

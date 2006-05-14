@@ -6,7 +6,7 @@
     <artifactId>build</artifactId>
     <version>1.1.0-SNAPSHOT</version>
   </parent>
-  <artifactId>apacheds-protocol-osgi-ldap</artifactId>
+  <artifactId>apacheds-protocol-ldap-osgi</artifactId>
   <name>ApacheDS LDAP Protocol Bundle</name>
   <description>
     The ApacheDS LDAP Network Service packaged as an OSGi bundle.
@@ -17,12 +17,25 @@
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <version>1.2.19</version>
-      <!--<scope>provided</scope>-->
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.mina</groupId>
       <artifactId>mina-core</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.mina</groupId>
+      <artifactId>mina-filter-ssl</artifactId>
       <version>0.9.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.mina</groupId>
+      <artifactId>mina-filter-codec-asn1</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
@@ -33,11 +46,24 @@
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core</artifactId>
       <version>${pom.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-ldap</artifactId>
       <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+      <version>0.9.6-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1</artifactId>
+      <version>0.9.6-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.felix</groupId>
@@ -67,6 +93,7 @@
         <extensions>true</extensions>
         <configuration>
           <osgiManifest>
+            <metadataLocation>metadata.xml</metadataLocation>
             <bundleName>ApacheDS LDAP Protocol Bundle</bundleName>
             <bundleVendor>Apache Software Foundation</bundleVendor>
             <bundleCategory>Network Service</bundleCategory>
@@ -77,11 +104,8 @@
               org.apache.ldap.Activator
             </bundleActivator>
             <importPackage>
-              org.osgi.framework,javax.naming,javax.naming.directory,javax.naming.ldap,javax.naming.spi,org.apache.mina.registry,org.apache.mina.protocol,org.apache.mina.protocol.handler,org.apache.mina.protocol.codec,org.apache.mina.common,org.osgi.service.cm
+              org.apache.directory.shared.asn1.codec.stateful,com.sun.jndi.ldap,javax.naming,javax.naming.directory,javax.naming.event,javax.naming.ldap,javax.naming.spi,javax.net.ssl,javax.security.auth.kerberos,org.apache.directory.server.core,org.apache.directory.server.core.authn,org.apache.directory.server.core.configuration,org.apache.directory.server.core.jndi,org.apache.directory.server.core.partition,org.apache.directory.server.core.partition.impl.btree,org.apache.directory.server.core.partition.impl.btree.gui,org.apache.directory.shared.asn1.ber,org.apache.directory.shared.asn1.codec,org.apache.directory.shared.ldap.codec.extended.operations,org.apache.directory.shared.ldap.codec.search.controls,org.apache.directory.shared.ldap.codec.util,org.apache.directory.shared.ldap.exception,org.apache.directory.shared.ldap.filter,org.apache.directory.shared.ldap.message,org.apache.directory.shared.ldap.message.extended,org.apache.directory.shared.ldap.name,org.apache.directory.shared.ldap.util,org.apache.mina.common,org.apache.mina.filter,org.apache.mina.filter.codec,org.apache.mina.filter.codec.asn1,org.apache.mina.handler.demux,org.apache.mina.transport.socket.nio,org.apache.mina.util,org.apache.felix.servicebinder,org.osgi.service.cm,org.apache.log4j,org.slf4j
             </importPackage>
-            <exportPackage>
-              org.apache.directory.shared.ldap.exception,org.apache.ldap.common.filter,org.apache.ldap.server.jndi,org.apache.directory.server.core.configuration
-            </exportPackage>
           </osgiManifest>
         </configuration>
       </plugin>

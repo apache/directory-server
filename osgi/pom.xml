@@ -10,15 +10,21 @@
   <packaging>pom</packaging>
   <name>ApacheDS OSGi Bundle Build</name>
   <modules>
+    <module>antlr-osgi</module>
     <module>apacheds</module>
     <module>changepw</module>
     <module>dns</module>
+    <module>commons-collections-osgi</module>
+    <module>commons-lang-osgi</module>
     <module>jmx</module>
     <module>kerberos</module>
     <module>ldap</module>
     <module>loader</module>
+    <module>logger</module>
+    <module>mina-filter-codec-asn1-osgi</module>
     <module>network</module>
     <module>ntp</module>
-    <module>logger</module>
+    <module>shared-asn1-osgi</module>
+    <module>shared-ldap-osgi</module>
   </modules>
 </project>

@@ -6,7 +6,7 @@
     <artifactId>build</artifactId>
     <version>1.1.0-SNAPSHOT</version>
   </parent>
-  <artifactId>apacheds-osgi-main</artifactId>
+  <artifactId>apacheds-server-main-osgi</artifactId>
   <name>ApacheDS OSGi Server Main</name>
   <packaging>pom</packaging>
   <build>
@@ -27,6 +27,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.1</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -35,6 +36,7 @@
             </goals>
             <configuration>
               <tasks>
+                <delete dir="${user.home}/.felix/apacheds"/>
                 <delete dir="${basedir}/bin"/>
                 <mkdir dir="${basedir}/bin"/>
                 <delete dir="${basedir}/lib"/>
@@ -85,6 +87,13 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.felix</groupId>
+                  <artifactId>org.osgi.compendium</artifactId>
+                  <version>0.8.0-SNAPSHOT</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.felix</groupId>
                   <artifactId>org.apache.felix.shell</artifactId>
                   <version>0.8.0-SNAPSHOT</version>
                   <type>jar</type>
@@ -106,15 +115,113 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.directory.server</groupId>
-                  <artifactId>apacheds-osgi-mina</artifactId>
+                  <artifactId>mina-core-osgi</artifactId>
                   <version>${pom.version}</version>
                   <type>jar</type>
                   <outputDirectory>${basedir}/bundle</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.directory.server</groupId>
-                  <artifactId>apacheds-osgi-logger</artifactId>
+                  <artifactId>mina-filter-codec-asn1-osgi</artifactId>
                   <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>apacheds-protocol-ntp-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>apacheds-protocol-ldap-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>apacheds-protocol-dns-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>apacheds-protocol-kerberos-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>apacheds-protocol-changepw-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>apacheds-server-logger-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>apacheds-server-loader-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>apacheds-core-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>shared-ldap-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>shared-asn1-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>antlr-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>commons-lang-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>commons-collections-osgi</artifactId>
+                  <version>${pom.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${basedir}/bundle</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.felix</groupId>
+                  <artifactId>org.apache.felix.servicebinder</artifactId>
+                  <version>0.8.0-SNAPSHOT</version>
                   <type>jar</type>
                   <outputDirectory>${basedir}/bundle</outputDirectory>
                 </artifactItem>

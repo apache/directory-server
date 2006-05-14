@@ -6,7 +6,7 @@
     <artifactId>build</artifactId>
     <version>1.1.0-SNAPSHOT</version>
   </parent>
-  <artifactId>apacheds-command-osgi-loader</artifactId>
+  <artifactId>apacheds-server-loader-osgi</artifactId>
   <name>ApacheDS LDIF Loader Console Command</name>
   <description>
     The ApacheDS LDIF Loader Console Command packaged as an OSGi bundle.
@@ -17,7 +17,7 @@
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <version>1.2.19</version>
-      <!--<scope>provided</scope>-->
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
@@ -28,6 +28,7 @@
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core</artifactId>
       <version>${pom.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.felix</groupId>
@@ -57,6 +58,7 @@
         <extensions>true</extensions>
         <configuration>
           <osgiManifest>
+            <metadataLocation>metadata.xml</metadataLocation>
             <bundleName>ApacheDS LDIF Loader Console Command</bundleName>
             <bundleVendor>Apache Software Foundation</bundleVendor>
             <bundleCategory>Network Service</bundleCategory>
@@ -67,11 +69,8 @@
               org.apache.ldap.server.loader.Activator
             </bundleActivator>
             <importPackage>
-              org.osgi.framework,javax.naming,javax.naming.directory,javax.naming.ldap,javax.naming.spi
+              org.slf4j,org.apache.log4j,org.apache.directory.server.core.configuration,org.ungoverned.osgi.service.shell,org.apache.felix.servicebinder,org.osgi.framework,javax.naming,javax.naming.directory,javax.naming.ldap,javax.naming.spi,org.apache.directory.server.core.jndi,javax.security.auth.kerberos
             </importPackage>
-            <exportPackage>
-              org.apache.directory.shared.ldap.exception,org.apache.ldap.common.filter,org.apache.ldap.server.jndi,org.apache.directory.server.core.configuration
-            </exportPackage>
           </osgiManifest>
         </configuration>
       </plugin>
