@@ -20,7 +20,7 @@
               <goal>resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>target/generated-resources</outputDirectory>
+              <outputDirectory>${basedir}/target/generated-resources</outputDirectory>
             </configuration>
           </execution>
         </executions>
