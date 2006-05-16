@@ -179,7 +179,7 @@ public class GetPrincipal implements ContextOperation
      */
     private static boolean parseBoolean( String bool )
     {
-        if ( bool.equals( "true" ) )
+        if ( "true".equalsIgnoreCase( bool ) )
         {
             return true;
         }
