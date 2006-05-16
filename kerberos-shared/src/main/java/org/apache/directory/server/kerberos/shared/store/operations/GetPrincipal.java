@@ -126,13 +126,13 @@ public class GetPrincipal implements ContextOperation
         if ( attrs.get( KerberosAttribute.ACCOUNT_DISABLED ) != null )
         {
             String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_DISABLED ).get(); 
-            modifier.setDisabled( Boolean.parseBoolean( val.toLowerCase() ) );
+            modifier.setDisabled( parseBoolean( val.toLowerCase() ) );
         }
 
         if ( attrs.get( KerberosAttribute.ACCOUNT_LOCKEDOUT ) != null )
         {
             String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_LOCKEDOUT ).get(); 
-            modifier.setLockedOut( Boolean.parseBoolean( val.toLowerCase() ) );
+            modifier.setLockedOut( parseBoolean( val.toLowerCase() ) );
         }
         
         if ( attrs.get( KerberosAttribute.ACCOUNT_EXPIRATION_TIME ) != null )
@@ -173,4 +173,18 @@ public class GetPrincipal implements ContextOperation
         modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );
         return modifier.getEntry();
     }
+    
+    /**
+     * TODO: It's better to move this method to a common place.
+     */
+    private static boolean parseBoolean( String bool )
+    {
+        if ( bool.equals( "true" ) )
+        {
+            return true;
+        }
+
+        return false;
+    }
+    
 }
