@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.apache.directory</groupId>
     <artifactId>build</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
@@ -20,7 +20,7 @@
     <pluginRepository>
       <id>apache.snapshots</id>
       <name>Apache Snapshot Plugins</name>
-      <url>http://cvs.apache.org/maven-snapshot-repository</url>
+      <url>http://minotaur.apache.org/maven-snapshot-repository</url>
     </pluginRepository>
   </pluginRepositories>
 
