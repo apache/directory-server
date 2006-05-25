@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.Context;
@@ -36,13 +37,11 @@ import javax.naming.ldap.LdapContext;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.exception.NestableRuntimeException;
 import org.apache.directory.server.core.configuration.Configuration;
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
-import org.apache.directory.shared.ldap.ldif.LdifIterator;
-import org.apache.directory.shared.ldap.ldif.LdifParserImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 
 
 /**
@@ -53,12 +52,24 @@ import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
  */
 public abstract class AbstractTestCase extends TestCase
 {
-    public static final String LDIF = "dn: uid=akarasulu,ou=users,ou=system\n" + "cn: Alex Karasulu\n"
-        + "sn: Karasulu\n" + "givenname: Alex\n" + "objectclass: top\n" + "objectclass: person\n"
-        + "objectclass: organizationalPerson\n" + "objectclass: inetOrgPerson\n" + "ou: Engineering\n" + "ou: People\n"
-        + "l: Bogusville\n" + "uid: akarasulu\n" + "mail: akarasulu@apache.org\n"
-        + "telephonenumber: +1 408 555 4798\n" + "facsimiletelephonenumber: +1 408 555 9751\n" + "roomnumber: 4612\n"
-        + "userpassword: test\n";
+    public static final String LDIF = 
+    	"dn: uid=akarasulu,ou=users,ou=system\n" + 
+    	"cn: Alex Karasulu\n" +
+        "sn: Karasulu\n" + 
+        "givenname: Alex\n" + 
+        "objectclass: top\n" + 
+        "objectclass: person\n" +
+        "objectclass: organizationalPerson\n" + 
+        "objectclass: inetOrgPerson\n" + 
+        "ou: Engineering\n" + 
+        "ou: People\n" +
+        "l: Bogusville\n" + 
+        "uid: akarasulu\n" + 
+        "mail: akarasulu@apache.org\n" +
+        "telephonenumber: +1 408 555 4798\n" + 
+        "facsimiletelephonenumber: +1 408 555 9751\n" + 
+        "roomnumber: 4612\n" +
+        "userpassword: test\n";
 
     private final String username;
 
@@ -136,17 +147,13 @@ public abstract class AbstractTestCase extends TestCase
         // Add a single test entry
         // -------------------------------------------------------------------
 
-        Attributes attributes = new LockableAttributesImpl();
-        LdifParserImpl parser = new LdifParserImpl();
-        try
-        {
-            parser.parse( attributes, LDIF );
-        }
-        catch ( NamingException e )
-        {
-            throw new NestableRuntimeException( e );
-        }
-        testEntries.add( attributes );
+        LdifReader reader = new LdifReader();
+        
+    	List entries = reader.parseLdif( LDIF );
+        
+        Entry entry = (Entry)entries.get(0);
+
+        testEntries.add( entry );
 
         // -------------------------------------------------------------------
         // Add more from an optional LDIF file if they exist
@@ -177,13 +184,13 @@ public abstract class AbstractTestCase extends TestCase
 
         if ( in != null )
         {
-            LdifIterator list = new LdifIterator( in );
+            Iterator list = new LdifReader( in );
+            
             while ( list.hasNext() )
             {
-                String ldif = ( String ) list.next();
-                attributes = new LockableAttributesImpl();
-                parser.parse( attributes, ldif );
-                testEntries.add( attributes );
+                entry = ( Entry ) list.next();
+                
+                testEntries.add( entry );
             }
         }
 

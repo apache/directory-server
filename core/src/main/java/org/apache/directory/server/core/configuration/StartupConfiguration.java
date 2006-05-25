@@ -44,6 +44,7 @@ import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.schema.bootstrap.*;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.trigger.TriggerService;
+import org.apache.directory.shared.ldap.ldif.Entry;
 
 
 /**
@@ -372,7 +373,14 @@ public class StartupConfiguration extends Configuration
      */
     public List getTestEntries()
     {
-        return ConfigurationUtil.getClonedAttributesList( testEntries );
+    	try
+    	{
+    		return ConfigurationUtil.getClonedAttributesList( testEntries );
+    	}
+    	catch ( CloneNotSupportedException cnse )
+    	{
+    		return null;
+    	}
     }
 
 
@@ -382,20 +390,17 @@ public class StartupConfiguration extends Configuration
      */
     protected void setTestEntries( List testEntries )
     {
-        testEntries = ConfigurationUtil.getClonedAttributesList( ConfigurationUtil.getTypeSafeList( testEntries,
-            Attributes.class ) );
-
-        Iterator i = testEntries.iterator();
-        while ( i.hasNext() )
-        {
-            Attributes entry = ( Attributes ) i.next();
-            if ( entry.get( "dn" ) == null )
-            {
-                throw new ConfigurationException( "Test entries must have DN attributes" );
-            }
-        }
-
-        this.testEntries = testEntries;
+    	try
+    	{
+	        testEntries = ConfigurationUtil.getClonedAttributesList( ConfigurationUtil.getTypeSafeList( testEntries,
+	            Entry.class ) );
+	
+	        this.testEntries = testEntries;
+    	}
+    	catch ( CloneNotSupportedException cnse )
+    	{
+    		this.testEntries = null;
+    	}
     }
 
 

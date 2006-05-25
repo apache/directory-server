@@ -28,6 +28,8 @@ import java.util.Set;
 
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.shared.ldap.ldif.Entry;
+
 
 /**
  * A utility class that provides common functionality while validating configuration.
@@ -105,13 +107,14 @@ public class ConfigurationUtil
     /**
      * Returns the deep clone of the specified {@link Attributes} list.
      */
-    public static List getClonedAttributesList( List list )
+    public static List getClonedAttributesList( List list ) throws CloneNotSupportedException
     {
         List newList = new ArrayList();
         Iterator i = list.iterator();
+        
         while ( i.hasNext() )
         {
-            newList.add( ( ( Attributes ) i.next() ).clone() );
+            newList.add( ( ( Entry ) i.next() ).clone() );
         }
         return newList;
     }

@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 
@@ -56,9 +57,8 @@ import org.apache.directory.server.core.schema.bootstrap.InetorgpersonSchema;
 import org.apache.directory.server.core.schema.bootstrap.Krb5kdcSchema;
 import org.apache.directory.server.core.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.protocol.shared.store.KerberosAttribute;
-import org.apache.directory.shared.ldap.ldif.LdifIterator;
-import org.apache.directory.shared.ldap.ldif.LdifParser;
-import org.apache.directory.shared.ldap.ldif.LdifParserImpl;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.slf4j.Logger;
@@ -298,18 +298,14 @@ public abstract class AbstractBackingStoreTest extends TestCase
         {
             InputStream in = getLdifStream( ldifPath );
 
-            LdifIterator iterator = new LdifIterator( in );
-
-            LdifParser ldifParser = new LdifParserImpl();
+            Iterator iterator = new LdifReader( in );
 
             while ( iterator.hasNext() )
             {
-                String ldif = ( String ) iterator.next();
+                Entry entry = ( Entry ) iterator.next();
 
-                Attributes attributes = new LockableAttributesImpl();
-                ldifParser.parse( attributes, ldif );
-
-                String dn = ( String ) attributes.remove( "dn" ).get();
+                String dn = entry.getDn();
+                Attributes attributes = entry.getAttributes();
 
                 if ( attributes.get( "objectClass" ).contains( "krb5KDCEntry" ) )
                 {
@@ -347,11 +343,6 @@ public abstract class AbstractBackingStoreTest extends TestCase
             log.error( "LDIF file does not exist." );
             return;
         }
-        catch ( IOException ioe )
-        {
-            log.error( "Failed to import LDIF into backing store.", ioe );
-            return;
-        }
         catch ( NamingException ne )
         {
             log.error( "Failed to import LDIF into backing store.", ne );
@@ -362,19 +353,13 @@ public abstract class AbstractBackingStoreTest extends TestCase
         {
             InputStream in = getLdifStream( ldifPath );
 
-            LdifIterator iterator = new LdifIterator( in );
-
-            LdifParser ldifParser = new LdifParserImpl();
+            Iterator iterator = new LdifReader( in );
 
             while ( iterator.hasNext() )
             {
-                String ldif = ( String ) iterator.next();
+                Entry entry = ( Entry ) iterator.next();
 
-                Attributes attributes = new LockableAttributesImpl();
-
-                ldifParser.parse( attributes, ldif );
-
-                String dn = ( String ) attributes.remove( "dn" ).get();
+                String dn = entry.getDn();
 
                 rdn = getRelativeName( ctx.getNameInNamespace(), dn );
 

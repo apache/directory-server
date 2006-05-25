@@ -17,10 +17,12 @@
 package org.apache.directory.server.protocol.shared.store;
 
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -31,10 +33,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
-import org.apache.directory.shared.ldap.ldif.LdifIterator;
-import org.apache.directory.shared.ldap.ldif.LdifParser;
-import org.apache.directory.shared.ldap.ldif.LdifParserImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,6 @@ import org.slf4j.LoggerFactory;
  * Support for commands to load an LDIF file into a DirContext.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class LdifFileLoader
 {
@@ -146,16 +146,21 @@ public class LdifFileLoader
         try
         {
             in = getLdifStream();
-            LdifIterator iterator = new LdifIterator( in );
-            LdifParser ldifParser = new LdifParserImpl();
+            LdifReader ldifIterator = new LdifReader( new BufferedReader( new InputStreamReader( in ) ) );
 
-            while ( iterator.hasNext() )
+            while ( ldifIterator.hasNext() )
             {
-                String ldif = ( String ) iterator.next();
-                Attributes attributes = new LockableAttributesImpl();
-                ldifParser.parse( attributes, ldif );
-                String dn = ( String ) attributes.remove( "dn" ).get();
+                Entry entry = ( Entry ) ldifIterator.next();
+                
+                String dn = entry.getDn();
+                
+                if ( entry.isEntry() == false)
+                {
+                	// If the entry is a modification, just skip it
+                	continue;
+                }
 
+                Attributes attributes = entry.getAttributes();
                 boolean filterAccepted = applyFilters( dn, attributes );
 
                 if ( !filterAccepted )
