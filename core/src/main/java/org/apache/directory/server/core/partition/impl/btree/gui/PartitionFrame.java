@@ -26,7 +26,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -67,11 +66,9 @@ import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
-import org.apache.directory.shared.ldap.ldif.LdifIterator;
-import org.apache.directory.shared.ldap.ldif.LdifParser;
-import org.apache.directory.shared.ldap.ldif.LdifParserImpl;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapName;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -427,8 +424,6 @@ public class PartitionFrame extends JFrame
     public void doImport()
     {
         FileReader in = null;
-        LdifIterator list = null;
-        LdifParser parser = new LdifParserImpl();
         JFileChooser chooser = new JFileChooser();
         int choice = chooser.showOpenDialog( this );
         File selected = chooser.getSelectedFile();
@@ -441,16 +436,15 @@ public class PartitionFrame extends JFrame
         try
         {
             in = new FileReader( selected );
-            list = new LdifIterator( in );
+            Iterator list = new LdifReader( in );
 
             while ( list.hasNext() )
             {
-                String dif = ( String ) list.next();
-                LockableAttributesImpl attrs = new LockableAttributesImpl();
-                parser.parse( attrs, dif );
-                String updn = ( String ) attrs.get( "dn" ).get();
+                Entry entry = ( Entry ) list.next();
+                String updn = entry.getDn();
+                Attributes attrs = entry.getAttributes();
+                
                 LdapName ndn = new LdapName( StringTools.deepTrimToLower( updn ) );
-                attrs.remove( "dn" );
 
                 if ( null == partition.getEntryId( ndn.toString() ) )
                 {
@@ -466,12 +460,6 @@ public class PartitionFrame extends JFrame
             return;
         }
         catch ( FileNotFoundException e )
-        {
-            // @todo display popup with error here!
-            e.printStackTrace();
-            return;
-        }
-        catch ( IOException e )
         {
             // @todo display popup with error here!
             e.printStackTrace();

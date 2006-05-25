@@ -48,6 +48,7 @@ import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -670,17 +671,25 @@ class DefaultDirectoryService extends DirectoryService
         Iterator i = startupConfiguration.getTestEntries().iterator();
         while ( i.hasNext() )
         {
-            Attributes entry = ( Attributes ) ( ( Attributes ) i.next() ).clone();
-            String dn = ( String ) entry.remove( "dn" ).get();
+        	try
+        	{
+	        	Entry entry =  (Entry)( ( Entry ) i.next() ).clone();
+	            Attributes attributes = entry.getAttributes();
+	            String dn = entry.getDn();
 
-            try
-            {
-                ctx.createSubcontext( dn, entry );
-            }
-            catch ( Exception e )
-            {
-                log.warn( dn + " test entry already exists.", e );
-            }
+	            try
+	            {
+	                ctx.createSubcontext( dn, attributes );
+	            }
+	            catch ( Exception e )
+	            {
+	                log.warn( dn + " test entry already exists.", e );
+	            }
+        	}
+        	catch ( CloneNotSupportedException cnse )
+        	{
+                log.warn( "Cannot clone the entry ", cnse );
+        	}
         }
     }
 

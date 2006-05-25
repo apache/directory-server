@@ -21,12 +21,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -37,10 +37,8 @@ import org.apache.directory.server.configuration.MutableServerStartupConfigurati
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.jndi.ServerContextFactory;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.ldif.LdifIterator;
-import org.apache.directory.shared.ldap.ldif.LdifParser;
-import org.apache.directory.shared.ldap.ldif.LdifParserImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapName;
 import org.apache.mina.util.AvailablePortFinder;
 
@@ -181,19 +179,19 @@ public abstract class AbstractServerTest extends TestCase
         Hashtable env = new Hashtable();
         env.putAll( sysRoot.getEnvironment() );
         LdapContext ctx = new InitialLdapContext( env, null );
-        LdifParser parser = new LdifParserImpl();
 
         try
         {
-            LdifIterator iterator = new LdifIterator( in );
+            Iterator iterator = new LdifReader( in );
+            
             while ( iterator.hasNext() )
             {
-                Attributes attributes = new LockableAttributesImpl();
-                String ldif = ( String ) iterator.next();
-                parser.parse( attributes, ldif );
-                Name dn = new LdapName( ( String ) attributes.remove( "dn" ).get() );
+                Entry entry = ( Entry) iterator.next();
+
+                Name dn = new LdapName( entry.getDn() );
                 dn.remove( 0 );
-                ctx.createSubcontext( dn, attributes );
+
+                ctx.createSubcontext( dn, entry.getAttributes() );
             }
         }
         catch ( Exception e )
