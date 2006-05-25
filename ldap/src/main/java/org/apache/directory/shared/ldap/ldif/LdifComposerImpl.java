@@ -54,77 +54,77 @@ public class LdifComposerImpl implements LdifComposer
      *            the multi map of single and multivalued attributes.
      * @return the LDIF as a String.
      */
-    public String compose( MultiMap a_attrHash )
+    public String compose( MultiMap attrHash )
     {
-        Object l_val = null;
-        String l_key = null;
-        Iterator l_keys = a_attrHash.keySet().iterator();
-        Iterator l_values = null;
-        Collection l_valueCol = null;
-        StringWriter l_sw = new StringWriter();
-        PrintWriter l_out = new PrintWriter( l_sw );
+        Object val = null;
+        String key = null;
+        Iterator keys = attrHash.keySet().iterator();
+        Iterator values = null;
+        Collection valueCol = null;
+        StringWriter sw = new StringWriter();
+        PrintWriter out = new PrintWriter( sw );
 
-        while ( l_keys.hasNext() )
+        while ( keys.hasNext() )
         {
-            l_key = ( String ) l_keys.next();
-            l_valueCol = ( Collection ) a_attrHash.get( l_key );
-            l_values = l_valueCol.iterator();
+            key = ( String ) keys.next();
+            valueCol = ( Collection ) attrHash.get( key );
+            values = valueCol.iterator();
 
-            if ( l_valueCol.isEmpty() )
+            if ( valueCol.isEmpty() )
             {
                 continue;
             }
-            else if ( l_valueCol.size() == 1 )
+            else if ( valueCol.size() == 1 )
             {
-                l_out.print( l_key );
-                l_out.print( ':' );
-                l_val = l_values.next();
+                out.print( key );
+                out.print( ':' );
+                val = values.next();
 
-                if ( l_val.getClass().isArray() )
+                if ( val.getClass().isArray() )
                 {
-                    l_out.print( ": " );
-                    l_out.println( base64encode( ( byte[] ) l_val ) );
+                    out.print( ": " );
+                    out.println( base64encode( ( byte[] ) val ) );
                 }
                 else
                 {
-                    l_out.print( ' ' );
-                    l_out.println( l_val );
+                    out.print( ' ' );
+                    out.println( val );
                 }
                 continue;
             }
 
-            while ( l_values.hasNext() )
+            while ( values.hasNext() )
             {
-                l_out.print( l_key );
-                l_out.print( ':' );
-                l_val = l_values.next();
+                out.print( key );
+                out.print( ':' );
+                val = values.next();
 
-                if ( l_val.getClass().isArray() )
+                if ( val.getClass().isArray() )
                 {
-                    l_out.print( ": " );
-                    l_out.println( base64encode( ( byte[] ) l_val ) );
+                    out.print( ": " );
+                    out.println( base64encode( ( byte[] ) val ) );
                 }
                 else
                 {
-                    l_out.print( ' ' );
-                    l_out.println( l_val );
+                    out.print( ' ' );
+                    out.println( val );
                 }
             }
         }
 
-        return l_sw.getBuffer().toString();
+        return sw.getBuffer().toString();
     }
 
 
     /**
      * Encodes an binary data into a base64 String.
      * 
-     * @param a_byteArray
+     * @param byteArray
      *            the value of a binary attribute.
      * @return the encoded binary data as a char array.
      */
-    public char[] base64encode( byte[] a_byteArray )
+    public char[] base64encode( byte[] byteArray )
     {
-        return Base64.encode( a_byteArray );
+        return Base64.encode( byteArray );
     }
 }

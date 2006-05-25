@@ -62,6 +62,7 @@ public class TwixDecoder implements ProviderDecoder
     public void decode( Object encoded ) throws DecoderException
     {
         ByteBuffer buf;
+        int position = 0;
 
         if ( encoded instanceof ByteBuffer )
         {
@@ -77,42 +78,47 @@ public class TwixDecoder implements ProviderDecoder
                 + encoded.getClass() );
         }
 
-        if ( log.isDebugEnabled() )
-        {
-            log.debug( "Decoding the PDU : " );
-
-            if ( buf.hasArray() )
-            {
-                log.debug( StringTools.dumpBytes( buf.array() ) );
-            }
-            else
-            {
-                byte[] array = new byte[buf.capacity()];
-                int i = 0;
-
-                while ( buf.hasRemaining() )
-                {
-                    array[i++] = buf.get();
-                }
-
-                buf.flip();
-                log.debug( StringTools.dumpBytes( array ) );
-            }
-        }
-
         while ( buf.hasRemaining() )
         {
+
             ldapDecoder.decode( buf, ldapMessageContainer );
 
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "Decoding the PDU : " );
+
+                int size = buf.position();
+                buf.flip();
+                
+            	byte[] array = new byte[ size - position ];
+            	
+            	for ( int i = position; i < size; i++ )
+            	{
+            		array[ i ] = buf.get();
+            	}
+
+                position = size;
+                
+                log.debug( StringTools.dumpBytes( array ) );
+            }
+            
             if ( ldapMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
             {
                 if ( log.isDebugEnabled() )
                 {
                     log.debug( "Decoded LdapMessage : " + ldapMessageContainer.getLdapMessage() );
+                    buf.mark();
                 }
 
                 decoderCallback.decodeOccurred( null, ldapMessageContainer.getLdapMessage() );
                 ldapMessageContainer.clean();
+            }
+            else
+            {
+            	if ( log.isDebugEnabled() )
+            	{
+            		
+            	}
             }
         }
     }

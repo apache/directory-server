@@ -144,6 +144,18 @@ public class AddRequest extends LdapMessage
         attributes.put( currentAttribute );
     }
 
+    /**
+     * Create a new attributeValue
+     * 
+     * @param type
+     *            The attribute's name (called 'type' in the grammar)
+     */
+    public void addAttributeType( String type )
+    {
+        currentAttribute = new BasicAttribute( type.toLowerCase() );
+        attributes.put( currentAttribute );
+    }
+
 
     /**
      * Add a new value to the current attribute

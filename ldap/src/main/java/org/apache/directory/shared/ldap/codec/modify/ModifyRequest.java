@@ -165,7 +165,18 @@ public class ModifyRequest extends LdapMessage
      */
     public void addAttributeTypeAndValues( LdapString type )
     {
-        currentAttribute = new BasicAttribute( StringTools.lowerCase( type.getString() ) );
+        addAttributeTypeAndValues( type.getString() );
+    }
+
+    /**
+     * Add a new attributeTypeAndValue
+     * 
+     * @param type
+     *            The attribute's name
+     */
+    public void addAttributeTypeAndValues( String type )
+    {
+        currentAttribute = new BasicAttribute( StringTools.lowerCase( type ) );
 
         int operation = 0;
 

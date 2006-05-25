@@ -17,12 +17,15 @@
 package org.apache.directory.shared.ldap.util;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.io.FileFilter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -38,6 +41,11 @@ import java.util.regex.PatternSyntaxException;
  */
 public class StringTools
 {
+    /** The default charset, because it's not provided by JDK 1.5 */
+    private static final String DEFAULT_CHARSET_JDK_1_4 = new OutputStreamWriter( new ByteArrayOutputStream() ).getEncoding();
+    private static final String DEFAULT_CHARSET_JDK_1_5 = Charset.defaultCharset().name();
+    private static final String JAVA_VERSION = System.getProperty( "java.version" );
+    
     /**
      * Trims several consecutive characters into one.
      * 
@@ -2261,5 +2269,20 @@ public class StringTools
         }
 
         return sb.toString();
+    }
+
+    /**
+     * @return The default charset
+     */
+    public static String getDefaultCharsetName()
+    {
+        if ( JAVA_VERSION.startsWith( "1.4" ) )
+        {
+            return DEFAULT_CHARSET_JDK_1_4;
+        }
+        else
+        {
+            return DEFAULT_CHARSET_JDK_1_5;
+        }
     }
 }

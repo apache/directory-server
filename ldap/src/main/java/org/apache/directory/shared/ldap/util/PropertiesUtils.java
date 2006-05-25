@@ -23,12 +23,14 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.FileInputStream;
+import java.io.StringReader;
 
 import javax.naming.directory.Attributes;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.ldif.LdifParserImpl;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
@@ -689,13 +691,16 @@ public class PropertiesUtils
             return values;
         }
 
-        if ( values == null )
-        {
-            values = new LockableAttributesImpl();
-        }
-
         String ldif = props.getProperty( key ).trim().replace( '*', '\n' );
-        ( new LdifParserImpl() ).parse( values, ldif );
+        
+        LdifReader ldifReader = new LdifReader( new StringReader( ldif ) );
+        
+        Entry entry = (Entry)ldifReader.next();
+        
+        if ( entry != null )
+        {
+        	values = entry.getAttributes();
+        }
         return values;
     }
 }
