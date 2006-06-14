@@ -280,4 +280,37 @@ public class StringToolsTest extends TestCase
         assertEquals( "a b", StringTools.deepTrim( " a b", false ) );
         assertEquals( "a b", StringTools.deepTrim( "a b ", false ) );
     }
+
+    public void testTrim()
+    {
+        assertEquals( "", StringTools.trim( (String)null ) );
+        assertEquals( "", StringTools.trim( "" ) );
+        assertEquals( "", StringTools.trim( " " ) );
+        assertEquals( "", StringTools.trim( "  " ) );
+        assertEquals( "a", StringTools.trim( "a  " ) );
+        assertEquals( "a", StringTools.trim( "  a" ) );
+        assertEquals( "a", StringTools.trim( "  a  " ) );
+    }
+
+    public void testTrimLeft()
+    {
+        assertEquals( "", StringTools.trimLeft( (String)null ) );
+        assertEquals( "", StringTools.trimLeft( "" ) );
+        assertEquals( "", StringTools.trimLeft( " " ) );
+        assertEquals( "", StringTools.trimLeft( "  " ) );
+        assertEquals( "a  ", StringTools.trimLeft( "a  " ) );
+        assertEquals( "a", StringTools.trimLeft( "  a" ) );
+        assertEquals( "a  ", StringTools.trimLeft( "  a  " ) );
+    }
+
+    public void testTrimRight()
+    {
+        assertEquals( "", StringTools.trimRight( (String)null ) );
+        assertEquals( "", StringTools.trimRight( "" ) );
+        assertEquals( "", StringTools.trimRight( " " ) );
+        assertEquals( "", StringTools.trimRight( "  " ) );
+        assertEquals( "a", StringTools.trimRight( "a  " ) );
+        assertEquals( "  a", StringTools.trimRight( "  a" ) );
+        assertEquals( "  a", StringTools.trimRight( "  a  " ) );
+    }
 }

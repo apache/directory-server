@@ -1673,26 +1673,7 @@ public class StringTools
      */
     public static String trim( String str )
     {
-        if ( isEmpty( str ) )
-        {
-            return "";
-        }
-
-        char[] array = str.toCharArray();
-        int start = 0;
-        int end = array.length;
-
-        while ( ( start < end ) && ( array[start] == ' ' ) )
-        {
-            start++;
-        }
-
-        while ( ( end > start ) && ( array[end - 1] == ' ' ) )
-        {
-            end--;
-        }
-
-        return new String( array, start, ( end - start ) );
+    	return ( isEmpty( str ) ? "" : str.trim() );
     }
 
 
@@ -1768,15 +1749,15 @@ public class StringTools
             return "";
         }
 
-        char[] array = str.toCharArray();
         int start = 0;
-
-        while ( ( start < array.length ) && ( array[start] == ' ' ) )
+        int end = str.length();
+        
+        while ( ( start < end ) && ( str.charAt( start ) == ' ' ) )
         {
             start++;
         }
 
-        return new String( array, start, array.length - start );
+        return ( start == 0 ? str : str.substring( start ) );
     }
 
 
@@ -1878,16 +1859,15 @@ public class StringTools
             return "";
         }
 
-        char[] array = str.toCharArray();
-        int start = 0;
-        int end = array.length;
-
-        while ( ( start < end ) && ( array[start] == ' ' ) )
+        int length = str.length();
+        int end = length;
+        
+        while ( ( end > 0 ) && ( str.charAt( end - 1 ) == ' ' ) )
         {
-            start++;
+            end--;
         }
 
-        return new String( array, start, ( end - start ) );
+        return ( end == length ? str : str.substring( 0, end ) );
     }
 
 
