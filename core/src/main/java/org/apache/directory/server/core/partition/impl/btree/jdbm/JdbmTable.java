@@ -40,6 +40,7 @@ import org.apache.directory.server.core.partition.impl.btree.TupleComparator;
 import org.apache.directory.server.core.partition.impl.btree.TupleEnumeration;
 import org.apache.directory.server.core.partition.impl.btree.TupleRenderer;
 import org.apache.directory.server.core.schema.SerializableComparator;
+
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 

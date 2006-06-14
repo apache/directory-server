@@ -32,6 +32,7 @@ import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
+import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexComparator;
 import org.apache.directory.server.core.partition.impl.btree.IndexEnumeration;
@@ -40,7 +41,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 
 
-/**
+/** 
  * A Jdbm based index implementation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -81,7 +82,7 @@ public class JdbmIndex implements Index
      * @param recMan the record manager
      * @throws NamingException if we fail to create B+Trees using recMan
      */
-    public JdbmIndex(AttributeType attribute, RecordManager recMan) throws NamingException
+    public JdbmIndex( AttributeType attribute, RecordManager recMan ) throws NamingException
     {
         this.attribute = attribute;
         keyCache = new SynchronizedLRUMap( 1000 );
@@ -90,7 +91,7 @@ public class JdbmIndex implements Index
     }
 
 
-    public JdbmIndex(AttributeType attribute, File wkDirPath) throws NamingException
+    public JdbmIndex( AttributeType attribute, File wkDirPath ) throws NamingException
     {
         File file = new File( wkDirPath.getPath() + File.separator + attribute.getName() );
         this.attribute = attribute;
@@ -245,7 +246,7 @@ public class JdbmIndex implements Index
      */
     public synchronized void add( Attributes attrs, BigInteger id ) throws NamingException
     {
-        add( attrs.get( attribute.getName() ), id );
+        add( ServerUtils.getAttribute( attribute, attrs ), id );
     }
 
 
@@ -309,7 +310,7 @@ public class JdbmIndex implements Index
      */
     public void drop( Attributes attrs, BigInteger id ) throws NamingException
     {
-        drop( attrs.get( attribute.getName() ), id );
+        drop( ServerUtils.getAttribute( attribute, attrs ), id );
     }
 
 

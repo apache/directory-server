@@ -67,10 +67,9 @@ public class EntryDialog extends JDialog
      * @param a_parent
      * @param a_modal
      */
-    public EntryDialog(Frame a_parent, String a_opMode, boolean a_modal)
+    public EntryDialog( Frame parent, boolean modal )
     {
-        super( a_parent, a_modal );
-        //        m_opMode = a_opMode ;
+        super( parent, modal );
         initGUI();
     }
 

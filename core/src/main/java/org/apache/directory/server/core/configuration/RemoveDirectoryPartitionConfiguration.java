@@ -19,12 +19,11 @@
 package org.apache.directory.server.core.configuration;
 
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.partition.DirectoryPartition;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -38,16 +37,16 @@ public class RemoveDirectoryPartitionConfiguration extends Configuration
 {
     private static final long serialVersionUID = -6690435863387769527L;
 
-    private final Name suffix;
+    private final LdapDN suffix;
 
 
-    public RemoveDirectoryPartitionConfiguration(String suffix) throws NamingException
+    public RemoveDirectoryPartitionConfiguration( String suffix ) throws NamingException
     {
-        this( new LdapName( suffix.trim() ) );
+        this( new LdapDN( suffix.trim() ) );
     }
 
 
-    public RemoveDirectoryPartitionConfiguration(Name suffix)
+    public RemoveDirectoryPartitionConfiguration( LdapDN suffix )
     {
         if ( suffix == null )
         {
@@ -58,7 +57,7 @@ public class RemoveDirectoryPartitionConfiguration extends Configuration
     }
 
 
-    public Name getSuffix()
+    public LdapDN getSuffix()
     {
         return suffix;
     }

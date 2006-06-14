@@ -21,7 +21,6 @@ package org.apache.directory.server.core.authz.support;
 
 import java.util.*;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -35,15 +34,13 @@ import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.authz.support.MaxImmSubFilter;
-import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -57,8 +54,8 @@ public class MaxImmSubFilterTest extends TestCase
     private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
     private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
 
-    private static final Name ROOTDSE_NAME = new LdapName();
-    private static final Name ENTRY_NAME;
+    private static final LdapDN ROOTDSE_NAME = new LdapDN();
+    private static final LdapDN ENTRY_NAME;
     private static final Collection PROTECTED_ITEMS = new ArrayList();
     private static final Attributes ENTRY = new BasicAttributes();
 
@@ -66,7 +63,7 @@ public class MaxImmSubFilterTest extends TestCase
     {
         try
         {
-            ENTRY_NAME = new LdapName( "ou=test, ou=system" );
+            ENTRY_NAME = new LdapDN( "ou=test, ou=system" );
         }
         catch ( NamingException e )
         {
@@ -154,15 +151,15 @@ public class MaxImmSubFilterTest extends TestCase
         }
 
 
-        public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
+        public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
             throws NamingException
         {
             return new BogusEnumeration( count );
         }
 
 
-        public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls,
-            Collection bypass ) throws NamingException
+        public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls,
+                                         Collection bypass ) throws NamingException
         {
             return new BogusEnumeration( count );
         }

@@ -30,7 +30,7 @@ import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import javax.naming.NamingException;
@@ -135,7 +135,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         for ( int ii = 0; ii < subentries.size(); ii++ )
         {
             String subentryDnStr = ( String ) subentries.get( ii );
-            Name subentryDn = new LdapName( subentryDnStr );
+            LdapDN subentryDn = new LdapDN( subentryDnStr );
             Attributes subentry = nexus.lookup( subentryDn );
             NamingEnumeration attrIds = subentry.getIDs();
             while ( attrIds.hasMore() )
@@ -236,7 +236,7 @@ public class CollectiveAttributeService extends BaseInterceptor
     // Interceptor Method Overrides
     // ------------------------------------------------------------------------
 
-    public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name );
         if ( result == null )
@@ -246,9 +246,9 @@ public class CollectiveAttributeService extends BaseInterceptor
         filter( result );
         return result;
     }
+    
 
-
-    public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name, attrIds );
         if ( result == null )
@@ -261,7 +261,7 @@ public class CollectiveAttributeService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( base );
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -269,7 +269,7 @@ public class CollectiveAttributeService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, Name base, Map env, ExprNode filter,
+    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
         SearchControls searchCtls ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );

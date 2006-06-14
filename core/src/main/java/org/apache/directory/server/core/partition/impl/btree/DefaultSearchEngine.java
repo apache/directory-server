@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -112,7 +112,7 @@ public class DefaultSearchEngine implements SearchEngine
          */
         else if ( null != aliasedBase ) // mode = FINDING || ALWAYS
         {
-            effectiveBase = new LdapName( aliasedBase );
+            effectiveBase = new LdapDN( aliasedBase );
         }
         /*
          * I the base not an alias the we just set the base to the given base

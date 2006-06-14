@@ -248,7 +248,7 @@ public class MatchingRuleCompareTest extends AbstractServerTest
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         String[] values =
-            { "", memberDN, "cn=nobody", memberDN.toLowerCase(), PERSON_RDN + " , " + ctx.getNameInNamespace() };
+            { "", memberDN, "cn=nobody", memberDN, PERSON_RDN + " , " + ctx.getNameInNamespace() };
         boolean[] expected =
             { false, true, false, true, true };
 

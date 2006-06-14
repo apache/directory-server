@@ -18,13 +18,12 @@ package org.apache.directory.server.core.event;
 
 
 import javax.naming.NamingException;
-import javax.naming.Name;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
-import org.apache.directory.shared.ldap.name.DnParser;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -35,12 +34,8 @@ import org.apache.directory.shared.ldap.name.DnParser;
  */
 public class ScopeEvaluator implements Evaluator
 {
-    private DnParser parser = null;
-
-
     public ScopeEvaluator() throws NamingException
     {
-        parser = new DnParser();
     }
 
 
@@ -58,8 +53,8 @@ public class ScopeEvaluator implements Evaluator
             case ( SearchControls.ONELEVEL_SCOPE  ):
                 if ( dn.endsWith( snode.getBaseDn() ) )
                 {
-                    Name candidateDn = parser.parse( dn );
-                    Name scopeDn = parser.parse( snode.getBaseDn() );
+                    LdapDN candidateDn = new LdapDN( dn );
+                    LdapDN scopeDn = new LdapDN( snode.getBaseDn() );
                     return ( scopeDn.size() + 1 ) == candidateDn.size();
                 }
             case ( SearchControls.SUBTREE_SCOPE  ):

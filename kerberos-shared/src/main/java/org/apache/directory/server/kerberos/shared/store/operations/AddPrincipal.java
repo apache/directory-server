@@ -31,7 +31,7 @@ import javax.naming.spi.DirStateFactory.Result;
 
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -68,13 +68,9 @@ public class AddPrincipal implements ContextOperation
         {
             DirStateFactory factory = new PrincipalStateFactory();
             Result result = factory.getStateToBind( entry, null, null, null, null );
-
             Attributes attrs = result.getAttributes();
-
-            LdapName name = new LdapName( "uid=" + entry.getUserId() + ",ou=Users" );
-
+            LdapDN name = new LdapDN( "uid=" + entry.getUserId() + ",ou=Users" );
             ctx.rebind( name, null, attrs );
-
             return name.toString();
         }
         catch ( NamingException ne )

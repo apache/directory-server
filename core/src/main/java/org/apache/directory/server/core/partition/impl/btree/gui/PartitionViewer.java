@@ -24,6 +24,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.partition.impl.btree.BTreeDirectoryPartition;
 import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +83,9 @@ public class PartitionViewer
     //        }
     //    }
 
-    public void execute() throws NamingException
+    
+    // added return value so expressions in debugger does not freak with void
+    public int execute() throws NamingException
     {
         PartitionFrame frame = new PartitionFrame( partition, eng );
 
@@ -94,5 +97,6 @@ public class PartitionViewer
 
         frame.setVisible( true );
         log.debug( frameSize + "" );
+        return 0;
     }
 }

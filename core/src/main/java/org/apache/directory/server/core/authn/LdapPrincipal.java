@@ -23,7 +23,7 @@ import java.security.Principal;
 import javax.naming.Name;
 
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -68,7 +68,7 @@ public final class LdapPrincipal implements Principal, Serializable
      */
     private LdapPrincipal()
     {
-        this.name = new LdapName();
+        this.name = new LdapDN();
         this.authenticationLevel = AuthenticationLevel.NONE;
     }
 

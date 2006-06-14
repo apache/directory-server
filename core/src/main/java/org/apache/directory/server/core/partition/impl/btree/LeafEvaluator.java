@@ -25,6 +25,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -248,10 +249,11 @@ public class LeafEvaluator implements Evaluator
             return false;
         }
 
-        return null != attrs.get( attrId );
+        AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( attrId ) );
+        return null != ServerUtils.getAttribute( type, attrs );
     }
 
-
+   
     /**
      * Evaluates a simple equality attribute value assertion on a perspective
      * candidate.
@@ -287,7 +289,9 @@ public class LeafEvaluator implements Evaluator
         }
 
         // get the attribute associated with the node 
-        Attribute attr = rec.getAttributes().get( node.getAttribute() );
+        Attributes attrs = rec.getAttributes();
+        AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( node.getAttribute() ) );
+        Attribute attr = ServerUtils.getAttribute( type, attrs );
 
         // If we do not have the attribute just return false
         if ( null == attr )

@@ -18,6 +18,7 @@ package org.apache.directory.server.core.schema;
 
 
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.naming.NamingException;
 
@@ -80,4 +81,11 @@ public interface AttributeTypeRegistry
      * @return an iterator over all AttributeTypes in registry
      */
     Iterator list();
+    
+    
+    /**
+     * Gets an oid/name to normalizer mapping used to normalize distinguished 
+     * names.
+     */
+    Map getNormalizerMapping() throws NamingException; 
 }

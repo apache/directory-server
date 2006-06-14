@@ -30,6 +30,7 @@ import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
@@ -110,7 +111,7 @@ public class DeleteHandler implements MessageHandler
                 && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
                     || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
             {
-                result.setMatchedDn( e.getResolvedName().toString() );
+                result.setMatchedDn( (LdapDN)e.getResolvedName() );
             }
 
             session.write( req.getResultResponse() );

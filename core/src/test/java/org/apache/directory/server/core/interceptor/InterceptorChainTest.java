@@ -25,20 +25,14 @@ import org.apache.directory.server.core.DirectoryServiceListener;
 import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
-import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.name.LdapName;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.Context;
 import javax.naming.directory.Attributes;
@@ -58,7 +52,6 @@ public class InterceptorChainTest extends TestCase
     private final MockInterceptor[] interceptorArray =
         { new MockInterceptor( "0" ), new MockInterceptor( "1" ), new MockInterceptor( "2" ),
             new MockInterceptor( "3" ), new MockInterceptor( "4" ) };
-    //    private final static Logger log = LoggerFactory.getLogger( InterceptorChainTest.class );
     private InterceptorChain chain;
     private List interceptors = new ArrayList( interceptorArray.length );
 
@@ -86,7 +79,7 @@ public class InterceptorChainTest extends TestCase
 
     public void testNoBypass() throws NamingException
     {
-        Name dn = new LdapName( "ou=system" );
+        LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
@@ -112,7 +105,7 @@ public class InterceptorChainTest extends TestCase
 
     public void testSingleBypass() throws NamingException
     {
-        Name dn = new LdapName( "ou=system" );
+        LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
@@ -142,7 +135,7 @@ public class InterceptorChainTest extends TestCase
 
     public void testAdjacentDoubleBypass() throws NamingException
     {
-        Name dn = new LdapName( "ou=system" );
+        LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
@@ -176,7 +169,7 @@ public class InterceptorChainTest extends TestCase
 
     public void testFrontAndBackDoubleBypass() throws NamingException
     {
-        Name dn = new LdapName( "ou=system" );
+        LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
@@ -206,7 +199,7 @@ public class InterceptorChainTest extends TestCase
 
     public void testDoubleBypass() throws NamingException
     {
-        Name dn = new LdapName( "ou=system" );
+        LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
@@ -236,7 +229,7 @@ public class InterceptorChainTest extends TestCase
 
     public void testCompleteBypass() throws NamingException
     {
-        Name dn = new LdapName( "ou=system" );
+        LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
@@ -290,24 +283,24 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public Name getMatchedName( NextInterceptor next, Name name, boolean normalized ) throws NamingException
+        public LdapDN getMatchedName ( NextInterceptor next, LdapDN name ) throws NamingException
         {
             interceptors.add( this );
-            return next.getMatchedName( name, normalized );
+            return next.getMatchedName( name );
         }
 
 
-        public Name getSuffix( NextInterceptor next, Name name, boolean normalized ) throws NamingException
+        public LdapDN getSuffix ( NextInterceptor next, LdapDN name ) throws NamingException
         {
             interceptors.add( this );
-            return next.getSuffix( name, normalized );
+            return next.getSuffix( name );
         }
 
 
-        public Iterator listSuffixes( NextInterceptor next, boolean normalized ) throws NamingException
+        public Iterator listSuffixes ( NextInterceptor next ) throws NamingException
         {
             interceptors.add( this );
-            return next.listSuffixes( normalized );
+            return next.listSuffixes();
         }
 
 
@@ -319,57 +312,57 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void removeContextPartition( NextInterceptor next, Name suffix ) throws NamingException
+        public void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException
         {
             interceptors.add( this );
             next.removeContextPartition( suffix );
         }
 
 
-        public boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException
+        public boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException
         {
             interceptors.add( this );
             return next.compare( name, oid, value );
         }
 
 
-        public void delete( NextInterceptor next, Name name ) throws NamingException
+        public void delete( NextInterceptor next, LdapDN name ) throws NamingException
         {
             interceptors.add( this );
             next.delete( name );
         }
 
 
-        public void add( NextInterceptor next, String userProvidedName, Name normalizedName, Attributes entry )
+        public void add(NextInterceptor next, LdapDN name, Attributes entry)
             throws NamingException
         {
             interceptors.add( this );
-            next.add( userProvidedName, normalizedName, entry );
+            next.add(name, entry );
         }
 
 
-        public void modify( NextInterceptor next, Name name, int modOp, Attributes attributes ) throws NamingException
+        public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes attributes ) throws NamingException
         {
             interceptors.add( this );
             next.modify( name, modOp, attributes );
         }
 
 
-        public void modify( NextInterceptor next, Name name, ModificationItem[] items ) throws NamingException
+        public void modify( NextInterceptor next, LdapDN name, ModificationItem[] items ) throws NamingException
         {
             interceptors.add( this );
             next.modify( name, items );
         }
 
 
-        public NamingEnumeration list( NextInterceptor next, Name baseName ) throws NamingException
+        public NamingEnumeration list( NextInterceptor next, LdapDN baseName ) throws NamingException
         {
             interceptors.add( this );
             return next.list( baseName );
         }
 
 
-        public NamingEnumeration search( NextInterceptor next, Name baseName, Map environment, ExprNode filter,
+        public NamingEnumeration search( NextInterceptor next, LdapDN baseName, Map environment, ExprNode filter,
             SearchControls searchControls ) throws NamingException
         {
             interceptors.add( this );
@@ -377,35 +370,35 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public Attributes lookup( NextInterceptor next, Name name ) throws NamingException
+        public Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException
         {
             interceptors.add( this );
             return next.lookup( name );
         }
 
 
-        public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
+        public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
         {
             interceptors.add( this );
             return next.lookup( dn, attrIds );
         }
 
 
-        public boolean hasEntry( NextInterceptor next, Name name ) throws NamingException
+        public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
         {
             interceptors.add( this );
             return next.hasEntry( name );
         }
 
 
-        public boolean isSuffix( NextInterceptor next, Name name ) throws NamingException
+        public boolean isSuffix( NextInterceptor next, LdapDN name ) throws NamingException
         {
             interceptors.add( this );
             return next.isSuffix( name );
         }
 
 
-        public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn )
+        public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn )
             throws NamingException
         {
             interceptors.add( this );
@@ -413,14 +406,14 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void move( NextInterceptor next, Name oldName, Name newParentName ) throws NamingException
+        public void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName ) throws NamingException
         {
             interceptors.add( this );
             next.move( oldName, newParentName );
         }
 
 
-        public void move( NextInterceptor next, Name oldName, Name newParentName, String newRn, boolean deleteOldRn )
+        public void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName, String newRn, boolean deleteOldRn )
             throws NamingException
         {
             interceptors.add( this );
@@ -428,7 +421,7 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+        public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId )
             throws NamingException
         {
             interceptors.add( this );
@@ -436,7 +429,7 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void unbind( NextInterceptor next, Name bindDn ) throws NamingException
+        public void unbind( NextInterceptor next, LdapDN bindDn ) throws NamingException
         {
             interceptors.add( this );
             next.unbind( bindDn );

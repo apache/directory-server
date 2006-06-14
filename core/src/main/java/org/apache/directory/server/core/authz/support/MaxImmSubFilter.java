@@ -21,7 +21,6 @@ package org.apache.directory.server.core.authz.support;
 
 import java.util.*;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -33,6 +32,7 @@ import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -57,8 +57,8 @@ public class MaxImmSubFilter implements ACITupleFilter
 
 
     public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
-        Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
-        Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+                              Collection userGroupNames, LdapDN userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
+                              LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
         throws NamingException
     {
         if ( entryName.size() == 0 )
@@ -125,13 +125,13 @@ public class MaxImmSubFilter implements ACITupleFilter
     }
 
 
-    private int getImmSubCount( DirectoryPartitionNexusProxy proxy, Name entryName ) throws NamingException
+    private int getImmSubCount( DirectoryPartitionNexusProxy proxy, LdapDN entryName ) throws NamingException
     {
         int cnt = 0;
         NamingEnumeration e = null;
         try
         {
-            e = proxy.search( entryName.getPrefix( 1 ), new HashMap(), childrenFilter, childrenSearchControls,
+            e = proxy.search( ( LdapDN ) entryName.getPrefix( 1 ), new HashMap(), childrenFilter, childrenSearchControls,
                 SEARCH_BYPASS );
 
             while ( e.hasMore() )

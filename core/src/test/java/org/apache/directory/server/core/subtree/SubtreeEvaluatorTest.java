@@ -26,7 +26,7 @@ import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
 
@@ -85,16 +85,16 @@ public class SubtreeEvaluatorTest extends TestCase
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapName( "ou=system" );
-        Name entryDn = new LdapName( "ou=users,ou=system" );
+        Name apDn = new LdapDN( "ou=system" );
+        Name entryDn = new LdapDN( "ou=users,ou=system" );
         Attribute objectClasses = new BasicAttribute( "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=system" );
+        entryDn = new LdapDN( "ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=abc" );
+        entryDn = new LdapDN( "ou=abc" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
     }
 
@@ -102,18 +102,18 @@ public class SubtreeEvaluatorTest extends TestCase
     public void testWithBase() throws Exception
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
-        modifier.setBase( new LdapName( "ou=users" ) );
+        modifier.setBase( new LdapDN( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapName( "ou=system" );
-        Name entryDn = new LdapName( "ou=users,ou=system" );
+        Name apDn = new LdapDN( "ou=system" );
+        Name entryDn = new LdapDN( "ou=users,ou=system" );
         Attribute objectClasses = new BasicAttribute( "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=system" );
+        entryDn = new LdapDN( "ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
     }
 
@@ -123,27 +123,27 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         modifier.setMinBaseDistance( 1 );
         modifier.setMaxBaseDistance( 3 );
-        modifier.setBase( new LdapName( "ou=users" ) );
+        modifier.setBase( new LdapDN( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapName( "ou=system" );
-        Name entryDn = new LdapName( "ou=users,ou=system" );
+        Name apDn = new LdapDN( "ou=system" );
+        Name entryDn = new LdapDN( "ou=users,ou=system" );
         Attribute objectClasses = new BasicAttribute( "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=system" );
+        entryDn = new LdapDN( "ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
     }
 
@@ -152,32 +152,32 @@ public class SubtreeEvaluatorTest extends TestCase
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         Set chopAfter = new HashSet();
-        chopAfter.add( new LdapName( "uid=Tori Amos" ) );
-        chopAfter.add( new LdapName( "ou=twolevels,uid=akarasulu" ) );
+        chopAfter.add( new LdapDN( "uid=Tori Amos" ) );
+        chopAfter.add( new LdapDN( "ou=twolevels,uid=akarasulu" ) );
         modifier.setChopAfterExclusions( chopAfter );
         modifier.setMinBaseDistance( 1 );
         modifier.setMaxBaseDistance( 3 );
-        modifier.setBase( new LdapName( "ou=users" ) );
+        modifier.setBase( new LdapDN( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapName( "ou=system" );
-        Name entryDn = new LdapName( "ou=users,ou=system" );
+        Name apDn = new LdapDN( "ou=system" );
+        Name entryDn = new LdapDN( "ou=users,ou=system" );
         Attribute objectClasses = new BasicAttribute( "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=system" );
+        entryDn = new LdapDN( "ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
     }
 
@@ -186,32 +186,32 @@ public class SubtreeEvaluatorTest extends TestCase
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         Set chopBefore = new HashSet();
-        chopBefore.add( new LdapName( "uid=Tori Amos" ) );
-        chopBefore.add( new LdapName( "ou=threelevels,ou=twolevels,uid=akarasulu" ) );
+        chopBefore.add( new LdapDN( "uid=Tori Amos" ) );
+        chopBefore.add( new LdapDN( "ou=threelevels,ou=twolevels,uid=akarasulu" ) );
         modifier.setChopBeforeExclusions( chopBefore );
         modifier.setMinBaseDistance( 1 );
         modifier.setMaxBaseDistance( 3 );
-        modifier.setBase( new LdapName( "ou=users" ) );
+        modifier.setBase( new LdapDN( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapName( "ou=system" );
-        Name entryDn = new LdapName( "ou=users,ou=system" );
+        Name apDn = new LdapDN( "ou=system" );
+        Name entryDn = new LdapDN( "ou=users,ou=system" );
         Attribute objectClasses = new BasicAttribute( "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=system" );
+        entryDn = new LdapDN( "ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
     }
 
@@ -225,27 +225,27 @@ public class SubtreeEvaluatorTest extends TestCase
         modifier.setRefinement( refinement );
         modifier.setMinBaseDistance( 1 );
         modifier.setMaxBaseDistance( 3 );
-        modifier.setBase( new LdapName( "ou=users" ) );
+        modifier.setBase( new LdapDN( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapName( "ou=system" );
-        Name entryDn = new LdapName( "ou=users,ou=system" );
+        Name apDn = new LdapDN( "ou=system" );
+        Name entryDn = new LdapDN( "ou=users,ou=system" );
         Attribute objectClasses = new BasicAttribute( "objectClass", "person" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=system" );
+        entryDn = new LdapDN( "ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
         // now change the refinement so the entry is rejected
@@ -253,19 +253,19 @@ public class SubtreeEvaluatorTest extends TestCase
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=system" );
+        entryDn = new LdapDN( "ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
-        entryDn = new LdapName( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
+        entryDn = new LdapDN( "ou=fourlevels,ou=threelevels,ou=twolevels,uid=akarasulu,ou=users,ou=system" );
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
     }

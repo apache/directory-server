@@ -23,14 +23,22 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.normalization.NormalizingVisitor;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -53,19 +61,24 @@ import java.util.*;
  */
 public class EventService extends BaseInterceptor
 {
+    private static Logger log = LoggerFactory.getLogger( EventService.class );
     private DirectoryPartitionNexus nexus;
     private Map sources = new HashMap();
     private Evaluator evaluator = null;
+    private AttributeTypeRegistry attributeRegistry;
+    private NormalizingVisitor visitor;
 
-
+    
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         super.init( factoryCfg, cfg );
 
         OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
-        AttributeTypeRegistry attrRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        evaluator = new ExpressionEvaluator( oidRegistry, attrRegistry );
+        attributeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        evaluator = new ExpressionEvaluator( oidRegistry, attributeRegistry );
         nexus = factoryCfg.getPartitionNexus();
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
+        visitor = new NormalizingVisitor( ncn, factoryCfg.getGlobalRegistries().getOidRegistry() );
     }
 
 
@@ -79,14 +92,71 @@ public class EventService extends BaseInterceptor
      * @param namingListener the naming listener to register
      */
     public void addNamingListener( EventContext ctx, Name name, ExprNode filter, SearchControls searchControls,
-        NamingListener namingListener )
+        NamingListener namingListener ) throws NamingException
     {
-        ScopeNode scope = new ScopeNode( DerefAliasesEnum.NEVERDEREFALIASES, name.toString(), searchControls
-            .getSearchScope() );
-        BranchNode and = new BranchNode( BranchNode.AND );
-        and.addNode( scope );
-        and.addNode( filter );
-        EventSourceRecord rec = new EventSourceRecord( name, and, ctx, searchControls, namingListener );
+        LdapDN normalizedBaseDn = new LdapDN( name );
+        normalizedBaseDn.normalize();
+        
+        // -------------------------------------------------------------------
+        // must normalize the filter here: need to handle special cases
+        // -------------------------------------------------------------------
+
+        if ( filter.isLeaf() )
+        {
+            LeafNode ln = ( LeafNode ) filter;
+            if ( !attributeRegistry.hasAttributeType( ln.getAttribute() ) )
+            {
+                StringBuffer buf = new StringBuffer();
+                buf.append( "undefined filter based on undefined attributeType '" );
+                buf.append( ln.getAttribute() );
+                buf.append( "' not evaluted at all.  Only using scope node." );
+                log.warn( buf.toString() );
+                filter = null;
+            }
+            else
+            {
+                filter.accept( visitor );
+            }
+        }
+        else 
+        {
+            filter.accept( visitor );
+    
+            // Check that after pruning/normalization we have a valid branch node at the top
+            BranchNode child = ( BranchNode ) filter;
+
+            // If the remaining filter branch node has no children set filter to null
+            if ( child.getChildren().size() == 0 )
+            {
+                log.warn( "Undefined branchnode filter without child nodes not evaluted at all. " +
+                        "Only using scope node." );
+                filter = null;
+            }
+
+            // Now for AND & OR nodes with a single child left replace them with their child
+            if ( child.getChildren().size() == 1 && child.getOperator() != BranchNode.NOT )
+            {
+                filter = child.getChild();
+            }
+        }
+        
+        
+        ScopeNode scope = new ScopeNode( DerefAliasesEnum.NEVERDEREFALIASES, normalizedBaseDn.toNormName(), 
+            searchControls.getSearchScope() );
+        
+        if ( filter != null )
+        {
+            BranchNode and = new BranchNode( BranchNode.AND );
+            and.addNode( scope );
+            and.addNode( filter );
+            filter = and;
+        }
+        else
+        {
+            filter = scope;
+        }
+        
+        EventSourceRecord rec = new EventSourceRecord( name, filter, ctx, searchControls, namingListener );
         Object obj = sources.get( namingListener );
 
         if ( obj == null )
@@ -98,6 +168,7 @@ public class EventService extends BaseInterceptor
             List list = new ArrayList();
             list.add( obj );
             list.add( rec );
+            sources.put( namingListener, list );
         }
         else if ( obj instanceof List )
         {
@@ -142,9 +213,9 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
     {
-        super.add( next, upName, normName, entry );
+        super.add( next, normName, entry );
         Set selecting = getSelectingSources( normName, entry );
         if ( selecting.isEmpty() )
         {
@@ -160,7 +231,7 @@ public class EventService extends BaseInterceptor
             if ( listener instanceof NamespaceChangeListener )
             {
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
-                Binding binding = new Binding( upName, entry, false );
+                Binding binding = new Binding( normName.toUpName(), entry, false );
                 nclistener.objectAdded( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_ADDED, binding,
                     null, entry ) );
             }
@@ -168,7 +239,7 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, Name name ) throws NamingException
+    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
         super.delete( next, name );
@@ -187,7 +258,7 @@ public class EventService extends BaseInterceptor
             if ( listener instanceof NamespaceChangeListener )
             {
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
-                Binding binding = new Binding( name.toString(), entry, false );
+                Binding binding = new Binding( name.toUpName(), entry, false );
                 nclistener.objectRemoved( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_REMOVED, null,
                     binding, entry ) );
             }
@@ -195,7 +266,7 @@ public class EventService extends BaseInterceptor
     }
 
 
-    private void notifyOnModify( Name name, ModificationItem[] mods, Attributes oriEntry ) throws NamingException
+    private void notifyOnModify( LdapDN name, ModificationItem[] mods, Attributes oriEntry ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
         Set selecting = getSelectingSources( name, entry );
@@ -213,8 +284,8 @@ public class EventService extends BaseInterceptor
             if ( listener instanceof ObjectChangeListener )
             {
                 ObjectChangeListener oclistener = ( ObjectChangeListener ) listener;
-                Binding before = new Binding( name.toString(), oriEntry, false );
-                Binding after = new Binding( name.toString(), entry, false );
+                Binding before = new Binding( name.toUpName(), oriEntry, false );
+                Binding after = new Binding( name.toUpName(), entry, false );
                 oclistener.objectChanged( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_CHANGED, after,
                     before, mods ) );
             }
@@ -222,7 +293,7 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
@@ -240,7 +311,7 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
@@ -250,7 +321,7 @@ public class EventService extends BaseInterceptor
     }
 
 
-    private void notifyOnNameChange( Name oldName, Name newName ) throws NamingException
+    private void notifyOnNameChange( LdapDN oldName, LdapDN newName ) throws NamingException
     {
         Attributes entry = nexus.lookup( newName );
         Set selecting = getSelectingSources( oldName, entry );
@@ -268,8 +339,8 @@ public class EventService extends BaseInterceptor
             if ( listener instanceof NamespaceChangeListener )
             {
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
-                Binding oldBinding = new Binding( oldName.toString(), entry, false );
-                Binding newBinding = new Binding( newName.toString(), entry, false );
+                Binding oldBinding = new Binding( oldName.toUpName(), entry, false );
+                Binding newBinding = new Binding( newName.toUpName(), entry, false );
                 nclistener.objectRenamed( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_RENAMED,
                     newBinding, oldBinding, entry ) );
             }
@@ -277,36 +348,37 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
     {
         super.modifyRn( next, name, newRn, deleteOldRn );
-        Name newName = ( Name ) name.clone();
+        LdapDN newName = ( LdapDN ) name.clone();
         newName.remove( newName.size() - 1 );
         newName.add( newRn );
+        newName.normalize();
         notifyOnNameChange( name, newName );
     }
 
 
-    public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
+    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
         throws NamingException
     {
         super.move( next, oriChildName, newParentName, newRn, deleteOldRn );
-        Name newName = ( Name ) newParentName.clone();
+        LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( newRn );
         notifyOnNameChange( oriChildName, newName );
     }
 
 
-    public void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException
+    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
     {
         super.move( next, oriChildName, newParentName );
-        Name newName = ( Name ) newParentName.clone();
+        LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
         notifyOnNameChange( oriChildName, newName );
     }
 
 
-    Set getSelectingSources( Name name, Attributes entry ) throws NamingException
+    Set getSelectingSources( LdapDN name, Attributes entry ) throws NamingException
     {
         if ( sources.isEmpty() )
         {
@@ -321,7 +393,7 @@ public class EventService extends BaseInterceptor
             if ( obj instanceof EventSourceRecord )
             {
                 EventSourceRecord rec = ( EventSourceRecord ) obj;
-                if ( evaluator.evaluate( rec.getFilter(), name.toString(), entry ) )
+                if ( evaluator.evaluate( rec.getFilter(), name.toNormName(), entry ) )
                 {
                     selecting.add( obj );
                 }
@@ -332,7 +404,7 @@ public class EventService extends BaseInterceptor
                 for ( int ii = 0; ii < records.size(); ii++ )
                 {
                     EventSourceRecord rec = ( EventSourceRecord ) records.get( ii );
-                    if ( evaluator.evaluate( rec.getFilter(), name.toString(), entry ) )
+                    if ( evaluator.evaluate( rec.getFilter(), name.toNormName(), entry ) )
                     {
                         selecting.add( obj );
                     }

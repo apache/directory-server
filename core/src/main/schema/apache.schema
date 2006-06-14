@@ -18,8 +18,7 @@
 
 attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.1 NAME 'apacheNdn'
     DESC 'Index attribute DN whose values are normalized based on schema'
-    SUP distinguishedName
-    EQUALITY distinguishedNameMatch
+    EQUALITY exactDnAsStringMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
     SINGLE-VALUE
     NO-USER-MODIFICATION

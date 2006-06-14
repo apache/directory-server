@@ -25,11 +25,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -47,8 +45,8 @@ import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -62,8 +60,8 @@ public class RelatedProtectedItemFilterTest extends TestCase
     private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
     private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
 
-    private static final Name GROUP_NAME;
-    private static final Name USER_NAME;
+    private static final LdapDN GROUP_NAME;
+    private static final LdapDN USER_NAME;
     private static final Set USER_NAMES = new HashSet();
     private static final Set GROUP_NAMES = new HashSet();
 
@@ -78,14 +76,14 @@ public class RelatedProtectedItemFilterTest extends TestCase
     {
         try
         {
-            GROUP_NAME = new LdapName( "ou=test,ou=groups,ou=system" );
-            USER_NAME = new LdapName( "ou=test, ou=users, ou=system" );
+            GROUP_NAME = new LdapDN( "ou=test,ou=groups,ou=system" );
+            USER_NAME = new LdapDN( "ou=test, ou=users, ou=system" );
 
             filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-                OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_A ) );
+                OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_A ), OID_REGISTRY, ATTR_TYPE_REGISTRY_A );
 
             filterB = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-                OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_B ) );
+                OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_B ), OID_REGISTRY, ATTR_TYPE_REGISTRY_B );
         }
         catch ( NamingException e )
         {
@@ -109,7 +107,7 @@ public class RelatedProtectedItemFilterTest extends TestCase
         Collection tuples = getTuples( ProtectedItem.ENTRY );
 
         Assert.assertEquals( 1, filterA.filter( tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.NONE, null, null, null, null, null ).size() );
+            AuthenticationLevel.NONE, null, "ou", null, null, null ).size() );
     }
 
 
@@ -266,19 +264,23 @@ public class RelatedProtectedItemFilterTest extends TestCase
     }
 
 
+    /* this test requires a real registry with real values or the dummy registry
+     * needs to be altered to contain some usable mock data.  This is a result of
+     * using the registry now in this operation.    
     public void testRangeOfValues() throws Exception
     {
-        Attributes entry = new BasicAttributes();
+        Attributes entry = new BasicAttributes( true );
         entry.put( "attrA", "valueA" );
         Collection tuples = getTuples( new ProtectedItem.RangeOfValues( new PresenceNode( "attrA" ) ) );
 
         Assert.assertEquals( 1, filterA.filter( tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null,
-            new LdapName( "ou=testEntry" ), null, null, entry, null ).size() );
+            new LdapDN( "ou=testEntry" ), null, null, entry, null ).size() );
 
         entry.remove( "attrA" );
         Assert.assertEquals( 0, filterA.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, new LdapName( "ou=testEntry" ), null, null, entry, null ).size() );
+            null, null, new LdapDN( "ou=testEntry" ), null, null, entry, null ).size() );
     }
+    */
 
 
     public void testRestrictedBy() throws Exception
@@ -310,8 +312,8 @@ public class RelatedProtectedItemFilterTest extends TestCase
         attrTypes.add( "attrA" );
         Collection tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
 
-        Attributes entry = new BasicAttributes();
-        entry.put( "attrA", USER_NAME );
+        Attributes entry = new LockableAttributesImpl();
+        entry.put( "attrA", USER_NAME.toNormName() );
 
         // Test wrong scope
         Assert.assertEquals( 0, filterA.filter( tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,

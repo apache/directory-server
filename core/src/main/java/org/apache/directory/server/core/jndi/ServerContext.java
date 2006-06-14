@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -78,7 +78,7 @@ public abstract class ServerContext implements EventContext
     private final Hashtable env;
 
     /** The distinguished name of this Context */
-    private final LdapName dn;
+    private final LdapDN dn;
 
     /** The set of registered NamingListeners */
     private final Set listeners = new HashSet();
@@ -123,7 +123,10 @@ public abstract class ServerContext implements EventContext
             .getSaslAuthId() );
 
         if ( dn.size() == 0 )
+        {
             return;
+        }
+        
         if ( !nexusProxy.hasEntry( dn ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
@@ -137,14 +140,12 @@ public abstract class ServerContext implements EventContext
      * constructor is used to propagate new contexts from existing contexts.
      *
      * @param principal the directory user principal that is propagated
-     * @param nexusProxy the intercepting proxy to the nexus
-     * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
     protected ServerContext(DirectoryService service, LdapPrincipal principal, Name dn) throws NamingException
     {
         this.service = service;
-        this.dn = ( LdapName ) dn.clone();
+        this.dn = ( LdapDN ) dn.clone();
 
         this.env = ( Hashtable ) service.getConfiguration().getEnvironment().clone();
         this.env.put( PROVIDER_URL, dn.toString() );
@@ -275,7 +276,7 @@ public abstract class ServerContext implements EventContext
      */
     public Context createSubcontext( String name ) throws NamingException
     {
-        return createSubcontext( new LdapName( name ) );
+        return createSubcontext( new LdapDN( name ) );
     }
 
 
@@ -285,7 +286,7 @@ public abstract class ServerContext implements EventContext
     public Context createSubcontext( Name name ) throws NamingException
     {
         Attributes attributes = new LockableAttributesImpl();
-        LdapName target = buildTarget( name );
+        LdapDN target = buildTarget( name );
 
         String rdn = name.get( name.size() - 1 );
         String rdnAttribute = NamespaceTools.getRdnAttribute( rdn );
@@ -302,7 +303,7 @@ public abstract class ServerContext implements EventContext
          * we need to copy over the controls as well to propagate the complete 
          * environment besides whats in the hashtable for env.
          */
-        nexusProxy.add( target.toString(), target, attributes );
+        nexusProxy.add(target, attributes );
         return new ServerLdapContext( service, principal, target );
     }
 
@@ -312,7 +313,7 @@ public abstract class ServerContext implements EventContext
      */
     public void destroySubcontext( String name ) throws NamingException
     {
-        destroySubcontext( new LdapName( name ) );
+        destroySubcontext( new LdapDN( name ) );
     }
 
 
@@ -321,7 +322,7 @@ public abstract class ServerContext implements EventContext
      */
     public void destroySubcontext( Name name ) throws NamingException
     {
-        Name target = buildTarget( name );
+        LdapDN target = buildTarget( name );
         if ( target.size() == 0 )
         {
             throw new LdapNoPermissionException( "can't delete the rootDSE" );
@@ -336,7 +337,7 @@ public abstract class ServerContext implements EventContext
      */
     public void bind( String name, Object obj ) throws NamingException
     {
-        bind( new LdapName( name ), obj );
+        bind( new LdapDN( name ), obj );
     }
 
 
@@ -351,8 +352,8 @@ public abstract class ServerContext implements EventContext
 
         if ( outAttrs != null )
         {
-            Name target = buildTarget( name );
-            nexusProxy.add( target.toString(), target, outAttrs );
+            LdapDN target = buildTarget( name );
+            nexusProxy.add( target, outAttrs );
             return;
         }
 
@@ -381,11 +382,11 @@ public abstract class ServerContext implements EventContext
                 }
             }
 
-            Name target = buildTarget( name );
+            LdapDN target = buildTarget( name );
 
             // Serialize object into entry attributes and add it.
             JavaLdapSupport.serialize( attributes, obj );
-            nexusProxy.add( target.toString(), target, attributes );
+            nexusProxy.add( target, attributes );
         }
         else if ( obj instanceof DirContext )
         {
@@ -400,8 +401,8 @@ public abstract class ServerContext implements EventContext
                 }
             }
 
-            Name target = buildTarget( name );
-            nexusProxy.add( target.toString(), target, attributes );
+            LdapDN target = buildTarget( name );
+            nexusProxy.add( target, attributes );
         }
         else
         {
@@ -415,7 +416,7 @@ public abstract class ServerContext implements EventContext
      */
     public void rename( String oldName, String newName ) throws NamingException
     {
-        rename( new LdapName( oldName ), new LdapName( newName ) );
+        rename( new LdapDN( oldName ), new LdapDN( newName ) );
     }
 
 
@@ -424,15 +425,19 @@ public abstract class ServerContext implements EventContext
      */
     public void rename( Name oldName, Name newName ) throws NamingException
     {
-        Name oldDn = buildTarget( oldName );
-        Name newDn = buildTarget( newName );
+        LdapDN oldDn = buildTarget( oldName );
+        LdapDN newDn = buildTarget( newName );
         if ( oldDn.size() == 0 )
         {
             throw new LdapNoPermissionException( "can't rename the rootDSE" );
         }
 
-        Name oldBase = oldName.getPrefix( 1 );
-        Name newBase = newName.getPrefix( 1 );
+        // calculate parents
+        LdapDN oldBase = ( LdapDN ) oldName.clone();
+        oldBase.remove( oldName.size() - 1 );
+        LdapDN newBase = ( LdapDN ) newName.clone();
+        newBase.remove( newName.size() - 1 );
+        
         String newRdn = newName.get( newName.size() - 1 );
         String oldRdn = oldName.get( oldName.size() - 1 );
         boolean delOldRdn = true;
@@ -463,7 +468,8 @@ public abstract class ServerContext implements EventContext
         }
         else
         {
-            Name parent = newDn.getPrefix( 1 );
+            LdapDN parent = ( LdapDN ) newDn.clone();
+            parent.remove( newDn.size() - 1 );
             if ( newRdn.equalsIgnoreCase( oldRdn ) )
             {
                 nexusProxy.move( oldDn, parent );
@@ -481,7 +487,7 @@ public abstract class ServerContext implements EventContext
      */
     public void rebind( String name, Object obj ) throws NamingException
     {
-        rebind( new LdapName( name ), obj );
+        rebind( new LdapDN( name ), obj );
     }
 
 
@@ -490,7 +496,7 @@ public abstract class ServerContext implements EventContext
      */
     public void rebind( Name name, Object obj ) throws NamingException
     {
-        Name target = buildTarget( name );
+        LdapDN target = buildTarget( name );
         if ( nexusProxy.hasEntry( target ) )
         {
             nexusProxy.delete( target );
@@ -504,7 +510,7 @@ public abstract class ServerContext implements EventContext
      */
     public void unbind( String name ) throws NamingException
     {
-        unbind( new LdapName( name ) );
+        unbind( new LdapDN( name ) );
     }
 
 
@@ -524,11 +530,11 @@ public abstract class ServerContext implements EventContext
     {
         if ( StringTools.isEmpty( name ) )
         {
-            return lookup( LdapName.EMPTY_LDAP_NAME );
+            return lookup( LdapDN.EMPTY_LDAPDN );
         }
         else
         {
-            return lookup( new LdapName( name ) );
+            return lookup( new LdapDN( name ) );
         }
     }
 
@@ -539,7 +545,7 @@ public abstract class ServerContext implements EventContext
     public Object lookup( Name name ) throws NamingException
     {
         Object obj;
-        LdapName target = buildTarget( name );
+        LdapDN target = buildTarget( name );
         Attributes attributes = nexusProxy.lookup( target );
 
         try
@@ -604,13 +610,19 @@ public abstract class ServerContext implements EventContext
      * Non-federated implementation presuming the name argument is not a 
      * composite name spanning multiple namespaces but a compound name in 
      * the same LDAP namespace.  Hence the parser returned is always the
-     * same as calling this method with the empty String.
+     * same as calling this method with the empty String. 
      * 
      * @see javax.naming.Context#getNameParser(java.lang.String)
      */
     public NameParser getNameParser( String name ) throws NamingException
     {
-        return LdapName.getNameParser();
+        return new NameParser()
+        {
+            public Name parse( String name ) throws NamingException
+            {
+                return new LdapDN( name );
+            }
+        };
     }
 
 
@@ -624,7 +636,13 @@ public abstract class ServerContext implements EventContext
      */
     public NameParser getNameParser( Name name ) throws NamingException
     {
-        return LdapName.getNameParser();
+        return new NameParser()
+        {
+            public Name parse( String name ) throws NamingException
+            {
+                return new LdapDN( name );
+            }
+        };
     }
 
 
@@ -633,7 +651,7 @@ public abstract class ServerContext implements EventContext
      */
     public NamingEnumeration list( String name ) throws NamingException
     {
-        return list( new LdapName( name ) );
+        return list( new LdapDN( name ) );
     }
 
 
@@ -651,7 +669,7 @@ public abstract class ServerContext implements EventContext
      */
     public NamingEnumeration listBindings( String name ) throws NamingException
     {
-        return listBindings( new LdapName( name ) );
+        return listBindings( new LdapDN( name ) );
     }
 
 
@@ -661,7 +679,7 @@ public abstract class ServerContext implements EventContext
     public NamingEnumeration listBindings( Name name ) throws NamingException
     {
         // Conduct a special one level search at base for all objects
-        Name base = buildTarget( name );
+        LdapDN base = buildTarget( name );
         PresenceNode filter = new PresenceNode( "objectClass" );
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -674,7 +692,7 @@ public abstract class ServerContext implements EventContext
      */
     public String composeName( String name, String prefix ) throws NamingException
     {
-        return composeName( new LdapName( name ), new LdapName( prefix ) ).toString();
+        return composeName( new LdapDN( name ), new LdapDN( prefix ) ).toString();
     }
 
 
@@ -747,7 +765,7 @@ public abstract class ServerContext implements EventContext
 
     public void addNamingListener( String name, int scope, NamingListener namingListener ) throws NamingException
     {
-        addNamingListener( new LdapName( name ), scope, namingListener );
+        addNamingListener( new LdapDN( name ), scope, namingListener );
     }
 
 
@@ -788,10 +806,9 @@ public abstract class ServerContext implements EventContext
      * @throws InvalidNameException if relativeName is not a valid name in
      *      the LDAP namespace.
      */
-    LdapName buildTarget( Name relativeName ) throws InvalidNameException
+    LdapDN buildTarget( Name relativeName ) throws InvalidNameException
     {
-        // Clone our DN or absolute path
-        LdapName target = ( LdapName ) dn.clone();
+        LdapDN target = ( LdapDN ) dn.clone();
 
         // Add to left hand side of cloned DN the relative name arg
         target.addAll( target.size(), relativeName );

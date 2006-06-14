@@ -18,7 +18,7 @@ package org.apache.directory.server.core.subtree;
 
 
 import org.apache.directory.server.core.schema.OidRegistry;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
@@ -90,7 +90,7 @@ public class SubtreeEvaluator
         }
         else if ( apDn.equals( entryDn ) )
         {
-            apRelativeRdn = new LdapName();
+            apRelativeRdn = new LdapDN();
         }
         else
         {
@@ -110,7 +110,7 @@ public class SubtreeEvaluator
         }
         else if ( apRelativeRdn.equals( subtree.getBase() ) )
         {
-            baseRelativeRdn = new LdapName();
+            baseRelativeRdn = new LdapDN();
         }
         else if ( !NamespaceTools.isDescendant( subtree.getBase(), apRelativeRdn ) )
         {

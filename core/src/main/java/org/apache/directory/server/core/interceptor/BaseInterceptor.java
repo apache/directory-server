@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -37,6 +36,7 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -96,21 +96,21 @@ public abstract class BaseInterceptor implements Interceptor
     // Interceptor's Invoke Method
     // ------------------------------------------------------------------------
 
-    public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
+    public void add(NextInterceptor next, LdapDN normName, Attributes entry) throws NamingException
     {
-        next.add( upName, normName, entry );
+        next.add(normName, entry );
     }
 
 
-    public void delete( NextInterceptor next, Name name ) throws NamingException
+    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
     {
         next.delete( name );
     }
 
 
-    public Name getMatchedName( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, LdapDN dn ) throws NamingException
     {
-        return next.getMatchedName( dn, normalized );
+        return next.getMatchedName( dn );
     }
 
 
@@ -120,81 +120,81 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public Name getSuffix( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
+    public LdapDN getSuffix ( NextInterceptor next, LdapDN dn ) throws NamingException
     {
-        return next.getSuffix( dn, normalized );
+        return next.getSuffix( dn );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, Name name ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
     {
         return next.hasEntry( name );
     }
 
 
-    public boolean isSuffix( NextInterceptor next, Name name ) throws NamingException
+    public boolean isSuffix( NextInterceptor next, LdapDN name ) throws NamingException
     {
         return next.isSuffix( name );
     }
 
 
-    public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor next, LdapDN base ) throws NamingException
     {
         return next.list( base );
     }
 
 
-    public Iterator listSuffixes( NextInterceptor next, boolean normalized ) throws NamingException
+    public Iterator listSuffixes ( NextInterceptor next ) throws NamingException
     {
-        return next.listSuffixes( normalized );
+        return next.listSuffixes();
     }
 
 
-    public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
+    public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
     {
         return next.lookup( dn, attrIds );
     }
 
 
-    public Attributes lookup( NextInterceptor next, Name name ) throws NamingException
+    public Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException
     {
         return next.lookup( name );
     }
 
 
-    public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         next.modify( name, modOp, mods );
     }
 
 
-    public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
     {
         next.modify( name, mods );
     }
 
 
-    public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
     {
         next.modifyRn( name, newRn, deleteOldRn );
     }
 
 
-    public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
+    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
         throws NamingException
     {
         next.move( oriChildName, newParentName, newRn, deleteOldRn );
     }
 
 
-    public void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException
+    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
     {
         next.move( oriChildName, newParentName );
     }
 
 
-    public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
-        SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration search( NextInterceptor next, LdapDN base, Map env, ExprNode filter,
+                                     SearchControls searchCtls ) throws NamingException
     {
         return next.search( base, env, filter, searchCtls );
     }
@@ -206,26 +206,26 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void removeContextPartition( NextInterceptor next, Name suffix ) throws NamingException
+    public void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException
     {
         next.removeContextPartition( suffix );
     }
 
 
-    public boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException
+    public boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException
     {
         return next.compare( name, oid, value );
     }
 
 
-    public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+    public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId )
         throws NamingException
     {
         next.bind( bindDn, credentials, mechanisms, saslAuthId );
     }
 
 
-    public void unbind( NextInterceptor next, Name bindDn ) throws NamingException
+    public void unbind( NextInterceptor next, LdapDN bindDn ) throws NamingException
     {
         next.unbind( bindDn );
     }

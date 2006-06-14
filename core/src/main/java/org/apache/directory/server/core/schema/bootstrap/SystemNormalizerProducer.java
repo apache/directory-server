@@ -19,12 +19,11 @@ package org.apache.directory.server.core.schema.bootstrap;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
+import org.apache.directory.server.core.schema.DnNormalizer;
 import org.apache.directory.server.core.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.shared.ldap.schema.CachingNormalizer;
 import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
-import org.apache.directory.shared.ldap.schema.DnNormalizer;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectIdentifierNormalizer;
@@ -56,8 +55,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          ( 2.5.13.1 NAME 'distinguishedNameMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
          */
-        normalizer = new CachingNormalizer( new DnNormalizer( new ConcreteNameComponentNormalizer( registries
-            .getAttributeTypeRegistry() ) ) );
+        normalizer = new CachingNormalizer( new DnNormalizer( registries.getAttributeTypeRegistry() ) );
         cb.schemaObjectProduced( this, "2.5.13.1", normalizer );
 
         /*

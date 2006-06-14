@@ -21,9 +21,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.naming.InvalidNameException;
-import javax.naming.Name;
 
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +50,7 @@ public class ReferralLut
      * 
      * @param dn the normalized name of the referral
      */
-    public boolean isReferral( Name dn )
+    public boolean isReferral( LdapDN dn )
     {
         if ( dn == null )
             throw new IllegalArgumentException( "dn cannot be null" );
@@ -79,11 +78,11 @@ public class ReferralLut
      * @param dn the name to get the farthest ancestor referral name for
      * @return the farthest referral ancestor
      */
-    public Name getFarthestReferralAncestor( Name dn )
+    public LdapDN getFarthestReferralAncestor( LdapDN dn )
     {
         if ( dn == null )
             throw new IllegalArgumentException( "dn cannot be null" );
-        Name farthest = new LdapName();
+        LdapDN farthest = new LdapDN();
         for ( int ii = 0; ii < dn.size(); ii++ )
         {
             try
@@ -111,11 +110,11 @@ public class ReferralLut
      * @param dn the name to get the nearest ancestor referral name for
      * @return the nearest referral ancestor or null if one does not exist
      */
-    public Name getNearestReferralAncestor( Name dn )
+    public LdapDN getNearestReferralAncestor( LdapDN dn )
     {
         if ( dn == null )
             throw new IllegalArgumentException( "dn cannot be null" );
-        Name cloned = ( Name ) dn.clone();
+        LdapDN cloned = ( LdapDN ) dn.clone();
 
         // do not return the argument dn if it is a referral (skip it)
         if ( cloned.size() > 0 )
@@ -158,7 +157,7 @@ public class ReferralLut
      * 
      * @param dn the normalized name of the added referral
      */
-    public void referralAdded( Name dn )
+    public void referralAdded( LdapDN dn )
     {
         if ( dn == null )
             throw new IllegalArgumentException( "dn cannot be null" );
@@ -190,7 +189,7 @@ public class ReferralLut
      * 
      * @param dn the normalized name of the deleted referral
      */
-    public void referralDeleted( Name dn )
+    public void referralDeleted( LdapDN dn )
     {
         if ( dn == null )
             throw new IllegalArgumentException( "dn cannot be null" );
@@ -224,7 +223,7 @@ public class ReferralLut
      * @param oldDn the normalized old name for the referral
      * @param newDn the normalized new name for the referral
      */
-    public void referralChanged( Name oldDn, Name newDn )
+    public void referralChanged( LdapDN oldDn, LdapDN newDn )
     {
         if ( oldDn == null || newDn == null )
             throw new IllegalArgumentException( "old or new dn cannot be null" );
@@ -268,7 +267,7 @@ public class ReferralLut
      * @param oldDn the normalized old name for the referral
      * @param newDn the normalized new name for the referral
      */
-    public void referralChanged( Name oldDn, String newDn )
+    public void referralChanged( LdapDN oldDn, String newDn )
     {
         if ( oldDn == null || newDn == null )
             throw new IllegalArgumentException( "old or new dn cannot be null" );
@@ -290,7 +289,7 @@ public class ReferralLut
      * @param oldDn the normalized old name for the referral
      * @param newDn the normalized new name for the referral
      */
-    public void referralChanged( String oldDn, Name newDn )
+    public void referralChanged( String oldDn, LdapDN newDn )
     {
         if ( oldDn == null || newDn == null )
             throw new IllegalArgumentException( "old or new dn cannot be null" );

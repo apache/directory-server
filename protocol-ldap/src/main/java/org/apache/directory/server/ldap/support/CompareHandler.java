@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
@@ -61,6 +61,7 @@ public class CompareHandler implements MessageHandler
         {
             LdapContext ctx = SessionRegistry.getSingleton().getLdapContext( session, null, true );
             ServerLdapContext newCtx = ( ServerLdapContext ) ctx.lookup( "" );
+            
             if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
             {
                 newCtx.addToEnvironment( Context.REFERRAL, "ignore" );
@@ -71,8 +72,7 @@ public class CompareHandler implements MessageHandler
             }
             newCtx.setRequestControls( ( Control[] ) req.getControls().values().toArray( EMPTY_CONTROLS ) );
 
-            LdapName name = new LdapName( req.getName() );
-            if ( newCtx.compare( name, req.getAttributeId(), req.getAssertionValue() ) )
+            if ( newCtx.compare( req.getName(), req.getAttributeId(), req.getAssertionValue() ) )
             {
                 result.setResultCode( ResultCodeEnum.COMPARETRUE );
             }
@@ -87,13 +87,15 @@ public class CompareHandler implements MessageHandler
             result.setReferral( refs );
             result.setResultCode( ResultCodeEnum.REFERRAL );
             result.setErrorMessage( "Encountered referral attempting to handle compare request." );
-            /* coming up null causing a NPE */
-            // result.setMatchedDn( e.getResolvedName().toString() );
+
+            result.setMatchedDn( (LdapDN)e.getResolvedName() );
+            
             do
             {
                 refs.addLdapUrl( ( String ) e.getReferralInfo() );
             }
             while ( e.skipReferral() );
+            
             session.write( req.getResultResponse() );
             return;
         }
@@ -128,7 +130,7 @@ public class CompareHandler implements MessageHandler
                     && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
                         || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
                 {
-                    result.setMatchedDn( ne.getResolvedName().toString() );
+                    result.setMatchedDn( (LdapDN)ne.getResolvedName() );
                 }
             }
 

@@ -25,7 +25,6 @@ import java.util.Iterator;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
@@ -39,7 +38,7 @@ import org.apache.directory.server.jndi.ServerContextFactory;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
 
 
@@ -188,7 +187,7 @@ public abstract class AbstractServerTest extends TestCase
             {
                 Entry entry = ( Entry) iterator.next();
 
-                Name dn = new LdapName( entry.getDn() );
+                LdapDN dn = new LdapDN( entry.getDn() );
                 dn.remove( 0 );
 
                 ctx.createSubcontext( dn, entry.getAttributes() );

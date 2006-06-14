@@ -148,8 +148,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
 
         assertNotNull( listener.result );
-        // darn it getting normalized name back
-        assertEquals( RDN.toLowerCase(), listener.result.getName().toLowerCase() );
+        assertEquals( RDN, listener.result.getName() );
     }
 
 
@@ -181,8 +180,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
 
         assertNotNull( listener.result );
-        // darn it getting normalized name back
-        assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
+        assertEquals( "cn=Jack Black", listener.result.getName() );
     }
 
 
@@ -214,8 +212,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
 
         assertNotNull( listener.result );
-        // darn it getting normalized name back
-        assertEquals( RDN.toLowerCase(), listener.result.getName().toLowerCase() );
+        assertEquals( RDN, listener.result.getName() );
     }
 
 
@@ -247,8 +244,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
 
         assertNotNull( listener.result );
-        // darn it getting normalized name back
-        assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
+        assertEquals( "cn=Jack Black", listener.result.getName() );
     }
 
 
@@ -283,8 +279,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
 
         assertNotNull( listener.result );
-        // darn it getting normalized name back
-        assertEquals( RDN.toLowerCase(), listener.result.getName().toLowerCase() );
+        assertEquals( RDN, listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
     }
 
@@ -320,10 +315,9 @@ public class PersistentSearchTest extends AbstractServerTest
         }
 
         assertNotNull( listener.result );
-        // darn it getting normalized name back
-        assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
+        assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODDN );
-        assertEquals( ( RDN + ",ou=system" ).toLowerCase(), listener.result.control.getPreviousDn().toLowerCase() );
+        assertEquals( ( RDN + ",ou=system" ), listener.result.control.getPreviousDn().getUpName() );
     }
 
 
@@ -358,8 +352,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
 
         assertNotNull( listener.result );
-        // darn it getting normalized name back
-        assertEquals( RDN.toLowerCase(), listener.result.getName().toLowerCase() );
+        assertEquals( RDN, listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.DELETE );
     }
 
@@ -395,8 +388,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
 
         assertNotNull( listener.result );
-        // darn it getting normalized name back
-        assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
+        assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
     }
 
@@ -434,8 +426,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
 
         assertNotNull( listener.result );
-        // darn it getting normalized name back
-        assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
+        assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
         listener.result = null;
         t = new Thread( listener );
@@ -469,8 +460,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
 
         assertNotNull( listener.result );
-        // darn it getting normalized name back
-        assertEquals( RDN.toLowerCase(), listener.result.getName().toLowerCase() );
+        assertEquals( RDN, listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
     }
 
@@ -511,8 +501,7 @@ public class PersistentSearchTest extends AbstractServerTest
     //        
     //        assertEquals( 6, listener.count );
     //        assertNotNull( listener.result );
-    //        // darn it getting normalized name back
-    //        assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
+    //        assertEquals( "cn=Jack Black", listener.result.getName() );
     //        assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
     //    }
 
@@ -578,8 +567,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
 
         assertNotNull( listener.result );
-        // darn it getting normalized name back
-        assertEquals( "cn=Jack Black".toLowerCase(), listener.result.getName().toLowerCase() );
+        assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
         listener.result = null;
         t = new Thread( listener );
@@ -614,8 +602,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
 
         assertNotNull( listener.result );
-        // darn it getting normalized name back
-        assertEquals( RDN.toLowerCase(), listener.result.getName().toLowerCase() );
+        assertEquals( RDN, listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
     }
 

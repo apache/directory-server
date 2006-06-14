@@ -24,7 +24,7 @@ import javax.naming.NamingException;
  * An event handler that listens to the changes occurs to
  * {@link DirectoryService}.
  * 
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public interface DirectoryServiceListener

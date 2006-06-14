@@ -138,7 +138,7 @@ public class ImportCommand extends ToolCommand
         bb.clear();
     }
 
-    private LdapMessage readResponse( ByteBuffer bb ) throws IOException, DecoderException
+    private LdapMessage readResponse( ByteBuffer bb ) throws IOException, DecoderException, NamingException
     {
 
         LdapMessage messageResp = null;
@@ -526,7 +526,7 @@ public class ImportCommand extends ToolCommand
      * 
      * @param messageId The message Id
      */
-    private void bind( int messageId ) throws InvalidNameException, EncoderException, DecoderException, IOException
+    private void bind( int messageId ) throws NamingException, EncoderException, DecoderException, IOException
     {
         BindRequest bindRequest = new BindRequest();
         LdapMessage message = new LdapMessage();

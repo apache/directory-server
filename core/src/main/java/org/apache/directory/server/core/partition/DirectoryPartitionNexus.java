@@ -20,13 +20,13 @@ package org.apache.directory.server.core.partition;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.naming.Name;
+import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -42,6 +42,8 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
 {
     /** the default user principal or DN */
     public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
+    /** the normalized user principal or DN */
+    public final static String ADMIN_PRINCIPAL_NORMALIZED = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
     /** the admin super user uid */
     public final static String ADMIN_UID = "admin";
     /** the initial admin passwd set on startup */
@@ -64,17 +66,30 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      * Gets the DN for the admin user.
      * @return the admin user DN
      */
-    public static final Name getAdminName()
+    public static final LdapDN getAdminName()
     {
-        Name adminDn = null;
+        LdapDN adminDn = null;
 
         try
         {
-            adminDn = new LdapName( ADMIN_PRINCIPAL );
+            adminDn = new LdapDN( ADMIN_PRINCIPAL );
         }
         catch ( NamingException e )
         {
             throw new InternalError();
+        }
+        
+        try
+        {
+            adminDn.normalize();
+        }
+        catch ( InvalidNameException ine )
+        {
+            // Nothing we can do ...
+        }
+        catch ( NamingException ne )
+        {
+            // Nothing we can do ...
         }
 
         return adminDn;
@@ -86,13 +101,13 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      * A new Name instance is created and returned every time.
      * @return the groups base DN
      */
-    public static final Name getGroupsBaseName()
+    public static final LdapDN getGroupsBaseName()
     {
-        Name groupsBaseDn = null;
+        LdapDN groupsBaseDn = null;
 
         try
         {
-            groupsBaseDn = new LdapName( GROUPS_BASE_NAME );
+            groupsBaseDn = new LdapDN( GROUPS_BASE_NAME );
         }
         catch ( NamingException e )
         {
@@ -108,13 +123,13 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      * A new Name instance is created and returned every time.
      * @return the users base DN
      */
-    public static final Name getUsersBaseName()
+    public static final LdapDN getUsersBaseName()
     {
-        Name usersBaseDn = null;
+        LdapDN usersBaseDn = null;
 
         try
         {
-            usersBaseDn = new LdapName( USERS_BASE_NAME );
+            usersBaseDn = new LdapDN( USERS_BASE_NAME );
         }
         catch ( NamingException e )
         {
@@ -152,13 +167,13 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      * @return true if the entry contains an attribute with the value, false otherwise
      * @throws NamingException if there is a problem accessing the entry and its values
      */
-    public abstract boolean compare( Name name, String oid, Object value ) throws NamingException;
+    public abstract boolean compare( LdapDN name, String oid, Object value ) throws NamingException;
 
 
     public abstract void addContextPartition( DirectoryPartitionConfiguration config ) throws NamingException;
 
 
-    public abstract void removeContextPartition( Name suffix ) throws NamingException;
+    public abstract void removeContextPartition( LdapDN suffix ) throws NamingException;
 
 
     public abstract DirectoryPartition getSystemPartition();
@@ -174,22 +189,19 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      * @return the partition containing the entry represented by the dn
      * @throws NamingException if there is no partition for the dn
      */
-    public abstract DirectoryPartition getPartition( Name dn ) throws NamingException;
+    public abstract DirectoryPartition getPartition( LdapDN dn ) throws NamingException;
 
 
     /**
      * Gets the most significant Dn that exists within the server for any Dn.
      *
      * @param name the normalized distinguished name to use for matching.
-     * @param normalized boolean if true cause the return of a normalized Dn,
-     * if false it returns the original user provided distinguished name for 
-     * the matched portion of the Dn as it was provided on entry creation.
      * @return a distinguished name representing the matching portion of dn,
      * as originally provided by the user on creation of the matched entry or 
      * the empty string distinguished name if no match was found.
      * @throws NamingException if there are any problems
      */
-    public abstract Name getMatchedName( Name name, boolean normalized ) throws NamingException;
+    public abstract LdapDN getMatchedName ( LdapDN name ) throws NamingException;
 
 
     /**
@@ -198,27 +210,21 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      * fall under a partition suffix then the empty string Dn is returned.
      *
      * @param name the normalized distinguished name to use for finding a suffix.
-     * @param normalized if true causes the return of a normalized Dn, but
-     * if false it returns the original user provided distinguished name for 
-     * the suffix Dn as it was provided on suffix entry creation.
      * @return the suffix portion of dn, or the valid empty string Dn if no
      * naming context was found for dn.
      * @throws NamingException if there are any problems
      */
-    public abstract Name getSuffix( Name name, boolean normalized ) throws NamingException;
+    public abstract LdapDN getSuffix ( LdapDN name ) throws NamingException;
 
 
     /**
      * Gets an iteration over the Name suffixes of the partitions managed by this
      * {@link DirectoryPartitionNexus}.
      *
-     * @param normalized if true the returned Iterator contains normalized Dn
-     * but, if false, it returns the original user provided distinguished names
-     * in the Iterator.
      * @return Iteration over ContextPartition suffix names as Names.
      * @throws NamingException if there are any problems
      */
-    public abstract Iterator listSuffixes( boolean normalized ) throws NamingException;
+    public abstract Iterator listSuffixes () throws NamingException;
 
 
     /**

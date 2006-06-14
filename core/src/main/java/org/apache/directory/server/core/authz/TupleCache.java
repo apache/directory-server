@@ -33,14 +33,14 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
+import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DnParser;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,8 +74,6 @@ public class TupleCache
     private final DirectoryPartitionNexus nexus;
     /** a normalizing ACIItem parser */
     private final ACIItemParser aciParser;
-    /** a normalizing DN parser */
-    private final DnParser dnParser;
 
 
     /**
@@ -86,12 +84,20 @@ public class TupleCache
     public TupleCache(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
         this.nexus = factoryCfg.getPartitionNexus();
-        AttributeTypeRegistry registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( registry );
+        AttributeTypeRegistry attributeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
         aciParser = new ACIItemParser( ncn );
-        dnParser = new DnParser( ncn );
         env = ( Hashtable ) factoryCfg.getEnvironment().clone();
         initialize();
+    }
+
+    
+    private LdapDN parseNormalized( String name ) throws NamingException
+    {
+        LdapDN dn = new LdapDN( name );
+        dn.normalize();
+        return dn;
     }
 
 
@@ -100,11 +106,11 @@ public class TupleCache
         // search all naming contexts for access control subentenries
         // generate ACITuple Arrays for each subentry
         // add that subentry to the hash
-        Iterator suffixes = nexus.listSuffixes( true );
+        Iterator suffixes = nexus.listSuffixes();
         while ( suffixes.hasNext() )
         {
             String suffix = ( String ) suffixes.next();
-            Name baseDn = new LdapName( suffix );
+            LdapDN baseDn = parseNormalized( suffix );
             ExprNode filter = new SimpleNode( OC_ATTR, ACSUBENTRY_OC, SimpleNode.EQUALITY );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -120,7 +126,7 @@ public class TupleCache
                     continue;
                 }
 
-                Name normName = dnParser.parse( subentryDn );
+                LdapDN normName = parseNormalized( subentryDn );
                 subentryAdded( subentryDn, normName, result.getAttributes() );
             }
             results.close();
@@ -147,7 +153,7 @@ public class TupleCache
     }
 
 
-    public void subentryAdded( String upName, Name normName, Attributes entry ) throws NamingException
+    public void subentryAdded( String upName, LdapDN normName, Attributes entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
         Attribute aci = entry.get( ACI_ATTR );
@@ -173,7 +179,7 @@ public class TupleCache
 
             entryTuples.addAll( item.toTuples() );
         }
-        tuples.put( normName.toString(), entryTuples );
+        tuples.put( normName.toNormName(), entryTuples );
     }
 
 
@@ -188,7 +194,7 @@ public class TupleCache
     }
 
 
-    public void subentryModified( Name normName, ModificationItem[] mods, Attributes entry ) throws NamingException
+    public void subentryModified( LdapDN normName, ModificationItem[] mods, Attributes entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
@@ -203,12 +209,12 @@ public class TupleCache
         if ( isAciModified )
         {
             subentryDeleted( normName, entry );
-            subentryAdded( normName.toString(), normName, entry );
+            subentryAdded( normName.toUpName(), normName, entry );
         }
     }
 
 
-    public void subentryModified( Name normName, int modOp, Attributes mods, Attributes entry ) throws NamingException
+    public void subentryModified( LdapDN normName, int modOp, Attributes mods, Attributes entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
@@ -218,7 +224,7 @@ public class TupleCache
         if ( mods.get( ACI_ATTR ) != null )
         {
             subentryDeleted( normName, entry );
-            subentryAdded( normName.toString(), normName, entry );
+            subentryAdded( normName.toUpName(), normName, entry );
         }
     }
 

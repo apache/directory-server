@@ -19,7 +19,6 @@ package org.apache.directory.server.core.normalization;
 
 import java.util.Map;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -27,18 +26,22 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
+import org.apache.directory.server.core.schema.OidRegistry;
+
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
-import org.apache.directory.shared.ldap.name.DnParser;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
-import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
+
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -56,20 +59,18 @@ public class NormalizationService extends BaseInterceptor
     /** logger used by this class */
     private static final Logger log = LoggerFactory.getLogger( NormalizationService.class );
 
-    /** the parser used for normalizing distinguished names */
-    private DnParser parser;
     /** a filter node value normalizer and undefined node remover */
-    private ValueNormalizingVisitor visitor;
+    private NormalizingVisitor visitor;
     /** the attributeType registry used for normalization and determining if some filter nodes are undefined */
-    private AttributeTypeRegistry registry;
+    private AttributeTypeRegistry attributeRegistry;
 
 
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
-        registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        NameComponentNormalizer ncn = new PerComponentNormalizer();
-        parser = new DnParser( ncn );
-        visitor = new ValueNormalizingVisitor( ncn );
+        OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
+        attributeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
+        visitor = new NormalizingVisitor( ncn, oidRegistry );
     }
 
 
@@ -82,70 +83,70 @@ public class NormalizationService extends BaseInterceptor
     // Normalize all Name based arguments for ContextPartition interface operations
     // ------------------------------------------------------------------------
 
-    public void add( NextInterceptor nextInterceptor, String upName, Name normName, Attributes attrs )
+    public void add(NextInterceptor nextInterceptor, LdapDN name, Attributes attrs)
         throws NamingException
     {
-        normName = parser.parse( normName.toString() );
-        nextInterceptor.add( upName, normName, attrs );
+        LdapDN normalized = LdapDN.normalize( name );
+        nextInterceptor.add( normalized, attrs );
     }
 
 
-    public void delete( NextInterceptor nextInterceptor, Name name ) throws NamingException
+    public void delete( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
-        name = parser.parse( name.toString() );
-        nextInterceptor.delete( name );
+        LdapDN normalized = LdapDN.normalize( name );
+        nextInterceptor.delete( normalized );
     }
 
 
-    public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs )
+    public void modify( NextInterceptor nextInterceptor, LdapDN name, int modOp, Attributes attrs )
         throws NamingException
     {
-        name = parser.parse( name.toString() );
-        nextInterceptor.modify( name, modOp, attrs );
+        LdapDN normalized = LdapDN.normalize( name );
+        nextInterceptor.modify( normalized, modOp, attrs );
     }
 
 
-    public void modify( NextInterceptor nextInterceptor, Name name, ModificationItem[] items ) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, LdapDN name, ModificationItem[] items ) throws NamingException
     {
-        name = parser.parse( name.toString() );
-        nextInterceptor.modify( name, items );
+        LdapDN normalized = LdapDN.normalize( name );
+        nextInterceptor.modify( normalized, items );
     }
 
 
-    public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn )
+    public void modifyRn( NextInterceptor nextInterceptor, LdapDN name, String newRn, boolean deleteOldRn )
         throws NamingException
     {
-        name = parser.parse( name.toString() );
-        nextInterceptor.modifyRn( name, newRn, deleteOldRn );
+        LdapDN normalized = LdapDN.normalize( name );
+        nextInterceptor.modifyRn( normalized, newRn, deleteOldRn );
     }
 
 
-    public void move( NextInterceptor nextInterceptor, Name name, Name newParentName ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, LdapDN name, LdapDN newParentName ) throws NamingException
     {
-        name = parser.parse( name.toString() );
-        newParentName = parser.parse( newParentName.toString() );
-        nextInterceptor.move( name, newParentName );
+        LdapDN normalized = LdapDN.normalize( name );
+        newParentName.normalize();
+        nextInterceptor.move( normalized, newParentName );
     }
 
 
-    public void move( NextInterceptor nextInterceptor, Name name, Name newParentName, String newRn, boolean deleteOldRn )
+    public void move( NextInterceptor nextInterceptor, LdapDN name, LdapDN newParentName, String newRn, boolean deleteOldRn )
         throws NamingException
     {
-        name = parser.parse( name.toString() );
-        newParentName = parser.parse( newParentName.toString() );
-        nextInterceptor.move( name, newParentName, newRn, deleteOldRn );
+        LdapDN normalized = LdapDN.normalize( name );
+        newParentName.normalize();
+        nextInterceptor.move( normalized, newParentName, newRn, deleteOldRn );
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, Name base, Map env, ExprNode filter,
+    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
         SearchControls searchCtls ) throws NamingException
     {
-        base = parser.parse( base.toString() );
+        base.normalize();
 
         if ( filter.isLeaf() )
         {
             LeafNode ln = ( LeafNode ) filter;
-            if ( !registry.hasAttributeType( ln.getAttribute() ) )
+            if ( !attributeRegistry.hasAttributeType( ln.getAttribute() ) )
             {
                 StringBuffer buf = new StringBuffer();
                 buf.append( "undefined filter based on undefined attributeType '" );
@@ -156,7 +157,52 @@ public class NormalizationService extends BaseInterceptor
             }
         }
 
-        filter.accept( visitor );
+        boolean isFailure = true;
+        while ( isFailure && ( filter != null ) )
+        {
+            try
+            {
+                if ( filter.isLeaf() )
+                {
+                    LeafNode ln = ( LeafNode ) filter;
+                    if ( !attributeRegistry.hasAttributeType( ln.getAttribute() ) )
+                    {
+                        StringBuffer buf = new StringBuffer();
+                        buf.append( "undefined filter based on undefined attributeType '" );
+                        buf.append( ln.getAttribute() );
+                        buf.append( "' not evaluted at all.  Returning empty enumeration." );
+                        log.warn( buf.toString() );
+                        return new EmptyEnumeration();
+                    }
+                }
+
+                filter.accept( visitor );
+                isFailure = false;
+            }
+            catch( UndefinedFilterAttributeException e )
+            {
+                isFailure = true;
+                if ( log.isWarnEnabled() )
+                {
+                    log.warn( "An undefined attribute was found within the supplied search filter.  " +
+                            "The node associated with the filter has been removed.", e.getCause() );
+                }
+
+                // we can only get here if the filter is a branch node with only leaves
+                // note that in this case the undefined node will not be removed.
+                BranchNode bnode = ( BranchNode ) filter;
+                if ( bnode.isNegation() )
+                {
+                    return new EmptyEnumeration();
+                }
+                
+                bnode.getChildren().remove( e.getUndefinedFilterNode() );
+                if ( bnode.getChildren().size() < 2 )
+                {
+                    filter = bnode.getChild();
+                }
+            }
+        }
 
         // check that after pruning we have valid branch node at the top
         if ( !filter.isLeaf() )
@@ -181,37 +227,37 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor nextInterceptor, Name name ) throws NamingException
+    public boolean hasEntry( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
-        name = parser.parse( name.toString() );
+        name = LdapDN.normalize( name );
         return nextInterceptor.hasEntry( name );
     }
 
 
-    public boolean isSuffix( NextInterceptor nextInterceptor, Name name ) throws NamingException
+    public boolean isSuffix( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
-        name = parser.parse( name.toString() );
+        name = LdapDN.normalize( name );
         return nextInterceptor.isSuffix( name );
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
     {
-        base = parser.parse( base.toString() );
+        base = LdapDN.normalize( base );
         return nextInterceptor.list( base );
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
-        name = parser.parse( name.toString() );
+        name = LdapDN.normalize( name );
         return nextInterceptor.lookup( name );
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
     {
-        name = parser.parse( name.toString() );
+        name = LdapDN.normalize( name );
         return nextInterceptor.lookup( name, attrIds );
     }
 
@@ -220,65 +266,36 @@ public class NormalizationService extends BaseInterceptor
     // Normalize all Name based arguments for other interface operations
     // ------------------------------------------------------------------------
 
-    public Name getMatchedName( NextInterceptor nextInterceptor, Name name, boolean normalized ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
-        name = parser.parse( name.toString() );
-        return nextInterceptor.getMatchedName( name, normalized );
+        name = LdapDN.normalize( name );
+        return nextInterceptor.getMatchedName( name );
     }
 
 
-    public Name getSuffix( NextInterceptor nextInterceptor, Name name, boolean normalized ) throws NamingException
+    public LdapDN getSuffix ( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
-        name = parser.parse( name.toString() );
-        return nextInterceptor.getSuffix( name, normalized );
+        name = LdapDN.normalize( name );
+        return nextInterceptor.getSuffix( name );
     }
 
 
-    public boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException
+    public boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException
     {
-        name = parser.parse( name.toString() );
+        name = LdapDN.normalize( name );
         return next.compare( name, oid, value );
     }
 
-    /**
-     * A normalizer that normalizes each name component specifically according to
-     * the attribute type of the name component.
-     */
-    private class PerComponentNormalizer implements NameComponentNormalizer
+
+    public void addContextPartition( NextInterceptor next, DirectoryPartitionConfiguration cfg ) throws NamingException
     {
-        public String normalizeByName( String name, String value ) throws NamingException
-        {
-            AttributeType type = registry.lookup( name );
-            return ( String ) type.getEquality().getNormalizer().normalize( value );
-        }
+        next.addContextPartition( cfg );
+    }
 
 
-        public String normalizeByName( String name, byte[] value ) throws NamingException
-        {
-            AttributeType type = registry.lookup( name );
-
-            return ( String ) type.getEquality().getNormalizer().normalize( value );
-        }
-
-
-        public String normalizeByOid( String oid, String value ) throws NamingException
-        {
-            AttributeType type = registry.lookup( oid );
-            return ( String ) type.getEquality().getNormalizer().normalize( value );
-        }
-
-
-        public boolean isDefined( String id )
-        {
-            return registry.hasAttributeType( id );
-        }
-
-
-        public String normalizeByOid( String oid, byte[] value ) throws NamingException
-        {
-            AttributeType type = registry.lookup( oid );
-
-            return ( String ) type.getEquality().getNormalizer().normalize( value );
-        }
+    public void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException
+    {
+        suffix = LdapDN.normalize( suffix );
+        next.removeContextPartition( suffix );
     }
 }

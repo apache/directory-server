@@ -110,8 +110,9 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         }
         else if ( cfg instanceof RemoveDirectoryPartitionConfiguration )
         {
-            new DirectoryPartitionNexusProxy( service.getJndiContext( principal, credential, authentication, "" ),
-                service ).removeContextPartition( ( ( RemoveDirectoryPartitionConfiguration ) cfg ).getSuffix() );
+            Context ctx = service.getJndiContext( principal, credential, authentication, "" );
+            DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, service );
+            proxy.removeContextPartition( ( ( RemoveDirectoryPartitionConfiguration ) cfg ).getSuffix() );
         }
         else if ( service == null )
         {
