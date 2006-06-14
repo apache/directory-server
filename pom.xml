@@ -27,7 +27,7 @@
   <distributionManagement>
     <site>
       <id>apache.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/subprojects/apacheds/</url>
+      <url>scp://people.apache.org/www/directory.apache.org/subprojects/apacheds/</url>
     </site>
   </distributionManagement>
 
