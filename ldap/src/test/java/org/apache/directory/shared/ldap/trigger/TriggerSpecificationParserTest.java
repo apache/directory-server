@@ -18,9 +18,9 @@
 package org.apache.directory.shared.ldap.trigger;
 
 
-import junit.framework.TestCase;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
-import org.apache.directory.shared.ldap.name.LdapName;
+import junit.framework.TestCase;
 
 
 /**
@@ -134,7 +134,7 @@ public class TriggerSpecificationParserTest extends TestCase
         assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 1 );
         assertTrue( triggerSpecification.getStoredProcedureOptions().contains(
             new StoredProcedureSearchContextOption(
-                new LdapName( "cn=Auth,cn=System Stored Procedures,ou=system" ), SearchScope.ONE ) ) );
+                new LdapDN( "cn=Auth,cn=System Stored Procedures,ou=system" ), SearchScope.ONE ) ) );
         assertEquals( triggerSpecification.getStoredProcedureParameters().size(), 1 );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
             StoredProcedureParameter.BindStoredProcedureParameter.NAME ) );

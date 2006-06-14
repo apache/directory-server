@@ -21,7 +21,7 @@ package org.apache.directory.shared.ldap.trigger;
 import java.io.StringReader;
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -63,12 +63,12 @@ public class TriggerSpecificationParser
     /**
      * Creates a normalizing TriggerSpecification parser.
      */
-    public TriggerSpecificationParser( NameComponentNormalizer normalizer )
+    public TriggerSpecificationParser( NormalizerMappingResolver resolver )
     {
         this.lexer = new ReusableAntlrTriggerSpecificationLexer( new StringReader( "" ) );
         this.parser = new ReusableAntlrTriggerSpecificationParser( lexer );
 
-        this.parser.setNormalizer( normalizer );
+        this.parser.setNormalizerMappingResolver( resolver );
         this.parser.init(); // this method MUST be called while we cannot do
         // constructor overloading for ANTLR generated parser
         this.isNormalizing = true;

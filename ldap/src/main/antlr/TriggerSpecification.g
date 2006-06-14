@@ -20,13 +20,13 @@ header
 
 package org.apache.directory.shared.ldap.trigger;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.shared.ldap.name.DnParser;
-import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,11 +66,8 @@ options
 {
     private static final Logger log = LoggerFactory.getLogger( AntlrTriggerSpecificationParser.class );
     
-    // subordinate parser instances
-    private DnParser dnParser;
-    
+    private NormalizerMappingResolver resolver;
     private boolean isNormalizing = false;
-    private NameComponentNormalizer normalizer;
     
     private ActionTime triggerActionTime;
     
@@ -83,44 +80,17 @@ options
     private List triggerStoredProcedureParameters;
     
     
-    /**
-     * Creates a (normalizing) subordinate DnParser for parsing Names.
-     * This method MUST be called for each instance while we cannot do
-     * constructor overloading for this class.
-     *
-     * @return the DnParser to be used for parsing Names
-     */
     public void init()
     {
-        try
-        {
-            if( isNormalizing )
-            {
-                dnParser = new DnParser( normalizer );
-            }
-            else
-            {
-                dnParser = new DnParser();
-            }
-        }
-        catch ( NamingException e )
-        {
-            String msg = "Failed to initialize the subordinate DnParser for this AntlrTriggerSpecificationParser";
-
-            // We throw a NPE since this variable cannot be null for proper operation
-            // so we can catch the null pointer before the dnParser is even used.
-
-            throw new NullPointerException( "dnParser is null: " + msg );
-        }
     }
 
 
     /**
      * Sets the NameComponentNormalizer for this parser's dnParser.
      */
-    public void setNormalizer(NameComponentNormalizer normalizer)
+    public void setNormalizerMappingResolver( NormalizerMappingResolver resolver )
     {
-        this.normalizer = normalizer;
+        this.resolver = resolver;
         this.isNormalizing = true;
     }
 }
@@ -559,7 +529,7 @@ storedProcedureSearchContextOption returns [ StoredProcedureSearchContextOption 
     log.debug( "entered storedProcedureSearchContextOption()" );
     spSearchContextOption = null;
     SearchScope searchScope = SearchScope.BASE; // default scope
-    Name spSearchContext = null;
+    LdapDN spSearchContext = null;
 }
     :
     ID_searchContext ( SP )+ // FIXME: SP should not be mandatory if an OPEN_CURLY follows
@@ -580,7 +550,7 @@ storedProcedureSearchScope returns [ SearchScope scope ]
     | ID_scope_subtree { scope = SearchScope.SUBTREE; }
     ;
 
-storedProcedureSearchContext returns [ Name spSearchContext ]
+storedProcedureSearchContext returns [ LdapDN spSearchContext ]
 {
     log.debug( "entered storedProcedureSearchContext()" );
     spSearchContext = null;
@@ -599,20 +569,20 @@ fullyQualifiedStoredProcedureName returns [ String spName ]
     { spName = spNameToken.getText(); }
     ;
 
-distinguishedName returns [ Name name ] 
+distinguishedName returns [ LdapDN name ] 
 {
     log.debug( "entered distinguishedName()" );
     name = null;
 }
     : nameToken:UTF8String
     {
-        name = dnParser.parse( nameToken.getText() );
+        name = new LdapDN( nameToken.getText() );
     }
     ;
     exception
     catch [Exception e]
     {
-        throw new RecognitionException( "name parser failed for " + nameToken.getText() + " " + e.getMessage() );
+        throw new RecognitionException( "name parse failed for " + nameToken.getText() + " " + e.getMessage() );
     }
 
 // -----------------------------------------------------------------------------
