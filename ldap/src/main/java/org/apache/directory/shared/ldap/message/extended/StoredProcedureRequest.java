@@ -75,7 +75,7 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
             decoder.decode( ByteBuffer.wrap( payload ), container );
             this.procedure = container.getStoredProcedure();
         }
-        catch ( DecoderException e )
+        catch ( Exception e )
         {
             log.error( "failed to decode payload", e );
             throw new RuntimeException( e );
