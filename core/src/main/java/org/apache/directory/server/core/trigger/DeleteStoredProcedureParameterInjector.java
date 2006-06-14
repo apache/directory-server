@@ -17,18 +17,20 @@
 
 package org.apache.directory.server.core.trigger;
 
+
 import java.util.Map;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.DeleteStoredProcedureParameter;
+
 
 public class DeleteStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
-    private Name deletedEntryName;
+    private LdapDN deletedEntryName;
     
     private Map injectors;
     
@@ -39,7 +41,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         injectors.put( DeleteStoredProcedureParameter.DELETED_ENTRY, $deletedEntryInjector );
     }
     
-    public void setDeletedEntryName( Name deletedEntryName )
+    public void setDeletedEntryName( LdapDN deletedEntryName )
     {
         this.deletedEntryName = deletedEntryName;
     }

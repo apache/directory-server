@@ -24,7 +24,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -49,7 +49,7 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
         objectClass.add( "organizationalUnit" );
         sysRoot.createSubcontext( "ou=testou", testEntry );
         
-        addEntryTrigger( new LdapName( "ou=testou" ), "AFTER delete CALL \"Audit.userDeletedAnEntry\" ( $deletedEntry, $operationPrincipal )" );
+        addEntryTrigger( new LdapDN( "ou=testou" ), "AFTER delete CALL \"Audit.userDeletedAnEntry\" ( $deletedEntry, $operationPrincipal )" );
         
         sysRoot.destroySubcontext( "ou=testou" );
 

@@ -17,6 +17,7 @@
 package org.apache.directory.server.core.schema.global;
 
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -27,9 +28,9 @@ import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapAttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.JoinIterator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,8 +41,6 @@ import org.slf4j.LoggerFactory;
  */
 public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
 {
-    /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( GlobalAttributeTypeRegistry.class );
     /** maps an OID to an AttributeType */
     private final Map byOid;
     /** maps an OID to a schema name*/
@@ -50,6 +49,8 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
     private final OidRegistry oidRegistry;
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapAttributeTypeRegistry bootstrap;
+    /** cached normalizer mapping */
+    private transient Map mapping;
 
 
     // ------------------------------------------------------------------------
@@ -67,6 +68,7 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
+
         this.oidRegistry = oidRegistry;
         if ( this.oidRegistry == null )
         {
@@ -85,7 +87,6 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-    
     public void register( String schema, AttributeType attributeType ) throws NamingException
     {
         if ( byOid.containsKey( attributeType.getOid() ) || bootstrap.hasAttributeType( attributeType.getOid() ) )
@@ -103,9 +104,23 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
 
         oidToSchema.put( attributeType.getOid(), schema );
         byOid.put( attributeType.getOid(), attributeType );
-        if ( log.isDebugEnabled() )
+        
+        // update the cached normalizer mapping
+        if ( mapping == null )
         {
-            log.debug( "registered attributeType: " + attributeType );
+            Map bootstrapMapping = bootstrap.getNormalizerMapping();
+            mapping = new HashMap( bootstrapMapping.size() );
+            mapping.putAll( bootstrapMapping );
+        }
+        
+        Normalizer normalizer = attributeType.getEquality().getNormalizer();
+        OidNormalizer oidNormalizer = new OidNormalizer( attributeType.getOid(), normalizer );
+        mapping.put( attributeType.getOid(), oidNormalizer );
+        String[] aliases = attributeType.getNames();
+        for ( int jj = 0; jj < aliases.length; jj++ )
+        {
+            mapping.put( aliases[jj], oidNormalizer );
+            mapping.put( aliases[jj].toLowerCase(), oidNormalizer );
         }
     }
 
@@ -127,10 +142,6 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
             attributeType = bootstrap.lookup( id );
         }
 
-        if ( log.isDebugEnabled() )
-        {
-            log.debug( "looked up attributeType " + attributeType + " with id '" + id + "'" );
-        }
         return attributeType;
     }
 
@@ -175,5 +186,29 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
     {
         return new JoinIterator( new Iterator[]
             { byOid.values().iterator(), bootstrap.list() } );
+    }
+    
+    
+    public Map getNormalizerMapping() throws NamingException
+    {
+        if ( mapping == null )
+        {
+            Map bootstrapMapping = bootstrap.getNormalizerMapping();
+            mapping = new HashMap( ( byOid.size() << 1 ) + bootstrapMapping.size() );
+            mapping.putAll( bootstrapMapping );
+            for ( Iterator ii = byOid.values().iterator(); ii.hasNext(); /**/ )
+            {
+                AttributeType type = ( AttributeType ) ii.next();
+                OidNormalizer oidNormalizer = new OidNormalizer( type.getOid(), type.getEquality().getNormalizer() );
+                mapping.put( type.getOid(), oidNormalizer );
+                String[] aliases = type.getNames();
+                for ( int jj = 0; jj < aliases.length; jj++ )
+                {
+                    mapping.put( aliases[jj], oidNormalizer );
+                    mapping.put( aliases[jj].toLowerCase(), oidNormalizer );
+                }
+            }
+        }
+        return Collections.unmodifiableMap( mapping );
     }
 }

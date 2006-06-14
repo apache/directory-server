@@ -40,6 +40,7 @@ import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapRegistries;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.core.schema.global.GlobalRegistries;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;

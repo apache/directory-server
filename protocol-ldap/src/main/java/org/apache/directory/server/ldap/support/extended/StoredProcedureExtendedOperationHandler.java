@@ -30,7 +30,6 @@ import org.apache.directory.server.ldap.LdapProtocolProvider;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
-import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedureContainer;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedureDecoder;
@@ -81,7 +80,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         {
             storedProcedureDecoder.decode( stream, storedProcedureContainer );
         }
-        catch (DecoderException de)
+        catch ( Exception de )
         {
             de.printStackTrace();
         }

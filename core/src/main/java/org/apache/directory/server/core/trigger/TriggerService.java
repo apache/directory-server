@@ -25,9 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -36,21 +34,21 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DnParser;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
 import org.apache.directory.shared.ldap.trigger.LdapOperation;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,10 +78,6 @@ public class TriggerService extends BaseInterceptor
     private TriggerSpecCache triggerSpecCache;
     /** a normalizing Trigger Specification parser */
     private TriggerSpecificationParser triggerParser;
-    /** a normalizing Distinguished Name parser */
-    private DnParser dnParser;
-    /** the interceptor chain */
-    private InterceptorChain chain;
     /** the attribute type registry */
     private AttributeTypeRegistry attrRegistry;
     /** whether or not this interceptor is activated */
@@ -103,7 +97,7 @@ public class TriggerService extends BaseInterceptor
      * @throws NamingException if there are problems accessing attribute values
      */
     private void addPrescriptiveTriggerSpecs( List triggerSpecs, DirectoryPartitionNexusProxy proxy,
-        Name dn, Attributes entry ) throws NamingException
+        LdapDN dn, Attributes entry ) throws NamingException
     {
         
         /*
@@ -117,7 +111,7 @@ public class TriggerService extends BaseInterceptor
          */
         if ( entry.get( "objectClass" ).contains( "subentry" ) )
         {
-            Name parentDn = ( Name ) dn.clone();
+            LdapDN parentDn = ( LdapDN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
             entry = proxy.lookup( parentDn, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         }
@@ -240,45 +234,51 @@ public class TriggerService extends BaseInterceptor
         super.init( dirServCfg, intCfg );
         triggerSpecCache = new TriggerSpecCache( dirServCfg );
         attrRegistry = dirServCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        triggerParser = new TriggerSpecificationParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
-        dnParser = new DnParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
-        chain = dirServCfg.getInterceptorChain();
+        triggerParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
+            {
+                public Map getNormalizerMapping() throws NamingException
+                {
+                    return attrRegistry.getNormalizerMapping();
+                }
+            });
         this.enabled = true; // TODO: get this from the configuration if needed
     }
 
 
-    public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
     {
         // Access the principal requesting the operation
         Invocation invocation = InvocationStack.getInstance().peek();
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = dnParser.parse( principal.getName() );
+        LdapDN userName = new LdapDN( principal.getName() );
+        userName.normalize();
 
         // Bypass trigger code if we are disabled
         if ( !enabled )
         {
-            next.add( upName, normName, entry );
+            next.add( normName, entry );
             return;
         }
         
         /**
          * 
          */
-        next.add( upName, normName, entry );
+        next.add( normName, entry );
         
         triggerSpecCache.subentryAdded( normName, entry );
         
     }
 
 
-    public void delete( NextInterceptor next, Name name ) throws NamingException
+    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
     {
         // Access the principal requesting the operation
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = dnParser.parse( principal.getName() );
+        LdapDN userName = new LdapDN( principal.getName() );
+        userName.normalize();
 
         // Bypass trigger code if we are disabled
         if ( !enabled )
@@ -317,5 +317,4 @@ public class TriggerService extends BaseInterceptor
         log.debug( "There are " + afterTriggerSpecs.size() + " \"AFTER delete\" triggers associated with this entry [" + name + "] being deleted:" );
         log.debug( ">>> " + afterTriggerSpecs );
     }
-
 }

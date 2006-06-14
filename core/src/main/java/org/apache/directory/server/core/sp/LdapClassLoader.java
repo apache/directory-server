@@ -29,7 +29,8 @@ import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,7 @@ public class LdapClassLoader extends ClassLoader
                 currentSearchContextName = ( String ) searchContexts.next();
                 currentSearchContext = ( ServerLdapContext ) RootDSE.lookup( currentSearchContextName );
                 
-                javaClassEntries = currentSearchContext.search( new LdapName(), filter, controls );
+                javaClassEntries = currentSearchContext.search( LdapDN.EMPTY_LDAPDN, filter, controls );
                 if ( javaClassEntries.hasMore() ) // there should be only one!
                 {
                     SearchResult javaClassEntry = ( SearchResult ) javaClassEntries.next();

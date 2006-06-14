@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -39,14 +38,13 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.name.DnParser;
-import org.apache.directory.shared.ldap.name.LdapName;
-import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,8 +77,6 @@ public class TriggerSpecCache
     private final DirectoryPartitionNexus nexus;
     /** a normalizing TriggerSpecification parser */
     private final TriggerSpecificationParser triggerSpecParser;
-    /** a normalizing DN parser */
-    private final DnParser dnParser;
 
 
     /**
@@ -91,10 +87,14 @@ public class TriggerSpecCache
     public TriggerSpecCache( DirectoryServiceConfiguration dirServCfg ) throws NamingException
     {
         this.nexus = dirServCfg.getPartitionNexus();
-        AttributeTypeRegistry registry = dirServCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( registry );
-        triggerSpecParser = new TriggerSpecificationParser( ncn );
-        dnParser = new DnParser( ncn );
+        final AttributeTypeRegistry registry = dirServCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        triggerSpecParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
+            {
+                public Map getNormalizerMapping() throws NamingException
+                {
+                    return registry.getNormalizerMapping();
+                }
+            });
         env = ( Hashtable ) dirServCfg.getEnvironment().clone();
         initialize();
     }
@@ -105,11 +105,11 @@ public class TriggerSpecCache
         // search all naming contexts for trigger subentenries
         // generate TriggerSpecification arrays for each subentry
         // add that subentry to the hash
-        Iterator suffixes = nexus.listSuffixes( true );
+        Iterator suffixes = nexus.listSuffixes();
         while ( suffixes.hasNext() )
         {
             String suffix = ( String ) suffixes.next();
-            Name baseDn = new LdapName( suffix );
+            LdapDN baseDn = new LdapDN( suffix );
             ExprNode filter = new SimpleNode( OC_ATTR, TRIGGER_SUBENTRY_OC, SimpleNode.EQUALITY );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -125,7 +125,8 @@ public class TriggerSpecCache
                     continue;
                 }
 
-                Name normSubentryName = dnParser.parse( subentryDn );
+                LdapDN normSubentryName = new LdapDN( subentryDn );
+                normSubentryName.normalize();
                 subentryAdded( normSubentryName, result.getAttributes() );
             }
             results.close();
@@ -145,7 +146,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryAdded( Name normName, Attributes entry ) throws NamingException
+    public void subentryAdded( LdapDN normName, Attributes entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveTrigger
         Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
@@ -175,7 +176,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryDeleted( Name normName, Attributes entry ) throws NamingException
+    public void subentryDeleted( LdapDN normName, Attributes entry ) throws NamingException
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
@@ -186,7 +187,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( Name normName, ModificationItem[] mods, Attributes entry ) throws NamingException
+    public void subentryModified( LdapDN normName, ModificationItem[] mods, Attributes entry ) throws NamingException
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
@@ -206,7 +207,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( Name normName, int modOp, Attributes mods, Attributes entry ) throws NamingException
+    public void subentryModified( LdapDN normName, int modOp, Attributes mods, Attributes entry ) throws NamingException
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
@@ -232,7 +233,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryRenamed( Name oldName, Name newName )
+    public void subentryRenamed( LdapDN oldName, LdapDN newName )
     {
         triggerSpecs.put( newName.toString(), triggerSpecs.remove( oldName.toString() ) );
     }
