@@ -18,10 +18,8 @@ package org.apache.directory.shared.ldap.message;
 
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
-import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +85,7 @@ public class EntryChangeControl extends ControlImpl
 
     private int changeNumber = UNDEFINED_CHANGE_NUMBER;
 
-    private LdapString previousDn = null;
+    private LdapDN previousDn = null;
 
 
     public EntryChangeControl()
@@ -109,26 +107,13 @@ public class EntryChangeControl extends ControlImpl
     }
 
 
-    public String getPreviousDn()
+    public LdapDN getPreviousDn()
     {
-        return previousDn.getString();
+        return previousDn;
     }
 
 
-    public void setPreviousDn( String previousDn )
-    {
-        try
-        {
-            this.previousDn = new LdapString( Asn1StringUtils.getBytesUtf8( previousDn ) );
-        }
-        catch ( LdapStringEncodingException e )
-        {
-            e.printStackTrace();
-        }
-    }
-
-
-    public void setPreviousDn( LdapString previousDn )
+    public void setPreviousDn( LdapDN previousDn )
     {
         this.previousDn = previousDn;
     }

@@ -48,6 +48,14 @@ public interface NameComponentNormalizer
      */
     boolean isDefined( String id );
 
+    /**
+     * Normalizes the attribute name/alias to use the OID for it instead.
+     * 
+     * @param attributeName the name or OID of the attributeType
+     * @return the OID of the attributeType if it is recognized
+     * @throws NamingException if the attributeName is not recognized as a valid alias
+     */
+    String normalizeName( String attributeName ) throws NamingException;
 
     /**
      * Normalizes an attribute's value given the name of the attribute - short

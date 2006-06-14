@@ -22,12 +22,15 @@ import junit.framework.TestCase;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.naming.InvalidNameException;
+
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -51,17 +54,17 @@ public class BindRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
-    public void testEqualsExactCopy()
+    public void testEqualsExactCopy() throws InvalidNameException
     {
         BindRequestImpl req0 = new BindRequestImpl( 5 );
         req0.setCredentials( "password".getBytes() );
-        req0.setName( "cn=admin,dc=example,dc=com" );
+        req0.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req0.setSimple( true );
         req0.setVersion3( true );
 
         BindRequestImpl req1 = new BindRequestImpl( 5 );
         req1.setCredentials( "password".getBytes() );
-        req1.setName( "cn=admin,dc=example,dc=com" );
+        req1.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req1.setSimple( true );
         req1.setVersion3( true );
 
@@ -72,17 +75,17 @@ public class BindRequestImplTest extends TestCase
     /**
      * Test for inequality when only the IDs are different.
      */
-    public void testNotEqualDiffId()
+    public void testNotEqualDiffId() throws InvalidNameException
     {
         BindRequestImpl req0 = new BindRequestImpl( 7 );
         req0.setCredentials( "password".getBytes() );
-        req0.setName( "cn=admin,dc=example,dc=com" );
+        req0.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req0.setSimple( true );
         req0.setVersion3( true );
 
         BindRequestImpl req1 = new BindRequestImpl( 5 );
         req1.setCredentials( "password".getBytes() );
-        req1.setName( "cn=admin,dc=example,dc=com" );
+        req1.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req1.setSimple( true );
         req1.setVersion3( true );
 
@@ -93,17 +96,17 @@ public class BindRequestImplTest extends TestCase
     /**
      * Test for inequality when only the credentials are different.
      */
-    public void testNotEqualDiffCreds()
+    public void testNotEqualDiffCreds() throws InvalidNameException
     {
         BindRequestImpl req0 = new BindRequestImpl( 5 );
         req0.setCredentials( "abcdefg".getBytes() );
-        req0.setName( "cn=admin,dc=example,dc=com" );
+        req0.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req0.setSimple( true );
         req0.setVersion3( true );
 
         BindRequestImpl req1 = new BindRequestImpl( 5 );
         req1.setCredentials( "password".getBytes() );
-        req1.setName( "cn=admin,dc=example,dc=com" );
+        req1.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req1.setSimple( true );
         req1.setVersion3( true );
 
@@ -114,17 +117,17 @@ public class BindRequestImplTest extends TestCase
     /**
      * Test for inequality when only the DN names are different.
      */
-    public void testNotEqualDiffName()
+    public void testNotEqualDiffName() throws InvalidNameException
     {
         BindRequestImpl req0 = new BindRequestImpl( 5 );
         req0.setCredentials( "password".getBytes() );
-        req0.setName( "uid=akarasulu,dc=example,dc=com" );
+        req0.setName( new LdapDN( "uid=akarasulu,dc=example,dc=com" ) );
         req0.setSimple( true );
         req0.setVersion3( true );
 
         BindRequestImpl req1 = new BindRequestImpl( 5 );
         req1.setCredentials( "password".getBytes() );
-        req1.setName( "cn=admin,dc=example,dc=com" );
+        req1.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req1.setSimple( true );
         req1.setVersion3( true );
 
@@ -135,17 +138,17 @@ public class BindRequestImplTest extends TestCase
     /**
      * Test for inequality when only the auth mechanisms are different.
      */
-    public void testNotEqualDiffSimple()
+    public void testNotEqualDiffSimple() throws InvalidNameException
     {
         BindRequestImpl req0 = new BindRequestImpl( 5 );
         req0.setCredentials( "password".getBytes() );
-        req0.setName( "cn=admin,dc=example,dc=com" );
+        req0.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req0.setSimple( false );
         req0.setVersion3( true );
 
         BindRequestImpl req1 = new BindRequestImpl( 5 );
         req1.setCredentials( "password".getBytes() );
-        req1.setName( "cn=admin,dc=example,dc=com" );
+        req1.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req1.setSimple( true );
         req1.setVersion3( true );
 
@@ -156,17 +159,17 @@ public class BindRequestImplTest extends TestCase
     /**
      * Test for inequality when only the bind LDAP versions are different.
      */
-    public void testNotEqualDiffVersion()
+    public void testNotEqualDiffVersion() throws InvalidNameException
     {
         BindRequestImpl req0 = new BindRequestImpl( 5 );
         req0.setCredentials( "password".getBytes() );
-        req0.setName( "cn=admin,dc=example,dc=com" );
+        req0.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req0.setSimple( true );
         req0.setVersion3( false );
 
         BindRequestImpl req1 = new BindRequestImpl( 5 );
         req1.setCredentials( "password".getBytes() );
-        req1.setName( "cn=admin,dc=example,dc=com" );
+        req1.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req1.setSimple( true );
         req1.setVersion3( true );
 
@@ -209,13 +212,13 @@ public class BindRequestImplTest extends TestCase
             }
 
 
-            public String getName()
+            public LdapDN getName()
             {
-                return "";
+                return null;
             }
 
 
-            public void setName( String a_name )
+            public void setName( LdapDN name )
             {
             }
 

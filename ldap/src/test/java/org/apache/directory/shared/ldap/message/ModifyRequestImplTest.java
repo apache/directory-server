@@ -19,6 +19,7 @@ package org.apache.directory.shared.ldap.message;
 
 import junit.framework.TestCase;
 
+import javax.naming.InvalidNameException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
@@ -30,6 +31,7 @@ import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -54,7 +56,15 @@ public class ModifyRequestImplTest extends TestCase
     {
         // Construct the Modify request to test
         ModifyRequestImpl req = new ModifyRequestImpl( 45 );
-        req.setName( "cn=admin,dc=apache,dc=org" );
+        
+        try 
+        {
+            req.setName( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
+        }
+        catch ( InvalidNameException ne )
+        {
+            // do nothing
+        }
 
         LockableAttributeImpl attr = new LockableAttributeImpl( "attr0" );
         attr.add( "val0" );
@@ -81,7 +91,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Tests the same object referrence for equality.
      */
-    public void testEqualsSameObj()
+    public void testEqualsSameObj() throws InvalidNameException
     {
         ModifyRequestImpl req = getRequest();
         assertTrue( req.equals( req ) );
@@ -91,7 +101,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
-    public void testEqualsExactCopy()
+    public void testEqualsExactCopy() throws InvalidNameException
     {
         ModifyRequestImpl req0 = getRequest();
         ModifyRequestImpl req1 = getRequest();
@@ -115,19 +125,26 @@ public class ModifyRequestImplTest extends TestCase
      */
     public void testNotEqualDiffName()
     {
-        ModifyRequestImpl req0 = getRequest();
-        req0.setName( "cn=admin,dc=example,dc=com" );
-        ModifyRequestImpl req1 = getRequest();
-        req1.setName( "cn=admin,dc=apache,dc=org" );
+        try
+        {
+            ModifyRequestImpl req0 = getRequest();
+            req0.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
+            ModifyRequestImpl req1 = getRequest();
+            req1.setName( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
 
-        assertFalse( req0.equals( req1 ) );
+            assertFalse( req0.equals( req1 ) );
+        }
+        catch ( InvalidNameException ine )
+        {
+            // do nothing
+        }
     }
 
 
     /**
      * Test for inequality when only the mods ops are different.
      */
-    public void testNotEqualDiffModOps()
+    public void testNotEqualDiffModOps() throws InvalidNameException
     {
         ModifyRequestImpl req0 = getRequest();
         LockableAttributeImpl attr = new LockableAttributeImpl( "attr3" );
@@ -153,7 +170,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the number of mods are different.
      */
-    public void testNotEqualDiffModCount()
+    public void testNotEqualDiffModCount() throws InvalidNameException
     {
         ModifyRequestImpl req0 = getRequest();
         LockableAttributeImpl attr = new LockableAttributeImpl( "attr3" );
@@ -173,7 +190,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the mods attribute Id's are different.
      */
-    public void testNotEqualDiffModIds()
+    public void testNotEqualDiffModIds() throws InvalidNameException
     {
         ModifyRequestImpl req0 = getRequest();
         LockableAttributeImpl attr = new LockableAttributeImpl( "attr3" );
@@ -199,7 +216,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the mods attribute values are different.
      */
-    public void testNotEqualDiffModValues()
+    public void testNotEqualDiffModValues() throws InvalidNameException
     {
         ModifyRequestImpl req0 = getRequest();
         LockableAttributeImpl attr = new LockableAttributeImpl( "attr3" );
@@ -265,13 +282,21 @@ public class ModifyRequestImplTest extends TestCase
             }
 
 
-            public String getName()
+            public LdapDN getName()
             {
-                return "cn=admin,dc=apache,dc=org";
+                try
+                {
+                    return new LdapDN( "cn=admin,dc=apache,dc=org" );
+                }
+                catch ( Exception e )
+                {
+                    //do nothing
+                    return null;
+                }
             }
 
 
-            public void setName( String a_name )
+            public void setName( LdapDN name )
             {
             }
 

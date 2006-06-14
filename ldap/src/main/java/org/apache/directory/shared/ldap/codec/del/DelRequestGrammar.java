@@ -18,8 +18,6 @@ package org.apache.directory.shared.ldap.codec.del;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
@@ -100,7 +98,7 @@ public class DelRequestGrammar extends AbstractGrammar implements IGrammar
 
                     // We have to handle the special case of a 0 length matched
                     // DN
-                    Name entry = null;
+                    LdapDN entry = null;
 
                     if ( tlv.getLength().getLength() == 0 )
                     {
@@ -111,7 +109,6 @@ public class DelRequestGrammar extends AbstractGrammar implements IGrammar
                         try
                         {
                             entry = new LdapDN( tlv.getValue().getData() );
-                            entry = LdapDN.normalize( entry );
                         }
                         catch ( InvalidNameException ine )
                         {
@@ -120,14 +117,6 @@ public class DelRequestGrammar extends AbstractGrammar implements IGrammar
                             log.error( "{} : {}", msg, ine.getMessage() );
                             throw new DecoderException( msg, ine );
                         }
-                        catch ( NamingException ne )
-                        {
-                            String msg = "The DN to delete  (" + StringTools.dumpBytes( tlv.getValue().getData() )
-                                + ") is invalid";
-                            log.error( "{} : {}", msg, ne.getMessage() );
-                            throw new DecoderException( msg, ne );
-                        }
-
                         delRequest.setEntry( entry );
                     }
 

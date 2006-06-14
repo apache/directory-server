@@ -30,7 +30,6 @@ import java.util.Enumeration;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
-import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.filter.AbstractExprNode;
@@ -39,7 +38,6 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.name.DnParser;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
@@ -49,6 +47,8 @@ import org.apache.directory.shared.ldap.util.MandatoryComponentsMonitor;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.util.NoDuplicateKeysMap;
 import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +98,6 @@ tokens
     private static final Logger log = LoggerFactory.getLogger( AntlrACIItemParser.class );
     
     // subordinate parser instances
-    private DnParser dnParser;
     private final FilterParserImpl filterParser = new FilterParserImpl();
     
     private boolean isNormalizing = false;
@@ -141,26 +140,6 @@ tokens
      */
     public void init()
     {
-        try
-        {
-            if( isNormalizing )
-            {
-                dnParser = new DnParser( normalizer );
-            }
-            else
-            {
-                dnParser = new DnParser();
-            }
-        }
-        catch ( NamingException e )
-        {
-            String msg = "Failed to initialize the subordinate DnParser for this AntlrACIItemParser";
-
-            // We throw a NPE since this variable cannot be null for proper operation
-            // so we can catch the null pointer before the dnParser is even used.
-
-            throw new NullPointerException( "dnParser is null: " + msg );
-        }
     }
 
     /**
@@ -508,7 +487,8 @@ attributeValue
     {
         // A Dn can be considered as a set of attributeTypeAndValues
         // So, parse the set as a Dn and extract each attributeTypeAndValue
-        Name attributeTypeAndValueSetAsDn = dnParser.parse( token.getText() );
+        LdapDN attributeTypeAndValueSetAsDn = new LdapDN( token.getText() );
+        attributeTypeAndValueSetAsDn.normalize();
         Enumeration attributeTypeAndValueSet = attributeTypeAndValueSetAsDn.getAll();
         while ( attributeTypeAndValueSet.hasMoreElements() )
         {
@@ -891,7 +871,7 @@ name
 {
     log.debug( "entered name()" );
     Set l_name = new HashSet();
-    Name l_distinguishedName = null;
+    LdapDN l_distinguishedName = null;
 }
     :
     ID_name ( SP )+ 
@@ -914,7 +894,7 @@ userGroup
 {
     log.debug( "entered userGroup()" );
     Set l_userGroup = new HashSet();
-    Name l_distinguishedName = null;
+    LdapDN l_distinguishedName = null;
 }
     :
     ID_userGroup ( SP )+ 
@@ -1075,7 +1055,7 @@ subtreeSpecificationComponent
 ss_base
 {
     log.debug( "entered ss_base()" );
-    Name base = null;
+    LdapDN base = null;
 }
     :
     ID_base ( SP )+ base=distinguishedName
@@ -1119,7 +1099,7 @@ specificExclusion
 chopBefore
 {
     log.debug( "entered chopBefore()" );
-    Name chopBeforeExclusion = null;
+    LdapDN chopBeforeExclusion = null;
 }
     :
     ID_chopBefore ( SP )* COLON ( SP )* chopBeforeExclusion=distinguishedName
@@ -1131,7 +1111,7 @@ chopBefore
 chopAfter
 {
     log.debug( "entered chopAfter()" );
-    Name chopAfterExclusion = null;
+    LdapDN chopAfterExclusion = null;
 }
     :
     ID_chopAfter ( SP )* COLON ( SP )* chopAfterExclusion=distinguishedName
@@ -1164,7 +1144,7 @@ ss_maximum
     }
     ;
 
-distinguishedName returns [ Name name ] 
+distinguishedName returns [ LdapDN name ] 
 {
     log.debug( "entered distinguishedName()" );
     name = null;
@@ -1172,7 +1152,8 @@ distinguishedName returns [ Name name ]
     :
     token:SAFEUTF8STRING
     {
-        name = dnParser.parse( token.getText() );
+        name = new LdapDN( token.getText() );
+        name.normalize();
         log.debug( "recognized a DistinguishedName: " + token.getText() );
     }
     ;

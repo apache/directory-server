@@ -19,6 +19,7 @@ package org.apache.directory.shared.ldap.message;
 
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
@@ -33,7 +34,7 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
     static final long serialVersionUID = 7534132448349520346L;
 
     /** Distinguished name of the new entry. */
-    private String entry;
+    private LdapDN entry;
 
     /** A MultiMap of the new entry's attributes and their values */
     private Attributes attributes;
@@ -66,7 +67,7 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
      * 
      * @return the Dn of the added entry.
      */
-    public String getEntry()
+    public LdapDN getEntry()
     {
         return entry;
     }
@@ -78,7 +79,7 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
      * @param entry
      *            the Dn of the added entry.
      */
-    public void setEntry( String entry )
+    public void setEntry( LdapDN entry )
     {
         this.entry = entry;
     }

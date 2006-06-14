@@ -16,6 +16,8 @@
  */
 package org.apache.directory.shared.ldap.message;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * Delete request implementation.
@@ -28,7 +30,7 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
     static final long serialVersionUID = 3187847454305567542L;
 
     /** The distinguished name of the entry to delete */
-    private String name;
+    private LdapDN name;
 
     private DeleteResponse response;
 
@@ -60,7 +62,7 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
      * 
      * @return the DN of the leaf entry to delete.
      */
-    public String getName()
+    public LdapDN getName()
     {
         return name;
     }
@@ -73,7 +75,7 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
      * @param name
      *            the DN of the leaf entry to delete.
      */
-    public void setName( String name )
+    public void setName( LdapDN name )
     {
         this.name = name;
     }

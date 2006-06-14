@@ -18,7 +18,6 @@ package org.apache.directory.shared.ldap.codec.add;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
@@ -35,6 +34,9 @@ import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapStatesEnum;
 import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -90,7 +92,7 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
             LdapStatesEnum.ADD_REQUEST_VALUE, LdapStatesEnum.ADD_REQUEST_ENTRY_TAG, new GrammarAction(
                 "Init addRequest" )
             {
-                public void action( IAsn1Container container ) throws DecoderException
+                public void action( IAsn1Container container ) throws DecoderException, NamingException
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
@@ -143,12 +145,11 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                     }
                     else
                     {
-                        Name entry = null;
+                        LdapDN entry = null;
 
                         try
                         {
                             entry = new LdapDN( tlv.getValue().getData() );
-                            entry = LdapDN.normalize( entry );
                         }
                         catch ( InvalidNameException ine )
                         {
@@ -156,13 +157,6 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                                 + " : " + ine.getMessage();
                             log.error( "{} : {}", msg, ine.getMessage() );
                             throw new DecoderException( msg, ine );
-                        }
-                        catch ( NamingException ne )
-                        {
-                            String msg = "The DN is invalid : " + StringTools.dumpBytes( tlv.getValue().getData() )
-                                + " : " + ne.getMessage();
-                            log.error( "{} : {}", msg, ne.getMessage() );
-                            throw new DecoderException( msg, ne );
                         }
 
                         addRequest.setEntry( entry );
@@ -234,7 +228,7 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
             LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_TYPE_VALUE, LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VALS_TAG,
             new GrammarAction( "Store attribute type" )
             {
-                public void action( IAsn1Container container ) throws DecoderException
+                public void action( IAsn1Container container ) throws DecoderException, NamingException
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
@@ -255,7 +249,7 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                     {
                         try
                         {
-                            type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
+                            type = new LdapString( tlv.getValue().getData() );
 
                             addRequest.addAttributeType( type );
                         }
@@ -263,7 +257,7 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                         {
                             log.error( "The type is invalid : {} : {}", StringTools
                                 .dumpBytes( tlv.getValue().getData() ), lsee.getMessage() );
-                            throw new DecoderException( "Invalid attribute type : " + lsee.getMessage() );
+                            throw new LdapInvalidAttributeIdentifierException( "Invalid attribute type : " + lsee.getMessage() );
                         }
                     }
 

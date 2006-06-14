@@ -22,6 +22,8 @@ import junit.framework.TestCase;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.naming.InvalidNameException;
+
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.CompareRequestImpl;
@@ -29,6 +31,7 @@ import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -52,15 +55,15 @@ public class CompareRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
-    public void testEqualsExactCopy()
+    public void testEqualsExactCopy() throws InvalidNameException
     {
         CompareRequestImpl req0 = new CompareRequestImpl( 5 );
-        req0.setName( "cn=admin,dc=example,dc=com" );
+        req0.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req0.setAttributeId( "objectClass" );
         req0.setAssertionValue( "top" );
 
         CompareRequestImpl req1 = new CompareRequestImpl( 5 );
-        req1.setName( "cn=admin,dc=example,dc=com" );
+        req1.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
         req1.setAttributeId( "objectClass" );
         req1.setAssertionValue( "top" );
 
@@ -72,13 +75,13 @@ public class CompareRequestImplTest extends TestCase
     /**
      * Test for inequality when only the IDs are different.
      */
-    public void testNotEqualDiffId()
+    public void testNotEqualDiffId() throws InvalidNameException
     {
         CompareRequestImpl req0 = new CompareRequestImpl( 7 );
-        req0.setName( "cn=admin,dc=example,dc=com" );
+        req0.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
 
         CompareRequestImpl req1 = new CompareRequestImpl( 5 );
-        req1.setName( "cn=admin,dc=example,dc=com" );
+        req1.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
 
         assertFalse( req0.equals( req1 ) );
         assertFalse( req1.equals( req0 ) );
@@ -88,15 +91,15 @@ public class CompareRequestImplTest extends TestCase
     /**
      * Test for inequality when only the attributeIds are different.
      */
-    public void testNotEqualDiffAttributeIds()
+    public void testNotEqualDiffAttributeIds() throws InvalidNameException
     {
         CompareRequestImpl req0 = new CompareRequestImpl( 5 );
-        req0.setName( "cn=admin,dc=apache,dc=org" );
+        req0.setName( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
         req0.setAttributeId( "dc" );
         req0.setAssertionValue( "apache.org" );
 
         CompareRequestImpl req1 = new CompareRequestImpl( 5 );
-        req1.setName( "cn=admin,dc=apache,dc=org" );
+        req1.setName( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
         req1.setAttributeId( "nisDomain" );
         req1.setAssertionValue( "apache.org" );
 
@@ -108,15 +111,15 @@ public class CompareRequestImplTest extends TestCase
     /**
      * Test for inequality when only the Assertion values are different.
      */
-    public void testNotEqualDiffValue()
+    public void testNotEqualDiffValue() throws InvalidNameException
     {
         CompareRequestImpl req0 = new CompareRequestImpl( 5 );
-        req0.setName( "cn=admin,dc=apache,dc=org" );
+        req0.setName( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
         req0.setAttributeId( "dc" );
         req0.setAssertionValue( "apache.org" );
 
         CompareRequestImpl req1 = new CompareRequestImpl( 5 );
-        req1.setName( "cn=admin,dc=apache,dc=org" );
+        req1.setName( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
         req1.setAttributeId( "dc" );
         req1.setAssertionValue( "nagoya.apache.org" );
 
@@ -163,13 +166,13 @@ public class CompareRequestImplTest extends TestCase
             }
 
 
-            public String getName()
+            public LdapDN getName()
             {
                 return null;
             }
 
 
-            public void setName( String a_name )
+            public void setName( LdapDN name )
             {
             }
 

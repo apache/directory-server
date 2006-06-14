@@ -16,6 +16,8 @@
  */
 package org.apache.directory.shared.ldap.message;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * Delete request protocol message used to remove an existing leaf entry from
@@ -39,7 +41,7 @@ public interface DeleteRequest extends SingleReplyRequest, AbandonableRequest
      * 
      * @return the DN of the leaf entry to delete.
      */
-    String getName();
+    LdapDN getName();
 
 
     /**
@@ -49,5 +51,5 @@ public interface DeleteRequest extends SingleReplyRequest, AbandonableRequest
      * @param a_name
      *            the DN of the leaf entry to delete.
      */
-    void setName( String a_name );
+    void setName( LdapDN name );
 }

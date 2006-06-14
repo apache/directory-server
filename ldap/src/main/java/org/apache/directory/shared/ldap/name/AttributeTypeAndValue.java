@@ -343,6 +343,20 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
         return StringTools.lowerCase( StringTools.trim( type ) ) + '=' + StringTools.trim( value );
     }
 
+    /**
+     * Gets the hashcode of this object.
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int result = 17;
+        
+        result = result * 37 + ( type != null ? type.hashCode() : 0 ); 
+        result = result * 37 + ( value != null ? type.hashCode() : 0 ); 
+            
+        return result;
+    }
 
     /**
      * A String representation of a AttributeTypeAndValue.

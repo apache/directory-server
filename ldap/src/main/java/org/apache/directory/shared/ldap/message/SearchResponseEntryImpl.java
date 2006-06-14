@@ -19,6 +19,7 @@ package org.apache.directory.shared.ldap.message;
 
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
@@ -33,7 +34,7 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
     static final long serialVersionUID = -8357316233060886637L;
 
     /** Distinguished name of the search result entry returned */
-    private String objectName = "";
+    private LdapDN objectName;
 
     /** Partial set of attributes returned in response to search */
     private Attributes attributes;
@@ -88,7 +89,7 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
      * 
      * @return the Dn of the entry returned.
      */
-    public String getObjectName()
+    public LdapDN getObjectName()
     {
         return objectName;
     }
@@ -100,7 +101,7 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
      * @param dn
      *            the Dn of the entry returned.
      */
-    public void setObjectName( String objectName )
+    public void setObjectName( LdapDN objectName )
     {
         this.objectName = objectName;
     }

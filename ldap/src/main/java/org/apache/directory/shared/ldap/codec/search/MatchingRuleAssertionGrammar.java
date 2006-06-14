@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapStatesEnum;
 import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -224,7 +223,7 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
 
                         try
                         {
-                            LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
+                            LdapString type = new LdapString( tlv.getValue().getData() );
                             extensibleMatchFilter.setType( type );
                         }
                         catch ( LdapStringEncodingException lsee )

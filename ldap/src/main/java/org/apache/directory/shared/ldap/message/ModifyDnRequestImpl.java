@@ -16,6 +16,9 @@
  */
 package org.apache.directory.shared.ldap.message;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+
 
 /**
  * Lockable ModifyDNRequest implementation.
@@ -28,13 +31,13 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
     static final long serialVersionUID = 1233507339633051696L;
 
     /** PDU's modify Dn candidate <b>entry</b> distinguished name property */
-    private String name;
+    private LdapDN name;
 
     /** PDU's <b>newrdn</b> relative distinguished name property */
-    private String newRdn;
+    private Rdn newRdn;
 
     /** PDU's <b>newSuperior</b> distinguished name property */
-    private String newSuperior;
+    private LdapDN newSuperior;
 
     /** PDU's <b>deleteOldRdn</b> flag */
     private boolean deleteOldRdn = false;
@@ -114,7 +117,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
      * 
      * @return the distinguished name of the entry.
      */
-    public String getName()
+    public LdapDN getName()
     {
         return name;
     }
@@ -127,7 +130,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
      * @param name
      *            the distinguished name of the entry.
      */
-    public void setName( String name )
+    public void setName( LdapDN name )
     {
         this.name = name;
     }
@@ -139,7 +142,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
      * 
      * @return the relative dn with one component
      */
-    public String getNewRdn()
+    public Rdn getNewRdn()
     {
         return newRdn;
     }
@@ -152,7 +155,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
      * @param newRdn
      *            the relative dn with one component
      */
-    public void setNewRdn( String newRdn )
+    public void setNewRdn( Rdn newRdn )
     {
         this.newRdn = newRdn;
     }
@@ -166,7 +169,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
      * 
      * @return the dn of the superior entry the candidate entry is moved under.
      */
-    public String getNewSuperior()
+    public LdapDN getNewSuperior()
     {
         return newSuperior;
     }
@@ -183,7 +186,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
      *            the dn of the superior entry the candidate entry for DN
      *            modification is moved under.
      */
-    public void setNewSuperior( String newSuperior )
+    public void setNewSuperior( LdapDN newSuperior )
     {
         this.newSuperior = newSuperior;
     }

@@ -26,6 +26,8 @@
 
 package org.apache.directory.shared.ldap.message;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * LdapResult implementation.
@@ -38,7 +40,7 @@ public class LdapResultImpl implements LdapResult
     static final long serialVersionUID = -1446626887394613213L;
 
     /** Lowest matched entry Dn - defaults to empty string */
-    private String matchedDn;
+    private LdapDN matchedDn;
 
     /** Referral associated with this LdapResult if the errorCode is REFERRAL */
     private Referral referral;
@@ -92,7 +94,7 @@ public class LdapResultImpl implements LdapResult
      * 
      * @return the Dn of the lowest matched entry.
      */
-    public String getMatchedDn()
+    public LdapDN getMatchedDn()
     {
         return matchedDn;
     }
@@ -105,7 +107,7 @@ public class LdapResultImpl implements LdapResult
      * @param matchedDn
      *            the Dn of the lowest matched entry.
      */
-    public void setMatchedDn( String matchedDn )
+    public void setMatchedDn( LdapDN matchedDn )
     {
         this.matchedDn = matchedDn;
     }

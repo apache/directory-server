@@ -20,8 +20,6 @@ package org.apache.directory.shared.ldap.codec.modifyDn;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import javax.naming.Name;
-
 import org.apache.directory.shared.asn1.ber.tlv.Length;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -45,7 +43,7 @@ public class ModifyDNRequest extends LdapMessage
     // ----------------------------------------------------------------------------
 
     /** The DN to be modified. */
-    private Name entry;
+    private LdapDN entry;
 
     /** The new RDN to be added to the RDN or to the new superior, if present */
     private Rdn newRDN;
@@ -54,7 +52,7 @@ public class ModifyDNRequest extends LdapMessage
     private boolean deleteOldRDN;
 
     /** The optional superior, which will be concatened to the newRdn */
-    private Name newSuperior;
+    private LdapDN newSuperior;
 
     /** The modify DN request length */
     private transient int modifyDNRequestLength;
@@ -91,9 +89,9 @@ public class ModifyDNRequest extends LdapMessage
      * 
      * @return Returns the entry.
      */
-    public String getEntry()
+    public LdapDN getEntry()
     {
-        return ( ( entry == null ) ? "" : entry.toString() );
+        return entry;
     }
 
 
@@ -103,7 +101,7 @@ public class ModifyDNRequest extends LdapMessage
      * @param entry
      *            The entry to set.
      */
-    public void setEntry( Name entry )
+    public void setEntry( LdapDN entry )
     {
         this.entry = entry;
     }
@@ -137,9 +135,9 @@ public class ModifyDNRequest extends LdapMessage
      * 
      * @return Returns the newRDN.
      */
-    public String getNewRDN()
+    public Rdn getNewRDN()
     {
-        return ( ( newRDN == null ) ? "" : newRDN.toString() );
+        return newRDN;
     }
 
 
@@ -160,9 +158,9 @@ public class ModifyDNRequest extends LdapMessage
      * 
      * @return Returns the newSuperior.
      */
-    public String getNewSuperior()
+    public LdapDN getNewSuperior()
     {
-        return ( ( newSuperior == null ) ? "" : newSuperior.toString() );
+        return newSuperior;
     }
 
 
@@ -172,7 +170,7 @@ public class ModifyDNRequest extends LdapMessage
      * @param newSuperior
      *            The newSuperior to set.
      */
-    public void setNewSuperior( Name newSuperior )
+    public void setNewSuperior( LdapDN newSuperior )
     {
         this.newSuperior = newSuperior;
     }

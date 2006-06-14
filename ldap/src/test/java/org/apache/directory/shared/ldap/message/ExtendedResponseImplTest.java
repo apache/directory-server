@@ -22,6 +22,8 @@ import junit.framework.TestCase;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.naming.InvalidNameException;
+
 import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
@@ -31,6 +33,7 @@ import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -53,7 +56,16 @@ public class ExtendedResponseImplTest extends TestCase
         response.setResponse( "Hello World!".getBytes() );
         response.setResponseName( "1.1.1.1" );
         LdapResult result = response.getLdapResult();
-        result.setMatchedDn( "dc=example,dc=com" );
+        
+        try
+        {
+            result.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
+        }
+        catch ( InvalidNameException ine )
+        {
+            // Do nothing
+        }
+        
         result.setResultCode( ResultCodeEnum.SUCCESS );
         ReferralImpl refs = new ReferralImpl();
         refs.addLdapUrl( "ldap://someserver.com" );
@@ -122,7 +134,16 @@ public class ExtendedResponseImplTest extends TestCase
             public LdapResult getLdapResult()
             {
                 LdapResultImpl result = new LdapResultImpl();
-                result.setMatchedDn( "dc=example,dc=com" );
+                
+                try 
+                {
+                    result.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
+                }
+                catch ( InvalidNameException ine ) 
+                {
+                    // do nothing
+                }
+                
                 result.setResultCode( ResultCodeEnum.SUCCESS );
                 ReferralImpl refs = new ReferralImpl();
                 refs.addLdapUrl( "ldap://someserver.com" );

@@ -89,10 +89,10 @@ public class ModifyDNRequestTest extends TestCase
         ModifyDNRequest modifyDNRequest = message.getModifyDNRequest();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", modifyDNRequest.getEntry() );
+        assertEquals( "cn=testModify,ou=users,ou=system", modifyDNRequest.getEntry().toString() );
         assertEquals( false, modifyDNRequest.isDeleteOldRDN() );
-        assertEquals( "cn=testDNModify", modifyDNRequest.getNewRDN() );
-        assertEquals( "ou=system", modifyDNRequest.getNewSuperior() );
+        assertEquals( "cn=testDNModify", modifyDNRequest.getNewRDN().toString() );
+        assertEquals( "ou=system", modifyDNRequest.getNewSuperior().toString() );
 
         // Check the length
         assertEquals( 0x48, message.computeLength() );
@@ -163,10 +163,10 @@ public class ModifyDNRequestTest extends TestCase
         ModifyDNRequest modifyDNRequest = message.getModifyDNRequest();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", modifyDNRequest.getEntry() );
+        assertEquals( "cn=testModify,ou=users,ou=system", modifyDNRequest.getEntry().toString() );
         assertEquals( false, modifyDNRequest.isDeleteOldRDN() );
-        assertEquals( "cn=testDNModify", modifyDNRequest.getNewRDN() );
-        assertEquals( "ou=system", modifyDNRequest.getNewSuperior() );
+        assertEquals( "cn=testDNModify", modifyDNRequest.getNewRDN().toString() );
+        assertEquals( "ou=system", modifyDNRequest.getNewSuperior().toString() );
 
         // Check the Control
         List controls = message.getControls();
@@ -243,9 +243,9 @@ public class ModifyDNRequestTest extends TestCase
         ModifyDNRequest modifyDNRequest = message.getModifyDNRequest();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", modifyDNRequest.getEntry() );
+        assertEquals( "cn=testModify,ou=users,ou=system", modifyDNRequest.getEntry().toString() );
         assertEquals( false, modifyDNRequest.isDeleteOldRDN() );
-        assertEquals( "cn=testDNModify", modifyDNRequest.getNewRDN() );
+        assertEquals( "cn=testDNModify", modifyDNRequest.getNewRDN().toString() );
 
         // Check the length
         assertEquals( 0x3D, message.computeLength() );
@@ -315,9 +315,9 @@ public class ModifyDNRequestTest extends TestCase
         ModifyDNRequest modifyDNRequest = message.getModifyDNRequest();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", modifyDNRequest.getEntry() );
+        assertEquals( "cn=testModify,ou=users,ou=system", modifyDNRequest.getEntry().toString() );
         assertEquals( false, modifyDNRequest.isDeleteOldRDN() );
-        assertEquals( "cn=testDNModify", modifyDNRequest.getNewRDN() );
+        assertEquals( "cn=testDNModify", modifyDNRequest.getNewRDN().toString() );
 
         // Check the Control
         List controls = message.getControls();

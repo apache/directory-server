@@ -36,7 +36,6 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -65,7 +64,7 @@ public class AddRequest extends LdapMessage
     // ----------------------------------------------------------------------------
 
     /** The DN to be added. */
-    private Name entry;
+    private LdapDN entry;
 
     /** The attributes list. */
     private Attributes attributes;
@@ -174,9 +173,9 @@ public class AddRequest extends LdapMessage
      * 
      * @return Returns the entry.
      */
-    public String getEntry()
+    public LdapDN getEntry()
     {
-        return ( ( entry == null ) ? "" : entry.toString() );
+        return entry;
     }
 
 
@@ -186,7 +185,7 @@ public class AddRequest extends LdapMessage
      * @param entry
      *            The entry to set.
      */
-    public void setEntry( Name entry )
+    public void setEntry( LdapDN entry )
     {
         this.entry = entry;
     }

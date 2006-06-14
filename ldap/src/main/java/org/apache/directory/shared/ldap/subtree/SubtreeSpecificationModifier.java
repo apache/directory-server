@@ -18,11 +18,10 @@ package org.apache.directory.shared.ldap.subtree;
 
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import java.util.Set;
 import java.util.Collections;
-import javax.naming.Name;
 
 
 /**
@@ -37,7 +36,7 @@ import javax.naming.Name;
 public class SubtreeSpecificationModifier
 {
     /** the subtree base relative to the administration point */
-    private Name base = new LdapName();
+    private LdapDN base = new LdapDN();
 
     /** the set of subordinates entries and their subordinates to exclude */
     private Set chopBefore = Collections.EMPTY_SET;
@@ -86,7 +85,7 @@ public class SubtreeSpecificationModifier
      * @param base
      *            subtree base relative to the administration point
      */
-    public void setBase( Name base )
+    public void setBase( LdapDN base )
     {
         this.base = base;
     }

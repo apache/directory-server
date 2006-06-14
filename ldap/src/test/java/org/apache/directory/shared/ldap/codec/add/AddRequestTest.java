@@ -103,7 +103,7 @@ public class AddRequestTest extends TestCase
 
         // Check the decoded message
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntry() );
+        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntry().toString() );
 
         Attributes attributes = addRequest.getAttributes();
 
@@ -522,7 +522,7 @@ public class AddRequestTest extends TestCase
 
         // Check the decoded message
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntry() );
+        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntry().toString() );
 
         Attributes attributes = addRequest.getAttributes();
 
@@ -609,7 +609,7 @@ public class AddRequestTest extends TestCase
 
         // Check the decoded message
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntry() );
+        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntry().toString() );
 
         Attributes attributes = addRequest.getAttributes();
 

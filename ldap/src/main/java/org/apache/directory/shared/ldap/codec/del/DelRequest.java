@@ -20,8 +20,6 @@ package org.apache.directory.shared.ldap.codec.del;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import javax.naming.Name;
-
 import org.apache.directory.shared.asn1.ber.tlv.Length;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
@@ -40,7 +38,7 @@ public class DelRequest extends LdapMessage
     // ----------------------------------------------------------------------------
 
     /** The entry to be deleted */
-    private Name entry;
+    private LdapDN entry;
 
 
     // ~ Constructors
@@ -74,9 +72,9 @@ public class DelRequest extends LdapMessage
      * 
      * @return Returns the entry.
      */
-    public String getEntry()
+    public LdapDN getEntry()
     {
-        return ( ( entry == null ) ? "" : entry.toString() );
+        return entry;
     }
 
 
@@ -86,7 +84,7 @@ public class DelRequest extends LdapMessage
      * @param entry
      *            The entry to set.
      */
-    public void setEntry( Name entry )
+    public void setEntry( LdapDN entry )
     {
         this.entry = entry;
     }

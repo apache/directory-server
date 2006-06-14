@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
@@ -33,7 +34,6 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.search.ExtensibleMatchFilter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
-import org.apache.directory.shared.ldap.name.DnOidContainer;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -48,12 +48,12 @@ import junit.framework.TestCase;
  */
 public class SearchRequestMatchingRuleAssertionTest extends TestCase
 {
+    static Map oids = new HashMap();
 
     protected void setUp() throws Exception
     {
         super.setUp();
 
-        Map oids = new HashMap();
         oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
         oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
         oids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
@@ -62,8 +62,6 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
         oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
         oids.put( "objectclass", new OidNormalizer( "objectclass", new DeepTrimToLowerNormalizer() ) );
         oids.put( "2.5.4.0", new OidNormalizer( "objectclass", new DeepTrimToLowerNormalizer() ) );
-
-        DnOidContainer.setOids( oids );
     }
 
 
@@ -101,6 +99,11 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -180,6 +183,11 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -219,6 +227,11 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -260,6 +273,11 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -300,6 +318,11 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -369,6 +392,11 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -408,6 +436,11 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -449,6 +482,11 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -488,6 +526,11 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );

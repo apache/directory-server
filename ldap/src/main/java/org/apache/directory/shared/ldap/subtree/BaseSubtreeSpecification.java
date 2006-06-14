@@ -18,11 +18,10 @@ package org.apache.directory.shared.ldap.subtree;
 
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import java.util.Set;
 import java.util.Collections;
-import javax.naming.Name;
 
 
 /**
@@ -35,7 +34,7 @@ import javax.naming.Name;
 public class BaseSubtreeSpecification implements SubtreeSpecification
 {
     /** the subtree base relative to the administration point */
-    private final Name base;
+    private final LdapDN base;
 
     /** the set of subordinates entries and their subordinates to exclude */
     private final Set chopBefore;
@@ -67,7 +66,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      */
     public BaseSubtreeSpecification()
     {
-        this.base = new LdapName();
+        this.base = new LdapDN();
 
         this.minBaseDistance = 0;
 
@@ -92,7 +91,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      */
     public BaseSubtreeSpecification(ExprNode refinement)
     {
-        this.base = new LdapName();
+        this.base = new LdapDN();
 
         this.minBaseDistance = 0;
 
@@ -114,7 +113,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      * @param base
      *            the base of the subtree relative to the administrative point
      */
-    public BaseSubtreeSpecification(Name base)
+    public BaseSubtreeSpecification( LdapDN base )
     {
         this.base = base;
 
@@ -147,7 +146,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      *            the set of subordinates entries and their subordinates to
      *            exclude
      */
-    public BaseSubtreeSpecification(Name base, int minBaseDistance, int maxBaseDistance, Set chopAfter, Set chopBefore)
+    public BaseSubtreeSpecification( LdapDN base, int minBaseDistance, int maxBaseDistance, Set chopAfter, Set chopBefore )
     {
         this( base, minBaseDistance, maxBaseDistance, chopAfter, chopBefore, null );
     }
@@ -174,8 +173,8 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      *            the filter expression only composed of objectClass attribute
      *            value assertions
      */
-    public BaseSubtreeSpecification(Name base, int minBaseDistance, int maxBaseDistance, Set chopAfter, Set chopBefore,
-        ExprNode refinement)
+    public BaseSubtreeSpecification( LdapDN base, int minBaseDistance, int maxBaseDistance, Set chopAfter, Set chopBefore,
+        ExprNode refinement )
     {
         this.base = base;
 
@@ -202,7 +201,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
     // A C C E S S O R S
     // -----------------------------------------------------------------------
 
-    public Name getBase()
+    public LdapDN getBase()
     {
         return this.base;
     }

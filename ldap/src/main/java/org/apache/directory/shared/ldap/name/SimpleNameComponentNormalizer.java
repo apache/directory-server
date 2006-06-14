@@ -44,7 +44,7 @@ public class SimpleNameComponentNormalizer implements NameComponentNormalizer
      * @param normalizer
      *            the Normalizer to use for all normalization requests
      */
-    public SimpleNameComponentNormalizer(Normalizer normalizer)
+    public SimpleNameComponentNormalizer( Normalizer normalizer )
     {
         this.normalizer = normalizer;
     }
@@ -77,5 +77,11 @@ public class SimpleNameComponentNormalizer implements NameComponentNormalizer
     public boolean isDefined( String oid )
     {
         return true;
+    }
+
+
+    public String normalizeName( String attributeName ) throws NamingException
+    {
+        throw new UnsupportedOperationException( "This class is not aware of schema information and cannot normalize" );
     }
 }

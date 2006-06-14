@@ -130,7 +130,7 @@ public class NoticeOfDisconnect extends ExtendedResponseImpl
                     + ", " + ResultCodeEnum.PROTOCOLERROR + ", " + ResultCodeEnum.STRONGAUTHREQUIRED );
         }
         super.getLdapResult().setErrorMessage( "The server will disconnect!" );
-        super.getLdapResult().setMatchedDn( "" );
+        super.getLdapResult().setMatchedDn( null );
         super.getLdapResult().setResultCode( rcode );
     }
 

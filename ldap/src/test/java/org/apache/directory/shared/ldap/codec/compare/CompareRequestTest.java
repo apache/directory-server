@@ -90,7 +90,7 @@ public class CompareRequestTest extends TestCase
         CompareRequest compareRequest = message.getCompareRequest();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", compareRequest.getEntry() );
+        assertEquals( "cn=testModify,ou=users,ou=system", compareRequest.getEntry().toString() );
         assertEquals( "test", compareRequest.getAttributeDesc() );
         assertEquals( "value", compareRequest.getAssertionValue().toString() );
 
@@ -312,7 +312,7 @@ public class CompareRequestTest extends TestCase
         CompareRequest compareRequest = message.getCompareRequest();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", compareRequest.getEntry() );
+        assertEquals( "cn=testModify,ou=users,ou=system", compareRequest.getEntry().toString() );
         assertEquals( "test", compareRequest.getAttributeDesc() );
         assertEquals( "", compareRequest.getAssertionValue().toString() );
 
@@ -385,7 +385,7 @@ public class CompareRequestTest extends TestCase
         CompareRequest compareRequest = message.getCompareRequest();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", compareRequest.getEntry() );
+        assertEquals( "cn=testModify,ou=users,ou=system", compareRequest.getEntry().toString() );
         assertEquals( "test", compareRequest.getAttributeDesc() );
         assertEquals( "value", compareRequest.getAssertionValue().toString() );
 

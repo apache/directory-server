@@ -31,7 +31,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -51,7 +50,7 @@ public class SearchRequest extends LdapMessage
     // ----------------------------------------------------------------------------
 
     /** The base DN */
-    private Name baseObject;
+    private LdapDN baseObject;
 
     /** The scope. It could be baseObject, singleLevel or wholeSubtree. */
     private int scope;
@@ -152,9 +151,9 @@ public class SearchRequest extends LdapMessage
      * 
      * @return Returns the baseObject.
      */
-    public String getBaseObject()
+    public LdapDN getBaseObject()
     {
-        return ( ( baseObject == null ) ? null : baseObject.toString() );
+        return baseObject;
     }
 
 
@@ -164,7 +163,7 @@ public class SearchRequest extends LdapMessage
      * @param baseObject
      *            The baseObject to set.
      */
-    public void setBaseObject( Name baseObject )
+    public void setBaseObject( LdapDN baseObject )
     {
         this.baseObject = baseObject;
     }

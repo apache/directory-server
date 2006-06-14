@@ -18,8 +18,6 @@ package org.apache.directory.shared.ldap.codec.compare;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
@@ -126,7 +124,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
 
                     // Get the Value and store it in the CompareRequest
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
-                    Name entry = null;
+                    LdapDN entry = null;
 
                     // We have to handle the special case of a 0 length matched
                     // DN
@@ -139,7 +137,6 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
                         try
                         {
                             entry = new LdapDN( tlv.getValue().getData() );
-                            entry = LdapDN.normalize( entry );
                         }
                         catch ( InvalidNameException ine )
                         {
@@ -147,13 +144,6 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
                                 + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
                             throw new DecoderException( msg, ine );
-                        }
-                        catch ( NamingException ne )
-                        {
-                            String msg = "The DN to compare  (" + StringTools.dumpBytes( tlv.getValue().getData() )
-                                + ") is invalid";
-                            log.error( "{} : {}", msg, ne.getMessage() );
-                            throw new DecoderException( msg, ne );
                         }
 
                         compareRequest.setEntry( entry );
@@ -220,7 +210,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
                     {
                         try
                         {
-                            LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
+                            LdapString type = new LdapString( tlv.getValue().getData() );
                             compareRequest.setAttributeDesc( type );
                         }
                         catch ( LdapStringEncodingException lsee )

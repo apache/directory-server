@@ -331,34 +331,35 @@ public class BranchNode extends AbstractExprNode
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
      *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
-    public void accept( FilterVisitor a_visitor )
+    public void accept( FilterVisitor visitor )
     {
-        if ( a_visitor.isPrefix() )
+        if ( visitor.isPrefix() )
         {
-            ArrayList l_children = a_visitor.getOrder( this, m_children );
+            ArrayList children = visitor.getOrder( this, m_children );
 
-            if ( a_visitor.canVisit( this ) )
+            if ( visitor.canVisit( this ) )
             {
-                a_visitor.visit( this );
+                visitor.visit( this );
             }
 
-            for ( int ii = 0; ii < l_children.size(); ii++ )
+            for ( int ii = 0; ii < children.size(); ii++ )
             {
-                ( ( ExprNode ) l_children.get( ii ) ).accept( a_visitor );
+                ( ( ExprNode ) children.get( ii ) ).accept( visitor );
             }
         }
         else
         {
-            ArrayList l_children = a_visitor.getOrder( this, m_children );
+            ArrayList children = visitor.getOrder( this, m_children );
 
-            for ( int ii = 0; ii < l_children.size(); ii++ )
+            for ( int ii = 0; ii < children.size(); ii++ )
             {
-                ( ( ExprNode ) l_children.get( ii ) ).accept( a_visitor );
+                ExprNode child = ( ExprNode ) children.get( ii );
+                child.accept( visitor );
             }
 
-            if ( a_visitor.canVisit( this ) )
+            if ( visitor.canVisit( this ) )
             {
-                a_visitor.visit( this );
+                visitor.visit( this );
             }
         }
     }

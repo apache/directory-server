@@ -1158,4 +1158,37 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
         return new String( newChars, 0, pos );
     }
+
+    /**
+     * Gets the hashcode of this rdn.
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode()
+    {
+    	int result = 17;
+    	
+        switch ( nbAtavs )
+        {
+            case 0:
+                // An empty RDN
+                break;
+
+            case 1:
+                // We have a single AttributeTypeAndValue
+                result = result * 37 + atav.hashCode();
+                break;
+
+            default:
+                // We have more than one AttributeTypeAndValue
+
+                for ( Iterator elems = atavs.iterator();elems.hasNext(); )
+                {
+                    AttributeTypeAndValue ata = ( AttributeTypeAndValue ) elems.next();
+                    result = result * 37 + ata.hashCode();
+                }
+        }
+    	
+    	return result;
+    }
 }

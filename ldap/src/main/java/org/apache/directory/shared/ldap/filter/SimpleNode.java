@@ -42,7 +42,7 @@ public class SimpleNode extends LeafNode
      * @param type
      *            the type of the assertion
      */
-    public SimpleNode(String attribute, byte[] value, int type)
+    public SimpleNode( String attribute, byte[] value, int type )
     {
         this( attribute, StringTools.utf8ToString( value ), type );
     }
@@ -58,7 +58,7 @@ public class SimpleNode extends LeafNode
      * @param type
      *            the type of the assertion
      */
-    public SimpleNode(String attribute, String value, int type)
+    public SimpleNode( String attribute, String value, int type )
     {
         super( attribute, type );
         this.value = value;

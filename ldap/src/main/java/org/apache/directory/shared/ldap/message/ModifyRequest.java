@@ -21,6 +21,8 @@ import java.util.Collection;
 
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * Modify request protocol message used to alter the attributes and values of an
@@ -106,7 +108,7 @@ public interface ModifyRequest extends SingleReplyRequest, AbandonableRequest
      * 
      * @return the DN of the modified entry.
      */
-    String getName();
+    LdapDN getName();
 
 
     /**
@@ -116,7 +118,7 @@ public interface ModifyRequest extends SingleReplyRequest, AbandonableRequest
      * @param name
      *            the DN of the modified entry.
      */
-    void setName( String name );
+    void setName( LdapDN name );
 
 
     /**

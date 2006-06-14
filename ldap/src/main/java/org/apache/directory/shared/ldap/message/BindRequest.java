@@ -16,6 +16,8 @@
  */
 package org.apache.directory.shared.ldap.message;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * Bind protocol operation request which authenticates and begins a client
@@ -89,7 +91,7 @@ public interface BindRequest extends SingleReplyRequest
      * 
      * @return the DN of the authenticating user.
      */
-    String getName();
+    LdapDN getName();
 
 
     /**
@@ -103,7 +105,7 @@ public interface BindRequest extends SingleReplyRequest
      *            the DN of the authenticating user - leave null for annonymous
      *            user.
      */
-    void setName( String name );
+    void setName( LdapDN name );
 
 
     /**

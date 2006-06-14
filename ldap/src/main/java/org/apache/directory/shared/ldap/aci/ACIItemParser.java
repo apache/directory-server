@@ -98,7 +98,7 @@ public class ACIItemParser
      */
     public synchronized ACIItem parse( String spec ) throws ParseException
     {
-        ACIItem l_ACIItem = null;
+        ACIItem aCIItem = null;
 
         if ( spec == null || spec.trim().equals( "" ) )
         {
@@ -109,7 +109,7 @@ public class ACIItemParser
 
         try
         {
-            l_ACIItem = this.parser.wrapperEntryPoint();
+            aCIItem = this.parser.wrapperEntryPoint();
         }
         catch ( TokenStreamException e )
         {
@@ -124,7 +124,7 @@ public class ACIItemParser
             throw new ParseException( msg, e.getColumn() );
         }
 
-        return l_ACIItem;
+        return aCIItem;
     }
 
 

@@ -18,8 +18,6 @@ package org.apache.directory.shared.ldap.codec.bind;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
@@ -213,12 +211,11 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                     }
                     else
                     {
-                        Name name = LdapDN.EMPTY_LDAPDN;
+                        LdapDN name = LdapDN.EMPTY_LDAPDN;
 
                         try
                         {
                             name = new LdapDN( tlv.getValue().getData() );
-                            name = LdapDN.normalize( name );
                         }
                         catch ( InvalidNameException ine )
                         {
@@ -226,13 +223,6 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                                 + " : " + ine.getMessage();
                             log.error( "{} : {}", msg, ine.getMessage() );
                             throw new DecoderException( msg, ine );
-                        }
-                        catch ( NamingException ne )
-                        {
-                            String msg = "Incorrect DN given : " + StringTools.dumpBytes( tlv.getValue().getData() )
-                                + " : " + ne.getMessage();
-                            log.error( "{} : {}", msg, ne.getMessage() );
-                            throw new DecoderException( msg, ne );
                         }
 
                         bindRequestMessage.setName( name );

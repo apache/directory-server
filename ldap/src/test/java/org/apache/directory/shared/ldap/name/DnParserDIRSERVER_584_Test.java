@@ -17,8 +17,9 @@
 package org.apache.directory.shared.ldap.name;
 
 
+import java.util.ArrayList;
+
 import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
 
 import junit.framework.TestCase;
 
@@ -32,30 +33,14 @@ import junit.framework.TestCase;
  */
 public class DnParserDIRSERVER_584_Test extends TestCase
 {
-    static DnParser parser; 
-    
-    
-    public static DnParser getParser() throws NamingException
-    {
-        if ( parser == null )
-        {
-            parser = new DnParser();
-        }
-        
-        return parser;
-    }
-    
-    
     /**
      * Need this testa() to run first to mess up the state of the static parser.
      */
     public void testa() throws Exception
     {
-        DnParser parser = getParser();
-        
         try
         {
-            parser.parse( "ou=test=testing" );
+            LdapDnParser.parseInternal( "ou=test=testing", new ArrayList() );
             fail( "should never get here" );
         }
         catch ( InvalidNameException e )
@@ -70,7 +55,6 @@ public class DnParserDIRSERVER_584_Test extends TestCase
      */
     public void testb() throws Exception
     {
-        DnParser parser = getParser();
-        parser.parse( "ou=system" );
+        LdapDnParser.parseInternal( "ou=system", new ArrayList() );
     }
 }

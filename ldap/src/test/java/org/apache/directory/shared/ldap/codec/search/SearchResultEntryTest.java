@@ -99,7 +99,7 @@ public class SearchResultEntryTest extends TestCase
         SearchResultEntry searchResultEntry = message.getSearchResultEntry();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
         Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
 
@@ -206,7 +206,7 @@ public class SearchResultEntryTest extends TestCase
         SearchResultEntry searchResultEntry = message.getSearchResultEntry();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
         Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
 
@@ -318,7 +318,7 @@ public class SearchResultEntryTest extends TestCase
         SearchResultEntry searchResultEntry = message.getSearchResultEntry();
 
         assertEquals( 2, message.getMessageId() );
-        assertEquals( "uid=admin,ou=system", searchResultEntry.getObjectName() );
+        assertEquals( "uid=admin,ou=system", searchResultEntry.getObjectName().toString() );
 
         Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
 
@@ -538,7 +538,7 @@ public class SearchResultEntryTest extends TestCase
         SearchResultEntry searchResultEntry = message.getSearchResultEntry();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
         Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
 
@@ -785,7 +785,7 @@ public class SearchResultEntryTest extends TestCase
         SearchResultEntry searchResultEntry = message.getSearchResultEntry();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
         Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
 
@@ -870,7 +870,7 @@ public class SearchResultEntryTest extends TestCase
         SearchResultEntry searchResultEntry = message.getSearchResultEntry();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
         Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
 
@@ -955,7 +955,7 @@ public class SearchResultEntryTest extends TestCase
         SearchResultEntry searchResultEntry = message.getSearchResultEntry();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
         Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
 
@@ -1049,7 +1049,7 @@ public class SearchResultEntryTest extends TestCase
         SearchResultEntry searchResultEntry = message.getSearchResultEntry();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
         Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
 
@@ -1142,7 +1142,7 @@ public class SearchResultEntryTest extends TestCase
         SearchResultEntry searchResultEntry = message.getSearchResultEntry();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
         Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
 

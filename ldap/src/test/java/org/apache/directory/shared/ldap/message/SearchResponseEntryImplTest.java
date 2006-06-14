@@ -22,6 +22,7 @@ import junit.framework.TestCase;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.naming.InvalidNameException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.ldap.message.Control;
@@ -31,6 +32,7 @@ import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.SearchResponseEntry;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -86,15 +88,15 @@ public class SearchResponseEntryImplTest extends TestCase
     /**
      * Tests for equality when an exact copy is compared.
      */
-    public void testEqualsExactCopy()
+    public void testEqualsExactCopy() throws InvalidNameException
     {
         SearchResponseEntryImpl resp0 = new SearchResponseEntryImpl( 5 );
         resp0.setAttributes( getAttributes() );
-        resp0.setObjectName( "dc=example,dc=com" );
+        resp0.setObjectName( new LdapDN( "dc=example,dc=com" ) );
 
         SearchResponseEntryImpl resp1 = new SearchResponseEntryImpl( 5 );
         resp1.setAttributes( getAttributes() );
-        resp1.setObjectName( "dc=example,dc=com" );
+        resp1.setObjectName( new LdapDN( "dc=example,dc=com" ) );
 
         assertTrue( "exact copies should be equal", resp0.equals( resp1 ) );
         assertTrue( "exact copies should be equal", resp1.equals( resp0 ) );
@@ -108,13 +110,21 @@ public class SearchResponseEntryImplTest extends TestCase
     {
         SearchResponseEntry resp0 = new SearchResponseEntry()
         {
-            public String getObjectName()
+            public LdapDN getObjectName()
             {
-                return "dc=example,dc=com";
+                try
+                {
+                    return new LdapDN( "dc=example,dc=com" );
+                }
+                catch ( InvalidNameException ine )
+                {
+                    // Do nothing
+                    return null;
+                }
             }
 
 
-            public void setObjectName( String dn )
+            public void setObjectName( LdapDN dn )
             {
             }
 
@@ -172,7 +182,15 @@ public class SearchResponseEntryImplTest extends TestCase
 
         SearchResponseEntryImpl resp1 = new SearchResponseEntryImpl( 5 );
         resp1.setAttributes( getAttributes() );
-        resp1.setObjectName( "dc=example,dc=com" );
+        
+        try
+        {
+            resp1.setObjectName( new LdapDN( "dc=example,dc=com" ) );
+        }
+        catch ( Exception e )
+        {
+            // Do nothing
+        }
 
         assertFalse( "using Object.equal() should NOT be equal", resp0.equals( resp1 ) );
         assertTrue( "same but different implementations should be equal", resp1.equals( resp0 ) );
@@ -182,15 +200,15 @@ public class SearchResponseEntryImplTest extends TestCase
     /**
      * Tests for inequality when the objectName dn is not the same.
      */
-    public void testNotEqualDiffObjectName()
+    public void testNotEqualDiffObjectName() throws InvalidNameException
     {
         SearchResponseEntryImpl resp0 = new SearchResponseEntryImpl( 5 );
         resp0.setAttributes( getAttributes() );
-        resp0.setObjectName( "dc=apache,dc=org" );
+        resp0.setObjectName( new LdapDN( "dc=apache,dc=org" ) );
 
         SearchResponseEntryImpl resp1 = new SearchResponseEntryImpl( 5 );
         resp1.setAttributes( getAttributes() );
-        resp1.setObjectName( "dc=example,dc=com" );
+        resp1.setObjectName( new LdapDN( "dc=example,dc=com" ) );
 
         assertFalse( "different object names should not be equal", resp1.equals( resp0 ) );
         assertFalse( "different object names should not be equal", resp0.equals( resp1 ) );
@@ -200,16 +218,16 @@ public class SearchResponseEntryImplTest extends TestCase
     /**
      * Tests for inequality when the attributes are not the same.
      */
-    public void testNotEqualDiffAttributes()
+    public void testNotEqualDiffAttributes() throws InvalidNameException
     {
         SearchResponseEntryImpl resp0 = new SearchResponseEntryImpl( 5 );
         resp0.setAttributes( getAttributes() );
         resp0.getAttributes().put( "abc", "123" );
-        resp0.setObjectName( "dc=apache,dc=org" );
+        resp0.setObjectName( new LdapDN( "dc=apache,dc=org" ) );
 
         SearchResponseEntryImpl resp1 = new SearchResponseEntryImpl( 5 );
         resp1.setAttributes( getAttributes() );
-        resp1.setObjectName( "dc=apache,dc=org" );
+        resp1.setObjectName( new LdapDN( "dc=apache,dc=org" ) );
 
         assertFalse( "different attributes should not be equal", resp1.equals( resp0 ) );
         assertFalse( "different attributes should not be equal", resp0.equals( resp1 ) );

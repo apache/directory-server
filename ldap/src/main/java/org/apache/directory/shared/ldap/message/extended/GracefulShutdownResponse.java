@@ -54,7 +54,7 @@ public class GracefulShutdownResponse extends ExtendedResponseImpl
                 throw new IllegalArgumentException( "The result code can only be one of: " + ResultCodeEnum.SUCCESS
                     + ", " + ResultCodeEnum.OPERATIONSERROR + ", " + ResultCodeEnum.INSUFFICIENTACCESSRIGHTS );
         }
-        super.getLdapResult().setMatchedDn( "" );
+        super.getLdapResult().setMatchedDn( null );
         super.getLdapResult().setResultCode( rcode );
     }
 
@@ -62,7 +62,7 @@ public class GracefulShutdownResponse extends ExtendedResponseImpl
     public GracefulShutdownResponse(int messageId)
     {
         super( messageId );
-        super.getLdapResult().setMatchedDn( "" );
+        super.getLdapResult().setMatchedDn( null );
         super.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
     }
 

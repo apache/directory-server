@@ -19,14 +19,15 @@ package org.apache.directory.shared.ldap.schema;
 
 
 /**
- * The OidNomalizer class contains a couple : and OID with its Normalizer
+ * The OidNomalizer class contains a tuple: an OID with its Normalizer.  It itself
+ * is not a normalizer.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class OidNormalizer
 {
     /** The oid */
-    private String name;
+    private String attributeTypeOid;
 
     /** The normalizer to be used with this OID */
     private Normalizer normalizer;
@@ -35,14 +36,12 @@ public class OidNormalizer
     /**
      * A constructor which accept two parameters
      * 
-     * @param oid
-     *            The oid
-     * @param normalizer
-     *            The associated normalizer
+     * @param attributeTypeOid the oid of the attributeType mapped to the normalizer
+     * @param normalizer the associated equality match based normalizer
      */
-    public OidNormalizer(String name, Normalizer normalizer)
+    public OidNormalizer( String attributeTypeOid, Normalizer normalizer )
     {
-        this.name = name;
+        this.attributeTypeOid = attributeTypeOid;
         this.normalizer = normalizer;
     }
 
@@ -50,12 +49,11 @@ public class OidNormalizer
     /**
      * A copy constructor.
      * 
-     * @param oidNormalizer
-     *            The OidNormalizer to copy from
+     * @param oidNormalizer the OidNormalizer to copy from
      */
-    public OidNormalizer(OidNormalizer oidNormalizer)
+    public OidNormalizer( OidNormalizer oidNormalizer )
     {
-        name = oidNormalizer.name;
+        attributeTypeOid = oidNormalizer.attributeTypeOid;
         normalizer = oidNormalizer.normalizer;
     }
 
@@ -72,37 +70,13 @@ public class OidNormalizer
 
 
     /**
-     * Set the normalizer
-     * 
-     * @param The
-     *            normalizer to be associated to the current OID
-     */
-    public void setNormalizer( Normalizer normalizer )
-    {
-        this.normalizer = normalizer;
-    }
-
-
-    /**
      * Get the current name
      * 
      * @return The current name
      */
-    public String getName()
+    public String getAttributeTypeOid()
     {
-        return name;
-    }
-
-
-    /**
-     * Set the current OID
-     * 
-     * @param The
-     *            current OID
-     */
-    public void setName( String name )
-    {
-        this.name = name;
+        return attributeTypeOid;
     }
 
 
@@ -111,6 +85,6 @@ public class OidNormalizer
      */
     public String toString()
     {
-        return "OidNormalizer : { " + name + ", " + normalizer.toString() + "}";
+        return "OidNormalizer : { " + attributeTypeOid + ", " + normalizer.toString() + "}";
     }
 }

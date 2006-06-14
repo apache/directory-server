@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Set;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -80,45 +82,51 @@ public class TwixDecoder implements ProviderDecoder
 
         while ( buf.hasRemaining() )
         {
-
-            ldapDecoder.decode( buf, ldapMessageContainer );
-
-            if ( log.isDebugEnabled() )
+            try
             {
-                log.debug( "Decoding the PDU : " );
-
-                int size = buf.position();
-                buf.flip();
-                
-            	byte[] array = new byte[ size - position ];
-            	
-            	for ( int i = position; i < size; i++ )
-            	{
-            		array[ i ] = buf.get();
-            	}
-
-                position = size;
-                
-                log.debug( StringTools.dumpBytes( array ) );
-            }
-            
-            if ( ldapMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
-            {
+                ldapDecoder.decode( buf, ldapMessageContainer );
+    
                 if ( log.isDebugEnabled() )
                 {
-                    log.debug( "Decoded LdapMessage : " + ldapMessageContainer.getLdapMessage() );
-                    buf.mark();
+                    log.debug( "Decoding the PDU : " );
+    
+                    int size = buf.position();
+                    buf.flip();
+                    
+                	byte[] array = new byte[ size - position ];
+                	
+                	for ( int i = position; i < size; i++ )
+                	{
+                		array[ i ] = buf.get();
+                	}
+    
+                    position = size;
+                    
+                    log.debug( StringTools.dumpBytes( array ) );
                 }
-
-                decoderCallback.decodeOccurred( null, ldapMessageContainer.getLdapMessage() );
-                ldapMessageContainer.clean();
+                
+                if ( ldapMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
+                {
+                    if ( log.isDebugEnabled() )
+                    {
+                        log.debug( "Decoded LdapMessage : " + ldapMessageContainer.getLdapMessage() );
+                        buf.mark();
+                    }
+    
+                    decoderCallback.decodeOccurred( null, ldapMessageContainer.getLdapMessage() );
+                    ldapMessageContainer.clean();
+                }
+                else
+                {
+                	if ( log.isDebugEnabled() )
+                	{
+                		
+                	}
+                }
             }
-            else
+            catch ( NamingException lne )
             {
-            	if ( log.isDebugEnabled() )
-            	{
-            		
-            	}
+                
             }
         }
     }

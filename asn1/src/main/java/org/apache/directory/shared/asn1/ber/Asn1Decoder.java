@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 
+import javax.naming.NamingException;
+
 
 /**
  * A BER TLV Tag component decoder. This decoder instanciate a Tag. The tag
@@ -296,7 +298,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * @throws DecoderException
      *             Thrown if anything went wrong
      */
-    private void treatTagEndState( IAsn1Container container ) throws DecoderException
+    private void treatTagEndState( IAsn1Container container ) throws DecoderException, NamingException
     {
 
         if ( log.isDebugEnabled() )
@@ -738,7 +740,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * @throws DecoderException
      *             Thrown if anything went wrong
      */
-    private boolean treatTLVDoneState( ByteBuffer stream, IAsn1Container container ) throws DecoderException
+    private boolean treatTLVDoneState( ByteBuffer stream, IAsn1Container container ) throws DecoderException, NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -845,7 +847,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * @throws DecoderException
      *             Thrown if anything went wrong!
      */
-    public void decode( ByteBuffer stream, IAsn1Container container ) throws DecoderException
+    public void decode( ByteBuffer stream, IAsn1Container container ) throws DecoderException, NamingException
     {
 
         /*

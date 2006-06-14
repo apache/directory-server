@@ -18,8 +18,6 @@ package org.apache.directory.shared.ldap.codec.search;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
@@ -134,7 +132,7 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
                     // We have to check that this is a correct DN
-                    Name baseObject = LdapDN.EMPTY_LDAPDN;
+                    LdapDN baseObject = LdapDN.EMPTY_LDAPDN;
 
                     // We have to handle the special case of a 0 length base
                     // object,
@@ -145,19 +143,12 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                         try
                         {
                             baseObject = new LdapDN( tlv.getValue().getData() );
-                            baseObject = LdapDN.normalize( baseObject );
                         }
                         catch ( InvalidNameException ine )
                         {
                             String msg = "The root DN " + baseObject.toString() + " is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
                             throw new DecoderException( msg, ine );
-                        }
-                        catch ( NamingException ne )
-                        {
-                            String msg = "The root DN " + baseObject.toString() + " cannot be modified";
-                            log.error( "{} : {}", msg, ne.getMessage() );
-                            throw new DecoderException( msg, ne );
                         }
                     }
 

@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
@@ -107,7 +106,6 @@ import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest;
 import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,7 +211,7 @@ public class TwixTransformer implements TransformerSpi
         // Twix : int version -> Snickers : boolean isVersion3
         snickersMessage.setVersion3( bindRequest.isLdapV3() );
 
-        // Twix : LdapDN name -> Snickers : String name
+        // Twix : LdapDN name -> Snickers : LdapDN name
         snickersMessage.setName( bindRequest.getName() );
 
         // Twix : Asn1Object authentication instanceOf SimpleAuthentication ->
@@ -253,7 +251,7 @@ public class TwixTransformer implements TransformerSpi
         CompareRequestImpl snickersMessage = new CompareRequestImpl( messageId );
         CompareRequest compareRequest = twixMessage.getCompareRequest();
 
-        // Twix : LdapDN entry -> Snickers : private String name
+        // Twix : LdapDN entry -> Snickers : private LdapDN
         snickersMessage.setName( compareRequest.getEntry() );
 
         // Twix : LdapString attributeDesc -> Snickers : String attrId
@@ -287,7 +285,7 @@ public class TwixTransformer implements TransformerSpi
         DeleteRequestImpl snickersMessage = new DeleteRequestImpl( messageId );
         DelRequest delRequest = twixMessage.getDelRequest();
 
-        // Twix : LdapDN entry -> Snickers : String name
+        // Twix : LdapDN entry -> Snickers : LdapDN
         snickersMessage.setName( delRequest.getEntry() );
 
         return snickersMessage;
@@ -343,16 +341,16 @@ public class TwixTransformer implements TransformerSpi
         ModifyDnRequestImpl snickersMessage = new ModifyDnRequestImpl( messageId );
         ModifyDNRequest modifyDNRequest = twixMessage.getModifyDNRequest();
 
-        // Twix : LdapDN entry -> Snickers : String m_name
+        // Twix : LdapDN entry -> Snickers : LdapDN m_name
         snickersMessage.setName( modifyDNRequest.getEntry() );
 
-        // Twix : RelativeLdapDN newRDN -> Snickers : String m_newRdn
+        // Twix : RelativeLdapDN newRDN -> Snickers : LdapDN m_newRdn
         snickersMessage.setNewRdn( modifyDNRequest.getNewRDN() );
 
         // Twix : boolean deleteOldRDN -> Snickers : boolean m_deleteOldRdn
         snickersMessage.setDeleteOldRdn( modifyDNRequest.isDeleteOldRDN() );
 
-        // Twix : LdapDN newSuperior -> Snickers : String m_newSuperior
+        // Twix : LdapDN newSuperior -> Snickers : LdapDN m_newSuperior
         snickersMessage.setNewSuperior( modifyDNRequest.getNewSuperior() );
 
         return snickersMessage;
@@ -823,24 +821,7 @@ public class TwixTransformer implements TransformerSpi
         }
 
         // Snickers : String matchedDn -> Twix : LdapDN matchedDN
-        try
-        {
-            String matchedDn = snickersLdapResult.getMatchedDn();
-
-            if ( ( matchedDn == null ) || ( matchedDn.length() == 0 ) )
-            {
-                twixLdapResult.setMatchedDN( LdapDN.EMPTY_LDAPDN );
-            }
-            else
-            {
-                twixLdapResult.setMatchedDN( new LdapDN( snickersLdapResult.getMatchedDn() ) );
-            }
-        }
-        catch ( InvalidNameException ine )
-        {
-            log.warn( "The DN  " + snickersLdapResult.getMatchedDn() + " is invalid : " + ine.getMessage() );
-            twixLdapResult.setMatchedDN( LdapDN.EMPTY_LDAPDN );
-        }
+        twixLdapResult.setMatchedDN( snickersLdapResult.getMatchedDn() );
 
         // Snickers : Referral referral -> Twix : ArrayList referrals
         ReferralImpl snisckersReferrals = ( ReferralImpl ) snickersLdapResult.getReferral();
@@ -1084,16 +1065,8 @@ public class TwixTransformer implements TransformerSpi
         SearchResponseEntryImpl snickersSearchResultResponse = ( SearchResponseEntryImpl ) snickersMessage;
         SearchResultEntry searchResultEntry = new SearchResultEntry();
 
-        // Snickers : String dn -> Twix : LdapDN objectName
-        try
-        {
-            searchResultEntry.setObjectName( new LdapDN( snickersSearchResultResponse.getObjectName().getBytes() ) );
-        }
-        catch ( InvalidNameException ine )
-        {
-            log.warn( "The DN " + snickersSearchResultResponse.getObjectName() + " is invalid : " + ine.getMessage() );
-            searchResultEntry.setObjectName( LdapDN.EMPTY_LDAPDN );
-        }
+        // Snickers : LdapDN dn -> Twix : LdapDN objectName
+        searchResultEntry.setObjectName( snickersSearchResultResponse.getObjectName() );
 
         // Snickers : Attributes attributes -> Twix : ArrayList
         // partialAttributeList

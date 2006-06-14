@@ -84,7 +84,7 @@ public class DelRequestTest extends TestCase
         DelRequest delRequest = message.getDelRequest();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", delRequest.getEntry() );
+        assertEquals( "cn=testModify,ou=users,ou=system", delRequest.getEntry().toString() );
 
         // Check the length
         assertEquals( 0x27, message.computeLength() );
@@ -187,7 +187,7 @@ public class DelRequestTest extends TestCase
         DelRequest delRequest = message.getDelRequest();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", delRequest.getEntry() );
+        assertEquals( "cn=testModify,ou=users,ou=system", delRequest.getEntry().toString() );
 
         // Check the length
         assertEquals( 0x44, message.computeLength() );

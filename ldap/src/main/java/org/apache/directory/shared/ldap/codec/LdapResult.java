@@ -124,7 +124,7 @@ public class LdapResult extends Asn1Object
      */
     public String getMatchedDN()
     {
-        return ( ( matchedDN == null ) ? null : matchedDN.toString() );
+        return ( ( matchedDN == null ) ? "" : matchedDN.toString() );
     }
 
 
@@ -205,7 +205,14 @@ public class LdapResult extends Asn1Object
         ldapResultLength = 1 + 1 + 1;
 
         // The matchedDN length
-        ldapResultLength += 1 + Length.getNbBytes( LdapDN.getNbBytes( matchedDN ) ) + LdapDN.getNbBytes( matchedDN );
+        if ( matchedDN == null )
+        {
+            ldapResultLength += 1 + 1;
+        }
+        else
+        {
+            ldapResultLength += 1 + Length.getNbBytes( LdapDN.getNbBytes( matchedDN ) ) + LdapDN.getNbBytes( matchedDN );
+        }
 
         // The errorMessage length
         ldapResultLength += 1 + Length.getNbBytes( errorMessage.getNbBytes() ) + errorMessage.getNbBytes();

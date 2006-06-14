@@ -16,6 +16,8 @@
  */
 package org.apache.directory.shared.ldap.message;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * Compare request protocol message that tests an entry to see if it abides by
@@ -39,7 +41,7 @@ public interface CompareRequest extends SingleReplyRequest, AbandonableRequest
      * 
      * @return the DN of the compared entry.
      */
-    String getName();
+    LdapDN getName();
 
 
     /**
@@ -49,7 +51,7 @@ public interface CompareRequest extends SingleReplyRequest, AbandonableRequest
      * @param a_name
      *            the DN of the compared entry.
      */
-    void setName( String a_name );
+    void setName( LdapDN name );
 
 
     /**

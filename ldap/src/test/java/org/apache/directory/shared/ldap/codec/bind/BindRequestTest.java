@@ -20,6 +20,8 @@ package org.apache.directory.shared.ldap.codec.bind;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -83,6 +85,11 @@ public class BindRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         // Check the decoded BindRequest
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -90,7 +97,7 @@ public class BindRequestTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
-        assertEquals( "uid=akarasulu,dc=example,dc=com", br.getName() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", br.getName().toString() );
         assertEquals( true, ( br.getAuthentication() instanceof SimpleAuthentication ) );
         assertEquals( "password", StringTools.utf8ToString( ( ( SimpleAuthentication ) br.getAuthentication() )
             .getSimple() ) );
@@ -163,6 +170,11 @@ public class BindRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         // Check the decoded BindRequest
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -170,7 +182,7 @@ public class BindRequestTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
-        assertEquals( "uid=akarasulu,dc=example,dc=com", br.getName() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", br.getName().toString() );
         assertEquals( true, ( br.getAuthentication() instanceof SimpleAuthentication ) );
         assertEquals( "password", StringTools.utf8ToString( ( ( SimpleAuthentication ) br.getAuthentication() )
             .getSimple() ) );
@@ -231,6 +243,11 @@ public class BindRequestTest extends TestCase
                 .getMessage() );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "Should never reach this point." );
     }
@@ -274,6 +291,11 @@ public class BindRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         // Check the decoded BindRequest
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -281,7 +303,7 @@ public class BindRequestTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
-        assertEquals( "", br.getName() );
+        assertEquals( "", br.getName().toString() );
         assertEquals( true, ( br.getAuthentication() instanceof SimpleAuthentication ) );
         assertEquals( "password", StringTools.utf8ToString( ( ( SimpleAuthentication ) br.getAuthentication() )
             .getSimple() ) );
@@ -348,6 +370,11 @@ public class BindRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         // Check the decoded BindRequest
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -355,7 +382,7 @@ public class BindRequestTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
-        assertEquals( "uid=akarasulu,dc=example,dc=com", br.getName() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", br.getName().toString() );
         assertEquals( true, ( br.getAuthentication() instanceof SaslCredentials ) );
         assertEquals( "KERBEROS_V4", ( ( SaslCredentials ) br.getAuthentication() ).getMechanism() );
 
@@ -429,6 +456,11 @@ public class BindRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         // Check the decoded BindRequest
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -436,7 +468,7 @@ public class BindRequestTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
-        assertEquals( "uid=akarasulu,dc=example,dc=com", br.getName() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", br.getName().toString() );
         assertEquals( true, ( br.getAuthentication() instanceof SaslCredentials ) );
         assertEquals( "KERBEROS_V4", ( ( SaslCredentials ) br.getAuthentication() ).getMechanism() );
         assertEquals( "abcdef", StringTools.utf8ToString( ( ( SaslCredentials ) br.getAuthentication() )
@@ -491,6 +523,11 @@ public class BindRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -525,6 +562,11 @@ public class BindRequestTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -561,6 +603,11 @@ public class BindRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -595,6 +642,11 @@ public class BindRequestTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -631,6 +683,11 @@ public class BindRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -666,6 +723,11 @@ public class BindRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -700,6 +762,11 @@ public class BindRequestTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -737,6 +804,11 @@ public class BindRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         // Check the decoded BindRequest
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -744,7 +816,7 @@ public class BindRequestTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
-        assertEquals( "", br.getName() );
+        assertEquals( "", br.getName().toString() );
         assertEquals( true, ( br.getAuthentication() instanceof SimpleAuthentication ) );
         assertEquals( "", StringTools.utf8ToString( ( ( SimpleAuthentication ) br.getAuthentication() ).getSimple() ) );
 
@@ -798,6 +870,11 @@ public class BindRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -834,6 +911,11 @@ public class BindRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         // Check the decoded BindRequest
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -841,7 +923,7 @@ public class BindRequestTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
-        assertEquals( "", br.getName() );
+        assertEquals( "", br.getName().toString() );
         assertEquals( true, ( br.getAuthentication() instanceof SaslCredentials ) );
         assertEquals( "", ( ( SaslCredentials ) br.getAuthentication() ).getMechanism() );
 
@@ -896,6 +978,11 @@ public class BindRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         // Check the decoded BindRequest
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -903,7 +990,7 @@ public class BindRequestTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
-        assertEquals( "", br.getName() );
+        assertEquals( "", br.getName().toString() );
         assertEquals( true, ( br.getAuthentication() instanceof SaslCredentials ) );
         assertEquals( "", ( ( SaslCredentials ) br.getAuthentication() ).getMechanism() );
         assertEquals( "", StringTools.utf8ToString( ( ( SaslCredentials ) br.getAuthentication() ).getCredentials() ) );
@@ -963,6 +1050,11 @@ public class BindRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         // Check the decoded BindRequest
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -970,7 +1062,7 @@ public class BindRequestTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
-        assertEquals( "", br.getName() );
+        assertEquals( "", br.getName().toString() );
         assertEquals( true, ( br.getAuthentication() instanceof SaslCredentials ) );
         assertEquals( "", ( ( SaslCredentials ) br.getAuthentication() ).getMechanism() );
         assertEquals( "", StringTools.utf8ToString( ( ( SaslCredentials ) br.getAuthentication() ).getCredentials() ) );
@@ -1038,6 +1130,11 @@ public class BindRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         // Check the decoded BindRequest
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -1045,7 +1142,7 @@ public class BindRequestTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
-        assertEquals( "", br.getName() );
+        assertEquals( "", br.getName().toString() );
         assertEquals( true, ( br.getAuthentication() instanceof SaslCredentials ) );
         assertEquals( "", ( ( SaslCredentials ) br.getAuthentication() ).getMechanism() );
         assertEquals( "", StringTools.utf8ToString( ( ( SaslCredentials ) br.getAuthentication() ).getCredentials() ) );

@@ -200,12 +200,11 @@ public class EntryChangeControlGrammar extends AbstractGrammar implements IGramm
                 else
                 {
                     Value value = entryChangeContainer.getCurrentTLV().getValue();
-                    String previousDn;
+                    LdapDN previousDn = null;
 
                     try
                     {
-                        previousDn = StringTools.utf8ToString( value.getData() );
-                        new LdapDN( previousDn );
+                        previousDn = new LdapDN( StringTools.utf8ToString( value.getData() ) );
                     }
                     catch ( InvalidNameException ine )
                     {

@@ -17,6 +17,7 @@
 package org.apache.directory.shared.ldap.message;
 
 
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -36,7 +37,7 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
      * Distinguished name identifying the name of the authenticating subject -
      * defaults to the empty string
      */
-    private String name = "";
+    private LdapDN name;
 
     /** The passwords, keys or tickets used to verify user identity */
     private byte[] credentials;
@@ -167,7 +168,7 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
      * 
      * @return the DN of the authenticating user.
      */
-    public String getName()
+    public LdapDN getName()
     {
         return name;
     }
@@ -184,7 +185,7 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
      *            the DN of the authenticating user - leave null for annonymous
      *            user.
      */
-    public void setName( String name )
+    public void setName( LdapDN name )
     {
         this.name = name;
     }
@@ -299,11 +300,29 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
             return false;
         }
 
-        if ( !req.getName().equals( getName() ) )
+        LdapDN dn1 = req.getName();
+        LdapDN dn2 = getName();
+        
+        if ( dn1 == null )
         {
-            return false;
+            if ( dn2 != null )
+            {
+                return false;
+            }
         }
-
+        else
+        {
+            if ( dn2 == null )
+            {
+                return false;
+            }
+            else if ( !dn1.equals( dn2 ) )
+            {
+                return false;
+            }
+                
+        }
+        
         if ( !ArrayUtils.isEquals( req.getCredentials(), getCredentials() ) )
         {
             return false;

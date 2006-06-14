@@ -24,9 +24,8 @@ import org.apache.directory.shared.asn1.ber.tlv.Length;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.asn1.util.Asn1StringUtils;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
-import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -85,7 +84,9 @@ public class EntryChangeControl extends Asn1Object
 
     private int changeNumber = UNDEFINED_CHANGE_NUMBER;
 
-    private LdapString previousDn = null;
+    private LdapDN previousDn = null;
+    
+    private byte[] previousDnBytes = null;
 
     private transient int eccSeqLength;
 
@@ -104,7 +105,8 @@ public class EntryChangeControl extends Asn1Object
 
         if ( previousDn != null )
         {
-            previousDnLength = 1 + Length.getNbBytes( previousDn.getNbBytes() ) + previousDn.getNbBytes();
+            previousDnBytes = StringTools.getBytesUtf8( previousDn.getUpName() );
+            previousDnLength = 1 + Length.getNbBytes( previousDnBytes.length ) + previousDnBytes.length;
         }
 
         if ( changeNumber != UNDEFINED_CHANGE_NUMBER )
@@ -140,7 +142,7 @@ public class EntryChangeControl extends Asn1Object
 
         if ( previousDn != null )
         {
-            Value.encode( bb, previousDn.getBytes() );
+            Value.encode( bb, previousDnBytes );
         }
         if ( changeNumber != UNDEFINED_CHANGE_NUMBER )
         {
@@ -184,26 +186,13 @@ public class EntryChangeControl extends Asn1Object
     }
 
 
-    public String getPreviousDn()
+    public LdapDN getPreviousDn()
     {
-        return previousDn == null ? "" : previousDn.getString();
+        return previousDn;
     }
 
 
-    public void setPreviousDn( String previousDn )
-    {
-        try
-        {
-            this.previousDn = new LdapString( Asn1StringUtils.getBytesUtf8( previousDn ) );
-        }
-        catch ( LdapStringEncodingException e )
-        {
-            e.printStackTrace();
-        }
-    }
-
-
-    public void setPreviousDn( LdapString previousDn )
+    public void setPreviousDn( LdapDN previousDn )
     {
         this.previousDn = previousDn;
     }

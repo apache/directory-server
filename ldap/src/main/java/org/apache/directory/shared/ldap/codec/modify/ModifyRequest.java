@@ -36,7 +36,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -67,7 +66,7 @@ public class ModifyRequest extends LdapMessage
     // ----------------------------------------------------------------------------
 
     /** The DN to be modified. */
-    private Name object;
+    private LdapDN object;
 
     /** The modifications list. This is an array of ModificationItem. */
     private ArrayList modifications;
@@ -227,9 +226,9 @@ public class ModifyRequest extends LdapMessage
      * 
      * @return Returns the object.
      */
-    public String getObject()
+    public LdapDN getObject()
     {
-        return ( ( object == null ) ? "" : object.toString() );
+        return object;
     }
 
 
@@ -239,7 +238,7 @@ public class ModifyRequest extends LdapMessage
      * @param object
      *            The DN to set.
      */
-    public void setObject( Name object )
+    public void setObject( LdapDN object )
     {
         this.object = object;
     }

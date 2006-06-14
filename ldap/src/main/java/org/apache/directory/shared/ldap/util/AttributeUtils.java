@@ -37,12 +37,18 @@ public class AttributeUtils
 {
     public static boolean containsValue( Attribute attr, Object compared, AttributeType type ) throws NamingException
     {
+        // quick bypass test
+        if ( attr.contains( compared ) )
+        {
+            return true;
+        }
+        
         Normalizer normalizer = type.getEquality().getNormalizer();
 
         if ( type.getSyntax().isHumanReadible() )
         {
             String comparedStr = ( String ) normalizer.normalize( compared );
-            for ( int ii = attr.size(); ii >= 0; ii-- )
+            for ( int ii = attr.size() - 1; ii >= 0; ii-- )
             {
                 String value = ( String ) attr.get( ii );
                 if ( comparedStr.equals( normalizer.normalize( value ) ) )
@@ -54,7 +60,7 @@ public class AttributeUtils
         else
         {
             byte[] comparedBytes = ( byte[] ) compared;
-            for ( int ii = attr.size(); ii >= 0; ii-- )
+            for ( int ii = attr.size() - 1; ii >= 0; ii-- )
             {
                 if ( ArrayUtils.isEquals( comparedBytes, attr.get( ii ) ) )
                 {
@@ -70,6 +76,15 @@ public class AttributeUtils
     public static boolean containsAnyValues( Attribute attr, Object[] compared, AttributeType type )
         throws NamingException
     {
+        // quick bypass test
+        for ( int ii = 0; ii < compared.length; ii++ )
+        {
+            if ( attr.contains( compared ) )
+            {
+                return true;
+            }
+        }
+        
         Normalizer normalizer = type.getEquality().getNormalizer();
 
         if ( type.getSyntax().isHumanReadible() )

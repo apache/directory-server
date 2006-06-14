@@ -18,8 +18,6 @@ package org.apache.directory.shared.ldap.codec.modify;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
@@ -130,7 +128,7 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
-                    Name object = LdapDN.EMPTY_LDAPDN;
+                    LdapDN object = LdapDN.EMPTY_LDAPDN;
 
                     // Store the value.
                     if ( tlv.getLength().getLength() == 0 )
@@ -143,7 +141,6 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                         try
                         {
                             object = new LdapDN( tlv.getValue().getData() );
-                            object = LdapDN.normalize( object );
                         }
                         catch ( InvalidNameException ine )
                         {
@@ -151,13 +148,6 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                                 + ine.getMessage();
                             log.error( "{} : {}", msg, ine.getMessage() );
                             throw new DecoderException( msg, ine );
-                        }
-                        catch ( NamingException ne )
-                        {
-                            String msg = "Invalid DN " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : "
-                                + ne.getMessage();
-                            log.error( "{} : {}", msg, ne.getMessage() );
-                            throw new DecoderException( msg, ne );
                         }
 
                         modifyRequest.setObject( object );
@@ -350,7 +340,7 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                     {
                         try
                         {
-                            type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
+                            type = new LdapString( tlv.getValue().getData() );
                             modifyRequest.addAttributeTypeAndValues( type );
                         }
                         catch ( LdapStringEncodingException lsee )

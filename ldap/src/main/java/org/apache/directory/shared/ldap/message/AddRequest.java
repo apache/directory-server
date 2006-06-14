@@ -29,6 +29,8 @@ package org.apache.directory.shared.ldap.message;
 
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * Add protocol operation request used to add a new entry to the DIT.
@@ -51,7 +53,7 @@ public interface AddRequest extends SingleReplyRequest, AbandonableRequest
      * 
      * @return the Dn of the added entry.
      */
-    String getEntry();
+    LdapDN getEntry();
 
 
     /**
@@ -60,7 +62,7 @@ public interface AddRequest extends SingleReplyRequest, AbandonableRequest
      * @param entry
      *            the Dn of the added entry.
      */
-    void setEntry( String entry );
+    void setEntry( LdapDN entry );
 
 
     /**

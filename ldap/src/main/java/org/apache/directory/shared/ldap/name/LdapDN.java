@@ -30,8 +30,6 @@ import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.codec.util.LdapString;
-import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -40,11 +38,18 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * The LdapDN class contains a DN (Distinguished Name). Its specification can be
- * found in RFC 2253, "UTF-8 String Representation of Distinguished Names". We
- * will store two representation of a DN : - a user Provider represeentation,
- * which is the parsed String given by a user - an internal representation. A DN
- * is formed of RDNs, in a specific order : RDN[n], RDN[n-1], ... RDN[1], RDN[0]
+ * The LdapDN class contains a DN (Distinguished Name).
+ * 
+ * Its specification can be found in RFC 2253, 
+ * "UTF-8 String Representation of Distinguished Names". 
+ * 
+ * We will store two representation of a DN : 
+ * - a user Provider represeentation, which is the parsed String given by a user 
+ * - an internal representation. 
+ * 
+ * A DN is formed of RDNs, in a specific order : 
+ *  RDN[n], RDN[n-1], ... RDN[1], RDN[0]
+ *  
  * It represents a tree, in which the root is the last RDN (RDN[0]) and the leaf
  * is the first RDN (RDN[n]).
  * 
@@ -86,6 +91,9 @@ public class LdapDN /* extends LdapString */implements Name
 
     /** A null LdapDN */
     public static final LdapDN EMPTY_LDAPDN = new LdapDN();
+    
+    /** The OIDs map container */
+    private static Map OIDS_MAP;
 
 
     // ~ Methods
@@ -103,16 +111,31 @@ public class LdapDN /* extends LdapString */implements Name
 
 
     /**
+     * Transduces, or copies a Name to an LdapDN.
+     *
+     * @param name composed of String name components.
+     */
+    public LdapDN( Name name ) throws InvalidNameException
+    {
+        if ( ( name != null ) && ( name.size() != 0 ) )
+        {
+            for ( int ii = 0; ii < name.size(); ii++ )
+            {
+                String nameComponent = ( String ) name.get( ii );
+                add( nameComponent );
+            }
+        }
+    }
+
+
+    /**
      * Creates an ldap name using a list of NameComponents. Each NameComponent
      * is a String
      * 
-     * @param a_list
-     *            of String name components.
+     * @param list of String name components.
      */
-    LdapDN(List list) throws InvalidNameException
+    LdapDN( List list ) throws InvalidNameException
     {
-        super();
-
         if ( ( list != null ) && ( list.size() != 0 ) )
         {
             Iterator nameComponents = list.iterator();
@@ -132,10 +155,8 @@ public class LdapDN /* extends LdapString */implements Name
      * @param nameComponents
      *            List of String name components.
      */
-    LdapDN(Iterator nameComponents) throws InvalidNameException
+    LdapDN( Iterator nameComponents ) throws InvalidNameException
     {
-        super();
-
         if ( nameComponents != null )
         {
             while ( nameComponents.hasNext() )
@@ -162,7 +183,7 @@ public class LdapDN /* extends LdapString */implements Name
      *                InvalidNameException is thrown if the buffer does not
      *                contains a valid DN.
      */
-    public LdapDN(String upName) throws InvalidNameException
+    public LdapDN( String upName ) throws InvalidNameException
     {
         if ( StringTools.isNotEmpty( upName ) )
         {
@@ -171,7 +192,8 @@ public class LdapDN /* extends LdapString */implements Name
 
         // Stores the representations of a DN : internal (as a string and as a
         // byte[]) and external.
-        normalize( upName );
+        normalizeInternal();
+        this.upName = upName;
     }
 
 
@@ -212,10 +234,9 @@ public class LdapDN /* extends LdapString */implements Name
      * 
      * @return a normalized form of the DN
      */
-    private void normalize( String upName )
+    private void normalizeInternal()
     {
         normName = toNormName();
-        this.upName = upName == null ? "" : upName;
     }
 
 
@@ -279,7 +300,7 @@ public class LdapDN /* extends LdapString */implements Name
     {
         if ( ( rdns == null ) || ( rdns.size() == 0 ) )
         {
-            return "";
+            upName = "";
         }
         else
         {
@@ -300,17 +321,26 @@ public class LdapDN /* extends LdapString */implements Name
                 sb.append( ( ( Rdn ) rdns.get( i ) ).getUpName() );
             }
 
-            return sb.toString();
+            upName = sb.toString();
         }
+
+        return upName;
     }
 
 
     /**
      * Return the User Provided prefix representation of the DN starting at the
-     * posn position. If posn = 0, return an empty string. for DN : sn=smith,
-     * dc=apache, dc=org getUpname(0) -> "" getUpName(1) -> "dc=org"
-     * getUpname(3) -> "sn=smith, dc=apache, dc=org" getUpName(4) ->
-     * ArrayOutOfBoundException Warning ! The returned String is not exactly the
+     * posn position. 
+     * 
+     * If posn = 0, return an empty string. 
+     * 
+     * for DN : sn=smith, dc=apache, dc=org 
+     * getUpname(0) -> "" 
+     * getUpName(1) -> "dc=org"
+     * getUpname(3) -> "sn=smith, dc=apache, dc=org" 
+     * getUpName(4) -> ArrayOutOfBoundException 
+     * 
+     * Warning ! The returned String is not exactly the
      * user provided DN, as spaces before and after each RDNs have been trimmed.
      * 
      * @param posn
@@ -355,14 +385,19 @@ public class LdapDN /* extends LdapString */implements Name
 
     /**
      * Return the User Provided suffix representation of the DN starting at the
-     * posn position. If posn = 0, return an empty string. for DN : sn=smith,
-     * dc=apache, dc=org getUpname(0) -> "sn=smith, dc=apache, dc=org"
-     * getUpName(1) -> "sn=smith, dc=apache" getUpname(3) -> "sn=smith"
-     * getUpName(4) -> "" Warning ! The returned String is not exactly the user
+     * posn position. 
+     * If posn = 0, return an empty string. 
+     * 
+     * for DN : sn=smith, dc=apache, dc=org 
+     * getUpname(0) -> "sn=smith, dc=apache, dc=org"
+     * getUpName(1) -> "sn=smith, dc=apache" 
+     * getUpname(3) -> "sn=smith"
+     * getUpName(4) -> "" 
+     * 
+     * Warning ! The returned String is not exactly the user
      * provided DN, as spaces before and after each RDNs have been trimmed.
      * 
-     * @param posn
-     *            The starting position
+     * @param posn The starting position
      * @return The truncated DN
      */
     private String getUpNameSuffix( int posn )
@@ -395,13 +430,23 @@ public class LdapDN /* extends LdapString */implements Name
 
 
     /**
-     * Gets the hashcode of the string representation of this name.
+     * Gets the hashcode of this name.
      * 
      * @see java.lang.Object#hashCode()
      */
     public int hashCode()
     {
-        return upName.hashCode();
+    	int result = 17;
+    	
+    	if ( ( rdns != null ) || ( rdns.size() == 0 ) )
+    	{
+    		for ( Iterator rdnsIter = rdns.iterator(); rdnsIter.hasNext(); ) 
+    		{
+    			result = result * 37 + rdnsIter.next().hashCode(); 
+    		}
+    	}
+    	
+        return result;
     }
 
 
@@ -410,7 +455,7 @@ public class LdapDN /* extends LdapString */implements Name
      * 
      * @return The DN as a String
      */
-    public String getName()
+    public String getUpName()
     {
         return ( upName == null ? "" : upName );
     }
@@ -421,9 +466,10 @@ public class LdapDN /* extends LdapString */implements Name
      * 
      * @return The DN as a String
      */
-    /*
-     * public String getNormName() { return ( normName == null ? "" : normName ); }
-     */
+     public String getNormName() 
+     { 
+         return ( normName == null ? "" : normName ); 
+     }
 
     /**
      * Get the number of NameComponent conatained in this LdapDN
@@ -453,17 +499,20 @@ public class LdapDN /* extends LdapString */implements Name
      * 
      * @return A byte[] representation of the DN
      */
-    public static byte[] getBytes( Name dn )
+    public static byte[] getBytes( LdapDN dn )
     {
-        return ( ( LdapDN ) dn ).bytes;
+        return dn == null ? null : dn.bytes;
     }
 
 
     /**
      * Determines whether this name starts with a specified prefix. A name
      * <tt>name</tt> is a prefix if it is equal to
-     * <tt>getPrefix(name.size())</tt>. Be aware that for a specific DN like :
-     * cn=xxx, ou=yyy the startsWith method will retourn true with ou=yyy, and
+     * <tt>getPrefix(name.size())</tt>. 
+     * 
+     * Be aware that for a specific DN like :
+     * cn=xxx, ou=yyy 
+     * the startsWith method will return true with ou=yyy, and
      * false with cn=xxx
      * 
      * @param name
@@ -503,6 +552,44 @@ public class LdapDN /* extends LdapString */implements Name
 
             return true;
         }
+        else if ( name instanceof Name )
+        {
+            if ( name.size() == 0 )
+            {
+                return true;
+            }
+
+            if ( name.size() > size() )
+            {
+                // The name is longer than the current LdapDN.
+                return false;
+            }
+
+            // Ok, iterate through all the RDN of the name,
+            // starting a the end of the current list.
+
+            for ( int i = name.size() - 1; i >= 0; i-- )
+            {
+                Rdn ldapRdn = ( Rdn ) rdns.get( rdns.size() - i - 1 );
+                Rdn nameRdn = null;
+                try
+                {
+                    nameRdn = new Rdn( ( String ) name.get( name.size() - i - 1 ) );
+                }
+                catch ( InvalidNameException e )
+                {
+                    e.printStackTrace();
+                    log.error( "Failed to parse RDN for name " + name.toString(), e );
+                }
+                
+                if ( nameRdn.compareTo( ldapRdn ) != 0 )
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
         else
         {
             // We don't accept a Name which is not a LdapName
@@ -514,8 +601,10 @@ public class LdapDN /* extends LdapString */implements Name
     /**
      * Determines whether this name ends with a specified suffix. A name
      * <tt>name</tt> is a suffix if it is equal to
-     * <tt>getSuffix(size()-name.size())</tt>. Be aware that for a specific
-     * DN like : cn=xxx, ou=yyy the endsWith method will retourn true with
+     * <tt>getSuffix(size()-name.size())</tt>. 
+     * 
+     * Be aware that for a specific
+     * DN like : cn=xxx, ou=yyy the endsWith method will return true with
      * cn=xxx, and false with ou=yyy
      * 
      * @param name
@@ -617,6 +706,25 @@ public class LdapDN /* extends LdapString */implements Name
         else
         {
             Rdn rdn = ( Rdn ) rdns.get( rdns.size() - posn - 1 );
+
+            return rdn;
+        }
+    }
+
+    /**
+     * Retrieves the last component of this name.
+     * 
+     * @return the last component of this DN 
+     */
+    public Rdn getRdn()
+    {
+        if ( rdns.size() == 0 )
+        {
+            return null;
+        }
+        else
+        {
+            Rdn rdn = ( Rdn ) rdns.get( 0 );
 
             return rdn;
         }
@@ -824,6 +932,8 @@ public class LdapDN /* extends LdapString */implements Name
     public Name addAll( Name suffix ) throws InvalidNameException
     {
         addAll( rdns.size(), suffix );
+        normalizeInternal();
+        toUpName();
 
         return this;
     }
@@ -860,7 +970,8 @@ public class LdapDN /* extends LdapString */implements Name
             rdns.addAll( size() - posn, ( ( LdapDN ) name ).rdns );
 
             // Regenerate the normalized name and the original string
-            normalize( toUpName() );
+            normalizeInternal();
+            toUpName();
 
             return this;
         }
@@ -888,11 +999,30 @@ public class LdapDN /* extends LdapString */implements Name
         Rdn newRdn = new Rdn( comp );
 
         rdns.add( 0, newRdn );
-        normalize( toUpName() );
+        normalizeInternal();
+        toUpName();
 
         return this;
     }
 
+    /**
+     * Adds a single component to the end of this name.
+     * 
+     * @param comp
+     *            the component to add
+     * @return the updated name (not a new one)
+     * @throws InvalidNameException
+     *             if adding <tt>comp</tt> would violate the syntax rules of
+     *             this name
+     */
+    public Name add( Rdn newRdn ) throws InvalidNameException
+    {
+        rdns.add( rdns.size() - 1, newRdn );
+        normalizeInternal();
+        toUpName();
+
+        return this;
+    }
 
     /**
      * Adds a single component at a specified position within this name.
@@ -926,7 +1056,8 @@ public class LdapDN /* extends LdapString */implements Name
         int realPos = size() - posn;
         rdns.add( realPos, newRdn );
 
-        normalize( toUpName() );
+        normalizeInternal();
+        toUpName();
 
         return this;
     }
@@ -964,7 +1095,8 @@ public class LdapDN /* extends LdapString */implements Name
         int realPos = size() - posn - 1;
         Rdn rdn = ( Rdn ) rdns.remove( realPos );
 
-        normalize( toUpName() );
+        normalizeInternal();
+        toUpName();
 
         return rdn;
     }
@@ -1088,7 +1220,7 @@ public class LdapDN /* extends LdapString */implements Name
     }
 
 
-    private static AttributeTypeAndValue atavOidToName( AttributeTypeAndValue atav, Map oids )
+    private static AttributeTypeAndValue atavOidToName( AttributeTypeAndValue atav )
         throws InvalidNameException, NamingException
     {
         String type = StringTools.trim( atav.getType() );
@@ -1100,18 +1232,25 @@ public class LdapDN /* extends LdapString */implements Name
 
         if ( StringTools.isNotEmpty( StringTools.lowerCase( type ) ) )
         {
-            OidNormalizer oidNormalizer = ( OidNormalizer ) oids.get( type );
-
-            if ( oidNormalizer != null )
+            if ( OIDS_MAP == null )
             {
-                return new AttributeTypeAndValue( oidNormalizer.getName(), ( String ) oidNormalizer.getNormalizer()
-                    .normalize( atav.getValue() ) );
-
+                return atav;
             }
             else
             {
-                // We don't have a normalizer for this OID : just do nothing.
-                return atav;
+                OidNormalizer oidNormalizer = ( OidNormalizer ) OIDS_MAP.get( type );
+    
+                if ( oidNormalizer != null )
+                {
+                    return new AttributeTypeAndValue( oidNormalizer.getAttributeTypeOid(), ( String ) oidNormalizer.getNormalizer()
+                        .normalize( atav.getValue() ) );
+    
+                }
+                else
+                {
+                    // We don't have a normalizer for this OID : just do nothing.
+                    return atav;
+                }
             }
         }
         else
@@ -1136,7 +1275,7 @@ public class LdapDN /* extends LdapString */implements Name
      *             If
      * @throws NamingException
      */
-    private static void rdnOidToName( Rdn rdn, Map oids ) throws InvalidNameException, NamingException
+    private static void rdnOidToName( Rdn rdn ) throws InvalidNameException, NamingException
     {
         if ( rdn.getNbAtavs() > 1 )
         {
@@ -1150,7 +1289,7 @@ public class LdapDN /* extends LdapString */implements Name
             while ( atavs.hasNext() )
             {
                 Object val = atavs.next();
-                AttributeTypeAndValue newAtav = atavOidToName( ( AttributeTypeAndValue ) val, oids );
+                AttributeTypeAndValue newAtav = atavOidToName( ( AttributeTypeAndValue ) val );
                 rdn.addAttributeTypeAndValue( newAtav.getType(), newAtav.getValue() );
             }
 
@@ -1166,22 +1305,29 @@ public class LdapDN /* extends LdapString */implements Name
 
             if ( StringTools.isNotEmpty( StringTools.lowerCase( type ) ) )
             {
-                OidNormalizer oidNormalizer = ( OidNormalizer ) oids.get( type );
-
-                if ( oidNormalizer != null )
+                if ( OIDS_MAP == null )
                 {
-                    Rdn rdnCopy = ( Rdn ) rdn.clone();
-                    rdn.clear();
-
-                    rdn.addAttributeTypeAndValue( oidNormalizer.getName(), ( String ) oidNormalizer.getNormalizer()
-                        .normalize( rdnCopy.getValue() ) );
-
+                    return;
                 }
                 else
                 {
-                    // We don't have a normalizer for this OID : just do
-                    // nothing.
-                    return;
+                    OidNormalizer oidNormalizer = ( OidNormalizer ) OIDS_MAP.get( type );
+    
+                    if ( oidNormalizer != null )
+                    {
+                        Rdn rdnCopy = ( Rdn ) rdn.clone();
+                        rdn.clear();
+                        
+                        rdn.addAttributeTypeAndValue( oidNormalizer.getAttributeTypeOid(), ( String ) oidNormalizer.getNormalizer()
+                            .normalize( rdnCopy.getValue() ) );
+    
+                    }
+                    else
+                    {
+                        // We don't have a normalizer for this OID : just do
+                        // nothing.
+                        return;
+                    }
                 }
             }
             else
@@ -1212,9 +1358,9 @@ public class LdapDN /* extends LdapString */implements Name
      * @throws InvalidNameException
      *             If the DN is invalid
      */
-    public static Name normalize( Name dn, Map oids ) throws InvalidNameException, NamingException
+    public static LdapDN normalize( LdapDN dn ) throws InvalidNameException, NamingException
     {
-        if ( ( dn == null ) || ( dn.size() == 0 ) || ( oids == null ) || ( oids.size() == 0 ) )
+        if ( ( dn == null ) || ( dn.size() == 0 ) || ( OIDS_MAP == null ) || ( OIDS_MAP.size() == 0 ) )
         {
             return dn;
         }
@@ -1228,52 +1374,63 @@ public class LdapDN /* extends LdapString */implements Name
         {
             Rdn rdn = ( Rdn ) rdns.nextElement();
             String upName = rdn.getUpName();
-            rdnOidToName( rdn, oids );
+            rdnOidToName( rdn );
             rdn.normalizeString();
             rdn.setUpName( upName );
         }
 
-        newDn.normalize( newDn.upName );
+        newDn.normalizeInternal();
 
         return newDn;
     }
-
-
-    public static Name normalize( Name dn ) throws InvalidNameException, NamingException
-    {
-        return normalize( dn, DnOidContainer.getOids() );
-    }
-
-
+    
     /**
-     * Substitute OIDs and aliases for the simplest alias
+     * Change the internal DN, using the first alias instead of oids or other
+     * aliases. As we still have the UP name of each RDN, we will be able to
+     * provide both representation of the DN. example : dn: 2.5.4.3=People,
+     * dc=example, domainComponent=com will be transformed to : cn=People,
+     * dc=example, dc=com because 2.5.4.3 is the OID for cn and dc is the first
+     * alias of the couple of aliases (dc, domaincomponent). This is really
+     * important do have such a representation, as 'cn' and 'commonname' share
+     * the same OID.
      * 
-     * @param tlv
-     *            The TLV which contains the data
-     * @return A simple attribute
-     * @throws LdapStringEncodingException
-     *             If the attribute is not valid
+     * @param dn
+     *            The DN to transform
+     * @param oids
+     *            The mapping between names and oids.
+     * @return A normalized form of the DN
+     * @throws InvalidNameException
+     *             If the DN is invalid
      */
-    public static LdapString normalizeAttribute( byte[] data ) throws LdapStringEncodingException
+    public void normalize() throws InvalidNameException, NamingException
     {
-        LdapString type = new LdapString( data );
-
-        OidNormalizer oidNormalizer = ( OidNormalizer ) DnOidContainer.getOids().get( type.getString() );
-
-        if ( oidNormalizer != null )
+        if ( ( OIDS_MAP == null ) || ( OIDS_MAP.size() == 0 ) )
         {
-            type = new LdapString( StringTools.getBytesUtf8( oidNormalizer.getName() ) );
+            return;
         }
 
-        return type;
-    }
+        Enumeration rdns = getAllRdn();
 
-    /*
-     * public Name toLdapName() throws InvalidNameException { Name name = new
-     * LdapName(); Enumeration rdns = getAll(); while ( rdns.hasMoreElements() ) {
-     * name.add( (String)rdns.nextElement() ); } return name; } public LdapDN(
-     * LdapName name ) throws InvalidNameException { Name newName = new
-     * LdapDN(); Enumeration comps = name.getAll(); while (
-     * comps.hasMoreElements() ) { newName.add( (String)comps.nextElement() ); } }
+        // Loop on all RDNs
+        while ( rdns.hasMoreElements() )
+        {
+            Rdn rdn = ( Rdn ) rdns.nextElement();
+            String upName = rdn.getUpName();
+            rdnOidToName( rdn );
+            rdn.normalizeString();
+            rdn.setUpName( upName );
+        }
+
+        normalizeInternal();
+    }
+    
+    /**
+     * Set the static OIDs map with the values.
+     * 
+     * @param oidsMap The HashMap which contains <oid, normalizer> pairs
      */
+    public static synchronized void setOidsMap( Map oidsMap )
+    {
+        OIDS_MAP = oidsMap;
+    }
 }

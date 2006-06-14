@@ -25,6 +25,7 @@ import java.util.Iterator;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.filter.BranchNormalizedVisitor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -38,7 +39,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
     static final long serialVersionUID = -5655881944020886218L;
 
     /** Search base distinguished name */
-    private String baseDn;
+    private LdapDN baseDn;
 
     /** Search filter expression tree's root node */
     private ExprNode filter;
@@ -119,7 +120,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
      * 
      * @return the search base
      */
-    public String getBase()
+    public LdapDN getBase()
     {
         return baseDn;
     }
@@ -131,7 +132,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
      * @param base
      *            the search base
      */
-    public void setBase( String base )
+    public void setBase( LdapDN base )
     {
         baseDn = base;
     }

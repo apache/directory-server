@@ -56,7 +56,7 @@ public class LdapDnParserTest extends TestCase
     {
         NameParser dnParser = LdapDnParser.getNameParser();
 
-        Assert.assertEquals( "", ( ( LdapDN ) dnParser.parse( "" ) ).getName() );
+        Assert.assertEquals( "", ( ( LdapDN ) dnParser.parse( "" ) ).getUpName() );
     }
 
 
@@ -67,7 +67,7 @@ public class LdapDnParserTest extends TestCase
     {
         NameParser dnParser = LdapDnParser.getNameParser();
 
-        Assert.assertEquals( "a = b", ( ( LdapDN ) dnParser.parse( "a = b" ) ).getName() );
+        Assert.assertEquals( "a = b", ( ( LdapDN ) dnParser.parse( "a = b" ) ).getUpName() );
         Assert.assertEquals( "a=b", ( ( LdapDN ) dnParser.parse( "a = b" ) ).toString() );
     }
 
@@ -80,7 +80,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a = b, c = d" );
         Assert.assertEquals( "a=b,c=d", dn.toString() );
-        Assert.assertEquals( "a = b, c = d", dn.getName() );
+        Assert.assertEquals( "a = b, c = d", dn.getUpName() );
     }
 
 
@@ -92,7 +92,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a=b, a =b, a= b, a = b, a  =  b" );
         Assert.assertEquals( "a=b,a=b,a=b,a=b,a=b", dn.toString() );
-        Assert.assertEquals( "a=b, a =b, a= b, a = b, a  =  b", dn.getName() );
+        Assert.assertEquals( "a=b, a =b, a= b, a = b, a  =  b", dn.getUpName() );
     }
 
 
@@ -105,7 +105,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a=b;c=d,e=f" );
         Assert.assertEquals( "a=b,c=d,e=f", dn.toString() );
-        Assert.assertEquals( "a=b;c=d,e=f", dn.getName() );
+        Assert.assertEquals( "a=b;c=d,e=f", dn.getUpName() );
     }
 
 
@@ -117,7 +117,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a = b + c = d" );
         Assert.assertEquals( "a=b+c=d", dn.toString() );
-        Assert.assertEquals( "a = b + c = d", dn.getName() );
+        Assert.assertEquals( "a = b + c = d", dn.getUpName() );
     }
 
 
@@ -130,7 +130,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a=b+c=d, e=f + g=h + i=j" );
         Assert.assertEquals( "a=b+c=d,e=f+g=h+i=j", dn.toString() );
-        Assert.assertEquals( "a=b+c=d, e=f + g=h + i=j", dn.getName() );
+        Assert.assertEquals( "a=b+c=d, e=f + g=h + i=j", dn.getUpName() );
     }
 
 
@@ -142,7 +142,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "OID.12.34.56 = azerty" );
         Assert.assertEquals( "oid.12.34.56=azerty", dn.toString() );
-        Assert.assertEquals( "OID.12.34.56 = azerty", dn.getName() );
+        Assert.assertEquals( "OID.12.34.56 = azerty", dn.getUpName() );
     }
 
 
@@ -154,7 +154,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "oid.12.34.56 = azerty" );
         Assert.assertEquals( "oid.12.34.56=azerty", dn.toString() );
-        Assert.assertEquals( "oid.12.34.56 = azerty", dn.getName() );
+        Assert.assertEquals( "oid.12.34.56 = azerty", dn.getUpName() );
     }
 
 
@@ -167,7 +167,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "12.34.56 = azerty" );
         Assert.assertEquals( "12.34.56=azerty", dn.toString() );
-        Assert.assertEquals( "12.34.56 = azerty", dn.getName() );
+        Assert.assertEquals( "12.34.56 = azerty", dn.getUpName() );
     }
 
 
@@ -180,7 +180,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "12.34.56 = azerty; 7.8 = test" );
         Assert.assertEquals( "12.34.56=azerty,7.8=test", dn.toString() );
-        Assert.assertEquals( "12.34.56 = azerty; 7.8 = test", dn.getName() );
+        Assert.assertEquals( "12.34.56 = azerty; 7.8 = test", dn.getUpName() );
     }
 
 
@@ -192,7 +192,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\A0\\00" );
         Assert.assertEquals( "a=\\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\A0\\00", dn.toString() );
-        Assert.assertEquals( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\A0\\00", dn.getName() );
+        Assert.assertEquals( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\A0\\00", dn.getUpName() );
     }
 
 
@@ -204,7 +204,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a = #0010A0AAFF" );
         Assert.assertEquals( "a=#0010A0AAFF", dn.toString() );
-        Assert.assertEquals( "a = #0010A0AAFF", dn.getName() );
+        Assert.assertEquals( "a = #0010A0AAFF", dn.getUpName() );
     }
 
 
@@ -216,7 +216,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a = quoted \\\"value" );
         Assert.assertEquals( "a=quoted \\\"value", dn.toString() );
-        Assert.assertEquals( "a = quoted \\\"value", dn.getName() );
+        Assert.assertEquals( "a = quoted \\\"value", dn.getUpName() );
     }
 
 
@@ -240,7 +240,7 @@ public class LdapDnParserTest extends TestCase
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN name = ( LdapDN ) dnParser.parse( "CN = Emmanuel  Lécharny" );
 
-        Assert.assertEquals( "CN = Emmanuel  Lécharny", name.getName() );
+        Assert.assertEquals( "CN = Emmanuel  Lécharny", name.getUpName() );
         Assert.assertEquals( "cn=Emmanuel  Lécharny", name.toString() );
     }
 
@@ -253,7 +253,7 @@ public class LdapDnParserTest extends TestCase
 
         Assert.assertEquals(
             "cn=Billy Bakers, OID.2.5.4.11=Corporate Tax, ou=Fin-Accounting, ou=Americas, ou=Search, o=IMC, c=US", name
-                .getName() );
+                .getUpName() );
         Assert.assertEquals(
             "cn=Billy Bakers,oid.2.5.4.11=Corporate Tax,ou=Fin-Accounting,ou=Americas,ou=Search,o=IMC,c=US", name
                 .toString() );

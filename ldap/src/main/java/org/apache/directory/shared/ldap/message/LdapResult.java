@@ -26,6 +26,8 @@
 
 package org.apache.directory.shared.ldap.message;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * LDAPv3 result structure embedded into Responses. See section 4.1.10 in <a
@@ -79,7 +81,7 @@ public interface LdapResult
      * 
      * @return the Dn of the lowest matched entry.
      */
-    String getMatchedDn();
+    LdapDN getMatchedDn();
 
 
     /**
@@ -89,7 +91,7 @@ public interface LdapResult
      * @param dn
      *            the Dn of the lowest matched entry.
      */
-    void setMatchedDn( String dn );
+    void setMatchedDn( LdapDN dn );
 
 
     /**

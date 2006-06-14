@@ -21,7 +21,7 @@ package org.apache.directory.shared.ldap.subtree;
 import java.io.StringReader;
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -66,14 +66,13 @@ public class SubtreeSpecificationParser
     /**
      * Creates a normalizing subtree specification parser.
      */
-    public SubtreeSpecificationParser(NameComponentNormalizer normalizer)
+    public SubtreeSpecificationParser( NormalizerMappingResolver resolver )
     {
         StringReader in = new StringReader( "" ); // place holder for the
                                                     // first input
         this.lexer = new ReusableAntlrSubtreeSpecificationLexer( in );
         this.parser = new ReusableAntlrSubtreeSpecificationParser( lexer );
-
-        this.parser.setNormalizer( normalizer );
+        this.parser.setNormalizerMappingResolver( resolver );
         this.parser.init(); // this method MUST be called while we cannot do
         // constructor overloading for antlr generated parser
         this.isNormalizing = true;

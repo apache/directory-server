@@ -22,6 +22,8 @@ import junit.framework.TestCase;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.naming.InvalidNameException;
+
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
@@ -29,6 +31,7 @@ import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -52,13 +55,13 @@ public class DeleteRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
-    public void testEqualsExactCopy()
+    public void testEqualsExactCopy() throws InvalidNameException
     {
         DeleteRequestImpl req0 = new DeleteRequestImpl( 5 );
-        req0.setName( "cn=admin,dc=example,dc=com" );
+        req0.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
 
         DeleteRequestImpl req1 = new DeleteRequestImpl( 5 );
-        req1.setName( "cn=admin,dc=example,dc=com" );
+        req1.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
 
         assertTrue( req0.equals( req1 ) );
     }
@@ -67,13 +70,13 @@ public class DeleteRequestImplTest extends TestCase
     /**
      * Test for inequality when only the IDs are different.
      */
-    public void testNotEqualDiffId()
+    public void testNotEqualDiffId() throws InvalidNameException
     {
         DeleteRequestImpl req0 = new DeleteRequestImpl( 7 );
-        req0.setName( "cn=admin,dc=example,dc=com" );
+        req0.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
 
         DeleteRequestImpl req1 = new DeleteRequestImpl( 5 );
-        req1.setName( "cn=admin,dc=example,dc=com" );
+        req1.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
 
         assertFalse( req0.equals( req1 ) );
     }
@@ -82,13 +85,13 @@ public class DeleteRequestImplTest extends TestCase
     /**
      * Test for inequality when only the DN names are different.
      */
-    public void testNotEqualDiffName()
+    public void testNotEqualDiffName() throws InvalidNameException
     {
         DeleteRequestImpl req0 = new DeleteRequestImpl( 5 );
-        req0.setName( "uid=akarasulu,dc=example,dc=com" );
+        req0.setName( new LdapDN( "uid=akarasulu,dc=example,dc=com" ) );
 
         DeleteRequestImpl req1 = new DeleteRequestImpl( 5 );
-        req1.setName( "cn=admin,dc=example,dc=com" );
+        req1.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
 
         assertFalse( req0.equals( req1 ) );
     }
@@ -102,13 +105,13 @@ public class DeleteRequestImplTest extends TestCase
     {
         DeleteRequest req0 = new DeleteRequest()
         {
-            public String getName()
+            public LdapDN getName()
             {
                 return null;
             }
 
 
-            public void setName( String a_name )
+            public void setName( LdapDN name )
             {
             }
 

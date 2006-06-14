@@ -20,6 +20,7 @@ package org.apache.directory.shared.ldap.message;
 import java.util.Collection;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -60,7 +61,7 @@ public interface SearchRequest extends ManyReplyRequest, AbandonableRequest
      * 
      * @return the search base
      */
-    String getBase();
+    LdapDN getBase();
 
 
     /**
@@ -69,7 +70,7 @@ public interface SearchRequest extends ManyReplyRequest, AbandonableRequest
      * @param a_baseDn
      *            the search base
      */
-    void setBase( String a_baseDn );
+    void setBase( LdapDN baseDn );
 
 
     /**

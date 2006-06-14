@@ -18,9 +18,9 @@ package org.apache.directory.shared.ldap.subtree;
 
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import java.util.Set;
-import javax.naming.Name;
 
 
 /**
@@ -49,7 +49,7 @@ public interface SubtreeSpecification
      *         if the base is the administrative point - note that this Name is
      *         not Normalized according to matchingRules.
      */
-    Name getBase();
+    LdapDN getBase();
 
 
     /**

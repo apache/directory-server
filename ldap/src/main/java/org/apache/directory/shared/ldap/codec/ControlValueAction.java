@@ -20,6 +20,8 @@ package org.apache.directory.shared.ldap.codec;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -64,7 +66,7 @@ public class ControlValueAction extends GrammarAction
     }
 
 
-    public void action( IAsn1Container container ) throws DecoderException
+    public void action( IAsn1Container container ) throws DecoderException, NamingException
     {
         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
         LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();

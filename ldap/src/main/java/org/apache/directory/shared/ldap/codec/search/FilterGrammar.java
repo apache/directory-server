@@ -32,7 +32,6 @@ import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapStatesEnum;
 import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -473,7 +472,7 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
 
                     try
                     {
-                        LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
+                        LdapString type = new LdapString( tlv.getValue().getData() );
                         assertion.setAttributeDesc( type );
                     }
                     catch ( LdapStringEncodingException lsee )
@@ -572,7 +571,7 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                     {
                         try
                         {
-                            LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
+                            LdapString type = new LdapString( tlv.getValue().getData() );
                             assertion.setAttributeDesc( type );
                         }
                         catch ( LdapStringEncodingException lsee )
@@ -644,7 +643,7 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                         // Store the value.
                         try
                         {
-                            LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
+                            LdapString type = new LdapString( tlv.getValue().getData() );
                             presentFilter.setAttributeDescription( type );
                         }
                         catch ( LdapStringEncodingException lsee )

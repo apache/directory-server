@@ -29,6 +29,8 @@ package org.apache.directory.shared.ldap.message;
 
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * Search entry protocol response message used to return non referral entries to
@@ -49,7 +51,7 @@ public interface SearchResponseEntry extends Response
      * 
      * @return the Dn of the entry returned.
      */
-    String getObjectName();
+    LdapDN getObjectName();
 
 
     /**
@@ -58,7 +60,7 @@ public interface SearchResponseEntry extends Response
      * @param a_dn
      *            the Dn of the entry returned.
      */
-    void setObjectName( String a_dn );
+    void setObjectName( LdapDN dn );
 
 
     /**

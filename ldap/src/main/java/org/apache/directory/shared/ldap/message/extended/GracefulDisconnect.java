@@ -21,6 +21,8 @@ import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -65,7 +67,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     private Referral replicatedContexts = new ReferralImpl();
 
 
-    public GracefulDisconnect(byte[] value)
+    public GracefulDisconnect(byte[] value) throws NamingException
     {
         super( 0 );
         this.value = value;
@@ -85,14 +87,14 @@ public class GracefulDisconnect extends ExtendedResponseImpl
         buf.append( " minutes in " ).append( delay ).append( " seconds." );
 
         super.getLdapResult().setErrorMessage( buf.toString() );
-        super.getLdapResult().setMatchedDn( "" );
+        super.getLdapResult().setMatchedDn( null );
         super.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLE );
 
         encodeResponse();
     }
 
 
-    private void decodeValue()
+    private void decodeValue() throws NamingException
     {
         GracefulDisconnectDecoder decoder = new GracefulDisconnectDecoder();
         org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec = null;
@@ -189,6 +191,11 @@ public class GracefulDisconnect extends ExtendedResponseImpl
         {
             log.error( "Failed while decoding response", e );
         }
+        catch ( NamingException e )
+        {
+            log.error( "Failed while decoding response", e );
+        }
+
         org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec = container
             .getGracefulDisconnect();
         this.delay = codec.getDelay();

@@ -24,11 +24,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.ArrayList;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
-
-import org.apache.directory.shared.ldap.name.DnParser;
-import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
@@ -36,6 +32,7 @@ import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.AbstractExprNode;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
+import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.util.ComponentsMonitor;
 import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
 
@@ -75,10 +72,8 @@ options
 
 {
     private static final Logger log = LoggerFactory.getLogger( AntlrSubtreeSpecificationParser.class );
-    private DnParser dnParser;
     
-    private boolean isNormalizing = false;
-    private NameComponentNormalizer normalizer;
+    private NormalizerMappingResolver resolver;
     
     private Set chopBeforeExclusions = new HashSet();
     private Set chopAfterExclusions = new HashSet();
@@ -88,45 +83,25 @@ options
     private ComponentsMonitor subtreeSpecificationComponentsMonitor = null;
 
     /**
-     * Creates a (normalizing) subordinate DnParser for parsing LocalNames.
-     * This method MUST be called for each instance while we cannot do
-     * constructor overloading for this class.
-     *
-     * @return the DnParser to be used for parsing LocalNames
+     * Does nothing.
      */
     public void init()
     {
-        try
-        {
-            if( isNormalizing )
-            {
-                dnParser = new DnParser( normalizer );
-            }
-            else
-            {
-                dnParser = new DnParser();
-            }
-        }
-        catch ( NamingException e )
-        {
-            String msg = "Failed to initialize the subordinate DnParser for this AntlrSubtreeSpecificationParser";
-
-            // We throw a NPE since this variable cannot be null for proper operation
-            // so we can catch the null pointer before the dnParser is even used.
-
-            throw new NullPointerException( "dnParser is null: " + msg );
-        }
-    }
-
-    /**
-     * Sets the NameComponentNormalizer for this parser's dnParser.
-     */
-    public void setNormalizer(NameComponentNormalizer normalizer)
-    {
-        this.normalizer = normalizer;
-        this.isNormalizing = true;
     }
     
+    
+    public void setNormalizerMappingResolver( NormalizerMappingResolver resolver )
+    {
+    	this.resolver = resolver;
+    }
+    
+    
+    public boolean isNormalizing()
+    {
+    	return this.resolver != null;
+    }
+    
+
     private int token2Integer( Token token ) throws RecognitionException
     {
         int i = 0;
@@ -218,7 +193,7 @@ subtreeSpecificationComponent
 ss_base
 {
     log.debug( "entered ss_base()" );
-    Name base = null;
+    LdapDN base = null;
 }
     :
     ID_base ( SP )+ base=distinguishedName
@@ -262,7 +237,7 @@ specificExclusion
 chopBefore
 {
     log.debug( "entered chopBefore()" );
-    Name chopBeforeExclusion = null;
+    LdapDN chopBeforeExclusion = null;
 }
     :
     ID_chopBefore ( SP )* COLON ( SP )* chopBeforeExclusion=distinguishedName
@@ -274,7 +249,7 @@ chopBefore
 chopAfter
 {
     log.debug( "entered chopAfter()" );
-    Name chopAfterExclusion = null;
+    LdapDN chopAfterExclusion = null;
 }
     :
     ID_chopAfter ( SP )* COLON ( SP )* chopAfterExclusion=distinguishedName
@@ -315,11 +290,12 @@ ss_specificationFilter
     :
     ID_specificationFilter ( SP )+ theRefinement=refinement
     {
+    	// TODO need to normalize refinement filter
         ssModifier.setRefinement( theRefinement );
     }
     ;
     
-distinguishedName returns [ Name name ] 
+distinguishedName returns [ LdapDN name ] 
 {
     log.debug( "entered distinguishedName()" );
     name = null;
@@ -327,7 +303,11 @@ distinguishedName returns [ Name name ]
     :
     token:SAFEUTF8STRING
     {
-        name = dnParser.parse( token.getText() );
+        name = new LdapDN( token.getText() );
+        if ( isNormalizing() )
+        {
+        	name.normalize();
+        }
         log.debug( "recognized a DistinguishedName: " + token.getText() );
     }
     ;

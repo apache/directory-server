@@ -26,7 +26,7 @@
 package org.apache.directory.shared.ldap.util;
 
 
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.*;
 import java.util.ArrayList;
@@ -390,7 +390,7 @@ public class NamespaceTools
      */
     public static Name getRelativeName( Name ancestor, Name descendant ) throws NamingException
     {
-        LdapName rdn = new LdapName( descendant.toString() );
+        LdapDN rdn = new LdapDN( descendant.toString() );
 
         if ( rdn.startsWith( ancestor ) )
         {

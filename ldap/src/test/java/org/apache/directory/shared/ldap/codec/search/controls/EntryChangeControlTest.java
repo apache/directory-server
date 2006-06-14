@@ -27,6 +27,7 @@ import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControl;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlDecoder;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.Assert;
@@ -73,7 +74,7 @@ public class EntryChangeControlTest extends TestCase
 
         EntryChangeControl entryChange = container.getEntryChangeControl();
         assertEquals( ChangeType.MODDN, entryChange.getChangeType() );
-        assertEquals( "a=b", entryChange.getPreviousDn() );
+        assertEquals( "a=b", entryChange.getPreviousDn().toString() );
         assertEquals( 16, entryChange.getChangeNumber() );
     }
 
@@ -109,7 +110,7 @@ public class EntryChangeControlTest extends TestCase
 
         EntryChangeControl entryChange = container.getEntryChangeControl();
         assertEquals( ChangeType.ADD, entryChange.getChangeType() );
-        assertEquals( "", entryChange.getPreviousDn() );
+        assertNull( entryChange.getPreviousDn() );
         assertEquals( 16, entryChange.getChangeNumber() );
     }
 
@@ -182,7 +183,7 @@ public class EntryChangeControlTest extends TestCase
 
         EntryChangeControl entryChange = container.getEntryChangeControl();
         assertEquals( ChangeType.ADD, entryChange.getChangeType() );
-        assertEquals( "", entryChange.getPreviousDn() );
+        assertNull( entryChange.getPreviousDn() );
         assertEquals( EntryChangeControl.UNDEFINED_CHANGE_NUMBER, entryChange.getChangeNumber() );
     }
 
@@ -244,7 +245,7 @@ public class EntryChangeControlTest extends TestCase
         EntryChangeControl entry = new EntryChangeControl();
         entry.setChangeType( ChangeType.MODDN );
         entry.setChangeNumber( 16 );
-        entry.setPreviousDn( "a=b" );
+        entry.setPreviousDn( new LdapDN( "a=b" ) );
         bb = entry.encode( null );
         String decoded = StringTools.dumpBytes( bb.array() );
         assertEquals( expected, decoded );

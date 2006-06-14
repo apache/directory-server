@@ -20,8 +20,10 @@ package org.apache.directory.shared.ldap.util;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import javax.naming.Name;
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
@@ -91,5 +93,20 @@ public class NamespaceToolsTest extends TestCase
         args = NamespaceTools.getCompositeComponents( "cn=Alex" );
         assertEquals( "expecting one part : ", 1, args.length );
         assertEquals( "cn=Alex", args[0] );
+    }
+    
+    
+    public void testGetRelativeName() throws NamingException
+    {
+        // test the basis case first with the root
+        LdapDN ancestor = new LdapDN( "" );
+        LdapDN descendant = new LdapDN( "ou=system" );
+        Name relativeName = NamespaceTools.getRelativeName( ancestor, descendant );
+        assertEquals( relativeName.toString(), "ou=system" );
+        
+        ancestor = new LdapDN( "ou=system" );
+        descendant = new LdapDN( "ou=users,ou=system" );
+        relativeName = NamespaceTools.getRelativeName( ancestor, descendant );
+        assertEquals( relativeName.toString(), "ou=users" );
     }
 }

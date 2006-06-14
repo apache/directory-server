@@ -17,11 +17,14 @@
 package org.apache.directory.shared.ldap.message;
 
 
+import javax.naming.InvalidNameException;
+
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.LdapResultImpl;
 import org.apache.directory.shared.ldap.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import junit.framework.TestCase;
 
@@ -90,13 +93,13 @@ public class LdapResultImplTest extends TestCase
             }
 
 
-            public String getMatchedDn()
+            public LdapDN getMatchedDn()
             {
                 return null;
             }
 
 
-            public void setMatchedDn( String a_dn )
+            public void setMatchedDn( LdapDN dn )
             {
             }
 
@@ -137,7 +140,7 @@ public class LdapResultImplTest extends TestCase
     /**
      * Tests two non default carbon copies for equality.
      */
-    public void testEqualsCarbonCopy()
+    public void testEqualsCarbonCopy() throws InvalidNameException
     {
         LdapResultImpl r0 = new LdapResultImpl();
         LdapResultImpl r1 = new LdapResultImpl();
@@ -145,8 +148,8 @@ public class LdapResultImplTest extends TestCase
         r0.setErrorMessage( "blah blah blah" );
         r1.setErrorMessage( "blah blah blah" );
 
-        r0.setMatchedDn( "dc=example,dc=com" );
-        r1.setMatchedDn( "dc=example,dc=com" );
+        r0.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
+        r1.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
 
         r0.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
         r1.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
@@ -167,7 +170,7 @@ public class LdapResultImplTest extends TestCase
     /**
      * Tests for inequality when the error message is different.
      */
-    public void testNotEqualsDiffErrorMessage()
+    public void testNotEqualsDiffErrorMessage() throws InvalidNameException
     {
         LdapResultImpl r0 = new LdapResultImpl();
         LdapResultImpl r1 = new LdapResultImpl();
@@ -175,8 +178,8 @@ public class LdapResultImplTest extends TestCase
         r0.setErrorMessage( "blah blah blah" );
         r1.setErrorMessage( "blah" );
 
-        r0.setMatchedDn( "dc=example,dc=com" );
-        r1.setMatchedDn( "dc=example,dc=com" );
+        r0.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
+        r1.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
 
         r0.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
         r1.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
@@ -197,7 +200,7 @@ public class LdapResultImplTest extends TestCase
     /**
      * Tests for inequality when the matchedDn properties are not the same.
      */
-    public void testNotEqualsDiffMatchedDn()
+    public void testNotEqualsDiffMatchedDn() throws InvalidNameException
     {
         LdapResultImpl r0 = new LdapResultImpl();
         LdapResultImpl r1 = new LdapResultImpl();
@@ -205,8 +208,8 @@ public class LdapResultImplTest extends TestCase
         r0.setErrorMessage( "blah blah blah" );
         r1.setErrorMessage( "blah blah blah" );
 
-        r0.setMatchedDn( "dc=example,dc=com" );
-        r1.setMatchedDn( "dc=apache,dc=org" );
+        r0.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
+        r1.setMatchedDn( new LdapDN( "dc=apache,dc=org")  );
 
         r0.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
         r1.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
@@ -227,7 +230,7 @@ public class LdapResultImplTest extends TestCase
     /**
      * Tests for inequality when the resultCode properties are not the same.
      */
-    public void testNotEqualsDiffResultCode()
+    public void testNotEqualsDiffResultCode() throws InvalidNameException
     {
         LdapResultImpl r0 = new LdapResultImpl();
         LdapResultImpl r1 = new LdapResultImpl();
@@ -235,8 +238,8 @@ public class LdapResultImplTest extends TestCase
         r0.setErrorMessage( "blah blah blah" );
         r1.setErrorMessage( "blah blah blah" );
 
-        r0.setMatchedDn( "dc=example,dc=com" );
-        r1.setMatchedDn( "dc=example,dc=com" );
+        r0.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
+        r1.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
 
         r0.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
         r1.setResultCode( ResultCodeEnum.SIZELIMITEXCEEDED );
@@ -257,7 +260,7 @@ public class LdapResultImplTest extends TestCase
     /**
      * Tests for inequality when the referrals are not the same.
      */
-    public void testNotEqualsDiffReferrals()
+    public void testNotEqualsDiffReferrals() throws InvalidNameException
     {
         LdapResultImpl r0 = new LdapResultImpl();
         LdapResultImpl r1 = new LdapResultImpl();
@@ -265,8 +268,8 @@ public class LdapResultImplTest extends TestCase
         r0.setErrorMessage( "blah blah blah" );
         r1.setErrorMessage( "blah blah blah" );
 
-        r0.setMatchedDn( "dc=example,dc=com" );
-        r1.setMatchedDn( "dc=example,dc=com" );
+        r0.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
+        r1.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
 
         r0.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
         r1.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );

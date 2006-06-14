@@ -33,7 +33,6 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -59,7 +58,7 @@ public class SearchResultEntry extends LdapMessage
     // ----------------------------------------------------------------------------
 
     /** The DN of the returned entry */
-    private Name objectName;
+    private LdapDN objectName;
 
     /** The attributes list. It contains javax.naming.directory.Attribute */
     private Attributes partialAttributeList;
@@ -112,9 +111,9 @@ public class SearchResultEntry extends LdapMessage
      * 
      * @return Returns the objectName.
      */
-    public String getObjectName()
+    public LdapDN getObjectName()
     {
-        return ( ( objectName == null ) ? null : objectName.toString() );
+        return objectName;
     }
 
 
@@ -124,7 +123,7 @@ public class SearchResultEntry extends LdapMessage
      * @param objectName
      *            The objectName to set.
      */
-    public void setObjectName( Name objectName )
+    public void setObjectName( LdapDN objectName )
     {
         this.objectName = objectName;
     }

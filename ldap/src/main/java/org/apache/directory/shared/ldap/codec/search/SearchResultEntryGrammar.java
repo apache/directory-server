@@ -18,8 +18,6 @@ package org.apache.directory.shared.ldap.codec.search;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
@@ -133,7 +131,7 @@ public class SearchResultEntryGrammar extends AbstractGrammar implements IGramma
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
-                    Name objectName = LdapDN.EMPTY_LDAPDN;
+                    LdapDN objectName = LdapDN.EMPTY_LDAPDN;
 
                     // Store the value.
                     if ( tlv.getLength().getLength() == 0 )
@@ -145,7 +143,6 @@ public class SearchResultEntryGrammar extends AbstractGrammar implements IGramma
                         try
                         {
                             objectName = new LdapDN( tlv.getValue().getData() );
-                            objectName = LdapDN.normalize( objectName );
                         }
                         catch ( InvalidNameException ine )
                         {
@@ -153,13 +150,6 @@ public class SearchResultEntryGrammar extends AbstractGrammar implements IGramma
                                 + "is invalid : " + ine.getMessage();
                             log.error( "{} : {}", msg, ine.getMessage() );
                             throw new DecoderException( msg, ine );
-                        }
-                        catch ( NamingException ne )
-                        {
-                            String msg = "The DN " + StringTools.dumpBytes( tlv.getValue().getData() )
-                                + "is invalid : " + ne.getMessage();
-                            log.error( "{} : {}", msg, ne.getMessage() );
-                            throw new DecoderException( msg, ne );
                         }
 
                         searchResultEntry.setObjectName( objectName );
@@ -261,7 +251,7 @@ public class SearchResultEntryGrammar extends AbstractGrammar implements IGramma
                     {
                         try
                         {
-                            type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
+                            type = new LdapString( tlv.getValue().getData() );
                             searchResultEntry.addAttributeValues( type );
                         }
                         catch ( LdapStringEncodingException lsee )

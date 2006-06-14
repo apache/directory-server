@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
@@ -41,7 +42,6 @@ import org.apache.directory.shared.ldap.codec.search.OrFilter;
 import org.apache.directory.shared.ldap.codec.search.PresentFilter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
 import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControl;
-import org.apache.directory.shared.ldap.name.DnOidContainer;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -56,12 +56,12 @@ import junit.framework.TestCase;
  */
 public class SearchRequestTest extends TestCase
 {
+    static Map oids = new HashMap(); 
 
     protected void setUp() throws Exception
     {
         super.setUp();
 
-        Map oids = new HashMap();
         oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
         oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
         oids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
@@ -70,8 +70,6 @@ public class SearchRequestTest extends TestCase
         oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
         oids.put( "objectclass", new OidNormalizer( "objectclass", new DeepTrimToLowerNormalizer() ) );
         oids.put( "2.5.4.0", new OidNormalizer( "objectclass", new DeepTrimToLowerNormalizer() ) );
-
-        DnOidContainer.setOids( oids );
     }
 
 
@@ -162,6 +160,11 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -337,6 +340,11 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
@@ -505,6 +513,11 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
@@ -643,6 +656,11 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
@@ -734,6 +752,11 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -861,6 +884,11 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         assertEquals( 4, message.getMessageId() );
@@ -878,7 +906,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( manageReferralControlOID, manageReferralControl.getControlType() );
 
         SearchRequest sr = message.getSearchRequest();
-        assertEquals( "dc=my-domain,dc=com", sr.getBaseObject() );
+        assertEquals( "dc=my-domain,dc=com", sr.getBaseObject().toString() );
         assertEquals( LdapConstants.SCOPE_WHOLE_SUBTREE, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 0, sr.getSizeLimit() );
@@ -993,6 +1021,11 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
@@ -1035,7 +1068,7 @@ public class SearchRequestTest extends TestCase
         assertion = equalityMatch.getAssertion();
         assertNotNull( assertion );
 
-        assertEquals( "ou", assertion.getAttributeDesc().toString() );
+        assertEquals( "2.5.4.11", assertion.getAttributeDesc().toString() );
         assertEquals( "contacts", assertion.getAssertionValue().toString() );
 
         // (& (| (objectclass=top) (ou=contacts) ) (! ...
@@ -1049,7 +1082,7 @@ public class SearchRequestTest extends TestCase
         assertion = equalityMatch.getAssertion();
         assertNotNull( assertion );
 
-        assertEquals( "ou", assertion.getAttributeDesc().toString() );
+        assertEquals( "organizationalUnitName", assertion.getAttributeDesc().toString() );
         assertEquals( "ttt", assertion.getAssertionValue().toString() );
 
         Attributes attributes = sr.getAttributes();
@@ -1106,6 +1139,11 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         assertEquals( 4, message.getMessageId() );
@@ -1119,7 +1157,7 @@ public class SearchRequestTest extends TestCase
         assertTrue( ( ( SubEntryControl ) subEntryControl.getControlValue() ).isVisible() );
 
         SearchRequest sr = message.getSearchRequest();
-        assertEquals( "dc=my-domain,dc=com", sr.getBaseObject() );
+        assertEquals( "dc=my-domain,dc=com", sr.getBaseObject().toString() );
         assertEquals( LdapConstants.SCOPE_WHOLE_SUBTREE, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 0, sr.getSizeLimit() );
@@ -1173,6 +1211,11 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -1205,6 +1248,11 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1241,6 +1289,11 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -1276,6 +1329,11 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -1310,6 +1368,11 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1347,6 +1410,11 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -1382,6 +1450,11 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1419,6 +1492,11 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -1454,6 +1532,11 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1491,6 +1574,11 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -1526,6 +1614,11 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1563,6 +1656,11 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -1598,6 +1696,11 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1635,6 +1738,11 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1676,6 +1784,11 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -1756,6 +1869,11 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -1841,6 +1959,11 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
@@ -1909,6 +2032,11 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -1949,6 +2077,11 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1991,6 +2124,11 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
         fail( "We should not reach this point" );
     }
@@ -2030,6 +2168,11 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );

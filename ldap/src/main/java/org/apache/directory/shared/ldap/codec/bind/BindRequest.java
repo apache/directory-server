@@ -20,8 +20,6 @@ package org.apache.directory.shared.ldap.codec.bind;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import javax.naming.Name;
-
 import org.apache.directory.shared.asn1.ber.tlv.Length;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -46,7 +44,7 @@ public class BindRequest extends LdapMessage
     private int version;
 
     /** The name of the user requesting a bind */
-    private Name name;
+    private LdapDN name;
 
     /** The authentication used to bind the user */
     private LdapAuthentication authentication;
@@ -131,9 +129,9 @@ public class BindRequest extends LdapMessage
      * 
      * @return The user name
      */
-    public String getName()
+    public LdapDN getName()
     {
-        return ( ( name == null ) ? null : name.toString() );
+        return name;
     }
 
 
@@ -143,7 +141,7 @@ public class BindRequest extends LdapMessage
      * @param name
      *            The user name
      */
-    public void setName( Name name )
+    public void setName( LdapDN name )
     {
         this.name = name;
     }

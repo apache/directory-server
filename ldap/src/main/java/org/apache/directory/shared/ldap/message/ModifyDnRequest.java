@@ -16,6 +16,9 @@
  */
 package org.apache.directory.shared.ldap.message;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+
 
 /**
  * Modify DN request protocol message used to rename or move an existing entry
@@ -74,7 +77,7 @@ public interface ModifyDnRequest extends SingleReplyRequest, AbandonableRequest
      * 
      * @return the distinguished name of the entry.
      */
-    String getName();
+    LdapDN getName();
 
 
     /**
@@ -84,7 +87,7 @@ public interface ModifyDnRequest extends SingleReplyRequest, AbandonableRequest
      * @param name
      *            the distinguished name of the entry.
      */
-    void setName( String name );
+    void setName( LdapDN name );
 
 
     /**
@@ -93,7 +96,7 @@ public interface ModifyDnRequest extends SingleReplyRequest, AbandonableRequest
      * 
      * @return the relative dn with one component
      */
-    String getNewRdn();
+    Rdn getNewRdn();
 
 
     /**
@@ -103,7 +106,7 @@ public interface ModifyDnRequest extends SingleReplyRequest, AbandonableRequest
      * @param newRdn
      *            the relative dn with one component
      */
-    void setNewRdn( String newRdn );
+    void setNewRdn( Rdn newRdn );
 
 
     /**
@@ -139,7 +142,7 @@ public interface ModifyDnRequest extends SingleReplyRequest, AbandonableRequest
      * 
      * @return the dn of the superior entry the candidate entry is moved under.
      */
-    String getNewSuperior();
+    LdapDN getNewSuperior();
 
 
     /**
@@ -153,7 +156,7 @@ public interface ModifyDnRequest extends SingleReplyRequest, AbandonableRequest
      *            the dn of the superior entry the candidate entry for DN
      *            modification is moved under.
      */
-    void setNewSuperior( String newSuperior );
+    void setNewSuperior( LdapDN newSuperior );
 
 
     /**

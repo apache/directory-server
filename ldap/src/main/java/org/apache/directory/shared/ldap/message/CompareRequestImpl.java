@@ -19,6 +19,7 @@ package org.apache.directory.shared.ldap.message;
 
 import java.util.Arrays;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -33,7 +34,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
     static final long serialVersionUID = 1699731530016468977L;
 
     /** Distinguished name identifying the compared entry */
-    private String name;
+    private LdapDN name;
 
     /** The id of the attribute used in the comparison */
     private String attrId;
@@ -71,7 +72,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
      * 
      * @return the DN of the compared entry.
      */
-    public String getName()
+    public LdapDN getName()
     {
         return name;
     }
@@ -84,7 +85,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
      * @param name
      *            the DN of the compared entry.
      */
-    public void setName( String name )
+    public void setName( LdapDN name )
     {
         this.name = name;
     }

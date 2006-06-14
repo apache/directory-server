@@ -18,8 +18,6 @@ package org.apache.directory.shared.ldap.codec.modifyDn;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
@@ -132,7 +130,7 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
 
                     // We have to handle the special case of a 0 length matched
                     // DN
-                    Name entry = null;
+                    LdapDN entry = null;
 
                     if ( tlv.getLength().getLength() == 0 )
                     {
@@ -143,7 +141,6 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                         try
                         {
                             entry = new LdapDN( tlv.getValue().getData() );
-                            entry = LdapDN.normalize( entry );
                         }
                         catch ( InvalidNameException ine )
                         {
@@ -151,13 +148,6 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                                 + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
                             throw new DecoderException( msg, ine );
-                        }
-                        catch ( NamingException ne )
-                        {
-                            String msg = "The DN to modify  (" + StringTools.dumpBytes( tlv.getValue().getData() )
-                                + ") is invalid";
-                            log.error( "{} : {}", msg, ne.getMessage() );
-                            throw new DecoderException( msg, ne );
                         }
 
                         modifyDNRequest.setEntry( entry );
@@ -215,8 +205,7 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                     {
                         try
                         {
-                            Name dn = new LdapDN( tlv.getValue().getData() );
-                            dn = LdapDN.normalize( dn );
+                            LdapDN dn = new LdapDN( tlv.getValue().getData() );
                             newRdn = ( ( LdapDN ) dn ).getRdn( 0 );
                         }
                         catch ( InvalidNameException ine )
@@ -225,13 +214,6 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                                 + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
                             throw new DecoderException( msg, ine );
-                        }
-                        catch ( NamingException ne )
-                        {
-                            String msg = "The new RDN (" + StringTools.dumpBytes( tlv.getValue().getData() )
-                                + ") is invalid";
-                            log.error( "{} : {}", msg, ne.getMessage() );
-                            throw new DecoderException( msg, ne );
                         }
 
                         modifyDNRequest.setNewRDN( newRdn );
@@ -345,7 +327,7 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
 
                     // We have to handle the special case of a 0 length matched
                     // DN
-                    Name newSuperior = LdapDN.EMPTY_LDAPDN;
+                    LdapDN newSuperior = LdapDN.EMPTY_LDAPDN;
 
                     if ( tlv.getLength().getLength() == 0 )
                     {
@@ -367,7 +349,6 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                         try
                         {
                             newSuperior = new LdapDN( tlv.getValue().getData() );
-                            newSuperior = LdapDN.normalize( newSuperior );
                         }
                         catch ( InvalidNameException ine )
                         {
@@ -375,13 +356,6 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                                 + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
                             throw new DecoderException( msg, ine );
-                        }
-                        catch ( NamingException ne )
-                        {
-                            String msg = "The new superior DN (" + StringTools.dumpBytes( tlv.getValue().getData() )
-                                + ") is invalid";
-                            log.error( "{} : {}", msg, ne.getMessage() );
-                            throw new DecoderException( msg, ne );
                         }
 
                         modifyDNRequest.setNewSuperior( newSuperior );

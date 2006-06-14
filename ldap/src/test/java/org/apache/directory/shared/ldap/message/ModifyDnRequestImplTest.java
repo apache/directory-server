@@ -22,6 +22,8 @@ import junit.framework.TestCase;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.naming.InvalidNameException;
+
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.MessageException;
@@ -29,6 +31,8 @@ import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 
 
 /**
@@ -49,9 +53,18 @@ public class ModifyDnRequestImplTest extends TestCase
         // Construct the ModifyDn request to test
         ModifyDnRequestImpl request = new ModifyDnRequestImpl( 45 );
         request.setDeleteOldRdn( true );
-        request.setName( "dc=admins,dc=apache,dc=org" );
-        request.setNewRdn( "dc=administrators" );
-        request.setNewSuperior( "dc=groups,dc=apache,dc=org" );
+        
+        try
+        {
+            request.setName( new LdapDN( "dc=admins,dc=apache,dc=org" ) );
+            request.setNewRdn( new Rdn( "dc=administrators" ) );
+            request.setNewSuperior( new LdapDN( "dc=groups,dc=apache,dc=org" ) );
+        }
+        catch ( InvalidNameException ine )
+        {
+            // do nothing
+        }
+        
         return request;
     }
 
@@ -107,13 +120,13 @@ public class ModifyDnRequestImplTest extends TestCase
     /**
      * Test for inequality when only the DN names are different.
      */
-    public void testNotEqualDiffName()
+    public void testNotEqualDiffName() throws InvalidNameException
     {
         ModifyDnRequestImpl req0 = getRequest();
-        req0.setName( "cn=admin,dc=example,dc=com" );
+        req0.setName( new LdapDN( "cn=admin,dc=example,dc=com" ) );
 
         ModifyDnRequestImpl req1 = getRequest();
-        req1.setName( "cn=admin,dc=apache,dc=org" );
+        req1.setName( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
 
         assertFalse( req0.equals( req1 ) );
     }
@@ -122,13 +135,13 @@ public class ModifyDnRequestImplTest extends TestCase
     /**
      * Test for inequality when only the newSuperior DNs are different.
      */
-    public void testNotEqualDiffNewSuperior()
+    public void testNotEqualDiffNewSuperior() throws InvalidNameException
     {
         ModifyDnRequestImpl req0 = getRequest();
-        req0.setNewSuperior( "cn=admin,dc=example,dc=com" );
+        req0.setNewSuperior( new LdapDN( "cn=admin,dc=example,dc=com" ) );
 
         ModifyDnRequestImpl req1 = getRequest();
-        req1.setNewSuperior( "cn=admin,dc=apache,dc=org" );
+        req1.setNewSuperior( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
 
         assertFalse( req0.equals( req1 ) );
     }
@@ -152,13 +165,13 @@ public class ModifyDnRequestImplTest extends TestCase
     /**
      * Test for inequality when only the new Rdn properties are different.
      */
-    public void testNotEqualDiffNewRdn()
+    public void testNotEqualDiffNewRdn() throws InvalidNameException
     {
         ModifyDnRequestImpl req0 = getRequest();
-        req0.setNewRdn( "cn=admin0" );
+        req0.setNewRdn( new Rdn( "cn=admin0" ) );
 
         ModifyDnRequestImpl req1 = getRequest();
-        req1.setNewRdn( "cn=admin1" );
+        req1.setNewRdn( new Rdn( "cn=admin1" ) );
 
         assertFalse( req0.equals( req1 ) );
         assertFalse( req1.equals( req0 ) );
@@ -172,24 +185,40 @@ public class ModifyDnRequestImplTest extends TestCase
     {
         ModifyDnRequest req0 = new ModifyDnRequest()
         {
-            public String getName()
+            public LdapDN getName()
             {
-                return "dc=admins,dc=apache,dc=org";
+                try
+                {
+                    return new LdapDN( "dc=admins,dc=apache,dc=org" );
+                }
+                catch ( InvalidNameException ine )
+                {
+                    // do nothing
+                    return null;
+                }
             }
 
 
-            public void setName( String a_name )
+            public void setName( LdapDN name )
             {
             }
 
 
-            public String getNewRdn()
+            public Rdn getNewRdn()
             {
-                return "dc=administrators";
+                try
+                {
+                    return new Rdn( "dc=administrators" );
+                }
+                catch ( InvalidNameException ine )
+                {
+                    // do nothing
+                    return null;
+                }
             }
 
 
-            public void setNewRdn( String a_newRdn )
+            public void setNewRdn( Rdn newRdn )
             {
             }
 
@@ -200,18 +229,26 @@ public class ModifyDnRequestImplTest extends TestCase
             }
 
 
-            public void setDeleteOldRdn( boolean a_deleteOldRdn )
+            public void setDeleteOldRdn( boolean deleteOldRdn )
             {
             }
 
 
-            public String getNewSuperior()
+            public LdapDN getNewSuperior()
             {
-                return "dc=groups,dc=apache,dc=org";
+                try
+                {
+                    return new LdapDN( "dc=groups,dc=apache,dc=org" );
+                }
+                catch ( InvalidNameException ine )
+                {
+                    // do nothing
+                    return null;
+                }
             }
 
 
-            public void setNewSuperior( String a_newSuperior )
+            public void setNewSuperior( LdapDN newSuperior )
             {
             }
 

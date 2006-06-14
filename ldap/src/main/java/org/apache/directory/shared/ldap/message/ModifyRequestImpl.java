@@ -30,6 +30,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
     private static final transient Logger log = LoggerFactory.getLogger( ModifyRequestImpl.class );
 
     /** Dn of the entry to modify or PDU's <b>object</b> field */
-    private String name;
+    private LdapDN name;
 
     /** Sequence of modifications or PDU's <b>modification</b> seqence field */
     private ArrayList mods = new ArrayList();
@@ -97,7 +98,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
      * 
      * @return the DN of the modified entry.
      */
-    public String getName()
+    public LdapDN getName()
     {
         return name;
     }
@@ -110,7 +111,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
      * @param name
      *            the DN of the modified entry.
      */
-    public void setName( String name )
+    public void setName( LdapDN name )
     {
         this.name = name;
     }

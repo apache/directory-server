@@ -17,6 +17,8 @@
 package org.apache.directory.shared.ldap.message;
 
 
+import javax.naming.InvalidNameException;
+
 import org.apache.directory.shared.ldap.message.AbstractResultResponse;
 import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -24,6 +26,7 @@ import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import junit.framework.TestCase;
 
@@ -53,7 +56,7 @@ public class AbstractResultResponseTest extends TestCase
     /**
      * Tests to see the same exact copy returns true.
      */
-    public void testEqualsExactCopy()
+    public void testEqualsExactCopy() throws InvalidNameException
     {
         AbstractResultResponse msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
         {
@@ -69,8 +72,8 @@ public class AbstractResultResponseTest extends TestCase
         r0.setErrorMessage( "blah blah blah" );
         r1.setErrorMessage( "blah blah blah" );
 
-        r0.setMatchedDn( "dc=example,dc=com" );
-        r1.setMatchedDn( "dc=example,dc=com" );
+        r0.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
+        r1.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
 
         r0.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
         r1.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
@@ -91,7 +94,7 @@ public class AbstractResultResponseTest extends TestCase
     /**
      * Tests to see the same exact copy returns true.
      */
-    public void testNotEqualsDiffResult()
+    public void testNotEqualsDiffResult() throws InvalidNameException
     {
         AbstractResultResponse msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
         {
@@ -107,8 +110,8 @@ public class AbstractResultResponseTest extends TestCase
         r0.setErrorMessage( "blah blah blah" );
         r1.setErrorMessage( "blah blah blah" );
 
-        r0.setMatchedDn( "dc=example,dc=com" );
-        r1.setMatchedDn( "dc=apache,dc=org" );
+        r0.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
+        r1.setMatchedDn( new LdapDN( "dc=apache,dc=org" ) );
 
         r0.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
         r1.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );

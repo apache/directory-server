@@ -26,22 +26,19 @@ package org.apache.directory.shared.ldap.filter;
 public abstract class LeafNode extends AbstractExprNode
 {
     /** attribute on which this leaf is based */
-    private final String m_attribute;
+    private String attribute;
 
 
     /**
      * Creates a leaf node.
      * 
-     * @param a_attribute
-     *            the attribute this node is based on
-     * @param a_type
-     *            the type of this leaf node
+     * @param attribute the attribute this node is based on
+     * @param type the type of this leaf node
      */
-    protected LeafNode(String a_attribute, int a_type)
+    protected LeafNode( String attribute, int type )
     {
-        super( a_type );
-
-        m_attribute = a_attribute;
+        super( type );
+        this.attribute = attribute;
     }
 
 
@@ -63,7 +60,18 @@ public abstract class LeafNode extends AbstractExprNode
      */
     public final String getAttribute()
     {
-        return m_attribute;
+        return attribute;
+    }
+    
+    
+    /**
+     * Sets the attribute this leaf node is based on.
+     * 
+     * @param attribute the attribute that is asserted by this filter node
+     */
+    public void setAttribute( String attribute )
+    {
+        this.attribute = attribute;
     }
 
 
@@ -94,6 +102,6 @@ public abstract class LeafNode extends AbstractExprNode
             return false;
         }
 
-        return m_attribute.equals( ( ( LeafNode ) other ).getAttribute() );
+        return attribute.equals( ( ( LeafNode ) other ).getAttribute() );
     }
 }

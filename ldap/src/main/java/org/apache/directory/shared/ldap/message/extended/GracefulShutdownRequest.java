@@ -101,6 +101,11 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
             log.error( "failed to decode payload", e );
             throw new RuntimeException( e );
         }
+        catch ( NamingException e )
+        {
+            log.error( "failed to decode payload", e );
+            throw new RuntimeException( e );
+        }
     }
 
 

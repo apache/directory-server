@@ -27,9 +27,7 @@ import junit.framework.TestCase;
 import org.apache.directory.shared.ldap.filter.AbstractExprNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.name.LdapName;
-import org.apache.directory.shared.ldap.name.SimpleNameComponentNormalizer;
-import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
 
@@ -88,10 +86,7 @@ public class SubtreeSpecificationParserTest extends TestCase
 
     /** An invalid specification with completely unrelated content */
     private static final String INVALID_SILLY_THING = "How much wood would a wood chuck chuck if a wood chuck would chuck wood?";
-
-    /** A valid specification only with base set and normalizing to be applied */
-    private static final String SPEC_WITH_BASE_NORMALIZING = "{ base \"ou=system   \" }";
-
+    
     /** the ss parser wrapper */
     SubtreeSpecificationParser parser;
 
@@ -176,22 +171,22 @@ public class SubtreeSpecificationParserTest extends TestCase
         SubtreeSpecification ss = parser.parse( SPEC_WITH_SPECIFICEXCLUSIONS );
         assertFalse( ss.getChopBeforeExclusions().isEmpty() );
         assertFalse( ss.getChopAfterExclusions().isEmpty() );
-        assertTrue( ss.getChopBeforeExclusions().contains( new LdapName( "ab=cd" ) ) );
-        assertTrue( ss.getChopAfterExclusions().contains( new LdapName( "ef=gh" ) ) );
+        assertTrue( ss.getChopBeforeExclusions().contains( new LdapDN( "ab=cd" ) ) );
+        assertTrue( ss.getChopAfterExclusions().contains( new LdapDN( "ef=gh" ) ) );
 
         // try a second time
         ss = parser.parse( SPEC_WITH_SPECIFICEXCLUSIONS );
         assertFalse( ss.getChopBeforeExclusions().isEmpty() );
         assertFalse( ss.getChopAfterExclusions().isEmpty() );
-        assertTrue( ss.getChopBeforeExclusions().contains( new LdapName( "ab=cd" ) ) );
-        assertTrue( ss.getChopAfterExclusions().contains( new LdapName( "ef=gh" ) ) );
+        assertTrue( ss.getChopBeforeExclusions().contains( new LdapDN( "ab=cd" ) ) );
+        assertTrue( ss.getChopAfterExclusions().contains( new LdapDN( "ef=gh" ) ) );
 
         // try a third time
         ss = parser.parse( SPEC_WITH_SPECIFICEXCLUSIONS );
         assertFalse( ss.getChopBeforeExclusions().isEmpty() );
         assertFalse( ss.getChopAfterExclusions().isEmpty() );
-        assertTrue( ss.getChopBeforeExclusions().contains( new LdapName( "ab=cd" ) ) );
-        assertTrue( ss.getChopAfterExclusions().contains( new LdapName( "ef=gh" ) ) );
+        assertTrue( ss.getChopBeforeExclusions().contains( new LdapDN( "ab=cd" ) ) );
+        assertTrue( ss.getChopAfterExclusions().contains( new LdapDN( "ef=gh" ) ) );
     }
 
 
@@ -237,7 +232,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_BASE_AND_MINIMUM_AND_MAXIMUM );
 
-        assertEquals( new LdapName( "ou=ORGANIZATION UNIT" ), ss.getBase() );
+        assertEquals( new LdapDN( "ou=ORGANIZATION UNIT" ), ss.getBase() );
         assertEquals( 1, ss.getMinBaseDistance() );
         assertEquals( 2, ss.getMaxBaseDistance() );
     }
@@ -253,10 +248,10 @@ public class SubtreeSpecificationParserTest extends TestCase
         assertNotNull( ss );
 
         assertEquals( "ou=people", ss.getBase().toString() );
-        assertTrue( ss.getChopBeforeExclusions().contains( new LdapName( "x=y" ) ) );
-        assertTrue( ss.getChopBeforeExclusions().contains( new LdapName( "y=z" ) ) );
-        assertTrue( ss.getChopAfterExclusions().contains( new LdapName( "k=l" ) ) );
-        assertTrue( ss.getChopAfterExclusions().contains( new LdapName( "l=m" ) ) );
+        assertTrue( ss.getChopBeforeExclusions().contains( new LdapDN( "x=y" ) ) );
+        assertTrue( ss.getChopBeforeExclusions().contains( new LdapDN( "y=z" ) ) );
+        assertTrue( ss.getChopAfterExclusions().contains( new LdapDN( "k=l" ) ) );
+        assertTrue( ss.getChopAfterExclusions().contains( new LdapDN( "l=m" ) ) );
         assertEquals( 7, ss.getMinBaseDistance() );
         assertEquals( 77, ss.getMaxBaseDistance() );
     }
@@ -336,23 +331,6 @@ public class SubtreeSpecificationParserTest extends TestCase
         {
             assertNotNull( e );
         }
-    }
-
-
-    /**
-     * Tests the parser with a valid specification with base set and normalizing
-     * active.
-     */
-    public void testSpecWithBaseNormalizing() throws Exception
-    {
-        // create a new normalizing parser for this test case
-        SubtreeSpecificationParser parser = new SubtreeSpecificationParser( new SimpleNameComponentNormalizer(
-            new DeepTrimNormalizer() ) );
-        SubtreeSpecification ss = parser.parse( SPEC_WITH_BASE_NORMALIZING );
-        assertNotNull( ss );
-
-        // looking for "ou=system" and not "ou=system " due to normalizing
-        assertEquals( "ou=system", ss.getBase().toString() );
     }
 
 
