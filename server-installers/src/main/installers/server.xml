@@ -116,7 +116,7 @@
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>oldAuthorizationService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.directory.server.core.authz.OldAuthorizationService" />
+            <bean class="org.apache.directory.server.core.authz.DefaultAuthorizationService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
