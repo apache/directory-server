@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiRequest;
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiResponse;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoSession;
 
 
@@ -89,11 +89,11 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
 
             DirectoryPartitionNexus nexus = service.getConfiguration().getPartitionNexus();
-            Iterator list = nexus.listSuffixes( true );
+            Iterator list = nexus.listSuffixes();
             int launchedWindowCount = 0;
             while ( list.hasNext() )
             {
-                LdapName dn = new LdapName( ( String ) list.next() );
+                LdapDN dn = new LdapDN( ( String ) list.next() );
                 DirectoryPartition partition = nexus.getPartition( dn );
                 if ( partition instanceof BTreeDirectoryPartition )
                 {

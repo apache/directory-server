@@ -24,6 +24,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -67,8 +68,8 @@ public class LeafEvaluator implements Evaluator
      *
      * @param substringEvaluator
      */
-    public LeafEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry,
-        SubstringEvaluator substringEvaluator) throws NamingException
+    public LeafEvaluator( OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry,
+        SubstringEvaluator substringEvaluator ) throws NamingException
     {
         this.oidRegistry = oidRegistry;
         this.attributeTypeRegistry = attributeTypeRegistry;
@@ -138,7 +139,8 @@ public class LeafEvaluator implements Evaluator
         String attrId = node.getAttribute();
 
         // get the attribute associated with the node
-        Attribute attr = entry.get( attrId );
+        AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( attrId ) );
+        Attribute attr = ServerUtils.getAttribute( type, entry );
 
         // If we do not have the attribute just return false
         if ( null == attr )
@@ -199,14 +201,15 @@ public class LeafEvaluator implements Evaluator
      * @param entry the perspective candidate
      * @return the ava evaluation on the perspective candidate
      */
-    private boolean evalPresence( String attrId, Attributes entry )
+    private boolean evalPresence( String attrId, Attributes entry ) throws NamingException
     {
         if ( entry == null )
         {
             return false;
         }
 
-        return null != entry.get( attrId );
+        AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( attrId ) );
+        return null != ServerUtils.getAttribute( type, entry );
     }
 
 
@@ -225,7 +228,8 @@ public class LeafEvaluator implements Evaluator
         Comparator comparator = getComparator( node.getAttribute() );
 
         // get the attribute associated with the node
-        Attribute attr = entry.get( node.getAttribute() );
+        AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( node.getAttribute() ) );
+        Attribute attr = ServerUtils.getAttribute( type, entry );
 
         // If we do not have the attribute just return false
         if ( null == attr )

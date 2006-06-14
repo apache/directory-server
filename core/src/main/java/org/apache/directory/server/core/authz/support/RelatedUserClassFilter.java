@@ -22,7 +22,6 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
@@ -31,7 +30,7 @@ import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.UserClass;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
@@ -44,7 +43,7 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
  */
 public class RelatedUserClassFilter implements ACITupleFilter
 {
-    private static final LdapName ROOTDSE_NAME = LdapName.EMPTY_LDAP_NAME;
+    private static final LdapDN ROOTDSE_NAME = LdapDN.EMPTY_LDAPDN;
 
     private final SubtreeEvaluator subtreeEvaluator;
 
@@ -56,8 +55,8 @@ public class RelatedUserClassFilter implements ACITupleFilter
 
 
     public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
-        Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
-        Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+        Collection userGroupNames, LdapDN userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
+        LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
         throws NamingException
     {
         if ( tuples.size() == 0 )
@@ -91,7 +90,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( Collection userGroupNames, Name userName, Attributes userEntry, Name entryName,
+    private boolean isRelated( Collection userGroupNames, LdapDN userName, Attributes userEntry, LdapDN entryName,
         Collection userClasses ) throws NamingException
     {
         for ( Iterator i = userClasses.iterator(); i.hasNext(); )
@@ -121,7 +120,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
                 UserClass.UserGroup userGroupUserClass = ( UserClass.UserGroup ) userClass;
                 for ( Iterator j = userGroupNames.iterator(); j.hasNext(); )
                 {
-                    Name userGroupName = ( Name ) j.next();
+                    LdapDN userGroupName = ( LdapDN ) j.next();
                     if ( userGroupName != null && userGroupUserClass.getNames().contains( userGroupName ) )
                     {
                         return true;
@@ -146,7 +145,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
-    private boolean matchUserClassSubtree( Name userName, Attributes userEntry, UserClass.Subtree subtree )
+    private boolean matchUserClassSubtree( LdapDN userName, Attributes userEntry, UserClass.Subtree subtree )
         throws NamingException
     {
         for ( Iterator i = subtree.getSubtreeSpecifications().iterator(); i.hasNext(); )

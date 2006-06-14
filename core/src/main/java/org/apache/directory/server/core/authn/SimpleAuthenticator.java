@@ -35,9 +35,10 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.Base64;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,7 +120,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         // ---- lookup the principal entry's userPassword attribute
 
-        LdapName principalDn = new LdapName( principal );
+        LdapDN principalDn = new LdapDN( principal );
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes userEntry;

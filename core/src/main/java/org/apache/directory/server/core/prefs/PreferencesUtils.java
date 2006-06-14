@@ -16,11 +16,11 @@
  */
 package org.apache.directory.server.core.prefs;
 
-
+ 
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -45,7 +45,7 @@ class PreferencesUtils
      */
     public static Name toSysDn( String absPrefPath ) throws NamingException
     {
-        LdapName dn = new LdapName( SYSPREF_BASE );
+        LdapDN dn = new LdapDN( SYSPREF_BASE );
 
         String[] comps = absPrefPath.split( "/" );
 

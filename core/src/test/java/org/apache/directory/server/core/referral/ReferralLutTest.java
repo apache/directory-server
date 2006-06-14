@@ -17,11 +17,10 @@
 package org.apache.directory.server.core.referral;
 
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.referral.ReferralLut;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import junit.framework.TestCase;
 
@@ -47,7 +46,7 @@ public class ReferralLutTest extends TestCase
         }
         try
         {
-            lut.isReferral( ( Name ) null );
+            lut.isReferral( ( LdapDN ) null );
             fail( "can't get here" );
         }
         catch ( IllegalArgumentException e )
@@ -55,7 +54,7 @@ public class ReferralLutTest extends TestCase
         }
         try
         {
-            lut.getFarthestReferralAncestor( ( Name ) null );
+            lut.getFarthestReferralAncestor( ( LdapDN ) null );
             fail( "can't get here" );
         }
         catch ( IllegalArgumentException e )
@@ -63,7 +62,7 @@ public class ReferralLutTest extends TestCase
         }
         try
         {
-            lut.getNearestReferralAncestor( ( Name ) null );
+            lut.getNearestReferralAncestor( ( LdapDN ) null );
             fail( "can't get here" );
         }
         catch ( IllegalArgumentException e )
@@ -71,7 +70,7 @@ public class ReferralLutTest extends TestCase
         }
         try
         {
-            lut.referralAdded( ( Name ) null );
+            lut.referralAdded( ( LdapDN ) null );
             fail( "can't get here" );
         }
         catch ( IllegalArgumentException e )
@@ -87,7 +86,7 @@ public class ReferralLutTest extends TestCase
         }
         try
         {
-            lut.referralDeleted( ( Name ) null );
+            lut.referralDeleted( ( LdapDN ) null );
             fail( "can't get here" );
         }
         catch ( IllegalArgumentException e )
@@ -103,7 +102,7 @@ public class ReferralLutTest extends TestCase
         }
         try
         {
-            lut.referralChanged( ( Name ) null, ( Name ) null );
+            lut.referralChanged( ( LdapDN ) null, ( LdapDN ) null );
             fail( "can't get here" );
         }
         catch ( IllegalArgumentException e )
@@ -119,7 +118,7 @@ public class ReferralLutTest extends TestCase
         }
         try
         {
-            lut.referralChanged( ( Name ) null, ( String ) null );
+            lut.referralChanged( ( LdapDN ) null, ( String ) null );
             fail( "can't get here" );
         }
         catch ( IllegalArgumentException e )
@@ -127,7 +126,7 @@ public class ReferralLutTest extends TestCase
         }
         try
         {
-            lut.referralChanged( ( String ) null, ( Name ) null );
+            lut.referralChanged( ( String ) null, ( LdapDN ) null );
             fail( "can't get here" );
         }
         catch ( IllegalArgumentException e )
@@ -139,7 +138,7 @@ public class ReferralLutTest extends TestCase
     public void testUpdateOperations() throws NamingException
     {
         String dn = "ou=users,ou=system";
-        Name name = new LdapName( dn );
+        LdapDN name = new LdapDN( dn );
         ReferralLut lut = new ReferralLut();
 
         // some add delete tests
@@ -181,7 +180,7 @@ public class ReferralLutTest extends TestCase
 
         // change (rename and move) tests
         String newDn = "ou=people,ou=system";
-        Name newName = new LdapName( newDn );
+        LdapDN newName = new LdapDN( newDn );
 
         assertFalse( lut.isReferral( dn ) );
         lut.referralAdded( dn );
@@ -219,10 +218,10 @@ public class ReferralLutTest extends TestCase
 
     public void testReferralAncestors() throws NamingException
     {
-        Name ancestor = new LdapName( "ou=users,ou=system" );
-        Name farthest = new LdapName( "ou=system" );
-        Name nearest = new LdapName( "ou=apache,ou=users,ou=system" );
-        Name testDn = new LdapName( "cn=Alex Karasulu,ou=apache,ou=users,ou=system" );
+        LdapDN ancestor = new LdapDN( "ou=users,ou=system" );
+        LdapDN farthest = new LdapDN( "ou=system" );
+        LdapDN nearest = new LdapDN( "ou=apache,ou=users,ou=system" );
+        LdapDN testDn = new LdapDN( "cn=Alex Karasulu,ou=apache,ou=users,ou=system" );
         ReferralLut lut = new ReferralLut();
         assertNull( lut.getNearestReferralAncestor( testDn ) );
         assertNull( lut.getFarthestReferralAncestor( testDn ) );

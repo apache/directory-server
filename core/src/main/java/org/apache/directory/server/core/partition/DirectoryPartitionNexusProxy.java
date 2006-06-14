@@ -17,7 +17,7 @@
 package org.apache.directory.server.core.partition;
 
 
-import java.util.*;
+import java.util.*; 
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -42,7 +42,6 @@ import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -143,15 +142,20 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public DirectoryPartition getPartition( Name dn ) throws NamingException
+    public DirectoryPartition getPartition( LdapDN dn ) throws NamingException
     {
         return this.configuration.getPartitionNexus().getPartition( dn );
     }
 
 
-    public Name getSuffix( boolean normalized ) throws NamingException
+    public LdapDN getSuffix() throws NamingException
     {
-        return this.configuration.getPartitionNexus().getSuffix( normalized );
+        return this.configuration.getPartitionNexus().getSuffix();
+    }
+
+    public LdapDN getUpSuffix() throws NamingException
+    {
+        return this.configuration.getPartitionNexus().getUpSuffix();
     }
 
 
@@ -173,22 +177,21 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public Name getMatchedName( Name dn, boolean normalized ) throws NamingException
+    public LdapDN getMatchedName ( LdapDN dn ) throws NamingException
     {
-        return getMatchedName( dn, normalized, null );
+        return getMatchedName( dn, null );
     }
 
 
-    public Name getMatchedName( Name dn, boolean normalized, Collection bypass ) throws NamingException
+    public LdapDN getMatchedName( LdapDN dn, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        Object[] args = new Object[]
-            { dn, normalized ? Boolean.TRUE : Boolean.FALSE };
+        Object[] args = new Object[] { dn };
         stack.push( new Invocation( this, caller, "getMatchedDn", args, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().getMatchedName( dn, normalized );
+            return this.configuration.getInterceptorChain().getMatchedName( dn );
         }
         finally
         {
@@ -197,22 +200,21 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public Name getSuffix( Name dn, boolean normalized ) throws NamingException
+    public LdapDN getSuffix ( LdapDN dn ) throws NamingException
     {
-        return getSuffix( dn, normalized, null );
+        return getSuffix( dn, null );
     }
 
 
-    public Name getSuffix( Name dn, boolean normalized, Collection bypass ) throws NamingException
+    public LdapDN getSuffix( LdapDN dn, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        Object[] args = new Object[]
-            { dn, normalized ? Boolean.TRUE : Boolean.FALSE };
+        Object[] args = new Object[] { dn };
         stack.push( new Invocation( this, caller, "getSuffix", args, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().getSuffix( dn, normalized );
+            return this.configuration.getInterceptorChain().getSuffix( dn );
         }
         finally
         {
@@ -221,22 +223,21 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public Iterator listSuffixes( boolean normalized ) throws NamingException
+    public Iterator listSuffixes () throws NamingException
     {
-        return listSuffixes( normalized, null );
+        return listSuffixes( null );
     }
 
 
-    public Iterator listSuffixes( boolean normalized, Collection bypass ) throws NamingException
+    public Iterator listSuffixes( Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        Object[] args = new Object[]
-            { normalized ? Boolean.TRUE : Boolean.FALSE };
+        Object[] args = new Object[] { };
         stack.push( new Invocation( this, caller, "listSuffixes", args, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().listSuffixes( normalized );
+            return this.configuration.getInterceptorChain().listSuffixes();
         }
         finally
         {
@@ -245,13 +246,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public boolean compare( Name name, String oid, Object value ) throws NamingException
+    public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
     {
         return compare( name, oid, value, null );
     }
 
 
-    public boolean compare( Name name, String oid, Object value, Collection bypass ) throws NamingException
+    public boolean compare( LdapDN name, String oid, Object value, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -268,13 +269,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void delete( Name name ) throws NamingException
+    public void delete( LdapDN name ) throws NamingException
     {
         delete( name, null );
     }
 
 
-    public void delete( Name name, Collection bypass ) throws NamingException
+    public void delete( LdapDN name, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -291,21 +292,21 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void add( String upName, Name normName, Attributes entry ) throws NamingException
+    public void add( LdapDN normName, Attributes entry ) throws NamingException
     {
-        add( upName, normName, entry, null );
+        add( normName, entry, null );
     }
 
 
-    public void add( String upName, Name normName, Attributes entry, Collection bypass ) throws NamingException
+    public void add( LdapDN normName, Attributes entry, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation( this, caller, "add", new Object[]
-            { upName, normName, entry }, bypass ) );
+            { normName, entry }, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().add( upName, normName, entry );
+            this.configuration.getInterceptorChain().add( normName, entry );
         }
         finally
         {
@@ -314,13 +315,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void modify( Name name, int modOp, Attributes mods ) throws NamingException
+    public void modify( LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         modify( name, modOp, mods, null );
     }
 
 
-    public void modify( Name name, int modOp, Attributes mods, Collection bypass ) throws NamingException
+    public void modify( LdapDN name, int modOp, Attributes mods, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -354,13 +355,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void modify( Name name, ModificationItem[] mods ) throws NamingException
+    public void modify( LdapDN name, ModificationItem[] mods ) throws NamingException
     {
         modify( name, mods, null );
     }
 
 
-    public void modify( Name name, ModificationItem[] mods, Collection bypass ) throws NamingException
+    public void modify( LdapDN name, ModificationItem[] mods, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -377,13 +378,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public NamingEnumeration list( Name base ) throws NamingException
+    public NamingEnumeration list( LdapDN base ) throws NamingException
     {
         return list( base, null );
     }
 
 
-    public NamingEnumeration list( Name base, Collection bypass ) throws NamingException
+    public NamingEnumeration list( LdapDN base, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -400,7 +401,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
         throws NamingException
     {
         NamingEnumeration ne = search( base, env, filter, searchCtls, null );
@@ -449,7 +450,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls, Collection bypass )
+    public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls, Collection bypass )
         throws NamingException
     {
         ensureStarted();
@@ -467,13 +468,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public Attributes lookup( Name name ) throws NamingException
+    public Attributes lookup( LdapDN name ) throws NamingException
     {
         return lookup( name, ( Collection ) null );
     }
 
 
-    public Attributes lookup( Name name, Collection bypass ) throws NamingException
+    public Attributes lookup( LdapDN name, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -481,11 +482,6 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
             { name }, bypass ) );
         try
         {
-            OidRegistry registry = this.service.getConfiguration().getGlobalRegistries()
-                .getOidRegistry();
-
-            LdapDN.normalize( name, registry.getNameByOid() );
-
             return this.configuration.getInterceptorChain().lookup( name );
         }
         finally
@@ -495,13 +491,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public Attributes lookup( Name dn, String[] attrIds ) throws NamingException
+    public Attributes lookup( LdapDN dn, String[] attrIds ) throws NamingException
     {
         return lookup( dn, attrIds, null );
     }
 
 
-    public Attributes lookup( Name dn, String[] attrIds, Collection bypass ) throws NamingException
+    public Attributes lookup( LdapDN dn, String[] attrIds, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -518,13 +514,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public boolean hasEntry( Name name ) throws NamingException
+    public boolean hasEntry( LdapDN name ) throws NamingException
     {
         return hasEntry( name, null );
     }
 
 
-    public boolean hasEntry( Name name, Collection bypass ) throws NamingException
+    public boolean hasEntry( LdapDN name, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -541,13 +537,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public boolean isSuffix( Name name ) throws NamingException
+    public boolean isSuffix( LdapDN name ) throws NamingException
     {
         return isSuffix( name, null );
     }
 
 
-    public boolean isSuffix( Name name, Collection bypass ) throws NamingException
+    public boolean isSuffix( LdapDN name, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -564,13 +560,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void modifyRn( Name name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
     {
         modifyRn( name, newRn, deleteOldRn, null );
     }
 
 
-    public void modifyRn( Name name, String newRn, boolean deleteOldRn, Collection bypass ) throws NamingException
+    public void modifyRn( LdapDN name, String newRn, boolean deleteOldRn, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -588,13 +584,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void move( Name oriChildName, Name newParentName ) throws NamingException
+    public void move( LdapDN oriChildName, LdapDN newParentName ) throws NamingException
     {
         move( oriChildName, newParentName, null );
     }
 
 
-    public void move( Name oriChildName, Name newParentName, Collection bypass ) throws NamingException
+    public void move( LdapDN oriChildName, LdapDN newParentName, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -611,13 +607,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void move( Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn ) throws NamingException
     {
         move( oriChildName, newParentName, newRn, deleteOldRn, null );
     }
 
 
-    public void move( Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn, Collection bypass )
+    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Collection bypass )
         throws NamingException
     {
         ensureStarted();
@@ -636,7 +632,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId, Collection bypass )
+    public void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId, Collection bypass )
         throws NamingException
     {
         ensureStarted();
@@ -655,7 +651,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void unbind( Name bindDn, Collection bypass ) throws NamingException
+    public void unbind( LdapDN bindDn, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -673,13 +669,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+    public void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
     {
         bind( bindDn, credentials, mechanisms, saslAuthId, null );
     }
 
 
-    public void unbind( Name bindDn ) throws NamingException
+    public void unbind( LdapDN bindDn ) throws NamingException
     {
         unbind( bindDn, null );
     }
@@ -730,13 +726,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void removeContextPartition( Name suffix ) throws NamingException
+    public void removeContextPartition( LdapDN suffix ) throws NamingException
     {
         removeContextPartition( suffix, null );
     }
 
 
-    public void removeContextPartition( Name suffix, Collection bypass ) throws NamingException
+    public void removeContextPartition( LdapDN suffix, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -780,7 +776,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
      */
 
     public void addNamingListener( EventContext ctx, Name name, ExprNode filter, SearchControls searchControls,
-        NamingListener namingListener ) throws NamingException
+                                   NamingListener namingListener ) throws NamingException
     {
         InterceptorChain chain = this.configuration.getInterceptorChain();
         EventService interceptor = ( EventService ) chain.get( "eventService" );

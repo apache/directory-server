@@ -31,8 +31,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.shared.ldap.NotImplementedException;
-
-import com.sun.jndi.ldap.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -56,7 +55,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param env the JNDI environment parameters
      * @throws NamingException the context cannot be created
      */
-    public ServerLdapContext(DirectoryService service, Hashtable env) throws NamingException
+    public ServerLdapContext( DirectoryService service, Hashtable env ) throws NamingException
     {
         super( service, env );
     }
@@ -67,11 +66,9 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * set the PROVIDER_URL to the distinguished name for this context.
      *
      * @param principal the directory user principal that is propagated
-     * @param nexusProxy the intercepting proxy to the nexus
-     * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    ServerLdapContext(DirectoryService service, LdapPrincipal principal, Name dn) throws NamingException
+    ServerLdapContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws NamingException
     {
         super( service, principal, dn );
     }
@@ -162,7 +159,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * permission is not allowed for this operation or the oid is not recognized,
      * or the attribute is not present in the entry ... you get the picture.
      */
-    public boolean compare( Name name, String oid, Object value ) throws NamingException
+    public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
     {
         return super.getNexusProxy().compare( name, oid, value );
     }
@@ -179,7 +176,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public void ldapUnbind() throws NamingException
     {
         String bindDn = ( String ) getEnvironment().get( Context.SECURITY_PRINCIPAL );
-        super.getNexusProxy().unbind( new LdapName( bindDn ) );
+        super.getNexusProxy().unbind( new LdapDN( bindDn ) );
     }
 
 

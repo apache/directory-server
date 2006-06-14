@@ -36,7 +36,7 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -245,7 +245,8 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
         DirContext ctx = ( DirContext ) invocation.getCaller();
         Hashtable env = ctx.getEnvironment();
         Attributes attrs = result.getAttributes();
-        Name name = new LdapName( result.getName() );
+        Name name = new LdapDN( result.getName() );
+        
         try
         {
             Object obj = DirectoryManager.getObjectInstance( null, name, ctx, env, attrs );

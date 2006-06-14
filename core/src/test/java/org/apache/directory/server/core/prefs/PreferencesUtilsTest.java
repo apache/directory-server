@@ -17,10 +17,10 @@
 package org.apache.directory.server.core.prefs;
 
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.prefs.PreferencesUtils;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import junit.framework.TestCase;
 
@@ -45,35 +45,35 @@ public class PreferencesUtilsTest extends TestCase
 
         String test = "/org/apache/kerberos/";
 
-        Name dn = PreferencesUtils.toSysDn( test );
+        LdapDN dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.toString(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org,"
+        assertEquals( dn.toUpName(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org,"
             + PreferencesUtils.SYSPREF_BASE );
 
         // simple test without trailing '/'
 
         test = "/org/apache/kerberos";
 
-        dn = PreferencesUtils.toSysDn( test );
+        dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.toString(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org,"
+        assertEquals( dn.toUpName(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org,"
             + PreferencesUtils.SYSPREF_BASE );
 
         // basis condition tests
 
         test = "/";
 
-        dn = PreferencesUtils.toSysDn( test );
+        dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.toString(), PreferencesUtils.SYSPREF_BASE );
+        assertEquals( dn.toUpName(), PreferencesUtils.SYSPREF_BASE );
 
         // endpoint tests
 
         test = "//////";
 
-        dn = PreferencesUtils.toSysDn( test );
+        dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.toString(), PreferencesUtils.SYSPREF_BASE );
+        assertEquals( dn.toUpName(), PreferencesUtils.SYSPREF_BASE );
 
     }
 }

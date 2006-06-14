@@ -33,7 +33,7 @@ import org.apache.directory.server.core.partition.impl.btree.BTreeDirectoryParti
 import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
 import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -187,7 +187,7 @@ public class EntryNode implements TreeNode
 
         try
         {
-            LdapName dn = new LdapName( partition.getEntryDn( id ) );
+            LdapDN dn = new LdapDN( partition.getEntryDn( id ) );
             buf.append( "(" ).append( id ).append( ") " );
             buf.append( dn.getRdn() );
         }

@@ -32,8 +32,8 @@ import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 
@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
  * A single reply handler for {@link org.apache.directory.shared.ldap.message.BindRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class BindHandler implements MessageHandler
 {
@@ -69,14 +68,11 @@ public class BindHandler implements MessageHandler
             return;
         }
 
-        boolean emptyDn = StringTools.isEmpty( req.getName() );
-
         // clone the environment first then add the required security settings
-        String dn = ( emptyDn ? "" : req.getName() );
         byte[] creds = req.getCredentials();
 
         Hashtable cloned = ( Hashtable ) env.clone();
-        cloned.put( Context.SECURITY_PRINCIPAL, dn );
+        cloned.put( Context.SECURITY_PRINCIPAL, req.getName() );
         cloned.put( Context.SECURITY_CREDENTIALS, creds );
         cloned.put( Context.SECURITY_AUTHENTICATION, "simple" );
 
@@ -135,7 +131,7 @@ public class BindHandler implements MessageHandler
                 && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
                     || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
             {
-                result.setMatchedDn( e.getResolvedName().toString() );
+                result.setMatchedDn( (LdapDN)e.getResolvedName() );
             }
 
             result.setErrorMessage( msg );

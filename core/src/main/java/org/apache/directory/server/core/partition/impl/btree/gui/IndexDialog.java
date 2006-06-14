@@ -31,6 +31,7 @@ import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,9 +72,17 @@ public class IndexDialog extends JDialog
 
 
     /** Creates new form JDialog */
-    public IndexDialog(Frame parent, boolean modal, Index index)
+    public IndexDialog( Frame parent, boolean modal, Index index )
     {
         super( parent, modal );
+        this.index = index;
+        initGUI();
+    }
+    
+    
+    public IndexDialog( Index index )
+    {
+        super();
         this.index = index;
         initGUI();
     }
@@ -342,5 +351,12 @@ public class IndexDialog extends JDialog
         }
 
         return true;
+    }
+    
+    
+    public static void show( Index index )
+    {
+        IndexDialog dialog = new IndexDialog( index );
+        dialog.setVisible( true );
     }
 }

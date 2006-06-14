@@ -30,7 +30,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import javax.naming.ConfigurationException;
-import javax.naming.Name;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -60,7 +59,7 @@ import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -244,6 +243,7 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
         indexedSystemAttrs.add( Oid.ONEALIAS );
         indexedSystemAttrs.add( Oid.SUBALIAS );
         indexedSystemAttrs.add( Oid.UPDN );
+        indexedSystemAttrs.add( "objectClass" );
         systemCfg.setIndexedAttributes( indexedSystemAttrs );
 
         // Add context entry for system partition
@@ -259,7 +259,7 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
         systemCfg.setContextEntry( systemEntry );
 
         system.init( factoryCfg, systemCfg );
-        String key = system.getSuffix( true ).toString();
+        String key = system.getSuffix().toString();
         if ( partitions.containsKey( key ) )
         {
             throw new ConfigurationException( "Duplicate partition suffix: " + key );
@@ -267,7 +267,7 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
         partitions.put( key, system );
 
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.add( system.getSuffix( false ).toString() );
+        namingContexts.add( system.getUpSuffix().toString() );
 
         return systemCfg;
     }
@@ -295,7 +295,7 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
             String suffix = ( String ) suffixes.next();
             try
             {
-                removeContextPartition( new LdapName( suffix ) );
+                removeContextPartition( new LdapDN( suffix ) );
             }
             catch ( NamingException e )
             {
@@ -348,7 +348,7 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
     // ContextPartitionNexus Method Implementations
     // ------------------------------------------------------------------------
 
-    public boolean compare( Name name, String oid, Object value ) throws NamingException
+    public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
     {
         DirectoryPartition partition = getBackend( name );
         AttributeTypeRegistry registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
@@ -425,14 +425,14 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
         }
 
         partition.init( factoryCfg, config );
-        partitions.put( partition.getSuffix( true ).toString(), partition );
+        partitions.put( partition.getSuffix().toString(), partition );
 
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.add( partition.getSuffix( false ).toString() );
+        namingContexts.add( partition.getUpSuffix() );
     }
 
 
-    public synchronized void removeContextPartition( Name suffix ) throws NamingException
+    public synchronized void removeContextPartition( LdapDN suffix ) throws NamingException
     {
         String key = suffix.toString();
         DirectoryPartition partition = ( DirectoryPartition ) partitions.get( key );
@@ -442,7 +442,7 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
         }
 
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.remove( partition.getSuffix( false ).toString() );
+        namingContexts.remove( partition.getUpSuffix() );
         partitions.remove( key );
 
         partition.sync();
@@ -466,11 +466,11 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
 
     /**
-     * @see DirectoryPartitionNexus#getMatchedName(javax.naming.Name, boolean)
+     * @see DirectoryPartitionNexus#getMatchedName(org.apache.directory.shared.ldap.name.LdapDN)
      */
-    public Name getMatchedName( Name dn, boolean normalized ) throws NamingException
+    public LdapDN getMatchedName ( LdapDN dn ) throws NamingException
     {
-        dn = ( Name ) dn.clone();
+        dn = ( LdapDN ) dn.clone();
         while ( dn.size() > 0 )
         {
             if ( hasEntry( dn ) )
@@ -478,33 +478,38 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
                 return dn;
             }
 
-            dn = dn.getPrefix( 1 );
+            dn.remove( dn.size() - 1 );
         }
 
         return dn;
     }
 
 
-    public Name getSuffix( boolean normalized )
+    public LdapDN getSuffix()
     {
-        return new LdapName();
+        return LdapDN.EMPTY_LDAPDN;
+    }
+
+    public LdapDN getUpSuffix()
+    {
+        return LdapDN.EMPTY_LDAPDN;
     }
 
 
     /**
-     * @see org.apache.directory.server.core.partition.DirectoryPartitionNexus#getSuffix(javax.naming.Name, boolean)
+     * @see DirectoryPartitionNexus#getSuffix(org.apache.directory.shared.ldap.name.LdapDN)
      */
-    public Name getSuffix( Name dn, boolean normalized ) throws NamingException
+    public LdapDN getSuffix ( LdapDN dn ) throws NamingException
     {
         DirectoryPartition backend = getBackend( dn );
-        return backend.getSuffix( normalized );
+        return backend.getSuffix();
     }
 
 
     /**
-     * @see org.apache.directory.server.core.partition.DirectoryPartitionNexus#listSuffixes(boolean)
+     * @see DirectoryPartitionNexus#listSuffixes()
      */
-    public Iterator listSuffixes( boolean normalized ) throws NamingException
+    public Iterator listSuffixes () throws NamingException
     {
         return Collections.unmodifiableSet( partitions.keySet() ).iterator();
     }
@@ -531,8 +536,8 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
     private void unregister( DirectoryPartition partition ) throws NamingException
     {
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.remove( partition.getSuffix( false ).toString() );
-        partitions.remove( partition.getSuffix( true ).toString() );
+        namingContexts.remove( partition.getSuffix().toString() );
+        partitions.remove( partition.getSuffix().toString() );
     }
 
 
@@ -540,14 +545,14 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
     // DirectoryPartition Interface Method Implementations
     // ------------------------------------------------------------------------
 
-    public void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+    public void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
     {
         DirectoryPartition partition = getBackend( bindDn );
         partition.bind( bindDn, credentials, mechanisms, saslAuthId );
     }
 
 
-    public void unbind( Name bindDn ) throws NamingException
+    public void unbind( LdapDN bindDn ) throws NamingException
     {
         DirectoryPartition partition = getBackend( bindDn );
         partition.unbind( bindDn );
@@ -555,9 +560,9 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
 
     /**
-     * @see DirectoryPartition#delete(javax.naming.Name)
+     * @see DirectoryPartition#delete(org.apache.directory.shared.ldap.name.LdapDN)
      */
-    public void delete( Name dn ) throws NamingException
+    public void delete( LdapDN dn ) throws NamingException
     {
         DirectoryPartition backend = getBackend( dn );
         backend.delete( dn );
@@ -571,19 +576,19 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
      * here so backend implementors do not have to worry about performing these
      * kinds of checks.
      *
-     * @see org.apache.directory.server.core.partition.DirectoryPartition#add(String, Name, Attributes)
+     * @see DirectoryPartition#add(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.Attributes)
      */
-    public void add( String updn, Name dn, Attributes an_entry ) throws NamingException
+    public void add( LdapDN dn, Attributes entry ) throws NamingException
     {
         DirectoryPartition backend = getBackend( dn );
-        backend.add( updn, dn, an_entry );
+        backend.add( dn, entry );
     }
 
 
     /**
-     * @see DirectoryPartition#modify(Name, int,Attributes)
+     * @see DirectoryPartition#modify(org.apache.directory.shared.ldap.name.LdapDN,int,javax.naming.directory.Attributes)
      */
-    public void modify( Name dn, int modOp, Attributes mods ) throws NamingException
+    public void modify( LdapDN dn, int modOp, Attributes mods ) throws NamingException
     {
         DirectoryPartition backend = getBackend( dn );
         backend.modify( dn, modOp, mods );
@@ -591,10 +596,9 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
 
     /**
-     * @see DirectoryPartition#modify(javax.naming.Name,
-     * javax.naming.directory.ModificationItem[])
+     * @see DirectoryPartition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])
      */
-    public void modify( Name dn, ModificationItem[] mods ) throws NamingException
+    public void modify( LdapDN dn, ModificationItem[] mods ) throws NamingException
     {
         DirectoryPartition backend = getBackend( dn );
         backend.modify( dn, mods );
@@ -602,9 +606,9 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
 
     /**
-     * @see DirectoryPartition#list(javax.naming.Name)
+     * @see DirectoryPartition#list(org.apache.directory.shared.ldap.name.LdapDN)
      */
-    public NamingEnumeration list( Name base ) throws NamingException
+    public NamingEnumeration list( LdapDN base ) throws NamingException
     {
         DirectoryPartition backend = getBackend( base );
         return backend.list( base );
@@ -612,16 +616,18 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
 
     /**
-     * @see DirectoryPartition#search(Name, Map, ExprNode, SearchControls)
+     * @see DirectoryPartition#search(org.apache.directory.shared.ldap.name.LdapDN,java.util.Map,org.apache.directory.shared.ldap.filter.ExprNode,javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
         throws NamingException
     {
 
         if ( base.size() == 0 )
         {
             boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
-            boolean isSearchAll = ( ( PresenceNode ) filter ).getAttribute().equalsIgnoreCase( "objectclass" );
+            
+            // test for (objectClass=*)
+            boolean isSearchAll = ( ( PresenceNode ) filter ).getAttribute().equalsIgnoreCase( "2.5.4.0" );
 
             /*
              * if basedn is "", filter is "(objectclass=*)" and scope is object
@@ -670,9 +676,9 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
 
     /**
-     * @see DirectoryPartition#lookup(javax.naming.Name)
+     * @see DirectoryPartition#lookup(org.apache.directory.shared.ldap.name.LdapDN)
      */
-    public Attributes lookup( Name dn ) throws NamingException
+    public Attributes lookup( LdapDN dn ) throws NamingException
     {
         if ( dn.size() == 0 )
         {
@@ -685,9 +691,9 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
 
     /**
-     * @see org.apache.directory.server.core.partition.DirectoryPartition#lookup(javax.naming.Name, String[])
+     * @see DirectoryPartition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])
      */
-    public Attributes lookup( Name dn, String[] attrIds ) throws NamingException
+    public Attributes lookup( LdapDN dn, String[] attrIds ) throws NamingException
     {
         if ( dn.size() == 0 )
         {
@@ -708,9 +714,9 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
 
     /**
-     * @see DirectoryPartition#hasEntry(javax.naming.Name)
+     * @see DirectoryPartition#hasEntry(org.apache.directory.shared.ldap.name.LdapDN)
      */
-    public boolean hasEntry( Name dn ) throws NamingException
+    public boolean hasEntry( LdapDN dn ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -728,18 +734,18 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
 
     /**
-     * @see DirectoryPartition#isSuffix(javax.naming.Name)
+     * @see DirectoryPartition#isSuffix(org.apache.directory.shared.ldap.name.LdapDN)
      */
-    public boolean isSuffix( Name dn )
+    public boolean isSuffix( LdapDN dn )
     {
         return partitions.containsKey( dn.toString() );
     }
 
 
     /**
-     * @see DirectoryPartition#modifyRn(Name, String, boolean)
+     * @see DirectoryPartition#modifyRn(org.apache.directory.shared.ldap.name.LdapDN,String,boolean)
      */
-    public void modifyRn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    public void modifyRn( LdapDN dn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
         DirectoryPartition backend = getBackend( dn );
         backend.modifyRn( dn, newRdn, deleteOldRdn );
@@ -747,9 +753,9 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
 
     /**
-     * @see DirectoryPartition#move(Name, Name)
+     * @see DirectoryPartition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN)
      */
-    public void move( Name oriChildName, Name newParentName ) throws NamingException
+    public void move( LdapDN oriChildName, LdapDN newParentName ) throws NamingException
     {
         DirectoryPartition backend = getBackend( oriChildName );
         backend.move( oriChildName, newParentName );
@@ -757,10 +763,9 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
 
     /**
-     * @see DirectoryPartition#move(javax.naming.Name,
-     * javax.naming.Name, java.lang.String, boolean)
+     * @see DirectoryPartition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN,String,boolean)
      */
-    public void move( Name oldChildDn, Name newParentDn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    public void move( LdapDN oldChildDn, LdapDN newParentDn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
         DirectoryPartition backend = getBackend( oldChildDn );
         backend.move( oldChildDn, newParentDn, newRdn, deleteOldRdn );
@@ -778,9 +783,9 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
      * @return the backend partition associated with the normalized dn
      * @throws NamingException if the name cannot be resolved to a backend
      */
-    private DirectoryPartition getBackend( Name dn ) throws NamingException
+    private DirectoryPartition getBackend( LdapDN dn ) throws NamingException
     {
-        Name clonedDn = ( Name ) dn.clone();
+        LdapDN clonedDn = ( LdapDN ) dn.clone();
         while ( clonedDn.size() > 0 )
         {
             if ( partitions.containsKey( clonedDn.toString() ) )
@@ -790,11 +795,11 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
             clonedDn.remove( clonedDn.size() - 1 );
         }
-        throw new NameNotFoundException( dn.toString() );
+        throw new LdapNameNotFoundException( dn.toUpName() );
     }
 
 
-    public DirectoryPartition getPartition( Name dn ) throws NamingException
+    public DirectoryPartition getPartition( LdapDN dn ) throws NamingException
     {
         return getBackend( dn );
     }

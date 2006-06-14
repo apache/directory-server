@@ -19,6 +19,7 @@ package org.apache.directory.server.ldap.support;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -26,6 +27,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -38,7 +40,9 @@ import org.apache.directory.shared.ldap.message.SearchResponseEntry;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseReference;
 import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.mina.common.IoSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +61,7 @@ class SearchResponseIterator implements Iterator
     private final SearchRequest req;
     private final ServerLdapContext ctx;
     private final NamingEnumeration underlying;
+    private final IoSession session;
     private SearchResponseDone respDone;
     private boolean done = false;
     private Object prefetched;
@@ -70,12 +75,14 @@ class SearchResponseIterator implements Iterator
      * @param req the search request to generate responses to
      * @param underlying the underlying JNDI enumeration containing SearchResults
      */
-    public SearchResponseIterator(SearchRequest req, ServerLdapContext ctx, NamingEnumeration underlying, int scope)
+    public SearchResponseIterator( SearchRequest req, ServerLdapContext ctx, NamingEnumeration underlying, int scope,
+        IoSession session )
     {
         this.req = req;
         this.ctx = ctx;
         this.scope = scope;
         this.underlying = underlying;
+        this.session = session;
 
         try
         {
@@ -94,7 +101,16 @@ class SearchResponseIterator implements Iterator
                     SearchResponseEntry respEntry;
                     respEntry = new SearchResponseEntryImpl( req.getMessageId() );
                     respEntry.setAttributes( result.getAttributes() );
-                    respEntry.setObjectName( result.getName() );
+                    try
+                    {
+                        respEntry.setObjectName( new LdapDN( result.getName() ) );
+                    }
+                    catch ( InvalidNameException ine )
+                    {
+                        log.error( "Invalid object name : " + result.getName(), ine);
+                        throw new RuntimeException( ine );
+                    }
+                    
                     prefetched = respEntry;
                 }
                 else
@@ -129,6 +145,10 @@ class SearchResponseIterator implements Iterator
 
                     prefetched = respRef;
                 }
+            }
+            else
+            {
+                SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
             }
         }
         catch ( NamingException e )
@@ -197,6 +217,7 @@ class SearchResponseIterator implements Iterator
                 respDone = ( SearchResponseDone ) req.getResultResponse();
                 respDone.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
                 prefetched = null;
+                SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
                 return next;
             }
         }
@@ -251,7 +272,17 @@ class SearchResponseIterator implements Iterator
         {
             SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
             respEntry.setAttributes( result.getAttributes() );
-            respEntry.setObjectName( result.getName() );
+            
+            try
+            {
+                respEntry.setObjectName( new LdapDN( result.getName() ) );
+            }
+            catch ( InvalidNameException ine )
+            {
+                log.error( "Invalid object name : " + result.getName(), ine);
+                throw new RuntimeException( ine );
+            }
+            
             prefetched = respEntry;
         }
         else
@@ -367,6 +398,7 @@ class SearchResponseIterator implements Iterator
     SearchResponseDone getResponse( SearchRequest req, Exception e )
     {
         String msg = "failed on search operation";
+        
         if ( log.isDebugEnabled() )
         {
             msg += ":\n" + req + ":\n" + ExceptionUtils.getStackTrace( e );
@@ -374,6 +406,7 @@ class SearchResponseIterator implements Iterator
 
         SearchResponseDone resp = ( SearchResponseDone ) req.getResultResponse();
         ResultCodeEnum code = null;
+        
         if ( e instanceof LdapException )
         {
             code = ( ( LdapException ) e ).getResultCode();
@@ -389,13 +422,16 @@ class SearchResponseIterator implements Iterator
         if ( e instanceof NamingException )
         {
             NamingException ne = ( NamingException ) e;
+            
             if ( ( ne.getResolvedName() != null )
                 && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
                     || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
             {
-                resp.getLdapResult().setMatchedDn( ne.getResolvedName().toString() );
+                resp.getLdapResult().setMatchedDn( (LdapDN)ne.getResolvedName() );
             }
         }
+        
+        SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
         return resp;
     }
 }

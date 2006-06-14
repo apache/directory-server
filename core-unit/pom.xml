@@ -36,9 +36,10 @@
       <version>${pom.version}</version>
     </dependency>  
   </dependencies>
+
   <profiles>
     <profile>
-    <id>no-integration-tests</id>
+    <id>no-integration-or-perf-tests</id>
     <activation>
       <activeByDefault>true</activeByDefault>
     </activation>
@@ -48,14 +49,8 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
             <excludes>
-              <!-- TODO
-                Need to rename all integration tests to have Integration
-                in the name of the test so we can change the exclude below
-                to only refer to these tests rather than all tests like so:
-                
-                <exclude>**/*Integration*Test*</exclude>
-                -->
-              <exclude>**/*Test.java</exclude>
+              <exclude>**/*ITest.java</exclude>
+              <exclude>**/*PTest.java</exclude>
             </excludes>
           </configuration>
         </plugin>
@@ -71,8 +66,9 @@
                           W A R N I N G
                           -------------
                   
-Integration tests have been disabled.  To enable integration
-tests run maven with the -Dintegration.
+Integration and performance tests have been disabled.  To enable 
+integration tests run maven with the -Dintegration switch.  To 
+enable performance tests run maven with the -Dperformance switch.
 =================================================================
                     </echo>
                   </tasks>
@@ -83,7 +79,7 @@ tests run maven with the -Dintegration.
               </execution>
             </executions>
           </plugin>
-   	</plugins>
+   	    </plugins>
       </build>
     </profile>
     <profile>
@@ -91,6 +87,90 @@ tests run maven with the -Dintegration.
       <activation>
         <property><name>integration</name></property>
       </activation>
+    <build>
+      <plugins>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <excludes>
+              <exclude>**/*PTest.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <configuration>
+                  <tasks>
+                    <echo>
+=================================================================
+                   I N T E G R A T I O N
+                   ---------------------
+                  
+Performance tests have been disabled.  To enable 
+performance tests run maven with the -Dperformance switch.
+=================================================================
+                    </echo>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+   	    </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>performance</id>
+      <activation>
+        <property><name>performance</name></property>
+      </activation>
+    <build>
+      <plugins>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <systemProperties>
+              <property>
+                <name>outputDirectory</name>
+                <value>${basedir}/target</value>
+              </property>
+            </systemProperties>
+            <excludes>
+              <exclude>**/*ITest.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <configuration>
+                  <tasks>
+                    <echo>
+=================================================================
+                   P E R F O R M A N C E
+                   ---------------------
+                  
+Integration tests have been disabled.  To enable integration
+tests run maven with the -Dintegration switch.
+=================================================================
+                    </echo>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+   	    </plugins>
+      </build>
     </profile>
   </profiles>
 </project>

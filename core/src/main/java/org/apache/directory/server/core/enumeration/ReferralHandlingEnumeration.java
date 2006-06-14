@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -30,10 +29,11 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.server.core.referral.ReferralLut;
+import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
-import org.apache.directory.shared.ldap.name.DnParser;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,6 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
     private final List referrals = new ArrayList();
     private final NamingEnumeration underlying;
     private final ReferralLut lut;
-    private final DnParser parser;
     private final DirectoryPartitionNexus nexus;
     private final boolean doThrow;
     private final int scope;
@@ -60,11 +59,10 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
     private int refIndex = -1;
 
 
-    public ReferralHandlingEnumeration(NamingEnumeration underlying, ReferralLut lut, DnParser parser,
-        DirectoryPartitionNexus nexus, int scope, boolean doThrow) throws NamingException
+    public ReferralHandlingEnumeration( NamingEnumeration underlying, ReferralLut lut, AttributeTypeRegistry registry,
+        DirectoryPartitionNexus nexus, int scope, boolean doThrow ) throws NamingException
     {
         this.underlying = underlying;
-        this.parser = parser;
         this.doThrow = doThrow;
         this.lut = lut;
         this.scope = scope;
@@ -78,7 +76,9 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
         while ( underlying.hasMore() )
         {
             SearchResult result = ( SearchResult ) underlying.next();
-            Name dn = parser.parse( result.getName() );
+            LdapDN dn = new LdapDN( result.getName() );
+            dn.normalize();
+            
             if ( lut.isReferral( dn ) )
             {
                 referrals.add( result );
@@ -164,7 +164,9 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
         Attribute refs = prefetched.getAttributes().get( REF_ATTR );
         if ( refs == null )
         {
-            refs = nexus.lookup( parser.parse( prefetched.getName() ) ).get( REF_ATTR );
+            LdapDN prefetchedDn = new LdapDN( prefetched.getName() );
+            prefetchedDn.normalize();
+            refs = nexus.lookup( prefetchedDn ).get( REF_ATTR );
         }
 
         if ( refs == null )

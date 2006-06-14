@@ -20,7 +20,9 @@ package org.apache.directory.server.core.authz.support;
 
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.naming.NamingException;
 
@@ -28,8 +30,11 @@ import org.apache.directory.server.core.authz.support.ACITupleFilter;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -105,7 +110,56 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 
                 public MatchingRule getEquality() throws NamingException
                 {
-                    return null;
+                    return new MatchingRule()
+                    {
+
+                        public Syntax getSyntax() throws NamingException
+                        {
+                            return null;
+                        }
+
+                        public Comparator getComparator() throws NamingException
+                        {
+                            return null;
+                        }
+
+                        public Normalizer getNormalizer() throws NamingException
+                        {
+                            return new Normalizer()
+                            {
+                                public Object normalize( Object value ) throws NamingException
+                                {
+                                    return StringTools.deepTrimToLower( value.toString() );
+                                }
+                            };
+                        }
+
+                        public boolean isObsolete()
+                        {
+                            return false;
+                        }
+
+                        public String getOid()
+                        {
+                            return null;
+                        }
+
+                        public String[] getNames()
+                        {
+                            return null;
+                        }
+
+                        public String getName()
+                        {
+                            return null;
+                        }
+
+                        public String getDescription()
+                        {
+                            return null;
+                        }
+                        
+                    };
                 }
 
 
@@ -188,7 +242,45 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 
                 public Syntax getSyntax() throws NamingException
                 {
-                    return null;
+                    return new Syntax()
+                    {
+
+                        public boolean isHumanReadible()
+                        {
+                            return true;
+                        }
+
+                        public SyntaxChecker getSyntaxChecker() throws NamingException
+                        {
+                            return null;
+                        }
+
+                        public boolean isObsolete()
+                        {
+                            return false;
+                        }
+
+                        public String getOid()
+                        {
+                            return null;
+                        }
+
+                        public String[] getNames()
+                        {
+                            return null;
+                        }
+
+                        public String getName()
+                        {
+                            return null;
+                        }
+
+                        public String getDescription()
+                        {
+                            return null;
+                        }
+                        
+                    };
                 }
 
 
@@ -200,7 +292,94 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 
                 public MatchingRule getEquality() throws NamingException
                 {
-                    return null;
+                    return new MatchingRule()
+                    {
+
+                        public Syntax getSyntax() throws NamingException
+                        {
+                            return new Syntax()
+                            {
+
+                                public boolean isHumanReadible()
+                                {
+                                    return true;
+                                }
+
+                                public SyntaxChecker getSyntaxChecker() throws NamingException
+                                {
+                                    return null;
+                                }
+
+                                public boolean isObsolete()
+                                {
+                                    return false;
+                                }
+
+                                public String getOid()
+                                {
+                                    return null;
+                                }
+
+                                public String[] getNames()
+                                {
+                                    return null;
+                                }
+
+                                public String getName()
+                                {
+                                    return null;
+                                }
+
+                                public String getDescription()
+                                {
+                                    return null;
+                                }
+                                
+                            };
+                        }
+
+                        public Comparator getComparator() throws NamingException
+                        {
+                            return null;
+                        }
+
+                        public Normalizer getNormalizer() throws NamingException
+                        {
+                            return new Normalizer()
+                            {
+                                public Object normalize( Object value ) throws NamingException
+                                {
+                                    return StringTools.deepTrimToLower( value.toString() );
+                                }
+                            };
+                        }
+
+                        public boolean isObsolete()
+                        {
+                            return false;
+                        }
+
+                        public String getOid()
+                        {
+                            return null;
+                        }
+
+                        public String[] getNames()
+                        {
+                            return null;
+                        }
+
+                        public String getName()
+                        {
+                            return null;
+                        }
+
+                        public String getDescription()
+                        {
+                            return null;
+                        }
+                        
+                    };
                 }
 
 
@@ -267,4 +446,9 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
         return new ArrayList().iterator();
     }
 
+
+    public Map getNormalizerMapping() throws NamingException
+    {
+        return null;
+    }
 }

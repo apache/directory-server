@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -44,6 +43,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -181,9 +181,9 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
         Attributes suffixOnDisk = getSuffixEntry();
         if ( suffixOnDisk == null )
         {
-            add( cfg.getSuffix(),
-                cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() ), cfg
-                    .getContextEntry() );
+            LdapDN suffix = new LdapDN( cfg.getSuffix() );
+            LdapDN normalizedSuffix = LdapDN.normalize( suffix );
+            add( normalizedSuffix, cfg.getContextEntry() );
         }
     }
 
@@ -208,7 +208,7 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
     // ContextPartition Interface Method Implementations
     // ------------------------------------------------------------------------
 
-    public void delete( Name dn ) throws NamingException
+    public void delete( LdapDN dn ) throws NamingException
     {
         BigInteger id = getEntryId( dn.toString() );
 
@@ -230,16 +230,16 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
     }
 
 
-    public abstract void add( String updn, Name dn, Attributes entry ) throws NamingException;
+    public abstract void add(LdapDN dn, Attributes entry) throws NamingException;
 
 
-    public abstract void modify( Name dn, int modOp, Attributes mods ) throws NamingException;
+    public abstract void modify( LdapDN dn, int modOp, Attributes mods ) throws NamingException;
 
 
-    public abstract void modify( Name dn, ModificationItem[] mods ) throws NamingException;
+    public abstract void modify( LdapDN dn, ModificationItem[] mods ) throws NamingException;
 
 
-    public NamingEnumeration list( Name base ) throws NamingException
+    public NamingEnumeration list( LdapDN base ) throws NamingException
     {
         SearchResultEnumeration list;
         list = new BTreeSearchResultEnumeration( ArrayUtils.EMPTY_STRING_ARRAY, list( getEntryId( base.toString() ) ),
@@ -248,7 +248,7 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
     }
 
 
-    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
         throws NamingException
     {
         String[] attrIds = searchCtls.getReturningAttributes();
@@ -260,13 +260,13 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
     }
 
 
-    public Attributes lookup( Name dn ) throws NamingException
+    public Attributes lookup( LdapDN dn ) throws NamingException
     {
         return lookup( getEntryId( dn.toString() ) );
     }
 
 
-    public Attributes lookup( Name dn, String[] attrIds ) throws NamingException
+    public Attributes lookup( LdapDN dn, String[] attrIds ) throws NamingException
     {
         if ( attrIds == null || attrIds.length == 0 )
         {
@@ -290,19 +290,19 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
     }
 
 
-    public boolean hasEntry( Name dn ) throws NamingException
+    public boolean hasEntry( LdapDN dn ) throws NamingException
     {
         return null != getEntryId( dn.toString() );
     }
 
 
-    public abstract void modifyRn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException;
+    public abstract void modifyRn( LdapDN dn, String newRdn, boolean deleteOldRdn ) throws NamingException;
 
 
-    public abstract void move( Name oldChildDn, Name newParentDn ) throws NamingException;
+    public abstract void move( LdapDN oldChildDn, LdapDN newParentDn ) throws NamingException;
 
 
-    public abstract void move( Name oldChildDn, Name newParentDn, String newRdn, boolean deleteOldRdn )
+    public abstract void move( LdapDN oldChildDn, LdapDN newParentDn, String newRdn, boolean deleteOldRdn )
         throws NamingException;
 
 
@@ -315,9 +315,9 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
     public abstract boolean isInitialized();
 
 
-    public boolean isSuffix( Name dn ) throws NamingException
+    public boolean isSuffix( LdapDN dn ) throws NamingException
     {
-        return getSuffix( true ).equals( dn );
+        return getSuffix().equals( dn );
     }
 
 
@@ -338,10 +338,10 @@ public abstract class BTreeDirectoryPartition implements DirectoryPartition
     public abstract void addIndexOn( AttributeType attribute ) throws NamingException;
 
 
-    public abstract boolean hasUserIndexOn( String attribute );
+    public abstract boolean hasUserIndexOn( String attribute ) throws NamingException;
 
 
-    public abstract boolean hasSystemIndexOn( String attribute );
+    public abstract boolean hasSystemIndexOn( String attribute ) throws NamingException;
 
 
     public abstract Index getExistanceIndex();

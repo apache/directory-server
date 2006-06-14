@@ -46,11 +46,12 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ScopeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResponseDone;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +97,7 @@ public class SearchHandler implements MessageHandler
      */
     private static boolean isRootDSESearch( SearchRequest req )
     {
-        boolean isBaseIsRoot = req.getBase().trim().equals( "" );
+        boolean isBaseIsRoot = req.getBase().isEmpty();
         boolean isBaseScope = req.getScope() == ScopeEnum.BASEOBJECT;
         boolean isRootDSEFilter = false;
         if ( req.getFilter() instanceof PresenceNode )
@@ -209,7 +210,7 @@ public class SearchHandler implements MessageHandler
 
                 if ( !psearchControl.isChangesOnly() )
                 {
-                    list = ( ( ServerLdapContext ) ctx ).search( new LdapName( req.getBase() ), req.getFilter(),
+                    list = ( ( ServerLdapContext ) ctx ).search( req.getBase(), req.getFilter(),
                         controls );
                     if ( list instanceof AbandonListener )
                     {
@@ -217,7 +218,7 @@ public class SearchHandler implements MessageHandler
                     }
                     if ( list.hasMore() )
                     {
-                        Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope() );
+                        Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(), session );
                         while ( it.hasNext() )
                         {
                             Response resp = ( Response ) it.next();
@@ -262,7 +263,7 @@ public class SearchHandler implements MessageHandler
              * Iterate through all search results building and sending back responses 
              * for each search result returned.  
              */
-            list = ( ( ServerLdapContext ) ctx ).search( new LdapName( req.getBase() ), req.getFilter(), controls );
+            list = ( ( ServerLdapContext ) ctx ).search( req.getBase(), req.getFilter(), controls );
             if ( list instanceof AbandonListener )
             {
                 req.addAbandonListener( ( AbandonListener ) list );
@@ -270,7 +271,7 @@ public class SearchHandler implements MessageHandler
 
             if ( list.hasMore() )
             {
-                Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope() );
+                Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(), session );
                 while ( it.hasNext() )
                 {
                     session.write( it.next() );
@@ -351,7 +352,7 @@ public class SearchHandler implements MessageHandler
                 && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
                     || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
             {
-                result.setMatchedDn( e.getResolvedName().toString() );
+                result.setMatchedDn( (LdapDN)e.getResolvedName() );
             }
 
             Iterator it = Collections.singleton( req.getResultResponse() ).iterator();

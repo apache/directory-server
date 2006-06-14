@@ -17,15 +17,12 @@
 package org.apache.directory.server.core;
 
 
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 
 import javax.naming.Context;
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -43,8 +40,6 @@ import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapRegistries;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.core.schema.global.GlobalRegistries;
-import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
@@ -52,11 +47,8 @@ import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DnOidContainer;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
-import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -418,7 +410,7 @@ class DefaultDirectoryService extends DirectoryService
     private boolean createBootstrapEntries() throws NamingException
     {
         boolean firstStart = false;
-
+        
         // -------------------------------------------------------------------
         // create admin entry
         // -------------------------------------------------------------------
@@ -447,7 +439,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             attributes.put( "displayName", "Directory Superuser" );
 
-            partitionNexus.add( DirectoryPartitionNexus.ADMIN_PRINCIPAL, DirectoryPartitionNexus.getAdminName(),
+            partitionNexus.add(DirectoryPartitionNexus.getAdminName(),
                 attributes );
         }
 
@@ -455,7 +447,10 @@ class DefaultDirectoryService extends DirectoryService
         // create system users area
         // -------------------------------------------------------------------
 
-        if ( !partitionNexus.hasEntry( new LdapName( "ou=users,ou=system" ) ) )
+        LdapDN userDn = new LdapDN( "ou=users,ou=system" );
+        userDn.normalize();
+        
+        if ( !partitionNexus.hasEntry( userDn ) )
         {
             firstStart = true;
 
@@ -469,14 +464,17 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( "ou=users,ou=system", new LdapName( "ou=users,ou=system" ), attributes );
+            partitionNexus.add( userDn, attributes );
         }
 
         // -------------------------------------------------------------------
         // create system groups area
         // -------------------------------------------------------------------
 
-        if ( !partitionNexus.hasEntry( new LdapName( "ou=groups,ou=system" ) ) )
+        LdapDN groupDn = new LdapDN( "ou=groups,ou=system" );
+        groupDn.normalize();
+        
+        if ( !partitionNexus.hasEntry( groupDn ) )
         {
             firstStart = true;
 
@@ -490,7 +488,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( "ou=groups,ou=system", new LdapName( "ou=groups,ou=system" ), attributes );
+            partitionNexus.add( groupDn, attributes );
         }
 
         // -------------------------------------------------------------------
@@ -498,7 +496,9 @@ class DefaultDirectoryService extends DirectoryService
         // -------------------------------------------------------------------
 
         String upName = "cn=Administrators,ou=groups,ou=system";
-        Name normName = new LdapName( "cn=administrators,ou=groups,ou=system" );
+        LdapDN normName = new LdapDN( "cn=administrators,ou=groups,ou=system" );
+        normName.normalize();
+        
         if ( !partitionNexus.hasEntry( normName ) )
         {
             firstStart = true;
@@ -513,7 +513,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( upName, normName, attributes );
+            partitionNexus.add(normName, attributes );
             AuthorizationService authzSrvc = ( AuthorizationService ) interceptorChain.get( "authorizationService" );
             authzSrvc.cacheNewGroup( upName, normName, attributes );
         }
@@ -522,7 +522,10 @@ class DefaultDirectoryService extends DirectoryService
         // create system configuration area
         // -------------------------------------------------------------------
 
-        if ( !partitionNexus.hasEntry( new LdapName( "ou=configuration,ou=system" ) ) )
+        LdapDN configurationDn = new LdapDN( "ou=configuration,ou=system" );
+        configurationDn.normalize();
+        
+        if ( !partitionNexus.hasEntry( configurationDn ) )
         {
             firstStart = true;
 
@@ -536,14 +539,17 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( "ou=configuration,ou=system", new LdapName( "ou=configuration,ou=system" ), attributes );
+            partitionNexus.add( configurationDn, attributes );
         }
 
         // -------------------------------------------------------------------
         // create system configuration area for partition information
         // -------------------------------------------------------------------
 
-        if ( !partitionNexus.hasEntry( new LdapName( "ou=partitions,ou=configuration,ou=system" ) ) )
+        LdapDN partitionsDn = new LdapDN( "ou=partitions,ou=configuration,ou=system" );
+        partitionsDn.normalize();
+        
+        if ( !partitionNexus.hasEntry( partitionsDn ) ) 
         {
             firstStart = true;
 
@@ -557,15 +563,17 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( "ou=partitions,ou=configuration,ou=system", new LdapName(
-                "ou=partitions,ou=configuration,ou=system" ), attributes );
+            partitionNexus.add( partitionsDn, attributes );
         }
 
         // -------------------------------------------------------------------
         // create system configuration area for services
         // -------------------------------------------------------------------
 
-        if ( !partitionNexus.hasEntry( new LdapName( "ou=services,ou=configuration,ou=system" ) ) )
+        LdapDN servicesDn = new LdapDN( "ou=services,ou=configuration,ou=system" );
+        servicesDn.normalize();
+        
+        if ( !partitionNexus.hasEntry( servicesDn ) )
         {
             firstStart = true;
 
@@ -579,15 +587,17 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( "ou=services,ou=configuration,ou=system", new LdapName(
-                "ou=services,ou=configuration,ou=system" ), attributes );
+            partitionNexus.add( servicesDn, attributes );
         }
 
         // -------------------------------------------------------------------
         // create system configuration area for interceptors
         // -------------------------------------------------------------------
 
-        if ( !partitionNexus.hasEntry( new LdapName( "ou=interceptors,ou=configuration,ou=system" ) ) )
+        LdapDN interceptorsDn = new LdapDN( "ou=interceptors,ou=configuration,ou=system" );
+        interceptorsDn.normalize();
+        
+        if ( !partitionNexus.hasEntry( interceptorsDn ) )
         {
             firstStart = true;
 
@@ -601,15 +611,17 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( "ou=interceptors,ou=configuration,ou=system", new LdapName(
-                "ou=interceptors,ou=configuration,ou=system" ), attributes );
+            partitionNexus.add( interceptorsDn, attributes );
         }
 
         // -------------------------------------------------------------------
         // create system preferences area
         // -------------------------------------------------------------------
 
-        if ( !partitionNexus.hasEntry( new LdapName( "prefNodeName=sysPrefRoot,ou=system" ) ) )
+        LdapDN sysPrefRootDn = new LdapDN( "prefNodeName=sysPrefRoot,ou=system");
+        sysPrefRootDn.normalize();
+        
+        if ( !partitionNexus.hasEntry( sysPrefRootDn ) )
         {
             firstStart = true;
 
@@ -624,9 +636,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            LdapName dn = new LdapName( "prefNodeName=sysPrefRoot,ou=system" );
-
-            partitionNexus.add( "prefNodeName=sysPrefRoot,ou=system", dn, attributes );
+            partitionNexus.add( sysPrefRootDn, attributes );
         }
 
         return firstStart;
@@ -641,7 +651,10 @@ class DefaultDirectoryService extends DirectoryService
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword = false;
 
-        Attributes adminEntry = partitionNexus.lookup( new LdapName( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) );
+        LdapDN adminDn = new LdapDN( DirectoryPartitionNexus.ADMIN_PRINCIPAL );
+        adminDn.normalize();
+        
+        Attributes adminEntry = partitionNexus.lookup( adminDn );
         Object userPassword = adminEntry.get( "userPassword" ).get();
         if ( userPassword instanceof byte[] )
         {
@@ -694,71 +707,6 @@ class DefaultDirectoryService extends DirectoryService
     }
 
 
-    private void setupOidsMap( BootstrapRegistries bootstrapRegistries ) throws NamingException
-    {
-        Iterator keys = bootstrapRegistries.getOidRegistry().getOidByName().keySet().iterator();
-
-        Map oidsMap = new HashMap();
-        Map oidName = new HashMap();
-
-        while ( keys.hasNext() )
-        {
-            String name = StringTools.deepTrimToLower( ( String ) keys.next() );
-            String principal = null;
-
-            if ( OID.isOID( name ) )
-            {
-                continue;
-            }
-
-            String oid = bootstrapRegistries.getOidRegistry().getOid( name );
-
-            OidNormalizer oidNormalizer = null;
-
-            if ( oidName.containsKey( oid ) )
-            {
-                principal = StringTools.deepTrimToLower( ( String ) oidName.get( oid ) );
-
-                if ( principal.length() > name.length() )
-                {
-                    OidNormalizer oldOidNormalizer = ( OidNormalizer ) oidsMap.get( principal );
-
-                    oidNormalizer = new OidNormalizer( name, oldOidNormalizer.getNormalizer() );
-
-                    oidName.remove( oid );
-                    oidName.put( oid, name );
-                    oidsMap.remove( principal );
-                    oidsMap.remove( oid );
-                    oidsMap.put( principal, oidNormalizer );
-                    oidsMap.put( name, oidNormalizer );
-                    oidsMap.put( oid, oidNormalizer );
-                    continue;
-                }
-            }
-            else
-            {
-                principal = name;
-                oidName.put( oid, principal );
-
-                if ( bootstrapRegistries.getNormalizerRegistry().hasNormalizer( oid ) )
-                {
-                    oidNormalizer = new OidNormalizer( principal, bootstrapRegistries.getNormalizerRegistry().lookup(
-                        oid ) );
-                }
-                else
-                {
-                    oidNormalizer = new OidNormalizer( principal, new NoOpNormalizer() );
-                }
-
-                oidsMap.put( name, oidNormalizer );
-                oidsMap.put( oid, oidNormalizer );
-            }
-        }
-
-        DnOidContainer.setOids( oidsMap );
-    }
-
-
     /**
      * Kicks off the initialization of the entire system.
      *
@@ -778,7 +726,6 @@ class DefaultDirectoryService extends DirectoryService
         BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         loader.load( startupConfiguration.getBootstrapSchemas(), bootstrapRegistries );
-        setupOidsMap( bootstrapRegistries );
 
         java.util.List errors = bootstrapRegistries.checkRefInteg();
         if ( !errors.isEmpty() )

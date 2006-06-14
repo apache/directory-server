@@ -17,6 +17,7 @@
 package org.apache.directory.server.core.schema.bootstrap;
 
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,6 +27,11 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +47,16 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
 {
     /** static class logger */
     private final static Logger log = LoggerFactory.getLogger( BootstrapAttributeTypeRegistry.class );
+
     /** maps an OID to an AttributeType */
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-
+    /** cached normalizer mapping */
+    private transient Map mapping;
+    
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -145,5 +154,40 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
     public Iterator list()
     {
         return byOid.values().iterator();
+    }
+    
+    
+    public Map getNormalizerMapping() throws NamingException
+    {
+        if ( mapping == null )
+        {
+            mapping = new HashMap( byOid.size() << 1 );
+            for ( Iterator ii = byOid.values().iterator(); ii.hasNext(); /**/ )
+            {
+                AttributeType type = ( AttributeType ) ii.next();
+                MatchingRule matchingRule = type.getEquality();
+                OidNormalizer oidNormalizer = null;
+                
+                if ( matchingRule == null )
+                {
+                    log.warn( "Attribute " + type.getName() + " does not have normalizer : using NoopNormalizer" );
+                    oidNormalizer = new OidNormalizer( type.getOid(), new NoOpNormalizer() );
+                }
+                else
+                {
+                    oidNormalizer = new OidNormalizer( type.getOid(), matchingRule.getNormalizer() );
+                }
+                
+                mapping.put( type.getOid(), oidNormalizer );
+                String[] aliases = type.getNames();
+                for ( int jj = 0; jj < aliases.length; jj++ )
+                {
+                    mapping.put( aliases[jj], oidNormalizer );
+                    mapping.put( aliases[jj].toLowerCase(), oidNormalizer );
+                }
+            }
+        }
+        
+        return Collections.unmodifiableMap( mapping );
     }
 }

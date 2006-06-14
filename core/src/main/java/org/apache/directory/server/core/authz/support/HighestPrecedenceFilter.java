@@ -22,13 +22,13 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -41,8 +41,8 @@ import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 public class HighestPrecedenceFilter implements ACITupleFilter
 {
     public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
-        Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
-        Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+                              Collection userGroupNames, LdapDN userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
+                              LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
         throws NamingException
     {
         if ( tuples.size() <= 1 )

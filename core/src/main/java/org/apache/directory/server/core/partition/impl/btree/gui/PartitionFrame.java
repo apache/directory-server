@@ -63,14 +63,16 @@ import org.apache.directory.server.core.partition.impl.btree.BTreeDirectoryParti
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
 import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
+
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +158,7 @@ public class PartitionFrame extends JFrame
         content.add( mainPnl, java.awt.BorderLayout.NORTH );
         getContentPane().add( content, BorderLayout.CENTER );
         // set title
-        setTitle( "Partition: " + this.partition.getSuffix( false ).toString() );
+        setTitle( "Partition: " + this.partition.getSuffix().toString() );
         // add status bar
         getContentPane().add( statusBar, BorderLayout.SOUTH );
         // add menu bar
@@ -351,7 +353,7 @@ public class PartitionFrame extends JFrame
         try
         {
             TreePath path = tree.getSelectionModel().getSelectionPath();
-            String parentDn = partition.getSuffix( false ).toString();
+            String parentDn = partition.getSuffix().toString();
 
             if ( null != path )
             {
@@ -395,7 +397,7 @@ public class PartitionFrame extends JFrame
 
         if ( null == path )
         {
-            return partition.getSuffix( false ).toString();
+            return partition.getSuffix().toString();
         }
 
         Object last = path.getLastPathComponent();
@@ -414,7 +416,7 @@ public class PartitionFrame extends JFrame
         }
         else
         {
-            base = partition.getSuffix( false ).toString();
+            base = partition.getSuffix().toString();
         }
 
         return base;
@@ -444,11 +446,11 @@ public class PartitionFrame extends JFrame
                 String updn = entry.getDn();
                 Attributes attrs = entry.getAttributes();
                 
-                LdapName ndn = new LdapName( StringTools.deepTrimToLower( updn ) );
+                LdapDN ndn = new LdapDN( StringTools.deepTrimToLower( updn ) );
 
                 if ( null == partition.getEntryId( ndn.toString() ) )
                 {
-                    partition.add( updn, ndn, attrs );
+                    partition.add(ndn, attrs );
                     load();
                 }
             }
@@ -548,7 +550,7 @@ public class PartitionFrame extends JFrame
         }
         else
         {
-            dialog.setBase( partition.getSuffix( false ).toString() );
+            dialog.setBase( partition.getSuffix().toString() );
         }
 
         dialog.addActionListener( new ActionListener()
@@ -644,7 +646,7 @@ public class PartitionFrame extends JFrame
 
         env.put( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.DEREFALWAYS_NAME );
 
-        NamingEnumeration cursor = eng.search( new LdapName( base ), env, root, ctls );
+        NamingEnumeration cursor = eng.search( new LdapDN( base ), env, root, ctls );
         String[] cols = new String[2];
         cols[0] = "id";
         cols[1] = "dn";
@@ -865,7 +867,7 @@ public class PartitionFrame extends JFrame
         nodes = new HashMap();
 
         Attributes suffix = partition.getSuffixEntry();
-        BigInteger id = partition.getEntryId( partition.getSuffix( false ).toString() );
+        BigInteger id = partition.getEntryId( partition.getSuffix().toString() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*

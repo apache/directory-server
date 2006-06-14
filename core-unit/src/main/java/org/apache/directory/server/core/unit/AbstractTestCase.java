@@ -30,7 +30,6 @@ import java.util.List;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -71,9 +70,9 @@ public abstract class AbstractTestCase extends TestCase
         "roomnumber: 4612\n" +
         "userpassword: test\n";
 
-    private final String username;
+    protected final String username;
 
-    private final String password;
+    protected final String password;
 
     /** the context root for the system partition */
     protected LdapContext sysRoot;

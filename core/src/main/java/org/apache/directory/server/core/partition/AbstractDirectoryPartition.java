@@ -20,7 +20,6 @@ package org.apache.directory.server.core.partition;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.Name;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -31,7 +30,7 @@ import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -50,6 +49,8 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
     private DirectoryPartitionConfiguration cfg;
     /** <tt>true</tt> if and only if this partition is initialized. */
     private boolean initialized;
+    /** the normalized suffix DN for this partition */
+    private LdapDN suffixDn;
 
 
     protected AbstractDirectoryPartition()
@@ -161,23 +162,21 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
     }
 
 
-    public final Name getSuffix( boolean normalized ) throws NamingException
+    public final LdapDN getSuffix() throws NamingException
     {
-        if ( normalized )
+        if ( suffixDn == null )
         {
-            return getConfiguration().getNormalizedSuffix(
-                getFactoryConfiguration().getGlobalRegistries().getMatchingRuleRegistry() );
+            suffixDn = new LdapDN( cfg.getSuffix() );
+            suffixDn.normalize();
         }
-        else
-        {
-            return new LdapName( getConfiguration().getSuffix() );
-        }
+
+        return suffixDn;
     }
 
 
-    public final boolean isSuffix( Name name ) throws NamingException
+    public final boolean isSuffix( LdapDN name ) throws NamingException
     {
-        return getSuffix( true ).equals( name ) || getSuffix( false ).equals( name );
+        return getSuffix().equals( name );
     }
 
 
@@ -190,11 +189,11 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
 
 
     /**
-     * This method calls {@link #lookup(Name)} and return <tt>true</tt>
+     * This method calls {@link DirectoryPartition#lookup(org.apache.directory.shared.ldap.name.LdapDN)} and return <tt>true</tt>
      * if it returns an entry by default.  Please override this method if
      * there is more effective way for your implementation.
      */
-    public boolean hasEntry( Name name ) throws NamingException
+    public boolean hasEntry( LdapDN name ) throws NamingException
     {
         try
         {
@@ -208,11 +207,11 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
 
 
     /**
-     * This method calls {@link DirectoryPartition#lookup(Name, String[])}
+     * This method calls {@link DirectoryPartition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])}
      * with null <tt>attributeIds</tt> by default.  Please override
      * this method if there is more effective way for your implementation.
      */
-    public Attributes lookup( Name name ) throws NamingException
+    public Attributes lookup( LdapDN name ) throws NamingException
     {
         return lookup( name, null );
     }
@@ -220,12 +219,12 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
 
     /**
      * This method forwards the request to
-     * {@link DirectoryPartition#modify(Name, ModificationItem[])} after
+     * {@link DirectoryPartition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])} after
      * translating parameters to {@link ModificationItem}<tt>[]</tt> by default.
      * Please override this method if there is more effactive way for your
      * implementation.
      */
-    public void modify( Name name, int modOp, Attributes mods ) throws NamingException
+    public void modify( LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         List items = new ArrayList( mods.size() );
         NamingEnumeration e = mods.getAll();
@@ -241,14 +240,14 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
 
 
     /**
-     * This method calls {@link DirectoryPartition#move(Name, Name)} and
-     * {@link DirectoryPartition#modifyRn(Name, String, boolean)} subsequently
+     * This method calls {@link DirectoryPartition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN)} and
+     * {@link DirectoryPartition#modifyRn(org.apache.directory.shared.ldap.name.LdapDN,String,boolean)} subsequently
      * by default.  Please override this method if there is more effactive
      * way for your implementation.
      */
-    public void move( Name oldName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    public void move( LdapDN oldName, LdapDN newParentName, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        Name newName = ( Name ) newParentName.clone();
+        LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( newRn );
         move( oldName, newParentName );
         modifyRn( newName, newRn, deleteOldRn );
@@ -259,7 +258,7 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
      * This method throws {@link OperationNotSupportedException} by default.
      * Please override this method to implement move operation.
      */
-    public void move( Name oldName, Name newParentName ) throws NamingException
+    public void move( LdapDN oldName, LdapDN newParentName ) throws NamingException
     {
         throw new OperationNotSupportedException( "Moving an entry to other parent entry is not supported." );
     }

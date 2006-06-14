@@ -16,6 +16,7 @@
 package org.apache.directory.server.ldap.support;
 
 
+import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.event.NamespaceChangeListener;
@@ -37,6 +38,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResponseEntry;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.common.IoSession;
 
@@ -136,6 +138,7 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
         }
 
         ResultCodeEnum code = null;
+        
         if ( evt.getException() instanceof LdapException )
         {
             code = ( ( LdapException ) evt.getException() ).getResultCode();
@@ -148,12 +151,14 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
         LdapResult result = req.getResultResponse().getLdapResult();
         result.setResultCode( code );
         result.setErrorMessage( msg );
+        
         if ( ( evt.getException().getResolvedName() != null )
             && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
                 || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
         {
-            result.setMatchedDn( evt.getException().getResolvedName().toString() );
+            result.setMatchedDn( (LdapDN)evt.getException().getResolvedName() );
         }
+        
         session.write( req.getResultResponse() );
     }
 
@@ -200,50 +205,101 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
             ecControl = new EntryChangeControl();
             respEntry.add( ecControl );
         }
+        
+        LdapDN newBinding = null;
+        LdapDN oldBinding = null;
+        
+        if ( evt.getNewBinding() != null )
+        {
+            try
+            {
+                newBinding = new LdapDN( evt.getNewBinding().getName() );
+            }
+            catch ( InvalidNameException ine )
+            {
+                newBinding = LdapDN.EMPTY_LDAPDN;
+            }
+        }
+
+        if ( evt.getOldBinding() != null )
+        {
+            try
+            {
+                oldBinding = new LdapDN( evt.getOldBinding().getName() );
+            }
+            catch ( InvalidNameException ine )
+            {
+                oldBinding = LdapDN.EMPTY_LDAPDN;
+            }
+        }
 
         switch ( evt.getType() )
         {
             case ( NamingEvent.OBJECT_ADDED  ):
                 if ( !control.isNotificationEnabled( ChangeType.ADD ) )
+                {
                     return;
-                respEntry.setObjectName( evt.getNewBinding().getName() );
+                }
+            
+                respEntry.setObjectName( newBinding );
                 respEntry.setAttributes( ( Attributes ) evt.getChangeInfo() );
+                
                 if ( ecControl != null )
                 {
                     ecControl.setChangeType( ChangeType.ADD );
                 }
+                
                 break;
+                
             case ( NamingEvent.OBJECT_CHANGED  ):
                 if ( !control.isNotificationEnabled( ChangeType.MODIFY ) )
+                {
                     return;
-                respEntry.setObjectName( evt.getOldBinding().getName() );
+                }
+            
+                respEntry.setObjectName( oldBinding );
                 respEntry.setAttributes( ( Attributes ) evt.getOldBinding().getObject() );
+
                 if ( ecControl != null )
                 {
                     ecControl.setChangeType( ChangeType.MODIFY );
                 }
+                
                 break;
+                
             case ( NamingEvent.OBJECT_REMOVED  ):
                 if ( !control.isNotificationEnabled( ChangeType.DELETE ) )
+                {
                     return;
-                respEntry.setObjectName( evt.getOldBinding().getName() );
+                }
+            
+                respEntry.setObjectName( oldBinding );
                 respEntry.setAttributes( ( Attributes ) evt.getOldBinding().getObject() );
+
                 if ( ecControl != null )
                 {
                     ecControl.setChangeType( ChangeType.DELETE );
                 }
+                
                 break;
+                
             case ( NamingEvent.OBJECT_RENAMED  ):
                 if ( !control.isNotificationEnabled( ChangeType.MODDN ) )
+                {
                     return;
-                respEntry.setObjectName( evt.getNewBinding().getName() );
+                }
+            
+                respEntry.setObjectName( newBinding );
                 respEntry.setAttributes( ( Attributes ) evt.getNewBinding().getObject() );
+
                 if ( ecControl != null )
                 {
                     ecControl.setChangeType( ChangeType.MODDN );
-                    ecControl.setPreviousDn( evt.getOldBinding().getName() );
+                    ecControl.setPreviousDn( oldBinding );
                 }
+                
                 break;
+
             default:
                 return;
         }

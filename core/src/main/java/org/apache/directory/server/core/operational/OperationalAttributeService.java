@@ -46,6 +46,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -107,7 +108,7 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * Adds extra operational attributes to the entry before it is added.
      */
-    public void add( NextInterceptor nextInterceptor, String upName, Name normName, Attributes entry )
+    public void add(NextInterceptor nextInterceptor, LdapDN normName, Attributes entry)
         throws NamingException
     {
         String principal = getPrincipal().getName();
@@ -120,11 +121,11 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         entry.put( attribute );
 
-        nextInterceptor.add( upName, normName, entry );
+        nextInterceptor.add(normName, entry );
     }
 
 
-    public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs )
+    public void modify( NextInterceptor nextInterceptor, LdapDN name, int modOp, Attributes attrs )
         throws NamingException
     {
         nextInterceptor.modify( name, modOp, attrs );
@@ -143,7 +144,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor nextInterceptor, Name name, ModificationItem[] items ) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, LdapDN name, ModificationItem[] items ) throws NamingException
     {
         nextInterceptor.modify( name, items );
 
@@ -161,7 +162,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn )
+    public void modifyRn( NextInterceptor nextInterceptor, LdapDN name, String newRn, boolean deleteOldRn )
         throws NamingException
     {
         nextInterceptor.modifyRn( name, newRn, deleteOldRn );
@@ -176,12 +177,15 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        Name newDn = name.getPrefix( 1 ).add( newRn );
+        LdapDN newDn = ( LdapDN ) name.clone();
+        newDn.remove( name.size() - 1 );
+        newDn.add( newRn );
+        newDn.normalize();
         nexus.modify( newDn, DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 
 
-    public void move( NextInterceptor nextInterceptor, Name name, Name newParentName ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, LdapDN name, LdapDN newParentName ) throws NamingException
     {
         nextInterceptor.move( name, newParentName );
 
@@ -199,7 +203,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor, Name name, Name newParentName, String newRn, boolean deleteOldRn )
+    public void move( NextInterceptor nextInterceptor, LdapDN name, LdapDN newParentName, String newRn, boolean deleteOldRn )
         throws NamingException
     {
         nextInterceptor.move( name, newParentName, newRn, deleteOldRn );
@@ -218,7 +222,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name );
         if ( result == null )
@@ -230,7 +234,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name, attrIds );
         if ( result == null )
@@ -243,7 +247,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( base );
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -251,8 +255,8 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, Name base, Map env, ExprNode filter,
-        SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
+                                     SearchControls searchCtls ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );

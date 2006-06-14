@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -32,6 +31,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -50,7 +50,7 @@ public interface DirectoryPartition
     /** The objectClass name for aliases: 'alias' */
     String ALIAS_OBJECT = "alias";
 
-    /** 
+    /**
      * The aliased Dn attribute name: aliasedObjectName for LDAP and
      * aliasedEntryName or X.500.
      */
@@ -85,14 +85,19 @@ public interface DirectoryPartition
      * Gets the distinguished/absolute name of the suffix for all entries
      * stored within this ContextPartition.
      *
-     * @param normalized boolean value used to control the normalization of the
-     * returned Name.  If true the normalized Name is returned, otherwise the 
-     * original user provided Name without normalization is returned.
      * @return Name representing the distinguished/absolute name of this
      * ContextPartitions root context.
      */
-    Name getSuffix( boolean normalized ) throws NamingException;
+    LdapDN getSuffix() throws NamingException;
 
+    /**
+     * Gets the distinguished/absolute name of the suffix for all entries
+     * stored within this ContextPartition.
+     *
+     * @return Name representing the distinguished/absolute name of this
+     * ContextPartitions root context.
+     */
+    LdapDN getUpSuffix() throws NamingException;
 
     /**
      * Deletes a leaf entry from this ContextPartition: non-leaf entries cannot be 
@@ -102,18 +107,17 @@ public interface DirectoryPartition
      * delete from this ContextPartition.
      * @throws NamingException if there are any problems
      */
-    void delete( Name name ) throws NamingException;
+    void delete( LdapDN name ) throws NamingException;
 
 
     /**
      * Adds an entry to this ContextPartition.
      *
-     * @param userProvidedName the user provided distinguished/absolute name of the entry
-     * @param normalizedName the normalized distinguished/absolute name of the entry
+     * @param name
      * @param entry the entry to add to this ContextPartition
      * @throws NamingException if there are any problems
      */
-    void add( String userProvidedName, Name normalizedName, Attributes entry ) throws NamingException;
+    void add( LdapDN name, Attributes entry ) throws NamingException;
 
 
     /**
@@ -132,7 +136,7 @@ public interface DirectoryPartition
      * @see javax.naming.directory.DirContext#REMOVE_ATTRIBUTE
      * @see javax.naming.directory.DirContext#REPLACE_ATTRIBUTE
      */
-    void modify( Name name, int modOp, Attributes attributes ) throws NamingException;
+    void modify( LdapDN name, int modOp, Attributes attributes ) throws NamingException;
 
 
     /**
@@ -144,7 +148,7 @@ public interface DirectoryPartition
      * @throws NamingException if there are any problems
      * @see ModificationItem
      */
-    void modify( Name name, ModificationItem[] items ) throws NamingException;
+    void modify( LdapDN name, ModificationItem[] items ) throws NamingException;
 
 
     /**
@@ -157,7 +161,7 @@ public interface DirectoryPartition
      * @return a NamingEnumeration containing objects of type {@link SearchResult}
      * @throws NamingException if there are any problems
      */
-    NamingEnumeration list( Name baseName ) throws NamingException;
+    NamingEnumeration list( LdapDN baseName ) throws NamingException;
 
 
     /**
@@ -177,7 +181,7 @@ public interface DirectoryPartition
      * <a href="http://java.sun.com/j2se/1.4.2/docs/api/
      * javax/naming/directory/SearchResult.html">SearchResult</a>.
      */
-    NamingEnumeration search( Name baseName, Map environment, ExprNode filter, SearchControls searchControls )
+    NamingEnumeration search( LdapDN baseName, Map environment, ExprNode filter, SearchControls searchControls )
         throws NamingException;
 
 
@@ -190,7 +194,7 @@ public interface DirectoryPartition
      * @return an Attributes object representing the entry
      * @throws NamingException if there are any problems
      */
-    Attributes lookup( Name name ) throws NamingException;
+    Attributes lookup( LdapDN name ) throws NamingException;
 
 
     /**
@@ -204,7 +208,7 @@ public interface DirectoryPartition
      * @return an Attributes object representing the entry
      * @throws NamingException if there are any problems
      */
-    Attributes lookup( Name name, String[] attrIds ) throws NamingException;
+    Attributes lookup( LdapDN name, String[] attrIds ) throws NamingException;
 
 
     /**
@@ -215,7 +219,7 @@ public interface DirectoryPartition
      * @return true if the entry exists, false if it does not
      * @throws NamingException if there are any problems
      */
-    boolean hasEntry( Name name ) throws NamingException;
+    boolean hasEntry( LdapDN name ) throws NamingException;
 
 
     /**
@@ -225,7 +229,7 @@ public interface DirectoryPartition
      * @return true if the name is a context suffix, false if it is not.
      * @throws NamingException if there are any problems
      */
-    boolean isSuffix( Name name ) throws NamingException;
+    boolean isSuffix( LdapDN name ) throws NamingException;
 
 
     /**
@@ -241,20 +245,20 @@ public interface DirectoryPartition
      * from the entry if set to true, and has no affect if set to false
      * @throws NamingException if there are any problems
      */
-    void modifyRn( Name name, String newRn, boolean deleteOldRn ) throws NamingException;
+    void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException;
 
 
     /**
      * Transplants a child entry, to a position in the namespace under a new
      * parent entry.
      *
-     * @param newParentName the normalized distinguished/absolute name of the
-     * new parent to move the target entry to
      * @param oldName the normalized distinguished/absolute name of the
      * original child name representing the child entry to move
+     * @param newParentName the normalized distinguished/absolute name of the
+     * new parent to move the target entry to
      * @throws NamingException if there are any problems
      */
-    void move( Name oldName, Name newParentName ) throws NamingException;
+    void move( LdapDN oldName, LdapDN newParentName ) throws NamingException;
 
 
     /**
@@ -274,7 +278,7 @@ public interface DirectoryPartition
      * from the entry if set to true, and has no affect if set to false
      * @throws NamingException if there are any problems
      */
-    void move( Name oldName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException;
+    void move( LdapDN oldName, LdapDN newParentName, String newRn, boolean deleteOldRn ) throws NamingException;
 
 
     /**
@@ -282,14 +286,14 @@ public interface DirectoryPartition
      * need not support this operation.  This operation is here to enable those
      * interested in implementing virtual directories with ApacheDS.
      * 
-     * @param bindDn the normalized dn of the principal 
+     * @param bindDn the normalized dn of the principal
      * @param credentials the credentials of the principal
      * @param mechanisms the mechanisms requested by the JNDI caller or a single
      * mechanism representing the SASL bind mechanism used by a networked client (Strings)
      * @param saslAuthId the SASL authentication (may be null)
      * @throws NamingException if something goes wrong
      */
-    void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException;
+    void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException;
 
 
     /**
@@ -300,5 +304,5 @@ public interface DirectoryPartition
      * @param bindDn the normalized dn of the principal attempting to unbind
      * @throws NamingException if something goes wrong
      */
-    void unbind( Name bindDn ) throws NamingException;
+    void unbind( LdapDN bindDn ) throws NamingException;
 }

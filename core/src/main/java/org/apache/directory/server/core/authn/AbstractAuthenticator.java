@@ -24,7 +24,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.AuthenticatorConfiguration;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -143,7 +143,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     protected static LdapPrincipal createLdapPrincipal( String name, AuthenticationLevel authenticationLeve )
         throws NamingException
     {
-        LdapName principalDn = new LdapName( name );
+        LdapDN principalDn = new LdapDN( name );
         return new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
     }
 }

@@ -35,7 +35,9 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
 {
     /** the at registry used to dynamically resolve Normalizers */
-    private final AttributeTypeRegistry registry;
+    private final AttributeTypeRegistry attributeRegistry;
+    /** the oid registry used to dynamically resolve aliases to OIDs */
+    private final OidRegistry oidRegistry;
 
 
     /**
@@ -45,9 +47,10 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
      *
      * @param registry the at registry used to dynamically resolve Normalizers
      */
-    public ConcreteNameComponentNormalizer(AttributeTypeRegistry registry)
+    public ConcreteNameComponentNormalizer( AttributeTypeRegistry registry, OidRegistry oidRegistry )
     {
-        this.registry = registry;
+        this.attributeRegistry = registry;
+        this.oidRegistry = oidRegistry;
     }
 
 
@@ -100,7 +103,7 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
      */
     private Normalizer lookup( String id ) throws NamingException
     {
-        AttributeType type = registry.lookup( id );
+        AttributeType type = attributeRegistry.lookup( id );
         return type.getEquality().getNormalizer();
     }
 
@@ -110,6 +113,12 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
      */
     public boolean isDefined( String id )
     {
-        return registry.hasAttributeType( id );
+        return attributeRegistry.hasAttributeType( id );
+    }
+
+
+    public String normalizeName( String attributeName ) throws NamingException
+    {
+        return oidRegistry.getOid( attributeName );
     }
 }

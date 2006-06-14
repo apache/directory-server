@@ -19,11 +19,9 @@ package org.apache.directory.server.core.authz;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
-import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.name.DnParser;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +59,6 @@ public class GroupCache
     private final DirectoryPartitionNexus nexus;
     /** the env to use for searching */
     private final Hashtable env;
-    /** the normalizing Dn parser for member names */
-    private DnParser parser;
 
 
     /**
@@ -74,9 +70,15 @@ public class GroupCache
     {
         this.nexus = factoryCfg.getPartitionNexus();
         this.env = ( Hashtable ) factoryCfg.getEnvironment().clone();
-        this.parser = new DnParser( new ConcreteNameComponentNormalizer( factoryCfg.getGlobalRegistries()
-            .getAttributeTypeRegistry() ) );
         initialize();
+    }
+
+
+    private LdapDN parseNormalized( String name ) throws NamingException
+    {
+        LdapDN dn = new LdapDN( name );
+        dn.normalize();
+        return dn;
     }
 
 
@@ -89,11 +91,11 @@ public class GroupCache
         filter.addNode( new SimpleNode( OC_ATTR, GROUPOFNAMES_OC, SimpleNode.EQUALITY ) );
         filter.addNode( new SimpleNode( OC_ATTR, GROUPOFUNIQUENAMES_OC, SimpleNode.EQUALITY ) );
 
-        Iterator suffixes = nexus.listSuffixes( true );
+        Iterator suffixes = nexus.listSuffixes();
         while ( suffixes.hasNext() )
         {
             String suffix = ( String ) suffixes.next();
-            Name baseDn = new LdapName( suffix );
+            LdapDN baseDn = new LdapDN( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration results = nexus.search( baseDn, env, filter, ctls );
@@ -102,7 +104,7 @@ public class GroupCache
             {
                 SearchResult result = ( SearchResult ) results.next();
                 String groupDn = result.getName();
-                groupDn = parser.parse( groupDn ).toString();
+                groupDn = parseNormalized( groupDn ).toString();
                 Attribute members = getMemberAttribute( result.getAttributes() );
 
                 if ( members != null )
@@ -182,7 +184,7 @@ public class GroupCache
 
             try
             {
-                memberDn = parser.parse( memberDn ).toString();
+                memberDn = parseNormalized( memberDn ).toString();
             }
             catch ( NamingException e )
             {
@@ -210,7 +212,7 @@ public class GroupCache
 
             try
             {
-                memberDn = parser.parse( memberDn ).toString();
+                memberDn = parseNormalized( memberDn ).toString();
             }
             catch ( NamingException e )
             {
@@ -401,7 +403,7 @@ public class GroupCache
     {
         try
         {
-            member = parser.parse( member ).toString();
+            member = parseNormalized( member ).toString();
         }
         catch ( NamingException e )
         {
@@ -432,7 +434,7 @@ public class GroupCache
                     memberGroups = new HashSet();
                 }
 
-                memberGroups.add( new LdapName( group ) );
+                memberGroups.add( new LdapDN( group ) );
             }
         }
 

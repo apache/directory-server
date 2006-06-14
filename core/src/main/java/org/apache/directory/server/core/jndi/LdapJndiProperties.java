@@ -27,7 +27,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -42,8 +42,8 @@ public class LdapJndiProperties
 {
     private static final String SASL_AUTHID = "java.naming.security.sasl.authorizationId";
 
-    private LdapName providerDn;
-    private LdapName bindDn;
+    private LdapDN providerDn;
+    private LdapDN bindDn;
     private String saslAuthId;
     private AuthenticationLevel level;
     private List mechanisms = new ArrayList();
@@ -130,11 +130,11 @@ public class LdapJndiProperties
 
         if ( url.trim().equals( "" ) )
         {
-            props.providerDn = LdapName.EMPTY_LDAP_NAME;
+            props.providerDn = LdapDN.EMPTY_LDAPDN;
         }
         else
         {
-            props.providerDn = new LdapName( url );
+            props.providerDn = new LdapDN( url );
         }
 
         // -------------------------------------------------------------------
@@ -203,11 +203,11 @@ public class LdapJndiProperties
 
         if ( ( ( String ) principal ).trim().equals( "" ) )
         {
-            props.bindDn = LdapName.EMPTY_LDAP_NAME;
+            props.bindDn = LdapDN.EMPTY_LDAPDN;
         }
         else
         {
-            props.bindDn = new LdapName( ( String ) principal );
+            props.bindDn = new LdapDN( ( String ) principal );
         }
 
         if ( env.get( SASL_AUTHID ) != null && props.level == AuthenticationLevel.STRONG )
@@ -254,13 +254,13 @@ public class LdapJndiProperties
     }
 
 
-    public LdapName getBindDn()
+    public LdapDN getBindDn()
     {
         return bindDn;
     }
 
 
-    public LdapName getProviderDn()
+    public LdapDN getProviderDn()
     {
         return providerDn;
     }

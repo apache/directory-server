@@ -33,7 +33,7 @@ import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmDirectoryPartition;
 import org.apache.directory.server.core.schema.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
@@ -188,7 +188,7 @@ public class DirectoryPartitionConfiguration
      */
     public Name getNormalizedSuffix( Normalizer normalizer ) throws NamingException
     {
-        return new LdapName( normalizer.normalize( suffix ).toString() );
+        return new LdapDN( normalizer.normalize( suffix ).toString() );
     }
 
 
@@ -200,7 +200,7 @@ public class DirectoryPartitionConfiguration
         suffix = suffix.trim();
         try
         {
-            new LdapName( suffix );
+            new LdapDN( suffix );
         }
         catch ( NamingException e )
         {

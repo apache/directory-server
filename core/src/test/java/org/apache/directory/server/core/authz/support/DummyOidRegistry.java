@@ -41,7 +41,7 @@ class DummyOidRegistry implements OidRegistry
 {
     public String getOid( String name ) throws NamingException
     {
-        return String.valueOf( name.hashCode() );
+        return name.toLowerCase();
     }
 
 

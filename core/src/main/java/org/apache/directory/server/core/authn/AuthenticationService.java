@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -44,6 +43,8 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,19 +182,20 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = '" + upName + "'" );
+            log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = '"
+                    + normName.toUpName() + "'" );
         }
 
         checkAuthenticated();
-        next.add( upName, normName, entry );
+        next.add(normName, entry );
     }
 
 
-    public void delete( NextInterceptor next, Name name ) throws NamingException
+    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -205,7 +207,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public Name getMatchedName( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, LdapDN dn ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -213,7 +215,7 @@ public class AuthenticationService extends BaseInterceptor
         }
 
         checkAuthenticated();
-        return next.getMatchedName( dn, normalized );
+        return next.getMatchedName( dn );
     }
 
 
@@ -229,7 +231,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public Name getSuffix( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
+    public LdapDN getSuffix ( NextInterceptor next, LdapDN dn ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -237,11 +239,11 @@ public class AuthenticationService extends BaseInterceptor
         }
 
         checkAuthenticated();
-        return next.getSuffix( dn, normalized );
+        return next.getSuffix( dn );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, Name name ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -253,7 +255,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public boolean isSuffix( NextInterceptor next, Name name ) throws NamingException
+    public boolean isSuffix( NextInterceptor next, LdapDN name ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -265,7 +267,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor next, LdapDN base ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -277,7 +279,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public Iterator listSuffixes( NextInterceptor next, boolean normalized ) throws NamingException
+    public Iterator listSuffixes ( NextInterceptor next ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -285,11 +287,11 @@ public class AuthenticationService extends BaseInterceptor
         }
 
         checkAuthenticated();
-        return next.listSuffixes( normalized );
+        return next.listSuffixes();
     }
 
 
-    public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
+    public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -301,7 +303,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor next, Name name ) throws NamingException
+    public Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -313,7 +315,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -325,7 +327,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -337,7 +339,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -350,7 +352,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
+    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
         throws NamingException
     {
         if ( log.isDebugEnabled() )
@@ -364,7 +366,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException
+    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
     {
         if ( log.isDebugEnabled() )
         {
@@ -376,7 +378,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
+    public NamingEnumeration search( NextInterceptor next, LdapDN base, Map env, ExprNode filter,
         SearchControls searchCtls ) throws NamingException
     {
         if ( log.isDebugEnabled() )
@@ -406,7 +408,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+    public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId )
         throws NamingException
     {
         // check if we are already authenticated and if so we return making

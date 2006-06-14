@@ -21,7 +21,6 @@ package org.apache.directory.server.core.authz.support;
 
 import java.util.*;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
@@ -33,11 +32,10 @@ import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
-import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
-import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -84,7 +82,8 @@ public class ACDFEngine
 
         filters = new ACITupleFilter[]
             { new RelatedUserClassFilter( subtreeEvaluator ),
-                new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator ), new MaxValueCountFilter(),
+                new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator, oidRegistry, attrTypeRegistry ), 
+                new MaxValueCountFilter(),
                 new MaxImmSubFilter(), new RestrictedByFilter(), new MicroOperationFilter(),
                 new HighestPrecedenceFilter(), new MostSpecificUserClassFilter(),
                 new MostSpecificProtectedItemFilter(), };
@@ -99,18 +98,18 @@ public class ACDFEngine
      * @param proxy the proxy to the partition nexus
      * @param userGroupNames the collection of the group DNs the user who is trying to access the resource belongs
      * @param username the DN of the user who is trying to access the resource
-     * @param entryName the DN of the entry the user is trying to access 
+     * @param entryName the DN of the entry the user is trying to access
      * @param attrId the attribute type of the attribute the user is trying to access.
      *               <tt>null</tt> if the user is not accessing a specific attribute type.
      * @param attrValue the attribute value of the attribute the user is trying to access.
      *                  <tt>null</tt> if the user is not accessing a specific attribute value.
-     * @param microOperations the {@link MicroOperation}s to perform
-     * @param aciTuples {@link ACITuple}s translated from {@link ACIItem}s in the subtree entries
+     * @param microOperations the {@link org.apache.directory.shared.ldap.aci.MicroOperation}s to perform
+     * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
      * @throws NamingException if failed to evaluate ACI items
      */
-    public void checkPermission( DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name username,
-        AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue,
-        Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
+    public void checkPermission( DirectoryPartitionNexusProxy proxy, Collection userGroupNames, LdapDN username,
+                                 AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId, Object attrValue,
+                                 Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
     {
         if ( !hasPermission( proxy, userGroupNames, username, authenticationLevel, entryName, attrId, attrValue,
             microOperations, aciTuples, entry ) )
@@ -143,17 +142,17 @@ public class ACDFEngine
      * @param proxy the proxy to the partition nexus
      * @param userGroupNames the collection of the group DNs the user who is trying to access the resource belongs
      * @param userName the DN of the user who is trying to access the resource
-     * @param entryName the DN of the entry the user is trying to access 
+     * @param entryName the DN of the entry the user is trying to access
      * @param attrId the attribute type of the attribute the user is trying to access.
      *               <tt>null</tt> if the user is not accessing a specific attribute type.
      * @param attrValue the attribute value of the attribute the user is trying to access.
      *                  <tt>null</tt> if the user is not accessing a specific attribute value.
-     * @param microOperations the {@link MicroOperation}s to perform
-     * @param aciTuples {@link ACITuple}s translated from {@link ACIItem}s in the subtree entries
+     * @param microOperations the {@link org.apache.directory.shared.ldap.aci.MicroOperation}s to perform
+     * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
      */
-    public boolean hasPermission( DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName,
-        AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue,
-        Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
+    public boolean hasPermission( DirectoryPartitionNexusProxy proxy, Collection userGroupNames, LdapDN userName,
+                                  AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId, Object attrValue,
+                                  Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
     {
         if ( entryName == null )
         {

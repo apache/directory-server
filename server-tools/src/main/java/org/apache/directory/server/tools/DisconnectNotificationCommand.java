@@ -19,6 +19,7 @@ package org.apache.directory.server.tools;
 
 import java.util.Hashtable;
 
+import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamingExceptionEvent;
@@ -64,7 +65,7 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
     }
 
 
-    public void notificationReceived( UnsolicitedNotificationEvent evt )
+    public void notificationReceived( UnsolicitedNotificationEvent evt ) 
     {
         notification = evt.getNotification();
 
@@ -77,7 +78,18 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
         else if ( notification.getID().equals( GracefulDisconnect.EXTENSION_OID ) )
         {
             System.out.println( "Recieved GracefulDisconnect: " + GracefulDisconnect.EXTENSION_OID );
-            GracefulDisconnect gd = new GracefulDisconnect( notification.getEncodedValue() );
+            GracefulDisconnect gd = null;
+            
+            try
+            {
+                gd = new GracefulDisconnect( notification.getEncodedValue() );
+            }
+            catch ( NamingException e )
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
             System.out.println( "LDAP server will shutdown in " + gd.getDelay() + " seconds." );
             System.out.println( "LDAP server will be back online in " + gd.getTimeOffline() + " minutes." );
 

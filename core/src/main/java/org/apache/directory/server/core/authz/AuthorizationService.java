@@ -18,6 +18,7 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
@@ -34,6 +35,7 @@ import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
+import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
@@ -41,13 +43,13 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.DnParser;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.*;
@@ -131,8 +133,6 @@ public class AuthorizationService extends BaseInterceptor
     private GroupCache groupCache;
     /** a normalizing ACIItem parser */
     private ACIItemParser aciParser;
-    /** a normalizing DN parser */
-    private DnParser dnParser;
     /** use and instance of the ACDF engine */
     private ACDFEngine engine;
     /** interceptor chain */
@@ -144,7 +144,14 @@ public class AuthorizationService extends BaseInterceptor
     /** the system wide subschemaSubentryDn */
     private String subschemaSubentryDn;
 
+    private AttributeType objectClassType;
+    private AttributeType acSubentryType;
+    
+    private String objectClassOid;
+    private String subentryOid;
+    private String acSubentryOid;
 
+    
     /**
      * Initializes this interceptor based service by getting a handle on the nexus, setting up
      * the tupe and group membership caches and the ACIItem parser and the ACDF engine.
@@ -159,8 +166,16 @@ public class AuthorizationService extends BaseInterceptor
         tupleCache = new TupleCache( factoryCfg );
         groupCache = new GroupCache( factoryCfg );
         attrRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
-        dnParser = new DnParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
+        OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
+        
+        // look up some constant information
+        objectClassOid = oidRegistry.getOid( "objectClass" );
+        subentryOid = oidRegistry.getOid( "subentry" );
+        acSubentryOid = oidRegistry.getOid( AC_SUBENTRY_ATTR );
+        objectClassType = attrRegistry.lookup( objectClassOid );
+        acSubentryType = attrRegistry.lookup( acSubentryOid );
+        
+        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( attrRegistry, oidRegistry ) );
         engine = new ACDFEngine( factoryCfg.getGlobalRegistries().getOidRegistry(), attrRegistry );
         chain = factoryCfg.getInterceptorChain();
         enabled = factoryCfg.getStartupConfiguration().isAccessControlEnabled();
@@ -168,7 +183,17 @@ public class AuthorizationService extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) factoryCfg.getPartitionNexus().getRootDSE().get( "subschemaSubentry" )
             .get();
-        subschemaSubentryDn = new LdapName( subschemaSubentry ).toString().toLowerCase();
+        LdapDN subschemaSubentryDnName = new LdapDN( subschemaSubentry );
+        subschemaSubentryDnName.normalize();
+        subschemaSubentryDn = subschemaSubentryDnName.toNormName();
+    }
+
+
+    private LdapDN parseNormalized( String name ) throws NamingException
+    {
+        LdapDN dn = new LdapDN( name );
+        dn.normalize();
+        return dn;
     }
 
 
@@ -185,9 +210,11 @@ public class AuthorizationService extends BaseInterceptor
      * @param entry the target entry that access to is being controled
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addPerscriptiveAciTuples( DirectoryPartitionNexusProxy proxy, Collection tuples, Name dn,
+    private void addPerscriptiveAciTuples( DirectoryPartitionNexusProxy proxy, Collection tuples, LdapDN dn,
         Attributes entry ) throws NamingException
     {
+        Attribute oc = ServerUtils.getAttribute( objectClassType, entry );
+        
         /*
          * If the protected entry is a subentry, then the entry being evaluated
          * for perscriptiveACIs is in fact the administrative entry.  By
@@ -197,14 +224,14 @@ public class AuthorizationService extends BaseInterceptor
          * to be in the same naming context as their access point so the subentries
          * effecting their parent entry applies to them as well.
          */
-        if ( entry.get( "objectClass" ).contains( "subentry" ) )
+        if ( AttributeUtils.containsValue( oc, "subentry", objectClassType ) || oc.contains( subentryOid ) )
         {
-            Name parentDn = ( Name ) dn.clone();
+            LdapDN parentDn = ( LdapDN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
             entry = proxy.lookup( parentDn, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         }
 
-        Attribute subentries = entry.get( AC_SUBENTRY_ATTR );
+        Attribute subentries = ServerUtils.getAttribute( acSubentryType, entry );
         if ( subentries == null )
         {
             return;
@@ -263,7 +290,7 @@ public class AuthorizationService extends BaseInterceptor
      * @param entry the target entry that access to is being regulated
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addSubentryAciTuples( DirectoryPartitionNexusProxy proxy, Collection tuples, Name dn, Attributes entry )
+    private void addSubentryAciTuples( DirectoryPartitionNexusProxy proxy, Collection tuples, LdapDN dn, Attributes entry )
         throws NamingException
     {
         // only perform this for subentries
@@ -274,7 +301,7 @@ public class AuthorizationService extends BaseInterceptor
 
         // get the parent or administrative entry for this subentry since it
         // will contain the subentryACI attributes that effect subentries
-        Name parentDn = ( Name ) dn.clone();
+        LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( dn.size() - 1 );
         Attributes administrativeEntry = proxy.lookup( parentDn, new String[]
             { SUBENTRYACI_ATTR }, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
@@ -327,26 +354,26 @@ public class AuthorizationService extends BaseInterceptor
      * -------------------------------------------------------------------------------
      */
 
-    public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = dnParser.parse( principal.getName() );
+        LdapDN userName = parseNormalized( principal.getName() );
 
         // bypass authz code if we are disabled
         if ( !enabled )
         {
-            next.add( upName, normName, entry );
+            next.add( normName, entry );
             return;
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
+        if ( userName.toNormName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
         {
-            next.add( upName, normName, entry );
-            tupleCache.subentryAdded( upName, normName, entry );
-            groupCache.groupAdded( upName, normName, entry );
+            next.add( normName, entry );
+            tupleCache.subentryAdded( normName.toNormName(), normName, entry );
+            groupCache.groupAdded( normName.toNormName(), normName, entry );
             return;
         }
 
@@ -360,7 +387,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // Assemble all the information required to make an access control decision
-        Set userGroups = groupCache.getGroups( userName.toString() );
+        Set userGroups = groupCache.getGroups( userName.toNormName() );
         Collection tuples = new HashSet();
 
         // Build the total collection of tuples to be considered for add rights
@@ -386,23 +413,23 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // if we've gotten this far then access has been granted
-        next.add( upName, normName, entry );
+        next.add( normName, entry );
 
         // if the entry added is a subentry or a groupOf[Unique]Names we must
         // update the ACITuple cache and the groups cache to keep them in sync
-        tupleCache.subentryAdded( upName, normName, entry );
-        groupCache.groupAdded( upName, normName, entry );
+        tupleCache.subentryAdded( normName.toNormName(), normName, entry );
+        groupCache.groupAdded( normName.toNormName(), normName, entry );
     }
 
 
-    public void delete( NextInterceptor next, Name name ) throws NamingException
+    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = dnParser.parse( principal.getName() );
+        LdapDN userName = parseNormalized( principal.getName() );
 
         // bypass authz code if we are disabled
         if ( !enabled )
@@ -412,7 +439,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
+        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
         {
             next.delete( name );
             tupleCache.subentryDeleted( name, entry );
@@ -435,14 +462,14 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = dnParser.parse( principal.getName() );
+        LdapDN userName = parseNormalized( principal.getName() );
 
         // bypass authz code if we are disabled
         if ( !enabled )
@@ -452,7 +479,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
+        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
         {
             next.modify( name, modOp, mods );
             tupleCache.subentryModified( name, modOp, mods, entry );
@@ -500,14 +527,14 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = dnParser.parse( principal.getName() );
+        LdapDN userName = parseNormalized( principal.getName() );
 
         // bypass authz code if we are disabled
         if ( !enabled )
@@ -517,7 +544,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
+        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
         {
             next.modify( name, mods );
             tupleCache.subentryModified( name, mods, entry );
@@ -564,21 +591,21 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor next, Name name ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = dnParser.parse( principal.getName() );
+        LdapDN userName = parseNormalized( principal.getName() );
 
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled
+        if ( userName.toNormName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled
             || name.toString().trim().equals( "" ) ) // no checks on the rootdse
         {
             return next.hasEntry( name );
         }
 
-        Set userGroups = groupCache.getGroups( userName.toString() );
+        Set userGroups = groupCache.getGroups( userName.toNormName() );
         Collection tuples = new HashSet();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
@@ -602,12 +629,12 @@ public class AuthorizationService extends BaseInterceptor
      * perms to attributes and their values results in their removal when returning
      * the entry.
      *
-     * @param user the user associated with the call
+     * @param principal the user associated with the call
      * @param dn the name of the entry being looked up
      * @param entry the raw entry pulled from the nexus
      * @throws NamingException
      */
-    private void checkLookupAccess( LdapPrincipal principal, Name dn, Attributes entry ) throws NamingException
+    private void checkLookupAccess( LdapPrincipal principal, LdapDN dn, Attributes entry ) throws NamingException
     {
         // no permissions checks on the RootDSE
         if ( dn.toString().trim().equals( "" ) )
@@ -616,8 +643,8 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         DirectoryPartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
-        Name userName = dnParser.parse( principal.getName() );
-        Set userGroups = groupCache.getGroups( userName.toString() );
+        LdapDN userName = parseNormalized( principal.getName() );
+        Set userGroups = groupCache.getGroups( userName.toNormName() );
         Collection tuples = new HashSet();
         addPerscriptiveAciTuples( proxy, tuples, dn, entry );
         addEntryAciTuples( tuples, entry );
@@ -641,14 +668,16 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
+    public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( dn, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-
-        if ( principal.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled )
+        LdapDN principalDn = new LdapDN( principal.getName() );
+        principalDn.normalize();
+        
+        if ( principalDn.toNormName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled )
         {
             return next.lookup( dn, attrIds );
         }
@@ -658,14 +687,15 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor next, Name name ) throws NamingException
+    public Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled )
+        LdapDN principalDn = parseNormalized( user.getName() );
+        
+        if ( principalDn.toNormName().equals( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled )
         {
             return next.lookup( name );
         }
@@ -675,17 +705,17 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = dnParser.parse( principal.getName() );
-        Name newName = ( Name ) name.clone();
+        LdapDN userName = parseNormalized( principal.getName() );
+        LdapDN newName = ( LdapDN ) name.clone();
         newName.remove( name.size() - 1 );
-        newName.add( dnParser.parse( newRn ).get( 0 ) );
+        newName.add( parseNormalized( newRn ).get( 0 ) );
 
         // bypass authz code if we are disabled
         if ( !enabled )
@@ -695,7 +725,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
+        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
         {
             next.modifyRn( name, newRn, deleteOldRn );
             tupleCache.subentryRenamed( name, newName );
@@ -747,7 +777,7 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
+    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
         throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
@@ -755,8 +785,8 @@ public class AuthorizationService extends BaseInterceptor
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( oriChildName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = dnParser.parse( principal.getName() );
-        Name newName = ( Name ) newParentName.clone();
+        LdapDN userName = parseNormalized( principal.getName() );
+        LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( newRn );
 
         // bypass authz code if we are disabled
@@ -767,7 +797,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
+        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
         {
             next.move( oriChildName, newParentName, newRn, deleteOldRn );
             tupleCache.subentryRenamed( oriChildName, newName );
@@ -824,16 +854,16 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException
+    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( oriChildName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
-        Name newName = ( Name ) newParentName.clone();
+        LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = dnParser.parse( principal.getName() );
+        LdapDN userName = parseNormalized( principal.getName() );
 
         // bypass authz code if we are disabled
         if ( !enabled )
@@ -843,7 +873,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
+        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
         {
             next.move( oriChildName, newParentName );
             tupleCache.subentryRenamed( oriChildName, newName );
@@ -875,13 +905,13 @@ public class AuthorizationService extends BaseInterceptor
     public static final SearchControls DEFUALT_SEARCH_CONTROLS = new SearchControls();
 
 
-    public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor next, LdapDN base ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
         NamingEnumeration e = next.list( base );
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled )
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled )
         {
             return e;
         }
@@ -890,18 +920,21 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
+    public NamingEnumeration search( NextInterceptor next, LdapDN base, Map env, ExprNode filter,
         SearchControls searchCtls ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
+        LdapDN principalDn = new LdapDN( user.getName() );
+        principalDn.normalize();
+        
         NamingEnumeration e = next.search( base, env, filter, searchCtls );
 
-        boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( base.toString() );
+        boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( base.toNormName() );
         boolean isRootDSELookup = base.size() == 0 && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled || isRootDSELookup
-            || isSubschemaSubentryLookup )
+        if ( principalDn.toNormName().equals( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled || 
+            isRootDSELookup || isSubschemaSubentryLookup )
         {
             return e;
         }
@@ -910,21 +943,21 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException
+    public boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = dnParser.parse( principal.getName() );
+        LdapDN userName = parseNormalized( principal.getName() );
 
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled )
+        if ( userName.toNormName().equals( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled )
         {
             return next.compare( name, oid, value );
         }
 
-        Set userGroups = groupCache.getGroups( userName.toString() );
+        Set userGroups = groupCache.getGroups( userName.toNormName() );
         Collection tuples = new HashSet();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
@@ -939,36 +972,28 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public Name getMatchedName( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, LdapDN dn ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = dnParser.parse( principal.getName() );
-        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || !enabled )
+        LdapDN userName = parseNormalized( principal.getName() );
+        if ( userName.toString().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled )
         {
-            return next.getMatchedName( dn, normalized );
+            return next.getMatchedName( dn );
         }
 
         // get the present matched name
         Attributes entry;
-        Name matched = next.getMatchedName( dn, normalized );
+        LdapDN matched = next.getMatchedName( dn );
 
         // check if we have disclose on error permission for the entry at the matched dn
         // if not remove rdn and check that until nothing is left in the name and return
         // that but if permission is granted then short the process and return the dn
         while ( matched.size() > 0 )
         {
-            if ( normalized )
-            {
-                entry = proxy.lookup( matched, DirectoryPartitionNexusProxy.GETMATCHEDDN_BYPASS );
-            }
-            else
-            {
-                entry = proxy.lookup( matched, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
-            }
-
+            entry = proxy.lookup( matched, DirectoryPartitionNexusProxy.GETMATCHEDDN_BYPASS );
             Set userGroups = groupCache.getGroups( userName.toString() );
             Collection tuples = new HashSet();
             addPerscriptiveAciTuples( proxy, tuples, matched, entry );
@@ -988,13 +1013,13 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void cacheNewGroup( String upName, Name normName, Attributes entry ) throws NamingException
+    public void cacheNewGroup( String upName, LdapDN normName, Attributes entry ) throws NamingException
     {
         this.groupCache.groupAdded( upName, normName, entry );
     }
 
 
-    private boolean filter( Invocation invocation, Name normName, SearchResult result ) throws NamingException
+    private boolean filter( Invocation invocation, LdapDN normName, SearchResult result ) throws NamingException
     {
         /*
          * First call hasPermission() for entry level "Browse" and "ReturnDN" perm
@@ -1003,8 +1028,8 @@ public class AuthorizationService extends BaseInterceptor
          */
         Attributes entry = invocation.getProxy().lookup( normName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
-        Name userDn = dnParser.parse( ctx.getPrincipal().getName() );
-        Set userGroups = groupCache.getGroups( userDn.toString() );
+        LdapDN userDn = parseNormalized( ctx.getPrincipal().getName() );
+        Set userGroups = groupCache.getGroups( userDn.toNormName() );
         Collection tuples = new HashSet();
         addPerscriptiveAciTuples( invocation.getProxy(), tuples, normName, entry );
         addEntryAciTuples( tuples, entry );
@@ -1061,35 +1086,16 @@ public class AuthorizationService extends BaseInterceptor
         return true;
     }
 
+
     /**
      * WARNING: create one of these filters fresh every time for each new search.
      */
     class AuthorizationFilter implements SearchResultFilter
     {
-        /** dedicated normalizing parser for this search - cheaper than synchronization */
-        final DnParser parser;
-
-
-        public AuthorizationFilter() throws NamingException
-        {
-            parser = new DnParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
-        }
-
-
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
             throws NamingException
         {
-            Name normName = parser.parse( result.getName() );
-
-            // looks like isRelative returns true even when the names for results are absolute!!!!
-            // @todo this is a big bug in JNDI provider
-
-            //            if ( result.isRelative() )
-            //            {
-            //                Name base = parser.parse( ctx.getNameInNamespace() );
-            //                normName = base.addAll( normName );
-            //            }
-
+            LdapDN normName = parseNormalized( result.getName() );
             return filter( invocation, normName, result );
         }
     }

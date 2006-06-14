@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
@@ -50,7 +49,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapName;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -136,7 +135,7 @@ public class SchemaService extends BaseInterceptor
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
-        subschemaSubentryDn = new LdapName( subschemaSubentry ).toString().toLowerCase();
+        subschemaSubentryDn = new LdapDN( subschemaSubentry ).toString().toLowerCase();
     }
 
 
@@ -154,7 +153,7 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( base );
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -162,7 +161,7 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, Name base, Map env, ExprNode filter,
+    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
         SearchControls searchCtls ) throws NamingException
     {
         // check to make sure the DN searched for is a subentry
@@ -395,7 +394,7 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name );
         filterBinaryAttributes( result );
@@ -404,7 +403,7 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name, attrIds );
         if ( result == null )
@@ -574,7 +573,7 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
         Attribute objectClass = getResultantObjectClasses( modOp, mods.get( "objectClass" ), entry.get( "objectClass" ) );
@@ -670,7 +669,7 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
         Set modset = new HashSet();
@@ -734,7 +733,8 @@ public class SchemaService extends BaseInterceptor
                 {
                     throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
                 }
-                SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, change );
+                SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, change, 
+                    this.globalRegistries.getOidRegistry() ); 
                 SchemaChecker
                     .preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change, objectClass );
             }
@@ -908,7 +908,7 @@ public class SchemaService extends BaseInterceptor
     /**
      * Check that all the attributes exist in the schema for this entry.
      */
-    public void add( NextInterceptor next, String upName, Name normName, Attributes attrs ) throws NamingException
+    public void add(NextInterceptor next, LdapDN normName, Attributes attrs) throws NamingException
     {
         AttributeTypeRegistry atRegistry = this.globalRegistries.getAttributeTypeRegistry();
         NamingEnumeration attrEnum = attrs.getIDs();
@@ -922,6 +922,6 @@ public class SchemaService extends BaseInterceptor
         }
 
         alterObjectClasses( attrs.get( "objectClass" ), this.globalRegistries.getObjectClassRegistry() );
-        next.add( upName, normName, attrs );
+        next.add(normName, attrs );
     }
 }

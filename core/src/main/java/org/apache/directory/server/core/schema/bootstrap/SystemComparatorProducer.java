@@ -21,13 +21,12 @@ import java.util.Comparator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
+import org.apache.directory.server.core.schema.DnComparator;
 import org.apache.directory.server.core.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.shared.ldap.schema.CachingNormalizer;
 import org.apache.directory.shared.ldap.schema.ComparableComparator;
 import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
-import org.apache.directory.shared.ldap.schema.DnComparator;
 import org.apache.directory.shared.ldap.schema.NormalizingComparator;
 import org.apache.directory.shared.ldap.schema.ObjectIdentifierComparator;
 
@@ -63,7 +62,7 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
          ( 2.5.13.1 NAME 'distinguishedNameMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
          */
-        comparator = new DnComparator( new ConcreteNameComponentNormalizer( registries.getAttributeTypeRegistry() ) );
+        comparator = new DnComparator( registries.getAttributeTypeRegistry() );
         cb.schemaObjectProduced( this, "2.5.13.1", comparator );
 
         /*
