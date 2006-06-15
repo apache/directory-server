@@ -47,7 +47,14 @@ public class ExtendedResponseImpl extends AbstractResultResponse implements Exte
      * @param id
      *            the session unique message id
      */
-    public ExtendedResponseImpl(final int id)
+    public ExtendedResponseImpl( final int id, String oid )
+    {
+        super( id, TYPE );
+        this.oid = oid;
+    }
+
+
+    public ExtendedResponseImpl( int id )
     {
         super( id, TYPE );
     }
@@ -77,6 +84,12 @@ public class ExtendedResponseImpl extends AbstractResultResponse implements Exte
     public void setResponse( byte[] value )
     {
         this.value = value;
+    }
+    
+    
+    public void setOid( String oid )
+    {
+        this.oid = oid;
     }
 
 

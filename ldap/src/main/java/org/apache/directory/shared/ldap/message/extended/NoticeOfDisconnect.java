@@ -115,7 +115,7 @@ public class NoticeOfDisconnect extends ExtendedResponseImpl
 
     private NoticeOfDisconnect(ResultCodeEnum rcode)
     {
-        super( 0 );
+        super( 0, EXTENSION_OID );
 
         switch ( rcode.getValue() )
         {

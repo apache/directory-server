@@ -40,7 +40,7 @@ public class GracefulShutdownResponse extends ExtendedResponseImpl
 
     public GracefulShutdownResponse(int messageId, ResultCodeEnum rcode)
     {
-        super( messageId );
+        super( messageId, EXTENSION_OID );
 
         switch ( rcode.getValue() )
         {
@@ -61,7 +61,7 @@ public class GracefulShutdownResponse extends ExtendedResponseImpl
 
     public GracefulShutdownResponse(int messageId)
     {
-        super( messageId );
+        super( messageId, EXTENSION_OID );
         super.getLdapResult().setMatchedDn( null );
         super.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
     }

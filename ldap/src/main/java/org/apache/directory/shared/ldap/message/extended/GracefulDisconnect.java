@@ -69,7 +69,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
 
     public GracefulDisconnect(byte[] value) throws NamingException
     {
-        super( 0 );
+        super( 0, EXTENSION_OID );
         this.value = value;
         decodeValue();
     }
@@ -77,7 +77,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
 
     public GracefulDisconnect(int timeOffline, int delay)
     {
-        super( 0 );
+        super( 0, EXTENSION_OID );
         super.oid = EXTENSION_OID;
         this.timeOffline = timeOffline;
         this.delay = delay;
