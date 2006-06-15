@@ -63,6 +63,12 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
             handler = new JavaStoredProcedureExtendedOperationHandler();
             handler.handleStoredProcedureExtendedOperation( serverLdapContext, spBean );
         }
+        
+        /**
+         * TODO: Temporarily added this response to make things work.
+         * We need to send back the SP result btw.
+         */
+        session.write( req.getResultResponse() );
     }
     
     private StoredProcedure decodeBean( byte[] payload )
