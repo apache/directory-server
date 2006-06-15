@@ -86,7 +86,6 @@ public class StoredProcedureTest extends TestCase
         
         Assert.assertEquals( "execute", StringTools.utf8ToString( storedProcedure.getProcedure() ) );
 
-        Assert.assertNotNull( storedProcedure.getParameters() );
         Assert.assertEquals( 3, storedProcedure.getParameters().size() );
 
         StoredProcedureParameter param = ( StoredProcedureParameter ) storedProcedure.getParameters().get( 0 );
@@ -157,7 +156,7 @@ public class StoredProcedureTest extends TestCase
         
         Assert.assertEquals( "execute", StringTools.utf8ToString( storedProcedure.getProcedure() ) );
 
-        Assert.assertNull( storedProcedure.getParameters() );
+        Assert.assertEquals( 0, storedProcedure.getParameters().size() );
         
         // Check the encoding
         try
@@ -215,7 +214,6 @@ public class StoredProcedureTest extends TestCase
         
         Assert.assertEquals( "execute", StringTools.utf8ToString( storedProcedure.getProcedure() ) );
 
-        Assert.assertNotNull( storedProcedure.getParameters() );
         Assert.assertEquals( 1, storedProcedure.getParameters().size() );
 
         StoredProcedureParameter param = ( StoredProcedureParameter ) storedProcedure.getParameters().get( 0 );
