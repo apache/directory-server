@@ -78,7 +78,7 @@ public class StoredProcedureCommand extends ToolCommand
         }
 
         String language = "java";
-        String procedure = "hello";
+        String procedure = "HelloWorldProcedure.sayHello";
         StoredProcedureRequest req = new StoredProcedureRequest( 0, procedure, language );
         ctx.extendedOperation( req );
         ctx.close();
