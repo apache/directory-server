@@ -44,7 +44,7 @@ public class StoredProcedure extends Asn1Object
 
     private byte[] procedure;
 
-    private ArrayList parameters;
+    private ArrayList parameters = new ArrayList();
 
     private transient StoredProcedureParameter currentParameter;
     
@@ -95,11 +95,6 @@ public class StoredProcedure extends Asn1Object
 
     public void addParameter( StoredProcedureParameter parameter )
     {
-        if ( parameters == null )
-        {
-            parameters = new ArrayList();
-        }
-
         parameters.add( parameter );
     }
 
