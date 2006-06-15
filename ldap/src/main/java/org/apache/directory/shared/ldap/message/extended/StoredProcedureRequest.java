@@ -21,7 +21,6 @@ import java.nio.ByteBuffer;
 import javax.naming.NamingException;
 import javax.naming.ldap.ExtendedResponse;
 
-import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure;
@@ -31,6 +30,7 @@ import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedur
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
 import org.apache.directory.shared.ldap.message.ResultResponse;
 import org.apache.directory.shared.ldap.util.StringTools;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
