@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure.StoredProcedureParameter;
 import org.apache.directory.shared.ldap.util.ClassUtils;
@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpecificStoredProceureExtendedOperationHandler
 {
-    public void handleStoredProcedureExtendedOperation( ServerLdapContext ctx, StoredProcedure pojo ) throws ClassNotFoundException, NamingException
+    public void handleStoredProcedureExtendedOperation( LdapContext ctx, StoredProcedure pojo ) throws ClassNotFoundException, NamingException
     {
         List types = new ArrayList( pojo.getParameters().size() );
         List values = new ArrayList( pojo.getParameters().size() );

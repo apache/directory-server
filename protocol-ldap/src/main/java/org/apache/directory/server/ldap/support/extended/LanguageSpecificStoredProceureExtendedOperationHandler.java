@@ -17,7 +17,8 @@
 package org.apache.directory.server.ldap.support.extended;
 
 
-import org.apache.directory.server.core.jndi.ServerLdapContext;
+import javax.naming.ldap.LdapContext;
+
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure;
 
 
@@ -30,5 +31,5 @@ import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedur
  */
 public interface LanguageSpecificStoredProceureExtendedOperationHandler 
 {
-    void handleStoredProcedureExtendedOperation( ServerLdapContext ctx, StoredProcedure spBean ) throws Exception;
+    void handleStoredProcedureExtendedOperation( LdapContext ctx, StoredProcedure spBean ) throws Exception;
 }
