@@ -97,7 +97,7 @@ public class ExtendedHandler implements MessageHandler
             catch ( Exception e )
             {
                 LdapResult result = req.getResultResponse().getLdapResult();
-                result.setResultCode( ResultCodeEnum.UNAVAILABLE );
+                result.setResultCode( ResultCodeEnum.OTHER );
                 result.setErrorMessage( "Extended operation handler for the specified EXTENSION_OID (" + req.getOid()
                     + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
                 ( ( ExtendedResponse ) req.getResultResponse() ).setResponse( new byte[0] );
