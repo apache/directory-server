@@ -20,6 +20,8 @@ package org.apache.directory.server.ldap.support.extended;
 
 
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.naming.ldap.Control;
@@ -34,6 +36,8 @@ import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedur
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedureContainer;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedureDecoder;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
+import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 import org.apache.mina.common.IoSession;
 
 
@@ -43,15 +47,6 @@ import org.apache.mina.common.IoSession;
  */
 public class StoredProcedureExtendedOperationHandler implements ExtendedOperationHandler
 {
-
-    public String getOid()
-    {
-        /**
-         * TODO return the correct OID. 
-         */
-        return "1.2.3.4.55.666.7777";
-    }
-
     public void handleExtendedOperation( IoSession session, SessionRegistry registry, ExtendedRequest req ) throws Exception
     {
         Control[] connCtls = ( Control[] ) req.getControls().values().toArray( new Control[ req.getControls().size() ] );
@@ -63,7 +58,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         /**
          * TODO This part may be replaced by a better handler determiner.
          */
-        if ( spBean.getLanguage().equals( "Java" ) )
+        if ( spBean.getLanguage().equalsIgnoreCase( "Java" ) )
         {
             handler = new JavaStoredProcedureExtendedOperationHandler();
             handler.handleStoredProcedureExtendedOperation( serverLdapContext, spBean );
@@ -90,14 +85,30 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         return spBean;
     }
 
-	public Set getExtensionOids() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    
+    public String getOid()
+    {
+        return StoredProcedureRequest.EXTENSION_OID;
+    }
 
-	public void setLdapProvider(LdapProtocolProvider provider) {
-		// TODO Auto-generated method stub
-		
-	}
 
+    private static final Set EXTENSION_OIDS;
+    static
+    {
+        Set s = new HashSet();
+        s.add( StoredProcedureRequest.EXTENSION_OID );
+        s.add( StoredProcedureResponse.EXTENSION_OID );
+        EXTENSION_OIDS = Collections.unmodifiableSet( s );
+    }
+    
+    
+    public Set getExtensionOids()
+    {
+        return EXTENSION_OIDS;
+    }
+
+    
+	public void setLdapProvider(LdapProtocolProvider provider) 
+    {
+	}
 }

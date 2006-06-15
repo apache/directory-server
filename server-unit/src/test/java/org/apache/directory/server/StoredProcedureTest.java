@@ -22,6 +22,7 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.NamingException;
 
+import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
@@ -29,7 +30,9 @@ import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 
 /**
@@ -50,6 +53,10 @@ public class StoredProcedureTest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
+        Set handlers = new HashSet( super.configuration.getExtendedOperationHandlers() );
+        handlers.add( new StoredProcedureExtendedOperationHandler() );
+        super.configuration.setExtendedOperationHandlers( handlers );
+        
         super.setUp();
 
         Hashtable env = new Hashtable();

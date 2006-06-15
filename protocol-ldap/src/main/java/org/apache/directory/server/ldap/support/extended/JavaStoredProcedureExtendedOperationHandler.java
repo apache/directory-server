@@ -14,9 +14,8 @@
  *   limitations under the License.
  *
  */
-
-
 package org.apache.directory.server.ldap.support.extended;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -42,11 +41,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpecificStoredProceureExtendedOperationHandler
 {
-    public JavaStoredProcedureExtendedOperationHandler()
-    {
-        
-    }
-    
     public void handleStoredProcedureExtendedOperation( ServerLdapContext ctx, StoredProcedure pojo ) throws ClassNotFoundException, NamingException
     {
         List types = new ArrayList( pojo.getParameters().size() );
