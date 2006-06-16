@@ -196,6 +196,11 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
         }
 
         // below here try to convert parameters to their appropriate byte[] representations
-        throw new NotImplementedException( "conversion of value to java type not implemented" );
+        
+        /**
+         * FIXME: What is this for?
+         * 
+         * throw new NotImplementedException( "conversion of value to java type not implemented" );
+         */
     }
 }
