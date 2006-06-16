@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapProtocolProvider;
 import org.apache.directory.server.ldap.SessionRegistry;
@@ -50,7 +51,18 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     public void handleExtendedOperation( IoSession session, SessionRegistry registry, ExtendedRequest req ) throws Exception
     {
         Control[] connCtls = ( Control[] ) req.getControls().values().toArray( new Control[ req.getControls().size() ] );
-        LdapContext serverLdapContext = ( LdapContext ) registry.getLdapContext( session, connCtls, false);
+        LdapContext ldapContext = ( LdapContext ) registry.getLdapContext( session, connCtls, false);
+        ServerLdapContext serverLdapContext;
+        
+        if ( ldapContext instanceof ServerLdapContext )
+        {
+            serverLdapContext = ( ServerLdapContext ) ldapContext;
+        }
+        else
+        {
+            serverLdapContext = ( ServerLdapContext ) ldapContext.lookup( "" );
+        }
+        
         StoredProcedure spBean = decodeBean( req.getPayload() );
         
         LanguageSpecificStoredProceureExtendedOperationHandler handler = null;

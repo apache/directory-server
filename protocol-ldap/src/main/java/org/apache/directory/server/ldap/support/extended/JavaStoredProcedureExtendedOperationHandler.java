@@ -20,16 +20,19 @@ package org.apache.directory.server.ldap.support.extended;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.core.sp.LdapClassLoader;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure.StoredProcedureParameter;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.ClassUtils;
 import org.apache.directory.shared.ldap.util.SpringClassUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -41,7 +44,8 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpecificStoredProceureExtendedOperationHandler
 {
-    public void handleStoredProcedureExtendedOperation( LdapContext ctx, StoredProcedure pojo ) throws ClassNotFoundException, NamingException
+    public void handleStoredProcedureExtendedOperation( ServerLdapContext ctx, StoredProcedure pojo ) 
+        throws ClassNotFoundException, NamingException
     {
         List types = new ArrayList( pojo.getParameters().size() );
         List values = new ArrayList( pojo.getParameters().size() );
@@ -104,16 +108,34 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
         }
         
         // TODO determine what to do with the exception
-        /**
-         * BIG BANG!!!
-        ctx.executeProcedure( 
-                StringTools.utf8ToString( pojo.getProcedure() ), 
-                ( Class[] ) types.toArray(),
-                values.toArray()
-                );
-        */
+        executeProcedure( ctx, StringTools.utf8ToString( pojo.getProcedure() ), 
+                ( Class[] ) types.toArray(), values.toArray() );
     }
 
+    
+    public Object executeProcedure( ServerLdapContext ctx, String procedure, Class[] types, Object[] values ) 
+        throws NamingException
+    {
+        int lastDot = procedure.lastIndexOf( '.' );
+        String className = procedure.substring( 0, lastDot );
+        String methodName = procedure.substring( lastDot + 1 );
+        LdapClassLoader loader = new LdapClassLoader( ctx );
+        
+        try
+        {
+            Class clazz = loader.loadClass( className );
+            Method proc = clazz.getMethod( methodName, types );
+            return proc.invoke( null, values );
+        }
+        catch ( Exception e )
+        {
+            LdapNamingException lne = new LdapNamingException( ResultCodeEnum.OTHER );
+            lne.setRootCause( e );
+            throw lne;
+        }
+    }
+    
+    
     private Object getInitializedPrimitiveWrapperInstance( Class type, byte[] value )
     {
         Object instance = null;
@@ -124,34 +146,8 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
                     .getConstructor( new Class[] {String.class} )
                     .newInstance( new Object[] { StringTools.utf8ToString( value ) } );
         }
-        catch (IllegalArgumentException e)
+        catch ( Exception e )
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (SecurityException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (InstantiationException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (NoSuchMethodException e)
-        {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return instance;
