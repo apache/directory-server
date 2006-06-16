@@ -183,8 +183,6 @@ public class StoredProcedure extends Asn1Object
         int procedureLength = 1 + Length.getNbBytes( procedure.length )
             + procedure.length;
     	
-        //int localParametersLength = 0;
-        
     	// Compute parameters length value
     	if ( parameters != null )
     	{
