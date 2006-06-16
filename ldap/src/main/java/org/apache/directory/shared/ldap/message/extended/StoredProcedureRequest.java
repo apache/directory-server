@@ -50,13 +50,21 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
     private StoredProcedure procedure;
 
     
+    public StoredProcedureRequest( int messageId )
+    {
+        super( messageId );
+        this.setOid( EXTENSION_OID );
+        this.procedure = new StoredProcedure();
+    }
+
+
     public StoredProcedureRequest( int messageId, String procedure, String language )
     {
         super( messageId );
         this.setOid( EXTENSION_OID );
         this.procedure = new StoredProcedure();
-        this.procedure.setLanguage( language );
-        this.procedure.setProcedure( StringTools.getBytesUtf8( procedure ) );
+        this.setLanguage( language );
+        this.setProcedure( procedure );
     }
 
 
@@ -121,6 +129,7 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
         if ( response == null )
         {
             StoredProcedureResponse spr = new StoredProcedureResponse( getMessageId() );
+            spr.setOid( EXTENSION_OID );
             response = spr;
         }
 
@@ -138,6 +147,18 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
         return procedure.getLanguage();
     }
     
+    
+    public void setLanguage( String language )
+    {
+        this.procedure.setLanguage( language );
+    }
+
+    
+    public void setProcedure( String procedure )
+    {
+        this.procedure.setProcedure( StringTools.getBytesUtf8( procedure ) );
+    }
+
     
     public String getProcedureSpecification()
     {

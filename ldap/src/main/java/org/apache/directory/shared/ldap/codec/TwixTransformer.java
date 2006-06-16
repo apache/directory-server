@@ -104,6 +104,7 @@ import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
 import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest;
+import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
 import org.slf4j.Logger;
@@ -310,6 +311,10 @@ public class TwixTransformer implements TransformerSpi
         if ( extendedRequest.getRequestName().equals( GracefulShutdownRequest.EXTENSION_OID ) )
         {
             snickersMessage = new GracefulShutdownRequest( messageId );
+        }
+        else if ( extendedRequest.getRequestName().equals( StoredProcedureRequest.EXTENSION_OID ) )
+        {
+            snickersMessage = new StoredProcedureRequest( messageId );
         }
         else
         {
