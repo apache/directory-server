@@ -126,11 +126,19 @@ public class ExtendedResponse extends LdapResponse
 
 
     /**
-     * Compute the ExtendedResponse length ExtendedResponse : 0x78 L1 | +-->
-     * LdapResult [+--> 0x8A L2 name [+--> 0x8B L3 response]] L1 =
-     * Length(LdapResult) [ + Length(0x8A) + Length(L2) + L2 [ + Length(0x8B) +
-     * Length(L3) + L3]] Length(ExtendedResponse) = Length(0x78) + Length(L1) +
-     * L1
+     * Compute the ExtendedResponse length 
+     * ExtendedResponse : 
+     * 0x78 L1 
+     *   | 
+     *   +--> LdapResult 
+     *  [+--> 0x8A L2 name 
+     *  [+--> 0x8B L3 response]] 
+     *  
+     * L1 = Length(LdapResult) 
+     *   [ + Length(0x8A) + Length(L2) + L2 
+     *   [ + Length(0x8B) + Length(L3) + L3]] 
+     * 
+     * Length(ExtendedResponse) = Length(0x78) + Length(L1) + L1
      * 
      * @return The ExtendedResponse length
      */
@@ -142,19 +150,19 @@ public class ExtendedResponse extends LdapResponse
         {
             responseNameLength = responseName.toString().length();
             extendedResponseLength += 1 + Length.getNbBytes( responseNameLength ) + responseNameLength;
+        }
 
-            if ( response != null )
+        if ( response != null )
+        {
+            if ( response instanceof String )
             {
-                if ( response instanceof String )
-                {
-                    int responseLength = StringTools.getBytesUtf8( ( String ) response ).length;
-                    extendedResponseLength += 1 + Length.getNbBytes( responseLength ) + responseLength;
-                }
-                else
-                {
-                    extendedResponseLength += 1 + Length.getNbBytes( ( ( byte[] ) response ).length )
-                        + ( ( byte[] ) response ).length;
-                }
+                int responseLength = StringTools.getBytesUtf8( ( String ) response ).length;
+                extendedResponseLength += 1 + Length.getNbBytes( responseLength ) + responseLength;
+            }
+            else
+            {
+                extendedResponseLength += 1 + Length.getNbBytes( ( ( byte[] ) response ).length )
+                    + ( ( byte[] ) response ).length;
             }
         }
 
