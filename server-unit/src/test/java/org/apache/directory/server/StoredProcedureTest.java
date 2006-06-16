@@ -29,6 +29,7 @@ import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -89,10 +90,7 @@ public class StoredProcedureTest extends AbstractServerTest
         ctx.close();
         ctx = null;
     }
-
-
-    /**
-     */
+    
     public void testExecuteProcedure() throws NamingException
     {
         String language = "java";
@@ -101,4 +99,15 @@ public class StoredProcedureTest extends AbstractServerTest
         StoredProcedureResponse resp = ( StoredProcedureResponse ) ctx.extendedOperation( req );
         assertNotNull( resp );
     }
+
+    public void testExecuteProcedureWithParameters() throws NamingException, UnsupportedEncodingException
+    {
+        String language = "java";
+        String procedure = "org.apache.directory.server.HelloWorldProcedure.sayHelloTo";
+        StoredProcedureRequest req = new StoredProcedureRequest( 0, procedure, language );
+        req.addParameter( "java.lang.String".getBytes( "UTF-8" ), "Ersin".getBytes( "UTF-8" ) );
+        StoredProcedureResponse resp = ( StoredProcedureResponse ) ctx.extendedOperation( req );
+        assertNotNull( resp );
+    }
+    
 }
