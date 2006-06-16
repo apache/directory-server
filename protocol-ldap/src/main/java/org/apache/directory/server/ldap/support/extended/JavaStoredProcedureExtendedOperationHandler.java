@@ -44,6 +44,8 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpecificStoredProceureExtendedOperationHandler
 {
+    private static final Class[] EMPTY_CLASS_ARRAY = new Class[0];
+    
     public void handleStoredProcedureExtendedOperation( ServerLdapContext ctx, StoredProcedure pojo ) 
         throws ClassNotFoundException, NamingException
     {
@@ -109,7 +111,7 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
         
         // TODO determine what to do with the exception
         executeProcedure( ctx, StringTools.utf8ToString( pojo.getProcedure() ), 
-                ( Class[] ) types.toArray(), values.toArray() );
+                ( Class[] ) types.toArray( EMPTY_CLASS_ARRAY ), values.toArray() );
     }
 
     
