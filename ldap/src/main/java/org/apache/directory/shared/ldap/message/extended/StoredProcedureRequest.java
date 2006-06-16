@@ -187,13 +187,27 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
     
     public void addParameter( Object type, Object value )
     {
-        if ( ! this.procedure.getLanguage().equals( "java" ) )
-        {
-            StoredProcedureParameter parameter = new StoredProcedureParameter();
-            parameter.setType( ( byte[] ) type );
-            parameter.setValue( ( byte[] ) value );
-            this.procedure.addParameter( parameter );
-        }
+        /**
+         *
+         * FIXME: Why do we check here whether it's Java or not ?
+         * Codec has nothing to do with these details.
+         *
+         if ( ! this.procedure.getLanguage().equals( "java" ) )
+         {
+             StoredProcedureParameter parameter = new StoredProcedureParameter();
+             parameter.setType( ( byte[] ) type );
+             parameter.setValue( ( byte[] ) value );
+             this.procedure.addParameter( parameter );
+         }
+         
+         * Replacing this code with the one below without the conditional check.
+         
+         */
+        
+        StoredProcedureParameter parameter = new StoredProcedureParameter();
+        parameter.setType( ( byte[] ) type );
+        parameter.setValue( ( byte[] ) value );
+        this.procedure.addParameter( parameter );
 
         // below here try to convert parameters to their appropriate byte[] representations
         
