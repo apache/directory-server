@@ -159,6 +159,14 @@ public abstract class ServerContext implements EventContext
     // New Impl Specific Public Methods
     // ------------------------------------------------------------------------
 
+    
+    /**
+     * Get's a handle on the root context of the DIT.  The RootDSE as the present user.
+     * @throws NamingException 
+     */
+    public abstract ServerContext getRootContext() throws NamingException;
+    
+    
     /**
      * Returns the {@link DirectoryService} which manages this context.
      */

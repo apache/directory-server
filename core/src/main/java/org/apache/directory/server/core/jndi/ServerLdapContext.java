@@ -20,7 +20,6 @@ package org.apache.directory.server.core.jndi;
 import java.util.Hashtable;
 
 import javax.naming.Context;
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.ExtendedRequest;
@@ -68,7 +67,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param principal the directory user principal that is propagated
      * @param dn the distinguished name of this context
      */
-    ServerLdapContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws NamingException
+    ServerLdapContext( DirectoryService service, LdapPrincipal principal, LdapDN dn ) throws NamingException
     {
         super( service, principal, dn );
     }
@@ -90,7 +89,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public LdapContext newInstance( Control[] requestControls ) throws NamingException
     {
-        ServerLdapContext ctx = new ServerLdapContext( getService(), getPrincipal(), getDn() );
+        ServerLdapContext ctx = new ServerLdapContext( getService(), getPrincipal(), ( LdapDN ) getDn() );
         ctx.setRequestControls( requestControls );
         return ctx;
     }
@@ -190,5 +189,11 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         }
 
         return refService.isReferral( name );
+    }
+
+
+    public ServerContext getRootContext() throws NamingException
+    {
+        return new ServerLdapContext( getService(), getPrincipal(), new LdapDN() );
     }
 }
