@@ -27,7 +27,7 @@ public class DirectoryClassUtils
 {
     
     /**
-     * A replacement {@link java.lang.Class.getMethod} with extended functionality.
+     * A replacement for {@link java.lang.Class.getMethod} with extended functionality.
      * 
      * <p>
      * This method returns parameter-list assignment-compatible method as well as
