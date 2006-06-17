@@ -18,6 +18,11 @@
 package org.apache.directory.server.core.trigger;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -36,6 +41,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
 {
 
+    /*
     public void testOne() throws NamingException
     {
         
@@ -61,6 +67,35 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
         createTriggerSubentry( "myTriggerSubentry1", "AFTER delete CALL \"Logger.logDelete\" { language \"Java\" } ( $name )" );
         createTriggerSubentry( "myTriggerSubentry2", "INSTEADOF delete CALL \"Restrictions.noDelete\" ( $deletedEntry )" );
         createTriggerSubentry( "myTriggerSubentry3", "INSTEADOF add CALL \"Restrictions.noAdd\" ( $entry )" );
+        
+        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
+        testEntry.put( objectClass );
+        objectClass.add( "top" );
+        objectClass.add( "organizationalUnit" );
+        sysRoot.createSubcontext( "ou=testou", testEntry );
+        
+        sysRoot.destroySubcontext( "ou=testou" );
+
+    }*/
+    
+    public void testThree() throws NamingException, IOException
+    {
+        URL url = getClass().getResource( "HelloWorldProcedure.class" );
+        InputStream in = getClass().getResourceAsStream( "HelloWorldProcedure.class" );
+        File file = new File( url.getFile() );
+        int size = ( int ) file.length();
+        byte[] buf = new byte[size];
+        in.read( buf );
+        in.close();
+        
+        Attributes attributes = new BasicAttributes( "objectClass", "top", true );
+        attributes.get( "objectClass" ).add( "javaClass" );
+        attributes.put( "fullyQualifiedClassName", HelloWorldProcedure.class.getName() );
+        attributes.put( "byteCode", buf );
+        sysRoot.createSubcontext( "fullyQualifiedClassName=" + HelloWorldProcedure.class.getName(), attributes );
+        
+        createTriggerSubentry( "myTriggerSubentry1", "AFTER delete CALL \"" + HelloWorldProcedure.class.getName() + "logDeleted" + "\" ( $name )" );
         
         Attributes testEntry = new BasicAttributes( "ou", "testou", true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
