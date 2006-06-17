@@ -57,7 +57,7 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
             throw ne;
         }
         
-        String fullClassName = getClass().getPackage() + "." + spClass;
+        String fullClassName = getClass().getPackage().getName() + "." + spClass;
         
         Attributes attributes = new BasicAttributes( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );

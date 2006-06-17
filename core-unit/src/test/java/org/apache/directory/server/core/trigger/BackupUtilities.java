@@ -5,8 +5,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.jndi.ServerLdapContext;
-
 
 public class BackupUtilities
 {
@@ -14,8 +12,7 @@ public class BackupUtilities
     {
         System.out.println( "User \"" + operationPrincipal + "\" has deleted entry \"" + deletedEntryName + "\"" );
         System.out.println( "Entry content was: " + deletedEntry );
-        
-        ServerLdapContext backupCtx = ( ServerLdapContext ) ctx.lookup( "ou=backupContext,ou=system" );
+        LdapContext backupCtx = ( LdapContext ) ctx.lookup( "ou=backupContext,ou=system" );
         backupCtx.createSubcontext( deletedEntryName.get( 1 ), deletedEntry );
         System.out.println( "Backed up deleted entry to \"" + ( ( LdapContext ) backupCtx.lookup( deletedEntryName.get( 1 ) ) ).getNameInNamespace() + "\"" );
     }
