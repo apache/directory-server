@@ -29,87 +29,74 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
-import org.apache.directory.shared.ldap.name.LdapDN;
-
 
 /**
- * Unit tests for TriggerService.
+ * Integration tests for TriggerService.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
 public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
 {
-    public void testOne() throws NamingException
+    private void loadStoredProcedure( String spClass ) throws NamingException
     {
-        
-        createTriggerSubentry( "triggerSubentry1", "BEFORE delete CALL \"" +
-                "org.apache.directory.server.core.trigger.BackupUtilities.backupDeleted\" ( $deletedEntry )" );
-        createTriggerSubentry( "triggerSubentry2", "AFTER delete CALL \"" +
-                "org.apache.directory.server.core.trigger.Logger.logDelete\" { language \"Java\" } ( $name )" );
-        
-        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        testEntry.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "organizationalUnit" );
-        sysRoot.createSubcontext( "ou=testou", testEntry );
-        
-        addEntryTrigger( new LdapDN( "ou=testou" ), "AFTER delete CALL \"" +
-                "org.apache.directory.server.core.trigger.Audit.userDeletedAnEntry\" ( $deletedEntry, $operationPrincipal )" );
-        
-        sysRoot.destroySubcontext( "ou=testou" );
-
-    }
-    
-    
-    public void testTwo() throws NamingException
-    {
-        
-        createTriggerSubentry( "myTriggerSubentry1", "AFTER delete CALL \"" +
-                "org.apache.directory.server.core.trigger.Logger.logDelete\" { language \"Java\" } ( $name )" );
-        createTriggerSubentry( "myTriggerSubentry2", "INSTEADOF delete CALL \"" +
-                "org.apache.directory.server.core.trigger.Restrictions.noDelete\" ( $deletedEntry )" );
-        createTriggerSubentry( "myTriggerSubentry3", "INSTEADOF add CALL \"" +
-                "org.apache.directory.server.core.trigger.Restrictions.noAdd\" ( $entry )" );
-        
-        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        testEntry.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "organizationalUnit" );
-        sysRoot.createSubcontext( "ou=testou", testEntry );
-        
-        sysRoot.destroySubcontext( "ou=testou" );
-    }
-    
-    
-    public void testThree() throws NamingException, IOException
-    {
-        URL url = getClass().getResource( "HelloWorldProcedure.class" );
-        InputStream in = getClass().getResourceAsStream( "HelloWorldProcedure.class" );
+        URL url = getClass().getResource( spClass + ".class" );
+        InputStream in = getClass().getResourceAsStream( spClass + ".class" );
         File file = new File( url.getFile() );
         int size = ( int ) file.length();
         byte[] buf = new byte[size];
-        in.read( buf );
-        in.close();
+        try
+        {
+            in.read( buf );
+            in.close();
+        }
+        catch ( IOException e )
+        {
+            NamingException ne = new NamingException();
+            ne.setRootCause( e );
+            throw ne;
+        }
+        
+        String fullClassName = getClass().getPackage() + "." + spClass;
         
         Attributes attributes = new BasicAttributes( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );
-        attributes.put( "fullyQualifiedClassName", HelloWorldProcedure.class.getName() );
+        attributes.put( "fullyQualifiedClassName", fullClassName );
         attributes.put( "byteCode", buf );
-        sysRoot.createSubcontext( "fullyQualifiedClassName=" + HelloWorldProcedure.class.getName(), attributes );
         
-        createTriggerSubentry( "myTriggerSubentry1", "AFTER delete CALL \"" + HelloWorldProcedure.class.getName() + ".logDeleted" + "\" ( $name )" );
+        sysRoot.createSubcontext( "fullyQualifiedClassName=" + fullClassName, attributes );
+    }
+    
+    public void testAfterDeleteBackupDeletedEntry() throws NamingException
+    {
+        // Load the stored procedure to be triggered.
+        loadStoredProcedure( "BackupUtilities" );
         
-        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
+        // Create a container for backing up deleted entries.
+        Attributes backupContext = new BasicAttributes( "ou", "backupContext", true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
+        backupContext.put( objectClass );
+        objectClass.add( "top" );
+        objectClass.add( "organizationalUnit" );
+        sysRoot.createSubcontext( "ou=backupContext", backupContext );
+        
+        // Create the Triger Specification via the Trigger Subentry.
+        createTriggerSubentry( "triggerSubentry1", "AFTER delete CALL \"" +
+            "org.apache.directory.server.core.trigger.BackupUtilities.backupDeleted\" ( $name, $deletedEntry )" );
+        
+        // Create a test entry which is selected by the Trigger Subentry.
+        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
+        objectClass = new BasicAttribute( "objectClass" );
         testEntry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
         sysRoot.createSubcontext( "ou=testou", testEntry );
         
+        // Delete the test entry in order to fire the Trigger!
         sysRoot.destroySubcontext( "ou=testou" );
-
+        
+        // Check if the Trigger really worked (backed up the deleted entry).
+        assertNotNull( sysRoot.lookup( "ou=testou," + "ou=backupContext" ) );
     }
+    
 }
