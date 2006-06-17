@@ -47,7 +47,11 @@ public class DirectoryClassUtils
         try
         {
             // Look for exactly the same signature.
-            clazz.getMethod( candidateMethodName, candidateParameterTypes );
+            Method exactMethod = clazz.getMethod( candidateMethodName, candidateParameterTypes );
+            if ( exactMethod != null )
+            {
+                return exactMethod;
+            }
         }
         catch ( SecurityException e ) { }
         catch ( NoSuchMethodException e ) { }
