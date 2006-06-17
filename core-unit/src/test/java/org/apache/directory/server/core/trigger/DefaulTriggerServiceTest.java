@@ -82,7 +82,7 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
         
         // Create the Triger Specification via the Trigger Subentry.
         createTriggerSubentry( "triggerSubentry1", "AFTER delete CALL \"" +
-            "org.apache.directory.server.core.trigger.BackupUtilities.backupDeleted\" ( $name, $deletedEntry )" );
+            "org.apache.directory.server.core.trigger.BackupUtilities.backupDeleted\" ( $name, $operationPrincipal, $deletedEntry )" );
         
         // Create a test entry which is selected by the Trigger Subentry.
         Attributes testEntry = new BasicAttributes( "ou", "testou", true );
@@ -92,11 +92,15 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
         objectClass.add( "organizationalUnit" );
         sysRoot.createSubcontext( "ou=testou", testEntry );
         
-        // Delete the test entry in order to fire the Trigger!
+        // Delete the test entry in order to fire the Trigger.
         sysRoot.destroySubcontext( "ou=testou" );
         
+        // ------------------------------------------
+        // The trigger should be fired at this point.
+        // ------------------------------------------
+        
         // Check if the Trigger really worked (backed up the deleted entry).
-        assertNotNull( sysRoot.lookup( "ou=testou," + "ou=backupContext" ) );
+        assertNotNull( sysRoot.lookup( "ou=testou,ou=backupContext" ) );
     }
     
 }
