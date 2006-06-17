@@ -18,10 +18,6 @@
 package org.apache.directory.server.core.trigger;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -34,7 +30,6 @@ import java.util.Map;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.LdapPrincipal;
@@ -50,8 +45,6 @@ import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.sp.LdapClassLoader;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
-import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.trigger.ActionTime;

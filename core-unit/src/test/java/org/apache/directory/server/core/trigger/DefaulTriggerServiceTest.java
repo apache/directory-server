@@ -40,13 +40,13 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
 {
-
-    /*
     public void testOne() throws NamingException
     {
         
-        createTriggerSubentry( "triggerSubentry1", "BEFORE delete CALL \"BackupUtilities.backupDeleted\" ( $deletedEntry )" );
-        createTriggerSubentry( "triggerSubentry2", "AFTER delete CALL \"Logger.logDelete\" { language \"Java\" } ( $name )" );
+        createTriggerSubentry( "triggerSubentry1", "BEFORE delete CALL \"" +
+                "org.apache.directory.server.core.trigger.BackupUtilities.backupDeleted\" ( $deletedEntry )" );
+        createTriggerSubentry( "triggerSubentry2", "AFTER delete CALL \"" +
+                "org.apache.directory.server.core.trigger.Logger.logDelete\" { language \"Java\" } ( $name )" );
         
         Attributes testEntry = new BasicAttributes( "ou", "testou", true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
@@ -55,18 +55,23 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
         objectClass.add( "organizationalUnit" );
         sysRoot.createSubcontext( "ou=testou", testEntry );
         
-        addEntryTrigger( new LdapDN( "ou=testou" ), "AFTER delete CALL \"Audit.userDeletedAnEntry\" ( $deletedEntry, $operationPrincipal )" );
+        addEntryTrigger( new LdapDN( "ou=testou" ), "AFTER delete CALL \"" +
+                "org.apache.directory.server.core.trigger.Audit.userDeletedAnEntry\" ( $deletedEntry, $operationPrincipal )" );
         
         sysRoot.destroySubcontext( "ou=testou" );
 
     }
     
+    
     public void testTwo() throws NamingException
     {
         
-        createTriggerSubentry( "myTriggerSubentry1", "AFTER delete CALL \"Logger.logDelete\" { language \"Java\" } ( $name )" );
-        createTriggerSubentry( "myTriggerSubentry2", "INSTEADOF delete CALL \"Restrictions.noDelete\" ( $deletedEntry )" );
-        createTriggerSubentry( "myTriggerSubentry3", "INSTEADOF add CALL \"Restrictions.noAdd\" ( $entry )" );
+        createTriggerSubentry( "myTriggerSubentry1", "AFTER delete CALL \"" +
+                "org.apache.directory.server.core.trigger.Logger.logDelete\" { language \"Java\" } ( $name )" );
+        createTriggerSubentry( "myTriggerSubentry2", "INSTEADOF delete CALL \"" +
+                "org.apache.directory.server.core.trigger.Restrictions.noDelete\" ( $deletedEntry )" );
+        createTriggerSubentry( "myTriggerSubentry3", "INSTEADOF add CALL \"" +
+                "org.apache.directory.server.core.trigger.Restrictions.noAdd\" ( $entry )" );
         
         Attributes testEntry = new BasicAttributes( "ou", "testou", true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
@@ -76,8 +81,8 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
         sysRoot.createSubcontext( "ou=testou", testEntry );
         
         sysRoot.destroySubcontext( "ou=testou" );
-
-    }*/
+    }
+    
     
     public void testThree() throws NamingException, IOException
     {
