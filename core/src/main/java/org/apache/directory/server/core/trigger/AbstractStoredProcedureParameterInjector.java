@@ -26,30 +26,30 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.Name;
-import javax.naming.NameParser;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.jndi.ServerContext;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 public abstract class AbstractStoredProcedureParameterInjector implements StoredProcedureParameterInjector
 {
     private Invocation invocation;
-    private NameParser nameParser;
     private Map injectors;
     
-    public AbstractStoredProcedureParameterInjector()
+    public AbstractStoredProcedureParameterInjector( Invocation invocation ) throws NamingException
     {
+        this.invocation = invocation;
         injectors = new HashMap();
-        injectors.put( StoredProcedureParameter.OPERATION_PRINCIPAL, $operationPrincipalInjector );
-        injectors.put( StoredProcedureParameter.OPERATION_TIME, $operationTimeInjector );
+        injectors.put( StoredProcedureParameter.OPERATION_PRINCIPAL, $operationPrincipalInjector.inject() );
+        injectors.put( StoredProcedureParameter.OPERATION_TIME, $operationTimeInjector.inject() );
     }
     
     protected Name getOperationPrincipal() throws NamingException
     {
         Principal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        Name userName = nameParser.parse( principal.getName() );
+        Name userName = new LdapDN( principal.getName() );
         return userName;
     }
     
@@ -68,21 +68,10 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         return invocation;
     }
     
-    public NameParser getNameParser()
-    {
-        return nameParser;
-    }
-    
     public void setInvocation( Invocation invocation )
     {
         this.invocation = invocation;
     }
-
-    public void setNameParser( NameParser nameParser )
-    {
-        this.nameParser = nameParser;
-    }
-    
     
     public final List getArgumentsToInject( List parameterList )
     {

@@ -18,6 +18,11 @@
 package org.apache.directory.server.core.trigger;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +34,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.LdapPrincipal;
@@ -38,16 +44,21 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.core.sp.LdapClassLoader;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
+import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
 import org.apache.directory.shared.ldap.trigger.LdapOperation;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
+import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -202,25 +213,7 @@ public class TriggerService extends BaseInterceptor
         triggerSpecMap.put( ActionTime.AFTER, afterTriggerSpecs );
         
         return triggerSpecMap;
-    }
-    
-    /*private Map getActionTimeMappedStoredProcedures( Map triggerMap )
-    {
-        Map spMap = new HashMap();
-        
-        Iterator it = triggerMap.entrySet().iterator();
-        while ( it.hasNext() )
-        {
-            Map.Entry entry = ( Entry ) it.next();
-            List triggerSpecs = ( List ) entry.getValue();
-            Iterator it = triggerSpecs.iterator();
-            while ( it.hasNext() )
-            {
-                
-            }
-        }
-    }*/
-    
+    }    
 
     /**
      * Initializes this interceptor based service by getting a handle on the nexus.
@@ -269,7 +262,6 @@ public class TriggerService extends BaseInterceptor
         
     }
 
-
     public void delete( NextInterceptor next, LdapDN name ) throws NamingException
     {
         // Access the principal requesting the operation
@@ -279,6 +271,8 @@ public class TriggerService extends BaseInterceptor
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN userName = new LdapDN( principal.getName() );
         userName.normalize();
+        
+        ServerLdapContext ctx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
 
         // Bypass trigger code if we are disabled
         if ( !enabled )
@@ -291,8 +285,8 @@ public class TriggerService extends BaseInterceptor
         addPrescriptiveTriggerSpecs( triggerSpecs, proxy, name, entry );
         addEntryTriggerSpecs( triggerSpecs, entry );
         Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.DELETE );
-        // Map spMap = getActionTimeMappedStoredProcedures( triggerMap );
         
+        DeleteStoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( invocation, name );
         
         List beforeTriggerSpecs = (List) triggerMap.get( ActionTime.BEFORE );
         log.debug( "There are " + beforeTriggerSpecs.size() + " \"BEFORE delete\" triggers associated with this entry [" + name + "] being deleted:" );
@@ -316,5 +310,63 @@ public class TriggerService extends BaseInterceptor
         List afterTriggerSpecs = (List) triggerMap.get( ActionTime.AFTER );
         log.debug( "There are " + afterTriggerSpecs.size() + " \"AFTER delete\" triggers associated with this entry [" + name + "] being deleted:" );
         log.debug( ">>> " + afterTriggerSpecs );
+        
+        Iterator it = afterTriggerSpecs.iterator();
+        
+        while( it.hasNext() )
+        {
+            TriggerSpecification tsec = ( TriggerSpecification ) it.next();
+            
+            List arguments = new ArrayList();
+            arguments.add( ctx );
+            arguments.addAll( injector.getArgumentsToInject( tsec.getStoredProcedureParameters() ) );
+            
+            List typeList = new ArrayList();
+            typeList.add( ctx.getClass() );
+            typeList.addAll( getTypesFromValues( arguments ) );
+            
+            Class[] types = ( Class[] ) ( getTypesFromValues( arguments ).toArray( EMPTY_CLASS_ARRAY ) );
+            Object[] values = arguments.toArray();
+            
+            executeProcedure( ctx, tsec.getStoredProcedureName(), types, values );
+        }
     }
+    
+    private static Class[] EMPTY_CLASS_ARRAY = new Class[0];
+    
+    private List getTypesFromValues( List objects )
+    {
+        List types = new ArrayList();
+        
+        Iterator it = objects.iterator();
+        
+        while( it.hasNext() )
+        {
+            types.add( it.next().getClass() );
+        }
+        
+        return types;
+    }
+    
+    private Object executeProcedure( ServerLdapContext ctx, String procedure, Class[] types, Object[] values ) throws NamingException
+    {
+        int lastDot = procedure.lastIndexOf( '.' );
+        String className = procedure.substring( 0, lastDot );
+        String methodName = procedure.substring( lastDot + 1 );
+        LdapClassLoader loader = new LdapClassLoader( ctx );
+        
+        try
+        {
+            Class clazz = loader.loadClass( className );
+            Method proc = DirectoryClassUtils.getAssignmentCompatibleMethod( clazz, methodName, types );
+            return proc.invoke( null, values );
+        }
+        catch ( Exception e )
+        {
+            LdapNamingException lne = new LdapNamingException( ResultCodeEnum.OTHER );
+            lne.setRootCause( e );
+            throw lne;
+        }
+    }
+
 }

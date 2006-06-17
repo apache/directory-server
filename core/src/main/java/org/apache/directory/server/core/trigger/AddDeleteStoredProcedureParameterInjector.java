@@ -23,6 +23,7 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.AddStoredProcedureParameter;
 
 public class AddDeleteStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
@@ -32,8 +33,9 @@ public class AddDeleteStoredProcedureParameterInjector extends AbstractStoredPro
     
     private Map injectors;
     
-    public AddDeleteStoredProcedureParameterInjector()
-    {        
+    public AddDeleteStoredProcedureParameterInjector( Invocation invocation ) throws NamingException
+    {
+        super( invocation );        
         injectors = super.getInjectors();
         injectors.put( AddStoredProcedureParameter.ENTRY, $entryInjector );
         injectors.put( AddStoredProcedureParameter.ATTRIBUTES, $attributesInjector );

@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.DeleteStoredProcedureParameter;
@@ -34,12 +35,13 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     
     private Map injectors;
     
-    public DeleteStoredProcedureParameterInjector( LdapDN deletedEntryName )
+    public DeleteStoredProcedureParameterInjector( Invocation invocation, LdapDN deletedEntryName ) throws NamingException
     {
-        injectors = super.getInjectors();
-        injectors.put( DeleteStoredProcedureParameter.NAME, $nameInjector );
-        injectors.put( DeleteStoredProcedureParameter.DELETED_ENTRY, $deletedEntryInjector );
+        super( invocation );
         this.deletedEntryName = deletedEntryName;
+        injectors = super.getInjectors();
+        injectors.put( DeleteStoredProcedureParameter.NAME, $nameInjector.inject() );
+        injectors.put( DeleteStoredProcedureParameter.DELETED_ENTRY, $deletedEntryInjector.inject() );
     }
     
     MicroInjector $nameInjector = new MicroInjector()
