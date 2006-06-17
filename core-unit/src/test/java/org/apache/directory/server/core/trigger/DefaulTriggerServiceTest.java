@@ -95,7 +95,7 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
         attributes.put( "byteCode", buf );
         sysRoot.createSubcontext( "fullyQualifiedClassName=" + HelloWorldProcedure.class.getName(), attributes );
         
-        createTriggerSubentry( "myTriggerSubentry1", "AFTER delete CALL \"" + HelloWorldProcedure.class.getName() + "logDeleted" + "\" ( $name )" );
+        createTriggerSubentry( "myTriggerSubentry1", "AFTER delete CALL \"" + HelloWorldProcedure.class.getName() + ".logDeleted" + "\" ( $name )" );
         
         Attributes testEntry = new BasicAttributes( "ou", "testou", true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
