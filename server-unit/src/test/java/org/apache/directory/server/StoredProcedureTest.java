@@ -40,12 +40,8 @@ import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse
 
 
 /**
- * Test case to verify DIREVE-216.  Starts up the server binds via SUN JNDI provider
- * to perform add modify operations on entries.
- * 
- * @author szoerner
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 379013 $
+ * @version $Rev:$
  */
 public class StoredProcedureTest extends AbstractServerTest
 {
@@ -94,10 +90,7 @@ public class StoredProcedureTest extends AbstractServerTest
         ctx = null;
     }
     
-    /**
-     * FIXME: Temporarily commenting out the test below due to setUp issue. 
-     */
-    /**
+
     public void testExecuteProcedure() throws NamingException
     {
         String language = "java";
@@ -105,7 +98,7 @@ public class StoredProcedureTest extends AbstractServerTest
         StoredProcedureRequest req = new StoredProcedureRequest( 0, procedure, language );
         StoredProcedureResponse resp = ( StoredProcedureResponse ) ctx.extendedOperation( req );
         assertNotNull( resp );
-    }*/
+    }
 
     public void testExecuteProcedureWithParameters() throws NamingException, IOException
     {
