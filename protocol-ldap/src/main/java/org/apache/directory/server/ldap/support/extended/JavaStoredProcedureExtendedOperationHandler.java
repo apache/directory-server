@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedur
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.ClassUtils;
+import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
 import org.apache.directory.shared.ldap.util.SpringClassUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -126,7 +127,7 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
         try
         {
             Class clazz = loader.loadClass( className );
-            Method proc = clazz.getMethod( methodName, types );
+            Method proc = DirectoryClassUtils.getAssignmentCompatibleMethod( clazz, methodName, types );
             return proc.invoke( null, values );
         }
         catch ( Exception e )
