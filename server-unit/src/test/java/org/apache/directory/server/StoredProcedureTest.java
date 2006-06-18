@@ -53,34 +53,43 @@ public class StoredProcedureTest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        Set handlers = new HashSet( super.configuration.getExtendedOperationHandlers() );
-        handlers.add( new StoredProcedureExtendedOperationHandler() );
-        super.configuration.setExtendedOperationHandlers( handlers );
-        
-        super.setUp();
+        try
+        {
+            Set handlers = new HashSet( super.configuration.getExtendedOperationHandlers() );
+            handlers.add( new StoredProcedureExtendedOperationHandler() );
+            super.configuration.setExtendedOperationHandlers( handlers );
+            
+            super.setUp();
 
-        Hashtable env = new Hashtable();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-        ctx = new InitialLdapContext( env, null );
+            Hashtable env = new Hashtable();
+            env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+            env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
+            env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+            env.put( "java.naming.security.credentials", "secret" );
+            env.put( "java.naming.security.authentication", "simple" );
+            ctx = new InitialLdapContext( env, null );
 
-        URL url = getClass().getResource( "HelloWorldProcedure.class" );
-        InputStream in = getClass().getResourceAsStream( "HelloWorldProcedure.class" );
-        File file = new File( url.getFile() );
-        int size = ( int ) file.length();
-        byte[] buf = new byte[size];
-        in.read( buf );
-        in.close();
-        
-        // set up
-        Attributes attributes = new BasicAttributes( "objectClass", "top", true );
-        attributes.get( "objectClass" ).add( "javaClass" );
-        attributes.put( "fullyQualifiedClassName", HelloWorldProcedure.class.getName() );
-        attributes.put( "byteCode", buf );
-        ctx.createSubcontext( "fullyQualifiedClassName=" + HelloWorldProcedure.class.getName(), attributes );
+            URL url = getClass().getResource( "HelloWorldProcedure.class" );
+            InputStream in = getClass().getResourceAsStream( "HelloWorldProcedure.class" );
+            File file = new File( url.getFile() );
+            int size = ( int ) file.length();
+            byte[] buf = new byte[size];
+            in.read( buf );
+            in.close();
+            
+            // set up
+            Attributes attributes = new BasicAttributes( "objectClass", "top", true );
+            attributes.get( "objectClass" ).add( "javaClass" );
+            attributes.put( "fullyQualifiedClassName", HelloWorldProcedure.class.getName() );
+            attributes.put( "byteCode", buf );
+            ctx.createSubcontext( "fullyQualifiedClassName=" + HelloWorldProcedure.class.getName(), attributes );
+        }
+        catch ( Exception e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw e;
+        }
     }
 
 
@@ -88,6 +97,8 @@ public class StoredProcedureTest extends AbstractServerTest
     {
         ctx.close();
         ctx = null;
+        
+        super.tearDown();
     }
     
 
