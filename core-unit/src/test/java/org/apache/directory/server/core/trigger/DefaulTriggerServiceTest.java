@@ -28,6 +28,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -38,10 +39,13 @@ import javax.naming.directory.BasicAttributes;
  */
 public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
 {
-    private void loadStoredProcedure( String spClass ) throws NamingException
+    private void loadStoredProcedureUnit( LdapContext ctx, String fullClassName ) throws NamingException
     {
-        URL url = getClass().getResource( spClass + ".class" );
-        InputStream in = getClass().getResourceAsStream( spClass + ".class" );
+        int lastDot = fullClassName.lastIndexOf( '.' );
+        String classFileName = fullClassName.substring( lastDot + 1 ) + ".class";
+        
+        URL url = getClass().getResource( classFileName );
+        InputStream in = getClass().getResourceAsStream( classFileName );
         File file = new File( url.getFile() );
         int size = ( int ) file.length();
         byte[] buf = new byte[size];
@@ -57,20 +61,18 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
             throw ne;
         }
         
-        String fullClassName = getClass().getPackage().getName() + "." + spClass;
-        
         Attributes attributes = new BasicAttributes( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );
         attributes.put( "fullyQualifiedClassName", fullClassName );
         attributes.put( "byteCode", buf );
         
-        sysRoot.createSubcontext( "fullyQualifiedClassName=" + fullClassName, attributes );
+        ctx.createSubcontext( "fullyQualifiedClassName=" + fullClassName, attributes );
     }
     
     public void testAfterDeleteBackupDeletedEntry() throws NamingException
     {
-        // Load the stored procedure to be triggered.
-        loadStoredProcedure( "BackupUtilities" );
+        // Load the stored procedure unit which has the stored procedure to be triggered.
+        loadStoredProcedureUnit( sysRoot, BackupUtilities.class.getName() );
         
         // Create a container for backing up deleted entries.
         Attributes backupContext = new BasicAttributes( "ou", "backupContext", true );
@@ -80,9 +82,9 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
         objectClass.add( "organizationalUnit" );
         sysRoot.createSubcontext( "ou=backupContext", backupContext );
         
-        // Create the Triger Specification via the Trigger Subentry.
-        createTriggerSubentry( "triggerSubentry1", "AFTER delete CALL \"" +
-            "org.apache.directory.server.core.trigger.BackupUtilities.backupDeleted\" ( $name, $operationPrincipal, $deletedEntry )" );
+        // Create the Triger Specification within a Trigger Subentry.
+        createTriggerSubentry( "triggerSubentry1",
+            "AFTER delete CALL \"" + BackupUtilities.class.getName() + ".backupDeleted\" ( $name, $operationPrincipal, $deletedEntry )" );
         
         // Create a test entry which is selected by the Trigger Subentry.
         Attributes testEntry = new BasicAttributes( "ou", "testou", true );
