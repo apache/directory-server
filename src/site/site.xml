@@ -37,6 +37,7 @@
           <item name="Protocol" href="/docs/developers/protocol.html"/>
           <item name="Backend Subsystem" href="/docs/developers/backend.html"/>
         </item>
+        <item name="Articles" href="/docs/articles.html"/>
         <item name="API Docs" href="/docs/api/index.html"/>
       </item>
       <item name="ApacheDS Modules" href="/modules.html"/>
