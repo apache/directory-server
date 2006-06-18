@@ -208,7 +208,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         {
             for ( Iterator i = sessions.iterator(); i.hasNext(); )
             {
-                IoSession session = session = ( IoSession ) i.next();
+                IoSession session = ( IoSession ) i.next();
 
                 // make sure we do not send the disconnect mesasge to the 
                 // client which sent the initiating GracefulShutdown request
@@ -260,7 +260,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         {
             for ( Iterator i = sessions.iterator(); i.hasNext(); )
             {
-                IoSession session = session = ( IoSession ) i.next();
+                IoSession session = ( IoSession ) i.next();
 
                 // make sure we do not send the disconnect mesasge to the 
                 // client which sent the initiating GracefulShutdown request
