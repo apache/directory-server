@@ -99,7 +99,7 @@ public class ApachedsTools
                 System.out.println( "loading settings from: " + cmd.getLayout().getConfigurationFile() );
             }
             ApplicationContext factory = null;
-            URL configUrl = configUrl = cmd.getLayout().getConfigurationFile().toURL();
+            URL configUrl = cmd.getLayout().getConfigurationFile().toURL();
             factory = new FileSystemXmlApplicationContext( configUrl.toString() );
             cmd.setConfiguration( ( ServerStartupConfiguration ) factory.getBean( "configuration" ) );
         }
