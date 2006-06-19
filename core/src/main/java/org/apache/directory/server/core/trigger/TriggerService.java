@@ -356,6 +356,8 @@ public class TriggerService extends BaseInterceptor
         }
         catch ( Exception e )
         {
+            log.debug( "Exception occured during executing stored procedure:\n" +
+                e.getMessage() + "\n" + e.getStackTrace() );
             LdapNamingException lne = new LdapNamingException( ResultCodeEnum.OTHER );
             lne.setRootCause( e );
             throw lne;
