@@ -57,7 +57,11 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject() throws NamingException
         {
             DirectoryPartitionNexusProxy proxy = getInvocation().getProxy();
-            Attributes deletedEntry = proxy.lookup( deletedEntryName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+            /**
+             * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
+             * especially subentry related ones like "triggerSubentries".
+             */
+            Attributes deletedEntry = proxy.lookup( deletedEntryName, DirectoryPartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
             return deletedEntry;
         };
     };
