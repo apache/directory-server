@@ -411,10 +411,15 @@ public class AuthenticationService extends BaseInterceptor
     public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId )
         throws NamingException
     {
+        
+        log.debug( "bind: bindDn: " + bindDn );
+        
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
         ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
 
+        log.debug( "bind: principal: " + ctx.getPrincipal() );
+        
         if ( ctx.getPrincipal() != null )
         {
             if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
