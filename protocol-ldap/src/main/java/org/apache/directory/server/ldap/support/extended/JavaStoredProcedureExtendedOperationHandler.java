@@ -18,8 +18,9 @@ package org.apache.directory.server.ldap.support.extended;
 
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -47,8 +48,8 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
 {
     private static final Class[] EMPTY_CLASS_ARRAY = new Class[0];
     
-    public void handleStoredProcedureExtendedOperation( ServerLdapContext ctx, StoredProcedure pojo ) 
-        throws ClassNotFoundException, NamingException
+    public byte[] handleStoredProcedureExtendedOperation( ServerLdapContext ctx, StoredProcedure pojo ) 
+        throws NamingException
     {
         List types = new ArrayList( pojo.getParameters().size() );
         List values = new ArrayList( pojo.getParameters().size() );
@@ -59,7 +60,17 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
             StoredProcedureParameter pPojo = ( StoredProcedureParameter ) it.next();
             
             // Get type from String even if it holds a primitive type name
-            Class type = SpringClassUtils.forName( StringTools.utf8ToString( pPojo.getType() ) ); 
+            Class type;
+            try
+            {
+                type = SpringClassUtils.forName( StringTools.utf8ToString( pPojo.getType() ) );
+            }
+            catch ( ClassNotFoundException e )
+            {
+                NamingException ne = new NamingException();
+                ne.setRootCause( e );
+                throw ne;
+            } 
             
             types.add( type );
             
@@ -96,23 +107,36 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
                         ).readObject()
                     );
                 }
-                catch (IOException e)
+                catch ( Exception e )
                 {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                catch (ClassNotFoundException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    NamingException ne = new NamingException();
+                    ne.setRootCause( e );
+                    throw ne;
                 }
             }
             
         }
         
         // TODO determine what to do with the exception
-        executeProcedure( ctx, StringTools.utf8ToString( pojo.getProcedure() ), 
+        Object response = executeProcedure( ctx, StringTools.utf8ToString( pojo.getProcedure() ), 
                 ( Class[] ) types.toArray( EMPTY_CLASS_ARRAY ), values.toArray() );
+        
+        ByteArrayOutputStream baos;
+        try
+        {
+            baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream( baos );
+            oos.writeObject( response );
+        }
+        catch ( Exception e )
+        {
+            NamingException ne = new NamingException();
+            ne.setRootCause( e );
+            throw ne;
+        }
+        
+        return baos.toByteArray();
+        
     }
 
     

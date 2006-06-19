@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedur
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedureContainer;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedureDecoder;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 import org.apache.mina.common.IoSession;
@@ -67,20 +68,25 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         
         LanguageSpecificStoredProceureExtendedOperationHandler handler = null;
         
+        byte[] responseStream = null;
+        
         /**
          * TODO This part may be replaced by a better handler determiner.
          */
         if ( spBean.getLanguage().equalsIgnoreCase( "Java" ) )
         {
             handler = new JavaStoredProcedureExtendedOperationHandler();
-            handler.handleStoredProcedureExtendedOperation( serverLdapContext, spBean );
+            responseStream = handler.handleStoredProcedureExtendedOperation( serverLdapContext, spBean );
         }
         
         /**
-         * TODO: Temporarily added this response to make things work.
-         * We need to send back the SP result btw.
+         * FIXME: We may have issues sending SP result back to the client.
          */
+        
+        ( ( ExtendedResponse )( req.getResultResponse() ) ).setResponse( responseStream );
+        
         session.write( req.getResultResponse() );
+        
     }
     
     private StoredProcedure decodeBean( byte[] payload )

@@ -30,5 +30,5 @@ import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedur
  */
 public interface LanguageSpecificStoredProceureExtendedOperationHandler 
 {
-    void handleStoredProcedureExtendedOperation( ServerLdapContext ctx, StoredProcedure spBean ) throws Exception;
+    byte[] handleStoredProcedureExtendedOperation( ServerLdapContext ctx, StoredProcedure spBean ) throws Exception;
 }
