@@ -18,10 +18,6 @@
 package org.apache.directory.server;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -35,6 +31,7 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.shared.ldap.sp.StoredProcedureUtils;
 
 
 /**
@@ -72,40 +69,10 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         super.tearDown();
     }
     
-    private void loadStoredProcedureUnit( LdapContext ctx, String fullClassName ) throws NamingException
-    {
-        int lastDot = fullClassName.lastIndexOf( '.' );
-        String classFileName = fullClassName.substring( lastDot + 1 ) + ".class";
-        
-        URL url = getClass().getResource( classFileName );
-        InputStream in = getClass().getResourceAsStream( classFileName );
-        File file = new File( url.getFile() );
-        int size = ( int ) file.length();
-        byte[] buf = new byte[size];
-        try
-        {
-            in.read( buf );
-            in.close();
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
-        }
-        
-        Attributes attributes = new BasicAttributes( "objectClass", "top", true );
-        attributes.get( "objectClass" ).add( "javaClass" );
-        attributes.put( "fullyQualifiedClassName", fullClassName );
-        attributes.put( "byteCode", buf );
-        
-        ctx.createSubcontext( "fullyQualifiedClassName=" + fullClassName, attributes );
-    }
-    
     public void testAfterDeleteBackupDeletedEntry() throws NamingException
     {
         // Load the stored procedure unit which has the stored procedure to be triggered.
-        loadStoredProcedureUnit( ctx, BackupUtilities.class.getName() );
+        StoredProcedureUtils.loadStoredProcedureClass( ctx, BackupUtilities.class.getName(), this.getClass() );
         
         // Create a container for backing up deleted entries.
         Attributes backupContext = new BasicAttributes( "ou", "backupContext", true );
