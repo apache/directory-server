@@ -3,13 +3,13 @@ package org.apache.directory.server;
 
 public class HelloWorldProcedure
 {
-    public static void sayHello()
+    public static String sayHello()
     {
-        System.out.println( "Hello World!" );
+        return "Hello World!";
     }
     
-    public static void sayHelloTo( String name )
+    public static String sayHelloTo( String name )
     {
-        System.out.println( "Hello " + name + "!" );
+        return "Hello " + name + "!";
     }
 }
