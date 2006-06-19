@@ -87,7 +87,7 @@ public class LdapClassLoader extends ClassLoader
                     SearchResult javaClassEntry = ( SearchResult ) javaClassEntries.next();
                     Attribute byteCode = javaClassEntry.getAttributes().get( "byteCode" );
                     classBytes = ( byte[] ) byteCode.get();
-                    continue;
+                    break; // exit on first hit!
                 }
             }
         }
