@@ -77,9 +77,9 @@ public class StoredProcedureTest extends AbstractServerTest
          * FIXME: We have problems with returning results from stored procedures.
          */
         
-        // Object response = StoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { } );
+        Object response = StoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { } );
         
-        // assertEquals( "Hello World!", response );
+        assertEquals( "Hello World!", response );
     }
     
 
