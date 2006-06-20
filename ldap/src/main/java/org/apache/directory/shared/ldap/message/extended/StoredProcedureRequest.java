@@ -19,6 +19,7 @@ package org.apache.directory.shared.ldap.message.extended;
 import java.nio.ByteBuffer;
 
 import javax.naming.NamingException;
+import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class StoredProcedureRequest extends ExtendedRequestImpl
+public class StoredProcedureRequest extends ExtendedRequestImpl implements ExtendedRequest
 {
     private static final Logger log = LoggerFactory.getLogger( StoredProcedureRequest.class );
     private static final long serialVersionUID = -4682291068700593492L;
@@ -95,7 +96,10 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
     public ExtendedResponse createExtendedResponse( String id, byte[] berValue, int offset, int length )
         throws NamingException
     {
-        return ( ExtendedResponse ) getResultResponse();
+    	StoredProcedureResponse resp = ( StoredProcedureResponse ) getResultResponse();
+    	resp.setResponse( berValue );
+    	resp.setOid( id );
+        return ( ExtendedResponse ) resp;
     }
 
 
