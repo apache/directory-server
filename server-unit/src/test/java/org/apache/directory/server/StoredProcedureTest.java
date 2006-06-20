@@ -73,10 +73,6 @@ public class StoredProcedureTest extends AbstractServerTest
     {
         String procedureName = HelloWorldProcedure.class.getName() + ".sayHello";
         
-        /**
-         * FIXME: We have problems with returning results from stored procedures.
-         */
-        
         Object response = StoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { } );
         
         assertEquals( "Hello World!", response );
@@ -87,13 +83,9 @@ public class StoredProcedureTest extends AbstractServerTest
     {
         String procedureName = HelloWorldProcedure.class.getName() + ".sayHelloTo";
         
-        /**
-         * FIXME: We have problems with returning results from stored procedures.
-         */
+        Object response = StoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { "Ersin" } );
         
-        // Object response = StoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { "Ersin" } );
-        
-        // assertEquals( "Hello Ersin!", response );
+        assertEquals( "Hello Ersin!", response );
     }
     
 }
