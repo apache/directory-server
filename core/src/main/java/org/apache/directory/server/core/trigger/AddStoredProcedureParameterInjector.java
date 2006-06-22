@@ -26,39 +26,20 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.AddStoredProcedureParameter;
 
-public class AddDeleteStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
+public class AddStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private Name addedEntryName;
     private Attributes addedEntry;
     
     private Map injectors;
     
-    public AddDeleteStoredProcedureParameterInjector( Invocation invocation ) throws NamingException
+    public AddStoredProcedureParameterInjector( Invocation invocation, Name addedEntryName, Attributes addedEntry ) throws NamingException
     {
-        super( invocation );        
+        super( invocation );
+        this.addedEntryName = addedEntryName;
         injectors = super.getInjectors();
         injectors.put( AddStoredProcedureParameter.ENTRY, $entryInjector );
         injectors.put( AddStoredProcedureParameter.ATTRIBUTES, $attributesInjector );
-    }
-    
-    public void setAddedEntryName( Name addedEntryName )
-    {
-        this.addedEntryName = addedEntryName;
-    }
-    
-    public Name getAddedEntryName()
-    {
-        return addedEntryName;
-    }
-    
-    public Attributes getAddedEntry()
-    {
-        return addedEntry;
-    }
-
-    public void setAddedEntry( Attributes addedEntry )
-    {
-        this.addedEntry = addedEntry;
     }
     
     MicroInjector $entryInjector = new MicroInjector()

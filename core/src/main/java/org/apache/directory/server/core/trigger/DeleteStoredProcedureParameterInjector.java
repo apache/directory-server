@@ -48,7 +48,8 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     {
         public Object inject() throws NamingException
         {
-            return deletedEntryName; // LdapDN is still a Name
+            // Return a safe copy constructed with user providd name.
+            return new LdapDN( deletedEntryName.toUpName() );
         };
     };
     

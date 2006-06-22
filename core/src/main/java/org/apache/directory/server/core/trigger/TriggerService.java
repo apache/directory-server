@@ -32,13 +32,11 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
@@ -52,7 +50,6 @@ import org.apache.directory.shared.ldap.trigger.LdapOperation;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,8 +73,7 @@ public class TriggerService extends BaseInterceptor
      * trigger subentries that apply to an entry
      */
     private static final String TRIGGER_SUBENTRIES_ATTR = "triggerSubentries";
-
-
+    
     /** a triggerSpecCache that responds to add, delete, and modify attempts */
     private TriggerSpecCache triggerSpecCache;
     /** a normalizing Trigger Specification parser */
@@ -87,10 +83,14 @@ public class TriggerService extends BaseInterceptor
     /** whether or not this interceptor is activated */
     private boolean enabled = true;
 
+    /** a Trigger Execution Authorizer */
+    private TriggerExecutionAuthorizer triggerExecutionAuthorizer = new SimpleTriggerExecutionAuthorizer();
+
     /**
      * Adds prescriptiveTrigger TriggerSpecificaitons to a collection of
-     * TriggerSpeficaitions by accessing the tupleCache.  The trigger specification
-     * cache is accessed for each trigger subentry associated with the entry.
+     * TriggerSpeficaitions by accessing the triggerSpecCache.  The trigger
+     * specification cache is accessed for each trigger subentry associated
+     * with the entry.
      * Note that subentries are handled differently: their parent, the administrative
      * entry is accessed to determine the perscriptiveTriggers effecting the AP
      * and hence the subentry which is considered to be in the same context.
@@ -206,126 +206,171 @@ public class TriggerService extends BaseInterceptor
         triggerSpecMap.put( ActionTime.AFTER, afterTriggerSpecs );
         
         return triggerSpecMap;
-    }    
-
-    /**
-     * Initializes this interceptor based service by getting a handle on the nexus.
-     *
-     * @param dirServCfg the ContextFactory configuration for the server
-     * @param intCfg the interceptor configuration
-     * @throws NamingException if there are problems during initialization
-     */
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // Interceptor Overrides
+    ////////////////////////////////////////////////////////////////////////////
+    
     public void init( DirectoryServiceConfiguration dirServCfg, InterceptorConfiguration intCfg ) throws NamingException
     {
         super.init( dirServCfg, intCfg );
         triggerSpecCache = new TriggerSpecCache( dirServCfg );
         attrRegistry = dirServCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        triggerParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
-            {
-                public Map getNormalizerMapping() throws NamingException
+        triggerParser = new TriggerSpecificationParser
+            ( new NormalizerMappingResolver()
                 {
-                    return attrRegistry.getNormalizerMapping();
+                    public Map getNormalizerMapping() throws NamingException
+                    {
+                        return attrRegistry.getNormalizerMapping();
+                    }
                 }
-            });
-        this.enabled = true; // TODO: get this from the configuration if needed
+            );
+        this.enabled = true; // TODO: Get this from the configuration if needed.
     }
 
-
-    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor next, LdapDN normName, Attributes addedEntry ) throws NamingException
     {
-        // Access the principal requesting the operation
-        Invocation invocation = InvocationStack.getInstance().peek();
-        LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN userName = new LdapDN( principal.getName() );
-        userName.normalize();
-
-        // Bypass trigger code if we are disabled
+        // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.add( normName, entry );
+            next.add( normName, addedEntry );
             return;
         }
         
-        /**
-         * 
-         */
-        next.add( normName, entry );
-        
-        triggerSpecCache.subentryAdded( normName, entry );
-        
-    }
-
-    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
-    {
-        // Access the principal requesting the operation
+        // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
-        LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN userName = new LdapDN( principal.getName() );
-        userName.normalize();
-        
-        ServerLdapContext ctx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
+        ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
+        StoredProcedureParameterInjector injector = new AddStoredProcedureParameterInjector( invocation, normName, addedEntry );
 
-        // Bypass trigger code if we are disabled
-        if ( !enabled )
-        {
-            next.delete( name );
-            return;
-        }
-
+        // Gather Trigger Specifications which apply to the entry being deleted.
         List triggerSpecs = new ArrayList();
-        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, name, entry );
-        addEntryTriggerSpecs( triggerSpecs, entry );
-        Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.DELETE );
+        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, normName, addedEntry );
+        /**
+         *  NOTE: We do not handle entryTriggers for ADD operation.
+         */
         
-        DeleteStoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( invocation, name );
+        // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.ADD.
+        Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.ADD );
         
-        List beforeTriggerSpecs = (List) triggerMap.get( ActionTime.BEFORE );
-        log.debug( "There are " + beforeTriggerSpecs.size() + " \"BEFORE delete\" triggers associated with this entry [" + name + "] being deleted:" );
-        log.debug( ">>> " + beforeTriggerSpecs );
+        // Fire BEFORE Triggers.
+        List beforeTriggerSpecs = ( List ) triggerMap.get( ActionTime.BEFORE );
+        executeTriggers( beforeTriggerSpecs, injector, callerRootCtx );
         
-        List insteadofTriggerSpecs = (List) triggerMap.get( ActionTime.INSTEADOF );
-        log.debug( "There are " + insteadofTriggerSpecs.size() + " \"INSTEADOF delete\" triggers associated with this entry [" + name + "] being deleted:" );
-        log.debug( ">>> " + insteadofTriggerSpecs );
-        
+        List insteadofTriggerSpecs = ( List ) triggerMap.get( ActionTime.INSTEADOF );
         if ( insteadofTriggerSpecs.size() == 0 )
         {
-            next.delete( name );
-            // we call subentryDeleted when there is really no INSTEADOF triggers for this method
-            triggerSpecCache.subentryDeleted( name, entry );
+            // Really add only when there is no INSTEADOF Trigger that applies to the entry.
+            next.add( normName, addedEntry );
+            triggerSpecCache.subentryAdded( normName, addedEntry );
         }
         else
         {
-            log.debug("Delete operation has not been performed due to the INSTEADOF trigger(s).");
+            // Fire INSTEADOF Triggers.
+            executeTriggers( insteadofTriggerSpecs, injector, callerRootCtx );
         }
         
-        List afterTriggerSpecs = (List) triggerMap.get( ActionTime.AFTER );
-        log.debug( "There are " + afterTriggerSpecs.size() + " \"AFTER delete\" triggers associated with this entry [" + name + "] being deleted:" );
-        log.debug( ">>> " + afterTriggerSpecs );
+        // Fire AFTER Triggers.
+        List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );
+        executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
+    }
+
+    public void delete( NextInterceptor next, LdapDN normName ) throws NamingException
+    {
+        // Bypass trigger handling if the service is disabled.
+        if ( !enabled )
+        {
+            next.delete( normName );
+            return;
+        }
         
-        Iterator it = afterTriggerSpecs.iterator();
+        // Gather supplementary data.
+        Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes deletedEntry = proxy.lookup( normName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+        ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
+        StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( invocation, normName );
+
+        // Gather Trigger Specifications which apply to the entry being deleted.
+        List triggerSpecs = new ArrayList();
+        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, normName, deletedEntry );
+        addEntryTriggerSpecs( triggerSpecs, deletedEntry );
+        
+        // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.DELETE.
+        Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.DELETE );
+        
+        // Fire BEFORE Triggers.
+        List beforeTriggerSpecs = ( List ) triggerMap.get( ActionTime.BEFORE );
+        executeTriggers( beforeTriggerSpecs, injector, callerRootCtx );
+        
+        List insteadofTriggerSpecs = ( List ) triggerMap.get( ActionTime.INSTEADOF );
+        if ( insteadofTriggerSpecs.size() == 0 )
+        {
+            // Really delete only when there is no INSTEADOF Trigger that applies to the entry.
+            next.delete( normName );
+            triggerSpecCache.subentryDeleted( normName, deletedEntry );
+        }
+        else
+        {
+            // Fire INSTEADOF Triggers.
+            executeTriggers( insteadofTriggerSpecs, injector, callerRootCtx );
+        }
+        
+        // Fire AFTER Triggers.
+        List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );
+        executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // Utility Methods
+    ////////////////////////////////////////////////////////////////////////////
+    
+    private Object executeTriggers( List triggerSpecs, StoredProcedureParameterInjector injector, ServerLdapContext callerRootCtx ) throws NamingException
+    {
+        Object result = null;
+        
+        Iterator it = triggerSpecs.iterator();
         
         while( it.hasNext() )
         {
             TriggerSpecification tsec = ( TriggerSpecification ) it.next();
             
-            List arguments = new ArrayList();
-            arguments.add( ctx );
-            arguments.addAll( injector.getArgumentsToInject( tsec.getStoredProcedureParameters() ) );
-            
-            List typeList = new ArrayList();
-            typeList.add( ctx.getClass() );
-            typeList.addAll( getTypesFromValues( arguments ) );
-            
-            Class[] types = ( Class[] ) ( getTypesFromValues( arguments ).toArray( EMPTY_CLASS_ARRAY ) );
-            Object[] values = arguments.toArray();
-            
-            executeProcedure( ctx, tsec.getStoredProcedureName(), types, values );
+            // TODO: Replace the Authorization Code with a REAL one.
+            if ( triggerExecutionAuthorizer.hasPermission() )
+            {
+                /**
+                 * If there is only one Trigger to be executed, this assignment
+                 * will make sense (as in INSTEADOF search Triggers).
+                 */
+                result = executeTrigger( tsec, injector, callerRootCtx );
+            }
         }
+        
+        /**
+         * If only one Trigger has been executed, returning its result
+         * will make sense (as in INSTEADOF search Triggers).
+         */
+        return result;
+    }
+
+    private Object executeTrigger( TriggerSpecification tsec, StoredProcedureParameterInjector injector, ServerLdapContext callerRootCtx ) throws NamingException
+    {
+        List arguments = new ArrayList();
+        arguments.add( callerRootCtx );
+        arguments.addAll( injector.getArgumentsToInject( tsec.getStoredProcedureParameters() ) );
+        
+        List typeList = new ArrayList();
+        typeList.add( callerRootCtx.getClass() );
+        typeList.addAll( getTypesFromValues( arguments ) );
+        
+        Class[] types = ( Class[] ) ( getTypesFromValues( arguments ).toArray( EMPTY_CLASS_ARRAY ) );
+        Object[] values = arguments.toArray();
+        
+        return executeProcedure( callerRootCtx, tsec.getStoredProcedureName(), types, values );
     }
     
-    private static Class[] EMPTY_CLASS_ARRAY = new Class[0];
+    private static Class[] EMPTY_CLASS_ARRAY = new Class[ 0 ];
     
     private List getTypesFromValues( List objects )
     {
