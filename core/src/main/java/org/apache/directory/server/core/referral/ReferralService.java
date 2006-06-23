@@ -114,6 +114,7 @@ public class ReferralService extends BaseInterceptor
         c.add( "operationalAttributeService" );
         c.add( "referralService" );
         c.add( "eventService" );
+        c.add( "triggerService" );
         SEARCH_BYPASS = Collections.unmodifiableCollection( c );
     }
 
