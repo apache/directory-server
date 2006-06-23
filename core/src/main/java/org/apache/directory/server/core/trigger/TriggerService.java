@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
@@ -310,6 +311,99 @@ public class TriggerService extends BaseInterceptor
             // Really delete only when there is no INSTEADOF Trigger that applies to the entry.
             next.delete( normName );
             triggerSpecCache.subentryDeleted( normName, deletedEntry );
+        }
+        else
+        {
+            // Fire INSTEADOF Triggers.
+            executeTriggers( insteadofTriggerSpecs, injector, callerRootCtx );
+        }
+        
+        // Fire AFTER Triggers.
+        List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );
+        executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
+    }
+    
+    public void modify( NextInterceptor next, LdapDN normName, int modOp, Attributes mods ) throws NamingException
+    {
+        // Bypass trigger handling if the service is disabled.
+        if ( !enabled )
+        {
+            next.modify( normName, modOp, mods );
+            return;
+        }
+        
+        // Gather supplementary data.
+        Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes modifiedEntry = proxy.lookup( normName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+        ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
+        StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, normName, modOp, mods );
+
+        // Gather Trigger Specifications which apply to the entry being modified.
+        List triggerSpecs = new ArrayList();
+        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, normName, modifiedEntry );
+        addEntryTriggerSpecs( triggerSpecs, modifiedEntry );
+        
+        // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFY.
+        Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.MODIFY );
+        
+        // Fire BEFORE Triggers.
+        List beforeTriggerSpecs = ( List ) triggerMap.get( ActionTime.BEFORE );
+        executeTriggers( beforeTriggerSpecs, injector, callerRootCtx );
+        
+        List insteadofTriggerSpecs = ( List ) triggerMap.get( ActionTime.INSTEADOF );
+        if ( insteadofTriggerSpecs.size() == 0 )
+        {
+            // Really modify only when there is no INSTEADOF Trigger that applies to the entry.
+            next.modify( normName, modOp, mods );
+            triggerSpecCache.subentryModified( normName, modOp, mods, modifiedEntry );
+        }
+        else
+        {
+            // Fire INSTEADOF Triggers.
+            executeTriggers( insteadofTriggerSpecs, injector, callerRootCtx );
+        }
+        
+        // Fire AFTER Triggers.
+        List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );
+        executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
+    }
+
+
+    public void modify( NextInterceptor next, LdapDN normName, ModificationItem[] mods ) throws NamingException
+    {
+        // Bypass trigger handling if the service is disabled.
+        if ( !enabled )
+        {
+            next.modify( normName, mods );
+            return;
+        }
+        
+        // Gather supplementary data.
+        Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes modifiedEntry = proxy.lookup( normName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+        ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
+        StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, normName, mods );
+
+        // Gather Trigger Specifications which apply to the entry being modified.
+        List triggerSpecs = new ArrayList();
+        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, normName, modifiedEntry );
+        addEntryTriggerSpecs( triggerSpecs, modifiedEntry );
+        
+        // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFY.
+        Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.MODIFY );
+        
+        // Fire BEFORE Triggers.
+        List beforeTriggerSpecs = ( List ) triggerMap.get( ActionTime.BEFORE );
+        executeTriggers( beforeTriggerSpecs, injector, callerRootCtx );
+        
+        List insteadofTriggerSpecs = ( List ) triggerMap.get( ActionTime.INSTEADOF );
+        if ( insteadofTriggerSpecs.size() == 0 )
+        {
+            // Really modify only when there is no INSTEADOF Trigger that applies to the entry.
+            next.modify( normName, mods );
+            triggerSpecCache.subentryModified( normName, mods, modifiedEntry );
         }
         else
         {

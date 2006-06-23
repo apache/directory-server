@@ -38,8 +38,8 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
         super( invocation );
         this.addedEntryName = addedEntryName;
         injectors = super.getInjectors();
-        injectors.put( AddStoredProcedureParameter.ENTRY, $entryInjector );
-        injectors.put( AddStoredProcedureParameter.ATTRIBUTES, $attributesInjector );
+        injectors.put( AddStoredProcedureParameter.ENTRY, $entryInjector.inject() );
+        injectors.put( AddStoredProcedureParameter.ATTRIBUTES, $attributesInjector.inject() );
     }
     
     MicroInjector $entryInjector = new MicroInjector()
