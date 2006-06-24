@@ -47,12 +47,11 @@ public class GetAllPrincipals implements ContextOperation
 {
     private static final long serialVersionUID = -1214321426487445132L;
 
+    private static final String filter = "(objectClass=krb5Principal)";
 
     public Object execute( DirContext ctx, Name searchBaseDn )
     {
         SearchControls controls = new SearchControls();
-
-        String filter = "(objectClass=krb5Principal)";
 
         List answers = new ArrayList();
 
