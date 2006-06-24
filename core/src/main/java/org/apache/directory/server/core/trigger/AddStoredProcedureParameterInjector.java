@@ -19,24 +19,25 @@ package org.apache.directory.server.core.trigger;
 
 import java.util.Map;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.invocation.Invocation;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.AddStoredProcedureParameter;
 
 public class AddStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
-    private Name addedEntryName;
+    private LdapDN addedEntryName;
     private Attributes addedEntry;
     
     private Map injectors;
     
-    public AddStoredProcedureParameterInjector( Invocation invocation, Name addedEntryName, Attributes addedEntry ) throws NamingException
+    public AddStoredProcedureParameterInjector( Invocation invocation, LdapDN addedEntryName, Attributes addedEntry ) throws NamingException
     {
         super( invocation );
         this.addedEntryName = addedEntryName;
+        this.addedEntry = addedEntry;
         injectors = super.getInjectors();
         injectors.put( AddStoredProcedureParameter.ENTRY, $entryInjector.inject() );
         injectors.put( AddStoredProcedureParameter.ATTRIBUTES, $attributesInjector.inject() );
@@ -46,7 +47,8 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
     {
         public Object inject() throws NamingException
         {
-            return addedEntryName;
+            // Return a safe copy constructed with user provided name.
+            return new LdapDN( addedEntryName.toUpName() );
         };
     };
     
@@ -54,7 +56,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
     {
         public Object inject() throws NamingException
         {
-            return addedEntry;
+            return addedEntry.clone();
         };
     };
 

@@ -76,7 +76,8 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     {
         public Object inject() throws NamingException
         {
-            return modifiedEntryName;
+            // Return a safe copy constructed with user provided name.
+            return new LdapDN( modifiedEntryName.toUpName() );
         };
     };
     
@@ -84,7 +85,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     {
         public Object inject() throws NamingException
         {
-            return modifications;
+            return modifications.clone();
         };
     };
     
