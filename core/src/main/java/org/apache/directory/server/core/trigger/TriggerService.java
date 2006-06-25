@@ -416,6 +416,29 @@ public class TriggerService extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
+    /**
+     * TODO: Fill in this method!
+     */
+    /*
+    public void modifyRn( NextInterceptor next, LdapDN normName, String newRn, boolean deleteOldRn ) throws NamingException
+    {
+        // Bypass trigger handling if the service is disabled.
+        if ( !enabled )
+        {
+            next.modifyRn( normName, newRn, deleteOldRn );
+            return;
+        }
+        
+        // Gather supplementary data.
+        Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes entry = proxy.lookup( normName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+        LdapDN newName = ( LdapDN ) normName.clone();
+        newName.remove( normName.size() - 1 );
+        newName.add( parseNormalized( newRn ).get( 0 ) );
+    }
+    */
+    
     ////////////////////////////////////////////////////////////////////////////
     // Utility Methods
     ////////////////////////////////////////////////////////////////////////////
