@@ -127,11 +127,13 @@
               <installationBundleId>Binaries</installationBundleId>
             </packagedFile>
           </packagedFiles>
+<!--
           <svnBaseUrl>
             http://svn.apache.org/repos/asf/directory/trunks/apacheds
           </svnBaseUrl>
           <packageSources>true</packageSources>
           <packageDocs>true</packageDocs>
+-->
           <applicationClass>
             org.apache.ldap.server.Service
           </applicationClass>
