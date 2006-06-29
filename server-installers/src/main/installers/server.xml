@@ -155,6 +155,12 @@
             <bean class="org.apache.directory.server.core.event.EventService" />
           </property>
         </bean>
+        <bean class="org.apache.directory.server.core.trigger.TriggerService">
+          <property name="name"><value>triggerService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.directory.server.core.trigger.TriggerService" />
+          </property>
+        </bean>
       </list>
     </property>
   </bean>
