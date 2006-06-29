@@ -66,6 +66,13 @@ public class DirectoryClassUtils
         // For each method of the clazz...
         for ( int mx = 0; mx < methods.length; mx++ )
         {
+            // If the method name does not match...
+            if ( !candidateMethodName.equals( methods[ mx ].getName() ) )
+            {
+                // ... Go on with the next method.
+                continue;
+            }
+            
             // ... Get parameter types list.
             Class[] parameterTypes = methods[ mx ].getParameterTypes();
             
