@@ -28,9 +28,12 @@ public class LdifReaderTest extends TestCase
 {
     private byte[] data;
 
+    private static File HJENSEN_JPEG_FILE = null;
+    private static File FIONA_JPEG_FILE = null;
+
     private File createFile( String name, byte[] data ) throws IOException
     {
-        File jpeg = new File( "/tmp/" + name );
+        File jpeg = File.createTempFile( name, "jpg" );
 
         jpeg.createNewFile();
 
@@ -60,8 +63,8 @@ public class LdifReaderTest extends TestCase
             data[i] = (byte) i;
         }
 
-        createFile( "hjensen.jpg", data );
-        createFile( "fiona.jpg", data );
+        HJENSEN_JPEG_FILE = createFile( "hjensen", data );
+        FIONA_JPEG_FILE = createFile( "fiona", data );
     }
 
     public void testLdifNull() throws NamingException
@@ -911,7 +914,7 @@ public class LdifReaderTest extends TestCase
             "sn: Jensen\n" + 
             "uid: hjensen\n" + 
             "telephonenumber: +1 408 555 1212\n" + 
-            "jpegphoto:< file:///tmp/hjensen.jpg";
+            "jpegphoto:< file:" + HJENSEN_JPEG_FILE.getAbsolutePath() + "\n";
 
         LdifReader reader = new LdifReader();
         List entries = reader.parseLdif( ldif );
@@ -976,7 +979,7 @@ public class LdifReaderTest extends TestCase
             "sn: Jensen\n" + 
             "uid: hjensen\n" + 
             "telephonenumber: +1 408 555 1212\n" + 
-            "jpegphoto:< file:///tmp/hjensen.jpg";
+            "jpegphoto:< file:" + HJENSEN_JPEG_FILE.getAbsolutePath() + "\n";
 
         LdifReader reader = new LdifReader();
         reader.setSizeLimit( 128 );
@@ -1007,7 +1010,7 @@ public class LdifReaderTest extends TestCase
             "sn: Jensen\n" +
             "uid: fiona\n" +
             "telephonenumber: +1 408 555 1212\n" +
-            "jpegphoto:< file:///tmp/fiona.jpg\n" +
+            "jpegphoto:< file:"  + FIONA_JPEG_FILE.getAbsolutePath() + "\n" +
             "\n" +
             // Second entry modification : DELETE
             "# Delete an existing entry\n" +
