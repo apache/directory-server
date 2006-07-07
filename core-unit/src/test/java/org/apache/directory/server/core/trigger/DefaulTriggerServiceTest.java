@@ -72,4 +72,29 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
         assertNotNull( sysRoot.lookup( "ou=testou,ou=backupContext" ) );
     }
     
+    public void testBeforeDeleteLogWarning() throws NamingException
+    {
+        // Load the stored procedure unit which has the stored procedure to be triggered.
+        StoredProcedureUtils.loadStoredProcedureClass( sysRoot, LoggingUtilities.class.getName(), getClass() );
+        
+        // Create the Triger Specification within a Trigger Subentry.
+        createTriggerSubentry( "triggerSubentry1",
+            "BEFORE delete CALL \"" + LoggingUtilities.class.getName() + ".logWarningForDeletedEntry\" ( $name, $operationPrincipal )" );
+        
+        // Create a test entry which is selected by the Trigger Subentry.
+        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
+        testEntry.put( objectClass );
+        objectClass.add( "top" );
+        objectClass.add( "organizationalUnit" );
+        sysRoot.createSubcontext( "ou=testou", testEntry );
+        
+        // Delete the test entry in order to fire the Trigger.
+        sysRoot.destroySubcontext( "ou=testou" );
+        
+        // ------------------------------------------
+        // The trigger should be fired at this point.
+        // ------------------------------------------        
+    }
+    
 }
