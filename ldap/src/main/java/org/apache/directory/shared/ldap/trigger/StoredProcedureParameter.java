@@ -29,8 +29,8 @@ public class StoredProcedureParameter
 {
 
     public static final StoredProcedureParameter OPERATION_TIME = new StoredProcedureParameter( "$operationTime" );
-    public static final StoredProcedureParameter OPERATION_PRINCIPAL = new StoredProcedureParameter(
-        "$operationPrincipal" );
+    public static final StoredProcedureParameter OPERATION_PRINCIPAL = new StoredProcedureParameter( "$operationPrincipal" );
+    public static final StoredProcedureParameter ROOT_DSE = new StoredProcedureParameter( "$rootDSE" );
 
     private final String name;
 

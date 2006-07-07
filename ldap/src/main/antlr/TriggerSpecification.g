@@ -493,6 +493,7 @@ genericStoredProcedureParameter
 }
     : ID_operationTime { triggerStoredProcedureParameters.add( StoredProcedureParameter.OPERATION_TIME ); }
     | ID_operationPrincipal { triggerStoredProcedureParameters.add( StoredProcedureParameter.OPERATION_PRINCIPAL ); }
+    | ID_rootDSE { triggerStoredProcedureParameters.add( StoredProcedureParameter.ROOT_DSE ); }
     ;
 
 // -----------------------------------------------------------------------------
@@ -688,6 +689,7 @@ tokens
     // generic parameters
     ID_operationTime = "$operationtime";
     ID_operationPrincipal = "$operationprincipal";
+    ID_rootDSE = "$rootDSE";
     
     ID_CALL = "call";
     
