@@ -126,12 +126,15 @@ public class StoredProcedureUtils
         try
         {
             StoredProcedureRequest req = new StoredProcedureRequest( 0, procedureName, language );
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream( baos );
-            
             for ( int i = 0; i < arguments.length; i++ )
             {
                 byte[] type = arguments[i].getClass().getName().getBytes( "UTF-8" );
+                
+                /**
+                 * FIXME: We need to reuse the object stream instances here.
+                 */
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream( baos );
                 
                 oos.reset();
                 oos.writeObject( arguments[i] );
