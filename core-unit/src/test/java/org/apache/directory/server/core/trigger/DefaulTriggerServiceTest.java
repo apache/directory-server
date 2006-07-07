@@ -51,7 +51,7 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
         
         // Create the Triger Specification within a Trigger Subentry.
         createTriggerSubentry( "triggerSubentry1",
-            "AFTER delete CALL \"" + BackupUtilities.class.getName() + ".backupDeleted\" ( $name, $operationPrincipal, $deletedEntry )" );
+            "AFTER delete CALL \"" + BackupUtilities.class.getName() + ".backupDeleted\" ( $rootDSE, $name, $operationPrincipal, $deletedEntry )" );
         
         // Create a test entry which is selected by the Trigger Subentry.
         Attributes testEntry = new BasicAttributes( "ou", "testou", true );

@@ -7,7 +7,7 @@ import javax.naming.ldap.LdapContext;
 
 public class LoggingUtilities
 {
-    public static void logWarningForDeletedEntry( LdapContext ctx, Name deletedEntryName, Name operationPrincipal ) throws NamingException
+    public static void logWarningForDeletedEntry( Name deletedEntryName, Name operationPrincipal ) throws NamingException
     {
         System.out.println( "User \"" + operationPrincipal + "\" is about to delete entry \"" + deletedEntryName + "\"." );
     }

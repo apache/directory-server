@@ -474,11 +474,9 @@ public class TriggerService extends BaseInterceptor
     private Object executeTrigger( TriggerSpecification tsec, StoredProcedureParameterInjector injector, ServerLdapContext callerRootCtx ) throws NamingException
     {
         List arguments = new ArrayList();
-        arguments.add( callerRootCtx );
         arguments.addAll( injector.getArgumentsToInject( tsec.getStoredProcedureParameters() ) );
         
         List typeList = new ArrayList();
-        typeList.add( callerRootCtx.getClass() );
         typeList.addAll( getTypesFromValues( arguments ) );
         
         Class[] types = ( Class[] ) ( getTypesFromValues( arguments ).toArray( EMPTY_CLASS_ARRAY ) );

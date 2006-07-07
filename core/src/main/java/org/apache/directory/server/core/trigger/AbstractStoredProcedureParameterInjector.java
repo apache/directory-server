@@ -30,6 +30,8 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.jndi.ServerContext;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
@@ -44,6 +46,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         injectors = new HashMap();
         injectors.put( StoredProcedureParameter.OPERATION_PRINCIPAL, $operationPrincipalInjector.inject() );
         injectors.put( StoredProcedureParameter.OPERATION_TIME, $operationTimeInjector.inject() );
+        injectors.put( StoredProcedureParameter.ROOT_DSE, $rootDSE.inject() );
     }
     
     protected Name getOperationPrincipal() throws NamingException
@@ -103,5 +106,12 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         };
     };
 
+    MicroInjector $rootDSE = new MicroInjector()
+    {
+        public Object inject() throws NamingException
+        {
+            return ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
+        };
+    };
 
 }
