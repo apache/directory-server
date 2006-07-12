@@ -63,6 +63,8 @@ import org.slf4j.LoggerFactory;
  */
 public class TriggerService extends BaseInterceptor
 {
+    public static final String SERVICE_NAME = "triggerService";
+    
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( TriggerService.class );
     

@@ -33,6 +33,7 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -67,6 +68,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         c.add( "subentryService" );
         c.add( "operationalAttributeService" );
         c.add( "eventService" );
+        c.add( TriggerService.SERVICE_NAME );
         USERLOOKUP_BYPASS = Collections.unmodifiableCollection( c );
     }
 
@@ -114,7 +116,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
             if ( principal == null )
             {
-                throw new LdapAuthenticationException();
+                throw new LdapAuthenticationException( "Principal has not been specified" );
             }
         }
 
