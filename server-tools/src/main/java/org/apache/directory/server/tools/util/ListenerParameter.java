@@ -14,18 +14,39 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.tools;
+package org.apache.directory.server.tools.util;
+
+
+import org.apache.directory.server.tools.ToolCommandListener;
 
 
 /**
- * Interface that must be extended by every type of command.
+ * This Class defines a ListenerParameter used in the command call to pass
+ * arguments to the Command Executor.
+ * 
+ * 
  */
-public interface ToolCommand
+public class ListenerParameter
 {
-    // Default values
-    public final static int DEFAULT_PORT = 10389;
-    public final static String DEFAULT_HOST = "localhost";
-    public final static String DEFAULT_PASSWORD = "secret";
-    public final static String DEFAULT_USER = "uid=admin,ou=system";
-    public final static String DEFAULT_AUTH = "simple";
+    private String name;
+    private ToolCommandListener listener;
+
+
+    public ListenerParameter( String name, ToolCommandListener listener )
+    {
+        this.name = name;
+        this.listener = listener;
+    }
+
+
+    public ToolCommandListener getListener()
+    {
+        return listener;
+    }
+
+
+    public String getName()
+    {
+        return name;
+    }
 }

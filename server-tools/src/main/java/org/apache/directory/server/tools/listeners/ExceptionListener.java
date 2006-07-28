@@ -14,18 +14,25 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.tools;
+package org.apache.directory.server.tools.listeners;
 
 
-/**
- * Interface that must be extended by every type of command.
- */
-public interface ToolCommand
+import java.io.Serializable;
+
+import org.apache.directory.server.tools.ToolCommandListener;
+
+
+public class ExceptionListener implements ToolCommandListener
 {
-    // Default values
-    public final static int DEFAULT_PORT = 10389;
-    public final static String DEFAULT_HOST = "localhost";
-    public final static String DEFAULT_PASSWORD = "secret";
-    public final static String DEFAULT_USER = "uid=admin,ou=system";
-    public final static String DEFAULT_AUTH = "simple";
+
+    public void notify( Serializable o )
+    {
+        if ( o instanceof Exception )
+        {
+            Exception e = ( Exception ) o;
+            System.err.println( "An error has occurred. Apache DS Tools must quit." + "\n" + e.getMessage() );
+            System.exit( 1 );
+        }
+    }
+
 }

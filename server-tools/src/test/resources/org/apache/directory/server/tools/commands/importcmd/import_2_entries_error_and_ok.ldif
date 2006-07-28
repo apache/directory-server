@@ -1,0 +1,14 @@
+dn: o=neworganization, dc=example,dc=com
+objectclass: organization
+objectclass: top
+o: neworganization
+
+dn: bn=newperson1, o=neworganization, dc=example,dc=com
+bn: newperson1
+azerty: top
+azerty: person
+
+dn: cn=newperson2, o=neworganization, dc=example,dc=com
+cn: newperson2
+objectclass: top
+objectclass: person

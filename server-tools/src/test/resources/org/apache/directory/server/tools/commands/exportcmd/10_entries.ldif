@@ -1,0 +1,58 @@
+dn: o=neworganization, dc=example,dc=com
+objectclass: organization
+objectclass: top
+o: neworganization
+
+dn: cn=newperson1, o=neworganization, dc=example,dc=com
+cn: newperson1
+objectclass: top
+objectclass: person
+telephoneNumber: 0101010101
+
+dn: cn=newperson2, o=neworganization, dc=example,dc=com
+cn: newperson2
+objectclass: top
+objectclass: person
+telephoneNumber: 0202020202
+
+dn: cn=newperson3, o=neworganization, dc=example,dc=com
+cn: newperson3
+objectclass: top
+objectclass: person
+telephoneNumber: 0303030303
+
+dn: cn=newperson4, o=neworganization, dc=example,dc=com
+cn: newperson4
+objectclass: top
+objectclass: person
+telephoneNumber: 0404040404
+
+dn: cn=newperson5, o=neworganization, dc=example,dc=com
+cn: newperson5
+objectclass: top
+objectclass: person
+telephoneNumber: 0505050505
+
+dn: cn=newperson6, o=neworganization, dc=example,dc=com
+cn: newperson6
+objectclass: top
+objectclass: person
+telephoneNumber: 0606060606
+
+dn: cn=newperson7, o=neworganization, dc=example,dc=com
+cn: newperson7
+objectclass: top
+objectclass: person
+telephoneNumber: 0707070707
+
+dn: cn=newperson8, o=neworganization, dc=example,dc=com
+cn: newperson8
+objectclass: top
+objectclass: person
+telephoneNumber: 0808080808
+
+dn: cn=newperson9, o=neworganization, dc=example,dc=com
+cn: newperson9
+objectclass: top
+objectclass: person
+telephoneNumber: 0909090909

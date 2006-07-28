@@ -16,6 +16,7 @@
  */
 package org.apache.directory.server.tools;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,6 +34,15 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.UnrecognizedOptionException;
+import org.apache.directory.server.tools.commands.diagnosticcmd.DiagnosticCommandCL;
+import org.apache.directory.server.tools.commands.disconnectnotificationcmd.DisconnectNotificationCommandCL;
+import org.apache.directory.server.tools.commands.dumpcmd.DumpCommandCL;
+import org.apache.directory.server.tools.commands.exportcmd.ExportCommandCL;
+import org.apache.directory.server.tools.commands.gracefulshutdowncmd.GracefulShutdownCommandCL;
+import org.apache.directory.server.tools.commands.importcmd.ImportCommandCL;
+import org.apache.directory.server.tools.commands.storedprocedurecmd.StoredProcedureCommandCL;
+import org.apache.directory.server.tools.request.BaseToolCommandCL;
+
 
 /**
  * The primary command base class.
@@ -58,32 +68,42 @@ public class BaseCommand
 
     private String productBanner;
 
+
     public BaseCommand()
     {
         init();
     }
 
+
     protected void init()
     {
-        ToolCommand command;
+        BaseToolCommandCL command;
 
-        command = new DiagnosticCommand();
+        command = new DiagnosticCommandCL();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
-        command = new DumpCommand();
+        command = new DumpCommandCL();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
-        command = new GracefulShutdownCommand();
+        command = new GracefulShutdownCommandCL();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
-        command = new ImportCommand();
+        command = new ImportCommandCL();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
-        command = new DisconnectNotificationCommand();
+        command = new DisconnectNotificationCommandCL();
+        commands.put( command.getName(), command );
+        commandsOrdered.add( command.getName() );
+
+        command = new ExportCommandCL();
+        commands.put( command.getName(), command );
+        commandsOrdered.add( command.getName() );
+        
+        command = new StoredProcedureCommandCL();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
@@ -103,6 +123,7 @@ public class BaseCommand
         getGlobal().addOption( op );
     }
 
+
     public static boolean hasBannerOption( String[] args )
     {
         for ( int ii = 0; ii < args.length; ii++ )
@@ -115,6 +136,7 @@ public class BaseCommand
         return false;
     }
 
+
     public CommandLine getCommandLine( String command, String[] args )
     {
         Options all = allOptions( command );
@@ -124,30 +146,31 @@ public class BaseCommand
         {
             cmdline = parser.parse( all, args );
         }
-        catch (AlreadySelectedException ase)
+        catch ( AlreadySelectedException ase )
         {
             System.err.println( "Command line parsing failed for " + command + ".  Reason: already selected "
-                    + ase.getMessage() );
+                + ase.getMessage() );
             System.exit( 1 );
         }
-        catch (MissingArgumentException mae)
+        catch ( MissingArgumentException mae )
         {
             System.err.println( "Command line parsing failed for " + command + ".  Reason: missing argument "
-                    + mae.getMessage() );
+                + mae.getMessage() );
             System.exit( 1 );
         }
-        catch (MissingOptionException moe)
+        catch ( MissingOptionException moe )
         {
-            System.err.println( "Command line parsing failed for " + command + ".  Reason: missing option " + moe.getMessage() );
+            System.err.println( "Command line parsing failed for " + command + ".  Reason: missing option "
+                + moe.getMessage() );
             System.exit( 1 );
         }
-        catch (UnrecognizedOptionException uoe)
+        catch ( UnrecognizedOptionException uoe )
         {
             System.err.println( "Command line parsing failed for " + command + ".  Reason: unrecognized option"
-                    + uoe.getMessage() );
+                + uoe.getMessage() );
             System.exit( 1 );
         }
-        catch (ParseException pe)
+        catch ( ParseException pe )
         {
             System.err.println( "Command line parsing failed for " + command + ".  Reason: " + pe.getClass() );
             System.exit( 1 );
@@ -155,6 +178,7 @@ public class BaseCommand
 
         return cmdline;
     }
+
 
     public Options allOptions( String command )
     {
@@ -164,19 +188,20 @@ public class BaseCommand
         }
 
         Options all = new Options();
-        ToolCommand cmd = (ToolCommand) getCommands().get( command );
+        BaseToolCommandCL cmd = ( BaseToolCommandCL ) getCommands().get( command );
 
         for ( Iterator ii = getGlobal().getOptions().iterator(); ii.hasNext(); )
         {
-            all.addOption( (Option) ii.next() );
+            all.addOption( ( Option ) ii.next() );
         }
 
         for ( Iterator ii = cmd.getOptions().getOptions().iterator(); ii.hasNext(); )
         {
-            all.addOption( (Option) ii.next() );
+            all.addOption( ( Option ) ii.next() );
         }
         return all;
     }
+
 
     public static void dumpArgs( String msg, String[] args )
     {
@@ -197,6 +222,7 @@ public class BaseCommand
         System.out.println( buf );
     }
 
+
     public void helpOnCommand( String command )
     {
         if ( command.equals( "help" ) )
@@ -207,7 +233,7 @@ public class BaseCommand
 
         if ( getCommands().containsKey( command ) )
         {
-            ToolCommand cmd = (ToolCommand) getCommands().get( command );
+            BaseToolCommandCL cmd = ( BaseToolCommandCL ) getCommands().get( command );
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp( getProductCommand() + " " + cmd + " [options]", cmd.getOptions() );
         }
@@ -218,11 +244,12 @@ public class BaseCommand
         }
     }
 
+
     public void printUsage()
     {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp( getProductCommand() + " <command> [options]", "\nGlobal options:", getGlobal(), "\nType \""
-                + getProductCommand() + " help <command>\" for help on a command." );
+        formatter.printHelp( getProductCommand() + " <command> [options]", "\nGlobal options:", getGlobal(),
+            "\nType \"" + getProductCommand() + " help <command>\" for help on a command." );
         System.out.println( "\nAvailable commands:" );
 
         Iterator it = commandsOrdered.iterator();
@@ -238,81 +265,96 @@ public class BaseCommand
     }
 
     static final String BANNER = "       _                     _          ____  ____    _____           _      \n"
-            + "      / \\   _ __   __ _  ___| |__   ___|  _ \\/ ___|  |_   _|__   ___ | |___  \n"
-            + "     / _ \\ | '_ \\ / _` |/ __| '_ \\ / _ \\ | | \\___ \\    | |/ _ \\ / _ \\| / __| \n"
-            + "    / ___ \\| |_) | (_| | (__| | | |  __/ |_| |___) |   | | (_) | (_) | \\__ \\ \n"
-            + "   /_/   \\_\\ .__/ \\__,_|\\___|_| |_|\\___|____/|____/    |_|\\___/ \\___/|_|___/ \n"
-            + "           |_|                                                               \n";
+        + "      / \\   _ __   __ _  ___| |__   ___|  _ \\/ ___|  |_   _|__   ___ | |___  \n"
+        + "     / _ \\ | '_ \\ / _` |/ __| '_ \\ / _ \\ | | \\___ \\    | |/ _ \\ / _ \\| / __| \n"
+        + "    / ___ \\| |_) | (_| | (__| | | |  __/ |_| |___) |   | | (_) | (_) | \\__ \\ \n"
+        + "   /_/   \\_\\ .__/ \\__,_|\\___|_| |_|\\___|____/|____/    |_|\\___/ \\___/|_|___/ \n"
+        + "           |_|                                                               \n";
+
 
     public void printBanner()
     {
         System.out.println( getProductBanner() );
     }
 
+
     public void setProductCommand( String productCommand )
     {
         this.productCommand = productCommand;
     }
+
 
     public String getProductCommand()
     {
         return productCommand;
     }
 
+
     public void setProductVersion( String productVersion )
     {
         this.productVersion = productVersion;
     }
+
 
     public String getProductVersion()
     {
         return productVersion;
     }
 
+
     public void setProductDisplayName( String productDisplayName )
     {
         this.productDisplayName = productDisplayName;
     }
+
 
     public String getProductDisplayName()
     {
         return productDisplayName;
     }
 
+
     public void setProductUrl( String productUrl )
     {
         this.productUrl = productUrl;
     }
+
 
     public String getProductUrl()
     {
         return productUrl;
     }
 
+
     public void setProductBanner( String productBanner )
     {
         this.productBanner = productBanner;
     }
+
 
     public String getProductBanner()
     {
         return productBanner;
     }
 
+
     public void setCommands( Map commands )
     {
         this.commands = commands;
     }
+
 
     public Map getCommands()
     {
         return commands;
     }
 
+
     public void setGlobal( Options global )
     {
         this.global = global;
     }
+
 
     public Options getGlobal()
     {

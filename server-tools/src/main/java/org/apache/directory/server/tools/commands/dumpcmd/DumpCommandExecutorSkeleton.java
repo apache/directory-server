@@ -14,18 +14,23 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.tools;
+package org.apache.directory.server.tools.commands.dumpcmd;
 
 
-/**
- * Interface that must be extended by every type of command.
- */
-public interface ToolCommand
+import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
+import org.apache.directory.server.tools.execution.ToolCommandExecutorSkeleton;
+import org.apache.directory.server.tools.util.ListenerParameter;
+import org.apache.directory.server.tools.util.Parameter;
+
+
+public class DumpCommandExecutorSkeleton implements ToolCommandExecutorSkeleton
 {
-    // Default values
-    public final static int DEFAULT_PORT = 10389;
-    public final static String DEFAULT_HOST = "localhost";
-    public final static String DEFAULT_PASSWORD = "secret";
-    public final static String DEFAULT_USER = "uid=admin,ou=system";
-    public final static String DEFAULT_AUTH = "simple";
+
+    public void execute( Parameter[] params, ListenerParameter[] listeners )
+    {
+        BaseToolCommandExecutor executor = new DumpCommandExecutor();
+
+        executor.execute( params, listeners );
+    }
+
 }

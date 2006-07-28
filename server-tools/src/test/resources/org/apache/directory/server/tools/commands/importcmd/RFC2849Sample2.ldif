@@ -1,0 +1,21 @@
+dn: ou=Product Development, dc=example, dc=com
+ou: Product Development
+objectclass: top
+
+dn: ou=Accounting, dc=example, dc=com 
+ou: Accounting
+objectclass: top
+
+dn: cn=Barbara Jensen, ou=Product Development, dc=example, dc=com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: Barbara Jensen
+cn: Barbara J Jensen
+cn: Babs Jensen
+sn: Jensen
+uid: bjensen
+telephonenumber: +1 408 555 1212
+description:Babs is a big sailing fan, and travels extensively in sea
+ rch of perfect sailing conditions.
+title:Product Manager, Rod and Reel Division

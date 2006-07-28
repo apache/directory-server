@@ -14,18 +14,47 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.tools;
+package org.apache.directory.server.tools.util;
 
 
 /**
- * Interface that must be extended by every type of command.
+ * This Class defines a Parameter used in the command call to pass
+ * arguments to the Command Executor
+ * 
  */
-public interface ToolCommand
+public class Parameter
 {
-    // Default values
-    public final static int DEFAULT_PORT = 10389;
-    public final static String DEFAULT_HOST = "localhost";
-    public final static String DEFAULT_PASSWORD = "secret";
-    public final static String DEFAULT_USER = "uid=admin,ou=system";
-    public final static String DEFAULT_AUTH = "simple";
+    private String name;
+    private Object value;
+
+
+    public Parameter( String name, Object value )
+    {
+        this.name = name;
+        this.value = value;
+    }
+
+
+    public String getName()
+    {
+        return name;
+    }
+
+
+    public void setName( String name )
+    {
+        this.name = name;
+    }
+
+
+    public Object getValue()
+    {
+        return value;
+    }
+
+
+    public void setValue( Object value )
+    {
+        this.value = value;
+    }
 }

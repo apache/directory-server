@@ -1,0 +1,57 @@
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package org.apache.directory.server.tools.request;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.directory.server.tools.BaseToolCommand;
+import org.apache.directory.server.tools.execution.ToolCommandExecutorStub;
+import org.apache.directory.server.tools.util.ListenerParameter;
+import org.apache.directory.server.tools.util.Parameter;
+
+
+/**
+ * Abstract class that must extended by every command that want
+ * to be used in a program with a user interface
+ *
+ */
+public abstract class BaseToolCommandGui extends BaseToolCommand implements ToolCommandGui
+{
+    protected List parameters;
+
+
+    public BaseToolCommandGui( String name )
+    {
+        super( name );
+
+        parameters = new ArrayList();
+    }
+
+
+    public void execute( Parameter[] params, ListenerParameter[] listeners ) throws Exception
+    {
+        assert ( parameters != null );
+        assert ( parameters.size() != 0 );
+
+        processParams( params );
+
+        ToolCommandExecutorStub toolCommandExecutorStub = getStub();
+        toolCommandExecutorStub.execute( ( Parameter[] ) parameters.toArray( new Parameter[0] ), listeners );
+    }
+}

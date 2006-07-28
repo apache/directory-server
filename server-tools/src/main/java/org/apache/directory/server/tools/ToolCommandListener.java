@@ -17,15 +17,18 @@
 package org.apache.directory.server.tools;
 
 
+import java.io.Serializable;
+
+
 /**
- * Interface that must be extended by every type of command.
+ * This interface must be implemented by every Command Listener
+ *
  */
-public interface ToolCommand
+public interface ToolCommandListener
 {
-    // Default values
-    public final static int DEFAULT_PORT = 10389;
-    public final static String DEFAULT_HOST = "localhost";
-    public final static String DEFAULT_PASSWORD = "secret";
-    public final static String DEFAULT_USER = "uid=admin,ou=system";
-    public final static String DEFAULT_AUTH = "simple";
+    /**
+     * Notifies the listener, passing it a Serializable object
+     * @param o an object
+     */
+    public void notify( Serializable o );
 }

@@ -14,18 +14,17 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.tools;
+package org.apache.directory.server.tools.util;
 
 
-/**
- * Interface that must be extended by every type of command.
- */
-public interface ToolCommand
+public class ToolCommandException extends Exception
 {
-    // Default values
-    public final static int DEFAULT_PORT = 10389;
-    public final static String DEFAULT_HOST = "localhost";
-    public final static String DEFAULT_PASSWORD = "secret";
-    public final static String DEFAULT_USER = "uid=admin,ou=system";
-    public final static String DEFAULT_AUTH = "simple";
+
+    private static final long serialVersionUID = -6879708530721655642L;
+
+
+    public ToolCommandException( String string )
+    {
+        super( string );
+    }
 }

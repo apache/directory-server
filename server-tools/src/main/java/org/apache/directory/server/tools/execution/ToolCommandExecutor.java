@@ -14,18 +14,24 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.tools;
+package org.apache.directory.server.tools.execution;
+
+
+import org.apache.directory.server.tools.util.ListenerParameter;
+import org.apache.directory.server.tools.util.Parameter;
 
 
 /**
- * Interface that must be extended by every type of command.
+ * Interface that must be implemented by every Executor
+ * 
  */
-public interface ToolCommand
+public interface ToolCommandExecutor
 {
-    // Default values
-    public final static int DEFAULT_PORT = 10389;
-    public final static String DEFAULT_HOST = "localhost";
-    public final static String DEFAULT_PASSWORD = "secret";
-    public final static String DEFAULT_USER = "uid=admin,ou=system";
-    public final static String DEFAULT_AUTH = "simple";
+    /**
+     * Executes the command
+     * @param params the parameters of the command
+     * @param listeners the listeners of the command
+     * @throws Exception
+     */
+    public void execute( Parameter[] params, ListenerParameter[] listeners );
 }

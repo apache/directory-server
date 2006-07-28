@@ -1,0 +1,4 @@
+dn: o=neworganization, dc=example,dc=com
+objectclass: organization
+objectclass: top
+o: neworganization

@@ -1,0 +1,17 @@
+dn: ou=Product Testing, dc=example, dc=com
+ou: Product Development
+objectclass: top
+
+dn: cn=Gern Jensen, ou=Product Testing, dc=example, dc=com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: Gern Jensen
+cn: Gern O Jensen
+sn: Jensen
+uid: gernj
+telephonenumber: +1 408 555 1212
+description:: V2hhdCBhIGNhcmVmdWwgcmVhZGVyIHlvdSBhcmUhICBUaGlzIHZhbHVl
+ IGlzIGJhc2UtNjQtZW5jb2RlZCBiZWNhdXNlIGl0IGhhcyBhIGNvbnRyb2wgY2hhcmFjdG
+ VyIGluIGl0IChhIENSKS4NICBCeSB0aGUgd2F5LCB5b3Ugc2hvdWxkIHJlYWxseSBnZXQg
+ b3V0IG1vcmUu

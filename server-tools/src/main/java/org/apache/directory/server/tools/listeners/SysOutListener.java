@@ -14,18 +14,29 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.tools;
+package org.apache.directory.server.tools.listeners;
 
 
-/**
- * Interface that must be extended by every type of command.
- */
-public interface ToolCommand
+import java.io.Serializable;
+
+import org.apache.directory.server.tools.ToolCommandListener;
+
+
+public class SysOutListener implements ToolCommandListener
 {
-    // Default values
-    public final static int DEFAULT_PORT = 10389;
-    public final static String DEFAULT_HOST = "localhost";
-    public final static String DEFAULT_PASSWORD = "secret";
-    public final static String DEFAULT_USER = "uid=admin,ou=system";
-    public final static String DEFAULT_AUTH = "simple";
+
+    public void notify( Serializable o )
+    {
+        if ( o instanceof String )
+        {
+            String msg = ( String ) o;
+            System.out.println( msg );
+        }
+        else if ( o instanceof Character )
+        {
+            Character c = ( Character ) o;
+            System.out.print( c.charValue() );
+        }
+    }
+
 }
