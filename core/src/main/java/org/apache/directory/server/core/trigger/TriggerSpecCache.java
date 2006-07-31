@@ -36,7 +36,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
@@ -74,9 +74,10 @@ public class TriggerSpecCache
     /** a map of strings to TriggerSpecification collections */
     private final Map triggerSpecs = new HashMap();
     /** a handle on the partition nexus */
-    private final DirectoryPartitionNexus nexus;
+    private final PartitionNexus nexus;
     /** a normalizing TriggerSpecification parser */
     private final TriggerSpecificationParser triggerSpecParser;
+    private AttributeTypeRegistry attrRegistry;
 
 
     /**
@@ -87,6 +88,7 @@ public class TriggerSpecCache
     public TriggerSpecCache( DirectoryServiceConfiguration dirServCfg ) throws NamingException
     {
         this.nexus = dirServCfg.getPartitionNexus();
+        attrRegistry = dirServCfg.getGlobalRegistries().getAttributeTypeRegistry();
         final AttributeTypeRegistry registry = dirServCfg.getGlobalRegistries().getAttributeTypeRegistry();
         triggerSpecParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
             {
@@ -126,7 +128,7 @@ public class TriggerSpecCache
                 }
 
                 LdapDN normSubentryName = new LdapDN( subentryDn );
-                normSubentryName.normalize();
+                normSubentryName.normalize( attrRegistry.getNormalizerMapping() );
                 subentryAdded( normSubentryName, result.getAttributes() );
             }
             results.close();
