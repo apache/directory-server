@@ -47,7 +47,7 @@ public class ACIItemParserTest extends TestCase
     public ACIItemParserTest()
     {
         super();
-        parser = new ACIItemParser();
+        parser = new ACIItemParser( null );
     }
 
 
@@ -57,7 +57,7 @@ public class ACIItemParserTest extends TestCase
     public ACIItemParserTest(String s)
     {
         super( s );
-        parser = new ACIItemParser();
+        parser = new ACIItemParser( null );
     }
 
 

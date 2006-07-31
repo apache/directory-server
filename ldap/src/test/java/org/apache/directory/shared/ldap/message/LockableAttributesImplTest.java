@@ -25,7 +25,6 @@ import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 
-
 /**
  * Test cases for the methods of the LockableAttributeImpl class.
  * 

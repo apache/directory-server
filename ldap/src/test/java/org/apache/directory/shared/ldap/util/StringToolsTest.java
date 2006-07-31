@@ -187,7 +187,7 @@ public class StringToolsTest extends TestCase
             || "elem2 = '[name2, 2]', elem1 = '[name1, 1]', elem3 = '[name3, 3]'".equals( result )
             || "elem2 = '[name2, 2]', elem3 = '[name3, 3]', elem1 = '[name1, 1]'".equals( result )
             || "elem3 = '[name3, 3]', elem1 = '[name1, 1]', elem2 = '[name2, 2]'".equals( result )
-            || "elem3 = '[name3, 3]', elem3 = '[name2, 2]', elem1 = '[name1, 1]'".equals( result );
+            || "elem3 = '[name3, 3]', elem2 = '[name2, 2]', elem1 = '[name1, 1]'".equals( result );
 
         Assert.assertTrue( res );
     }
@@ -279,5 +279,38 @@ public class StringToolsTest extends TestCase
         assertEquals( "a b", StringTools.deepTrim( "a  b", false ) );
         assertEquals( "a b", StringTools.deepTrim( " a b", false ) );
         assertEquals( "a b", StringTools.deepTrim( "a b ", false ) );
+    }
+
+    public void testTrim()
+    {
+        assertEquals( "", StringTools.trim( (String)null ) );
+        assertEquals( "", StringTools.trim( "" ) );
+        assertEquals( "", StringTools.trim( " " ) );
+        assertEquals( "", StringTools.trim( "  " ) );
+        assertEquals( "a", StringTools.trim( "a  " ) );
+        assertEquals( "a", StringTools.trim( "  a" ) );
+        assertEquals( "a", StringTools.trim( "  a  " ) );
+    }
+
+    public void testTrimLeft()
+    {
+        assertEquals( "", StringTools.trimLeft( (String)null ) );
+        assertEquals( "", StringTools.trimLeft( "" ) );
+        assertEquals( "", StringTools.trimLeft( " " ) );
+        assertEquals( "", StringTools.trimLeft( "  " ) );
+        assertEquals( "a  ", StringTools.trimLeft( "a  " ) );
+        assertEquals( "a", StringTools.trimLeft( "  a" ) );
+        assertEquals( "a  ", StringTools.trimLeft( "  a  " ) );
+    }
+
+    public void testTrimRight()
+    {
+        assertEquals( "", StringTools.trimRight( (String)null ) );
+        assertEquals( "", StringTools.trimRight( "" ) );
+        assertEquals( "", StringTools.trimRight( " " ) );
+        assertEquals( "", StringTools.trimRight( "  " ) );
+        assertEquals( "a", StringTools.trimRight( "a  " ) );
+        assertEquals( "  a", StringTools.trimRight( "  a" ) );
+        assertEquals( "  a", StringTools.trimRight( "  a  " ) );
     }
 }

@@ -1,5 +1,18 @@
 /*
- * Copyright (c) 2005 Your Corporation. All Rights Reserved.
+ *   Copyright 2006 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
  */
 package org.apache.directory.shared.ldap.ldif;
 
@@ -27,15 +40,18 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class LdifReaderTest extends TestCase
 {
     private byte[] data;
-
+    
+    private static File HJENSEN_JPEG_FILE = null;
+    private static File FIONA_JPEG_FILE = null;
+    
     private static File HJENSEN_JPEG_FILE = null;
     private static File FIONA_JPEG_FILE = null;
 
     private File createFile( String name, byte[] data ) throws IOException
     {
         File jpeg = File.createTempFile( name, "jpg" );
-
-        jpeg.createNewFile();
+        
+	jpeg.createNewFile();
 
         DataOutputStream os = new DataOutputStream( new FileOutputStream( jpeg ) );
 
@@ -121,7 +137,7 @@ public class LdifReaderTest extends TestCase
             " is is still a comment\n" + 
             "\n" + 
             "version:\n" + 
-            " 1\n" + 
+	    " 1\n" + 
             "# end";
 
         LdifReader reader = new LdifReader();
@@ -470,7 +486,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
 
         Attribute attr = entry.get( "cn" );
-        assertTrue( attr.contains( "Emmanuel Lécharny".getBytes( "UTF-8" ) ) );
+        assertTrue( attr.contains( "Emmanuel L\u00e9charny".getBytes( "UTF-8" ) ) );
 
         attr = entry.get( "objectclass" );
         assertTrue( attr.contains( "top" ) );
@@ -513,7 +529,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
 
         Attribute attr = entry.get( "cn" );
-        assertTrue( attr.contains( "Emmanuel Lécharny  ".getBytes( "UTF-8" ) ) );
+        assertTrue( attr.contains( "Emmanuel L\u00e9charny  ".getBytes( "UTF-8" ) ) );
 
         attr = entry.get( "objectclass" );
         assertTrue( attr.contains( "top" ) );
@@ -774,11 +790,13 @@ public class LdifReaderTest extends TestCase
     public void testLdifParserRFC2849Sample4() throws NamingException, Exception
     {
         String ldif = 
-            "version: 1\n" + "dn:: b3U95Za25qWt6YOoLG89QWlyaXVz\n" + 
+            "version: 1\n" + 
+            "dn:: b3U95Za25qWt6YOoLG89QWlyaXVz\n" + 
             "# dn:: ou=営業部,o=Airius\n" + 
             "objectclass: top\n" + 
             "objectclass: organizationalUnit\n" + 
-            "ou:: 5Za25qWt6YOo\n" + "# ou:: 営業部\n" + 
+            "ou:: 5Za25qWt6YOo\n" + 
+            "# ou:: 営業部\n" + 
             "ou;lang-ja:: 5Za25qWt6YOo\n" + 
             "# ou;lang-ja:: 営業部\n" + 
             "ou;lang-ja;phonetic:: 44GI44GE44GO44KH44GG44G2\n" + 
@@ -813,12 +831,11 @@ public class LdifReaderTest extends TestCase
             "title:: 5Za25qWt6YOoIOmDqOmVtw==\n" + 
             "# title:: 営業部 部長\n" + 
             "givenname;lang-ja;phonetic:: 44KN44Gp44Gr44O8\n" + 
-            "# givenname;lang-ja;phonetic::\n" + 
-              " ろどにー\n" + 
+            "# givenname;lang-ja;phonetic:: ろどにー\n" + 
             "sn;lang-ja;phonetic:: 44GK44GM44GV44KP44KJ\n" + 
             "# sn;lang-ja;phonetic:: おがさわら\n" + 
             "cn;lang-ja;phonetic:: 44GK44GM44GV44KP44KJIOOCjeOBqeOBq+ODvA==\n" + 
-            "# cn;lang-ja;phonetic:: おがさわら ろどにー\n" + 
+            "# cn;lang-ja;phonetic:: おがぎわら ろどにー\n" +
             "title;lang-ja;phonetic:: 44GI44GE44GO44KH44GG44G2IOOBtuOBoeOCh+OBhg==\n" + 
             "# title;lang-ja;phonetic::\n" + 
               "# えいぎょうぶ ぶちょう\n" + 
@@ -833,16 +850,17 @@ public class LdifReaderTest extends TestCase
         String[][][] values =
             {
                 {
-                    { "dn", "ou=営業部,o=Airius" },
+                    { "dn", "ou=\u55b6\u696d\u90e8,o=Airius" }, // 55b6 = 営, 696d = 業, 90e8 = 部 
                     { "objectclass", "top" },
                     { "objectclass", "organizationalUnit" },
-                    { "ou", "営業部" },
-                    { "ou;lang-ja", "営業部" },
-                    { "ou;lang-ja;phonetic", "えいぎょうぶ" },
+                    { "ou", "\u55b6\u696d\u90e8" },
+                    { "ou;lang-ja", "\u55b6\u696d\u90e8" },
+                    { "ou;lang-ja;phonetic", "\u3048\u3044\u304e\u3087\u3046\u3076" }, // 3048 = え, 3044 = い, 304e = ぎ
+                                                                                    // 3087 = ょ, 3046 = う, 3076 = ぶ
                     { "ou;lang-en", "Sales" },
                     { "description", "Japanese office" } },
                     {
-                    { "dn", "uid=rogasawara,ou=営業部,o=Airius" },
+                    { "dn", "uid=rogasawara,ou=\u55b6\u696d\u90e8,o=Airius" },
                     { "userpassword", "{SHA}O3HSv1MusyL4kTjP+HKI5uxuNoM=" },
                     { "objectclass", "top" },
                     { "objectclass", "person" },
@@ -850,19 +868,19 @@ public class LdifReaderTest extends TestCase
                     { "objectclass", "inetOrgPerson" },
                     { "uid", "rogasawara" },
                     { "mail", "rogasawara@airius.co.jp" },
-                    { "givenname;lang-ja", "ロドニー" },
-                    { "sn;lang-ja", "小笠原" },
-                    { "cn;lang-ja", "小笠原 ロドニー" },
-                    { "title;lang-ja", "営業部 部長" },
+                    { "givenname;lang-ja", "\u30ed\u30c9\u30cb\u30fc" },    // 30ed = ロ, 30c9 = ド, 30cb = ニ, 30fc = ー   
+                    { "sn;lang-ja", "\u5c0f\u7b20\u539f" },    // 5c0f = 小, 7b20 = 笠, 539f = 原  
+                    { "cn;lang-ja", "\u5c0f\u7b20\u539f \u30ed\u30c9\u30cb\u30fc" },
+                    { "title;lang-ja", "\u55b6\u696d\u90e8 \u90e8\u9577" },   // 9577 = 長
                     { "preferredlanguage", "ja" },
-                    { "givenname", "ロドニー" },
-                    { "sn", "小笠原" },
-                    { "cn", "小笠原 ロドニー" },
-                    { "title", "営業部 部長" },
-                    { "givenname;lang-ja;phonetic", "ろどにー" },
-                    { "sn;lang-ja;phonetic", "おがさわら" },
-                    { "cn;lang-ja;phonetic", "おがさわら ろどにー" },
-                    { "title;lang-ja;phonetic", "えいぎょうぶ ぶちょう" },
+                    { "givenname", "\u30ed\u30c9\u30cb\u30fc" },
+                    { "sn", "\u5c0f\u7b20\u539f" },
+                    { "cn", "\u5c0f\u7b20\u539f \u30ed\u30c9\u30cb\u30fc" },
+                    { "title", "\u55b6\u696d\u90e8 \u90e8\u9577" },
+                    { "givenname;lang-ja;phonetic", "\u308d\u3069\u306b\u30fc" },  // 308d = ろ,3069 = ど, 306b = に
+                    { "sn;lang-ja;phonetic", "\u304a\u304c\u3055\u308f\u3089" }, // 304a = お, 304c = が,3055 = さ,308f = わ, 3089 = ら    
+                    { "cn;lang-ja;phonetic", "\u304a\u304c\u3055\u308f\u3089 \u308d\u3069\u306b\u30fc" },
+                    { "title;lang-ja;phonetic", "\u3048\u3044\u304e\u3087\u3046\u3076 \u3076\u3061\u3087\u3046" }, // 304E = ぎ, 3061 = ち
                     { "givenname;lang-en", "Rodney" },
                     { "sn;lang-en", "Ogasawara" },
                     { "cn;lang-en", "Rodney Ogasawara" },

@@ -324,7 +324,7 @@ public class LdapDnParserTest extends TestCase
 
         assertEquals( "RFC1779_1 : ",
             "CN=Marshall T. Rose, O=Dover Beach Consulting, L=Santa Clara, ST=California, C=US",
-            ( ( LdapDN ) nameRFC1779_1 ).toUpName() );
+            ( ( LdapDN ) nameRFC1779_1 ).getUpName() );
         assertEquals( "RFC1779_1 : ", "cn=Marshall T. Rose,o=Dover Beach Consulting,l=Santa Clara,st=California,c=US",
             nameRFC1779_1.toString() );
     }
@@ -342,7 +342,7 @@ public class LdapDnParserTest extends TestCase
 
         Name nameRFC2253_1 = parser.parse( "CN=Steve Kille,O=Isode limited,C=GB" );
 
-        assertEquals( "RFC2253_1 : ", "CN=Steve Kille,O=Isode limited,C=GB", ( ( LdapDN ) nameRFC2253_1 ).toUpName() );
+        assertEquals( "RFC2253_1 : ", "CN=Steve Kille,O=Isode limited,C=GB", ( ( LdapDN ) nameRFC2253_1 ).getUpName() );
     }
 
 
@@ -359,10 +359,9 @@ public class LdapDnParserTest extends TestCase
         Name nameRFC2253_2 = parser.parse( "CN = Sales + CN =   J. Smith , O = Widget Inc. , C = US" );
 
         assertEquals( "RFC2253_2 : ", "CN = Sales + CN =   J. Smith , O = Widget Inc. , C = US",
-            ( ( LdapDN ) nameRFC2253_2 ).toUpName() );
+            ( ( LdapDN ) nameRFC2253_2 ).getUpName() );
         assertEquals( "RFC2253_2 : ", "cn=J. Smith+cn=Sales,o=Widget Inc.,c=US", nameRFC2253_2.toString() );
     }
-
 
     /**
      * Class under test for Name parse(String)
@@ -377,7 +376,7 @@ public class LdapDnParserTest extends TestCase
         Name nameRFC2253_3 = parser.parse( "CN=L. Eagle,   O=Sue\\, Grabbit and Runn, C=GB" );
 
         assertEquals( "RFC2253_3 : ", "CN=L. Eagle,   O=Sue\\, Grabbit and Runn, C=GB", ( ( LdapDN ) nameRFC2253_3 )
-            .toUpName() );
+            .getUpName() );
         assertEquals( "RFC2253_3 : ", "cn=L. Eagle,o=Sue\\, Grabbit and Runn,c=GB", nameRFC2253_3.toString() );
     }
 
@@ -393,7 +392,7 @@ public class LdapDnParserTest extends TestCase
         NameParser parser = LdapDnParser.getNameParser();
 
         Name nameRFC2253_4 = parser.parse( "CN=Before\\0DAfter,O=Test,C=GB" );
-        assertEquals( "RFC2253_4 : ", "CN=Before\\0DAfter,O=Test,C=GB", ( ( LdapDN ) nameRFC2253_4 ).toUpName() );
+        assertEquals( "RFC2253_4 : ", "CN=Before\\0DAfter,O=Test,C=GB", ( ( LdapDN ) nameRFC2253_4 ).getUpName() );
     }
 
 
@@ -410,7 +409,7 @@ public class LdapDnParserTest extends TestCase
         Name nameRFC2253_5 = parser.parse( "1.3.6.1.4.1.1466.0=#04024869,O=Test,C=GB" );
 
         assertEquals( "RFC2253_5 : ", "1.3.6.1.4.1.1466.0=#04024869,O=Test,C=GB", ( ( LdapDN ) nameRFC2253_5 )
-            .toUpName() );
+            .getUpName() );
     }
 
 
@@ -426,7 +425,7 @@ public class LdapDnParserTest extends TestCase
 
         Name nameRFC2253_6 = parser.parse( "SN=Lu\\C4\\8Di\\C4\\87" );
 
-        assertEquals( "RFC2253_6 : ", "SN=Lu\\C4\\8Di\\C4\\87", ( ( LdapDN ) nameRFC2253_6 ).toUpName() );
+        assertEquals( "RFC2253_6 : ", "SN=Lu\\C4\\8Di\\C4\\87", ( ( LdapDN ) nameRFC2253_6 ).getUpName() );
     }
 
 
@@ -476,7 +475,7 @@ public class LdapDnParserTest extends TestCase
         String path = "windowsFilePath=C:\\\\cygwin";
         NameParser parser = LdapDnParser.getNameParser();
         Name result = parser.parse( path );
-        assertEquals( path, ( ( LdapDN ) result ).toUpName() );
+        assertEquals( path, ( ( LdapDN ) result ).getUpName() );
         assertEquals( "windowsfilepath=C:\\\\cygwin", result.toString() );
     }
 

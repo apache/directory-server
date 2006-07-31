@@ -17,6 +17,7 @@
 package org.apache.directory.shared.ldap.name;
 
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,6 +34,8 @@ import java.util.Map;
 
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapName;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -93,6 +96,16 @@ public class LdapDNTest extends TestCase
         Assert.assertEquals( "a=b", dn.toString() );
     }
 
+    /**
+     * test a simple DN with some spaces : "a = b  "
+     */
+    public void testLdapDNSimpleWithSpaces() throws InvalidNameException
+    {
+        LdapDN dn = new LdapDN( "a = b  " );
+        Assert.assertEquals( "a = b  ", dn.getUpName() );
+        Assert.assertEquals( "a=b", dn.toString() );
+    }
+
 
     /**
      * test a composite DN : a = b, d = e
@@ -102,6 +115,16 @@ public class LdapDNTest extends TestCase
         LdapDN dn = new LdapDN( "a = b, c = d" );
         Assert.assertEquals( "a=b,c=d", dn.toString() );
         Assert.assertEquals( "a = b, c = d", dn.getUpName() );
+    }
+
+    /**
+     * test a composite DN with spaces : a = b  , d = e
+     */
+    public void testLdapDNCompositeWithSpaces() throws InvalidNameException
+    {
+        LdapDN dn = new LdapDN( "a = b  , c = d" );
+        Assert.assertEquals( "a=b,c=d", dn.toString() );
+        Assert.assertEquals( "a = b  , c = d", dn.getUpName() );
     }
 
 
@@ -2093,11 +2116,11 @@ public class LdapDNTest extends TestCase
         oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
         oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
 
-        LdapDN.setOidsMap( oids );
-        Name result = LdapDN.normalize( name );
+        assertTrue( name.getUpName().equals( "ou= Some   People   ,dc = eXample,dc= cOm" ) );
+
+        Name result = LdapDN.normalize( name, oids );
 
         assertTrue( result.toString().equals( "ou=some people,dc=example,dc=com" ) );
-        assertTrue( ( ( LdapDN ) result ).toUpName().equals( "ou= Some   People   ,dc = eXample,dc= cOm" ) );
     }
 
 
@@ -2117,8 +2140,7 @@ public class LdapDNTest extends TestCase
         oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
         oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
 
-        LdapDN.setOidsMap( oids );
-        Name result = LdapDN.normalize( name );
+        Name result = LdapDN.normalize( name, oids );
         assertTrue( result.toString().equals( "" ) );
     }
 
@@ -2140,12 +2162,11 @@ public class LdapDNTest extends TestCase
         oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
         oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
 
-        LdapDN.setOidsMap( oids );
-        Name result = LdapDN.normalize( name );
+        Name result = LdapDN.normalize( name, oids );
 
         assertTrue( result.toString().equals( "dc=and some animals+ou=some people,dc=example,dc=com" ) );
         assertTrue( ( ( LdapDN ) result )
-            .toUpName()
+            .getUpName()
             .equals(
                 "2.5.4.11= Some   People   + 0.9.2342.19200300.100.1.25=  And   Some anImAls,0.9.2342.19200300.100.1.25 = eXample,dc= cOm" ) );
     }
@@ -2168,12 +2189,11 @@ public class LdapDNTest extends TestCase
         oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
         oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
 
-        LdapDN.setOidsMap( oids );
-        LdapDN result = LdapDN.normalize( name );
+        LdapDN result = LdapDN.normalize( name, oids );
 
         assertTrue( result.toString().equals( "dc=and some animals+ou=some people,dc=example,dc=com" ) );
         assertTrue( ( ( LdapDN ) result )
-            .toUpName()
+            .getUpName()
             .equals(
                 "2.5.4.11= Some   People   + domainComponent=  And   Some anImAls,DomainComponent = eXample,0.9.2342.19200300.100.1.25= cOm" ) );
     }
@@ -2260,4 +2280,320 @@ public class LdapDNTest extends TestCase
 
         assertEquals( name1.hashCode(), name2.hashCode() );
     }
+    
+    /**
+     * Test for DIRSERVER-191
+     */
+    public void testName() throws NamingException
+    {
+        Name jName = new javax.naming.ldap.LdapName("cn=four,cn=three,cn=two,cn=one");
+        Name aName = new LdapDN("cn=four,cn=three,cn=two,cn=one");
+        assertEquals(jName.toString(), "cn=four,cn=three,cn=two,cn=one");
+        assertEquals(aName.toString(), "cn=four,cn=three,cn=two,cn=one");
+        assertEquals(jName.toString(), aName.toString());
+    }
+
+    /**
+     * Test for DIRSERVER-191
+     */
+    public void testGetPrefixName() throws NamingException
+    {
+        Name jName = new LdapName("cn=four,cn=three,cn=two,cn=one");
+        Name aName = new LdapDN("cn=four,cn=three,cn=two,cn=one");
+        
+        assertEquals(jName.getPrefix(0).toString(), aName.getPrefix(0).toString());
+        assertEquals(jName.getPrefix(1).toString(), aName.getPrefix(1).toString());
+        assertEquals(jName.getPrefix(2).toString(), aName.getPrefix(2).toString());
+        assertEquals(jName.getPrefix(3).toString(), aName.getPrefix(3).toString());
+        assertEquals(jName.getPrefix(4).toString(), aName.getPrefix(4).toString());
+    }
+    
+    /**
+     * Test for DIRSERVER-191
+     */
+    public void testGetSuffix() throws NamingException
+    {
+        Name jName = new LdapName("cn=four,cn=three,cn=two,cn=one");
+        Name aName = new LdapDN("cn=four,cn=three,cn=two,cn=one");
+    
+        assertEquals(jName.getSuffix(0).toString(), aName.getSuffix(0).toString());
+        assertEquals(jName.getSuffix(1).toString(), aName.getSuffix(1).toString());
+        assertEquals(jName.getSuffix(2).toString(), aName.getSuffix(2).toString());
+        assertEquals(jName.getSuffix(3).toString(), aName.getSuffix(3).toString());
+        assertEquals(jName.getSuffix(4).toString(), aName.getSuffix(4).toString());
+    }
+    
+    /**
+     * Test for DIRSERVER-191
+     */
+    public void testAddStringName() throws NamingException
+    {
+        Name jName = new LdapName("cn=four,cn=three,cn=two,cn=one");
+        Name aName = new LdapDN("cn=four,cn=three,cn=two,cn=one");
+    
+        assertSame(jName, jName.add("cn=five"));
+        assertSame(aName, aName.add("cn=five"));
+        assertEquals(jName.toString(), aName.toString());
+    }
+    
+    /**
+     * Test for DIRSERVER-191
+     */
+    public void testAddIntString() throws NamingException
+    {
+        Name jName = new LdapName("cn=four,cn=three,cn=two,cn=one");
+        Name aName = new LdapDN("cn=four,cn=three,cn=two,cn=one");
+
+        assertSame(jName, jName.add(0,"cn=zero"));
+        assertSame(aName, aName.add(0,"cn=zero"));
+        assertEquals(jName.toString(), aName.toString());
+        
+        assertSame(jName, jName.add(2,"cn=one.5"));
+        assertSame(aName, aName.add(2,"cn=one.5"));
+        assertEquals(jName.toString(), aName.toString());
+        
+        assertSame(jName, jName.add(jName.size(),"cn=five"));
+        assertSame(aName, aName.add(aName.size(),"cn=five"));
+        assertEquals(jName.toString(), aName.toString());
+    }
+
+    /**
+     * Test for DIRSERVER-191
+     */
+    public void testAddAllName() throws NamingException
+    {
+        Name jName = new LdapName("cn=four,cn=three,cn=two,cn=one");
+        Name aName = new LdapDN("cn=four,cn=three,cn=two,cn=one");
+    
+        assertSame(jName, jName.addAll(new LdapName("cn=seven,cn=six")));
+        assertSame(aName, aName.addAll(new LdapDN("cn=seven,cn=six")));
+        assertEquals(jName.toString(), aName.toString());
+    }
+    
+    /**
+     * Test for DIRSERVER-191
+     */
+    public void testAddAllIntName() throws NamingException
+    {
+        Name jName = new LdapName("cn=four,cn=three,cn=two,cn=one");
+        Name aName = new LdapDN("cn=four,cn=three,cn=two,cn=one");
+        
+        assertSame(jName, jName.addAll(0, new LdapName("cn=zero,cn=zero.5")));
+        assertSame(aName, aName.addAll(0, new LdapDN("cn=zero,cn=zero.5")));
+        assertEquals(jName.toString(), aName.toString());
+
+        
+        assertSame(jName, jName.addAll(2, new LdapName("cn=zero,cn=zero.5")));
+        assertSame(aName, aName.addAll(2, new LdapDN("cn=zero,cn=zero.5")));
+        assertEquals(jName.toString(), aName.toString());
+    
+        
+        assertSame(jName, jName.addAll(jName.size(), new LdapName("cn=zero,cn=zero.5")));
+        assertSame(aName, aName.addAll(aName.size(), new LdapDN("cn=zero,cn=zero.5")));
+        assertEquals(jName.toString(), aName.toString());
+    }
+
+    /**
+     * Test for DIRSERVER-191
+     */
+    public void testStartsWithName() throws NamingException
+    {
+        Name jName = new LdapName("cn=four,cn=three,cn=two,cn=one");
+        Name aName = new LdapDN("cn=four,cn=three,cn=two,cn=one");
+    
+        assertEquals(jName.startsWith(new LdapName("cn=seven,cn=six,cn=five")),
+                aName.startsWith(new LdapDN("cn=seven,cn=six,cn=five")));
+        assertEquals(jName.startsWith(new LdapName("cn=three,cn=two,cn=one")),
+                aName.startsWith(new LdapDN("cn=three,cn=two,cn=one")));
+    }
+    
+    /**
+     * Test for DIRSERVER-191
+     */
+    public void testEndsWithName() throws NamingException
+    {
+        Name jName = new LdapName("cn=four,cn=three,cn=two,cn=one");
+        Name aName = new LdapDN("cn=four,cn=three,cn=two,cn=one");
+    
+        assertEquals(jName.endsWith(new LdapName("cn=seven,cn=six,cn=five")),
+                aName.endsWith(new LdapDN("cn=seven,cn=six,cn=five")));
+        assertEquals(jName.endsWith(new LdapName("cn=three,cn=two,cn=one")),
+                aName.endsWith(new LdapDN("cn=three,cn=two,cn=one")));
+    }
+    
+    /**
+     * Test for DIRSERVER-191
+     */
+    public void testRemoveName() throws NamingException
+    {
+        Name jName = new LdapName("cn=four,cn=three,cn=two,cn=one");
+        Name aName = new LdapDN("cn=four,cn=three,cn=two,cn=one");
+        
+        assertEquals(jName.remove(0).toString(), aName.remove(0).toString());
+        assertEquals(jName.toString(), aName.toString());
+    
+        assertEquals(jName.remove(jName.size() - 1).toString(), aName.remove(aName.size() - 1).toString());
+        assertEquals(jName.toString(), aName.toString());
+    }
+    
+    /**
+     * Test for DIRSERVER-191
+     */
+    public void testGetAllName() throws NamingException
+    {
+        Name jName = new LdapName("cn=four,cn=three,cn=two,cn=one");
+        Name aName = new LdapDN("cn=four,cn=three,cn=two,cn=one");
+
+        Enumeration j = jName.getAll();
+        Enumeration a = aName.getAll();
+        while (j.hasMoreElements())
+        {
+            assertTrue(j.hasMoreElements());
+            assertEquals(j.nextElement(), a.nextElement());
+        }
+    }
+    
+    /**
+     * Test for DIRSERVER-642
+     * @throws NamingException
+     */
+    public void testDoubleQuoteInNameDIRSERVER_642() throws NamingException 
+    {
+        Name name1 = new LdapDN( "cn=\"Kylie Minogue\",dc=example,dc=com" );
+        Name name2 = new LdapName( "cn=\"Kylie Minogue\",dc=example,dc=com" );
+
+        Enumeration j = name1.getAll();
+        Enumeration a = name2.getAll();
+        
+        while (j.hasMoreElements())
+        {
+            assertTrue(j.hasMoreElements());
+            assertEquals(j.nextElement(), a.nextElement());
+        }
+    }
+
+    /**
+     * Test for DIRSERVER-642
+     * @throws NamingException
+     */
+    public void testDoubleQuoteInNameDIRSERVER_642_1() throws NamingException 
+    {
+        LdapDN dn = new LdapDN( "cn=\" Kylie Minogue \",dc=example,dc=com" );
+
+        Assert.assertEquals( "cn=\" Kylie Minogue \",dc=example,dc=com", dn.getUpName() );
+        Assert.assertEquals( "cn= Kylie Minogue ,dc=example,dc=com", dn.toString() );
+    }
+
+    /**
+     * Test for DIRSERVER-184
+     * @throws NamingException
+     */
+    public void testLeadingAndTrailingSpacesDIRSERVER_184() throws NamingException 
+    {
+        LdapDN name = new LdapDN( "dn= \\ four spaces leading and 3 trailing \\  " );
+
+        Assert.assertEquals( "dn=\\ four spaces leading and 3 trailing \\ ", name.toString() );
+        Assert.assertEquals( "dn= \\ four spaces leading and 3 trailing \\  ", name.getUpName() );
+    }
+
+    /**
+     * Test for DIRSERVER-184
+     * @throws NamingException
+     */
+    public void testDIRSERVER_184_1() throws NamingException 
+    {
+        try
+        {
+            new LdapDN( "dn=middle\\ spaces" );
+        }
+        catch ( InvalidNameException ine )
+        {
+            Assert.assertTrue( true );
+        }
+    }
+    
+    /**
+     * Test for DIRSERVER-184
+     * @throws NamingException
+     */
+    public void testDIRSERVER_184_2() throws NamingException 
+    {
+        try
+        {
+            new LdapDN( "dn=# a leading pound" );
+        }
+        catch ( InvalidNameException ine )
+        {
+            Assert.assertTrue( true );
+        }
+    }
+
+    /**
+     * Test for DIRSERVER-184
+     * @throws NamingException
+     */
+    public void testDIRSERVER_184_3() throws NamingException 
+    {
+        LdapDN name = new LdapDN( "dn=\\# a leading pound" );
+
+        Assert.assertEquals( "dn=\\# a leading pound", name.toString() );
+        Assert.assertEquals( "dn=\\# a leading pound", name.getUpName() );
+    }
+
+    /**
+     * Test for DIRSERVER-184
+     * @throws NamingException
+     */
+    public void testDIRSERVER_184_4() throws NamingException 
+    {
+        LdapDN name = new LdapDN( "dn=a middle \\# pound" );
+
+        Assert.assertEquals( "dn=a middle \\# pound", name.toString() );
+        Assert.assertEquals( "dn=a middle \\# pound", name.getUpName() );
+    }
+
+    /**
+     * Test for DIRSERVER-184
+     * @throws NamingException
+     */
+    public void testDIRSERVER_184_5() throws NamingException 
+    {
+        LdapDN name = new LdapDN( "dn=a trailing pound \\#" );
+        
+        Assert.assertEquals( "dn=a trailing pound \\#", name.toString() );
+        Assert.assertEquals( "dn=a trailing pound \\#", name.getUpName() );
+    }
+
+    /**
+     * Test for DIRSERVER-184
+     * @throws NamingException
+     */
+    public void testDIRSERVER_184_6() throws NamingException 
+    {
+        try
+        {
+            new LdapDN( "dn=a middle # pound" );
+        }
+        catch ( InvalidNameException ine )
+        {
+            Assert.assertTrue( true );
+        }
+    }
+
+    /**
+     * Test for DIRSERVER-184
+     * @throws NamingException
+     */
+    public void testDIRSERVER_184_7() throws NamingException 
+    {
+        try
+        {
+            new LdapDN( "dn=a trailing pound #" );
+        }
+        catch ( InvalidNameException ine )
+        {
+            Assert.assertTrue( true );
+        }
+    }
 }
+

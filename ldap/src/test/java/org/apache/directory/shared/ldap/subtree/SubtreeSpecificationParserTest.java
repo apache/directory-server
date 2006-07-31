@@ -100,7 +100,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     public SubtreeSpecificationParserTest()
     {
         super();
-        parser = new SubtreeSpecificationParser();
+        parser = new SubtreeSpecificationParser( null );
     }
 
 
@@ -110,7 +110,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     public SubtreeSpecificationParserTest(String s)
     {
         super( s );
-        parser = new SubtreeSpecificationParser();
+        parser = new SubtreeSpecificationParser( null );
     }
 
 
