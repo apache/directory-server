@@ -44,9 +44,6 @@ public class LdifReaderTest extends TestCase
     private static File HJENSEN_JPEG_FILE = null;
     private static File FIONA_JPEG_FILE = null;
     
-    private static File HJENSEN_JPEG_FILE = null;
-    private static File FIONA_JPEG_FILE = null;
-
     private File createFile( String name, byte[] data ) throws IOException
     {
         File jpeg = File.createTempFile( name, "jpg" );
