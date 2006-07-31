@@ -39,7 +39,7 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.sp.LdapClassLoader;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -103,7 +103,7 @@ public class TriggerService extends BaseInterceptor
      * @param entry the target entry that is considered as the trigger source
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addPrescriptiveTriggerSpecs( List triggerSpecs, DirectoryPartitionNexusProxy proxy,
+    private void addPrescriptiveTriggerSpecs( List triggerSpecs, PartitionNexusProxy proxy,
         LdapDN dn, Attributes entry ) throws NamingException
     {
         
@@ -120,7 +120,7 @@ public class TriggerService extends BaseInterceptor
         {
             LdapDN parentDn = ( LdapDN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
-            entry = proxy.lookup( parentDn, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+            entry = proxy.lookup( parentDn, PartitionNexusProxy.LOOKUP_BYPASS );
         }
 
         Attribute subentries = entry.get( TRIGGER_SUBENTRIES_ATTR );
@@ -243,7 +243,7 @@ public class TriggerService extends BaseInterceptor
         
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        PartitionNexusProxy proxy = invocation.getProxy();
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new AddStoredProcedureParameterInjector( invocation, normName, addedEntry );
 
@@ -290,8 +290,8 @@ public class TriggerService extends BaseInterceptor
         
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes deletedEntry = proxy.lookup( normName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+        PartitionNexusProxy proxy = invocation.getProxy();
+        Attributes deletedEntry = proxy.lookup( normName, PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( invocation, normName );
 
@@ -336,8 +336,8 @@ public class TriggerService extends BaseInterceptor
         
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes modifiedEntry = proxy.lookup( normName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+        PartitionNexusProxy proxy = invocation.getProxy();
+        Attributes modifiedEntry = proxy.lookup( normName, PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, normName, modOp, mods );
 
@@ -383,8 +383,8 @@ public class TriggerService extends BaseInterceptor
         
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes modifiedEntry = proxy.lookup( normName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+        PartitionNexusProxy proxy = invocation.getProxy();
+        Attributes modifiedEntry = proxy.lookup( normName, PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, normName, mods );
 
