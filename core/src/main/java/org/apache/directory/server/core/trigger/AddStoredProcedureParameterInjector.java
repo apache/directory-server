@@ -48,7 +48,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
         public Object inject() throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( addedEntryName.toUpName() );
+            return new LdapDN( addedEntryName.getUpName() );
         };
     };
     
