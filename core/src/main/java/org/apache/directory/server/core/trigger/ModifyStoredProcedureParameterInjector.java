@@ -27,7 +27,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.ModifyStoredProcedureParameter;
 
@@ -77,7 +77,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject() throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( modifiedEntryName.toUpName() );
+            return new LdapDN( modifiedEntryName.getUpName() );
         };
     };
     
@@ -93,12 +93,12 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     {
         public Object inject() throws NamingException
         {
-            DirectoryPartitionNexusProxy proxy = getInvocation().getProxy();
+            PartitionNexusProxy proxy = getInvocation().getProxy();
             /**
              * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
              * especially subentry related ones like "triggerSubentries".
              */
-            oldEntry = proxy.lookup( modifiedEntryName, DirectoryPartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+            oldEntry = proxy.lookup( modifiedEntryName, PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
             return oldEntry;
         };
     };
