@@ -17,16 +17,18 @@
 package org.apache.directory.shared.ldap.message;
 
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -35,13 +37,108 @@ import org.apache.directory.shared.ldap.util.ExceptionUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LockableAttributesImpl implements Attributes
+public class LockableAttributesImpl implements Attributes, Serializable
 {
-    static final long serialVersionUID = -69864533495992471L;
+    static transient final long serialVersionUID = -69864533495992471L;
 
-    /** Map of user provided String ids to Attributes */
-    private final Map map = new HashMap();
+    /**
+     * An holder to store <Id, Attribute> couples
+     * 
+     */
+    private class Holder implements Serializable, Cloneable
+	{
+    	static transient final long serialVersionUID = 1L;
+    	
+		private String upId;
+		private Attribute attribute;
+		
+		private Holder( String upId, Attribute attribute )
+		{
+			this.upId = upId;
+			this.attribute = attribute;
+		}
+		
+		public Object clone() throws CloneNotSupportedException
+		{
+			Holder clone = (Holder)super.clone();
+			
+			clone.upId = upId;
+			clone.attribute = (Attribute)attribute.clone();
+			
+			return clone;
+		}
+		
+		public String toString()
+		{
+			StringBuffer sb = new StringBuffer();
+			
+			sb.append( upId ).append( ": " );
+			
+			sb.append( attribute ).append( '\n' );
+			
+			return sb.toString();
+		}
+	}
+	
+    /**
+     * An iterator which returns Attributes.  
+     */
+	public class AttributeIterator implements Iterator
+	{
+		private Iterator iterator; 
+		
+		private AttributeIterator( LockableAttributesImpl attributes )
+		{
+			iterator = attributes.keyMap.values().iterator();
+		}
+		
+	    /**
+	     * Returns <tt>true</tt> if the iteration has more elements. (In other
+	     * words, returns <tt>true</tt> if <tt>next</tt> would return an element
+	     * rather than throwing an exception.)
+	     *
+	     * @return <tt>true</tt> if the iterator has more elements.
+	     */
+	    public boolean hasNext()
+	    {
+	    	return iterator.hasNext();
+	    }
 
+	    /**
+	     * Returns the next element in the iteration.  Calling this method
+	     * repeatedly until the {@link #hasNext()} method returns false will
+	     * return each element in the underlying collection exactly once.
+	     *
+	     * @return the next element in the iteration.
+	     * @exception NoSuchElementException iteration has no more elements.
+	     */
+	    public Object next()
+	    {
+	    	return ((Holder)iterator.next()).attribute;
+	    }
+
+	    /**
+	     * 
+	     * Removes from the underlying collection the last element returned by the
+	     * iterator (optional operation).  This method can be called only once per
+	     * call to <tt>next</tt>.  The behavior of an iterator is unspecified if
+	     * the underlying collection is modified while the iteration is in
+	     * progress in any way other than by calling this method.
+	     *
+	     * @exception UnsupportedOperationException if the <tt>remove</tt>
+	     *		  operation is not supported by this Iterator.
+	     
+	     * @exception IllegalStateException if the <tt>next</tt> method has not
+	     *		  yet been called, or the <tt>remove</tt> method has already
+	     *		  been called after the last call to the <tt>next</tt>
+	     *		  method.
+	     */
+	    public void remove()
+	    {
+	    	iterator.remove();
+	    }
+	}
+	
     /** Cache of lowercase id Strings to mixed cased user provided String ids */
     private Map keyMap;
 
@@ -58,32 +155,87 @@ public class LockableAttributesImpl implements Attributes
         keyMap = new HashMap();
     }
 
+    // ------------------------------------------------------------------------
+    // Serialization methods
+    //
+    // We will try to minimize the cost of reading and writing objects to the 
+    // disk.
+    //
+    // We need to save all the attributes stored into the 'map' object, and 
+    // their associated User Provided value.
+    // Attributes are stored following this pattern :
+    //  ( attributeType = (attribute value )* )*
+    //
+    // The streamed value will looks like :
+    // [nbAttrs:int]
+    //   (
+    //		[length attributeType(i):int] [attributeType(i):String] 
+    //		[length attributeTypeUP(i):int] [attributeTypeUP(i):String]
+    //		[attributeValues(i)]
+    //	 )*
+    //
+    // The attribute value is streamed by the LockableAttributeImpl class.
+    // ------------------------------------------------------------------------
+    /*public void readObject( ObjectInputStream oi ) throws IOException, ClassNotFoundException
+    {
+    	oi.defaultReadObject();
+    	
+    	// Read the map size
+    	int size = oi.readInt();
+    	
+    	keyMap = new HashMap( size );
+    	
+    	for ( int i = 0; i < size(); i++ )
+    	{
+    		int keySize = oi.readInt();
+    		char[] keyChars = new char[keySize];
+    		
+    		for ( int j = 0; j < keySize; j++)
+    		{
+    			keyChars[j] = oi.readChar();
+    		}
+    		
+    		String upId = new String( keyChars );
+    		String key = upId.toLowerCase();
+    		
+    		Attribute attribute = (LockableAttributeImpl)oi.readObject();
+    		
+    		Holder holder = new Holder( upId, attribute);
+    		
+    		keyMap.put( key, holder );
+    	}
+    }*/
 
     /**
-     * Used by clone to create a LockableAttributes.
-     * 
-     * @param map
-     *            the primary user provided id to Attribute Map
-     * @param keyMap
-     *            the canonical key to user provided id Map
+     * Write the Attribute to a stream
      */
-    private LockableAttributesImpl(Map map, Map keyMap)
+    /*private void writeObject( ObjectOutputStream oo ) throws IOException
     {
-        this.keyMap = new HashMap();
+    	oo.defaultWriteObject();
+    	
+    	// Write the map size
+    	oo.write( keyMap.size() );
+    	
+    	Iterator keys = keyMap.keySet().iterator(); 
+    	
+    	while ( keys.hasNext() )
+    	{
+    		String key = (String)keys.next();
+    		Holder holder = (Holder)keyMap.get( key );
 
-        if ( keyMap != null )
-        {
-            this.keyMap.putAll( keyMap );
-        }
-
-        Iterator list = map.values().iterator();
-        while ( list.hasNext() )
-        {
-            Attribute attr = ( Attribute ) list.next();
-            this.map.put( attr.getID(), attr.clone() );
-        }
-    }
-
+    		// Write the userProvided key
+    		// No need to write the key, it will be
+    		// rebuilt by the read operation
+    		oo.write( holder.upId.length() );
+    		oo.writeChars( holder.upId );
+    		
+    		// Recursively call the writeExternal metho
+    		// of the attribute object
+    		oo.writeObject( holder.attribute );
+    	}
+    	
+    	// That's it !
+    }*/
 
     // ------------------------------------------------------------------------
     // javax.naming.directory.Attributes Interface Method Implementations
@@ -108,7 +260,7 @@ public class LockableAttributesImpl implements Attributes
      */
     public int size()
     {
-        return map.size();
+        return keyMap.size();
     }
 
 
@@ -126,14 +278,15 @@ public class LockableAttributesImpl implements Attributes
      */
     public Attribute get( String attrId )
     {
-        String key = getUserProvidedId( attrId );
-
-        if ( key == null )
-        {
-            return null;
-        }
-
-        return ( Attribute ) map.get( key );
+    	if ( attrId != null )
+    	{
+    		Holder holder = (Holder)keyMap.get( StringTools.toLowerCase( attrId ) );
+    		return holder != null ? holder.attribute : null;
+    	}
+    	else
+    	{
+    		return null;
+    	}
     }
 
 
@@ -149,7 +302,7 @@ public class LockableAttributesImpl implements Attributes
      */
     public NamingEnumeration getAll()
     {
-        return new IteratorNamingEnumeration( map.values().iterator() );
+        return new IteratorNamingEnumeration( new AttributeIterator( this ) );
     }
 
 
@@ -165,7 +318,17 @@ public class LockableAttributesImpl implements Attributes
      */
     public NamingEnumeration getIDs()
     {
-        return new ArrayNamingEnumeration( map.keySet().toArray() );
+    	String[] ids = new String[keyMap.size()];
+    	
+    	Iterator values = keyMap.values().iterator();
+    	int i = 0;
+    	
+    	while ( values.hasNext() )
+    	{
+    		ids[i++] = ((Holder)values.next()).upId;
+    	}
+    	
+        return new ArrayNamingEnumeration( ids );
     }
 
 
@@ -185,14 +348,11 @@ public class LockableAttributesImpl implements Attributes
      */
     public Attribute put( String attrId, Object val )
     {
-        if ( get( attrId ) == null )
-        {
-            setUserProvidedId( attrId );
-        }
-
         Attribute attr = new LockableAttributeImpl( attrId );
         attr.add( val );
-        map.put( attrId, attr );
+        
+        String key = StringTools.toLowerCase( attrId );
+        keyMap.put( key, new Holder( attrId, attr) );
         return attr;
     }
 
@@ -205,25 +365,45 @@ public class LockableAttributesImpl implements Attributes
      *            the character case of its attribute ids, the case of attr's
      *            identifier is ignored.
      * @return The Attribute with the same ID as attr that was previous in this
-     *         attribute set; null if no such attribute existed.
+     *         attribute set; The new attr if no such attribute existed.
      * @see #remove
      */
     public Attribute put( Attribute attr )
     {
-        Attribute old = get( attr.getID() );
-
-        if ( old != null )
+    	String key = StringTools.toLowerCase( attr.getID() );
+    	Attribute old = null;
+    	Attribute newAttr = attr;
+    	
+        if ( keyMap.containsKey( key ) )
         {
-            map.remove( old.getID() );
-
-            if ( keyMap != null )
-            {
-                keyMap.remove( old.getID().toLowerCase() );
-            }
+            old = (Attribute)((Holder)keyMap.remove( key )).attribute;
+        }
+        else
+        {
+        	old = attr;
         }
 
-        map.put( attr.getID(), attr );
-        setUserProvidedId( attr.getID() );
+        if ( attr instanceof BasicAttribute )
+        {
+        	 newAttr = new LockableAttributeImpl( attr.getID() );
+        	 
+        	 try
+        	 {
+	        	 NamingEnumeration values = attr.getAll();
+	        	 
+	        	 while ( values.hasMore() )
+	        	 {
+	        		 Object value = values.next();
+	        		 newAttr.add( value );
+	        	 }
+        	 }
+        	 catch ( NamingException ne )
+        	 {
+        		 // do nothing
+        	 }
+        }
+        
+        keyMap.put( key, new Holder( attr.getID(), newAttr ) );
         return old;
     }
 
@@ -241,16 +421,17 @@ public class LockableAttributesImpl implements Attributes
      */
     public Attribute remove( String attrId )
     {
-        Attribute old = get( attrId );
-
-        if ( old != null )
+    	String key = StringTools.toLowerCase( attrId );
+    	Attribute old = null;
+    	
+        if ( keyMap.containsKey( key ) )
         {
-            map.remove( old.getID() );
-
-            if ( keyMap != null )
-            {
-                keyMap.remove( old.getID().toLowerCase() );
-            }
+        	Holder holder = (Holder)keyMap.remove( key );
+        	
+        	if ( holder != null ) 
+        	{
+        		old = holder.attribute;
+        	}
         }
 
         return old;
@@ -265,7 +446,27 @@ public class LockableAttributesImpl implements Attributes
      */
     public Object clone()
     {
-        return new LockableAttributesImpl( map, keyMap );
+    	try
+    	{
+	    	LockableAttributesImpl clone = (LockableAttributesImpl)super.clone();
+	
+			clone.keyMap = (Map)((HashMap)keyMap).clone();
+			
+	        Iterator keys = keyMap.keySet().iterator();
+	
+	        while ( keys.hasNext() )
+	        {
+	        	String key = (String)keys.next();
+	        	Holder holder = (Holder)keyMap.get( key );
+	            clone.keyMap.put( key, holder.clone() );
+	        }
+	    	
+	        return clone;
+    	}
+    	catch ( CloneNotSupportedException cnse )
+    	{
+    		return null;
+    	}
     }
 
 
@@ -278,27 +479,16 @@ public class LockableAttributesImpl implements Attributes
     {
         StringBuffer buf = new StringBuffer();
 
-        Iterator attrs = map.values().iterator();
+        Iterator attrs = keyMap.values().iterator();
+        
         while ( attrs.hasNext() )
         {
-            Attribute l_attr = ( Attribute ) attrs.next();
+        	Holder holder = (Holder)attrs.next();
+            Attribute attr = holder.attribute;
 
-            try
-            {
-                NamingEnumeration l_values = l_attr.getAll();
-                while ( l_values.hasMore() )
-                {
-                    Object l_value = l_values.next();
-                    buf.append( l_attr.getID() );
-                    buf.append( ": " );
-                    buf.append( l_value );
-                    buf.append( '\n' );
-                }
-            }
-            catch ( NamingException e )
-            {
-                buf.append( ExceptionUtils.getFullStackTrace( e ) );
-            }
+            buf.append( holder.upId );
+            buf.append( ": " );
+            buf.append( attr );
         }
 
         return buf.toString();
@@ -340,6 +530,7 @@ public class LockableAttributesImpl implements Attributes
         }
 
         NamingEnumeration list = attrs.getAll();
+
         while ( list.hasMoreElements() )
         {
             Attribute attr = ( Attribute ) list.nextElement();
@@ -357,60 +548,5 @@ public class LockableAttributesImpl implements Attributes
         }
 
         return true;
-    }
-
-
-    // ------------------------------------------------------------------------
-    // Utility Methods
-    // ------------------------------------------------------------------------
-
-    /**
-     * Sets the user provided key by normalizing it and adding a record into the
-     * keymap for future lookups.
-     * 
-     * @param userProvidedId
-     *            the id of the Attribute gotten from the attribute instance via
-     *            getID().
-     */
-    private void setUserProvidedId( String userProvidedId )
-    {
-        if ( keyMap == null )
-        {
-            keyMap = new HashMap();
-            keyMap.put( userProvidedId.toLowerCase(), userProvidedId );
-            return;
-        }
-
-        if ( keyMap.get( userProvidedId ) == null )
-        {
-            keyMap.put( userProvidedId.toLowerCase(), userProvidedId );
-        }
-    }
-
-
-    /**
-     * Gets the user provided key by looking it up using the normalized key in
-     * the key map.
-     * 
-     * @param attrId
-     *            the id of the Attribute in any case.
-     * @return the attribute id as it would be returned on a call to the
-     *         Attribute's getID() method.
-     */
-    private String getUserProvidedId( String attrId )
-    {
-        // First check if it is correct form to save string creation below.
-        if ( map.containsKey( attrId ) )
-        {
-            return attrId;
-        }
-
-        if ( keyMap == null )
-        {
-            keyMap = new HashMap();
-            return null;
-        }
-
-        return ( String ) keyMap.get( attrId.toLowerCase() );
     }
 }

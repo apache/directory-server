@@ -18,6 +18,8 @@ package org.apache.directory.shared.ldap.message;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -25,6 +27,7 @@ import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.DirContext;
 
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,11 +44,17 @@ public class LockableAttributeImpl implements Attribute
 
     private static final long serialVersionUID = -5158233254341746514L;
 
-    /** the name of the attribute */
-    private final String id;
+    /** the name of the attribute, case sensitive */
+    private final String upId;
 
+    /** In case we have only one value, just use this container */
+    private Object value;
+    
     /** the list of attribute values */
-    private final ArrayList list;
+    private List list;
+    
+    /** The number of values stored */
+    private int size = 0;
 
 
     // ------------------------------------------------------------------------
@@ -61,8 +70,10 @@ public class LockableAttributeImpl implements Attribute
      */
     public LockableAttributeImpl(final String id)
     {
-        this.id = id;
-        list = new ArrayList();
+        upId = id;
+        value = null;
+        list = null; //new ArrayList();
+        size = 0;
     }
 
 
@@ -76,9 +87,10 @@ public class LockableAttributeImpl implements Attribute
      */
     public LockableAttributeImpl(final String id, final Object value)
     {
-        this.id = id;
-        list = new ArrayList();
-        list.add( value );
+        upId = id;
+        list = null; // new ArrayList();
+        this.value = value; //list.add( value );
+        size = 1;
     }
 
 
@@ -92,9 +104,11 @@ public class LockableAttributeImpl implements Attribute
      */
     public LockableAttributeImpl(final String id, final byte[] value)
     {
-        this.id = id;
-        list = new ArrayList();
-        list.add( value );
+        upId = id;
+        list = null; //new ArrayList();
+        this.value = value;
+        //list.add( value );
+        size = 1;
     }
 
 
@@ -107,10 +121,12 @@ public class LockableAttributeImpl implements Attribute
      * @param list
      *            the list of values to start with
      */
-    private LockableAttributeImpl(final String id, final ArrayList list)
+    private LockableAttributeImpl(final String id, final List list)
     {
-        this.id = id;
+        upId = id;
         this.list = list;
+        value = null;
+        size = (list != null ? list.size() : 0);
     }
 
 
@@ -125,7 +141,35 @@ public class LockableAttributeImpl implements Attribute
      */
     public NamingEnumeration getAll()
     {
-        return new IteratorNamingEnumeration( list.iterator() );
+    	if ( size < 2 )
+    	{
+    		return new IteratorNamingEnumeration( new Iterator()
+    		{
+    			private boolean done = (size != 0);
+    				
+    			public boolean hasNext() 
+    			{
+    				return done;
+    			}
+    			
+    			public Object next() 
+    			{
+    				done = false;
+    				return value;
+    			}
+    			
+    			public void remove() 
+    			{
+    				value = null;
+    				done = false;
+    				size = 0;
+    			}
+    		});
+    	}
+    	else
+    	{
+    		return new IteratorNamingEnumeration( list.iterator() );
+    	}
     }
 
 
@@ -136,12 +180,18 @@ public class LockableAttributeImpl implements Attribute
      */
     public Object get()
     {
-        if ( list.isEmpty() )
+    	if ( list == null )
+    	{
+    		return value;
+    	}
+    	else if ( list.isEmpty() )
         {
             return null;
         }
-
-        return list.get( 0 );
+    	else
+    	{
+    		return list.get( 0 );
+    	}
     }
 
 
@@ -152,7 +202,7 @@ public class LockableAttributeImpl implements Attribute
      */
     public int size()
     {
-        return list.size();
+    	return size;
     }
 
 
@@ -163,7 +213,7 @@ public class LockableAttributeImpl implements Attribute
      */
     public String getID()
     {
-        return id;
+        return upId;
     }
 
 
@@ -176,7 +226,17 @@ public class LockableAttributeImpl implements Attribute
      */
     public boolean contains( Object attrVal )
     {
-        return list.contains( attrVal );
+    	switch (size)
+    	{
+    		case 0 :
+    			return false;
+    			
+    		case 1 :
+    			return value == null ? attrVal == null : value.equals( attrVal );
+    			
+    		default :
+    			return list.contains( attrVal );
+    	}
     }
 
 
@@ -191,7 +251,32 @@ public class LockableAttributeImpl implements Attribute
      */
     public boolean add( Object attrVal )
     {
-        return list.add( attrVal );
+    	boolean exists = false;
+    	
+    	switch ( size )
+    	{
+    		case 0 :
+    			value = attrVal;
+    			size++;
+    			return true;
+    			
+    		case 1 :
+    			exists = value.equals( attrVal );
+
+    			list = new ArrayList();
+    			list.add( value );
+    			list.add( attrVal );
+    			size++;
+    			value = null;
+    			return exists;
+    			
+    		default :
+    			exists = list.contains( attrVal ); 
+    		
+    			list.add( attrVal );
+    			size++;
+    			return exists;
+    	}
     }
 
 
@@ -205,7 +290,28 @@ public class LockableAttributeImpl implements Attribute
      */
     public boolean remove( Object attrVal )
     {
-        return list.remove( attrVal );
+    	switch ( size )
+    	{
+    		case 0 :
+    			return false;
+    			
+    		case 1 :
+    			value = null;
+    			size--;
+    			return true;
+    			
+    		case 2 :
+    			list.remove( attrVal );
+    			value = list.get(0);
+    			size = 1;
+    			list = null;
+    			return true;
+    			
+    		default :
+    			list.remove( attrVal );
+    			size--;
+    			return true;
+    	}
     }
 
 
@@ -214,7 +320,21 @@ public class LockableAttributeImpl implements Attribute
      */
     public void clear()
     {
-        list.clear();
+    	switch ( size )
+    	{
+    		case 0 :
+    			return;
+    			
+    		case 1 :
+    			value = null;
+    			size = 0;
+    			return;
+    			
+    		default :
+    			list = null;
+    			size = 0;
+    			return;
+    	}
     }
 
 
@@ -248,8 +368,17 @@ public class LockableAttributeImpl implements Attribute
      */
     public Object clone()
     {
-        ArrayList l_list = ( ArrayList ) list.clone();
-        return new LockableAttributeImpl( id, l_list );
+    	switch ( size )
+    	{
+    		case 0 :
+    			return new LockableAttributeImpl( upId );
+    			
+    		case 1 :
+    			return new LockableAttributeImpl( upId, value );
+    			
+    		default :
+    			return new LockableAttributeImpl( upId, (List)((ArrayList)list).clone() );
+    	}
     }
 
 
@@ -274,7 +403,17 @@ public class LockableAttributeImpl implements Attribute
      */
     public Object get( int index )
     {
-        return list.get( index );
+    	switch ( size )
+    	{
+    		case 0 :
+    			return null;
+    			
+    		case 1 :
+    			return value;
+    			
+    		default :
+    			return list.get( index );
+    	}
     }
 
 
@@ -288,7 +427,21 @@ public class LockableAttributeImpl implements Attribute
      */
     public Object remove( int index )
     {
-        return list.remove( index );
+    	switch ( size )
+    	{
+    		case 0 :
+    			return null;
+    			
+    		case 1 :
+    			Object result = value;
+    			value = null;
+    			size = 0;
+    			return result;
+    			
+    		default :
+    			size--;
+    			return list.remove( index );
+    	}
     }
 
 
@@ -303,7 +456,36 @@ public class LockableAttributeImpl implements Attribute
      */
     public void add( int index, Object attrVal )
     {
-        list.add( index, attrVal );
+    	switch ( size )
+    	{
+    		case 0 :
+    			size++;
+    			value = attrVal;
+    			return;
+    			
+    		case 1 :
+    			list = new ArrayList();
+    			
+    			if ( index == 0 )
+    			{
+	    			list.add( attrVal );
+	    			list.add( value );
+    			}
+    			else
+    			{
+	    			list.add( value );
+	    			list.add( attrVal );
+    			}
+
+    			size++;
+    			value = null;
+    			return;
+    			
+    		default :
+    			list.add( index, attrVal );
+    			size++;
+    			return;
+    	}
     }
 
 
@@ -318,7 +500,35 @@ public class LockableAttributeImpl implements Attribute
      */
     public Object set( int index, Object attrVal )
     {
-        return list.set( index, attrVal );
+    	switch ( size )
+    	{
+    		case 0 :
+    			size++;
+    			value = attrVal;
+    			return null;
+    			
+    		case 1 :
+    			if ( index == 0 )
+    			{
+	    			Object result = value;
+	    			value = attrVal;
+	    			return result;
+    			}
+    			else
+    			{
+    				list = new ArrayList();
+    				list.add( value );
+    				list.add( attrVal );
+    				size = 2;
+    				value = null;
+    				return null;
+    			}
+    			
+    		default :
+    			Object oldValue = list.get( index );
+    			list.set( index, attrVal );
+    			return oldValue;
+    	}
     }
 
 
@@ -349,54 +559,112 @@ public class LockableAttributeImpl implements Attribute
         }
 
         Attribute attr = ( Attribute ) obj;
-        if ( !id.equals( attr.getID() ) )
+        
+        if ( !upId.equals( attr.getID() ) )
         {
             return false;
         }
 
-        if ( attr.size() != list.size() )
+        if ( attr.size() != size )
         {
             return false;
         }
 
-        // if ( attr.isOrdered() )
-        // {
-        // for ( int ii = 0; ii < attr.size(); ii++ )
-        // {
-        // try
-        // {
-        // if ( ! list.get( ii).equals( attr.get( ii ) ) )
-        // {
-        // return false;
-        // }
-        // }
-        // catch ( NamingException e )
-        // {
-        // log.warn( "Failed to get an attribute from the specifid attribute: "
-        // + attr, e );
-        // return false;
-        // }
-        // }
-        // }
-        // else
-        // {
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        switch ( size )
         {
-            try
-            {
-                if ( !list.contains( attr.get( ii ) ) )
+        	case 0 :
+        		return true;
+        		
+        	case 1 :
+                try
                 {
+                	return value.equals( attr.get( 0 ) );
+                }
+                catch ( NamingException e )
+                {
+                    log.warn( "Failed to get an attribute from the specifid attribute: " + attr, e );
                     return false;
                 }
-            }
-            catch ( NamingException e )
-            {
-                log.warn( "Failed to get an attribute from the specifid attribute: " + attr, e );
-                return false;
-            }
+        		
+        	default :
+                for ( int i = 0; i < size; i++ )
+                {
+                    try
+                    {
+                        if ( !list.contains( attr.get( i ) ) )
+                        {
+                            return false;
+                        }
+                    }
+                    catch ( NamingException e )
+                    {
+                        log.warn( "Failed to get an attribute from the specifid attribute: " + attr, e );
+                        return false;
+                    }
+                }
+        		
+        		return true;
         }
-        // }
-
-        return true;
+    }
+    
+    public String toString()
+    {
+    	StringBuffer sb = new StringBuffer();
+    	
+    	sb.append( "Attribute id : '" ).append( upId ).append( "', " );
+    	sb.append( " Values : [");
+    	
+    	switch (size)
+    	{
+    		case 0 :
+    			sb.append( "]\n" );
+    			break;
+    			
+    		case 1 :
+    			if ( value instanceof String ) 
+    			{
+    				sb.append( '\'' ).append( value ).append( '\'' );
+				}
+    			else
+    			{
+    				sb.append( StringTools.dumpBytes( (byte[])value ) );
+    			}
+    			
+    			sb.append( "]\n" );
+    			break;
+    			
+    		default :
+    			boolean isFirst = true;
+    		
+	    		Iterator values = list.iterator();
+	    		
+	    		while ( values.hasNext() )
+	    		{
+	    			Object v = values.next();
+	    			
+	    			if ( isFirst == false )
+	    			{
+	    				sb.append( ", " );
+	    			}
+	    			else
+	    			{
+	    				isFirst = false;
+	    			}
+	    			
+	    			if ( v instanceof String ) 
+	    			{
+	    				sb.append( '\'' ).append( v ).append( '\'' );
+					}
+	    			else
+	    			{
+	    				sb.append( StringTools.dumpBytes( (byte[])v ) );
+	    			}
+	    		}
+	    		
+	    		sb.append( "]\n" );
+	    		break;
+    	}
+    	
+    	return sb.toString();
     }
 }
