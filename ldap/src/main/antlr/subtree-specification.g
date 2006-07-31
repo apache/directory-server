@@ -21,6 +21,7 @@ header
 package org.apache.directory.shared.ldap.subtree;
 
 import java.util.Set;
+import java.util.Map;
 import java.util.HashSet;
 import java.util.ArrayList;
 
@@ -80,13 +81,16 @@ options
 
     private SubtreeSpecificationModifier ssModifier = null;
     
+    private Map oidsMap;
+    
     private ComponentsMonitor subtreeSpecificationComponentsMonitor = null;
 
     /**
      * Does nothing.
      */
-    public void init()
+    public void init( Map oidsMap )
     {
+    	this.oidsMap = oidsMap;
     }
     
     
@@ -306,7 +310,7 @@ distinguishedName returns [ LdapDN name ]
         name = new LdapDN( token.getText() );
         if ( isNormalizing() )
         {
-        	name.normalize();
+        	name.normalize( oidsMap );
         }
         log.debug( "recognized a DistinguishedName: " + token.getText() );
     }
