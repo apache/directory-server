@@ -20,6 +20,7 @@ package org.apache.directory.shared.ldap.aci;
 
 import java.io.StringReader;
 import java.text.ParseException;
+import java.util.Map;
 
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 
@@ -49,12 +50,12 @@ public class ACIItemParser
     /**
      * Creates a ACIItem parser.
      */
-    public ACIItemParser()
+    public ACIItemParser( Map oidsMap )
     {
         this.lexer = new ReusableAntlrACIItemLexer( new StringReader( "" ) );
         this.parser = new ReusableAntlrACIItemParser( lexer );
 
-        this.parser.init(); // this method MUST be called while we cannot do
+        this.parser.init( oidsMap ); // this method MUST be called while we cannot do
         // constructor overloading for antlr generated parser
         this.isNormalizing = false;
     }
@@ -63,13 +64,13 @@ public class ACIItemParser
     /**
      * Creates a normalizing ACIItem parser.
      */
-    public ACIItemParser(NameComponentNormalizer normalizer)
+    public ACIItemParser(NameComponentNormalizer normalizer, Map oidsMap )
     {
         this.lexer = new ReusableAntlrACIItemLexer( new StringReader( "" ) );
         this.parser = new ReusableAntlrACIItemParser( lexer );
 
         this.parser.setNormalizer( normalizer );
-        this.parser.init(); // this method MUST be called while we cannot do
+        this.parser.init( oidsMap ); // this method MUST be called while we cannot do
         // constructor overloading for antlr generated parser
         this.isNormalizing = true;
     }
