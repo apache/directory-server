@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006 The Apache Software Foundation
+ *   Copyright 2005 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -16,21 +16,22 @@
  */
 package org.apache.directory.shared.ldap.util;
 
-
-import java.util.List;
-
-
-public interface ComponentsMonitor
+/**
+ *
+ * This class is used to store the position of a token in a string. It's very
+ * usefull while parsing a DN. 
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ *
+ */
+public class Position
 {
-    public ComponentsMonitor useComponent( String component ) throws IllegalArgumentException;
-
-
-    public boolean allComponentsUsed();
-
-
-    public boolean finalStateValid();
-
-
-    public List getRemainingComponents();
-
+    public int start = 0;
+    public int length =0;
+    public int end = 0;
+    
+    public String toString()
+    {
+        return "[" + start + ", " + end + ", " + length + "]";
+    }
 }

@@ -16,6 +16,9 @@
  */
 package org.apache.directory.shared.ldap.util;
 
+import org.apache.directory.shared.ldap.util.Position;
+import org.apache.directory.shared.ldap.util.StringTools;
+
 
 /**
  * Utility class used by the LdapDN Parser.
@@ -26,80 +29,11 @@ public class DNUtils
 {
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
-
-    /**
-     * <safe-init-char> ::= [0x01-0x09] | 0x0B | 0x0C | [0x0E-0x1F] |
-     * [0x21-0x39] | 0x3B | [0x3D-0x7F]
-     */
-    private static final boolean[] SAFE_INIT_CHAR =
-        { false, true, true, true, true, true, true, true, true, true, false, true, true, false, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, false, true, false, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true };
-
-    /** <safe-char> ::= [0x01-0x09] | 0x0B | 0x0C | [0x0E-0x7F] */
-    private static final boolean[] SAFE_CHAR =
-        { false, true, true, true, true, true, true, true, true, true, false, true, true, false, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true };
-
-    /**
-     * <base64-char> ::= 0x2B | 0x2F | [0x30-0x39] | 0x3D | [0x41-0x5A] |
-     * [0x61-0x7A]
-     */
-    private static final boolean[] BASE64_CHAR =
-        { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, true, false,
-            false, false, true, true, true, true, true, true, true, true, true, true, true, false, false, false, true,
-            false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false,
-            false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, false, false, false, false, false };
-
-    /**
-     * '"' | '#' | '+' | ',' | [0-9] | ';' | '<' | '=' | '>' | [A-F] | '\' |
-     * [a-f] 0x22 | 0x23 | 0x2B | 0x2C | [0x30-0x39] | 0x3B | 0x3C | 0x3D | 0x3E |
-     * [0x41-0x46] | 0x5C | [0x61-0x66]
-     */
-    private static final boolean[] PAIR_CHAR =
-        { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, true, true, false, false, false, false, false, false, false, true, true, false,
-            false, false, true, true, true, true, true, true, true, true, true, true, false, true, true, true, true,
-            false, false, true, true, true, true, true, true, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, true, false,
-            false, false, false, true, true, true, true, true, true, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false };
-
-    /** "oid." static */
-    public static final char[] OID_LOWER = new char[]
-        { 'o', 'i', 'd', '.' };
-
-    /** "OID." static */
-    public static final char[] OID_UPPER = new char[]
-        { 'O', 'I', 'D', '.' };
-
-    /** "oid." static */
-    public static final byte[] OID_LOWER_BYTES = new byte[]
-        { 'o', 'i', 'd', '.' };
-
-    /** "OID." static */
-    public static final byte[] OID_UPPER_BYTES = new byte[]
-        { 'O', 'I', 'D', '.' };
-
     /** A value if we got an error while parsing */
     public static final int PARSING_ERROR = -1;
+
+    /** A value if we got a correct parsing */
+    public static final int PARSING_OK = 0;
 
     /** If an hex pair contains only one char, this value is returned */
     public static final int BAD_HEX_PAIR = -2;
@@ -115,6 +49,140 @@ public class DNUtils
 
     /** A constant representing two bytes length */
     public static final int TWO_BYTES = 2;
+
+    /**
+     * <safe-init-char> ::= [0x01-0x09] | 0x0B | 0x0C | [0x0E-0x1F] |
+     * [0x21-0x39] | 0x3B | [0x3D-0x7F]
+     */
+    private static final boolean[] SAFE_INIT_CHAR =
+        { 
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  false, true,  true,  false, true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  false, true,  false, true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true 
+        };
+
+    /** <safe-char> ::= [0x01-0x09] | 0x0B | 0x0C | [0x0E-0x7F] */
+    private static final boolean[] SAFE_CHAR =
+        { 
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  false, true,  true,  false, true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+        };
+
+    /**
+     * <base64-char> ::= 0x2B | 0x2F | [0x30-0x39] | 0x3D | [0x41-0x5A] |
+     * [0x61-0x7A]
+     */
+    private static final boolean[] BASE64_CHAR =
+        { 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, true,  false, false, false, true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  false, false, false, true,  false, false, 
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  false, false, false, false, false,
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  false, false, false, false, false 
+        };
+
+    /**
+     * ' ' | '"' | '#' | '+' | ',' | [0-9] | ';' | '<' | '=' | '>' | [A-F] | '\' |
+     * [a-f] 0x22 | 0x23 | 0x2B | 0x2C | [0x30-0x39] | 0x3B | 0x3C | 0x3D | 0x3E |
+     * [0x41-0x46] | 0x5C | [0x61-0x66]
+     */
+    private static final boolean[] PAIR_CHAR =
+        { 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            true,  false, true,  true,  false, false, false, false, 
+            false, false, false, true,  true,  false, false, false, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  false, true,  true,  true,  true,  false, 
+            false, true,  true,  true,  true,  true,  true,  false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, true,  false, false, false, 
+            false, true,  true,  true,  true,  true,  true,  false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false 
+        };
+
+    /**
+     * '"' | '#' | '+' | ',' | [0-9] | ';' | '<' | '=' | '>' | [A-F] | '\' |
+     * [a-f] 0x22 | 0x23 | 0x2B | 0x2C | [0x30-0x39] | 0x3B | 0x3C | 0x3D | 0x3E |
+     * [0x41-0x46] | 0x5C | [0x61-0x66]
+     */
+    private static final int[] STRING_CHAR =
+        { 
+            ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 00 -> 03
+            ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 04 -> 07
+            ONE_CHAR,      ONE_CHAR,      PARSING_ERROR, ONE_CHAR,     // 08 -> 0B
+            ONE_CHAR,      PARSING_ERROR, ONE_CHAR,      ONE_CHAR,     // 0C -> 0F
+            ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 10 -> 13
+            ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 14 -> 17
+            ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 18 -> 1B
+            ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 1C -> 1F
+            ONE_CHAR,      ONE_CHAR,      PARSING_ERROR, PARSING_ERROR,// 20 -> 23
+            ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 24 -> 27
+            ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      PARSING_ERROR,// 28 -> 2B
+            PARSING_ERROR, ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 2C -> 2F
+            ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 30 -> 33
+            ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 34 -> 37
+            ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      PARSING_ERROR,// 38 -> 3B
+            PARSING_ERROR, PARSING_ERROR, PARSING_ERROR, ONE_CHAR      // 3C -> 3F
+        };
+
+    /** "oid." static */
+    public static final String OID_LOWER = "oid.";
+
+    /** "OID." static */
+    public static final String OID_UPPER = "OID.";
+
+    /** "oid." static */
+    public static final byte[] OID_LOWER_BYTES = new byte[]
+        { 'o', 'i', 'd', '.' };
+
+    /** "OID." static */
+    public static final byte[] OID_UPPER_BYTES = new byte[]
+        { 'O', 'I', 'D', '.' };
+
 
 
     // ~ Methods
@@ -308,6 +376,48 @@ public class DNUtils
         }
     }
 
+    /**
+     * Check if the current character is a Pair Char 
+     * 
+     * <pairchar> ::= ' ' | ',' | '=' | '+' | '<' | '>' | '#' | ';' | 
+     *                  '\' | '"' | [0-9a-fA-F] [0-9a-fA-F]
+     * 
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return <code>true</code> if the current character is a Pair Char
+     */
+    public static int isPairChar( String string, int index )
+    {
+        int length = string.length();
+        
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return PARSING_ERROR;
+        }
+        else
+        {
+            char c = string.charAt( index );
+
+            if ( ( c > 127 ) || ( PAIR_CHAR[c] == false ) )
+            {
+                return PARSING_ERROR;
+            }
+            else
+            {
+                if ( StringTools.isHex( string, index++ ) )
+                {
+                    return StringTools.isHex( string, index ) ? 2 : PARSING_ERROR;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+        }
+    }
+
 
     /**
      * Check if the current character is a String Char. Chars are Unicode, not
@@ -330,10 +440,9 @@ public class DNUtils
         {
             byte c = byteArray[index];
 
-            if ( ( c == 0x0A ) || ( c == 0x0D ) || ( c == '"' ) || ( c == '#' ) || ( c == '+' ) || ( c == ',' )
-                || ( c == ';' ) || ( c == '<' ) || ( c == '=' ) || ( c == '>' ) )
+            if ( c < 0x40 )
             {
-                return -1;
+                return STRING_CHAR[ c ];
             }
             else
             {
@@ -368,6 +477,40 @@ public class DNUtils
                 || ( c == ';' ) || ( c == '<' ) || ( c == '=' ) || ( c == '>' ) )
             {
                 return PARSING_ERROR;
+            }
+            else
+            {
+                return ONE_CHAR;
+            }
+        }
+    }
+
+    /**
+     * Check if the current character is a String Char. Chars are Unicode, not
+     * ASCII. <stringchar> ::= [0x00-0xFFFF] - [,=+<>#;\"\n\r]
+     * 
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return The current char if it is a String Char, or '#' (this is simpler
+     *         than throwing an exception :)
+     */
+    public static int isStringChar( String string, int index )
+    {
+        int length = string.length();
+        
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return PARSING_ERROR;
+        }
+        else
+        {
+            char c = string.charAt( index );
+
+            if ( c < 0x40 )
+            {
+                return STRING_CHAR[ c ];
             }
             else
             {
@@ -426,6 +569,38 @@ public class DNUtils
         else
         {
             char c = charArray[index];
+
+            if ( ( c == '\\' ) || ( c == '"' ) )
+            {
+                return PARSING_ERROR;
+            }
+            else
+            {
+                return ONE_CHAR;
+            }
+        }
+    }
+
+    /**
+     * Check if the current character is a Quote Char We are testing Unicode
+     * chars <quotechar> ::= [0x00-0xFFFF] - [\"]
+     * 
+     * @param string The string which contains the data
+     * @param index Current position in the string
+     *
+     * @return <code>true</code> if the current character is a Quote Char
+     */
+    public static int isQuoteChar( String string, int index )
+    {
+        int length = string.length();
+
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return PARSING_ERROR;
+        }
+        else
+        {
+            char c = string.charAt( index );
 
             if ( ( c == '\\' ) || ( c == '"' ) )
             {
@@ -498,6 +673,34 @@ public class DNUtils
         }
     }
 
+    /**
+     * Parse an hex pair <hexpair> ::= <hex> <hex>
+     * 
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return The new position, -1 if the string does not contain an HexPair,
+     *         -2 if the string contains an hex byte but not two.
+     */
+    public static int parseHexPair( String string, int index )
+    {
+        if ( StringTools.isHex( string, index ) )
+        {
+            if ( StringTools.isHex( string, index + 1 ) )
+            {
+                return index + TWO_CHARS;
+            }
+            else
+            {
+                return BAD_HEX_PAIR;
+            }
+        }
+        else
+        {
+            return PARSING_ERROR;
+        }
+    }
 
     /**
      * Parse an hex string, which is a list of hex pairs <hexstring> ::=
@@ -566,6 +769,39 @@ public class DNUtils
         return ( ( result == BAD_HEX_PAIR ) ? PARSING_ERROR : index );
     }
 
+    /**
+     * Parse an hex string, which is a list of hex pairs <hexstring> ::=
+     * <hexpair> <hexpairs> <hexpairs> ::= <hexpair> <hexpairs> | e
+     * 
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return Return the first position which is not an hex pair, or -1 if
+     *         there is no hexpair at the beginning or if an hexpair is invalid
+     *         (if we have only one hex instead of 2)
+     */
+    public static int parseHexString( String string, Position pos )
+    {
+        pos.end = pos.start;
+        int result = parseHexPair( string, pos.start );
+
+        if ( result < 0 )
+        {
+            return PARSING_ERROR;
+        }
+        else
+        {
+            pos.end += TWO_CHARS;
+        }
+
+        while ( ( result = parseHexPair( string, pos.end ) ) >= 0 )
+        {
+            pos.end += TWO_CHARS;
+        }
+
+        return ( ( result == BAD_HEX_PAIR ) ? PARSING_ERROR : PARSING_OK );
+    }
 
     /**
      * Walk the buffer while characters are Base64 characters : <base64-string>
@@ -611,5 +847,4 @@ public class DNUtils
             return index;
         }
     }
-
 }

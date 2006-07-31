@@ -46,6 +46,188 @@ public class StringTools
     private static final String DEFAULT_CHARSET_JDK_1_5 = Charset.defaultCharset().name();
     private static final String JAVA_VERSION = System.getProperty( "java.version" );
     
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
+
+    /** Hex chars */
+    private static final byte[] HEX_CHAR = new byte[]
+        { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+    private static int UTF8_MULTI_BYTES_MASK = 0x0080;
+
+    private static int UTF8_TWO_BYTES_MASK = 0x00E0;
+
+    private static int UTF8_TWO_BYTES = 0x00C0;
+
+    private static int UTF8_THREE_BYTES_MASK = 0x00F0;
+
+    private static int UTF8_THREE_BYTES = 0x00E0;
+
+    private static int UTF8_FOUR_BYTES_MASK = 0x00F8;
+
+    private static int UTF8_FOUR_BYTES = 0x00F0;
+
+    private static int UTF8_FIVE_BYTES_MASK = 0x00FC;
+
+    private static int UTF8_FIVE_BYTES = 0x00F8;
+
+    private static int UTF8_SIX_BYTES_MASK = 0x00FE;
+
+    private static int UTF8_SIX_BYTES = 0x00FC;
+
+    /** <alpha> ::= [0x41-0x5A] | [0x61-0x7A] */
+    public static final boolean[] ALPHA =
+        { 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  false, false, false, false, false, 
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  false, false, false, false, false 
+        };
+
+    /** <alpha> | <digit> | '-' */
+    public static final boolean[] CHAR =
+        { 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, true,  false, false, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  false, false, false, false, false, false, 
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true,
+            true,  true,  true,  true,  true,  true,  true,  true,  
+            true,  true,  true,  false, false, false, false, false, 
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  false, false, false, false, false 
+        };
+
+    /** '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' */
+    public static final boolean[] DIGIT =
+        { 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false
+        };
+
+    /** <hex> ::= [0x30-0x39] | [0x41-0x46] | [0x61-0x66] */
+    private static final boolean[] HEX =
+        { 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  false, false, false, false, false, false, 
+            false, true,  true,  true,  true,  true,  true,  false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, true,  true,  true,  true,  true,  true,  false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false };
+
+    /** <hex> ::= [0x30-0x39] | [0x41-0x46] | [0x61-0x66] */
+    public static final byte[] HEX_VALUE =
+        { 
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 00 -> 0F
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 10 -> 1F
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 20 -> 2F
+             0,  1,  2,  3,  4,  5,  6,  7,  8,  9, -1, -1, -1, -1, -1, -1, // 30 -> 3F ( 0, 1,2, 3, 4,5, 6, 7, 8, 9 )
+            -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 40 -> 4F ( A, B, C, D, E, F )
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 50 -> 5F
+            -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1  // 60 -> 6F ( a, b, c, d, e, f )
+        };
+
+    /** lowerCase = 'a' .. 'z', '0'..'9', '-' */
+    public static final char[] LOWER_CASE =
+        { 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0, '-',   0,   0, 
+            '0', '1', '2', '3', '4', '5', '6', '7', 
+            '8', '9',   0,   0,   0,   0,   0,   0, 
+              0, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 
+            'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 
+            'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 
+            'x', 'y', 'z',   0,   0,   0,   0,   0, 
+              0, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 
+            'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 
+            'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 
+            'x', 'y', 'z',   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0 
+        };
+
+    private static int CHAR_ONE_BYTE_MASK = 0xFFFFFF80;
+
+    private static int CHAR_TWO_BYTES_MASK = 0xFFFFF800;
+
+    private static int CHAR_THREE_BYTES_MASK = 0xFFFF0000;
+
+    private static int CHAR_FOUR_BYTES_MASK = 0xFFE00000;
+
+    private static int CHAR_FIVE_BYTES_MASK = 0xFC000000;
+
+    private static int CHAR_SIX_BYTES_MASK = 0x80000000;
+
+    public static final int NOT_EQUAL = -1;
+
+    // The following methods are taken from org.apache.commons.lang.StringUtils
+
+    /**
+     * The empty String <code>""</code>.
+     * 
+     * @since 2.0
+     */
+    public static final String EMPTY = "";
+
+    /**
+     * The empty byte[]
+     */
+    public static final byte[] EMPTY_BYTES = new byte[]
+        {};
+
     /**
      * Trims several consecutive characters into one.
      * 
@@ -134,6 +316,8 @@ public class StringTools
      *            how to normalize for case: upper or lower
      * @return the deep trimmed string
      * @see StringTools#deepTrim( String )
+     * 
+     * @TODO Replace the toCharArray() by substrig manipulations
      */
     public static String deepTrim( String str, boolean toLowerCase )
     {
@@ -198,159 +382,184 @@ public class StringTools
         return ( pos == 0 ? "" : new String( newbuf, 0, ( wsSeen ? pos - 1 : pos ) ) );
     }
 
-
     /**
      * Truncates large Strings showing a portion of the String's head and tail
      * with the center cut out and replaced with '...'. Also displays the total
      * length of the truncated string so size of '...' can be interpreted.
      * Useful for large strings in UIs or hex dumps to log files.
      * 
-     * @param a_str
+     * @param str
      *            the string to truncate
-     * @param a_head
+     * @param head
      *            the amount of the head to display
-     * @param a_tail
+     * @param tail
      *            the amount of the tail to display
      * @return the center truncated string
      */
-    public static String centerTrunc( String a_str, int a_head, int a_tail )
+    public static String centerTrunc( String str, int head, int tail )
     {
-        StringBuffer l_buf = null;
+        StringBuffer buf = null;
 
         // Return as-is if String is smaller than or equal to the head plus the
         // tail plus the number of characters added to the trunc representation
         // plus the number of digits in the string length.
-        if ( a_str.length() <= ( a_head + a_tail + 7 + a_str.length() / 10 ) )
+        if ( str.length() <= ( head + tail + 7 + str.length() / 10 ) )
         {
-            return a_str;
+            return str;
         }
 
-        l_buf = new StringBuffer();
-        l_buf.append( '[' ).append( a_str.length() ).append( "][" );
-        l_buf.append( a_str.substring( 0, a_head ) ).append( "..." );
-        l_buf.append( a_str.substring( a_str.length() - a_tail ) );
-        l_buf.append( ']' );
-        return l_buf.toString();
+        buf = new StringBuffer();
+        buf.append( '[' ).append( str.length() ).append( "][" );
+        buf.append( str.substring( 0, head ) ).append( "..." );
+        buf.append( str.substring( str.length() - tail ) );
+        buf.append( ']' );
+        return buf.toString();
     }
 
 
     /**
      * Gets a hex string from byte array.
      * 
-     * @param a_res
+     * @param res
      *            the byte array
      * @return the hex string representing the binary values in the array
      */
-    public static String toHexString( byte[] a_res )
+    public static String toHexString( byte[] res )
     {
-        StringBuffer l_buf = new StringBuffer( a_res.length << 1 );
-        for ( int ii = 0; ii < a_res.length; ii++ )
+        StringBuffer buf = new StringBuffer( res.length << 1 );
+        
+        for ( int ii = 0; ii < res.length; ii++ )
         {
-            String l_digit = Integer.toHexString( 0xFF & a_res[ii] );
-            if ( l_digit.length() == 1 )
+            String digit = Integer.toHexString( 0xFF & res[ii] );
+            
+            if ( digit.length() == 1 )
             {
-                l_digit = '0' + l_digit;
+                digit = '0' + digit;
             }
-            l_buf.append( l_digit );
+            
+            buf.append( digit );
         }
-        return l_buf.toString().toUpperCase();
+        return buf.toString().toUpperCase();
     }
 
-
+    /**
+     * Rewrote the toLowercase method to improve performances.
+     * In Ldap, attributesType are supposed to use ASCII chars :
+     * 'a'-'z', 'A'-'Z', '0'-'9', '.' and '-' only.
+     * 
+     * @param value The String to lowercase
+     * @return The lowercase string
+     */
+    public static String toLowerCase( String value )
+    {
+        char[] chars = value.toCharArray();
+        
+        for ( int i = 0; i < chars.length; i++ )
+        {
+            chars[i] = LOWER_CASE[ chars[i]];
+        }
+        
+        return new String( chars );
+    }
+    
     /**
      * Get byte array from hex string
      * 
-     * @param a_hexString
+     * @param hexString
      *            the hex string to convert to a byte array
      * @return the byte form of the hex string.
      */
-    public static byte[] toByteArray( String a_hexString )
+    public static byte[] toByteArray( String hexString )
     {
-        int l_arrLength = a_hexString.length() >> 1;
-        byte l_buf[] = new byte[l_arrLength];
-        for ( int ii = 0; ii < l_arrLength; ii++ )
+        int arrLength = hexString.length() >> 1;
+        byte buf[] = new byte[arrLength];
+        
+        for ( int ii = 0; ii < arrLength; ii++ )
         {
-            int l_index = ii << 1;
-            String l_digit = a_hexString.substring( l_index, l_index + 2 );
-            l_buf[ii] = ( byte ) Integer.parseInt( l_digit, 16 );
+            int index = ii << 1;
+            
+            String l_digit = hexString.substring( index, index + 2 );
+            buf[ii] = ( byte ) Integer.parseInt( l_digit, 16 );
         }
-        return l_buf;
+        
+        return buf;
     }
 
 
     /**
      * This method is used to insert HTML block dynamically
      * 
-     * @param a_source
+     * @param source
      *            the HTML code to be processes
-     * @param a_bReplaceNl
+     * @param replaceNl
      *            if true '\n' will be replaced by <br>
-     * @param a_bReplaceTag
+     * @param replaceTag
      *            if true '<' will be replaced by &lt; and '>' will be replaced
      *            by &gt;
-     * @param a_bReplaceQuote
+     * @param replaceQuote
      *            if true '\"' will be replaced by &quot;
      * @return the formated html block
      */
-    public static String formatHtml( String a_source, boolean a_bReplaceNl, boolean a_bReplaceTag,
-        boolean a_bReplaceQuote )
+    public static String formatHtml( String source, boolean replaceNl, boolean replaceTag,
+        boolean replaceQuote )
     {
-        StringBuffer l_buf = new StringBuffer();
-        int l_len = a_source.length();
+        StringBuffer buf = new StringBuffer();
+        int len = source.length();
 
-        for ( int ii = 0; ii < l_len; ii++ )
+        for ( int ii = 0; ii < len; ii++ )
         {
-            char ch = a_source.charAt( ii );
+            char ch = source.charAt( ii );
+            
             switch ( ch )
             {
                 case '\"':
-                    if ( a_bReplaceQuote )
+                    if ( replaceQuote )
                     {
-                        l_buf.append( "&quot;" );
+                        buf.append( "&quot;" );
                     }
                     else
                     {
-                        l_buf.append( ch );
+                        buf.append( ch );
                     }
                     break;
 
                 case '<':
-                    if ( a_bReplaceTag )
+                    if ( replaceTag )
                     {
-                        l_buf.append( "&lt;" );
+                        buf.append( "&lt;" );
                     }
                     else
                     {
-                        l_buf.append( ch );
+                        buf.append( ch );
                     }
                     break;
 
                 case '>':
-                    if ( a_bReplaceTag )
+                    if ( replaceTag )
                     {
-                        l_buf.append( "&gt;" );
+                        buf.append( "&gt;" );
                     }
                     else
                     {
-                        l_buf.append( ch );
+                        buf.append( ch );
                     }
                     break;
 
                 case '\n':
-                    if ( a_bReplaceNl )
+                    if ( replaceNl )
                     {
-                        if ( a_bReplaceTag )
+                        if ( replaceTag )
                         {
-                            l_buf.append( "&lt;br&gt;" );
+                            buf.append( "&lt;br&gt;" );
                         }
                         else
                         {
-                            l_buf.append( "<br>" );
+                            buf.append( "<br>" );
                         }
                     }
                     else
                     {
-                        l_buf.append( ch );
+                        buf.append( ch );
                     }
                     break;
 
@@ -358,16 +567,16 @@ public class StringTools
                     break;
 
                 case '&':
-                    l_buf.append( "&amp;" );
+                    buf.append( "&amp;" );
                     break;
 
                 default:
-                    l_buf.append( ch );
+                    buf.append( ch );
                     break;
             }
         }
 
-        return l_buf.toString();
+        return buf.toString();
     }
 
 
@@ -375,11 +584,11 @@ public class StringTools
      * Creates a regular expression from an LDAP substring assertion filter
      * specification.
      * 
-     * @param a_initial
+     * @param initialPattern
      *            the initial fragment before wildcards
-     * @param a_any
+     * @param anyPattern
      *            fragments surrounded by wildcards if any
-     * @param a_final
+     * @param finalPattern
      *            the final fragment after last wildcard if any
      * @return the regular expression for the substring match filter
      * @throws RESyntaxException
@@ -421,7 +630,7 @@ public class StringTools
      * Generates a regular expression from an LDAP substring match expression by
      * parsing out the supplied string argument.
      * 
-     * @param a_ldapRegex
+     * @param ldapRegex
      *            the substring match expression
      * @return the regular expression for the substring match filter
      * @throws RESyntaxException
@@ -489,50 +698,50 @@ public class StringTools
      * components returned. If the filter is null all path components are
      * returned.
      * 
-     * @param a_paths
+     * @param paths
      *            a set of paths delimited using the OS path separator
-     * @param a_filter
+     * @param filter
      *            a FileFilter used to filter the return set
      * @return the filter accepted path component Strings in the order
      *         encountered
      */
-    public static List getPaths( String a_paths, FileFilter a_filter )
+    public static List getPaths( String paths, FileFilter filter )
     {
-        final int l_max = a_paths.length() - 1;
-        int l_start = 0;
-        int l_stop = -1;
-        String l_path = null;
-        ArrayList l_list = new ArrayList();
+        final int max = paths.length() - 1;
+        int start = 0;
+        int stop = -1;
+        String path = null;
+        ArrayList list = new ArrayList();
 
         // Abandon with no values if paths string is null
-        if ( a_paths == null || a_paths.trim().equals( "" ) )
+        if ( paths == null || paths.trim().equals( "" ) )
         {
-            return l_list;
+            return list;
         }
 
         // Loop spliting string using OS path separator: terminate
         // when the start index is at the end of the paths string.
-        while ( l_start < l_max )
+        while ( start < max )
         {
-            l_stop = a_paths.indexOf( File.pathSeparatorChar, l_start );
+            stop = paths.indexOf( File.pathSeparatorChar, start );
 
             // The is no file sep between the start and the end of the string
-            if ( l_stop == -1 )
+            if ( stop == -1 )
             {
                 // If we have a trailing path remaining without ending separator
-                if ( l_start < l_max )
+                if ( start < max )
                 {
                     // Last path is everything from start to the string's end
-                    l_path = a_paths.substring( l_start );
+                    path = paths.substring( start );
 
                     // Protect against consecutive separators side by side
-                    if ( !l_path.trim().equals( "" ) )
+                    if ( !path.trim().equals( "" ) )
                     {
                         // If filter is null add path, if it is not null add the
                         // path only if the filter accepts the path component.
-                        if ( a_filter == null || a_filter.accept( new File( l_path ) ) )
+                        if ( filter == null || filter.accept( new File( path ) ) )
                         {
-                            l_list.add( l_path );
+                            list.add( path );
                         }
                     }
                 }
@@ -543,153 +752,25 @@ public class StringTools
             // There is a separator between start and the end if we got here!
             // start index is now at 0 or the index of last separator + 1
             // stop index is now at next separator in front of start index
-            l_path = a_paths.substring( l_start, l_stop );
+            path = paths.substring( start, stop );
 
             // Protect against consecutive separators side by side
-            if ( !l_path.trim().equals( "" ) )
+            if ( !path.trim().equals( "" ) )
             {
                 // If filter is null add path, if it is not null add the path
                 // only if the filter accepts the path component.
-                if ( a_filter == null || a_filter.accept( new File( l_path ) ) )
+                if ( filter == null || filter.accept( new File( path ) ) )
                 {
-                    l_list.add( l_path );
+                    list.add( path );
                 }
             }
 
             // Advance start index past separator to start of next path comp
-            l_start = l_stop + 1;
+            start = stop + 1;
         }
 
-        return l_list;
+        return list;
     }
-
-    // ~ Static fields/initializers
-    // -----------------------------------------------------------------
-
-    /** Hex chars */
-    private static final byte[] HEX_CHAR = new byte[]
-        { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-    private static int UTF8_MULTI_BYTES_MASK = 0x0080;
-
-    private static int UTF8_TWO_BYTES_MASK = 0x00E0;
-
-    private static int UTF8_TWO_BYTES = 0x00C0;
-
-    private static int UTF8_THREE_BYTES_MASK = 0x00F0;
-
-    private static int UTF8_THREE_BYTES = 0x00E0;
-
-    private static int UTF8_FOUR_BYTES_MASK = 0x00F8;
-
-    private static int UTF8_FOUR_BYTES = 0x00F0;
-
-    private static int UTF8_FIVE_BYTES_MASK = 0x00FC;
-
-    private static int UTF8_FIVE_BYTES = 0x00F8;
-
-    private static int UTF8_SIX_BYTES_MASK = 0x00FE;
-
-    private static int UTF8_SIX_BYTES = 0x00FC;
-
-    /** <alpha> ::= [0x41-0x5A] | [0x61-0x7A] */
-    public static final boolean[] ALPHA =
-        { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false,
-            false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false };
-
-    /** <alpha> | <digit> | '-' */
-    public static final boolean[] CHAR =
-        { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            true, false, false, true, true, true, true, true, true, true, true, true, true, false, false, false, false,
-            false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false,
-            false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, true, true, false, false, false, false, false };
-
-    /** '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' */
-    public static final boolean[] DIGIT =
-        { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, true, true, true, true, true, true, true, true, true, true, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, };
-
-    /** <hex> ::= [0x30-0x39] | [0x41-0x46] | [0x61-0x66] */
-    private static final boolean[] HEX =
-        { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, true, true, true, true, true, true, true, true, true, true, false, false, false,
-            false, false, false, false, true, true, true, true, true, true, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, true, true, true, true, true, true, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false };
-
-    /** <hex> ::= [0x30-0x39] | [0x41-0x46] | [0x61-0x66] */
-    public static final byte[] HEX_VALUE =
-        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 00
-                                                                            // ->
-                                                                            // 0F
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 10
-                                                                            // ->
-                                                                            // 1F
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 20
-                                                                            // ->
-                                                                            // 2F
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, -1, -1, -1, -1, -1, // 30 -> 3F
-                                                                    // ( 0, 1,
-                                                                    // 2, 3, 4,
-                                                                    // 5, 6, 7,
-                                                                    // 8, 9 )
-            -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 40
-                                                                            // ->
-                                                                            // 4F (
-                                                                            // A,
-                                                                            // B,
-                                                                            // C,
-                                                                            // D,
-                                                                            // E, F
-                                                                            // )
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 50
-                                                                            // ->
-                                                                            // 5F
-            -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1 // 60
-                                                                            // ->
-                                                                            // 6F (
-                                                                            // a,
-                                                                            // b,
-                                                                            // c,
-                                                                            // d,
-                                                                            // e, f
-                                                                            // )
-        };
-
-    private static int CHAR_ONE_BYTE_MASK = 0xFFFFFF80;
-
-    private static int CHAR_TWO_BYTES_MASK = 0xFFFFF800;
-
-    private static int CHAR_THREE_BYTES_MASK = 0xFFFF0000;
-
-    private static int CHAR_FOUR_BYTES_MASK = 0xFFE00000;
-
-    private static int CHAR_FIVE_BYTES_MASK = 0xFC000000;
-
-    private static int CHAR_SIX_BYTES_MASK = 0x80000000;
-
-    public static final int NOT_EQUAL = -1;
 
 
     // ~ Methods
@@ -1199,6 +1280,34 @@ public class StringTools
         }
     }
 
+    /**
+     * Check if a text is present at the current position in another string.
+     * 
+     * @param string1
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @param test
+     *            The text we want to check
+     * @return <code>true</code> if the string contains the text.
+     */
+    public static boolean areEquals( String string1, int index, String text )
+    {
+        int length1 = string1.length();
+        int length2 = text.length();
+
+        if ( ( string1 == null ) || ( length1 == 0 ) || ( length1 <= index ) || ( index < 0 )
+            || ( text == null ) || ( length2 == 0 )
+            || ( length2 > ( length1 + index ) ) )
+        {
+            return false;
+        }
+        else
+        {
+            return string1.substring( index ).startsWith( text );
+        }
+    }
+    
 
     /**
      * Check if a text is present at the current position in a buffer.
@@ -1288,6 +1397,56 @@ public class StringTools
         }
     }
 
+    /**
+     * Test if the current character is equal to a specific character.
+     * 
+     * @param string
+     *            The String which contains the data
+     * @param index
+     *            Current position in the string
+     * @param car
+     *            The character we want to compare with the current string
+     *            position
+     * @return <code>true</code> if the current character equals the given
+     *         character.
+     */
+    public static boolean isCharASCII( String string, int index, char car )
+    {
+        int length = string.length();
+        
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return false;
+        }
+        else
+        {
+            return string.charAt( index ) == car;
+        }
+    }
+
+    /**
+     * Get the character at a given position in a string, checking fo limits
+     * 
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return The character ar the given position, or '\0' if something went wrong 
+     */
+    public static char charAt( String string, int index )
+    {
+        int length = string.length();
+        
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return '\0';
+        }
+        else
+        {
+            return string.charAt( index ) ;
+        }
+    }
+
 
     /**
      * Check if the current character is an Hex Char <hex> ::= [0x30-0x39] |
@@ -1352,6 +1511,39 @@ public class StringTools
         }
     }
 
+    /**
+     * Check if the current character is an Hex Char <hex> ::= [0x30-0x39] |
+     * [0x41-0x46] | [0x61-0x66]
+     * 
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return <code>true</code> if the current character is a Hex Char
+     */
+    public static boolean isHex( String string, int index )
+    {
+        int length = string.length();
+        
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return false;
+        }
+        else
+        {
+            char c = string.charAt( index );
+
+            if ( ( c > 127 ) || ( HEX[c] == false ) )
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+    
 
     /**
      * Test if the current character is a digit <digit> ::= '0' | '1' | '2' |
@@ -1371,6 +1563,19 @@ public class StringTools
         {
             return ( ( ( byteArray[0] > 127 ) || !DIGIT[byteArray[0]] ) ? false : true );
         }
+    }
+
+    /**
+     * Test if the current character is a digit <digit> ::= '0' | '1' | '2' |
+     * '3' | '4' | '5' | '6' | '7' | '8' | '9'
+     * 
+     * @param car the character to test
+     *            
+     * @return <code>true</code> if the character is a Digit
+     */
+    public static boolean isDigit( char car )
+    {
+        return ( car >= '0' ) && ( car <= '9' );
     }
 
 
@@ -1439,6 +1644,40 @@ public class StringTools
         }
     }
 
+    /**
+     * Test if the current character is an Alpha character : <alpha> ::=
+     * [0x41-0x5A] | [0x61-0x7A]
+     * 
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return <code>true</code> if the current character is an Alpha
+     *         character
+     */
+    public static boolean isAlphaASCII( String string, int index )
+    {
+        int length = string.length();
+        
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return false;
+        }
+        else
+        {
+            char c = string.charAt( index++ );
+
+            if ( ( c > 127 ) || ( ALPHA[c] == false ) )
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+
 
     /**
      * Test if the current character is a digit <digit> ::= '0' | '1' | '2' |
@@ -1485,6 +1724,30 @@ public class StringTools
         }
     }
 
+    /**
+     * Test if the current character is a digit <digit> ::= '0' | '1' | '2' |
+     * '3' | '4' | '5' | '6' | '7' | '8' | '9'
+     * 
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return <code>true</code> if the current character is a Digit
+     */
+    public static boolean isDigit( String string, int index )
+    {
+        int length = string.length();
+        
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return false;
+        }
+        else
+        {
+            char c = string.charAt(  index  );
+            return ( ( ( c > 127 ) || !DIGIT[c] ) ? false : true );
+        }
+    }
 
     /**
      * Test if the current character is a digit <digit> ::= '0' | '1' | '2' |
@@ -1570,21 +1833,38 @@ public class StringTools
         }
     }
 
-    // The following methods are taken from org.apache.commons.lang.StringUtils
-
     /**
-     * The empty String <code>""</code>.
+     * Check if the current character is an 7 bits ASCII CHAR (between 0 and
+     * 127). <char> ::= <alpha> | <digit> | '-'
      * 
-     * @since 2.0
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return The position of the next character, if the current one is a CHAR.
      */
-    public static final String EMPTY = "";
+    public static boolean isAlphaDigitMinus( String string, int index )
+    {
+        int length = string.length();
+        
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return false;
+        }
+        else
+        {
+            char c = string.charAt( index++ );
 
-    /**
-     * The empty byte[]
-     */
-    public static final byte[] EMPTY_BYTES = new byte[]
-        {};
-
+            if ( ( c > 127 ) || ( CHAR[c] == false ) )
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
 
     // Empty checks
     // -----------------------------------------------------------------------
@@ -1673,26 +1953,7 @@ public class StringTools
      */
     public static String trim( String str )
     {
-        if ( isEmpty( str ) )
-        {
-            return "";
-        }
-
-        char[] array = str.toCharArray();
-        int start = 0;
-        int end = array.length;
-
-        while ( ( start < end ) && ( array[start] == ' ' ) )
-        {
-            start++;
-        }
-
-        while ( ( end > start ) && ( array[end - 1] == ' ' ) )
-        {
-            end--;
-        }
-
-        return new String( array, start, ( end - start ) );
+        return ( isEmpty( str ) ? "" : str.trim() );
     }
 
 
@@ -1768,15 +2029,15 @@ public class StringTools
             return "";
         }
 
-        char[] array = str.toCharArray();
         int start = 0;
-
-        while ( ( start < array.length ) && ( array[start] == ' ' ) )
+        int end = str.length();
+        
+        while ( ( start < end ) && ( str.charAt( start ) == ' ' ) )
         {
             start++;
         }
 
-        return new String( array, start, array.length - start );
+        return ( start == 0 ? str : str.substring( start ) );
     }
 
 
@@ -1813,6 +2074,45 @@ public class StringTools
         }
 
         return pos;
+    }
+
+    /**
+     * <p>
+     * Removes spaces (char &lt;= 32) from start of this array, handling
+     * <code>null</code> by returning <code>null</code>.
+     * </p>
+     * Trim removes start characters &lt;= 32.
+     * 
+     * <pre>
+     *  StringUtils.trimLeft(null)          = null
+     *  StringUtils.trimLeft(&quot;&quot;)            = &quot;&quot;
+     *  StringUtils.trimLeft(&quot;     &quot;)       = &quot;&quot;
+     *  StringUtils.trimLeft(&quot;abc&quot;)         = &quot;abc&quot;
+     *  StringUtils.trimLeft(&quot;    abc    &quot;) = &quot;abc    &quot;
+     * </pre>
+     * 
+     * @param string
+     *            the string to be trimmed, may be null
+     * @return the position of the first char which is not a space, or the last
+     *         position of the array.
+     */
+    public static void trimLeft( String string, Position pos )
+    {
+        if ( string == null )
+        {
+            return;
+        }
+
+        int length = string.length();
+        
+        while ( ( pos.start < length ) && ( string.charAt( pos.start ) == ' ' ) )
+        {
+            pos.start++;
+        }
+        
+        pos.end = pos.start;
+
+        return;
     }
 
 
@@ -1878,16 +2178,20 @@ public class StringTools
             return "";
         }
 
-        char[] array = str.toCharArray();
-        int start = 0;
-        int end = array.length;
-
-        while ( ( start < end ) && ( array[start] == ' ' ) )
+        int length = str.length();
+        int end = length;
+        
+        while ( ( end > 0 ) && ( str.charAt( end - 1 ) == ' ' ) )
         {
-            start++;
+            if ( ( end > 1 ) && ( str.charAt(  end - 2 ) == '\\' ) )
+            {
+                break;
+            }
+            
+            end--;
         }
 
-        return new String( array, start, ( end - start ) );
+        return ( end == length ? str : str.substring( 0, end ) );
     }
 
 
@@ -1918,7 +2222,7 @@ public class StringTools
             return pos;
         }
 
-        while ( ( pos > 0 ) && ( chars[pos - 1] == ' ' ) )
+        while ( ( pos >= 0 ) && ( chars[pos - 1] == ' ' ) )
         {
             pos--;
         }
@@ -1926,6 +2230,45 @@ public class StringTools
         return pos;
     }
 
+    /**
+     * <p>
+     * Removes spaces (char &lt;= 32) from end of this string, handling
+     * <code>null</code> by returning <code>null</code>.
+     * </p>
+     * Trim removes start characters &lt;= 32.
+     * 
+     * <pre>
+     *  StringUtils.trimRight(null)          = null
+     *  StringUtils.trimRight(&quot;&quot;)            = &quot;&quot;
+     *  StringUtils.trimRight(&quot;     &quot;)       = &quot;&quot;
+     *  StringUtils.trimRight(&quot;abc&quot;)         = &quot;abc&quot;
+     *  StringUtils.trimRight(&quot;    abc    &quot;) = &quot;    abc&quot;
+     * </pre>
+     * 
+     * @param string
+     *            the string to be trimmed, may be null
+     * @return the position of the first char which is not a space, or the last
+     *         position of the string.
+     */
+    public static String trimRight( String string, Position pos )
+    {
+        if ( string == null )
+        {
+            return "";
+        }
+
+        while ( ( pos.end >= 0 ) && ( string.charAt( pos.end - 1 ) == ' ' ) )
+        {
+            if ( ( pos.end > 1 ) && ( string.charAt(  pos.end - 2 ) == '\\' ) )
+            {
+                break;
+            }
+            
+            pos.end--;
+        }
+
+        return ( pos.end == string.length() ? string : string.substring( 0, pos.end ) );
+    }
 
     /**
      * <p>

@@ -23,6 +23,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
@@ -35,7 +36,88 @@ import javax.naming.NamingException;
  */
 public class AttributeUtils
 {
-    public static boolean containsValue( Attribute attr, Object compared, AttributeType type ) throws NamingException
+    /**
+     * Utility method to extract an attribute from Attributes object using
+     * all combinationos of the name including aliases.
+     * 
+     * @param attrs the Attributes to get the Attribute object from
+     * @param type the attribute type specification
+     * @return an Attribute with matching the attributeType spec or null
+     */
+    public final static Attribute getAttribute( Attributes attrs, AttributeType type )
+    {
+        // optimization bypass to avoid cost of the loop below
+        if ( type.getNames().length == 1 )
+        {
+            return attrs.get( type.getNames()[0] );
+        }
+        
+        // check if the attribute's OID is used
+        if ( attrs.get( type.getOid() ) != null )
+        {
+            return attrs.get( type.getOid() );
+        }
+        
+        // iterate through aliases
+        for ( int ii = 0; ii < type.getNames().length; ii++ )
+        {
+            if ( attrs.get( type.getNames()[ii] ) != null )
+            {
+                return attrs.get( type.getNames()[ii] );
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * Utility method to extract an attribute from an array of modifications.
+     * 
+     * @param mods the array of ModificationItems to extract the Attribute from.
+     * @param type the attributeType spec of the Attribute to extract
+     * @return the extract Attribute or null if no such attribute exists
+     */
+    public final static Attribute getAttribute( ModificationItem[] mods, AttributeType type )
+    {
+        // optimization bypass to avoid cost of the loop below
+        if ( type.getNames().length == 1 )
+        {
+            for ( int jj = 0; jj < mods.length; jj++ )
+            {
+                if ( mods[jj].getAttribute().getID().equalsIgnoreCase( type.getNames()[0] ) )
+                {
+                    return mods[jj].getAttribute();
+                }
+            }
+        }
+        
+        // check if the attribute's OID is used
+        for ( int jj = 0; jj < mods.length; jj++ )
+        {
+            if ( mods[jj].getAttribute().getID().equals( type.getOid() ) )
+            {
+                return mods[jj].getAttribute();
+            }
+        }
+        
+        // iterate through aliases
+        for ( int ii = 0; ii < type.getNames().length; ii++ )
+        {
+            for ( int jj = 0; jj < mods.length; jj++ )
+            {
+                if ( mods[jj].getAttribute().getID().equalsIgnoreCase( type.getNames()[ii] ) )
+                {
+                    return mods[jj].getAttribute();
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    public final static boolean containsValue( Attribute attr, Object compared, AttributeType type ) throws NamingException
     {
         // quick bypass test
         if ( attr.contains( compared ) )
