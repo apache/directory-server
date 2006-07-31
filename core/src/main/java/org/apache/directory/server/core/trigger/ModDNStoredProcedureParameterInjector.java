@@ -19,16 +19,10 @@ package org.apache.directory.server.core.trigger;
 
 import java.util.Map;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.ModDNStoredProcedureParameter;
 
 
 public class ModDNStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
