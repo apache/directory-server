@@ -31,6 +31,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
 import org.apache.commons.collections.MultiHashMap;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -128,6 +129,11 @@ public class Rdn implements Cloneable, Comparable, Serializable
      * connected with the atav it represents.
      */
     private Map atavTypes = new MultiHashMap();
+    
+    /**
+     * We keep the type for a single valued RDN, to avoid the creation of an HashMap
+     */
+    private String atavType = null;
 
     /**
      * A simple AttributeTypeAndValue is used to store the Rdn for the simple
@@ -312,8 +318,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
             case 1:
                 // We have a single AttributeTypeAndValue
                 // We will trim and lowercase type and value.
-                string = StringTools.lowerCase( StringTools.trim( atav.getType() ) ) + '='
-                    + StringTools.trim( atav.getValue() );
+                string = atav.getType() + '=' + atav.getValue();
                 break;
 
             default:
@@ -361,8 +366,8 @@ public class Rdn implements Cloneable, Comparable, Serializable
     /* Unspecified protection */void addAttributeTypeAndValue( String type, String value ) throws InvalidNameException
     {
         // First, let's normalize the type
-        String normalizedType = StringTools.lowerCase( StringTools.trim( type ) );
-        String normalizedValue = StringTools.trim( value );
+        String normalizedType = type.toLowerCase();
+        String normalizedValue = value;
 
         switch ( nbAtavs )
         {
@@ -370,7 +375,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                 // This is the first AttributeTypeAndValue. Just stores it.
                 atav = new AttributeTypeAndValue( normalizedType, normalizedValue );
                 nbAtavs = 1;
-                atavTypes.put( normalizedType, atav );
+                atavType = normalizedType;
                 return;
 
             case 1:
@@ -381,6 +386,8 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
                 // and store the existing AttributeTypeAndValue into it.
                 atavs.add( atav );
+                atavTypes = new MultiHashMap();
+                atavTypes.put( atavType, atav );
 
                 atav = null;
 
@@ -407,6 +414,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
     {
         atav = null;
         atavs = null;
+        atavType = null;
         atavTypes.clear();
         nbAtavs = 0;
         string = "";
@@ -590,8 +598,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
                 case 1:
                     rdn.atav = ( AttributeTypeAndValue ) this.atav.clone();
-                    rdn.atavTypes = new MultiHashMap();
-                    rdn.atavTypes.put( rdn.atav.getType(), rdn.atav );
+                    rdn.atavTypes = atavTypes;
                     break;
 
                 default:
@@ -893,27 +900,43 @@ public class Rdn implements Cloneable, Comparable, Serializable
      */
     public Attributes toAttributes()
     {
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new LockableAttributesImpl();
+        Attribute attribute = null;
 
-        Iterator types = atavTypes.keySet().iterator();
-
-        while ( types.hasNext() )
+        switch ( nbAtavs  )
         {
-            String type = ( String ) types.next();
-            List values = ( List ) atavTypes.get( type );
-
-            Attribute attribute = new BasicAttribute( type, true );
-
-            Iterator iterValues = values.iterator();
-
-            while ( iterValues.hasNext() )
-            {
-                AttributeTypeAndValue value = ( AttributeTypeAndValue ) iterValues.next();
-
-                attribute.add( value.getValue() );
-            }
-
-            attributes.put( attribute );
+            case 0 :
+                break;
+                
+            case 1 :
+                attribute = new BasicAttribute( atavType, true );
+                attribute.add( atav.getValue() );
+                attributes.put( attribute );
+                break;
+                
+            default :
+                Iterator types = atavTypes.keySet().iterator();
+        
+                while ( types.hasNext() )
+                {
+                    String type = ( String ) types.next();
+                    List values = ( List ) atavTypes.get( type );
+        
+                    attribute = new BasicAttribute( type, true );
+        
+                    Iterator iterValues = values.iterator();
+        
+                    while ( iterValues.hasNext() )
+                    {
+                        AttributeTypeAndValue value = ( AttributeTypeAndValue ) iterValues.next();
+        
+                        attribute.add( value.getValue() );
+                    }
+        
+                    attributes.put( attribute );
+                }
+                
+                break;
         }
 
         return attributes;
