@@ -29,7 +29,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.unit.AbstractTestCase;
 
@@ -47,7 +47,7 @@ public abstract class AbstractTriggerServiceTest extends AbstractTestCase
      */
     public AbstractTriggerServiceTest()
     {
-        super( DirectoryPartitionNexus.ADMIN_PRINCIPAL, "secret" );
+        super( PartitionNexus.ADMIN_PRINCIPAL, "secret" );
     }
 
     
@@ -59,7 +59,7 @@ public abstract class AbstractTriggerServiceTest extends AbstractTestCase
      */
     public DirContext getContextAsAdmin() throws NamingException
     {
-        return getContextAsAdmin( DirectoryPartitionNexus.SYSTEM_PARTITION_SUFFIX );
+        return getContextAsAdmin( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
     }
 
 
@@ -77,7 +77,7 @@ public abstract class AbstractTriggerServiceTest extends AbstractTestCase
         Hashtable env = ( Hashtable ) sysRoot.getEnvironment().clone();
         env.put( DirContext.PROVIDER_URL, dn );
         env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
-        env.put( DirContext.SECURITY_PRINCIPAL, DirectoryPartitionNexus.ADMIN_PRINCIPAL );
+        env.put( DirContext.SECURITY_PRINCIPAL, PartitionNexus.ADMIN_PRINCIPAL );
         env.put( DirContext.SECURITY_CREDENTIALS, "secret" );
         return new InitialDirContext( env );
     }
@@ -93,7 +93,7 @@ public abstract class AbstractTriggerServiceTest extends AbstractTestCase
      */
     public DirContext getContextAs( Name user, String password ) throws NamingException
     {
-        return getContextAs( user, password, DirectoryPartitionNexus.SYSTEM_PARTITION_SUFFIX );
+        return getContextAs( user, password, PartitionNexus.SYSTEM_PARTITION_SUFFIX );
     }
 
 
