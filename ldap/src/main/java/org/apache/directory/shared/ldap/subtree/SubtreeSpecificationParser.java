@@ -20,6 +20,7 @@ package org.apache.directory.shared.ldap.subtree;
 
 import java.io.StringReader;
 import java.text.ParseException;
+import java.util.Map;
 
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 
@@ -51,13 +52,13 @@ public class SubtreeSpecificationParser
     /**
      * Creates a subtree specification parser.
      */
-    public SubtreeSpecificationParser()
+    public SubtreeSpecificationParser( Map oidsMap )
     {
         StringReader in = new StringReader( "" ); // place holder for the
                                                     // first input
         this.lexer = new ReusableAntlrSubtreeSpecificationLexer( in );
         this.parser = new ReusableAntlrSubtreeSpecificationParser( lexer );
-        this.parser.init(); // this method MUST be called while we cannot do
+        this.parser.init( oidsMap ); // this method MUST be called while we cannot do
         // constructor overloading for antlr generated parser
         this.isNormalizing = false;
     }
@@ -66,14 +67,14 @@ public class SubtreeSpecificationParser
     /**
      * Creates a normalizing subtree specification parser.
      */
-    public SubtreeSpecificationParser( NormalizerMappingResolver resolver )
+    public SubtreeSpecificationParser( NormalizerMappingResolver resolver, Map oidsMap  )
     {
         StringReader in = new StringReader( "" ); // place holder for the
                                                     // first input
         this.lexer = new ReusableAntlrSubtreeSpecificationLexer( in );
         this.parser = new ReusableAntlrSubtreeSpecificationParser( lexer );
         this.parser.setNormalizerMappingResolver( resolver );
-        this.parser.init(); // this method MUST be called while we cannot do
+        this.parser.init( oidsMap ); // this method MUST be called while we cannot do
         // constructor overloading for antlr generated parser
         this.isNormalizing = true;
     }
