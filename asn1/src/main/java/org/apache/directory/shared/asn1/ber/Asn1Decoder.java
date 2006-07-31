@@ -49,7 +49,10 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( Asn1Decoder.class );
-
+    
+    /** A speedup for logger */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    
     /** This flag is used to indicate that there are more bytes in the stream */
     private static final boolean MORE = true;
 
@@ -249,7 +252,10 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             current = current.getParent();
         }
 
-        log.debug( "TLV Tree : {}", sb.toString() );
+        if ( IS_DEBUG ) 
+        {
+            log.debug( "TLV Tree : {}", sb.toString() );
+        }
     }
 
 
@@ -301,7 +307,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
     private void treatTagEndState( IAsn1Container container ) throws DecoderException, NamingException
     {
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             Tag tag = container.getCurrentTLV().getTag();
             log.debug( "Tag {} has been decoded", tag.toString() );
@@ -417,7 +423,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
                 byte octet = stream.get();
 
-                if ( log.isDebugEnabled() )
+                if ( IS_DEBUG )
                 {
                     log.debug( "  current byte : {}", Asn1StringUtils.dumpByte( octet ) );
                 }
@@ -490,7 +496,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         // exceeded by the current TLV.
         TLV parentTLV = container.getParentTLV();
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Parent length : {}", getParentLength( parentTLV ) );
         }
@@ -502,7 +508,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             tlv.setExpectedLength( length.getLength() );
             container.setParentTLV( tlv );
 
-            if ( log.isDebugEnabled() )
+            if ( IS_DEBUG )
             {
                 log.debug( "Root TLV[{}]", new Integer( tlv.getLength().getLength() ) );
             }
@@ -608,7 +614,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
         }
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Length {} has been decoded", length.toString() );
         }
@@ -742,7 +748,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      */
     private boolean treatTLVDoneState( ByteBuffer stream, IAsn1Container container ) throws DecoderException, NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             dumpTLVTree( container );
         }
@@ -862,14 +868,17 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
         boolean hasRemaining = stream.hasRemaining();
 
-        log.debug( ">>>==========================================" );
-        log.debug( "--> Decoding a PDU" );
-        log.debug( ">>>------------------------------------------" );
+        if ( IS_DEBUG )
+        {
+            log.debug( ">>>==========================================" );
+            log.debug( "--> Decoding a PDU" );
+            log.debug( ">>>------------------------------------------" );
+        }
 
         while ( hasRemaining )
         {
 
-            if ( log.isDebugEnabled() )
+            if ( IS_DEBUG )
             {
                 log.debug( "--- State = {} ---", stateToString( container.getState() ) );
 
@@ -956,7 +965,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             }
         }
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "<<<------------------------------------------" );
 

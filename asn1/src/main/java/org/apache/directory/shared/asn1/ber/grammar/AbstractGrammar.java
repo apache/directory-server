@@ -44,6 +44,9 @@ public abstract class AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( AbstractGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     // ~ Instance fields
     // ----------------------------------------------------------------------------
 
@@ -114,7 +117,7 @@ public abstract class AbstractGrammar implements IGrammar
 
         int tlvLength = tlv.getSize();
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Expected Length = " + ( ( Asn1Object ) object ).getExpectedLength() + ", current length = "
                 + ( ( Asn1Object ) object ).getCurrentLength() + ", added length = " + expectedLength
@@ -203,7 +206,7 @@ public abstract class AbstractGrammar implements IGrammar
 
                     if ( container.isGrammarPopAllowed() )
                     {
-                        if ( log.isDebugEnabled() )
+                        if ( IS_DEBUG )
                         {
                             log.debug( "Pop grammar {}, state = {}", container.getStates().getGrammarName(
                                 currentGrammar ), currentGrammar.getStatesEnum().getState(
@@ -211,6 +214,7 @@ public abstract class AbstractGrammar implements IGrammar
                         }
 
                         currentState = container.restoreGrammar();
+                        container.setTransition( currentState );
                         continue;
                     }
                     else
@@ -225,7 +229,7 @@ public abstract class AbstractGrammar implements IGrammar
                 }
             }
 
-            if ( log.isDebugEnabled() )
+            if ( IS_DEBUG )
             {
                 log.debug( transition.toString( container.getCurrentGrammarType(), currentGrammar.getStatesEnum() ) );
             }
@@ -240,7 +244,7 @@ public abstract class AbstractGrammar implements IGrammar
                     transition.getAction().action( container );
                 }
 
-                if ( log.isDebugEnabled() )
+                if ( IS_DEBUG )
                 {
                     log.debug( "Switching from grammar {} to grammar {}", container.getStates().getGrammarName(
                         currentGrammar ), container.getStates().getGrammarName( ( nextState >> 8 ) - 1 ) );
