@@ -51,6 +51,9 @@ public class ExtendedResponseGrammar extends AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( ExtendedResponseGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** The instance of grammar. ExtendedResponseGrammar is a singleton */
     private static IGrammar instance = new ExtendedResponseGrammar();
 
@@ -158,7 +161,7 @@ public class ExtendedResponseGrammar extends AbstractGrammar implements IGrammar
                     // We can have a Pop transition
                     ldapMessageContainer.grammarPopAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "OID read : {}", extendedResponse.getResponseName() );
                     }
@@ -210,7 +213,7 @@ public class ExtendedResponseGrammar extends AbstractGrammar implements IGrammar
                     // We can have a Pop transition
                     ldapMessageContainer.grammarPopAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Extended value : {}", extendedResponse.getResponse() );
                     }

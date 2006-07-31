@@ -37,6 +37,9 @@ public class SimpleAuthentication extends LdapAuthentication
     /** The logger */
     private static Logger log = LoggerFactory.getLogger( SimpleAuthentication.class );
 
+    /** A speedup for logger */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    
     // ~ Instance fields
     // ----------------------------------------------------------------------------
 
@@ -81,7 +84,7 @@ public class SimpleAuthentication extends LdapAuthentication
 
         length += Length.getNbBytes( simple.length ) + simple.length;
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Simple Authentication length : {}", new Integer( length ) );
         }

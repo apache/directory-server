@@ -58,6 +58,9 @@ public class SearchResultEntryGrammar extends AbstractGrammar implements IGramma
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( SearchResultEntryGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** The instance of grammar. SearchResultEntryGrammar is a singleton */
     private static IGrammar instance = new SearchResultEntryGrammar();
 
@@ -155,7 +158,7 @@ public class SearchResultEntryGrammar extends AbstractGrammar implements IGramma
                         searchResultEntry.setObjectName( objectName );
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Search Result Entry DN found : {}", searchResultEntry.getObjectName() );
                     }
@@ -330,7 +333,7 @@ public class SearchResultEntryGrammar extends AbstractGrammar implements IGramma
                         {
                             value = tlv.getValue().getData();
 
-                            if ( log.isDebugEnabled() )
+                            if ( IS_DEBUG )
                             {
                                 log.debug( "Attribute value {}", StringTools.dumpBytes( ( byte[] ) value ) );
                             }

@@ -51,6 +51,9 @@ public class LdapControlGrammar extends AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( LdapControlGrammar.class );
 
+    /** A speedup for logger */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    
     /** The instance of grammar. LdapControlGrammar is a singleton */
     private static IGrammar instance = new LdapControlGrammar();
 
@@ -208,7 +211,7 @@ public class LdapControlGrammar extends AbstractGrammar implements IGrammar
                     // We can have an END transition
                     ldapMessageContainer.grammarEndAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Control OID : " + control.getControlType() );
                     }
@@ -267,7 +270,7 @@ public class LdapControlGrammar extends AbstractGrammar implements IGrammar
                     // We can have an END transition
                     ldapMessageContainer.grammarEndAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Control criticality : " + control.getCriticality() );
                     }

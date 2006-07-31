@@ -52,6 +52,9 @@ public class DelRequestGrammar extends AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( DelRequestGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** The instance of grammar. DelRequestGrammar is a singleton */
     private static IGrammar instance = new DelRequestGrammar();
 
@@ -129,7 +132,7 @@ public class DelRequestGrammar extends AbstractGrammar implements IGrammar
                     // We can have an Pop transition
                     ldapMessageContainer.grammarPopAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Deleting DN {}", entry );
                     }

@@ -46,6 +46,9 @@ public class EntryChangeControlGrammar extends AbstractGrammar implements IGramm
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( EntryChangeControlGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** The instance of grammar. EntryChangeControlGrammar is a singleton */
     private static IGrammar instance = new EntryChangeControlGrammar();
 
@@ -128,7 +131,7 @@ public class EntryChangeControlGrammar extends AbstractGrammar implements IGramm
                         case ChangeType.MODIFY_VALUE:
                             ChangeType changeType = ChangeType.getChangeType( change );
 
-                            if ( log.isDebugEnabled() )
+                            if ( IS_DEBUG )
                             {
                                 log.debug( "changeType = " + changeType );
                             }
@@ -212,7 +215,7 @@ public class EntryChangeControlGrammar extends AbstractGrammar implements IGramm
                         throw new DecoderException( "failed to decode the previous DN" );
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "previousDN = " + previousDn );
                     }
@@ -277,7 +280,7 @@ public class EntryChangeControlGrammar extends AbstractGrammar implements IGramm
                 {
                     int changeNumber = IntegerDecoder.parse( value );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "changeNumber = " + changeNumber );
                     }

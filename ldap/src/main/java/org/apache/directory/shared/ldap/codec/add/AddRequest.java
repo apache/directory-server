@@ -60,6 +60,9 @@ public class AddRequest extends LdapMessage
     /** The logger */
     private transient static final Logger log = LoggerFactory.getLogger( AddRequest.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     // ~ Instance fields
     // ----------------------------------------------------------------------------
 
@@ -273,7 +276,7 @@ public class AddRequest extends LdapMessage
         // Return the result.
         int result = 1 + Length.getNbBytes( addRequestLength ) + addRequestLength;
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "AddRequest PDU length = {}", new Integer( result ) );
         }
@@ -375,7 +378,7 @@ public class AddRequest extends LdapMessage
             throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "AddRequest encoding : {}", StringTools.dumpBytes( buffer.array() ) );
             log.debug( "AddRequest initial value : {}", toString() );

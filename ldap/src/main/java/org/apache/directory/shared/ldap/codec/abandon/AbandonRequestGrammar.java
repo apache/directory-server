@@ -52,6 +52,9 @@ public class AbandonRequestGrammar extends AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( AbandonRequestGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** The instance of grammar. AbandonRequestGrammar is a singleton */
     private static IGrammar instance = new AbandonRequestGrammar();
 
@@ -121,7 +124,7 @@ public class AbandonRequestGrammar extends AbstractGrammar implements IGrammar
                         abandonRequest.setAbandonedMessageId( abandonnedMessageId );
                         ldapMessage.setProtocolOP( abandonRequest );
 
-                        if ( log.isDebugEnabled() )
+                        if ( IS_DEBUG )
                         {
                             log.debug( "AbandonMessage Id has been decoded : {}", new Integer( abandonnedMessageId ) );
                         }

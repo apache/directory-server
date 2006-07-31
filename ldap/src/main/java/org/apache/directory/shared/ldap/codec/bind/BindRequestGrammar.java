@@ -58,6 +58,9 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( BindRequestGrammar.class );
 
+    /** A speedup for logger */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    
     /** The instance of grammar. BindRequestGrammar is a singleton */
     private static IGrammar instance = new BindRequestGrammar();
 
@@ -163,7 +166,7 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                             throw new DecoderException( "Ldap Version " + version + " is not supported" );
                         }
 
-                        if ( log.isDebugEnabled() )
+                        if ( IS_DEBUG )
                         {
                             log.debug( "Ldap version ", new Integer( version ) );
                         }
@@ -228,7 +231,7 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                         bindRequestMessage.setName( name );
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( " The Bind name is {}", bindRequestMessage.getName() );
                     }
@@ -291,7 +294,7 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                     // We can have an pop transition
                     ldapMessageContainer.grammarPopAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "The simple authentication is : {}", authentication.getSimple() );
                     }
@@ -356,7 +359,10 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
 
                     bindRequestMessage.setAuthentication( authentication );
 
-                    log.debug( "The SaslCredential has been created" );
+                    if ( IS_DEBUG ) 
+                    {
+                        log.debug( "The SaslCredential has been created" );
+                    }
 
                     return;
                 }
@@ -422,7 +428,7 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                     // We can have an Pop transition
                     ldapMessageContainer.grammarPopAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "The mechanism is : {}", authentication.getMechanism() );
                     }
@@ -499,7 +505,7 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                     // We can have an Pop transition
                     ldapMessageContainer.grammarPopAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "The credentials are : {}", credentials.getCredentials() );
                     }

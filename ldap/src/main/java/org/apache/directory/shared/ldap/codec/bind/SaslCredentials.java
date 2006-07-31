@@ -39,6 +39,9 @@ public class SaslCredentials extends LdapAuthentication
     /** The logger */
     private static Logger log = LoggerFactory.getLogger( SimpleAuthentication.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     // ~ Instance fields
     // ----------------------------------------------------------------------------
 
@@ -127,7 +130,7 @@ public class SaslCredentials extends LdapAuthentication
         int saslLength = 1 + Length.getNbBytes( mechanismLength + credentialsLength ) + mechanismLength
             + credentialsLength;
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "SASL Authentication length : {}", new Integer( saslLength ) );
         }

@@ -45,6 +45,9 @@ public class PSearchControlGrammar extends AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( PSearchControlGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** The instance of grammar. PSearchControlGrammar is a singleton */
     private static IGrammar instance = new PSearchControlGrammar();
 
@@ -91,7 +94,7 @@ public class PSearchControlGrammar extends AbstractGrammar implements IGrammar
                     {
                         int changeTypes = IntegerDecoder.parse( value );
 
-                        if ( log.isDebugEnabled() )
+                        if ( IS_DEBUG )
                         {
                             log.debug( "changeTypes = " + changeTypes );
                         }
@@ -123,7 +126,7 @@ public class PSearchControlGrammar extends AbstractGrammar implements IGrammar
                     {
                         boolean changesOnly = BooleanDecoder.parse( value );
 
-                        if ( log.isDebugEnabled() )
+                        if ( IS_DEBUG )
                         {
                             log.debug( "changesOnly = " + changesOnly );
                         }
@@ -155,7 +158,7 @@ public class PSearchControlGrammar extends AbstractGrammar implements IGrammar
                     {
                         boolean returnECs = BooleanDecoder.parse( value );
 
-                        if ( log.isDebugEnabled() )
+                        if ( IS_DEBUG )
                         {
                             log.debug( "returnECs = " + returnECs );
                         }

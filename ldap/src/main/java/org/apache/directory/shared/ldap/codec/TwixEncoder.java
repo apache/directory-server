@@ -46,6 +46,9 @@ public class TwixEncoder implements ProviderEncoder
     /** The logger */
     private static Logger log = LoggerFactory.getLogger( TwixEncoder.class );
 
+    /** A speedup for logger */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    
     /** The associated Provider */
     private final Provider provider;
 
@@ -82,7 +85,7 @@ public class TwixEncoder implements ProviderEncoder
     {
         try
         {
-            if ( log.isDebugEnabled() )
+            if ( IS_DEBUG )
             {
                 log.debug( "Encoding this LdapMessage : " + obj );
             }
@@ -113,14 +116,14 @@ public class TwixEncoder implements ProviderEncoder
     {
         try
         {
-            if ( log.isDebugEnabled() )
+            if ( IS_DEBUG )
             {
                 log.debug( "Encoding this LdapMessage : " + obj );
             }
 
             ByteBuffer pdu = ( ( LdapMessage ) obj ).encode( null );
 
-            if ( log.isDebugEnabled() )
+            if ( IS_DEBUG )
             {
                 log.debug( "Encoded PDU : " + StringTools.dumpBytes( pdu.array() ) );
             }
@@ -152,14 +155,14 @@ public class TwixEncoder implements ProviderEncoder
     {
         try
         {
-            if ( log.isDebugEnabled() )
+            if ( IS_DEBUG )
             {
                 log.debug( "Encoding this LdapMessage : " + obj );
             }
 
             byte[] pdu = ( ( LdapMessage ) obj ).encode( null ).array();
 
-            if ( log.isDebugEnabled() )
+            if ( IS_DEBUG )
             {
                 log.debug( "Encoded PDU : " + StringTools.dumpBytes( pdu ) );
             }

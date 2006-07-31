@@ -1,3 +1,19 @@
+/*
+ *   Copyright 2006 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package org.apache.directory.shared.ldap.codec;
 
 
@@ -25,6 +41,9 @@ public class TwixDecoder implements ProviderDecoder
 {
     /** The logger */
     private static Logger log = LoggerFactory.getLogger( TwixDecoder.class );
+
+    /** A speedup for logger */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /** The associated Provider */
     private final Provider provider;
@@ -86,7 +105,7 @@ public class TwixDecoder implements ProviderDecoder
             {
                 ldapDecoder.decode( buf, ldapMessageContainer );
     
-                if ( log.isDebugEnabled() )
+                if ( IS_DEBUG )
                 {
                     log.debug( "Decoding the PDU : " );
     
@@ -107,7 +126,7 @@ public class TwixDecoder implements ProviderDecoder
                 
                 if ( ldapMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
                 {
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Decoded LdapMessage : " + ldapMessageContainer.getLdapMessage() );
                         buf.mark();
@@ -118,7 +137,7 @@ public class TwixDecoder implements ProviderDecoder
                 }
                 else
                 {
-                	if ( log.isDebugEnabled() )
+                	if ( IS_DEBUG )
                 	{
                 		
                 	}
@@ -189,7 +208,7 @@ public class TwixDecoder implements ProviderDecoder
 
             if ( ldapMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
             {
-                if ( log.isDebugEnabled() )
+                if ( IS_DEBUG )
                 {
                     log.debug( "Decoded LdapMessage : " + ldapMessageContainer.getLdapMessage() );
                 }
@@ -228,7 +247,7 @@ public class TwixDecoder implements ProviderDecoder
 
             if ( ldapMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
             {
-                if ( log.isDebugEnabled() )
+                if ( IS_DEBUG )
                 {
                     log.debug( "Decoded LdapMessage : " + ldapMessageContainer.getLdapMessage() );
                 }

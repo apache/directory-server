@@ -60,6 +60,9 @@ public class GracefulDisconnectGrammar extends AbstractGrammar implements IGramm
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( GracefulDisconnectGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** The instance of grammar. GracefulDisconnectnGrammar is a singleton */
     private static IGrammar instance = new GracefulDisconnectGrammar();
 
@@ -144,7 +147,7 @@ public class GracefulDisconnectGrammar extends AbstractGrammar implements IGramm
                     {
                         int timeOffline = IntegerDecoder.parse( value, 0, 720 );
 
-                        if ( log.isDebugEnabled() )
+                        if ( IS_DEBUG )
                         {
                             log.debug( "Time Offline = " + timeOffline );
                         }
@@ -188,7 +191,7 @@ public class GracefulDisconnectGrammar extends AbstractGrammar implements IGramm
                     {
                         int delay = IntegerDecoder.parse( value, 0, 86400 );
 
-                        if ( log.isDebugEnabled() )
+                        if ( IS_DEBUG )
                         {
                             log.debug( "Delay = " + delay );
                         }

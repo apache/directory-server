@@ -47,6 +47,9 @@ public class ControlValueAction extends GrammarAction
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( ControlValueAction.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     private static Map controlDecoders = new HashMap();
 
 
@@ -104,7 +107,7 @@ public class ControlValueAction extends GrammarAction
         // We can have an END transition
         ldapMessageContainer.grammarEndAllowed( true );
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             if ( control.getControlValue() instanceof byte[] )
             {

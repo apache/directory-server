@@ -40,6 +40,9 @@ public class AbandonRequest extends LdapMessage
     /** The logger */
     private static Logger log = LoggerFactory.getLogger( AbandonRequest.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     // ~ Instance fields
     // ----------------------------------------------------------------------------
 
@@ -105,7 +108,7 @@ public class AbandonRequest extends LdapMessage
     {
         int length = 1 + 1 + Value.getNbBytes( abandonedMessageId );
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Message length : {}", new Integer( length ) );
         }

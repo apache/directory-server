@@ -60,6 +60,9 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( SearchRequestGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** The instance of grammar. SearchRequestGrammar is a singleton */
     private static IGrammar instance = new SearchRequestGrammar();
 
@@ -209,7 +212,7 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
 
                     searchRequest.setScope( scope );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         switch ( scope )
                         {
@@ -282,7 +285,7 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
 
                     searchRequest.setDerefAliases( derefAliases );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         switch ( derefAliases )
                         {
@@ -350,7 +353,7 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
 
                     searchRequest.setSizeLimit( sizeLimit );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "The sizeLimit value is set to {} objects", new Integer( sizeLimit ) );
                     }
@@ -403,7 +406,7 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
 
                     searchRequest.setTimeLimit( timeLimit );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "The timeLimit value is set to {} seconds", new Integer( timeLimit ) );
                     }
@@ -461,7 +464,7 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                         throw new DecoderException( bde.getMessage() );
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "The search will return {}", ( searchRequest.isTypesOnly() ? "only attributs type"
                             : "attributes types and values" ) );
@@ -682,7 +685,7 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                     // We can have a pop transition
                     ldapMessageContainer.grammarPopAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Decoded Attribute Description : {}", attributeDescription.getString() );
                     }

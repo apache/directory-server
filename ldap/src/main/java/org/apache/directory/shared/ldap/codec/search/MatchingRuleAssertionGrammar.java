@@ -53,6 +53,9 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( MatchingRuleAssertionGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** The instance of grammar. FilterGrammar is a singleton */
     private static IGrammar instance = new MatchingRuleAssertionGrammar();
 
@@ -116,11 +119,8 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
                         extensibleMatchFilter.setParent( searchRequest );
                     }
 
-                    searchRequest.setCurrentFilter( extensibleMatchFilter );
-
-                    // We now have to get back to the nearest filter which is
-                    // not terminal.
-                    unstackFilters( container );
+                    searchRequest.addCurrentFilter( extensibleMatchFilter );
+                    searchRequest.setTerminalFilter( extensibleMatchFilter );
                 }
             } );
 
@@ -151,7 +151,7 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
 
                     // Store the value.
                     ExtensibleMatchFilter extensibleMatchFilter = ( ExtensibleMatchFilter ) searchRequest
-                        .getCurrentFilter();
+                        .getTerminalFilter();
 
                     if ( tlv.getLength().getLength() == 0 )
                     {
@@ -219,7 +219,7 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
                     {
                         // Store the value.
                         ExtensibleMatchFilter extensibleMatchFilter = ( ExtensibleMatchFilter ) searchRequest
-                            .getCurrentFilter();
+                            .getTerminalFilter();
 
                         try
                         {
@@ -266,7 +266,7 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
             LdapStatesEnum.MATCHING_RULE_ASSERTION_DN_ATTRIBUTES_TAG, new GrammarAction(
                 "Store matching match value Value" )
             {
-                public void action( IAsn1Container container )
+                public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
                     LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
@@ -276,9 +276,12 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
 
                     // Store the value.
                     ExtensibleMatchFilter extensibleMatchFilter = ( ExtensibleMatchFilter ) searchRequest
-                        .getCurrentFilter();
+                        .getTerminalFilter();
                     extensibleMatchFilter.setMatchValue( StringTools.utf8ToString( tlv.getValue().getData() ) );
 
+                    // unstack the filters if needed
+                    searchRequest.unstackFilters( container );
+                    
                     // We can have a pop transition
                     ldapMessageContainer.grammarPopAllowed( true );
                 }
@@ -310,7 +313,7 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
 
                     // Store the value.
                     ExtensibleMatchFilter extensibleMatchFilter = ( ExtensibleMatchFilter ) searchRequest
-                        .getCurrentFilter();
+                        .getTerminalFilter();
 
                     // We get the value. If it's a 0, it's a FALSE. If it's
                     // a FF, it's a TRUE. Any other value should be an error,
@@ -332,10 +335,13 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
                         throw new DecoderException( bde.getMessage() );
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "DN Attributes : {}", new Boolean( extensibleMatchFilter.isDnAttributes() ) );
                     }
+                    
+                    // unstack the filters if needed
+                    searchRequest.unstackFilters( ldapMessageContainer );
 
                     // We can have a pop transition
                     ldapMessageContainer.grammarPopAllowed( true );
@@ -355,51 +361,5 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
     public static IGrammar getInstance()
     {
         return instance;
-    }
-
-
-    /**
-     * This method is used to clear the filter's stack for terminated elements.
-     * An element is considered as terminated either if : - it's a final element
-     * (ie an element which cannot contains a Filter) - its current length
-     * equals its expected length.
-     * 
-     * @param container
-     *            The container being decoded
-     */
-    private void unstackFilters( IAsn1Container container )
-    {
-        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-        LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-        SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-        TLV tlv = ldapMessageContainer.getCurrentTLV();
-
-        // Get the parent, if any
-        Filter currentFilter = searchRequest.getCurrentFilter();
-
-        // We know have to check if the parent has been completed
-        if ( tlv.getParent().getExpectedLength() == 0 )
-        {
-            TLV parent = tlv.getParent();
-
-            // The parent has been completed, we have to switch it
-            while ( ( parent != null ) && ( parent.getExpectedLength() == 0 ) )
-            {
-                parent = parent.getParent();
-
-                if ( ( currentFilter != null ) && ( currentFilter.getParent() instanceof Filter ) )
-                {
-                    currentFilter = ( Filter ) currentFilter.getParent();
-                }
-                else
-                {
-                    currentFilter = null;
-                    break;
-                }
-            }
-
-            searchRequest.setCurrentFilter( currentFilter );
-        }
     }
 }

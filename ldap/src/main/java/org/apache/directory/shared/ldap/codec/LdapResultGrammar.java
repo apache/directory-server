@@ -59,6 +59,9 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( LdapResultGrammar.class );
 
+    /** A speedup for logger */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    
     /** The instance of grammar. LdapResultGrammar is a singleton */
     private static IGrammar instance = new LdapResultGrammar();
 
@@ -220,7 +223,7 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
                             ldapResult.setResultCode( LdapResultEnum.OTHER );
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "The result code is set to " + LdapResultEnum.errorCode( resultCode ) );
                     }
@@ -288,7 +291,7 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
                         }
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "The matchedDN is " + ldapResult.getMatchedDN() );
                     }
@@ -349,7 +352,7 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
                     // We can pop this grammar
                     container.grammarPopAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "The error message is : " + ldapResult.getErrorMessage() );
                     }
@@ -455,7 +458,7 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
                     // We can have a Pop transition
                     ldapMessageContainer.grammarPopAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         Iterator urls = ldapResult.getReferrals().iterator();
 

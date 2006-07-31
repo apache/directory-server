@@ -48,6 +48,9 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( LdapMessageGrammar.class );
 
+    /** A speedup for logger */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    
     /** The instance of grammar. LdapMessageGrammar is a singleton */
     private static IGrammar instance = new LdapMessageGrammar();
 
@@ -147,7 +150,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
 
                         ldapMessage.setMessageId( messageId );
 
-                        if ( log.isDebugEnabled() )
+                        if ( IS_DEBUG )
                         {
                             log.debug( "Ldap Message Id has been decoded : " + messageId );
                         }

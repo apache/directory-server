@@ -56,6 +56,9 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( ModifyRequestGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** The instance of grammar. ModifyRequestGrammar is a singleton */
     private static IGrammar instance = new ModifyRequestGrammar();
 
@@ -153,7 +156,7 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                         modifyRequest.setObject( object );
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Modification of DN {}", modifyRequest.getObject() );
                     }
@@ -268,7 +271,7 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                     // Store the current operation.
                     modifyRequest.setCurrentOperation( operation );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         switch ( operation )
                         {
@@ -350,7 +353,7 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                         }
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Modifying type : {}", type );
                     }

@@ -17,12 +17,17 @@
 package org.apache.directory.shared.ldap.codec.search;
 
 
+import org.apache.directory.shared.asn1.Asn1Object;
+import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -80,13 +85,16 @@ public class SearchRequest extends LdapMessage
 
     /** The filter tree */
     private Filter filter;
-
+    
     /** The list of attributes to get */
     private Attributes attributes;
 
     /** The current filter. This is used while decoding a PDU */
     private transient Filter currentFilter;
 
+    /** A temporary storage for a terminal Filter */
+    private transient Filter terminalFilter;
+    
     /** The searchRequest length */
     private transient int searchRequestLength;
 
@@ -317,6 +325,62 @@ public class SearchRequest extends LdapMessage
         return currentFilter;
     }
 
+    /**
+     * Get the comparison dilter
+     * 
+     * @return Returns the comparisonFilter.
+     */
+    public Filter getTerminalFilter()
+    {
+        return terminalFilter;
+    }
+
+    /**
+     * Set the terminal filter
+     * 
+     * @param terminalFilter the teminalFilter.
+     */
+    public void setTerminalFilter( Filter terminalFilter )
+    {
+        this.terminalFilter = terminalFilter;
+    }
+
+
+    /**
+     * Add a current filter. We have two cases :
+     * - there is no previous current filter : the filter
+     * is the top level filter
+     * - there is a previous current filter : the filter is added 
+     * to the currentFilter set, and the current filter is changed
+     * 
+     * In any case, the previous current filter will always be a
+     * ConnectorFilter when this method is called.
+     * 
+     * @param currentFilter
+     *            The currentFilter to set.
+     */
+    public void addCurrentFilter( Filter filter ) throws DecoderException
+    {
+        if ( currentFilter != null )
+        {
+            // Ok, we have a parent. The new Filter will be added to
+            // this parent, and will become the currentFilter if it's a connector.
+            ( ( ConnectorFilter ) currentFilter ).addFilter( filter );
+            filter.setParent( currentFilter );
+            
+            if ( filter instanceof ConnectorFilter )
+            {
+                currentFilter = filter;
+            }
+        }
+        else
+        {
+            // No parent. This Filter will become the root.
+            currentFilter = filter;
+            currentFilter.setParent( this );
+            this.filter = filter;
+        }
+    }
 
     /**
      * Set the current dilter
@@ -324,11 +388,88 @@ public class SearchRequest extends LdapMessage
      * @param currentFilter
      *            The currentFilter to set.
      */
-    public void setCurrentFilter( Filter currentFilter )
+    public void setCurrentFilter( Filter filter ) throws DecoderException
     {
-        this.currentFilter = currentFilter;
+        currentFilter = filter;
     }
 
+
+    /**
+     * This method is used to clear the filter's stack for terminated elements. An element
+     * is considered as terminated either if :
+     *  - it's a final element (ie an element which cannot contains a Filter)
+     *  - its current length equals its expected length.
+     * 
+     * @param container The container being decoded
+     */
+    public void unstackFilters( IAsn1Container container ) throws DecoderException
+    {
+        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
+        //LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+        //SearchRequest searchRequest = ldapMessage.getSearchRequest();
+
+        TLV tlv = ldapMessageContainer.getCurrentTLV();
+        TLV parent = tlv.getParent();
+        Filter filter = terminalFilter;
+
+        // The parent has been completed, so fold it
+        while ( ( parent != null ) && ( parent.getExpectedLength() == 0 ) )
+        {
+            Asn1Object filterParent = filter.getParent();
+            
+            // We have a special case with PresentFilter, which has not been 
+            // pushed on the stack, so we need to get its parent's parent
+            if ( filter instanceof PresentFilter )
+            {
+                filterParent = filterParent.getParent();
+            }
+
+            if ( filterParent instanceof Filter )
+            {
+                // The parent is a filter ; it will become the new currentFilter
+                // and we will loop again. 
+                currentFilter = (Filter)filterParent;
+                filter = currentFilter;
+                parent = parent.getParent();
+            }
+            else
+            {
+                // We can stop the recursion, we have reached the searchResult Object
+                break;
+            }
+            
+            /*
+            if ( filterParent instanceof Filter )
+            {
+                // The terminalfilter set has been completed
+                // we can get its parent and add the terminal to it
+                // but onlyu if it's not a connector filter
+                if ( ! (filter instanceof ConnectorFilter ) )
+                {
+                    addCurrentFilter( filter );
+                }
+                
+                // and update the current filter with the parent
+                Asn1Object parentFilter = currentFilter.getParent();
+                
+                if ( parentFilter instanceof Filter )
+                {
+                    searchRequest.setCurrentFilter( (Filter)parentFilter );
+                }
+                
+                parent = parent.getParent();
+                filter = currentFilter;
+            }
+            else
+            {
+                // We have reached the top level, we can stop
+                // the loop after having updated the currentFilter
+                //searchRequest.setCurrentFilter( filter );
+                break;
+            }
+            */
+        }
+    }
 
     /**
      * Compute the SearchRequest length SearchRequest : 0x63 L1 | +--> 0x04 L2

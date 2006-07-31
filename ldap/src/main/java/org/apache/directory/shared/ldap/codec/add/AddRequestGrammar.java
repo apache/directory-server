@@ -34,9 +34,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapStatesEnum;
 import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
-import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -57,6 +55,9 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
 
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( AddRequestGrammar.class );
+
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /** The instance of grammar. AddRequestGrammar is a singleton */
     private static IGrammar instance = new AddRequestGrammar();
@@ -261,7 +262,7 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                         }
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Adding type {}", type );
                     }
@@ -328,7 +329,7 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                         {
                             value = tlv.getValue().getData();
 
-                            if ( log.isDebugEnabled() )
+                            if ( IS_DEBUG )
                             {
                                 log.debug( "Adding value {}", StringTools.dumpBytes( ( byte[] ) value ) );
                             }

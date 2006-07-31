@@ -109,25 +109,8 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
                     // We can allocate the SearchRequest
                     Filter substringFilter = new SubstringFilter();
 
-                    // Get the parent, if any
-                    Filter currentFilter = searchRequest.getCurrentFilter();
-
-                    if ( currentFilter != null )
-                    {
-                        // Ok, we have a parent. The new Filter will be added to
-                        // this parent, then.
-                        ( ( ConnectorFilter ) currentFilter ).addFilter( substringFilter );
-                        substringFilter.setParent( currentFilter );
-                    }
-                    else
-                    {
-                        // No parent. This Filter will become the root.
-
-                        searchRequest.setFilter( substringFilter );
-                        substringFilter.setParent( searchRequest );
-                    }
-
-                    searchRequest.setCurrentFilter( substringFilter );
+                    searchRequest.addCurrentFilter( substringFilter );
+                    searchRequest.setTerminalFilter( substringFilter );
 
                     // As this is a new Constructed object, we have to init its
                     // length
@@ -162,7 +145,7 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
                     // Store the value.
-                    SubstringFilter substringFilter = ( SubstringFilter ) searchRequest.getCurrentFilter();
+                    SubstringFilter substringFilter = ( SubstringFilter ) searchRequest.getTerminalFilter();
 
                     if ( tlv.getLength().getLength() == 0 )
                     {
@@ -186,7 +169,7 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
 
                         // We now have to get back to the nearest filter which
                         // is not terminal.
-                        unstackFilters( container );
+                        searchRequest.setTerminalFilter( substringFilter );
                     }
                 }
             } );
@@ -261,7 +244,7 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
                     // Store the value.
-                    SubstringFilter substringFilter = ( SubstringFilter ) searchRequest.getCurrentFilter();
+                    SubstringFilter substringFilter = ( SubstringFilter ) searchRequest.getTerminalFilter();
 
                     if ( tlv.getLength().getLength() == 0 )
                     {
@@ -283,7 +266,7 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
 
                     // We now have to get back to the nearest filter which is
                     // not terminal.
-                    unstackFilters( container );
+                    searchRequest.unstackFilters( container );
 
                     // We can have a pop transition
                     container.grammarPopAllowed( true );
@@ -336,7 +319,7 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
                     // Store the value.
-                    SubstringFilter substringFilter = ( SubstringFilter ) searchRequest.getCurrentFilter();
+                    SubstringFilter substringFilter = ( SubstringFilter ) searchRequest.getTerminalFilter();
 
                     if ( tlv.getLength().getLength() == 0 )
                     {
@@ -357,7 +340,7 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
 
                     // We now have to get back to the nearest filter which is
                     // not terminal.
-                    unstackFilters( container );
+                    searchRequest.unstackFilters( container );
 
                     // We can have a pop transition
                     container.grammarPopAllowed( true );
@@ -412,7 +395,7 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
                     // Store the value.
-                    SubstringFilter substringFilter = ( SubstringFilter ) searchRequest.getCurrentFilter();
+                    SubstringFilter substringFilter = ( SubstringFilter ) searchRequest.getTerminalFilter();
 
                     if ( tlv.getLength().getLength() == 0 )
                     {
@@ -434,12 +417,12 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
 
                     // We now have to get back to the nearest filter which is
                     // not terminal.
-                    unstackFilters( container );
+                    searchRequest.unstackFilters( container );
+
                     // We can have a pop transition
                     container.grammarPopAllowed( true );
                 }
             } );
-
     }
 
 
@@ -454,51 +437,5 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
     public static IGrammar getInstance()
     {
         return instance;
-    }
-
-
-    /**
-     * This method is used to clear the filter's stack for terminated elements.
-     * An element is considered as terminated either if : - it's a final element
-     * (ie an element which cannot contains a Filter) - its current length
-     * equals its expected length.
-     * 
-     * @param container
-     *            The container being decoded
-     */
-    private void unstackFilters( IAsn1Container container )
-    {
-        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-        LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-        SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-        TLV tlv = ldapMessageContainer.getCurrentTLV();
-
-        // Get the parent, if any
-        Filter currentFilter = searchRequest.getCurrentFilter();
-
-        // We know have to check if the parent has been completed
-        if ( tlv.getParent().getExpectedLength() == 0 )
-        {
-            TLV parent = tlv.getParent();
-
-            // The parent has been completed, we have to switch it
-            while ( ( parent != null ) && ( parent.getExpectedLength() == 0 ) )
-            {
-                parent = parent.getParent();
-
-                if ( ( currentFilter != null ) && ( currentFilter.getParent() instanceof Filter ) )
-                {
-                    currentFilter = ( Filter ) currentFilter.getParent();
-                }
-                else
-                {
-                    currentFilter = null;
-                    break;
-                }
-            }
-
-            searchRequest.setCurrentFilter( currentFilter );
-        }
     }
 }

@@ -57,6 +57,9 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( ModifyDNRequestGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** The instance of grammar. ModifyDNRequestGrammar is a singleton */
     private static IGrammar instance = new ModifyDNRequestGrammar();
 
@@ -153,7 +156,7 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                         modifyDNRequest.setEntry( entry );
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Modifying DN {}", entry );
                     }
@@ -219,7 +222,7 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                         modifyDNRequest.setNewRDN( newRdn );
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Modifying with new RDN {}", newRdn );
                     }
@@ -281,7 +284,7 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                     // We can have a Pop transition
                     ldapMessageContainer.grammarPopAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         if ( modifyDNRequest.isDeleteOldRDN() )
                         {
@@ -367,7 +370,7 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                     // We can have a Pop transition
                     ldapMessageContainer.grammarPopAllowed( true );
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "New superior DN {}", newSuperior );
                     }

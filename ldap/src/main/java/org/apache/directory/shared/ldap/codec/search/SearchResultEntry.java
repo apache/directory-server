@@ -42,13 +42,22 @@ import javax.naming.directory.BasicAttributes;
 
 
 /**
- * A SearchResultEntry Message. Its syntax is : SearchResultEntry ::=
- * [APPLICATION 4] SEQUENCE { objectName LDAPDN, attributes PartialAttributeList }
- * PartialAttributeList ::= SEQUENCE OF SEQUENCE { type AttributeDescription,
- * vals SET OF AttributeValue } AttributeDescription ::= LDAPString
- * AttributeValue ::= OCTET STRING It contains an entry, with all its
- * attributes, and all the attributes values. If a search request is submited,
- * all the results are sent one by one, followed by a searchResultDone message.
+ * A SearchResultEntry Message. Its syntax is :
+ *   SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
+ *       objectName      LDAPDN,
+ *       attributes      PartialAttributeList }
+ * 
+ *   PartialAttributeList ::= SEQUENCE OF SEQUENCE {
+ *       type    AttributeDescription,
+ *       vals    SET OF AttributeValue }
+ * 
+ *   AttributeDescription ::= LDAPString
+ * 
+ *   AttributeValue ::= OCTET STRING
+ * 
+ * It contains an entry, with all its attributes, and all the attributes
+ * values. If a search request is submited, all the results are sent one
+ * by one, followed by a searchResultDone message.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -176,15 +185,44 @@ public class SearchResultEntry extends LdapMessage
 
 
     /**
-     * Compute the SearchResultEntry length SearchResultEntry : 0x64 L1 | +-->
-     * 0x04 L2 objectName +--> 0x30 L3 (attributes) | +--> 0x30 L4-1 (partial
-     * attributes list) | | | +--> 0x04 L5-1 type | +--> 0x31 L6-1 (values) | | |
-     * +--> 0x04 L7-1-1 value | +--> ... | +--> 0x04 L7-1-n value | +--> 0x30
-     * L4-2 (partial attributes list) | | | +--> 0x04 L5-2 type | +--> 0x31 L6-2
-     * (values) | | | +--> 0x04 L7-2-1 value | +--> ... | +--> 0x04 L7-2-n value |
-     * +--> ... | +--> 0x30 L4-m (partial attributes list) | +--> 0x04 L5-m type
-     * +--> 0x31 L6-m (values) | +--> 0x04 L7-m-1 value +--> ... +--> 0x04
-     * L7-m-n value
+     * Compute the SearchResultEntry length
+     * 
+     * SearchResultEntry :
+     * 
+     * 0x64 L1
+     *  |
+     *  +--> 0x04 L2 objectName
+     *  +--> 0x30 L3 (attributes)
+     *        |
+     *        +--> 0x30 L4-1 (partial attributes list)
+     *        |     |
+     *        |     +--> 0x04 L5-1 type
+     *        |     +--> 0x31 L6-1 (values)
+     *        |           |
+     *        |           +--> 0x04 L7-1-1 value
+     *        |           +--> ...
+     *        |           +--> 0x04 L7-1-n value
+     *        |
+     *        +--> 0x30 L4-2 (partial attributes list)
+     *        |     |
+     *        |     +--> 0x04 L5-2 type
+     *        |     +--> 0x31 L6-2 (values)
+     *        |           |
+     *        |           +--> 0x04 L7-2-1 value
+     *        |           +--> ...
+     *        |           +--> 0x04 L7-2-n value
+     *        |
+     *        +--> ...
+     *        |
+     *        +--> 0x30 L4-m (partial attributes list)
+     *              |
+     *              +--> 0x04 L5-m type
+     *              +--> 0x31 L6-m (values)
+     *                    |
+     *                    +--> 0x04 L7-m-1 value
+     *                    +--> ...
+     *                    +--> 0x04 L7-m-n value
+     * 
      */
     public int computeLength()
     {
@@ -284,14 +322,28 @@ public class SearchResultEntry extends LdapMessage
 
 
     /**
-     * Encode the SearchResultEntry message to a PDU. SearchResultEntry : 0x64
-     * LL 0x04 LL objectName 0x30 LL attributes 0x30 LL partialAttributeList
-     * 0x04 LL type 0x31 LL vals 0x04 LL attributeValue ... 0x04 LL
-     * attributeValue ... 0x30 LL partialAttributeList 0x04 LL type 0x31 LL vals
-     * 0x04 LL attributeValue ... 0x04 LL attributeValue
+     * Encode the SearchResultEntry message to a PDU.
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * SearchResultEntry :
+     * 
+     * 0x64 LL
+     *   0x04 LL objectName
+     *   0x30 LL attributes
+     *     0x30 LL partialAttributeList
+     *       0x04 LL type
+     *       0x31 LL vals
+     *         0x04 LL attributeValue
+     *         ... 
+     *         0x04 LL attributeValue
+     *     ... 
+     *     0x30 LL partialAttributeList
+     *       0x04 LL type
+     *       0x31 LL vals
+     *         0x04 LL attributeValue
+     *         ... 
+     *         0x04 LL attributeValue 
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException

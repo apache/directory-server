@@ -55,6 +55,9 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( CompareRequestGrammar.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** The instance of grammar. CompareRequest is a singleton */
     private static IGrammar instance = new CompareRequestGrammar();
 
@@ -149,7 +152,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
                         compareRequest.setEntry( entry );
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Comparing DN {}", entry );
                     }
@@ -223,7 +226,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
                         }
                     }
 
-                    if ( log.isDebugEnabled() )
+                    if ( IS_DEBUG )
                     {
                         log.debug( "Comparing attribute description {}", compareRequest.getAttributeDesc() );
                     }
@@ -269,7 +272,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
                         {
                             compareRequest.setAssertionValue( tlv.getValue().getData() );
 
-                            if ( log.isDebugEnabled() )
+                            if ( IS_DEBUG )
                             {
                                 log.debug( "Comparing attribute value {}", StringTools
                                     .dumpBytes( ( byte[] ) compareRequest.getAssertionValue() ) );
