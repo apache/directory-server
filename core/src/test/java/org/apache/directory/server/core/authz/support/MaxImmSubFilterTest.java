@@ -35,7 +35,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.DirectoryServiceListener;
 import org.apache.directory.server.core.jndi.DeadContext;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
@@ -139,7 +139,7 @@ public class MaxImmSubFilterTest extends TestCase
             null, ENTRY_NAME, null, null, ENTRY, null ).size() );
     }
 
-    class MockProxy extends DirectoryPartitionNexusProxy
+    class MockProxy extends PartitionNexusProxy
     {
         final int count;
 
@@ -203,8 +203,8 @@ public class MaxImmSubFilterTest extends TestCase
         }
 
 
-        public Context getJndiContext( String principal, byte[] credential, String authentication, String baseName )
-            throws NamingException
+        public Context getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
+            String authentication, String baseName ) throws NamingException
         {
             return null; //To change body of implemented methods use File | Settings | File Templates.
         }

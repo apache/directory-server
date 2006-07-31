@@ -67,6 +67,8 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
     final SearchRequest req;
     final PersistentSearchControl control;
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     PersistentSearchListener(ServerLdapContext ctx, IoSession session, SearchRequest req)
     {
@@ -132,7 +134,7 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
         SessionRegistry.getSingleton().removeOutstandingRequest( session, new Integer( req.getMessageId() ) );
         String msg = "failed on persistent search operation";
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             msg += ":\n" + req + ":\n" + ExceptionUtils.getStackTrace( evt.getException() );
         }

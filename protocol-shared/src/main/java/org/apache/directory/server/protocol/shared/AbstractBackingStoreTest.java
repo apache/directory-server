@@ -44,8 +44,8 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import junit.framework.TestCase;
 
-import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
-import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
@@ -164,9 +164,9 @@ public abstract class AbstractBackingStoreTest extends TestCase
     }
 
 
-    private DirectoryPartitionConfiguration getExamplePartition() throws NamingException
+    private PartitionConfiguration getExamplePartition() throws NamingException
     {
-        MutableDirectoryPartitionConfiguration partConfig = new MutableDirectoryPartitionConfiguration();
+        MutablePartitionConfiguration partConfig = new MutablePartitionConfiguration();
         partConfig.setName( "example" );
 
         HashSet indices = new HashSet();
@@ -191,9 +191,9 @@ public abstract class AbstractBackingStoreTest extends TestCase
     }
 
 
-    private DirectoryPartitionConfiguration getApachePartition() throws NamingException
+    private PartitionConfiguration getApachePartition() throws NamingException
     {
-        MutableDirectoryPartitionConfiguration partConfig = new MutableDirectoryPartitionConfiguration();
+        MutablePartitionConfiguration partConfig = new MutablePartitionConfiguration();
         partConfig.setName( "apache" );
 
         HashSet indices = new HashSet();

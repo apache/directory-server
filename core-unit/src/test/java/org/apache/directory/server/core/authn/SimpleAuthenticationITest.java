@@ -29,11 +29,13 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 
@@ -308,5 +310,80 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         assertNotNull( new InitialContext( env ) );
+    }
+
+
+    public void test11InvalidateCredentialCache() throws NamingException
+    {
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        env.put( Context.PROVIDER_URL, "ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        InitialDirContext ic = new InitialDirContext( env );
+        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        Attribute ou = attrs.get( "ou" );
+        assertTrue( ou.contains( "Engineering" ) );
+        assertTrue( ou.contains( "People" ) );
+
+        Attribute objectClass = attrs.get( "objectClass" );
+        assertTrue( objectClass.contains( "top" ) );
+        assertTrue( objectClass.contains( "person" ) );
+        assertTrue( objectClass.contains( "organizationalPerson" ) );
+        assertTrue( objectClass.contains( "inetOrgPerson" ) );
+
+        assertTrue( attrs.get( "telephonenumber" ).contains( "+1 408 555 4798" ) );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        assertTrue( attrs.get( "givenname" ).contains( "Alex" ) );
+        assertTrue( attrs.get( "mail" ).contains( "akarasulu@apache.org" ) );
+        assertTrue( attrs.get( "l" ).contains( "Bogusville" ) );
+        assertTrue( attrs.get( "sn" ).contains( "Karasulu" ) );
+        assertTrue( attrs.get( "cn" ).contains( "Alex Karasulu" ) );
+        assertTrue( attrs.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
+        assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
+        
+        // now modify the password for akarasulu
+        LockableAttributeImpl userPasswordAttribute = new LockableAttributeImpl( "userPassword", "newpwd" );
+        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItem[] { 
+            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        
+        // close and try with old password (should fail)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        try
+        {
+            ic = new InitialDirContext( env );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail 
+        }
+
+        // close and try again now with new password (should fail)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "newpwd" );
+        ic = new InitialDirContext( env );
+        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        ou = attrs.get( "ou" );
+        assertTrue( ou.contains( "Engineering" ) );
+        assertTrue( ou.contains( "People" ) );
+
+        objectClass = attrs.get( "objectClass" );
+        assertTrue( objectClass.contains( "top" ) );
+        assertTrue( objectClass.contains( "person" ) );
+        assertTrue( objectClass.contains( "organizationalPerson" ) );
+        assertTrue( objectClass.contains( "inetOrgPerson" ) );
+
+        assertTrue( attrs.get( "telephonenumber" ).contains( "+1 408 555 4798" ) );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        assertTrue( attrs.get( "givenname" ).contains( "Alex" ) );
+        assertTrue( attrs.get( "mail" ).contains( "akarasulu@apache.org" ) );
+        assertTrue( attrs.get( "l" ).contains( "Bogusville" ) );
+        assertTrue( attrs.get( "sn" ).contains( "Karasulu" ) );
+        assertTrue( attrs.get( "cn" ).contains( "Alex Karasulu" ) );
+        assertTrue( attrs.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
+        assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
     }
 }

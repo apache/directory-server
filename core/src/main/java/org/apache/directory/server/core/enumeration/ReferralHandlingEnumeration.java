@@ -19,6 +19,7 @@ package org.apache.directory.server.core.enumeration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.naming.NamingEnumeration;
@@ -27,7 +28,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.referral.ReferralLut;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
@@ -52,16 +53,21 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
     private final List referrals = new ArrayList();
     private final NamingEnumeration underlying;
     private final ReferralLut lut;
-    private final DirectoryPartitionNexus nexus;
+    private final PartitionNexus nexus;
     private final boolean doThrow;
     private final int scope;
     private SearchResult prefetched;
     private int refIndex = -1;
 
+    /**
+     * The OIDs normalizer map
+     */
+    private Map normalizerMap;
 
     public ReferralHandlingEnumeration( NamingEnumeration underlying, ReferralLut lut, AttributeTypeRegistry registry,
-        DirectoryPartitionNexus nexus, int scope, boolean doThrow ) throws NamingException
+        PartitionNexus nexus, int scope, boolean doThrow ) throws NamingException
     {
+    	normalizerMap = registry.getNormalizerMapping();
         this.underlying = underlying;
         this.doThrow = doThrow;
         this.lut = lut;
@@ -77,7 +83,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
         {
             SearchResult result = ( SearchResult ) underlying.next();
             LdapDN dn = new LdapDN( result.getName() );
-            dn.normalize();
+            dn.normalize( normalizerMap );
             
             if ( lut.isReferral( dn ) )
             {
@@ -165,7 +171,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
         if ( refs == null )
         {
             LdapDN prefetchedDn = new LdapDN( prefetched.getName() );
-            prefetchedDn.normalize();
+            prefetchedDn.normalize( normalizerMap );
             refs = nexus.lookup( prefetchedDn ).get( REF_ATTR );
         }
 

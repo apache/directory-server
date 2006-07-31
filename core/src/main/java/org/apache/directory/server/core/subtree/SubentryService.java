@@ -26,7 +26,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.OidRegistry;
 
@@ -100,7 +100,7 @@ public class SubentryService extends BaseInterceptor
     private DirectoryServiceConfiguration factoryCfg;
     private SubtreeSpecificationParser ssParser;
     private SubtreeEvaluator evaluator;
-    private DirectoryPartitionNexus nexus;
+    private PartitionNexus nexus;
     private AttributeTypeRegistry attrRegistry;
     private OidRegistry oidRegistry;
     
@@ -127,7 +127,7 @@ public class SubentryService extends BaseInterceptor
             {
                 return attrRegistry.getNormalizerMapping();
             }
-        });
+        }, attrRegistry.getNormalizerMapping() );
         evaluator = new SubtreeEvaluator( factoryCfg.getGlobalRegistries().getOidRegistry() );
 
         // prepare to find all subentries in all namingContexts
@@ -143,7 +143,7 @@ public class SubentryService extends BaseInterceptor
         {
             LdapDN suffix = new LdapDN( ( String ) suffixes.next() );
             //suffix = LdapDN.normalize( suffix, registry.getNormalizerMapping() );
-            suffix.normalize();
+            suffix.normalize( attrRegistry.getNormalizerMapping() );
             NamingEnumeration subentries = nexus.search( suffix, factoryCfg.getEnvironment(), filter, controls );
             while ( subentries.hasMore() )
             {
@@ -165,7 +165,7 @@ public class SubentryService extends BaseInterceptor
 
                 LdapDN dnName = new LdapDN( dn );
                 //dnName = LdapDN.normalize( dnName, registry.getNormalizerMapping() );
-                dnName.normalize();
+                dnName.normalize( attrRegistry.getNormalizerMapping() );
                 subtrees.put( dnName.toString(), ss );
             }
         }
@@ -384,7 +384,7 @@ public class SubentryService extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                String msg = "Failed while parsing subtreeSpecification for " + normName.toUpName();
+                String msg = "Failed while parsing subtreeSpecification for " + normName.getUpName();
                 log.warn( msg );
                 throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
             }
@@ -414,7 +414,7 @@ public class SubentryService extends BaseInterceptor
                 SearchResult result = ( SearchResult ) subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize();
+                dn.normalize( attrRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate.get( "objectClass" ) ) )
                 {
@@ -541,7 +541,7 @@ public class SubentryService extends BaseInterceptor
                 SearchResult result = ( SearchResult ) subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize();
+                dn.normalize( attrRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, ServerUtils.getAttribute( objectClassType, candidate ) ) )
                 {
@@ -676,8 +676,8 @@ public class SubentryService extends BaseInterceptor
 
             LdapDN rdn = new LdapDN( newRn );
             newName.addAll( rdn );
-            rdn.normalize();
-            newName.normalize();
+            rdn.normalize( attrRegistry.getNormalizerMapping() );
+            newName.normalize( attrRegistry.getNormalizerMapping() );
 
             subtrees.put( newName.toNormName(), ss );
             next.modifyRn( name, newRn, deleteOldRn );
@@ -694,7 +694,7 @@ public class SubentryService extends BaseInterceptor
                 SearchResult result = ( SearchResult ) subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize();
+                dn.normalize( attrRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, ServerUtils.getAttribute( objectClassType, candidate ) ) )
                 {
@@ -717,7 +717,7 @@ public class SubentryService extends BaseInterceptor
             LdapDN newName = ( LdapDN ) name.clone();
             newName.remove( newName.size() - 1 );
             newName.add( newRn );
-            newName.normalize();
+            newName.normalize( attrRegistry.getNormalizerMapping() );
             ModificationItem[] mods = getModsOnEntryRdnChange( name, newName, entry );
 
             if ( mods.length > 0 )
@@ -746,8 +746,8 @@ public class SubentryService extends BaseInterceptor
 
             LdapDN rdn = new LdapDN( newRn );
             newName.addAll( rdn );
-            rdn.normalize();
-            newName.normalize();
+            rdn.normalize( attrRegistry.getNormalizerMapping() );
+            newName.normalize( attrRegistry.getNormalizerMapping() );
             
             subtrees.put( newName.toNormName(), ss );
             next.move( oriChildName, newParentName, newRn, deleteOldRn );
@@ -765,7 +765,7 @@ public class SubentryService extends BaseInterceptor
                 SearchResult result = ( SearchResult ) subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize();
+                dn.normalize( attrRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, ServerUtils.getAttribute( objectClassType, candidate ) ) )
                 {
@@ -788,7 +788,7 @@ public class SubentryService extends BaseInterceptor
             // attributes contained within this regular entry with name changes
             LdapDN newName = ( LdapDN ) newParentName.clone();
             newName.add( newRn );
-            newName.normalize();
+            newName.normalize( attrRegistry.getNormalizerMapping() );
             ModificationItem[] mods = getModsOnEntryRdnChange( oriChildName, newName, entry );
 
             if ( mods.length > 0 )
@@ -832,7 +832,7 @@ public class SubentryService extends BaseInterceptor
                 SearchResult result = ( SearchResult ) subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize();
+                dn.normalize( attrRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate.get( "objectClass" ) ) )
                 {
@@ -909,7 +909,7 @@ public class SubentryService extends BaseInterceptor
                 SearchResult result = ( SearchResult ) subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize();
+                dn.normalize( attrRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ssOld, apName, dn, ServerUtils.getAttribute( objectClassType, candidate ) ) )
                 {
@@ -929,7 +929,7 @@ public class SubentryService extends BaseInterceptor
                 SearchResult result = ( SearchResult ) subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize();
+                dn.normalize( attrRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ssNew, apName, dn, ServerUtils.getAttribute( objectClassType, candidate ) ) )
                 {
@@ -995,7 +995,7 @@ public class SubentryService extends BaseInterceptor
                 SearchResult result = ( SearchResult ) subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize();
+                dn.normalize( attrRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ssOld, apName, dn, candidate.get( "objectClass" ) ) )
                 {
@@ -1015,7 +1015,7 @@ public class SubentryService extends BaseInterceptor
                 SearchResult result = ( SearchResult ) subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize();
+                dn.normalize( attrRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ssNew, apName, dn, candidate.get( "objectClass" ) ) )
                 {
@@ -1327,16 +1327,16 @@ public class SubentryService extends BaseInterceptor
             if ( !result.isRelative() )
             {
                 LdapDN ndn = new LdapDN( dn );
-                ndn.normalize();
+                ndn.normalize( attrRegistry.getNormalizerMapping() );
                 String normalizedDn = ndn.toString();
                 return !subtrees.containsKey( normalizedDn );
             }
 
             LdapDN name = new LdapDN( invocation.getCaller().getNameInNamespace() );
-            name.normalize();
+            name.normalize( attrRegistry.getNormalizerMapping() );
 
             LdapDN rest = new LdapDN( result.getName() );
-            rest.normalize();
+            rest.normalize( attrRegistry.getNormalizerMapping() );
             name.addAll( rest );
             return !subtrees.containsKey( name.toString() );
         }
@@ -1388,15 +1388,15 @@ public class SubentryService extends BaseInterceptor
             if ( !result.isRelative() )
             {
                 LdapDN ndn = new LdapDN( dn );
-                ndn.normalize();
+                ndn.normalize( attrRegistry.getNormalizerMapping() );
                 return subtrees.containsKey( ndn.toNormName() );
             }
 
             LdapDN name = new LdapDN( invocation.getCaller().getNameInNamespace() );
-            name.normalize();
+            name.normalize( attrRegistry.getNormalizerMapping() );
 
             LdapDN rest = new LdapDN( result.getName() );
-            rest.normalize();
+            rest.normalize( attrRegistry.getNormalizerMapping() );
             name.addAll( rest );
             return subtrees.containsKey( name.toNormName() );
         }

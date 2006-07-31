@@ -30,7 +30,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.core.schema.OidRegistry;
@@ -71,10 +71,14 @@ public class TupleCache
     /** a map of strings to ACITuple collections */
     private final Map tuples = new HashMap();
     /** a handle on the partition nexus */
-    private final DirectoryPartitionNexus nexus;
+    private final PartitionNexus nexus;
     /** a normalizing ACIItem parser */
     private final ACIItemParser aciParser;
 
+    /**
+     * The OIDs normalizer map
+     */
+    private Map normalizerMap;
 
     /**
      * Creates a ACITuple cache.
@@ -83,11 +87,12 @@ public class TupleCache
      */
     public TupleCache(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
+    	normalizerMap = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         this.nexus = factoryCfg.getPartitionNexus();
         AttributeTypeRegistry attributeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
-        aciParser = new ACIItemParser( ncn );
+        aciParser = new ACIItemParser( ncn, normalizerMap );
         env = ( Hashtable ) factoryCfg.getEnvironment().clone();
         initialize();
     }
@@ -96,7 +101,7 @@ public class TupleCache
     private LdapDN parseNormalized( String name ) throws NamingException
     {
         LdapDN dn = new LdapDN( name );
-        dn.normalize();
+        dn.normalize( normalizerMap );
         return dn;
     }
 
@@ -209,7 +214,7 @@ public class TupleCache
         if ( isAciModified )
         {
             subentryDeleted( normName, entry );
-            subentryAdded( normName.toUpName(), normName, entry );
+            subentryAdded( normName.getUpName(), normName, entry );
         }
     }
 
@@ -224,7 +229,7 @@ public class TupleCache
         if ( mods.get( ACI_ATTR ) != null )
         {
             subentryDeleted( normName, entry );
-            subentryAdded( normName.toUpName(), normName, entry );
+            subentryAdded( normName.getUpName(), normName, entry );
         }
     }
 

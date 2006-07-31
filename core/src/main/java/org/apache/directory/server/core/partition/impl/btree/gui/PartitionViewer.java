@@ -22,7 +22,7 @@ import java.awt.Toolkit;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.partition.impl.btree.BTreeDirectoryPartition;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
 
 import org.slf4j.Logger;
@@ -40,11 +40,11 @@ public class PartitionViewer
     private static final Logger log = LoggerFactory.getLogger( PartitionViewer.class );
 
     /** A handle on the atomic partition */
-    private BTreeDirectoryPartition partition;
+    private BTreePartition partition;
     private SearchEngine eng;
 
 
-    public PartitionViewer(BTreeDirectoryPartition db, SearchEngine eng)
+    public PartitionViewer(BTreePartition db, SearchEngine eng)
     {
         this.partition = db;
         this.eng = eng;

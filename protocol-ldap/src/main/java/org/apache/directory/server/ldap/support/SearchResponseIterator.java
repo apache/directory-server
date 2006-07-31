@@ -67,6 +67,8 @@ class SearchResponseIterator implements Iterator
     private Object prefetched;
     private final int scope;
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /**
      * Creates a search response iterator for the resulting enumeration
@@ -399,7 +401,7 @@ class SearchResponseIterator implements Iterator
     {
         String msg = "failed on search operation";
         
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             msg += ":\n" + req + ":\n" + ExceptionUtils.getStackTrace( e );
         }

@@ -26,7 +26,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
@@ -107,7 +107,7 @@ public class ACDFEngine
      * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
      * @throws NamingException if failed to evaluate ACI items
      */
-    public void checkPermission( DirectoryPartitionNexusProxy proxy, Collection userGroupNames, LdapDN username,
+    public void checkPermission( PartitionNexusProxy proxy, Collection userGroupNames, LdapDN username,
                                  AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId, Object attrValue,
                                  Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
     {
@@ -150,7 +150,7 @@ public class ACDFEngine
      * @param microOperations the {@link org.apache.directory.shared.ldap.aci.MicroOperation}s to perform
      * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
      */
-    public boolean hasPermission( DirectoryPartitionNexusProxy proxy, Collection userGroupNames, LdapDN userName,
+    public boolean hasPermission( PartitionNexusProxy proxy, Collection userGroupNames, LdapDN userName,
                                   AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId, Object attrValue,
                                   Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
     {

@@ -17,7 +17,9 @@
 package org.apache.directory.server.core.partition;
 
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.InvalidNameException;
@@ -25,12 +27,14 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 
 
 /**
- * A root {@link DirectoryPartition} that contains all other partitions, and
+ * A root {@link Partition} that contains all other partitions, and
  * routes all operations to the child partition that matches to its base suffixes.
  * It also provides some extended operations such as accessing rootDSE and
  * listing base suffixes.
@@ -38,7 +42,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class DirectoryPartitionNexus implements DirectoryPartition
+public abstract class PartitionNexus implements Partition
 {
     /** the default user principal or DN */
     public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
@@ -52,6 +56,16 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
     public final static String USERS_BASE_NAME = "ou=users,ou=system";
     /** the base dn under which all groups reside */
     public final static String GROUPS_BASE_NAME = "ou=groups,ou=system";
+
+    /** UID attribute name and OID */
+    private static final String UID_ATTRIBUTE = "uid";
+    private static final String UID_ATTRIBUTE_ALIAS = "userid";
+    private static final String UID_ATTRIBUTE_OID = "0.9.2342.19200300.100.1.1";
+    
+    /** OU attribute names and OID **/
+    private static final String OU_ATTRIBUTE = "ou";
+    private static final String OU_ATTRIBUTE_ALIAS = "organizationalUnitName";
+    private static final String OU_ATTRIBUTE_OID = "2.5.4.11";
 
     /**
      * System partition suffix constant.  Should be kept down to a single Dn name 
@@ -81,7 +95,17 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
         
         try
         {
-            adminDn.normalize();
+        	Map oidsMap = new HashMap();
+        	
+        	oidsMap.put( UID_ATTRIBUTE, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );
+        	oidsMap.put( UID_ATTRIBUTE_ALIAS, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );
+        	oidsMap.put( UID_ATTRIBUTE_OID, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );
+        	
+        	oidsMap.put( OU_ATTRIBUTE, new OidNormalizer( OU_ATTRIBUTE_OID, new NoOpNormalizer()  ) );
+        	oidsMap.put( OU_ATTRIBUTE_ALIAS, new OidNormalizer( OU_ATTRIBUTE_OID, new NoOpNormalizer()  ) );
+        	oidsMap.put( OU_ATTRIBUTE_OID, new OidNormalizer( OU_ATTRIBUTE_OID, new NoOpNormalizer()  ) );
+
+            adminDn.normalize( oidsMap );
         }
         catch ( InvalidNameException ine )
         {
@@ -170,13 +194,13 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
     public abstract boolean compare( LdapDN name, String oid, Object value ) throws NamingException;
 
 
-    public abstract void addContextPartition( DirectoryPartitionConfiguration config ) throws NamingException;
+    public abstract void addContextPartition( PartitionConfiguration config ) throws NamingException;
 
 
     public abstract void removeContextPartition( LdapDN suffix ) throws NamingException;
 
 
-    public abstract DirectoryPartition getSystemPartition();
+    public abstract Partition getSystemPartition();
 
 
     /**
@@ -189,7 +213,7 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      * @return the partition containing the entry represented by the dn
      * @throws NamingException if there is no partition for the dn
      */
-    public abstract DirectoryPartition getPartition( LdapDN dn ) throws NamingException;
+    public abstract Partition getPartition( LdapDN dn ) throws NamingException;
 
 
     /**
@@ -219,7 +243,7 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
 
     /**
      * Gets an iteration over the Name suffixes of the partitions managed by this
-     * {@link DirectoryPartitionNexus}.
+     * {@link PartitionNexus}.
      *
      * @return Iteration over ContextPartition suffix names as Names.
      * @throws NamingException if there are any problems

@@ -17,7 +17,7 @@
 package org.apache.directory.server.core.authz;
 
 
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.unit.AbstractTestCase;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -47,7 +47,7 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
      */
     public AbstractAuthorizationITest()
     {
-        super( DirectoryPartitionNexus.ADMIN_PRINCIPAL, "secret" );
+        super( PartitionNexus.ADMIN_PRINCIPAL, "secret" );
         super.configuration.setAccessControlEnabled( true );
     }
 
@@ -64,7 +64,7 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
      */
     public DirContext getContextAsAdmin() throws NamingException
     {
-        return getContextAsAdmin( DirectoryPartitionNexus.SYSTEM_PARTITION_SUFFIX );
+        return getContextAsAdmin( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
     }
 
 
@@ -82,7 +82,7 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
         Hashtable env = ( Hashtable ) sysRoot.getEnvironment().clone();
         env.put( DirContext.PROVIDER_URL, dn );
         env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
-        env.put( DirContext.SECURITY_PRINCIPAL, DirectoryPartitionNexus.ADMIN_PRINCIPAL );
+        env.put( DirContext.SECURITY_PRINCIPAL, PartitionNexus.ADMIN_PRINCIPAL );
         env.put( DirContext.SECURITY_CREDENTIALS, "secret" );
         return new InitialDirContext( env );
     }
@@ -195,7 +195,7 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
      */
     public DirContext getContextAs( Name user, String password ) throws NamingException
     {
-        return getContextAs( user, password, DirectoryPartitionNexus.SYSTEM_PARTITION_SUFFIX );
+        return getContextAs( user, password, PartitionNexus.SYSTEM_PARTITION_SUFFIX );
     }
 
 

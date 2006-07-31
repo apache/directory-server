@@ -59,7 +59,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.apache.directory.server.core.partition.impl.btree.BTreeDirectoryPartition;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
 import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
@@ -109,7 +109,7 @@ public class PartitionFrame extends JFrame
     private JMenu indices = new JMenu();
 
     // Non Swing Stuff
-    private BTreeDirectoryPartition partition = null;
+    private BTreePartition partition = null;
     private boolean doCleanUp = false;
     private HashMap nodes = new HashMap();
     private EntryNode root = null;
@@ -119,7 +119,7 @@ public class PartitionFrame extends JFrame
     /**
      * Creates new form JFrame
      */
-    public PartitionFrame(BTreeDirectoryPartition db, SearchEngine eng) throws NamingException
+    public PartitionFrame(BTreePartition db, SearchEngine eng) throws NamingException
     {
         partition = db;
         this.eng = eng;
@@ -802,7 +802,7 @@ public class PartitionFrame extends JFrame
     }
 
 
-    public void buildIndicesMenu( BTreeDirectoryPartition partition )
+    public void buildIndicesMenu( BTreePartition partition )
     {
         JMenuItem item = null;
 

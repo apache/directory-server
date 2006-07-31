@@ -21,7 +21,7 @@
     <dependency>
       <groupId>org.apache.directory.daemon</groupId>
       <artifactId>daemon-bootstrappers</artifactId>
-      <version>1.0-RC2</version>
+      <version>1.0-RC3-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>  
     <dependency>
@@ -75,7 +75,7 @@
       <plugin>
         <groupId>org.apache.directory.daemon</groupId>
         <artifactId>daemon-plugin</artifactId>
-        <version>1.0-RC2</version>
+        <version>1.0-RC3-SNAPSHOT</version>
         <configuration>
           <excludes>
 
@@ -128,11 +128,13 @@
               <installationBundleId>Binaries</installationBundleId>
             </packagedFile>
           </packagedFiles>
+<!--
           <svnBaseUrl>
             http://svn.apache.org/repos/asf/directory/branches/apacheds/1.0
           </svnBaseUrl>
           <packageSources>true</packageSources>
           <packageDocs>true</packageDocs>
+-->
           <applicationClass>
             org.apache.ldap.server.Service
           </applicationClass>

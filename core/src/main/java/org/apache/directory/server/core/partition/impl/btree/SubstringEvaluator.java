@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 public class SubstringEvaluator implements Evaluator
 {
     /** Database used while evaluating candidates */
-    private BTreeDirectoryPartition db;
+    private BTreePartition db;
     /** Oid Registry used to translate attributeIds to OIDs */
     private OidRegistry oidRegistry;
     /** AttributeType registry needed for normalizing and comparing values */
@@ -57,7 +57,7 @@ public class SubstringEvaluator implements Evaluator
      * @param oidRegistry the OID registry for name to OID mapping
      * @param attributeTypeRegistry the attributeType registry
      */
-    public SubstringEvaluator(BTreeDirectoryPartition db, OidRegistry oidRegistry,
+    public SubstringEvaluator(BTreePartition db, OidRegistry oidRegistry,
         AttributeTypeRegistry attributeTypeRegistry)
     {
         this.db = db;

@@ -24,21 +24,22 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.core.partition.DirectoryPartition;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartitionConfiguration;
 
 
 /**
- * A mutable version of {@link DirectoryPartitionConfiguration}.
+ * A mutable version of {@link PartitionConfiguration}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MutableDirectoryPartitionConfiguration extends DirectoryPartitionConfiguration
+public class MutablePartitionConfiguration extends BTreePartitionConfiguration
 {
     /**
      * Creates a new instance.
      */
-    public MutableDirectoryPartitionConfiguration()
+    public MutablePartitionConfiguration()
     {
     }
 
@@ -55,7 +56,7 @@ public class MutableDirectoryPartitionConfiguration extends DirectoryPartitionCo
     }
 
 
-    public void setContextPartition( DirectoryPartition partition )
+    public void setContextPartition( Partition partition )
     {
         super.setContextPartition( partition );
     }
@@ -70,5 +71,19 @@ public class MutableDirectoryPartitionConfiguration extends DirectoryPartitionCo
     public void setSuffix( String suffix ) throws NamingException
     {
         super.setSuffix( suffix );
+    }
+    
+    
+    public void setOptimizerEnabled( boolean optimizerEnabled )
+    {
+        super.setOptimizerEnabled( optimizerEnabled );
+    }
+    
+    /**
+     * Get's the entry cache size for this partition.
+     */
+    public void setCacheSize( int cacheSize )
+    {
+        super.setCacheSize( cacheSize );
     }
 }

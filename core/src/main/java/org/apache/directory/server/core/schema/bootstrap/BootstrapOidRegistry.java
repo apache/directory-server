@@ -29,6 +29,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.schema.OidRegistryMonitor;
 import org.apache.directory.server.core.schema.OidRegistryMonitorAdapter;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -55,17 +56,17 @@ public class BootstrapOidRegistry implements OidRegistry
      */
     public String getOid( String name ) throws NamingException
     {
-        if ( name == null )
+        if ( StringTools.isEmpty( name ) )
         {
-            throw new NamingException( "name should not be null" );
+            throw new NamingException( "name should not be empty" );
         }
         /* If name is an OID than we return it back since inherently the
          * OID is another name for the object referred to by OID and the
          * caller does not know that the argument is an OID String.
          */
-        if ( Character.isDigit( name.charAt( 0 ) ) )
+        if ( StringTools.isDigit( name.charAt( 0 ) ) )
         {
-            monitor.getOidWithOid( name );
+            //monitor.getOidWithOid( name );
             return name;
         }
 

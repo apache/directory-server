@@ -42,7 +42,10 @@ public class ServerStartupConfiguration extends StartupConfiguration
 {
     private static final long serialVersionUID = -7138616822614155454L;
 
+    private static final long DEFAULT_SYNC_PERIOD_MILLIS = 20000;
+
     private boolean enableNetworking = true;
+    private long synchPeriodMillis = DEFAULT_SYNC_PERIOD_MILLIS;
     private int ldapPort = 389;
     private int ldapsPort = 636;
     private File ldapsCertificateFile = new File( this.getWorkingDirectory().getPath() + File.separator
@@ -293,5 +296,17 @@ public class ServerStartupConfiguration extends StartupConfiguration
 
         this.ldifFilters.clear();
         this.ldifFilters.addAll( filters );
+    }
+
+
+    protected void setSynchPeriodMillis( long synchPeriodMillis )
+    {
+        this.synchPeriodMillis = synchPeriodMillis;
+    }
+
+
+    public long getSynchPeriodMillis()
+    {
+        return synchPeriodMillis;
     }
 }

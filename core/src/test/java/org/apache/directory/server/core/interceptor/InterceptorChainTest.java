@@ -22,13 +22,13 @@ import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.DeadContext;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -82,7 +82,7 @@ public class InterceptorChainTest extends TestCase
         LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
-        DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
+        PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
         Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
             { dn } );
         InvocationStack.getInstance().push( i );
@@ -108,7 +108,7 @@ public class InterceptorChainTest extends TestCase
         LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
-        DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
+        PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
         Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
             { dn }, Collections.singleton( "0" ) );
         InvocationStack.getInstance().push( i );
@@ -138,7 +138,7 @@ public class InterceptorChainTest extends TestCase
         LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
-        DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
+        PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
         Collection bypass = new HashSet();
         bypass.add( "0" );
         bypass.add( "1" );
@@ -172,7 +172,7 @@ public class InterceptorChainTest extends TestCase
         LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
-        DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
+        PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
         Collection bypass = new HashSet();
         bypass.add( "0" );
         bypass.add( "4" );
@@ -202,7 +202,7 @@ public class InterceptorChainTest extends TestCase
         LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
-        DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
+        PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
         Collection bypass = new HashSet();
         bypass.add( "1" );
         bypass.add( "3" );
@@ -232,9 +232,9 @@ public class InterceptorChainTest extends TestCase
         LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
-        DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
+        PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
         Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
-            { dn }, DirectoryPartitionNexusProxy.BYPASS_ALL_COLLECTION );
+            { dn }, PartitionNexusProxy.BYPASS_ALL_COLLECTION );
         InvocationStack.getInstance().push( i );
 
         try
@@ -304,7 +304,7 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void addContextPartition( NextInterceptor next, DirectoryPartitionConfiguration cfg )
+        public void addContextPartition( NextInterceptor next, PartitionConfiguration cfg )
             throws NamingException
         {
             interceptors.add( this );
@@ -474,8 +474,8 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public Context getJndiContext( String principal, byte[] credential, String authentication, String baseName )
-            throws NamingException
+        public Context getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
+            String authentication, String baseName ) throws NamingException
         {
             return null; //To change body of implemented methods use File | Settings | File Templates.
         }

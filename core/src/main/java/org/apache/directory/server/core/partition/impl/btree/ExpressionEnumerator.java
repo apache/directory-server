@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 public class ExpressionEnumerator implements Enumerator
 {
     /** The database used by this enumerator */
-    private BTreeDirectoryPartition db = null;
+    private BTreePartition db = null;
     /** Enumerator flyweight for evaulating filter scope assertions */
     private ScopeEnumerator scopeEnumerator;
     /** Enumerator flyweight for evaulating filter substring assertions */
@@ -58,7 +58,7 @@ public class ExpressionEnumerator implements Enumerator
      * @param db database used by this enumerator
      * @param evaluator
      */
-    public ExpressionEnumerator(BTreeDirectoryPartition db, AttributeTypeRegistry attributeTypeRegistry,
+    public ExpressionEnumerator(BTreePartition db, AttributeTypeRegistry attributeTypeRegistry,
         ExpressionEvaluator evaluator)
     {
         this.db = db;

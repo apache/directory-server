@@ -58,7 +58,7 @@ public class DnNormalizer implements Normalizer
             dn = new LdapDN( ( String ) value );
         }
         
-        dn.normalize();
+        dn.normalize( attrRegistry.getNormalizerMapping() );
         return dn;
     }
 }

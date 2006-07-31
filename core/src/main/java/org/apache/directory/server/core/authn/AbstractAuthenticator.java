@@ -127,8 +127,16 @@ public abstract class AbstractAuthenticator implements Authenticator
     }
 
 
-    public abstract LdapPrincipal authenticate( ServerContext ctx ) throws NamingException;
+    public abstract LdapPrincipal authenticate( LdapDN bindDn, ServerContext ctx ) throws NamingException;
 
+    
+    /**
+     * Does nothing leaving it so subclasses can override.
+     */
+    public void invalidateCache( LdapDN bindDn )
+    {
+    }
+    
 
     /**
      * Returns a new {@link LdapPrincipal} instance whose value is the specified

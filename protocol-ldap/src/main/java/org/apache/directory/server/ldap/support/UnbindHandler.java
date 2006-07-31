@@ -20,10 +20,11 @@ package org.apache.directory.server.ldap.support;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.SessionRegistry;
+
 import org.apache.mina.common.IoSession;
-import org.apache.mina.handler.demux.MessageHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class UnbindHandler implements MessageHandler
+public class UnbindHandler implements LdapMessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( UnbindHandler.class );
 
@@ -64,5 +65,10 @@ public class UnbindHandler implements MessageHandler
         {
             log.error( "failed to unbind session properly", e );
         }
+    }
+
+
+    public void init( StartupConfiguration cfg )
+    {
     }
 }

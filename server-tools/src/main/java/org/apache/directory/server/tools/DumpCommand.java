@@ -129,7 +129,7 @@ public class DumpCommand extends ToolCommand
 
         JdbmMasterTable master = new JdbmMasterTable( recMan );
         AttributeType attributeType = bootstrapRegistries.getAttributeTypeRegistry().lookup( "apacheUpdn" );
-        JdbmIndex idIndex = new JdbmIndex( attributeType, partitionDirectory );
+        JdbmIndex idIndex = new JdbmIndex( attributeType, partitionDirectory, 1000 );
 
         out.println( "#---------------------" );
         NamingEnumeration list = master.listTuples();

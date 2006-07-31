@@ -40,7 +40,7 @@ import javax.naming.spi.DirectoryManager;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
@@ -643,7 +643,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             throw e2;
         }
 
-        ( ( DirectoryPartitionNexusProxy ) getNexusProxy() ).addNamingListener( this, buildTarget( name ), filter,
+        ( ( PartitionNexusProxy ) getNexusProxy() ).addNamingListener( this, buildTarget( name ), filter,
             searchControls, namingListener );
         getListeners().add( namingListener );
     }

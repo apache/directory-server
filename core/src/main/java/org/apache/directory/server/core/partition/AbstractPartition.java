@@ -29,31 +29,31 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * A {@link DirectoryPartition} that helps users to implement their own partition.
+ * A {@link Partition} that helps users to implement their own partition.
  * Most methods are implemented by default.  Please look at the description of
  * each methods for the detail of implementations.
  *
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
-public abstract class AbstractDirectoryPartition implements DirectoryPartition
+public abstract class AbstractPartition implements Partition
 {
-    /** {@link DirectoryServiceConfiguration} specified at {@link #init(DirectoryServiceConfiguration, DirectoryPartitionConfiguration)}. */
+    /** {@link DirectoryServiceConfiguration} specified at {@link #init(DirectoryServiceConfiguration, PartitionConfiguration)}. */
     private DirectoryServiceConfiguration factoryCfg;
-    /** {@link DirectoryPartitionConfiguration} specified at {@link #init(DirectoryServiceConfiguration, DirectoryPartitionConfiguration)}. */
-    private DirectoryPartitionConfiguration cfg;
+    /** {@link PartitionConfiguration} specified at {@link #init(DirectoryServiceConfiguration, PartitionConfiguration)}. */
+    private PartitionConfiguration cfg;
     /** <tt>true</tt> if and only if this partition is initialized. */
     private boolean initialized;
     /** the normalized suffix DN for this partition */
     private LdapDN suffixDn;
 
 
-    protected AbstractDirectoryPartition()
+    protected AbstractPartition()
     {
     }
 
@@ -65,7 +65,7 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
      * without any errors.  {@link #destroy()} is called automatically as a clean-up process
      * if {@link #doInit()} throws an exception.
      */
-    public final void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg )
+    public final void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
         throws NamingException
     {
         if ( initialized )
@@ -144,7 +144,7 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
 
     /**
      * Returns {@link DirectoryServiceConfiguration} that is provided from
-     * {@link #init(DirectoryServiceConfiguration, DirectoryPartitionConfiguration)}.
+     * {@link #init(DirectoryServiceConfiguration, PartitionConfiguration)}.
      */
     public final DirectoryServiceConfiguration getFactoryConfiguration()
     {
@@ -153,10 +153,10 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
 
 
     /**
-     * Returns {@link DirectoryPartitionConfiguration} that is provided from
-     * {@link #init(DirectoryServiceConfiguration, DirectoryPartitionConfiguration)}.
+     * Returns {@link PartitionConfiguration} that is provided from
+     * {@link #init(DirectoryServiceConfiguration, PartitionConfiguration)}.
      */
-    public final DirectoryPartitionConfiguration getConfiguration()
+    public final PartitionConfiguration getConfiguration()
     {
         return cfg;
     }
@@ -167,7 +167,7 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
         if ( suffixDn == null )
         {
             suffixDn = new LdapDN( cfg.getSuffix() );
-            suffixDn.normalize();
+            suffixDn.normalize( factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         }
 
         return suffixDn;
@@ -189,7 +189,7 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
 
 
     /**
-     * This method calls {@link DirectoryPartition#lookup(org.apache.directory.shared.ldap.name.LdapDN)} and return <tt>true</tt>
+     * This method calls {@link Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN)} and return <tt>true</tt>
      * if it returns an entry by default.  Please override this method if
      * there is more effective way for your implementation.
      */
@@ -207,7 +207,7 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
 
 
     /**
-     * This method calls {@link DirectoryPartition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])}
+     * This method calls {@link Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])}
      * with null <tt>attributeIds</tt> by default.  Please override
      * this method if there is more effective way for your implementation.
      */
@@ -219,7 +219,7 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
 
     /**
      * This method forwards the request to
-     * {@link DirectoryPartition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])} after
+     * {@link Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])} after
      * translating parameters to {@link ModificationItem}<tt>[]</tt> by default.
      * Please override this method if there is more effactive way for your
      * implementation.
@@ -240,8 +240,8 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
 
 
     /**
-     * This method calls {@link DirectoryPartition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN)} and
-     * {@link DirectoryPartition#modifyRn(org.apache.directory.shared.ldap.name.LdapDN,String,boolean)} subsequently
+     * This method calls {@link Partition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN)} and
+     * {@link Partition#modifyRn(org.apache.directory.shared.ldap.name.LdapDN,String,boolean)} subsequently
      * by default.  Please override this method if there is more effactive
      * way for your implementation.
      */

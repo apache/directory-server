@@ -30,7 +30,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
-import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 
@@ -54,10 +54,10 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         Set indexedAttrs;
         Set pcfgs = new HashSet();
 
-        MutableDirectoryPartitionConfiguration pcfg;
+        MutablePartitionConfiguration pcfg;
 
         // Add partition 'testing'
-        pcfg = new MutableDirectoryPartitionConfiguration();
+        pcfg = new MutablePartitionConfiguration();
         pcfg.setName( "testing" );
         pcfg.setSuffix( "ou=testing" );
 
@@ -80,7 +80,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         pcfgs.add( pcfg );
 
         // Add partition 'example'
-        pcfg = new MutableDirectoryPartitionConfiguration();
+        pcfg = new MutablePartitionConfiguration();
         pcfg.setName( "example" );
         pcfg.setSuffix( "dc=example" );
 
@@ -104,7 +104,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         pcfgs.add( pcfg );
 
         // Add partition 'MixedCase'
-        pcfg = new MutableDirectoryPartitionConfiguration();
+        pcfg = new MutablePartitionConfiguration();
         pcfg.setName( "mixedcase" );
         pcfg.setSuffix( "dc=MixedCase" );
 
@@ -280,10 +280,10 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
     
     public void testBadPartition() throws Exception
     {
-        MutableDirectoryPartitionConfiguration pcfg;
+        MutablePartitionConfiguration pcfg;
 
         // Add partition 'test=testing'
-        pcfg = new MutableDirectoryPartitionConfiguration();
+        pcfg = new MutablePartitionConfiguration();
         pcfg.setName( "testing" );
         
         try

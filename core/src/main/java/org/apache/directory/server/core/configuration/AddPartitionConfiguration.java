@@ -19,25 +19,25 @@
 package org.apache.directory.server.core.configuration;
 
 
-import org.apache.directory.server.core.partition.DirectoryPartition;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.PartitionNexus;
 
 
 /**
- * A {@link Configuration} that adds a new {@link DirectoryPartition} to
- * the current {@link DirectoryPartitionNexus}.
+ * A {@link Configuration} that adds a new {@link Partition} to
+ * the current {@link PartitionNexus}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AddDirectoryPartitionConfiguration extends Configuration
+public class AddPartitionConfiguration extends Configuration
 {
     private static final long serialVersionUID = -6690435863387769527L;
 
-    private final DirectoryPartitionConfiguration directoryPartitionConfiguration;
+    private final PartitionConfiguration directoryPartitionConfiguration;
 
 
-    public AddDirectoryPartitionConfiguration(DirectoryPartitionConfiguration directoryPartitionConfiguration)
+    public AddPartitionConfiguration(PartitionConfiguration directoryPartitionConfiguration)
     {
         if ( directoryPartitionConfiguration == null )
         {
@@ -48,7 +48,7 @@ public class AddDirectoryPartitionConfiguration extends Configuration
     }
 
 
-    public DirectoryPartitionConfiguration getDirectoryPartitionConfiguration()
+    public PartitionConfiguration getDirectoryPartitionConfiguration()
     {
         return directoryPartitionConfiguration;
     }

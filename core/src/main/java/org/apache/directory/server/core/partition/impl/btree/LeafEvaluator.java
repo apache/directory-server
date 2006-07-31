@@ -55,7 +55,7 @@ public class LeafEvaluator implements Evaluator
     private static final int SUBSTRING_MATCH = 3;
 
     /** Database used to evaluate leaf with */
-    private BTreeDirectoryPartition db;
+    private BTreePartition db;
     /** Oid Registry used to translate attributeIds to OIDs */
     private OidRegistry oidRegistry;
     /** AttributeType registry needed for normalizing and comparing values */
@@ -73,7 +73,7 @@ public class LeafEvaluator implements Evaluator
      * @param scopeEvaluator
      * @param substringEvaluator
      */
-    public LeafEvaluator(BTreeDirectoryPartition db, OidRegistry oidRegistry,
+    public LeafEvaluator(BTreePartition db, OidRegistry oidRegistry,
         AttributeTypeRegistry attributeTypeRegistry, ScopeEvaluator scopeEvaluator,
         SubstringEvaluator substringEvaluator)
     {

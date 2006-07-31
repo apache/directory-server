@@ -29,7 +29,8 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.configuration.Configuration;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
-import org.apache.directory.server.core.partition.DirectoryPartition;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -99,7 +100,7 @@ public abstract class DirectoryService
 
 
     /**
-     * Calls {@link DirectoryPartition#sync()} for all registered {@link DirectoryPartition}s.
+     * Calls {@link Partition#sync()} for all registered {@link Partition}s.
      * @throws NamingException if synchronization failed
      */
     public abstract void sync() throws NamingException;
@@ -134,6 +135,6 @@ public abstract class DirectoryService
      * @param authentication {@link Context#SECURITY_AUTHENTICATION} value
      * @throws NamingException if failed to create a context
      */
-    public abstract Context getJndiContext( String principal, byte[] credential, String authentication, String baseName )
-        throws NamingException;
+    public abstract Context getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
+        String authentication, String baseName ) throws NamingException;
 }

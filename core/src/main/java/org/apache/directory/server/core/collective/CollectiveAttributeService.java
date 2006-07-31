@@ -25,7 +25,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -71,7 +71,7 @@ public class CollectiveAttributeService extends BaseInterceptor
     };
 
     private AttributeTypeRegistry registry = null;
-    private DirectoryPartitionNexus nexus = null;
+    private PartitionNexus nexus = null;
 
 
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException

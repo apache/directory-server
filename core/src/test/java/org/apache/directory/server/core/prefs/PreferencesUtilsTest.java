@@ -47,7 +47,7 @@ public class PreferencesUtilsTest extends TestCase
 
         LdapDN dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.toUpName(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org,"
+        assertEquals( dn.getUpName(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org,"
             + PreferencesUtils.SYSPREF_BASE );
 
         // simple test without trailing '/'
@@ -56,7 +56,7 @@ public class PreferencesUtilsTest extends TestCase
 
         dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.toUpName(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org,"
+        assertEquals( dn.getUpName(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org,"
             + PreferencesUtils.SYSPREF_BASE );
 
         // basis condition tests
@@ -65,7 +65,7 @@ public class PreferencesUtilsTest extends TestCase
 
         dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.toUpName(), PreferencesUtils.SYSPREF_BASE );
+        assertEquals( dn.getUpName(), PreferencesUtils.SYSPREF_BASE );
 
         // endpoint tests
 
@@ -73,7 +73,7 @@ public class PreferencesUtilsTest extends TestCase
 
         dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.toUpName(), PreferencesUtils.SYSPREF_BASE );
+        assertEquals( dn.getUpName(), PreferencesUtils.SYSPREF_BASE );
 
     }
 }

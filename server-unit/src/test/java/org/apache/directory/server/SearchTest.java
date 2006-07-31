@@ -1,17 +1,18 @@
 /*
- * Copyright (c) 2004 Solarsis Group LLC.
+ *   Copyright 2006 The Apache Software Foundation
  *
- * Licensed under the Open Software License, Version 2.1 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *     http://opensource.org/licenses/osl-2.1.php
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
  */
 package org.apache.directory.server;
 
@@ -25,6 +26,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -90,6 +92,7 @@ public class SearchTest extends AbstractServerTest
         attributes = this.getPersonAttributes( "Jagger", "Rolling-Stones" );
         attributes.put( "description", "an English singer-songwriter" );
         ctx.createSubcontext( RDN2, attributes );
+        
     }
 
 
@@ -191,4 +194,34 @@ public class SearchTest extends AbstractServerTest
         results = ctx.search( RDN2, "(cn=*ri*os)", ctls );
         assertFalse( results.hasMore() );
     }
+    
+    /**
+     * Search operation with a base DN with quotes
+     */
+    public void testSearchWithQuotesInBase() throws NamingException {
+
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope(SearchControls.OBJECT_SCOPE);
+        String filter = "(cn=Tori Amos)";
+
+        // sn="Kylie Minogue" (with quotes)
+        String base = "cn=\"Tori Amos\"";
+
+        try {
+            // Check entry
+            NamingEnumeration enm = ctx.search( base, filter, sctls );
+            assertTrue( enm.hasMore() );
+            
+            while ( enm.hasMore() ) {
+                SearchResult sr = (SearchResult) enm.next();
+                Attributes attrs = sr.getAttributes();
+                Attribute sn = attrs.get("sn");
+                assertNotNull(sn);
+                assertTrue( sn.contains( "Amos" ) );
+            }
+        } catch (Exception e) {
+            fail( e.getMessage() );
+        }
+    }
+    
 }

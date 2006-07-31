@@ -87,7 +87,7 @@ public class JdbmTable implements Table
      * @param comparator a tuple comparator
      * @throws NamingException if the table's file cannot be created
      */
-    public JdbmTable(String name, boolean allowsDuplicates, RecordManager manager, TupleComparator comparator)
+    public JdbmTable( String name, boolean allowsDuplicates, RecordManager manager, TupleComparator comparator )
         throws NamingException
     {
         this.name = name;
@@ -148,7 +148,7 @@ public class JdbmTable implements Table
      * @param keyComparator a tuple comparator
      * @throws NamingException if the table's file cannot be created
      */
-    public JdbmTable(String name, RecordManager manager, SerializableComparator keyComparator) throws NamingException
+    public JdbmTable( String name, RecordManager manager, SerializableComparator keyComparator ) throws NamingException
     {
         this( name, false, manager, new KeyOnlyComparator( keyComparator ) );
     }

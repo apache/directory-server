@@ -28,17 +28,17 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
-import org.apache.directory.server.core.partition.DirectoryPartition;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * Filters invocations on {@link DirectoryPartitionNexus}.  {@link Interceptor}
- * filters most method calls performed on {@link DirectoryPartitionNexus} just
+ * Filters invocations on {@link PartitionNexus}.  {@link Interceptor}
+ * filters most method calls performed on {@link PartitionNexus} just
  * like Servlet filters do.
  * <p/>
  * <h2>Interceptor Chaining</h2>
@@ -116,136 +116,136 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link DirectoryPartitionNexus#getRootDSE()} call.
+     * Filters {@link PartitionNexus#getRootDSE()} call.
      */
     Attributes getRootDSE( NextInterceptor next ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartitionNexus#getMatchedName(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link PartitionNexus#getMatchedName(org.apache.directory.shared.ldap.name.LdapDN)} call.
      */
     LdapDN getMatchedName ( NextInterceptor next, LdapDN name ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartitionNexus#getSuffix(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link PartitionNexus#getSuffix(org.apache.directory.shared.ldap.name.LdapDN)} call.
      */
     LdapDN getSuffix ( NextInterceptor next, LdapDN name ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartitionNexus#listSuffixes()} call.
+     * Filters {@link PartitionNexus#listSuffixes()} call.
      */
     Iterator listSuffixes ( NextInterceptor next ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartitionNexus#addContextPartition(DirectoryPartitionConfiguration)} call.
+     * Filters {@link PartitionNexus#addContextPartition(PartitionConfiguration)} call.
      */
-    void addContextPartition( NextInterceptor next, DirectoryPartitionConfiguration cfg ) throws NamingException;
+    void addContextPartition( NextInterceptor next, PartitionConfiguration cfg ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartitionNexus#removeContextPartition(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link PartitionNexus#removeContextPartition(org.apache.directory.shared.ldap.name.LdapDN)} call.
      */
     void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartitionNexus#compare(org.apache.directory.shared.ldap.name.LdapDN,String,Object)} call.
+     * Filters {@link PartitionNexus#compare(org.apache.directory.shared.ldap.name.LdapDN,String,Object)} call.
      */
     boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#delete(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link Partition#delete(org.apache.directory.shared.ldap.name.LdapDN)} call.
      */
     void delete( NextInterceptor next, LdapDN name ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#add(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.Attributes)} call.
+     * Filters {@link Partition#add(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.Attributes)} call.
      */
     void add( NextInterceptor next, LdapDN name, Attributes entry ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#modify(org.apache.directory.shared.ldap.name.LdapDN,int,javax.naming.directory.Attributes)} call.
+     * Filters {@link Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,int,javax.naming.directory.Attributes)} call.
      */
     void modify( NextInterceptor next, LdapDN name, int modOp, Attributes attributes ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])} call.
+     * Filters {@link Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])} call.
      */
     void modify( NextInterceptor next, LdapDN name, ModificationItem[] items ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#list(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link Partition#list(org.apache.directory.shared.ldap.name.LdapDN)} call.
      */
     NamingEnumeration list( NextInterceptor next, LdapDN baseName ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#search(org.apache.directory.shared.ldap.name.LdapDN,java.util.Map,org.apache.directory.shared.ldap.filter.ExprNode,javax.naming.directory.SearchControls)} call.
+     * Filters {@link Partition#search(org.apache.directory.shared.ldap.name.LdapDN,java.util.Map,org.apache.directory.shared.ldap.filter.ExprNode,javax.naming.directory.SearchControls)} call.
      */
     NamingEnumeration search( NextInterceptor next, LdapDN baseName, Map environment, ExprNode filter,
                               SearchControls searchControls ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#lookup(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN)} call.
      */
     Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])} call.
+     * Filters {@link Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])} call.
      */
     Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])} call.
+     * Filters {@link Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])} call.
      */
     boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#isSuffix(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link Partition#isSuffix(org.apache.directory.shared.ldap.name.LdapDN)} call.
      */
     boolean isSuffix( NextInterceptor next, LdapDN name ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#modifyRn(org.apache.directory.shared.ldap.name.LdapDN,String,boolean)} call.
+     * Filters {@link Partition#modifyRn(org.apache.directory.shared.ldap.name.LdapDN,String,boolean)} call.
      */
     void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link Partition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN)} call.
      */
     void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName ) throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN,String,boolean)} call.
+     * Filters {@link Partition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN,String,boolean)} call.
      */
     void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName, String newRn, boolean deleteOldRn )
         throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#bind(org.apache.directory.shared.ldap.name.LdapDN,byte[],java.util.List,String)} call.
+     * Filters {@link Partition#bind(org.apache.directory.shared.ldap.name.LdapDN,byte[],java.util.List,String)} call.
      */
     void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId )
         throws NamingException;
 
 
     /**
-     * Filters {@link DirectoryPartition#unbind(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link Partition#unbind(org.apache.directory.shared.ldap.name.LdapDN)} call.
      */
     void unbind( NextInterceptor next, LdapDN bindDn ) throws NamingException;
 }

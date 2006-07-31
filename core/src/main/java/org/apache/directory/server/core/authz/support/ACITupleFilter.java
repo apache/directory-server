@@ -25,7 +25,7 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -61,7 +61,7 @@ public interface ACITupleFilter
      * @return the collection of filtered tuples
      * @throws NamingException if failed to filter the specifiec tuples
      */
-    Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
+    Collection filter( Collection tuples, OperationScope scope, PartitionNexusProxy proxy,
                        Collection userGroupNames, LdapDN userName, Attributes userEntry,
                        AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId,
                        Object attrValue, Attributes entry, Collection microOperations )

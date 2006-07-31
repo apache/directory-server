@@ -24,8 +24,8 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.normalization.NormalizingVisitor;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.core.schema.OidRegistry;
@@ -62,7 +62,7 @@ import java.util.*;
 public class EventService extends BaseInterceptor
 {
     private static Logger log = LoggerFactory.getLogger( EventService.class );
-    private DirectoryPartitionNexus nexus;
+    private PartitionNexus nexus;
     private Map sources = new HashMap();
     private Evaluator evaluator = null;
     private AttributeTypeRegistry attributeRegistry;
@@ -95,7 +95,7 @@ public class EventService extends BaseInterceptor
         NamingListener namingListener ) throws NamingException
     {
         LdapDN normalizedBaseDn = new LdapDN( name );
-        normalizedBaseDn.normalize();
+        normalizedBaseDn.normalize( attributeRegistry.getNormalizerMapping() );
         
         // -------------------------------------------------------------------
         // must normalize the filter here: need to handle special cases
@@ -231,7 +231,7 @@ public class EventService extends BaseInterceptor
             if ( listener instanceof NamespaceChangeListener )
             {
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
-                Binding binding = new Binding( normName.toUpName(), entry, false );
+                Binding binding = new Binding( normName.getUpName(), entry, false );
                 nclistener.objectAdded( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_ADDED, binding,
                     null, entry ) );
             }
@@ -258,7 +258,7 @@ public class EventService extends BaseInterceptor
             if ( listener instanceof NamespaceChangeListener )
             {
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
-                Binding binding = new Binding( name.toUpName(), entry, false );
+                Binding binding = new Binding( name.getUpName(), entry, false );
                 nclistener.objectRemoved( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_REMOVED, null,
                     binding, entry ) );
             }
@@ -284,8 +284,8 @@ public class EventService extends BaseInterceptor
             if ( listener instanceof ObjectChangeListener )
             {
                 ObjectChangeListener oclistener = ( ObjectChangeListener ) listener;
-                Binding before = new Binding( name.toUpName(), oriEntry, false );
-                Binding after = new Binding( name.toUpName(), entry, false );
+                Binding before = new Binding( name.getUpName(), oriEntry, false );
+                Binding after = new Binding( name.getUpName(), entry, false );
                 oclistener.objectChanged( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_CHANGED, after,
                     before, mods ) );
             }
@@ -296,8 +296,8 @@ public class EventService extends BaseInterceptor
     public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes oriEntry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+        PartitionNexusProxy proxy = invocation.getProxy();
+        Attributes oriEntry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
         super.modify( next, name, modOp, mods );
 
         // package modifications in ModItem format for event delivery
@@ -314,8 +314,8 @@ public class EventService extends BaseInterceptor
     public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes oriEntry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+        PartitionNexusProxy proxy = invocation.getProxy();
+        Attributes oriEntry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
         super.modify( next, name, mods );
         notifyOnModify( name, mods, oriEntry );
     }
@@ -339,8 +339,8 @@ public class EventService extends BaseInterceptor
             if ( listener instanceof NamespaceChangeListener )
             {
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
-                Binding oldBinding = new Binding( oldName.toUpName(), entry, false );
-                Binding newBinding = new Binding( newName.toUpName(), entry, false );
+                Binding oldBinding = new Binding( oldName.getUpName(), entry, false );
+                Binding newBinding = new Binding( newName.getUpName(), entry, false );
                 nclistener.objectRenamed( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_RENAMED,
                     newBinding, oldBinding, entry ) );
             }
@@ -354,7 +354,7 @@ public class EventService extends BaseInterceptor
         LdapDN newName = ( LdapDN ) name.clone();
         newName.remove( newName.size() - 1 );
         newName.add( newRn );
-        newName.normalize();
+        newName.normalize( attributeRegistry.getNormalizerMapping() );
         notifyOnNameChange( name, newName );
     }
 

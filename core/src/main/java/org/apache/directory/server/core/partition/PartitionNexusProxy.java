@@ -35,7 +35,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.event.EventService;
@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * A decorator that wraps other {@link DirectoryPartitionNexus} to enable
+ * A decorator that wraps other {@link PartitionNexus} to enable
  * {@link InterceptorChain} and {@link InvocationStack} support.
  * All {@link Invocation}s made to this nexus is automatically pushed to
  * {@link InvocationStack} of the current thread, and popped when
@@ -58,7 +58,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
-public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
+public class PartitionNexusProxy extends PartitionNexus
 {
     /** safe to use set of bypass instructions to lookup raw entries */
     public static final Collection LOOKUP_BYPASS;
@@ -112,7 +112,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
      * @param caller a JNDI {@link Context} object that will call this proxy
      * @param service a JNDI service
      */
-    public DirectoryPartitionNexusProxy(Context caller, DirectoryService service)
+    public PartitionNexusProxy(Context caller, DirectoryService service)
     {
         this.caller = caller;
         this.service = service;
@@ -126,7 +126,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg )
+    public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
     {
     }
 
@@ -136,13 +136,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public DirectoryPartition getSystemPartition()
+    public Partition getSystemPartition()
     {
         return this.configuration.getPartitionNexus().getSystemPartition();
     }
 
 
-    public DirectoryPartition getPartition( LdapDN dn ) throws NamingException
+    public Partition getPartition( LdapDN dn ) throws NamingException
     {
         return this.configuration.getPartitionNexus().getPartition( dn );
     }
@@ -631,7 +631,16 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-
+    /**
+     * TODO : check if we can find another way to procect ourselves from recursion.
+     * 
+     * @param bindDn
+     * @param credentials
+     * @param mechanisms
+     * @param saslAuthId
+     * @param bypass
+     * @throws NamingException
+     */
     public void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId, Collection bypass )
         throws NamingException
     {
@@ -703,13 +712,13 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void addContextPartition( DirectoryPartitionConfiguration config ) throws NamingException
+    public void addContextPartition( PartitionConfiguration config ) throws NamingException
     {
         addContextPartition( config, null );
     }
 
 
-    public void addContextPartition( DirectoryPartitionConfiguration config, Collection bypass ) throws NamingException
+    public void addContextPartition( PartitionConfiguration config, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();

@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
+
 /**
  * A mutable version of {@link ServerStartupConfiguration}.
  *
@@ -41,6 +43,36 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     }
 
 
+    public void setSystemPartitionConfiguration( PartitionConfiguration systemPartitionConfiguration )
+    {
+        super.setSystemPartitionConfiguration( systemPartitionConfiguration );
+    }
+    
+    
+    public void setMaxThreads( int maxThreads )
+    {
+        super.setMaxThreads( maxThreads );
+    }
+    
+    
+    public void setMaxTimeLimit( int maxTimeLimit )
+    {
+        super.setMaxTimeLimit( maxTimeLimit );
+    }
+    
+    
+    public void setMaxSizeLimit( int maxSizeLimit )
+    {
+        super.setMaxSizeLimit( maxSizeLimit );
+    }
+    
+
+    public void setSynchPeriodMillis( long synchPeriodMillis )
+    {
+        super.setSynchPeriodMillis( synchPeriodMillis );
+    }
+    
+    
     public void setAccessControlEnabled( boolean accessControlEnabled )
     {
         super.setAccessControlEnabled( accessControlEnabled );
