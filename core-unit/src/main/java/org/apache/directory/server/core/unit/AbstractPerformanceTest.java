@@ -34,8 +34,8 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -111,7 +111,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
      */
     protected AbstractPerformanceTest( Class subclass ) throws IOException
     {
-        super( DirectoryPartitionNexus.ADMIN_PRINCIPAL, "secret" );
+        super( PartitionNexus.ADMIN_PRINCIPAL, "secret" );
         this.subclass = subclass;
         
         // Setup the statistics output writer
@@ -144,7 +144,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
             attributes.put( "ou", "test" );
             
             // Add apache.org paritition since all work will be done here
-            MutableDirectoryPartitionConfiguration partConfig = new MutableDirectoryPartitionConfiguration();
+            MutablePartitionConfiguration partConfig = new MutablePartitionConfiguration();
             partConfig.setIndexedAttributes( indexedAttributes );
             partConfig.setName( "test" );
             partConfig.setSuffix( "ou=test" );

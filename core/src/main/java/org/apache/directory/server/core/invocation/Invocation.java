@@ -24,12 +24,12 @@ import java.util.Collection;
 
 import javax.naming.Context;
 
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 
 
 /**
- * Represents a call from JNDI {@link Context} to {@link DirectoryPartitionNexus}.
+ * Represents a call from JNDI {@link Context} to {@link PartitionNexus}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -40,7 +40,7 @@ public class Invocation
     private final String name;
     private final List parameters;
     private final Collection bypassed;
-    private final DirectoryPartitionNexusProxy proxy;
+    private final PartitionNexusProxy proxy;
 
 
     /**
@@ -49,7 +49,7 @@ public class Invocation
      * @param caller the JNDI {@link Context} that made this invocation
      * @param name the name of the called method
      */
-    public Invocation(DirectoryPartitionNexusProxy proxy, Context caller, String name)
+    public Invocation(PartitionNexusProxy proxy, Context caller, String name)
     {
         this( proxy, caller, name, null, Collections.EMPTY_SET );
     }
@@ -62,7 +62,7 @@ public class Invocation
      * @param name the name of the called method
      * @param parameters the array of parameters passed to the called method
      */
-    public Invocation(DirectoryPartitionNexusProxy proxy, Context caller, String name, Object[] parameters)
+    public Invocation(PartitionNexusProxy proxy, Context caller, String name, Object[] parameters)
     {
         this( proxy, caller, name, parameters, Collections.EMPTY_SET );
     }
@@ -76,7 +76,7 @@ public class Invocation
      * @param parameters the array of parameters passed to the called method
      * @param bypassed the set of bypassed Interceptor names
      */
-    public Invocation(DirectoryPartitionNexusProxy proxy, Context caller, String name, Object[] parameters,
+    public Invocation(PartitionNexusProxy proxy, Context caller, String name, Object[] parameters,
         Collection bypassed)
     {
         if ( proxy == null )
@@ -121,9 +121,9 @@ public class Invocation
 
 
     /**
-     * Returns the proxy object to the {@link DirectoryPartitionNexus}.
+     * Returns the proxy object to the {@link PartitionNexus}.
      */
-    public DirectoryPartitionNexusProxy getProxy()
+    public PartitionNexusProxy getProxy()
     {
         return proxy;
     }

@@ -27,13 +27,13 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
@@ -50,9 +50,12 @@ public class InterceptorChain
 {
     private static final Logger log = LoggerFactory.getLogger( InterceptorChain.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     private final Interceptor FINAL_INTERCEPTOR = new Interceptor()
     {
-        private DirectoryPartitionNexus nexus;
+        private PartitionNexus nexus;
 
 
         public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg )
@@ -178,7 +181,7 @@ public class InterceptorChain
         }
 
 
-        public void addContextPartition( NextInterceptor next, DirectoryPartitionConfiguration cfg )
+        public void addContextPartition( NextInterceptor next, PartitionConfiguration cfg )
             throws NamingException
         {
             nexus.addContextPartition( cfg );
@@ -246,7 +249,7 @@ public class InterceptorChain
             {
                 InterceptorConfiguration cfg = ( InterceptorConfiguration ) i.next();
 
-                if ( log.isDebugEnabled() )
+                if ( IS_DEBUG )
                 {
                     log.debug( "Adding interceptor " + cfg.getName() );
                 }
@@ -501,7 +504,7 @@ public class InterceptorChain
             return head;
         }
 
-        if ( invocation.isBypassed( DirectoryPartitionNexusProxy.BYPASS_ALL ) )
+        if ( invocation.isBypassed( PartitionNexusProxy.BYPASS_ALL ) )
         {
             return tail;
         }
@@ -628,7 +631,7 @@ public class InterceptorChain
     }
 
 
-    public void addContextPartition( DirectoryPartitionConfiguration cfg ) throws NamingException
+    public void addContextPartition( PartitionConfiguration cfg ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
@@ -1454,7 +1457,7 @@ public class InterceptorChain
                 }
 
 
-                public void addContextPartition( DirectoryPartitionConfiguration cfg ) throws NamingException
+                public void addContextPartition( PartitionConfiguration cfg ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();

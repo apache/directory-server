@@ -43,7 +43,7 @@ public class DefaultOptimizer implements Optimizer
     /** the maximum size for a count Integer.MAX_VALUE as a BigInteger */
     private static final BigInteger MAX = BigInteger.valueOf( Integer.MAX_VALUE );
     /** the database this optimizer operates on */
-    private BTreeDirectoryPartition db;
+    private BTreePartition db;
 
 
     /**
@@ -51,7 +51,7 @@ public class DefaultOptimizer implements Optimizer
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer(BTreeDirectoryPartition db)
+    public DefaultOptimizer(BTreePartition db)
     {
         this.db = db;
     }

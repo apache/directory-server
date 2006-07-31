@@ -45,7 +45,7 @@ public class DefaultSearchEngine implements SearchEngine
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
     /** the Database this DefaultSearchEngine operates on */
-    private BTreeDirectoryPartition db;
+    private BTreePartition db;
     /** Evaluator flyweight used for filter expression assertions */
     private ExpressionEvaluator evaluator;
     /** Enumerator flyweight that creates enumerations on filter expressions */
@@ -60,13 +60,13 @@ public class DefaultSearchEngine implements SearchEngine
      * Creates a DefaultSearchEngine for searching a Database without setting
      * up the database.
      */
-    public DefaultSearchEngine(BTreeDirectoryPartition db, ExpressionEvaluator evaluator,
-        ExpressionEnumerator enumerator)
+    public DefaultSearchEngine( BTreePartition db, ExpressionEvaluator evaluator,
+        ExpressionEnumerator enumerator, Optimizer optimizer )
     {
         this.db = db;
         this.evaluator = evaluator;
         this.enumerator = enumerator;
-        optimizer = new DefaultOptimizer( db );
+        this.optimizer = optimizer;
     }
 
 

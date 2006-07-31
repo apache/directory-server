@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.schema.UsageEnum;
 public class BTreeSearchResultEnumeration implements SearchResultEnumeration
 {
     /** Database used to lookup entries from */
-    private BTreeDirectoryPartition partition = null;
+    private BTreePartition partition = null;
     /** the attributes to return */
     private final String[] attrIds;
     /** underlying enumeration over IndexRecords */
@@ -61,7 +61,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
      * @param attrIds the returned attributes
      * @param underlying the enumeration over IndexRecords
      */
-    public BTreeSearchResultEnumeration(String[] attrIds, NamingEnumeration underlying, BTreeDirectoryPartition db,
+    public BTreeSearchResultEnumeration(String[] attrIds, NamingEnumeration underlying, BTreePartition db,
         AttributeTypeRegistry registry)
     {
         this.partition = db;

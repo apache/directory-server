@@ -22,6 +22,7 @@ import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -33,8 +34,8 @@ import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+
 import org.apache.mina.common.IoSession;
-import org.apache.mina.handler.demux.MessageHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +47,13 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CompareHandler implements MessageHandler
+public class CompareHandler implements LdapMessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( CompareHandler.class );
     private static Control[] EMPTY_CONTROLS = new Control[0];
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     public void messageReceived( IoSession session, Object request ) throws Exception
     {
@@ -103,7 +106,7 @@ public class CompareHandler implements MessageHandler
         {
             String msg = "failed to compare entry " + req.getName();
 
-            if ( log.isDebugEnabled() )
+            if ( IS_DEBUG )
             {
                 msg += ":\n" + ExceptionUtils.getStackTrace( e );
             }
@@ -140,5 +143,10 @@ public class CompareHandler implements MessageHandler
 
         result.setMatchedDn( req.getName() );
         session.write( req.getResultResponse() );
+    }
+
+
+    public void init( StartupConfiguration cfg )
+    {
     }
 }

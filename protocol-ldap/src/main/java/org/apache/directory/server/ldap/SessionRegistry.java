@@ -118,7 +118,7 @@ public class SessionRegistry
      *
      * @return the registry environment
      */
-    public Hashtable getEnvironment()
+    public Hashtable getEnvironmentByCopy()
     {
         return ( Hashtable ) env.clone();
     }

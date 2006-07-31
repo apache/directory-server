@@ -19,7 +19,7 @@ Running
 
 The server is designed to run as a Windows Service or as a UNIX Daemon (also
 on MacOSX).  ApacheDS uses commons-daemon procrun and jsvc to install and run
-as a service or daemon respecitively.  These are the only native components 
+as a service or daemon respectively.  These are the only native components 
 specific to the targeted operating system.
 
 You can start, and stop the daemon on UNIX using the /etc/init.d/apacheds 
@@ -30,7 +30,7 @@ daemon mode the proper DISPLAY parameter must be set to launch the diagnostics
 on startup.
 
 On windows the server can be started like any other service using the services
-console via Microsoft Management Console.  It can also be started, stoped and
+console via Microsoft Management Console.  It can also be started, stopped and
 configured using the procrun service manager installed for it: see 
 Start->All Programs->apacheds->Service Setttings. A tray icon can also be 
 launched for the application to monitor it and to control the service: see 

@@ -27,17 +27,17 @@ import javax.naming.directory.BasicAttributes;
 
 import junit.framework.Assert;
 
-import org.apache.directory.server.core.configuration.AddDirectoryPartitionConfiguration;
-import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
-import org.apache.directory.server.core.configuration.RemoveDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.AddPartitionConfiguration;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
+import org.apache.directory.server.core.configuration.RemovePartitionConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmDirectoryPartition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 
 
 /**
- * Tests {@link AddDirectoryPartitionConfiguration} and
- * {@link RemoveDirectoryPartitionConfiguration} works correctly.
+ * Tests {@link AddPartitionConfiguration} and
+ * {@link RemovePartitionConfiguration} works correctly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -51,17 +51,17 @@ public class DirectoryPartitionConfigurationITest extends AbstractAdminTestCase
 
     public void testAddAndRemove() throws Exception
     {
-        MutableDirectoryPartitionConfiguration partitionCfg = new MutableDirectoryPartitionConfiguration();
+        MutablePartitionConfiguration partitionCfg = new MutablePartitionConfiguration();
         partitionCfg.setName( "removable" );
         partitionCfg.setSuffix( "ou=removable" );
         Attributes ctxEntry = new BasicAttributes( true );
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.put( "ou", "removable" );
         partitionCfg.setContextEntry( ctxEntry );
-        partitionCfg.setContextPartition( new JdbmDirectoryPartition() );
+        partitionCfg.setContextPartition( new JdbmPartition() );
 
         // Test AddContextPartition
-        AddDirectoryPartitionConfiguration addCfg = new AddDirectoryPartitionConfiguration( partitionCfg );
+        AddPartitionConfiguration addCfg = new AddPartitionConfiguration( partitionCfg );
 
         Hashtable env = new Hashtable();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
@@ -71,7 +71,7 @@ public class DirectoryPartitionConfigurationITest extends AbstractAdminTestCase
         Assert.assertNotNull( ctx.lookup( "ou=removable" ) );
 
         // Test removeContextPartition
-        RemoveDirectoryPartitionConfiguration removeCfg = new RemoveDirectoryPartitionConfiguration( "ou=removable" );
+        RemovePartitionConfiguration removeCfg = new RemovePartitionConfiguration( "ou=removable" );
         env.putAll( removeCfg.toJndiEnvironment() );
 
         ctx = new InitialContext( env );

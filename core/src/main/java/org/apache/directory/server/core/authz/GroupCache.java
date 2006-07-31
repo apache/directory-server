@@ -18,7 +18,7 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -53,14 +53,21 @@ public class GroupCache
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( GroupCache.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /** String key for the DN of a group to a Set (HashSet) for the Strings of member DNs */
     private final Map groups = new HashMap();
     /** a handle on the partition nexus */
-    private final DirectoryPartitionNexus nexus;
+    private final PartitionNexus nexus;
     /** the env to use for searching */
     private final Hashtable env;
 
-
+    /**
+     * The OIDs normalizer map
+     */
+    private Map normalizerMap;
+    
     /**
      * Creates a static group cache.
      *
@@ -68,6 +75,7 @@ public class GroupCache
      */
     public GroupCache(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
+    	normalizerMap = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         this.nexus = factoryCfg.getPartitionNexus();
         this.env = ( Hashtable ) factoryCfg.getEnvironment().clone();
         initialize();
@@ -77,7 +85,7 @@ public class GroupCache
     private LdapDN parseNormalized( String name ) throws NamingException
     {
         LdapDN dn = new LdapDN( name );
-        dn.normalize();
+        dn.normalize( normalizerMap );
         return dn;
     }
 
@@ -121,7 +129,7 @@ public class GroupCache
             results.close();
         }
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "group cache contents on startup:\n" + groups );
         }
@@ -245,7 +253,8 @@ public class GroupCache
         Set memberSet = new HashSet( members.size() );
         addMembers( memberSet, members );
         groups.put( normName.toString(), memberSet );
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "group cache contents after adding " + normName.toString() + ":\n" + groups );
         }
@@ -269,7 +278,8 @@ public class GroupCache
         }
 
         groups.remove( name.toString() );
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "group cache contents after deleting " + name.toString() + ":\n" + groups );
         }
@@ -353,7 +363,8 @@ public class GroupCache
                 break;
             }
         }
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "group cache contents after modifying " + name.toString() + ":\n" + groups );
         }
@@ -384,7 +395,8 @@ public class GroupCache
         {
             modify( memberSet, modOp, members );
         }
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "group cache contents after modifying " + name.toString() + ":\n" + groups );
         }
@@ -454,7 +466,8 @@ public class GroupCache
         if ( members != null )
         {
             groups.put( newName.toString(), members );
-            if ( log.isDebugEnabled() )
+            
+            if ( IS_DEBUG )
             {
                 log.debug( "group cache contents after renaming " + oldName.toString() + ":\n" + groups );
             }

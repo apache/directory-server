@@ -17,7 +17,7 @@
 package org.apache.directory.server;
 
 
-import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.message.Control;
@@ -72,7 +72,7 @@ public class MiscTest extends AbstractServerTest
         {
             Set partitions = new HashSet();
             partitions.addAll( configuration.getContextPartitionConfigurations() );
-            MutableDirectoryPartitionConfiguration partition = new MutableDirectoryPartitionConfiguration();
+            MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
             partition.setSuffix( "dc=aPache,dc=org" );
             Attributes entry = new BasicAttributes( "dc", "aPache", true );
             Attribute oc = new BasicAttribute( "objectClass" );
@@ -93,7 +93,7 @@ public class MiscTest extends AbstractServerTest
             // create a partition to search
             Set partitions = new HashSet();
             partitions.addAll( configuration.getContextPartitionConfigurations() );
-            MutableDirectoryPartitionConfiguration partition = new MutableDirectoryPartitionConfiguration();
+            MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
             partition.setSuffix( "dc=apache,dc=org" );
             Attributes entry = new BasicAttributes( "dc", "apache", true );
             Attribute oc = new BasicAttribute( "objectClass" );

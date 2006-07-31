@@ -36,10 +36,11 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.global.GlobalRegistries;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -50,6 +51,7 @@ import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -82,10 +84,13 @@ public class SchemaService extends BaseInterceptor
     /** The LoggerFactory used by this Interceptor */
     private static Logger log = LoggerFactory.getLogger( SchemaService.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     /**
      * the root nexus to all database partitions
      */
-    private DirectoryPartitionNexus nexus;
+    private PartitionNexus nexus;
 
     /**
      * a binary attribute tranforming filter: String -> byte[]
@@ -122,11 +127,18 @@ public class SchemaService extends BaseInterceptor
         startUpTimeStamp = DateUtils.getGeneralizedTime();
     }
 
-
+    /**
+     * Initialize the Schema Service
+     * 
+     * @param factoryCfg
+     * @param cfg
+     * 
+     * @throws NamingException
+     */
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
-        this.nexus = factoryCfg.getPartitionNexus();
-        this.globalRegistries = factoryCfg.getGlobalRegistries();
+        nexus = factoryCfg.getPartitionNexus();
+        globalRegistries = factoryCfg.getGlobalRegistries();
         binaryAttributeFilter = new BinaryAttributeFilter();
         topFilter = new TopFilter();
         filters.add( binaryAttributeFilter );
@@ -140,19 +152,26 @@ public class SchemaService extends BaseInterceptor
 
 
     /**
-     * @return Returns the binaries.
+     * Check if an attribute stores binary values.
+     * 
+     * @return Returns true if the attribute is binary.
      */
     public boolean isBinary( String id )
     {
         return binaries.contains( StringTools.lowerCase( StringTools.trim( id ) ) );
     }
 
-
+    /**
+     * Destroy the Schema Service
+     */
     public void destroy()
     {
     }
 
 
+    /**
+     * 
+     */
     public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( base );
@@ -161,6 +180,9 @@ public class SchemaService extends BaseInterceptor
     }
 
 
+    /**
+     * 
+     */
     public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
         SearchControls searchCtls ) throws NamingException
     {
@@ -214,6 +236,12 @@ public class SchemaService extends BaseInterceptor
     }
 
 
+    /**
+     * 
+     * @param ids
+     * @return
+     * @throws NamingException
+     */
     private Attributes getSubschemaEntry( String[] ids ) throws NamingException
     {
         if ( ids == null )
@@ -350,14 +378,14 @@ public class SchemaService extends BaseInterceptor
         if ( returnAllOperationalAttributes || set.contains( "creatorsname" ) )
         {
             attr = new LockableAttributeImpl( "creatorsName" );
-            attr.add( DirectoryPartitionNexus.ADMIN_PRINCIPAL );
+            attr.add( PartitionNexus.ADMIN_PRINCIPAL );
             attrs.put( attr );
         }
 
         if ( returnAllOperationalAttributes || set.contains( "modifiersname" ) )
         {
             attr = new LockableAttributeImpl( "modifiersName" );
-            attr.add( DirectoryPartitionNexus.ADMIN_PRINCIPAL );
+            attr.add( PartitionNexus.ADMIN_PRINCIPAL );
             attrs.put( attr );
         }
 
@@ -394,6 +422,9 @@ public class SchemaService extends BaseInterceptor
     }
 
 
+    /**
+     * 
+     */
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name );
@@ -402,7 +433,9 @@ public class SchemaService extends BaseInterceptor
         return result;
     }
 
-
+    /**
+     * 
+     */
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name, attrIds );
@@ -485,8 +518,15 @@ public class SchemaService extends BaseInterceptor
         return changedEntryAttr.size() == 0;
     }
 
-
-    Attribute getResultantObjectClasses( int modOp, Attribute changes, Attribute existing ) throws NamingException
+    /**
+     * 
+     * @param modOp
+     * @param changes
+     * @param existing
+     * @return
+     * @throws NamingException
+     */
+    private Attribute getResultantObjectClasses( int modOp, Attribute changes, Attribute existing ) throws NamingException
     {
         if ( changes == null && existing == null )
         {
@@ -572,15 +612,46 @@ public class SchemaService extends BaseInterceptor
         }
     }
 
-
+    /**
+     * Check that the modify operations are allowed, and the conform to
+     * the schema.
+     * 
+     * @param next The next interceptor to call when we are done with the local operation
+     * @param name The DN on which the modification is being done 
+     * @param modOp The modification. One of :
+     *   DirContext.ADD_ATTRIBUTE
+     *   DirContext.REMOVE_ATTRIBUTE
+     *   DirContext.REPLACE_ATTRIBUTE
+     * @param mods The modifications to check. Each operation is atomic, and should
+     * be applied to a copy of the entry, in order to check that the schema is not
+     * violated at the end. For instance, we can't delete an attribute that does
+     * not exist and add it later. The opposite is legal.
+     * 
+     * @throws NamingException The generic exception we get if an illegal operation occurs
+     * @throws LdapNameNotFoundException If we don't find the entry, then this exception is thrown.
+     * @throws LdapInvalidAttributeIdentifierException The modified attribute is not known
+     * by the schema, or the Entry is not extensible.
+     * @throws LdapNoSuchAttributeException The modified Attribute does not exist in the 
+     * current entry or is not added by a previous modification operation.
+     * @throws LdapSchemaViolationException Another schema violation occured.
+     */
     public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
+        // First, we get the entry from the backend. If it does not exist, then we throw an exception
         Attributes entry = nexus.lookup( name );
+        
+        if ( entry == null )
+        {
+            log.error( "No entry with this name :{}", name );
+            throw new LdapNameNotFoundException( "The entry which name is " + name + " is not found." );
+        }
+        
         Attribute objectClass = getResultantObjectClasses( modOp, mods.get( "objectClass" ), entry.get( "objectClass" ) );
         ObjectClassRegistry ocRegistry = this.globalRegistries.getObjectClassRegistry();
         AttributeTypeRegistry atRegistry = this.globalRegistries.getAttributeTypeRegistry();
 
         NamingEnumeration changes = mods.getIDs();
+        
         while ( changes.hasMore() )
         {
             String id = ( String ) changes.next();
@@ -642,6 +713,7 @@ public class SchemaService extends BaseInterceptor
                             }
                         }
                         break;
+                        
                     case ( DirContext.REMOVE_ATTRIBUTE  ):
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
@@ -651,6 +723,7 @@ public class SchemaService extends BaseInterceptor
                             }
                         }
                         break;
+                        
                     case ( DirContext.REPLACE_ATTRIBUTE  ):
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
@@ -660,7 +733,9 @@ public class SchemaService extends BaseInterceptor
                             }
                         }
                         break;
+                        
                     default:
+                        break;
                 }
             }
         }
@@ -668,13 +743,29 @@ public class SchemaService extends BaseInterceptor
         next.modify( name, modOp, mods );
     }
 
-
     public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
     {
+        // First, we get the entry from the backend. If it does not exist, then we throw an exception
         Attributes entry = nexus.lookup( name );
+
+        if ( entry == null )
+        {
+            log.error( "No entry with this name :{}", name );
+            throw new LdapNameNotFoundException( "The entry which name is " + name + " is not found." );
+        }
+        
+        // We will use this temporary entry to check that the modifications
+        // can be applied as atomic operations
+        Attributes tmpEntry = (Attributes)entry.clone();
+        
         Set modset = new HashSet();
         ModificationItem objectClassMod = null;
-
+        
+        // Check that we don't have two times the same modification.
+        // This is somehow useless, has modification operations are supposed to
+        // be atomic, so we may have a sucession of Add, DEL, ADD operations
+        // for the same attribute, and this will be legal.
+        // @TODO : check if we can remove this test.
         for ( int ii = 0; ii < mods.length; ii++ )
         {
             if ( mods[ii].getAttribute().getID().equalsIgnoreCase( "objectclass" ) )
@@ -685,16 +776,20 @@ public class SchemaService extends BaseInterceptor
             StringBuffer keybuf = new StringBuffer();
             keybuf.append( mods[ii].getModificationOp() );
             keybuf.append( mods[ii].getAttribute().getID() );
+
             for ( int jj = 0; jj < mods[ii].getAttribute().size(); jj++ )
             {
                 keybuf.append( mods[ii].getAttribute().get( jj ) );
             }
+            
             if ( !modset.add( keybuf.toString() ) && mods[ii].getModificationOp() == DirContext.ADD_ATTRIBUTE )
             {
                 throw new LdapAttributeInUseException( "found two copies of the following modification item: "
                     + mods[ii] );
             }
         }
+        
+        // Get the objectClass attribute.
         Attribute objectClass;
 
         if ( objectClassMod == null )
@@ -710,6 +805,8 @@ public class SchemaService extends BaseInterceptor
         ObjectClassRegistry ocRegistry = this.globalRegistries.getObjectClassRegistry();
         AttributeTypeRegistry atRegistry = this.globalRegistries.getAttributeTypeRegistry();
 
+        // Now, apply the modifications on the cloned entry before applyong it to the
+        // real object.
         for ( int ii = 0; ii < mods.length; ii++ )
         {
             int modOp = mods[ii].getModificationOp();
@@ -720,29 +817,86 @@ public class SchemaService extends BaseInterceptor
                 throw new LdapInvalidAttributeIdentifierException();
             }
 
-            if ( modOp == DirContext.REMOVE_ATTRIBUTE && entry.get( change.getID() ) == null )
+            switch ( modOp )
             {
-                throw new LdapNoSuchAttributeException();
-            }
+                case DirContext.ADD_ATTRIBUTE :
+                    Attribute attr = tmpEntry.get( change.getID() );
+                    
+                    if ( attr != null ) 
+                    {
+                        NamingEnumeration values = change.getAll();
+                        
+                        while ( values.hasMoreElements() )
+                        {
+                            attr.add( values.nextElement() );
+                        }
+                    }
+                    else
+                    {
+                        attr = new LockableAttributeImpl( change.getID() );
+                        NamingEnumeration values = change.getAll();
+                        
+                        while ( values.hasMoreElements() )
+                        {
+                            attr.add( values.nextElement() );
+                        }
+                        
+                        tmpEntry.put( attr );
+                    }
+                    
+                    break;
 
-            if ( modOp == DirContext.REMOVE_ATTRIBUTE )
-            {
-                // for required attributes we need to check if all values are removed
-                // if so then we have a schema violation that must be thrown
-                if ( isRequired( change.getID(), objectClass ) && isCompleteRemoval( change, entry ) )
-                {
-                    throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
-                }
-                SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, change, 
-                    this.globalRegistries.getOidRegistry() ); 
-                SchemaChecker
-                    .preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change, objectClass );
-            }
+                case DirContext.REMOVE_ATTRIBUTE :
+                    if ( tmpEntry.get( change.getID() ) == null )
+                    {
+                        log.error( "Trying to remove an inexistant attribute" );
+                        throw new LdapNoSuchAttributeException();
+                    }
 
-            if ( modOp == DirContext.REPLACE_ATTRIBUTE )
-            {
-                SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, change );
-                SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, change );
+                    // for required attributes we need to check if all values are removed
+                    // if so then we have a schema violation that must be thrown
+                    if ( isRequired( change.getID(), objectClass ) && isCompleteRemoval( change, entry ) )
+                    {
+                        log.error( "Trying to remove a required attribute" );
+                        throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
+                    }
+                    
+                    tmpEntry.remove( change.getID() );
+                    
+                    SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, change, 
+                        this.globalRegistries.getOidRegistry() ); 
+                    SchemaChecker
+                        .preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change, objectClass );
+                    break;
+                        
+                case DirContext.REPLACE_ATTRIBUTE :
+                    SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, change );
+                    SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, change );
+                    
+                    attr = tmpEntry.get( change.getID() );
+                    
+                    if ( attr != null )
+                    {
+                        tmpEntry.remove( change.getID() );
+                    }
+                    else
+                    {
+                        attr = new LockableAttributeImpl( change.getID() );
+                    }
+                    
+                    NamingEnumeration values = change.getAll();
+                    
+                    if ( values.hasMoreElements() ) 
+                    {
+                        while ( values.hasMoreElements() )
+                        {
+                            attr.add( values.nextElement() );
+                        }
+
+                        tmpEntry.put( attr );
+                    }
+                    
+                    break;
             }
         }
 
@@ -756,6 +910,7 @@ public class SchemaService extends BaseInterceptor
             if ( !alteredObjectClass.equals( objectClass ) )
             {
                 Attribute ocMods = objectClassMod.getAttribute();
+                
                 switch ( objectClassMod.getModificationOp() )
                 {
                     case ( DirContext.ADD_ATTRIBUTE  ):
@@ -816,7 +971,7 @@ public class SchemaService extends BaseInterceptor
     {
         long t0 = -1;
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             t0 = System.currentTimeMillis();
             log.debug( "Filtering entry " + AttributeUtils.toString( entry ) );

@@ -39,7 +39,7 @@ import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.configuration.ServerStartupConfiguration;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.kdc.KerberosServer;
 import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
@@ -55,7 +55,6 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoAcceptor;
-import org.apache.mina.common.IoFilter;
 import org.apache.mina.common.IoFilterChainBuilder;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.WriteFuture;
@@ -63,7 +62,7 @@ import org.apache.mina.filter.thread.ThreadPoolFilter;
 import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
-
+import org.apache.mina.transport.socket.nio.SocketSessionConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,10 +82,11 @@ public class ServerContextFactory extends CoreContextFactory
 
     protected static final IoAcceptor tcpAcceptor = new SocketAcceptor();
     protected static final IoAcceptor udpAcceptor = new DatagramAcceptor();
-
+    protected static final ThreadPoolFilter threadPool;
+    
     static
     {
-        IoFilter threadPool = new ThreadPoolFilter();
+        threadPool = new ThreadPoolFilter();
         tcpAcceptor.getFilterChain().addFirst( "threadPool", threadPool );
         udpAcceptor.getFilterChain().addFirst( "threadPool", threadPool );
     }
@@ -104,6 +104,7 @@ public class ServerContextFactory extends CoreContextFactory
 
     public void beforeStartup( DirectoryService service )
     {
+        threadPool.setMaximumPoolSize( service.getConfiguration().getStartupConfiguration().getMaxThreads() );
         this.directoryService = service;
     }
 
@@ -438,7 +439,7 @@ public class ServerContextFactory extends CoreContextFactory
         IoFilterChainBuilder chainBuilder ) throws LdapNamingException, LdapConfigurationException
     {
         // Register all extended operation handlers.
-        LdapProtocolProvider protocolProvider = new LdapProtocolProvider( ( Hashtable ) env.clone() );
+        LdapProtocolProvider protocolProvider = new LdapProtocolProvider( cfg, ( Hashtable ) env.clone() );
 
         for ( Iterator i = cfg.getExtendedOperationHandlers().iterator(); i.hasNext(); )
         {
@@ -446,7 +447,7 @@ public class ServerContextFactory extends CoreContextFactory
             protocolProvider.addExtendedOperationHandler( h );
             log.info( "Added Extended Request Handler: " + h.getOid() );
             h.setLdapProvider( protocolProvider );
-            DirectoryPartitionNexus nexus = directoryService.getConfiguration().getPartitionNexus();
+            PartitionNexus nexus = directoryService.getConfiguration().getPartitionNexus();
             nexus.registerSupportedExtensions( h.getExtensionOids() );
         }
 
@@ -457,7 +458,8 @@ public class ServerContextFactory extends CoreContextFactory
             acceptorCfg.setDisconnectOnUnbind( false );
             acceptorCfg.setReuseAddress( true );
             acceptorCfg.setFilterChainBuilder( chainBuilder );
-
+            ((SocketSessionConfig)(acceptorCfg.getSessionConfig())).setTcpNoDelay( true );
+            
             tcpAcceptor.bind( new InetSocketAddress( port ), protocolProvider.getHandler(), acceptorCfg );
 
             if ( log.isInfoEnabled() )

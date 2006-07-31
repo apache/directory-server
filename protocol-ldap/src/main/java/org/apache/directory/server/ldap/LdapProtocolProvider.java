@@ -29,12 +29,14 @@ import javax.naming.Context;
 
 import org.apache.mina.filter.codec.asn1.Asn1CodecDecoder;
 import org.apache.mina.filter.codec.asn1.Asn1CodecEncoder;
+import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.ldap.support.AbandonHandler;
 import org.apache.directory.server.ldap.support.AddHandler;
 import org.apache.directory.server.ldap.support.BindHandler;
 import org.apache.directory.server.ldap.support.CompareHandler;
 import org.apache.directory.server.ldap.support.DeleteHandler;
 import org.apache.directory.server.ldap.support.ExtendedHandler;
+import org.apache.directory.server.ldap.support.LdapMessageHandler;
 import org.apache.directory.server.ldap.support.ModifyDnHandler;
 import org.apache.directory.server.ldap.support.ModifyHandler;
 import org.apache.directory.server.ldap.support.SearchHandler;
@@ -74,14 +76,12 @@ import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.LoggingFilter;
 import org.apache.mina.filter.SSLFilter;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
-import org.apache.mina.handler.demux.MessageHandler;
 import org.apache.mina.util.SessionLog;
 
 
@@ -100,6 +100,7 @@ public class LdapProtocolProvider
     private static final Map DEFAULT_HANDLERS;
     /** a set of supported controls */
     private static final Set SUPPORTED_CONTROLS;
+    
 
     static
     {
@@ -171,7 +172,7 @@ public class LdapProtocolProvider
      * @param env environment properties used to configure the provider and
      * underlying codec providers if any
      */
-    public LdapProtocolProvider(Hashtable env) throws LdapNamingException
+    public LdapProtocolProvider( StartupConfiguration cfg, Hashtable env) throws LdapNamingException
     {
         Hashtable copy = ( Hashtable ) env.clone();
         copy.put( Context.PROVIDER_URL, "" );
@@ -181,7 +182,7 @@ public class LdapProtocolProvider
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
         while ( requestTypes.hasNext() )
         {
-            MessageHandler handler = null;
+            LdapMessageHandler handler = null;
             String type = ( String ) requestTypes.next();
             Class clazz = null;
 
@@ -209,7 +210,8 @@ public class LdapProtocolProvider
             try
             {
                 Class typeClass = Class.forName( type );
-                handler = ( MessageHandler ) clazz.newInstance();
+                handler = ( LdapMessageHandler ) clazz.newInstance();
+                handler.init( cfg );
                 this.handler.addMessageHandler( typeClass, handler );
             }
             catch ( Exception e )
@@ -224,44 +226,6 @@ public class LdapProtocolProvider
         }
 
         this.codecFactory = new ProtocolCodecFactoryImpl( copy );
-    }
-
-
-    /**
-     * Creates a MINA LDAP protocol provider.
-     */
-    public LdapProtocolProvider() throws LdapNamingException
-    {
-        SessionRegistry.releaseSingleton();
-        new SessionRegistry( null );
-
-        Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
-        while ( requestTypes.hasNext() )
-        {
-            MessageHandler handler = null;
-            String type = ( String ) requestTypes.next();
-            Class clazz = null;
-
-            clazz = ( Class ) DEFAULT_HANDLERS.get( type );
-
-            try
-            {
-                Class typeClass = Class.forName( type );
-                handler = ( MessageHandler ) clazz.newInstance();
-                this.handler.addMessageHandler( typeClass, handler );
-            }
-            catch ( Exception e )
-            {
-                LdapNamingException lne;
-                String msg = "failed to create handler instance of " + clazz;
-                msg += " for processing " + type + " objects.";
-                lne = new LdapNamingException( msg, ResultCodeEnum.OTHER );
-                lne.setRootCause( e );
-                throw lne;
-            }
-        }
-
-        this.codecFactory = new ProtocolCodecFactoryImpl();
     }
 
 
@@ -372,7 +336,11 @@ public class LdapProtocolProvider
         {
             IoFilterChain filters = session.getFilterChain();
             filters.addLast( "codec", new ProtocolCodecFilter( codecFactory ) );
-            filters.addLast( "logger", new LoggingFilter() );
+            
+            // TODO : The filter is logging too much information.
+            // Right now, I have commented it, but it may be 
+            // used with some parameter to disable it
+            //filters.addLast( "logger", new LoggingFilter() );
         }
 
 

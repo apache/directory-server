@@ -190,25 +190,35 @@ public class LdapJndiProperties
         // Figure out and set the security principal bindDn and saslAuthId
         // -------------------------------------------------------------------
 
-        if ( principal == null )
+        if ( env.containsKey( PropertyKeys.PARSED_BIND_DN ) )
         {
-            throw new LdapConfigurationException( Context.SECURITY_PRINCIPAL + " cannot be null." );
-        }
-
-        if ( !( principal instanceof String ) )
-        {
-            throw new LdapConfigurationException( "Don't know how to interpret " + principal.getClass()
-                + " objects for environment property " + Context.SECURITY_PRINCIPAL );
-        }
-
-        if ( ( ( String ) principal ).trim().equals( "" ) )
-        {
-            props.bindDn = LdapDN.EMPTY_LDAPDN;
+            props.bindDn = ( LdapDN ) env.get( PropertyKeys.PARSED_BIND_DN );
         }
         else
         {
-            props.bindDn = new LdapDN( ( String ) principal );
+            if ( principal == null )
+            {
+                throw new LdapConfigurationException( Context.SECURITY_PRINCIPAL + " cannot be null." );
+            }
+    
+            if ( !( principal instanceof String ) )
+            {
+                throw new LdapConfigurationException( "Don't know how to interpret " + principal.getClass()
+                    + " objects for environment property " + Context.SECURITY_PRINCIPAL );
+            }
+    
+            if ( ( ( String ) principal ).trim().equals( "" ) )
+            {
+                props.bindDn = LdapDN.EMPTY_LDAPDN;
+            }
+            else
+            {
+                props.bindDn = new LdapDN( ( String ) principal );
+            }
         }
+        
+        
+        
 
         if ( env.get( SASL_AUTHID ) != null && props.level == AuthenticationLevel.STRONG )
         {

@@ -40,14 +40,16 @@ import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.ServerUtils;
-import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
-import org.apache.directory.server.core.partition.DirectoryPartition;
-import org.apache.directory.server.core.partition.impl.btree.BTreeDirectoryPartition;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertionEnumeration;
 import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
 import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
+import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.OidRegistry;
 
@@ -66,15 +68,15 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A {@link DirectoryPartition} that stores entries in
+ * A {@link Partition} that stores entries in
  * <a href="http://jdbm.sourceforge.net/">JDBM</a> database.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmDirectoryPartition extends BTreeDirectoryPartition
+public class JdbmPartition extends BTreePartition
 {
-    private static final Logger log = LoggerFactory.getLogger( JdbmDirectoryPartition.class );
+    private static final Logger log = LoggerFactory.getLogger( JdbmPartition.class );
 
     /** the JDBM record manager used by this database */
     private RecordManager recMan;
@@ -111,6 +113,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     
     private OidRegistry oidRegistry;
     private AttributeTypeRegistry attrRegistry;
+    private BTreePartitionConfiguration cfg;
 
 
     // ------------------------------------------------------------------------
@@ -120,20 +123,27 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     /**
      * Creates a store based on JDBM B+Trees.
      */
-    public JdbmDirectoryPartition()
+    public JdbmPartition()
     {
     }
 
 
-    public synchronized void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg )
+    public synchronized void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
         throws NamingException
     {
+        if ( cfg instanceof BTreePartitionConfiguration )
+        {
+            this.cfg = ( BTreePartitionConfiguration ) cfg;
+        }
+        else
+        {
+            this.cfg = MutableBTreePartitionConfiguration.getConfiguration( cfg );
+        }
+        
         oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
         attrRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        Map oids = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
-        LdapDN.setOidsMap( oids );
         this.upSuffix = new LdapDN( cfg.getSuffix() );
-        this.normSuffix = LdapDN.normalize( upSuffix );
+        this.normSuffix = LdapDN.normalize( upSuffix, attrRegistry.getNormalizerMapping() );
 
         File workingDirectory = new File( factoryCfg.getStartupConfiguration().getWorkingDirectory().getPath()
             + File.separator + cfg.getName() );
@@ -147,7 +157,20 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             String path = workingDirectory.getPath() + File.separator + "master";
             BaseRecordManager base = new BaseRecordManager( path );
             base.disableTransactions();
-            recMan = new CacheRecordManager( base, new MRU( 1000 ) );
+            
+            int cacheSize = cfg.getCacheSize();
+            if ( cacheSize < 0 )
+            {
+                cacheSize = PartitionConfiguration.DEFAULT_CACHE_SIZE;
+                log.warn( "Using the default entry cache size of {} for {} partition", 
+                    new Integer( cacheSize ), cfg.getName() );
+            }
+            else
+            {
+                log.info( "Using the custom configured cache size of {} for {} partition", 
+                    new Integer( cacheSize ), cfg.getName() );
+            }
+            recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
         }
         catch ( IOException e )
         {
@@ -299,9 +322,9 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     // I N D E X   M E T H O D S
     // ------------------------------------------------------------------------
 
-    public void addIndexOn( AttributeType spec ) throws NamingException
+    public void addIndexOn( AttributeType spec, int cacheSize ) throws NamingException
     {
-        Index idx = new JdbmIndex( spec, workingDirectory );
+        Index idx = new JdbmIndex( spec, workingDirectory, cacheSize );
         indices.put( spec.getOid(), idx );
     }
 
@@ -312,7 +335,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     }
 
 
-    public void setExistanceIndexOn( AttributeType attrType ) throws NamingException
+    public void setExistanceIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
     {
         if ( existanceIdx != null )
         {
@@ -320,7 +343,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             throw e;
         }
 
-        existanceIdx = new JdbmIndex( attrType, workingDirectory );
+        existanceIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
         sysIndices.put( attrType.getOid(), existanceIdx );
     }
 
@@ -331,7 +354,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     }
 
 
-    public void setHierarchyIndexOn( AttributeType attrType ) throws NamingException
+    public void setHierarchyIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
     {
         if ( hierarchyIdx != null )
         {
@@ -339,7 +362,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             throw e;
         }
 
-        hierarchyIdx = new JdbmIndex( attrType, workingDirectory );
+        hierarchyIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
         sysIndices.put( attrType.getOid(), hierarchyIdx );
     }
 
@@ -350,7 +373,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     }
 
 
-    public void setAliasIndexOn( AttributeType attrType ) throws NamingException
+    public void setAliasIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
     {
         if ( aliasIdx != null )
         {
@@ -358,7 +381,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             throw e;
         }
 
-        aliasIdx = new JdbmIndex( attrType, workingDirectory );
+        aliasIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
         sysIndices.put( attrType.getOid(), aliasIdx );
     }
 
@@ -369,7 +392,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     }
 
 
-    public void setOneAliasIndexOn( AttributeType attrType ) throws NamingException
+    public void setOneAliasIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
     {
         if ( oneAliasIdx != null )
         {
@@ -377,7 +400,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             throw e;
         }
 
-        oneAliasIdx = new JdbmIndex( attrType, workingDirectory );
+        oneAliasIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
         sysIndices.put( attrType.getOid(), oneAliasIdx );
     }
 
@@ -388,7 +411,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     }
 
 
-    public void setSubAliasIndexOn( AttributeType attrType ) throws NamingException
+    public void setSubAliasIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
     {
         if ( subAliasIdx != null )
         {
@@ -396,7 +419,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             throw e;
         }
 
-        subAliasIdx = new JdbmIndex( attrType, workingDirectory );
+        subAliasIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
         sysIndices.put( attrType.getOid(), subAliasIdx );
     }
 
@@ -407,7 +430,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     }
 
 
-    public void setUpdnIndexOn( AttributeType attrType ) throws NamingException
+    public void setUpdnIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
     {
         if ( updnIdx != null )
         {
@@ -415,7 +438,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             throw e;
         }
 
-        updnIdx = new JdbmIndex( attrType, workingDirectory );
+        updnIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
         sysIndices.put( attrType.getOid(), updnIdx );
     }
 
@@ -426,7 +449,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     }
 
 
-    public void setNdnIndexOn( AttributeType attrType ) throws NamingException
+    public void setNdnIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
     {
         if ( ndnIdx != null )
         {
@@ -434,7 +457,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             throw e;
         }
 
-        ndnIdx = new JdbmIndex( attrType, workingDirectory );
+        ndnIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
         sysIndices.put( attrType.getOid(), ndnIdx );
     }
 
@@ -464,7 +487,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.BTreeDirectoryPartition#getUserIndex(String)
+     * @see org.apache.directory.server.core.partition.impl.btree.BTreePartition#getUserIndex(String)
      */
     public Index getUserIndex( String id ) throws IndexNotFoundException
     {
@@ -503,7 +526,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
 
 
     /**
-     * @see BTreeDirectoryPartition#getEntryId(String)
+     * @see BTreePartition#getEntryId(String)
      */
     public Index getSystemIndex( String id ) throws IndexNotFoundException
     {
@@ -648,7 +671,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
 
         // Access aliasedObjectName, normalize it and generate the Name 
         normalizedAliasTargetDn = new LdapDN( aliasTarget );
-        normalizedAliasTargetDn.normalize();
+        normalizedAliasTargetDn.normalize( attrRegistry.getNormalizerMapping() );
 
         /*
          * Check For Cycles
@@ -684,7 +707,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         {
             // Complain specifically about aliases to outside naming contexts
             throw new NamingException( "[36] aliasDereferencingProblem -"
-                + " the alias points to an entry outside of the " + upSuffix.toUpName()
+                + " the alias points to an entry outside of the " + upSuffix.getUpName()
                 + " namingContext to an object whose existance cannot be" + " determined." );
         }
 
@@ -802,22 +825,22 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
 
         if ( objectClass == null )
         {
-            String msg = "Entry " + normName.toUpName() + " contains no objectClass attribute: " + entry;
+            String msg = "Entry " + normName.getUpName() + " contains no objectClass attribute: " + entry;
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECTCLASSVIOLATION );
         }
 
         // Start adding the system indices
         // Why bother doing a lookup if this is not an alias.
 
-        if ( objectClass.contains( DirectoryPartition.ALIAS_OBJECT ) )
+        if ( objectClass.contains( Partition.ALIAS_OBJECT ) )
         {
-            AttributeType aliasType = attrRegistry.lookup( DirectoryPartition.ALIAS_ATTRIBUTE );
+            AttributeType aliasType = attrRegistry.lookup( Partition.ALIAS_ATTRIBUTE );
             Attribute aliasAttr = ServerUtils.getAttribute( aliasType, entry );
             addAliasIndices( id, normName, ( String ) aliasAttr.get() );
         }
 
         ndnIdx.add( normName.toNormName(), id );
-        updnIdx.add( normName.toUpName(), id );
+        updnIdx.add( normName.getUpName(), id );
         hierarchyIdx.add( parentId, id );
 
         // Now work on the user defined indices
@@ -846,6 +869,11 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         }
 
         master.put( entry, id );
+        
+        if ( cfg.isSynchOnWrite() )
+        {
+            sync();
+        }
     }
 
 
@@ -863,7 +891,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
 
         AttributeType octype = attrRegistry.lookup( "objectClass" );
         Attribute objectClass = ServerUtils.getAttribute( octype, entry );
-        if ( objectClass.contains( DirectoryPartition.ALIAS_OBJECT ) )
+        if ( objectClass.contains( Partition.ALIAS_OBJECT ) )
         {
             dropAliasIndices( id );
         }
@@ -901,6 +929,11 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         }
 
         master.delete( id );
+        
+        if ( cfg.isSynchOnWrite() )
+        {
+            sync();
+        }
     }
 
 
@@ -1061,7 +1094,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             entryAttrToAddTo.add( mods.get( ii ) );
         }
 
-        if ( modsOid.equals( oidRegistry.getOid( DirectoryPartition.ALIAS_ATTRIBUTE ) ) )
+        if ( modsOid.equals( oidRegistry.getOid( Partition.ALIAS_ATTRIBUTE ) ) )
         {
             String ndnStr = ( String ) ndnIdx.reverseLookup( id );
             addAliasIndices( id, new LdapDN( ndnStr ), ( String ) mods.get() );
@@ -1130,7 +1163,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         }
 
         // Aliases->single valued comp/partial attr removal is not relevant here
-        if ( modsOid.equals( oidRegistry.getOid( DirectoryPartition.ALIAS_ATTRIBUTE ) ) )
+        if ( modsOid.equals( oidRegistry.getOid( Partition.ALIAS_ATTRIBUTE ) ) )
         {
             dropAliasIndices( id );
         }
@@ -1171,7 +1204,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             }
         }
 
-        String aliasAttributeOid = oidRegistry.getOid( DirectoryPartition.ALIAS_ATTRIBUTE );
+        String aliasAttributeOid = oidRegistry.getOid( Partition.ALIAS_ATTRIBUTE );
         if ( modsOid.equals( aliasAttributeOid ) )
         {
             dropAliasIndices( id );
@@ -1234,6 +1267,11 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         }
 
         master.put( entry, id );
+        
+        if ( cfg.isSynchOnWrite() )
+        {
+            sync();
+        }
     }
 
 
@@ -1263,6 +1301,11 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         }
 
         master.put( entry, id );
+        
+        if ( cfg.isSynchOnWrite() )
+        {
+            sync();
+        }
     }
 
 
@@ -1383,6 +1426,11 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         newUpdn.remove( newUpdn.size() - 1 ); // remove old upRdn
         newUpdn.add( newUpdn.size(), newRdn ); // add da new upRdn
         modifyDn( id, newUpdn, false ); // propagate dn changes
+        
+        if ( cfg.isSynchOnWrite() )
+        {
+            sync();
+        }
     }
 
 
@@ -1410,11 +1458,11 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         // Now we can handle the appropriate name indices for all cases
         ndnIdx.drop( id );
         
-        LdapDN normalizedDn = LdapDN.normalize( updn );
+        LdapDN normalizedDn = LdapDN.normalize( updn, attrRegistry.getNormalizerMapping() );
         ndnIdx.add( ndnIdx.getNormalized( normalizedDn.toNormName() ), id );
 
         updnIdx.drop( id );
-        updnIdx.add( updn.toUpName(), id );
+        updnIdx.add( updn.getUpName(), id );
 
         /* 
          * Read Alias Index Tuples
@@ -1463,6 +1511,11 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
         BigInteger childId = getEntryId( oldChildDn.toString() );
         modifyRn( oldChildDn, newRdn, deleteOldRdn );
         move( oldChildDn, childId, newParentDn );
+        
+        if ( cfg.isSynchOnWrite() )
+        {
+            sync();
+        }
     }
 
 
@@ -1470,6 +1523,11 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     {
         BigInteger childId = getEntryId( oldChildDn.toString() );
         move( oldChildDn, childId, newParentDn );
+        
+        if ( cfg.isSynchOnWrite() )
+        {
+            sync();
+        }
     }
 
 

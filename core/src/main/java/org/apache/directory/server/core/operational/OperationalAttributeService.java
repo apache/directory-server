@@ -40,7 +40,7 @@ import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -80,7 +80,7 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * the root nexus of the system
      */
-    private DirectoryPartitionNexus nexus;
+    private PartitionNexus nexus;
 
     private AttributeTypeRegistry registry;
 
@@ -180,7 +180,7 @@ public class OperationalAttributeService extends BaseInterceptor
         LdapDN newDn = ( LdapDN ) name.clone();
         newDn.remove( name.size() - 1 );
         newDn.add( newRn );
-        newDn.normalize();
+        newDn.normalize( registry.getNormalizerMapping() );
         nexus.modify( newDn, DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 

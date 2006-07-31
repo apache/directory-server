@@ -60,12 +60,14 @@ import org.slf4j.LoggerFactory;
 public class AuthenticationService extends BaseInterceptor
 {
     private static final Logger log = LoggerFactory.getLogger( AuthenticationService.class );
+    
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /** authenticators **/
     public Map authenticators = new HashMap();
 
     private DirectoryServiceConfiguration factoryCfg;
-
 
     /**
      * Creates an authentication service interceptor.
@@ -184,10 +186,10 @@ public class AuthenticationService extends BaseInterceptor
 
     public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = '"
-                    + normName.toUpName() + "'" );
+                    + normName.getUpName() + "'" );
         }
 
         checkAuthenticated();
@@ -197,19 +199,20 @@ public class AuthenticationService extends BaseInterceptor
 
     public void delete( NextInterceptor next, LdapDN name ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Deleting name = '" + name.toString() + "'" );
         }
 
         checkAuthenticated();
         next.delete( name );
+        invalidateAuthenticatorCaches( name );
     }
 
 
     public LdapDN getMatchedName ( NextInterceptor next, LdapDN dn ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Matching name = '" + dn.toString() + "'" );
         }
@@ -221,7 +224,7 @@ public class AuthenticationService extends BaseInterceptor
 
     public Attributes getRootDSE( NextInterceptor next ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Getting root DSE" );
         }
@@ -233,7 +236,7 @@ public class AuthenticationService extends BaseInterceptor
 
     public LdapDN getSuffix ( NextInterceptor next, LdapDN dn ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Getting suffix for name = '" + dn.toString() + "'" );
         }
@@ -245,7 +248,7 @@ public class AuthenticationService extends BaseInterceptor
 
     public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Testing if entry name = '" + name.toString() + "' exists" );
         }
@@ -257,7 +260,7 @@ public class AuthenticationService extends BaseInterceptor
 
     public boolean isSuffix( NextInterceptor next, LdapDN name ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Testing suffix for name = '" + name.toString() + "'" );
         }
@@ -269,7 +272,7 @@ public class AuthenticationService extends BaseInterceptor
 
     public NamingEnumeration list( NextInterceptor next, LdapDN base ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Listing base = '" + base.toString() + "'" );
         }
@@ -281,7 +284,7 @@ public class AuthenticationService extends BaseInterceptor
 
     public Iterator listSuffixes ( NextInterceptor next ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Listing suffixes" );
         }
@@ -293,7 +296,7 @@ public class AuthenticationService extends BaseInterceptor
 
     public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Lookup name = '" + dn.toString() + "', attributes = " + attrIds );
         }
@@ -305,7 +308,7 @@ public class AuthenticationService extends BaseInterceptor
 
     public Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Lookup name = '" + name.toString() + "'" );
         }
@@ -315,33 +318,53 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
+    private void invalidateAuthenticatorCaches( LdapDN principalDn )
+    {
+        for ( Iterator jj = this.authenticators.keySet().iterator(); jj.hasNext(); /**/ )
+        {
+            String authMech = ( String ) jj.next();
+            
+            Collection authenticators = getAuthenticators( authMech );
+            
+            // try each authenticator
+            for ( Iterator ii = authenticators.iterator(); ii.hasNext(); /**/ )
+            {
+                Authenticator authenticator = ( Authenticator ) ii.next();
+                authenticator.invalidateCache( getPrincipal().getJndiName() );
+            }
+        }
+    }
+    
+    
     public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Modifying name = '" + name.toString() + "', modifs = " + AttributeUtils.toString( mods ) );
         }
 
         checkAuthenticated();
         next.modify( name, modOp, mods );
+        invalidateAuthenticatorCaches( name );
     }
 
-
+    
     public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Modifying name = '" + name.toString() + "'" );
         }
 
         checkAuthenticated();
         next.modify( name, mods );
+        invalidateAuthenticatorCaches( name );
     }
 
 
     public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Modifying name = '" + name.toString() + "', new RDN = '" + newRn + "', oldRDN = '"
                 + deleteOldRn + "'" );
@@ -349,13 +372,14 @@ public class AuthenticationService extends BaseInterceptor
 
         checkAuthenticated();
         next.modifyRn( name, newRn, deleteOldRn );
+        invalidateAuthenticatorCaches( name );
     }
 
 
     public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
         throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Moving name = '" + oriChildName.toString() + "' to name = '" + newParentName + "', new RDN = '"
                 + newRn + "', oldRDN = '" + deleteOldRn + "'" );
@@ -363,25 +387,27 @@ public class AuthenticationService extends BaseInterceptor
 
         checkAuthenticated();
         next.move( oriChildName, newParentName, newRn, deleteOldRn );
+        invalidateAuthenticatorCaches( oriChildName );
     }
 
 
     public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Moving name = '" + oriChildName.toString() + " to name = '" + newParentName + "'" );
         }
 
         checkAuthenticated();
         next.move( oriChildName, newParentName );
+        invalidateAuthenticatorCaches( oriChildName );
     }
 
 
     public NamingEnumeration search( NextInterceptor next, LdapDN base, Map env, ExprNode filter,
         SearchControls searchCtls ) throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "Search for base = '" + base.toString() + "'" );
         }
@@ -455,6 +481,7 @@ public class AuthenticationService extends BaseInterceptor
             return;
         }
 
+        // TODO : we should refactor that.
         // try each authenticators
         for ( Iterator i = authenticators.iterator(); i.hasNext(); )
         {
@@ -462,7 +489,7 @@ public class AuthenticationService extends BaseInterceptor
             try
             {
                 // perform the authentication
-                LdapPrincipal authorizationId = authenticator.authenticate( ctx );
+                LdapPrincipal authorizationId = authenticator.authenticate( bindDn, ctx );
                 // authentication was successful
                 ctx.setPrincipal( new TrustedPrincipalWrapper( authorizationId ) );
                 // remove creds so there is no security risk

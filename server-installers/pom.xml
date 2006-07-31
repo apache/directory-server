@@ -75,6 +75,7 @@
       <plugin>
         <groupId>org.apache.directory.daemon</groupId>
         <artifactId>daemon-plugin</artifactId>
+        <version>1.0-RC3-SNAPSHOT</version>
         <configuration>
           <excludes>
 

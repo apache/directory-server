@@ -67,17 +67,17 @@ public class DnComparator implements Comparator
         LdapDN dn = null;
         if ( obj instanceof LdapDN )
         {
-            dn = LdapDN.normalize( ( LdapDN ) obj );
+            dn = LdapDN.normalize( ( LdapDN ) obj, attrRegistry.getNormalizerMapping() );
         }
         else if ( obj instanceof Name )
         {
             dn = new LdapDN( ( Name ) obj );
-            dn.normalize();
+            dn.normalize( attrRegistry.getNormalizerMapping() );
         }
         else if ( obj instanceof String )
         {
             dn = new LdapDN( ( String ) obj );
-            dn.normalize();
+            dn.normalize( attrRegistry.getNormalizerMapping() );
         }
         else
         {

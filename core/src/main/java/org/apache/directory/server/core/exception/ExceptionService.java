@@ -29,9 +29,9 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.partition.DirectoryPartition;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.exception.*;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
  * An {@link org.apache.directory.server.core.interceptor.Interceptor} that detects any operations that breaks integrity
- * of {@link DirectoryPartition} and terminates the current invocation chain by
+ * of {@link Partition} and terminates the current invocation chain by
  * throwing a {@link NamingException}. Those operations include when an entry
  * already exists at a DN and is added once again to the same DN.
  *
@@ -49,8 +49,12 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class ExceptionService extends BaseInterceptor
 {
-    private DirectoryPartitionNexus nexus;
+    private PartitionNexus nexus;
 
+    /**
+     * The OIDs normalizer map
+     */
+    private Map normalizerMap;
 
     /**
      * Creates an interceptor that is also the exception handling service.
@@ -60,9 +64,10 @@ public class ExceptionService extends BaseInterceptor
     }
 
 
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg )
+    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         nexus = factoryCfg.getPartitionNexus();
+        normalizerMap = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
     }
 
 
@@ -82,7 +87,7 @@ public class ExceptionService extends BaseInterceptor
         if ( nextInterceptor.hasEntry( normName ) )
         {
             NamingException ne = new LdapNameAlreadyBoundException( normName.toString() + " already exists!" );
-            ne.setResolvedName( new LdapDN( normName.toUpName() ) );
+            ne.setResolvedName( new LdapDN( normName.getUpName() ) );
             throw ne;
         }
 
@@ -98,19 +103,19 @@ public class ExceptionService extends BaseInterceptor
         }
         catch ( Exception e )
         {
-            LdapNameNotFoundException e2 = new LdapNameNotFoundException( "Parent " + parentDn.toUpName() 
+            LdapNameNotFoundException e2 = new LdapNameNotFoundException( "Parent " + parentDn.getUpName() 
                 + " not found" );
-            e2.setResolvedName( new LdapDN( nexus.getMatchedName( parentDn ).toUpName() ) );
+            e2.setResolvedName( new LdapDN( nexus.getMatchedName( parentDn ).getUpName() ) );
             throw e2;
         }
         
         Attribute objectClass = attrs.get( "objectClass" );
         if ( objectClass.contains( "alias" ) )
         {
-            String msg = "Attempt to add entry to alias '" + normName.toUpName() + "' not allowed.";
+            String msg = "Attempt to add entry to alias '" + normName.getUpName() + "' not allowed.";
             ResultCodeEnum rc = ResultCodeEnum.ALIASPROBLEM;
             NamingException e = new LdapNamingException( msg, rc );
-            e.setResolvedName( new LdapDN( parentDn.toUpName() ) );
+            e.setResolvedName( new LdapDN( parentDn.getUpName() ) );
             throw e;
         }
 
@@ -140,7 +145,7 @@ public class ExceptionService extends BaseInterceptor
         if ( hasChildren )
         {
             LdapContextNotEmptyException e = new LdapContextNotEmptyException();
-            e.setResolvedName( new LdapDN( name.toUpName() ) );
+            e.setResolvedName( new LdapDN( name.getUpName() ) );
             throw e;
         }
 
@@ -246,7 +251,7 @@ public class ExceptionService extends BaseInterceptor
                     {
                         if ( entryAttr.contains( modAttr.get( jj ) ) )
                         {
-                            throw new LdapAttributeInUseException( "Trying to add existing value '" + modAttr.get( ii )
+                            throw new LdapAttributeInUseException( "Trying to add existing value '" + modAttr.get( jj )
                                 + "' to attribute " + modAttr.getID() );
                         }
                     }
@@ -271,12 +276,12 @@ public class ExceptionService extends BaseInterceptor
         LdapDN newDn = ( LdapDN ) dn.clone();
         newDn.remove( dn.size() - 1 );
         newDn.add( newRn );
-        newDn.normalize();
+        newDn.normalize( normalizerMap );
         if ( nextInterceptor.hasEntry( newDn ) )
         {
             LdapNameAlreadyBoundException e;
-            e = new LdapNameAlreadyBoundException( "target entry " + newDn.toUpName() + " already exists!" );
-            e.setResolvedName( new LdapDN( newDn.toUpName() ) );
+            e = new LdapNameAlreadyBoundException( "target entry " + newDn.getUpName() + " already exists!" );
+            e.setResolvedName( new LdapDN( newDn.getUpName() ) );
             throw e;
         }
 
@@ -305,13 +310,13 @@ public class ExceptionService extends BaseInterceptor
         if ( nextInterceptor.hasEntry( target ) )
         {
             // we must calculate the resolved name using the user provided Rdn value
-            String upRdn = new LdapDN( oriChildName.toUpName() ).get( oriChildName.size() - 1 );
+            String upRdn = new LdapDN( oriChildName.getUpName() ).get( oriChildName.size() - 1 );
             LdapDN upTarget = ( LdapDN ) newParentName.clone();
             upTarget.add( upRdn );
 
             LdapNameAlreadyBoundException e;
-            e = new LdapNameAlreadyBoundException( "target entry " + upTarget.toUpName() + " already exists!" );
-            e.setResolvedName( new LdapDN( upTarget.toUpName() ) );
+            e = new LdapNameAlreadyBoundException( "target entry " + upTarget.getUpName() + " already exists!" );
+            e.setResolvedName( new LdapDN( upTarget.getUpName() ) );
             throw e;
         }
 
@@ -337,7 +342,7 @@ public class ExceptionService extends BaseInterceptor
         // check to see if target entry exists
         LdapDN target = ( LdapDN ) newParentName.clone();
         target.add( newRn );
-        target.normalize();
+        target.normalize( normalizerMap );
         if ( nextInterceptor.hasEntry( target ) )
         {
             // we must calculate the resolved name using the user provided Rdn value
@@ -345,8 +350,8 @@ public class ExceptionService extends BaseInterceptor
             upTarget.add( newRn );
 
             LdapNameAlreadyBoundException e;
-            e = new LdapNameAlreadyBoundException( "target entry " + upTarget.toUpName() + " already exists!" );
-            e.setResolvedName( new LdapDN( upTarget.toUpName() ) );
+            e = new LdapNameAlreadyBoundException( "target entry " + upTarget.getUpName() + " already exists!" );
+            e.setResolvedName( new LdapDN( upTarget.getUpName() ) );
             throw e;
         }
 
@@ -390,7 +395,7 @@ public class ExceptionService extends BaseInterceptor
     private void assertHasEntry( NextInterceptor nextInterceptor, String msg, LdapDN dn ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        PartitionNexusProxy proxy = invocation.getProxy();
         if ( !nextInterceptor.hasEntry( dn ) )
         {
             LdapNameNotFoundException e;
@@ -404,7 +409,7 @@ public class ExceptionService extends BaseInterceptor
                 e = new LdapNameNotFoundException( dn.toString() );
             }
 
-            e.setResolvedName( new LdapDN( proxy.getMatchedName( dn ).toUpName() ) );
+            e.setResolvedName( new LdapDN( proxy.getMatchedName( dn ).getUpName() ) );
             throw e;
         }
     }

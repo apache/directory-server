@@ -27,13 +27,14 @@ import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.configuration.AddDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.AddPartitionConfiguration;
 import org.apache.directory.server.core.configuration.Configuration;
-import org.apache.directory.server.core.configuration.RemoveDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.RemovePartitionConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.configuration.SyncConfiguration;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -82,6 +83,16 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
     {
         Configuration cfg = Configuration.toConfiguration( env );
         env = ( Hashtable ) env.clone();
+        
+        LdapDN principalDn = null;
+        if ( env.containsKey( Context.SECURITY_PRINCIPAL ) )
+        {
+            if ( env.get( Context.SECURITY_PRINCIPAL ) instanceof LdapDN )
+            {
+                principalDn = ( LdapDN ) env.get( Context.SECURITY_PRINCIPAL );
+            }
+        }
+        
         String principal = getPrincipal( env );
         byte[] credential = getCredential( env );
         String authentication = getAuthentication( env );
@@ -102,24 +113,25 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         {
             service.startup( this, env );
         }
-        else if ( cfg instanceof AddDirectoryPartitionConfiguration )
+        else if ( cfg instanceof AddPartitionConfiguration )
         {
-            new DirectoryPartitionNexusProxy( service.getJndiContext( principal, credential, authentication, "" ),
-                service ).addContextPartition( ( ( AddDirectoryPartitionConfiguration ) cfg )
+            new PartitionNexusProxy( 
+                service.getJndiContext( principalDn, principal, credential, authentication, "" ),
+                service ).addContextPartition( ( ( AddPartitionConfiguration ) cfg )
                 .getDirectoryPartitionConfiguration() );
         }
-        else if ( cfg instanceof RemoveDirectoryPartitionConfiguration )
+        else if ( cfg instanceof RemovePartitionConfiguration )
         {
-            Context ctx = service.getJndiContext( principal, credential, authentication, "" );
-            DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, service );
-            proxy.removeContextPartition( ( ( RemoveDirectoryPartitionConfiguration ) cfg ).getSuffix() );
+            Context ctx = service.getJndiContext( principalDn, principal, credential, authentication, "" );
+            PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, service );
+            proxy.removeContextPartition( ( ( RemovePartitionConfiguration ) cfg ).getSuffix() );
         }
         else if ( service == null )
         {
             throw new NamingException( "Unknown configuration: " + cfg );
         }
 
-        return service.getJndiContext( principal, credential, authentication, providerUrl );
+        return service.getJndiContext( principalDn, principal, credential, authentication, providerUrl );
     }
 
 

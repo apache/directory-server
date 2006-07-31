@@ -20,7 +20,6 @@ package org.apache.directory.server.core.configuration;
 
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.naming.Name;
@@ -28,9 +27,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 
-import org.apache.directory.server.core.partition.DirectoryPartition;
-import org.apache.directory.server.core.partition.Oid;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmDirectoryPartition;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.schema.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -38,34 +36,36 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
 /**
- * A configuration for {@link DirectoryPartition}.
+ * A configuration for {@link Partition}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DirectoryPartitionConfiguration
+public class PartitionConfiguration
 {
     /** The name of reserved system partition */
     public static final String SYSTEM_PARTITION_NAME = "system";
+    public static final int DEFAULT_CACHE_SIZE = 10000;
 
     private String name;
+    private int cacheSize = -1;
     private String suffix;
-    private Set indexedAttributes; // Set<String>
+    private Set indexedAttributes; // Set<String> or <IndexConfiguration>
     private Attributes contextEntry = new BasicAttributes( true );
-    private DirectoryPartition contextPartition = new JdbmDirectoryPartition();
+    private Partition contextPartition = new JdbmPartition();
 
 
     /**
      * Creates a new instance.
      */
-    protected DirectoryPartitionConfiguration()
+    protected PartitionConfiguration()
     {
         setIndexedAttributes( new HashSet() );
     }
 
 
     /**
-     * Returns user-defined name of the {@link DirectoryPartition} that
+     * Returns user-defined name of the {@link Partition} that
      * this configuration configures.
      */
     public String getName()
@@ -75,12 +75,11 @@ public class DirectoryPartitionConfiguration
 
 
     /**
-     * Sets user-defined name of the {@link DirectoryPartition} that
+     * Sets user-defined name of the {@link Partition} that
      * this configuration configures.
      */
     protected void setName( String name )
     {
-        // TODO name can be a directory name.
         name = name.trim();
         this.name = name;
     }
@@ -100,42 +99,23 @@ public class DirectoryPartitionConfiguration
      */
     protected void setIndexedAttributes( Set indexedAttributes )
     {
-        Set newIndexedAttributes = ConfigurationUtil.getTypeSafeSet( indexedAttributes, String.class );
-
-        Iterator i = newIndexedAttributes.iterator();
-        while ( i.hasNext() )
-        {
-            String attribute = ( String ) i.next();
-            // TODO Attribute name must be normalized and validated
-            newIndexedAttributes.add( attribute );
-        }
-
-        // Add default indices
-        newIndexedAttributes.add( Oid.ALIAS );
-        newIndexedAttributes.add( Oid.EXISTANCE );
-        newIndexedAttributes.add( Oid.HIERARCHY );
-        newIndexedAttributes.add( Oid.NDN );
-        newIndexedAttributes.add( Oid.ONEALIAS );
-        newIndexedAttributes.add( Oid.SUBALIAS );
-        newIndexedAttributes.add( Oid.UPDN );
-
-        this.indexedAttributes = newIndexedAttributes;
+        this.indexedAttributes = indexedAttributes;
     }
 
 
     /**
-     * Returns the {@link DirectoryPartition} that this configuration configures.
+     * Returns the {@link Partition} that this configuration configures.
      */
-    public DirectoryPartition getContextPartition()
+    public Partition getContextPartition()
     {
         return contextPartition;
     }
 
 
     /**
-     * Sets the {@link DirectoryPartition} that this configuration configures.
+     * Sets the {@link Partition} that this configuration configures.
      */
-    protected void setContextPartition( DirectoryPartition partition )
+    protected void setContextPartition( Partition partition )
     {
         if ( partition == null )
         {
@@ -146,7 +126,7 @@ public class DirectoryPartitionConfiguration
 
 
     /**
-     * Returns root entry that will be added to the {@link DirectoryPartition}
+     * Returns root entry that will be added to the {@link Partition}
      * after it is initialized.
      */
     public Attributes getContextEntry()
@@ -156,7 +136,7 @@ public class DirectoryPartitionConfiguration
 
 
     /**
-     * Sets root entry that will be added to the {@link DirectoryPartition}
+     * Sets root entry that will be added to the {@link Partition}
      * after it is initialized.
      */
     protected void setContextEntry( Attributes rootEntry )
@@ -166,7 +146,7 @@ public class DirectoryPartitionConfiguration
 
 
     /**
-     * Returns the suffix of the {@link DirectoryPartition}.
+     * Returns the suffix of the {@link Partition}.
      */
     public String getSuffix()
     {
@@ -175,7 +155,7 @@ public class DirectoryPartitionConfiguration
 
 
     /**
-     * Returns the normalized suffix of the {@link DirectoryPartition}.
+     * Returns the normalized suffix of the {@link Partition}.
      */
     public Name getNormalizedSuffix( MatchingRuleRegistry matchingRuleRegistry ) throws NamingException
     {
@@ -184,7 +164,7 @@ public class DirectoryPartitionConfiguration
 
 
     /**
-     * Returns the normalized suffix of the {@link DirectoryPartition}.
+     * Returns the normalized suffix of the {@link Partition}.
      */
     public Name getNormalizedSuffix( Normalizer normalizer ) throws NamingException
     {
@@ -193,7 +173,7 @@ public class DirectoryPartitionConfiguration
 
 
     /**
-     * Sets the suffix of the {@link DirectoryPartition}.
+     * Sets the suffix of the {@link Partition}.
      */
     protected void setSuffix( String suffix ) throws NamingException
     {
@@ -226,5 +206,27 @@ public class DirectoryPartitionConfiguration
         {
             throw new ConfigurationException( "Suffix is not specified." );
         }
+    }
+
+
+    /**
+     * Used to specify the entry cache size for a partition.  Various partition
+     * implementations may interpret this value in different ways: i.e. total cache 
+     * size limit verses the number of entries to cache.
+     * 
+     * @param cacheSize the size of the cache
+     */
+    protected void setCacheSize( int cacheSize )
+    {
+        this.cacheSize = cacheSize;
+    }
+
+
+    /**
+     * Get's the entry cache size for this partition.
+     */
+    public int getCacheSize()
+    {
+        return cacheSize;
     }
 }

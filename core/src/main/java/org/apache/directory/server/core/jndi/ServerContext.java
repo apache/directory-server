@@ -46,8 +46,8 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -72,7 +72,7 @@ public abstract class ServerContext implements EventContext
     private final DirectoryService service;
 
     /** The interceptor proxy to the backend nexus */
-    private final DirectoryPartitionNexus nexusProxy;
+    private final PartitionNexus nexusProxy;
 
     /** The cloned environment used by this Context */
     private final Hashtable env;
@@ -110,7 +110,7 @@ public abstract class ServerContext implements EventContext
         this.service = service;
 
         // set references to cloned env and the proxy
-        this.nexusProxy = new DirectoryPartitionNexusProxy( this, service );
+        this.nexusProxy = new PartitionNexusProxy( this, service );
 
         DirectoryServiceConfiguration cfg = service.getConfiguration();
         this.env = ( Hashtable ) cfg.getEnvironment().clone();
@@ -122,14 +122,14 @@ public abstract class ServerContext implements EventContext
         this.nexusProxy.bind( props.getBindDn(), props.getCredentials(), props.getAuthenticationMechanisms(), props
             .getSaslAuthId() );
 
+        if ( ! nexusProxy.hasEntry( dn ) )
+        {
+            throw new NameNotFoundException( dn + " does not exist" );
+        }
+
         if ( dn.size() == 0 )
         {
             return;
-        }
-        
-        if ( !nexusProxy.hasEntry( dn ) )
-        {
-            throw new NameNotFoundException( dn + " does not exist" );
         }
     }
 
@@ -149,7 +149,7 @@ public abstract class ServerContext implements EventContext
 
         this.env = ( Hashtable ) service.getConfiguration().getEnvironment().clone();
         this.env.put( PROVIDER_URL, dn.toString() );
-        this.nexusProxy = new DirectoryPartitionNexusProxy( this, service );
+        this.nexusProxy = new PartitionNexusProxy( this, service );
         ;
         this.principal = principal;
     }
@@ -207,7 +207,7 @@ public abstract class ServerContext implements EventContext
      *
      * @return the proxy to the backend nexus.
      */
-    protected DirectoryPartitionNexus getNexusProxy()
+    protected PartitionNexus getNexusProxy()
     {
         return nexusProxy;
     }
@@ -236,7 +236,7 @@ public abstract class ServerContext implements EventContext
         Iterator list = listeners.iterator();
         while ( list.hasNext() )
         {
-            ( ( DirectoryPartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, ( NamingListener ) list
+            ( ( PartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, ( NamingListener ) list
                 .next() );
         }
     }
@@ -765,7 +765,7 @@ public abstract class ServerContext implements EventContext
         ExprNode filter = new PresenceNode( "objectClass" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( scope );
-        ( ( DirectoryPartitionNexusProxy ) this.nexusProxy ).addNamingListener( this, buildTarget( name ), filter,
+        ( ( PartitionNexusProxy ) this.nexusProxy ).addNamingListener( this, buildTarget( name ), filter,
             controls, namingListener );
         listeners.add( namingListener );
     }
@@ -779,7 +779,7 @@ public abstract class ServerContext implements EventContext
 
     public void removeNamingListener( NamingListener namingListener ) throws NamingException
     {
-        ( ( DirectoryPartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, namingListener );
+        ( ( PartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, namingListener );
         listeners.remove( namingListener );
     }
 

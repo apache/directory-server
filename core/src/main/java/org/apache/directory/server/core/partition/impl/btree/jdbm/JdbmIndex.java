@@ -82,27 +82,27 @@ public class JdbmIndex implements Index
      * @param recMan the record manager
      * @throws NamingException if we fail to create B+Trees using recMan
      */
-    public JdbmIndex( AttributeType attribute, RecordManager recMan ) throws NamingException
-    {
-        this.attribute = attribute;
-        keyCache = new SynchronizedLRUMap( 1000 );
-        this.recMan = recMan;
-        initTables();
-    }
+//    public JdbmIndex( AttributeType attribute, RecordManager recMan ) throws NamingException
+//    {
+//        this.attribute = attribute;
+//        keyCache = new SynchronizedLRUMap( 1000 );
+//        this.recMan = recMan;
+//        initTables();
+//    }
 
 
-    public JdbmIndex( AttributeType attribute, File wkDirPath ) throws NamingException
+    public JdbmIndex( AttributeType attribute, File wkDirPath, int cacheSize ) throws NamingException
     {
         File file = new File( wkDirPath.getPath() + File.separator + attribute.getName() );
         this.attribute = attribute;
-        keyCache = new SynchronizedLRUMap( 1000 );
+        keyCache = new SynchronizedLRUMap( cacheSize );
 
         try
         {
             String path = file.getAbsolutePath();
             BaseRecordManager base = new BaseRecordManager( path );
             base.disableTransactions();
-            recMan = new CacheRecordManager( base, new MRU( 1000 ) );
+            recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
         }
         catch ( IOException e )
         {

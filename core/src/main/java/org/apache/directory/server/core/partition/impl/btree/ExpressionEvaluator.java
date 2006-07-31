@@ -63,7 +63,7 @@ public class ExpressionEvaluator implements Evaluator
      * @param oidRegistry the oid reg used for attrID to oid resolution
      * @param attributeTypeRegistry the attribtype reg used for value comparison
      */
-    public ExpressionEvaluator(BTreeDirectoryPartition db, OidRegistry oidRegistry,
+    public ExpressionEvaluator(BTreePartition db, OidRegistry oidRegistry,
         AttributeTypeRegistry attributeTypeRegistry)
     {
         ScopeEvaluator scopeEvaluator = null;

@@ -27,8 +27,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -74,13 +74,13 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link DirectoryPartitionNexus#addContextPartition(DirectoryPartitionConfiguration)}.
+     * Calls the next interceptor's {@link PartitionNexus#addContextPartition(PartitionConfiguration)}.
      */
-    void addContextPartition( DirectoryPartitionConfiguration cfg ) throws NamingException;
+    void addContextPartition( PartitionConfiguration cfg ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link DirectoryPartitionNexus#removeContextPartition(org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link PartitionNexus#removeContextPartition(org.apache.directory.shared.ldap.name.LdapDN)}.
      */
     void removeContextPartition( LdapDN suffix ) throws NamingException;
 

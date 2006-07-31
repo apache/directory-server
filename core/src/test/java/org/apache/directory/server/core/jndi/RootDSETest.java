@@ -161,7 +161,7 @@ public class RootDSETest extends TestCase
         Attributes attributes = ctx.getAttributes( "" );
 
         // Added some objectClass attributes to the rootDSE
-        assertEquals( 2, attributes.size() );
+        assertEquals( 1, attributes.size() );
     }
 
 

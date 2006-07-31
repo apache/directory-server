@@ -20,7 +20,7 @@ package org.apache.directory.server.sar;
 
 import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
 import org.apache.directory.server.core.configuration.Configuration;
-import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.server.jndi.ServerContextFactory;
@@ -303,8 +303,8 @@ public class DirectoryService extends ServiceMBeanSupport implements DirectorySe
         Set indexedAttrs;
         BasicAttribute attr;
         Set pcfgs = new HashSet();
-        MutableDirectoryPartitionConfiguration pcfg;
-        pcfg = new MutableDirectoryPartitionConfiguration();
+        MutablePartitionConfiguration pcfg;
+        pcfg = new MutablePartitionConfiguration();
 
         pcfg.setName( this.customRootPartitionName );
         pcfg.setSuffix( "dc=" + this.customRootPartitionName );

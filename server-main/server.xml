@@ -52,12 +52,32 @@
       </list>
     </property>-->
 
+    <!-- the number of milliseconds before issuing a synch (flush to disk)  -->
+    <!-- which writes out dirty pages back to disk.  To turn off synchs all -->
+    <!-- together simply set this value to <= 0.  Make sure you turn on     -->
+    <!-- synchOnWrite for all partitions if you do choose to do this or else-->
+    <!-- writes may never persist to disk.                                  -->
+    <property name="synchPeriodMillis"><value>15000</value></property>
+
+    <!-- limits searches by non-admin users to a max time of 15000          -->
+    <!-- milliseconds and has a default value of 10000                      -->
+    <property name="maxTimeLimit"><value>15000</value></property>
+    <!-- limits searches to max size of 1000 entries: default value is 100  -->
+    <property name="maxSizeLimit"><value>1000</value></property>
+    <!-- maximum number of threads used by mina is set to 8: default is 4   -->
+    <property name="maxThreads"><value>8</value></property>
+
     <property name="allowAnonymousAccess"><value>false</value></property>
     <property name="accessControlEnabled"><value>false</value></property>
     <property name="enableNtp"><value>false</value></property>
     <property name="enableKerberos"><value>false</value></property>
     <property name="enableChangePassword"><value>false</value></property>
     <property name="ldapPort"><value>10389</value></property>
+
+    <property name="systemPartitionConfiguration">
+      <ref bean="systemPartitionConfiguration"/>
+    </property>
+
     <property name="contextPartitionConfigurations">
       <set>
         <ref bean="examplePartitionConfiguration"/>
@@ -167,16 +187,149 @@
     </property>
   </bean>
   
-  <bean id="examplePartitionConfiguration" class="org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration">
-    <property name="name"><value>example</value></property>
-    <property name="suffix"><value>dc=example,dc=com</value></property>
+  <!-- use the following partitionConfiguration to override defaults for  -->
+  <!-- the system partition                                               --> 
+  <bean id="systemPartitionConfiguration" class="org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration">
+    <property name="name"><value>system</value></property>
+    <property name="cacheSize"><value>10000</value></property>
+    <property name="suffix"><value>ou=system</value></property>
+
+    <!-- the optimizer is enabled by default but may not always be what     -->
+    <!-- you want if your queries are really simple                         -->
+    <property name="enableOptimizer"><value>true</value></property>
+
+    <!--
+      Synchronization on writes does not wait for synch operations
+      to flush dirty pages.  Writes persist immediately to disk at 
+      a cost to performance with increased data integrity.  Otherwise
+      the periodic synch operation will flush dirty pages using the
+      synchPeriodMillis parameter in the main configuration.
+    -->
+    <property name="synchOnWrite"><value>false</value></property>
     <property name="indexedAttributes">
       <set>
-        <value>dc</value>
-        <value>ou</value>
-        <value>objectClass</value>
-        <value>krb5PrincipalName</value>
-        <value>uid</value>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.1</value></property>
+          <property name="cacheSize"><value>10000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.2</value></property>
+          <property name="cacheSize"><value>10000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.3</value></property>
+          <property name="cacheSize"><value>1000000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.4</value></property>
+          <property name="cacheSize"><value>10000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.5</value></property>
+          <property name="cacheSize"><value>100</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.6</value></property>
+          <property name="cacheSize"><value>100</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.7</value></property>
+          <property name="cacheSize"><value>100</value></property>
+        </bean>
+
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>ou</value></property>
+          <property name="cacheSize"><value>50000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>uid</value></property>
+          <property name="cacheSize"><value>10000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>objectClass</value></property>
+          <property name="cacheSize"><value>100000</value></property>
+        </bean>
+      </set>
+    </property>
+    <property name="contextEntry">
+      <value>
+        objectClass: top
+        objectClass: organizationalUnit
+        objectClass: extensibleObject
+        ou: system
+      </value>
+    </property>
+  </bean>
+
+
+  <bean id="examplePartitionConfiguration" class="org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration">
+    <property name="name"><value>example</value></property>
+    <property name="cacheSize"><value>10000</value></property>
+    <property name="suffix"><value>dc=example,dc=com</value></property>
+
+    <!-- the optimizer is enabled by default but may not always be what     -->
+    <!-- you want if your queries are really simple                         -->
+    <property name="enableOptimizer"><value>true</value></property>
+
+    <!--
+      Synchronization on writes does not wait for synch operations
+      to flush dirty pages.  Writes persist immediately to disk at 
+      a cost to performance with increased data integrity.  Otherwise
+      the periodic synch operation will flush dirty pages using the
+      synchPeriodMillis parameter in the main configuration.
+    -->
+    <property name="synchOnWrite"><value>false</value></property>
+    <property name="indexedAttributes">
+      <set>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.1</value></property>
+          <property name="cacheSize"><value>10000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.2</value></property>
+          <property name="cacheSize"><value>10000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.3</value></property>
+          <property name="cacheSize"><value>1000000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.4</value></property>
+          <property name="cacheSize"><value>10000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.5</value></property>
+          <property name="cacheSize"><value>100</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.6</value></property>
+          <property name="cacheSize"><value>100</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>1.2.6.1.4.1.18060.1.1.1.3.7</value></property>
+          <property name="cacheSize"><value>100</value></property>
+        </bean>
+
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>dc</value></property>
+          <property name="cacheSize"><value>1000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>ou</value></property>
+          <property name="cacheSize"><value>50000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>krb5PrincipalName</value></property>
+          <property name="cacheSize"><value>10000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>uid</value></property>
+          <property name="cacheSize"><value>10000</value></property>
+        </bean>
+        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
+          <property name="attributeId"><value>objectClass</value></property>
+          <property name="cacheSize"><value>100000</value></property>
+        </bean>
       </set>
     </property>
     <property name="contextEntry">

@@ -64,14 +64,21 @@ public class StartupConfiguration extends Configuration
 {
     private static final long serialVersionUID = 4826762196566871677L;
 
+    public static final int MAX_THREADS_DEFAULT = 4;
+    public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
+    public static final int MAX_TIME_LIMIT_DEFAULT = 10000;
+
     private File workingDirectory = new File( "server-work" );
     private boolean exitVmOnShutdown = true; // allow by default
     private boolean shutdownHookEnabled = true; // allow by default
     private boolean allowAnonymousAccess = true; // allow by default
     private boolean accessControlEnabled = false; // turn off by default
+    private int maxThreads = MAX_THREADS_DEFAULT; // set to default value
+    private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
+    private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
     private Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
     private List interceptorConfigurations; // Set<InterceptorConfiguration>
-
+    private PartitionConfiguration systemPartitionConfiguration; 
     private Set bootstrapSchemas; // Set<BootstrapSchema>
     private Set contextPartitionConfigurations = new HashSet(); // Set<ContextPartitionConfiguration>
     private List testEntries = new ArrayList(); // List<Attributes>
@@ -268,7 +275,7 @@ public class StartupConfiguration extends Configuration
 
 
     /**
-     * Returns {@link DirectoryPartitionConfiguration}s to configure context partitions.
+     * Returns {@link PartitionConfiguration}s to configure context partitions.
      */
     public Set getContextPartitionConfigurations()
     {
@@ -277,18 +284,18 @@ public class StartupConfiguration extends Configuration
 
 
     /**
-     * Sets {@link DirectoryPartitionConfiguration}s to configure context partitions.
+     * Sets {@link PartitionConfiguration}s to configure context partitions.
      */
     protected void setContextPartitionConfigurations( Set contextParitionConfigurations )
     {
         Set newSet = ConfigurationUtil.getTypeSafeSet( contextParitionConfigurations,
-            DirectoryPartitionConfiguration.class );
+            PartitionConfiguration.class );
 
         Set names = new HashSet();
         Iterator i = newSet.iterator();
         while ( i.hasNext() )
         {
-            DirectoryPartitionConfiguration cfg = ( DirectoryPartitionConfiguration ) i.next();
+            PartitionConfiguration cfg = ( PartitionConfiguration ) i.next();
             cfg.validate();
 
             String name = cfg.getName();
@@ -456,5 +463,57 @@ public class StartupConfiguration extends Configuration
     public boolean isExitVmOnShutdown()
     {
         return exitVmOnShutdown;
+    }
+
+
+    protected void setMaxThreads( int maxThreads )
+    {
+        this.maxThreads = maxThreads;
+        if ( maxThreads < 1 )
+        {
+            throw new IllegalArgumentException( "Number of max threads should be greater than 0" );
+        }
+    }
+
+
+    public int getMaxThreads()
+    {
+        return maxThreads;
+    }
+
+
+    protected void setMaxSizeLimit( int maxSizeLimit )
+    {
+        this.maxSizeLimit = maxSizeLimit;
+    }
+
+
+    public int getMaxSizeLimit()
+    {
+        return maxSizeLimit;
+    }
+
+
+    protected void setMaxTimeLimit( int maxTimeLimit )
+    {
+        this.maxTimeLimit = maxTimeLimit;
+    }
+
+
+    public int getMaxTimeLimit()
+    {
+        return maxTimeLimit;
+    }
+
+
+    protected void setSystemPartitionConfiguration( PartitionConfiguration systemPartitionConfiguration )
+    {
+        this.systemPartitionConfiguration = systemPartitionConfiguration;
+    }
+
+
+    public PartitionConfiguration getSystemPartitionConfiguration()
+    {
+        return systemPartitionConfiguration;
     }
 }

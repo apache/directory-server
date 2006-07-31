@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -32,13 +33,14 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.Base64;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +57,15 @@ import org.slf4j.LoggerFactory;
 public class SimpleAuthenticator extends AbstractAuthenticator
 {
     private static final Logger log = LoggerFactory.getLogger( SimpleAuthenticator.class );
-
     private static final Collection USERLOOKUP_BYPASS;
 
+    private WeakHashMap credentialCache = new WeakHashMap( 1000 );
+    
     static
     {
         Set c = new HashSet();
+        c.add( "normalizationService" );
+        c.add( "collectiveAttributeService" );
         c.add( "authenticationService" );
         c.add( "authorizationService" );
         c.add( "defaultAuthorizationService" );
@@ -81,13 +86,13 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         super( "simple" );
     }
 
-
+    
     /**
      * Looks up <tt>userPassword</tt> attribute of the entry whose name is the
      * value of {@link Context#SECURITY_PRINCIPAL} environment variable, and
      * authenticates a user with the plain-text password.
      */
-    public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException
+    public LdapPrincipal authenticate( LdapDN principalDn, ServerContext ctx ) throws NamingException
     {
         // ---- extract password from JNDI environment
 
@@ -102,70 +107,17 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             creds = ( ( String ) creds ).getBytes();
         }
 
-        // ---- extract principal from JNDI environment
-
-        String principal;
-
-        if ( !ctx.getEnvironment().containsKey( Context.SECURITY_PRINCIPAL ) )
+        byte[] userPassword = null;
+        if ( credentialCache.containsKey( principalDn.getNormName() ) )
         {
-            throw new LdapAuthenticationException();
+            userPassword = ( byte[] ) credentialCache.get( principalDn.getNormName() );
         }
         else
         {
-            principal = ( String ) ctx.getEnvironment().get( Context.SECURITY_PRINCIPAL );
-
-            if ( principal == null )
-            {
-                throw new LdapAuthenticationException( "Principal has not been specified" );
-            }
+            userPassword = lookupUserPassword( principalDn );
         }
-
-        // ---- lookup the principal entry's userPassword attribute
-
-        LdapDN principalDn = new LdapDN( principal );
-        Invocation invocation = InvocationStack.getInstance().peek();
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes userEntry;
-
-        try
-        {
-            userEntry = proxy.lookup( principalDn, new String[]
-                { "userPassword" }, USERLOOKUP_BYPASS );
-
-            if ( userEntry == null )
-            {
-                throw new LdapAuthenticationException( "Failed to lookup user for authentication: " + principal );
-            }
-        }
-        catch ( Exception cause )
-        {
-            log.error( "Authentication error : " + cause.getMessage() );
-            LdapAuthenticationException e = new LdapAuthenticationException();
-            e.setRootCause( e );
-            throw e;
-        }
-
-        Object userPassword;
-
-        Attribute userPasswordAttr = userEntry.get( "userPassword" );
-
-        // ---- assert that credentials match
 
         boolean credentialsMatch = false;
-
-        if ( userPasswordAttr == null )
-        {
-            userPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
-        }
-        else
-        {
-            userPassword = userPasswordAttr.get();
-
-            if ( userPassword instanceof String )
-            {
-                userPassword = ( ( String ) userPassword ).getBytes();
-            }
-        }
 
         // Check if password is stored as a message digest, i.e. one-way
         // encrypted
@@ -196,12 +148,64 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         if ( credentialsMatch )
         {
-            return new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
+            LdapPrincipal principal = new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
+            credentialCache.put( principalDn.getNormName(), userPassword );
+            return principal;
         }
         else
         {
             throw new LdapAuthenticationException();
         }
+    }
+    
+    
+    protected byte[] lookupUserPassword( LdapDN principalDn ) throws NamingException
+    {
+        // ---- lookup the principal entry's userPassword attribute
+
+        Invocation invocation = InvocationStack.getInstance().peek();
+        PartitionNexusProxy proxy = invocation.getProxy();
+        Attributes userEntry;
+
+        try
+        {
+            userEntry = proxy.lookup( principalDn, new String[]
+                { "userPassword" }, USERLOOKUP_BYPASS );
+
+            if ( userEntry == null )
+            {
+                throw new LdapAuthenticationException( "Failed to lookup user for authentication: " + principalDn );
+            }
+        }
+        catch ( Exception cause )
+        {
+            log.error( "Authentication error : " + cause.getMessage() );
+            LdapAuthenticationException e = new LdapAuthenticationException();
+            e.setRootCause( e );
+            throw e;
+        }
+
+        Object userPassword;
+
+        Attribute userPasswordAttr = userEntry.get( "userPassword" );
+
+        // ---- assert that credentials match
+
+        if ( userPasswordAttr == null )
+        {
+            userPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
+        }
+        else
+        {
+            userPassword = userPasswordAttr.get();
+
+            if ( userPassword instanceof String )
+            {
+                userPassword = StringTools.getBytesUtf8( ( String ) userPassword );
+            }
+        }
+        
+        return ( byte[] ) userPassword;
     }
 
 
@@ -340,5 +344,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         result.append( encoded );
 
         return result.toString();
+    }
+
+
+    public void invalidateCache( LdapDN bindDn )
+    {
+        credentialCache.remove( bindDn.getNormName() );
     }
 }

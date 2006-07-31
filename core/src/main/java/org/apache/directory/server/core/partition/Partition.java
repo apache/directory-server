@@ -29,7 +29,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.DirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 /**
  * An interfaces that bridges between underlying JNDI entries and JNDI
  * {@link Context} API.  DIT (Directory Information Tree) consists one or
- * above {@link DirectoryPartition}s whose parent is {@link DirectoryPartitionNexus},
+ * above {@link Partition}s whose parent is {@link PartitionNexus},
  * and all of them are mapped to different
  * base suffix.  Each partition contains entries whose name ends with that
  * base suffix.
@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface DirectoryPartition
+public interface Partition
 {
     /** The objectClass name for aliases: 'alias' */
     String ALIAS_OBJECT = "alias";
@@ -60,7 +60,7 @@ public interface DirectoryPartition
     /**
      * Initializes this partition.
      */
-    void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException;
+    void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg ) throws NamingException;
 
 
     /**

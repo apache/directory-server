@@ -28,9 +28,9 @@ import javax.naming.ReferralException;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.configuration.Configuration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.codec.util.LdapResultEnum;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -49,8 +49,8 @@ import org.apache.directory.shared.ldap.message.SearchResponseDone;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+
 import org.apache.mina.common.IoSession;
-import org.apache.mina.handler.demux.MessageHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,11 +62,14 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchHandler implements MessageHandler
+public class SearchHandler implements LdapMessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( SearchHandler.class );
     private static final String DEREFALIASES_KEY = "java.naming.ldap.derefAliases";
+    private StartupConfiguration cfg;
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /**
      * Builds the JNDI search controls for a SearchRequest.
@@ -75,12 +78,36 @@ public class SearchHandler implements MessageHandler
      * @param ids the ids to return
      * @return the SearchControls to use with the ApacheDS server side JNDI provider
      */
-    private static SearchControls getSearchControls( SearchRequest req, String[] ids )
+    private SearchControls getSearchControls( SearchRequest req, String[] ids, boolean isAdmin )
     {
         // prepare all the search controls
         SearchControls controls = new SearchControls();
-        controls.setCountLimit( req.getSizeLimit() );
-        controls.setTimeLimit( req.getTimeLimit() );
+        
+        // take the minimum of system limit with request specified value
+        if ( isAdmin )
+        {
+            controls.setCountLimit( req.getSizeLimit() );
+            
+            // The setTimeLimit needs a number of milliseconds
+            // when the search control is expressed in seconds
+            int timeLimit = req.getTimeLimit();
+            
+            // Just check that we are not exceeding the maximum for a long 
+            if ( timeLimit > Integer.MAX_VALUE / 1000 )
+            {
+                timeLimit = 0;
+            }
+            
+            // The maximum time we can wait is around 24 days ...
+            // Is it enough ? ;)
+            controls.setTimeLimit( timeLimit * 1000 );
+        }
+        else
+        {
+            controls.setCountLimit( Math.min( req.getSizeLimit(), cfg.getMaxSizeLimit() ) );
+            controls.setTimeLimit( ( int ) Math.min( req.getTimeLimit(), cfg.getMaxTimeLimit() ) );
+        }
+        
         controls.setSearchScope( req.getScope().getValue() );
         controls.setReturningObjFlag( req.getTypesOnly() );
         controls.setReturningAttributes( ids );
@@ -113,7 +140,12 @@ public class SearchHandler implements MessageHandler
      */
     public void messageReceived( IoSession session, Object request ) throws Exception
     {
-        ServerLdapContext ctx;
+    	if ( IS_DEBUG )
+    	{
+    		log.debug( "Message received : " + request.toString() );
+    	}
+
+    	ServerLdapContext ctx;
         SearchRequest req = ( SearchRequest ) request;
         NamingEnumeration list = null;
         String[] ids = null;
@@ -133,7 +165,6 @@ public class SearchHandler implements MessageHandler
         {
             ids = ( String[] ) retAttrs.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
         }
-        SearchControls controls = getSearchControls( req, ids );
 
         try
         {
@@ -182,7 +213,6 @@ public class SearchHandler implements MessageHandler
             // Handle annonymous binds
             // ===============================================================
 
-            StartupConfiguration cfg = ( StartupConfiguration ) Configuration.toConfiguration( ctx.getEnvironment() );
             boolean allowAnonymousBinds = cfg.isAllowAnonymousAccess();
             boolean isAnonymousUser = ( ( ServerLdapContext ) ctx ).getPrincipal().getName().trim().equals( "" );
 
@@ -196,6 +226,27 @@ public class SearchHandler implements MessageHandler
                 return;
             }
 
+
+            // ===============================================================
+            // Set search limits differently based on user's identity
+            // ===============================================================
+
+            SearchControls controls = null;
+            if ( isAnonymousUser )
+            {
+                controls = getSearchControls( req, ids, false );
+            }
+            else if ( ( ( ServerLdapContext ) ctx ).getPrincipal().getName()
+                .trim().equals( PartitionNexus.ADMIN_PRINCIPAL ) )
+            {
+                controls = getSearchControls( req, ids, true );
+            }
+            else
+            {
+                controls = getSearchControls( req, ids, false );
+            }
+            
+            
             // ===============================================================
             // Handle psearch differently
             // ===============================================================
@@ -251,7 +302,6 @@ public class SearchHandler implements MessageHandler
                 StringBuffer buf = new StringBuffer();
                 req.getFilter().printToBuffer( buf );
                 ctx.addNamingListener( req.getBase(), buf.toString(), controls, handler );
-                SessionRegistry.getSingleton().addOutstandingRequest( session, req );
                 return;
             }
 
@@ -376,5 +426,11 @@ public class SearchHandler implements MessageHandler
                 }
             }
         }
+    }
+
+
+    public void init( StartupConfiguration cfg )
+    {
+        this.cfg = cfg;
     }
 }

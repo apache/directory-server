@@ -22,7 +22,7 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.*;
 
-import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 
@@ -44,7 +44,7 @@ public class MixedCaseITest extends AbstractAdminTestCase
     public void setUp() throws Exception
     {
 
-        MutableDirectoryPartitionConfiguration partition = new MutableDirectoryPartitionConfiguration();
+        MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
         partition.setName( "apache" );
         partition.setSuffix( suffix );
 

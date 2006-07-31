@@ -49,6 +49,7 @@ public class Service implements DaemonApplication
     private Properties env;
     private Thread workerThread = null;
     private SynchWorker worker = new SynchWorker();
+    private MutableServerStartupConfiguration cfg;
     private boolean startNoWait = false;
 
 
@@ -56,7 +57,6 @@ public class Service implements DaemonApplication
     {
         printBanner();
         long startTime = System.currentTimeMillis();
-        MutableServerStartupConfiguration cfg;
 
         if ( install != null )
         {
@@ -92,8 +92,11 @@ public class Service implements DaemonApplication
         env.putAll( cfg.toJndiEnvironment() );
         new InitialDirContext( env );
 
-        workerThread = new Thread( worker, "SynchWorkerThread" );
-
+        if ( cfg.getSynchPeriodMillis() > 0 )
+        {
+            workerThread = new Thread( worker, "SynchWorkerThread" );
+        }
+        
         if ( log.isInfoEnabled() )
         {
             log.info( "server: started in {} milliseconds", ( System.currentTimeMillis() - startTime ) + "" );
@@ -110,23 +113,29 @@ public class Service implements DaemonApplication
 
     public void start()
     {
-        workerThread.start();
+        if ( workerThread != null )
+        {
+            workerThread.start();
+        }
         return;
     }
 
 
     public void stop( String[] args ) throws Exception
     {
-        worker.stop = true;
-        synchronized ( worker.lock )
+        if ( workerThread != null )
         {
-            worker.lock.notify();
-        }
-
-        while ( startNoWait && workerThread.isAlive() )
-        {
-            log.info( "Waiting for SynchWorkerThread to die." );
-            workerThread.join( 500 );
+            worker.stop = true;
+            synchronized ( worker.lock )
+            {
+                worker.lock.notify();
+            }
+    
+            while ( startNoWait && workerThread.isAlive() )
+            {
+                log.info( "Waiting for SynchWorkerThread to die." );
+                workerThread.join( 500 );
+            }
         }
 
         env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
@@ -138,6 +147,7 @@ public class Service implements DaemonApplication
     {
     }
 
+    
     class SynchWorker implements Runnable
     {
         Object lock = new Object();
@@ -152,7 +162,7 @@ public class Service implements DaemonApplication
                 {
                     try
                     {
-                        lock.wait( 20000 );
+                        lock.wait( cfg.getSynchPeriodMillis() );
                     }
                     catch ( InterruptedException e )
                     {

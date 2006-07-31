@@ -24,8 +24,9 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.global.GlobalRegistries;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -81,7 +82,7 @@ class DefaultDirectoryServiceConfiguration implements DirectoryServiceConfigurat
     }
 
 
-    public DirectoryPartitionNexus getPartitionNexus()
+    public PartitionNexus getPartitionNexus()
     {
         return parent.getPartitionNexus();
     }
@@ -105,9 +106,9 @@ class DefaultDirectoryServiceConfiguration implements DirectoryServiceConfigurat
     }
 
 
-    public Context getJndiContext( String principal, byte[] credential, String authentication, String baseName )
-        throws NamingException
+    public Context getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
+        String authentication, String baseName ) throws NamingException
     {
-        return parent.getJndiContext( principal, credential, authentication, baseName );
+        return parent.getJndiContext( principalDn, principal, credential, authentication, baseName );
     }
 }

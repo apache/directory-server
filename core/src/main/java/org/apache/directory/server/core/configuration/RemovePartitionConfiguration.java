@@ -21,32 +21,32 @@ package org.apache.directory.server.core.configuration;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.partition.DirectoryPartition;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * A {@link Configuration} that removed the attached {@link DirectoryPartition} in
- * the current {@link DirectoryPartitionNexus}.
+ * A {@link Configuration} that removed the attached {@link Partition} in
+ * the current {@link PartitionNexus}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RemoveDirectoryPartitionConfiguration extends Configuration
+public class RemovePartitionConfiguration extends Configuration
 {
     private static final long serialVersionUID = -6690435863387769527L;
 
     private final LdapDN suffix;
 
 
-    public RemoveDirectoryPartitionConfiguration( String suffix ) throws NamingException
+    public RemovePartitionConfiguration( String suffix ) throws NamingException
     {
         this( new LdapDN( suffix.trim() ) );
     }
 
 
-    public RemoveDirectoryPartitionConfiguration( LdapDN suffix )
+    public RemovePartitionConfiguration( LdapDN suffix )
     {
         if ( suffix == null )
         {

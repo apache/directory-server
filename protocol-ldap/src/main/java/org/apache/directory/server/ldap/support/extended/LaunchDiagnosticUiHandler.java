@@ -31,9 +31,9 @@ import javax.swing.JFrame;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.partition.DirectoryPartition;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
-import org.apache.directory.server.core.partition.impl.btree.BTreeDirectoryPartition;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionFrame;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapProtocolProvider;
@@ -79,7 +79,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             ServerLdapContext slc = ( ServerLdapContext ) ctx;
             DirectoryService service = slc.getService();
 
-            if ( !slc.getPrincipal().getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
+            if ( !slc.getPrincipal().getName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL ) )
             {
                 requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId(),
                     ResultCodeEnum.INSUFFICIENTACCESSRIGHTS ) );
@@ -88,16 +88,16 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 
             requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
 
-            DirectoryPartitionNexus nexus = service.getConfiguration().getPartitionNexus();
+            PartitionNexus nexus = service.getConfiguration().getPartitionNexus();
             Iterator list = nexus.listSuffixes();
             int launchedWindowCount = 0;
             while ( list.hasNext() )
             {
                 LdapDN dn = new LdapDN( ( String ) list.next() );
-                DirectoryPartition partition = nexus.getPartition( dn );
-                if ( partition instanceof BTreeDirectoryPartition )
+                Partition partition = nexus.getPartition( dn );
+                if ( partition instanceof BTreePartition )
                 {
-                    BTreeDirectoryPartition btPartition = ( BTreeDirectoryPartition ) partition;
+                    BTreePartition btPartition = ( BTreePartition ) partition;
                     PartitionFrame frame = new PartitionFrame( btPartition, btPartition.getSearchEngine() );
                     Point pos = getCenteredPosition( frame );
                     pos.y = launchedWindowCount * 20 + pos.y;

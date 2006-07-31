@@ -23,7 +23,7 @@ import javax.naming.Context;
 
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.global.GlobalRegistries;
 
 
@@ -73,10 +73,10 @@ public interface DirectoryServiceConfiguration
 
 
     /**
-     * Returns the {@link DirectoryPartitionNexus} of the {@link DirectoryService}
+     * Returns the {@link PartitionNexus} of the {@link DirectoryService}
      * which bypasses the interceptor chain.
      */
-    DirectoryPartitionNexus getPartitionNexus();
+    PartitionNexus getPartitionNexus();
 
 
     /**

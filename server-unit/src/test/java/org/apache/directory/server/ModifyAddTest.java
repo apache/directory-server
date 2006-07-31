@@ -1,32 +1,37 @@
 /*
- * Copyright (c) 2004 Solarsis Group LLC.
+ *   Copyright 2006 The Apache Software Foundation
  *
- * Licensed under the Open Software License, Version 2.1 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *     http://opensource.org/licenses/osl-2.1.php
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
  */
 package org.apache.directory.server;
 
 
 import java.util.Hashtable;
 
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.AttributeInUseException;
+import javax.naming.directory.AttributeModificationException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -68,7 +73,7 @@ public class ModifyAddTest extends AbstractServerTest
     /**
      * Create context and a person entry.
      */
-    public void setUp() throws Exception
+    protected void setUp() throws Exception
     {
         super.setUp();
 
@@ -93,7 +98,7 @@ public class ModifyAddTest extends AbstractServerTest
     /**
      * Remove person entry and close context.
      */
-    public void tearDown() throws Exception
+    protected void tearDown() throws Exception
     {
         ctx.unbind( RDN );
         ctx.close();
@@ -109,7 +114,6 @@ public class ModifyAddTest extends AbstractServerTest
      */
     public void testAddNewAttributeValue() throws NamingException
     {
-
         // Add telephoneNumber attribute
         String newValue = "1234567890";
         Attributes attrs = new BasicAttributes( "telephoneNumber", newValue );
@@ -131,7 +135,6 @@ public class ModifyAddTest extends AbstractServerTest
      */
     public void testAddNewAttributeValues() throws NamingException
     {
-
         // Add telephoneNumber attribute
         String[] newValues =
             { "1234567890", "999999999" };
@@ -159,7 +162,6 @@ public class ModifyAddTest extends AbstractServerTest
      */
     public void testAddAdditionalAttributeValue() throws NamingException
     {
-
         // A new description attribute value
         String newValue = "A new description for this person";
         assertFalse( newValue.equals( PERSON_DESCRIPTION ) );
@@ -189,9 +191,9 @@ public class ModifyAddTest extends AbstractServerTest
      */
     public void testAddExistingAttributeValue() throws NamingException
     {
-
         // Change description attribute
         Attributes attrs = new BasicAttributes( "description", PERSON_DESCRIPTION );
+        
         try
         {
             ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
@@ -210,6 +212,83 @@ public class ModifyAddTest extends AbstractServerTest
         assertEquals( 1, attr.size() );
     }
 
+    /**
+     * Try to add an already existing attribute value.
+     * 
+     * Expected behaviour: Modify operation fails with an
+     * AttributeInUseException. Original LDAP Error code: 20 (Indicates that the
+     * attribute value specified in a modify or add operation already exists as
+     * a value for that attribute).
+     * 
+     * Check for bug DIR_SERVER664
+     * 
+     * @throws NamingException
+     */
+    public void testAddExistingNthAttributesDirServer664() throws NamingException
+    {
+        // Change description attribute
+        Attributes attrs = new BasicAttributes( true );
+        attrs.put( new BasicAttribute( "attr1", "attr 1" ) );
+        attrs.put( new BasicAttribute( "attr2", "attr 2" ) );
+        attrs.put( new BasicAttribute( "attr3", "attr 3" ) );
+        attrs.put( new BasicAttribute( "attr4", "attr 4" ) );
+        attrs.put( new BasicAttribute( "attr5", "attr 5" ) );
+        attrs.put( new BasicAttribute( "attr6", "attr 6" ) );
+        attrs.put( new BasicAttribute( "attr7", "attr 7" ) );
+        attrs.put( new BasicAttribute( "attr8", "attr 8" ) );
+        attrs.put( new BasicAttribute( "attr9", "attr 9" ) );
+        attrs.put( new BasicAttribute( "attr10", "attr 10" ) );
+        attrs.put( new BasicAttribute( "attr11", "attr 11" ) );
+        attrs.put( new BasicAttribute( "attr12", "attr 12" ) );
+        attrs.put( new BasicAttribute( "attr13", "attr 13" ) );
+        attrs.put( new BasicAttribute( "attr14", "attr 14" ) );
+        
+        Attribute attr = new BasicAttribute( "description", PERSON_DESCRIPTION );
+
+        attrs.put( attr );
+        
+        try
+        {
+            ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
+            fail( "Adding an already existing atribute value should fail." );
+        }
+        catch ( AttributeInUseException e )
+        {
+            // expected behaviour
+        }
+
+        // Verify, that attribute is still there, and is the only one
+        attrs = ctx.getAttributes( RDN );
+        attr = attrs.get( "description" );
+        assertNotNull( attr );
+        assertTrue( attr.contains( PERSON_DESCRIPTION ) );
+        assertEquals( 1, attr.size() );
+    }
+
+    /**
+     * Check for DIR_SERVER_643
+     * 
+     * @throws NamingException
+     */
+    public void testTwoDescriptionDirServer643() throws NamingException
+    {
+        // Change description attribute
+        Attributes attrs = new BasicAttributes( true );
+        Attribute attr = new BasicAttribute( "description", "a British singer-songwriter with an expressive four-octave voice" );
+        attr.add( "one of the most influential female artists of the twentieth century" );
+        attrs.put( attr );
+        
+        ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
+
+        // Verify, that attribute is still there, and is the only one
+        attrs = ctx.getAttributes( RDN );
+        attr = attrs.get( "description" );
+        assertNotNull( attr );
+        assertEquals( 3, attr.size() );
+        assertTrue( attr.contains( "a British singer-songwriter with an expressive four-octave voice" ) );
+        assertTrue( attr.contains( "one of the most influential female artists of the twentieth century" ) );
+        assertTrue( attr.contains( PERSON_DESCRIPTION ) );
+    }
 
     /**
      * Try to add a duplicate attribute value to an entry, where this attribute
@@ -332,4 +411,101 @@ public class ModifyAddTest extends AbstractServerTest
 
         fail( "Cannot reach this point" );
     }
+    
+    
+    /**
+     * Create a person entry and perform a modify op, in which
+     * we modify an attribute two times.
+     */
+    public void testAttributeValueMultiMofificationDIRSERVER_636() throws NamingException {
+
+        // Create a person entry
+        Attributes attrs = getPersonAttributes("Bush", "Kate Bush");
+        String rdn = "cn=Kate Bush";
+        ctx.createSubcontext(rdn, attrs);
+
+        // Add a decsription with two values
+        String[] descriptions = {
+                "Kate Bush is a British singer-songwriter.",
+                "She has become one of the most influential female artists of the twentieth century." };
+        Attribute desc1 = new BasicAttribute("description");
+        desc1.add(descriptions[0]);
+        desc1.add(descriptions[1]);
+
+        ModificationItem addModOp = new ModificationItem(
+                DirContext.ADD_ATTRIBUTE, desc1);
+
+        Attribute desc2 = new BasicAttribute("description");
+        desc2.add(descriptions[1]);
+        ModificationItem delModOp = new ModificationItem(
+                DirContext.REMOVE_ATTRIBUTE, desc2);
+
+        ctx.modifyAttributes(rdn, new ModificationItem[] { addModOp,
+                        delModOp });
+
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        String filter = "(sn=Bush)";
+        String base = "";
+
+        // Check entry
+        NamingEnumeration enm = ctx.search(base, filter, sctls);
+        assertTrue(enm.hasMore());
+        
+        while (enm.hasMore()) {
+            SearchResult sr = (SearchResult) enm.next();
+            attrs = sr.getAttributes();
+            Attribute desc = sr.getAttributes().get("description");
+            assertNotNull(desc);
+            assertEquals(1, desc.size());
+            assertTrue(desc.contains(descriptions[0]));
+        }
+
+        // Remove the person entry
+        ctx.destroySubcontext(rdn);
+    }
+
+    /**
+     * Create a person entry and perform a modify op on an
+     * attribute which is part of the DN. This is not allowed.
+     * 
+     * A JIRA has been created for this bug : DIRSERVER_687
+     */
+    /*
+     public void testDNAttributeMemberMofificationDIRSERVER_687() throws NamingException {
+
+        // Create a person entry
+        Attributes attrs = getPersonAttributes("Bush", "Kate Bush");
+        String rdn = "cn=Kate Bush";
+        ctx.createSubcontext(rdn, attrs);
+
+        // Try to modify the cn attribute
+        Attribute desc1 = new BasicAttribute( "cn", "Georges Bush" );
+
+        ModificationItem addModOp = new ModificationItem(
+                DirContext.REPLACE_ATTRIBUTE, desc1);
+
+        try
+        {
+            ctx.modifyAttributes( rdn, new ModificationItem[] { addModOp } );
+        }
+        catch ( AttributeModificationException ame )
+        {
+            assertTrue( true );
+            // Remove the person entry
+            ctx.destroySubcontext(rdn);
+        }
+        catch ( NamingException ne ) 
+        {
+            assertTrue( true );
+            // Remove the person entry
+            ctx.destroySubcontext(rdn);
+        }
+
+        // Remove the person entry
+        ctx.destroySubcontext(rdn);
+
+        fail();
+    }
+    */
 }

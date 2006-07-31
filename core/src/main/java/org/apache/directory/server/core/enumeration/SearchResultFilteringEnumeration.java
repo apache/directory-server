@@ -87,8 +87,8 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
      * creating this enumeration
      * @param invocation the invocation representing the seach that created this enumeration
      */
-    public SearchResultFilteringEnumeration(NamingEnumeration decorated, SearchControls searchControls,
-        Invocation invocation, SearchResultFilter filter) throws NamingException
+    public SearchResultFilteringEnumeration( NamingEnumeration decorated, SearchControls searchControls,
+        Invocation invocation, SearchResultFilter filter ) throws NamingException
     {
         this.searchControls = searchControls;
         this.invocation = invocation;
@@ -116,8 +116,8 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
      * creating this enumeration
      * @param invocation the invocation representing the seach that created this enumeration
      */
-    public SearchResultFilteringEnumeration(NamingEnumeration decorated, SearchControls searchControls,
-        Invocation invocation, List filters) throws NamingException
+    public SearchResultFilteringEnumeration( NamingEnumeration decorated, SearchControls searchControls,
+        Invocation invocation, List filters ) throws NamingException
     {
         this.searchControls = searchControls;
         this.invocation = invocation;

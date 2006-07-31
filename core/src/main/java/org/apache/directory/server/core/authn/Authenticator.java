@@ -23,11 +23,12 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.AuthenticatorConfiguration;
 import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * Authenticates users who access {@link DirectoryPartitionNexus}.
+ * Authenticates users who access {@link PartitionNexus}.
  * <p>
  * {@link Authenticator}s are registered to and configured by
  * {@link AuthenticationService} interceptor.
@@ -64,9 +65,18 @@ public interface Authenticator
      */
     public void destroy();
 
+    /**
+     * Callback used to respond to password changes by invalidating a password
+     * cache if implemented.  This is an additional feature of an authenticator
+     * which need not be implemented: empty implementation is sufficient.  This
+     * is called on every del, modify, and modifyRdn operation.
+     * 
+     * @param bindDn the already normalized distinguished name of the bind principal
+     */
+    public void invalidateCache( LdapDN bindDn );
 
     /**
      * Performs authentication and returns the principal if succeeded.
      */
-    public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException;
+    public LdapPrincipal authenticate( LdapDN bindDn, ServerContext ctx ) throws NamingException;
 }

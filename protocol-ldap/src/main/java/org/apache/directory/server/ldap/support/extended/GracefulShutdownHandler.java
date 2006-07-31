@@ -30,7 +30,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapProtocolProvider;
 import org.apache.directory.server.ldap.SessionRegistry;
@@ -95,7 +95,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
 
         // make sue only the administrator can issue this shutdown request if 
         // not we respond to the requestor with with insufficientAccessRights(50)
-        if ( !slc.getPrincipal().getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
+        if ( !slc.getPrincipal().getName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL ) )
         {
             if ( log.isInfoEnabled() )
             {
@@ -118,7 +118,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         GracefulShutdownRequest gsreq = ( GracefulShutdownRequest ) req;
 
         // build the graceful disconnect message with replicationContexts
-        DirectoryPartitionNexus nexus = service.getConfiguration().getPartitionNexus();
+        PartitionNexus nexus = service.getConfiguration().getPartitionNexus();
         GracefulDisconnect notice = getGracefulDisconnect( gsreq.getTimeOffline(), gsreq.getDelay(), nexus );
 
         // send (synch) the GracefulDisconnect to each client before unbinding
@@ -298,7 +298,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
     }
 
 
-    public static GracefulDisconnect getGracefulDisconnect( int timeOffline, int delay, DirectoryPartitionNexus nexus )
+    public static GracefulDisconnect getGracefulDisconnect( int timeOffline, int delay, PartitionNexus nexus )
     {
         // build the graceful disconnect message with replicationContexts
         GracefulDisconnect notice = new GracefulDisconnect( timeOffline, delay );

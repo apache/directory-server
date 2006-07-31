@@ -28,7 +28,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.event.Evaluator;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
@@ -67,7 +67,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     }
 
 
-    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
+    public Collection filter( Collection tuples, OperationScope scope, PartitionNexusProxy proxy,
                               Collection userGroupNames, LdapDN userName, Attributes userEntry,
                               AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId,
                               Object attrValue, Attributes entry, Collection microOperations )
@@ -249,7 +249,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     {
                         AttributeType attrType = attrRegistry.lookup( oid );
                         Attribute attr = ServerUtils.getAttribute( attrType, entry );
-                        if ( attr != null && ( ( attr.contains( userName.toNormName() ) || attr.contains( userName.toUpName() ) ) ) )
+                        if ( attr != null && ( ( attr.contains( userName.toNormName() ) || attr.contains( userName.getUpName() ) ) ) )
                         {
                             return true;
                         }
