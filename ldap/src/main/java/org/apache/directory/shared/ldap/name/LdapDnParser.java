@@ -23,6 +23,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.Name;
 
 import org.apache.directory.shared.ldap.util.DNUtils;
+import org.apache.directory.shared.ldap.util.Position;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import javax.naming.NameParser;
@@ -100,52 +101,48 @@ public class LdapDnParser implements NameParser
      */
     public static void parseInternal( String dn, List rdns ) throws InvalidNameException
     {
-        // We won't decode the LdapDN using the bytes.
-        char[] chars = dn.trim().toCharArray();
-
-        if ( chars.length == 0 )
+        if ( dn.length() == 0 )
         {
             // We have an empty DN, just get out of the function.
             return;
         }
 
-        int pos = 0;
+        Position pos = new Position();
+        pos.start = 0;
         Rdn rdn = new Rdn();
 
         // <name> ::= <name-component> <name-components>
         // <name-components> ::= <spaces> <separator> <spaces> <name-component>
         // <name-components> | e
-        if ( ( pos = RdnParser.parse( chars, pos, rdn ) ) != DNUtils.PARSING_ERROR )
+        if ( RdnParser.parse( dn, pos, rdn ) != DNUtils.PARSING_ERROR )
         {
+            // Now, parse the following nameComponents
             do
             {
-                rdns.add( rdn.clone() );
-                rdn.clear();
-
-                if ( ( StringTools.isCharASCII( chars, pos, ',' ) == false )
-                    && ( StringTools.isCharASCII( chars, pos, ';' ) == false ) )
+                rdns.add( rdn );
+                rdn = new Rdn();
+                
+                if ( ( StringTools.isCharASCII( dn, pos.start, ',' ) == false )
+                    && ( StringTools.isCharASCII( dn, pos.start, ';' ) == false ) )
                 {
 
-                    if ( pos != chars.length )
+                    if ( pos.start != dn.length() )
                     {
-                        throw new InvalidNameException( "Bad DN : " + new String( chars ) );
+                        throw new InvalidNameException( "Bad DN : " + dn );
                     }
                     else
                     {
                         break;
                     }
                 }
-
-                chars[pos] = ',';
-                pos++;
-
-                // pos = StringUtils.trimLeft( chars, pos );
+                
+                pos.start++;
             }
-            while ( ( pos = RdnParser.parse( chars, pos, rdn ) ) != DNUtils.PARSING_ERROR );
+            while ( RdnParser.parse( dn, pos, rdn ) != DNUtils.PARSING_ERROR );
         }
         else
         {
-            throw new InvalidNameException( "Bad DN : " + new String( chars ) );
+            throw new InvalidNameException( "Bad DN : " + dn );
         }
     }
 
