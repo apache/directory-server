@@ -30,7 +30,6 @@ import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -92,10 +91,6 @@ public class LdapDN /* extends LdapString */implements Name
     /** A null LdapDN */
     public static final LdapDN EMPTY_LDAPDN = new LdapDN();
     
-    /** The OIDs map container */
-    private static Map OIDS_MAP;
-
-
     // ~ Methods
     // ------------------------------------------------------------------------------------
 
@@ -185,7 +180,7 @@ public class LdapDN /* extends LdapString */implements Name
      */
     public LdapDN( String upName ) throws InvalidNameException
     {
-        if ( StringTools.isNotEmpty( upName ) )
+        if ( upName != null )
         {
             LdapDnParser.parseInternal( upName, rdns );
         }
@@ -271,8 +266,13 @@ public class LdapDN /* extends LdapString */implements Name
                 sb.append( ( ( Rdn ) rdns.get( i ) ) );
             }
 
-            normName = sb.toString();
-            bytes = StringTools.getBytesUtf8( normName );
+            String newNormName = sb.toString();
+            
+            if ( normName != newNormName )
+            {
+                bytes = StringTools.getBytesUtf8( newNormName );
+                normName = newNormName;
+            }
 
             return normName;
         }
@@ -296,7 +296,7 @@ public class LdapDN /* extends LdapString */implements Name
      * 
      * @return A String representing the User Provided DN
      */
-    public String toUpName()
+    private String toUpName()
     {
         if ( ( rdns == null ) || ( rdns.size() == 0 ) )
         {
@@ -1220,7 +1220,7 @@ public class LdapDN /* extends LdapString */implements Name
     }
 
 
-    private static AttributeTypeAndValue atavOidToName( AttributeTypeAndValue atav )
+    private static AttributeTypeAndValue atavOidToName( AttributeTypeAndValue atav, Map oidsMap )
         throws InvalidNameException, NamingException
     {
         String type = StringTools.trim( atav.getType() );
@@ -1232,13 +1232,13 @@ public class LdapDN /* extends LdapString */implements Name
 
         if ( StringTools.isNotEmpty( StringTools.lowerCase( type ) ) )
         {
-            if ( OIDS_MAP == null )
+            if ( oidsMap == null )
             {
                 return atav;
             }
             else
             {
-                OidNormalizer oidNormalizer = ( OidNormalizer ) OIDS_MAP.get( type );
+                OidNormalizer oidNormalizer = ( OidNormalizer ) oidsMap.get( type );
     
                 if ( oidNormalizer != null )
                 {
@@ -1275,7 +1275,7 @@ public class LdapDN /* extends LdapString */implements Name
      *             If
      * @throws NamingException
      */
-    private static void rdnOidToName( Rdn rdn ) throws InvalidNameException, NamingException
+    private static void rdnOidToName( Rdn rdn, Map oidsMap ) throws InvalidNameException, NamingException
     {
         if ( rdn.getNbAtavs() > 1 )
         {
@@ -1289,7 +1289,7 @@ public class LdapDN /* extends LdapString */implements Name
             while ( atavs.hasNext() )
             {
                 Object val = atavs.next();
-                AttributeTypeAndValue newAtav = atavOidToName( ( AttributeTypeAndValue ) val );
+                AttributeTypeAndValue newAtav = atavOidToName( ( AttributeTypeAndValue ) val, oidsMap );
                 rdn.addAttributeTypeAndValue( newAtav.getType(), newAtav.getValue() );
             }
 
@@ -1305,13 +1305,13 @@ public class LdapDN /* extends LdapString */implements Name
 
             if ( StringTools.isNotEmpty( StringTools.lowerCase( type ) ) )
             {
-                if ( OIDS_MAP == null )
+                if ( oidsMap == null )
                 {
                     return;
                 }
                 else
                 {
-                    OidNormalizer oidNormalizer = ( OidNormalizer ) OIDS_MAP.get( type );
+                    OidNormalizer oidNormalizer = ( OidNormalizer ) oidsMap.get( type );
     
                     if ( oidNormalizer != null )
                     {
@@ -1358,9 +1358,9 @@ public class LdapDN /* extends LdapString */implements Name
      * @throws InvalidNameException
      *             If the DN is invalid
      */
-    public static LdapDN normalize( LdapDN dn ) throws InvalidNameException, NamingException
+    public static LdapDN normalize( LdapDN dn, Map oidsMap ) throws InvalidNameException, NamingException
     {
-        if ( ( dn == null ) || ( dn.size() == 0 ) || ( OIDS_MAP == null ) || ( OIDS_MAP.size() == 0 ) )
+        if ( ( dn == null ) || ( dn.size() == 0 ) || ( oidsMap == null ) || ( oidsMap.size() == 0 ) )
         {
             return dn;
         }
@@ -1374,7 +1374,7 @@ public class LdapDN /* extends LdapString */implements Name
         {
             Rdn rdn = ( Rdn ) rdns.nextElement();
             String upName = rdn.getUpName();
-            rdnOidToName( rdn );
+            rdnOidToName( rdn, oidsMap );
             rdn.normalizeString();
             rdn.setUpName( upName );
         }
@@ -1402,9 +1402,9 @@ public class LdapDN /* extends LdapString */implements Name
      * @throws InvalidNameException
      *             If the DN is invalid
      */
-    public void normalize() throws InvalidNameException, NamingException
+    public void normalize( Map oidsMap ) throws InvalidNameException, NamingException
     {
-        if ( ( OIDS_MAP == null ) || ( OIDS_MAP.size() == 0 ) )
+        if ( ( oidsMap == null ) || ( oidsMap.size() == 0 ) )
         {
             return;
         }
@@ -1416,21 +1416,11 @@ public class LdapDN /* extends LdapString */implements Name
         {
             Rdn rdn = ( Rdn ) rdns.nextElement();
             String upName = rdn.getUpName();
-            rdnOidToName( rdn );
+            rdnOidToName( rdn, oidsMap );
             rdn.normalizeString();
             rdn.setUpName( upName );
         }
 
         normalizeInternal();
-    }
-    
-    /**
-     * Set the static OIDs map with the values.
-     * 
-     * @param oidsMap The HashMap which contains <oid, normalizer> pairs
-     */
-    public static synchronized void setOidsMap( Map oidsMap )
-    {
-        OIDS_MAP = oidsMap;
     }
 }
