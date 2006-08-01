@@ -64,6 +64,8 @@ public class PartitionNexusProxy extends PartitionNexus
     public static final Collection LOOKUP_BYPASS;
     /** safe to use set of bypass instructions to getMatchedDn */
     public static final Collection GETMATCHEDDN_BYPASS;
+    /** safe to use set of bypass instructions to lookup raw entries excluding operational attributes */
+    public static final Collection LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS;
     /** Bypass String to use when ALL interceptors should be skipped */
     public static final String BYPASS_ALL = "*";
     /** Bypass String to use when ALL interceptors should be skipped */
@@ -103,6 +105,18 @@ public class PartitionNexusProxy extends PartitionNexus
         c.add( "referralService" );
         c.add( "eventService" );
         GETMATCHEDDN_BYPASS = Collections.unmodifiableCollection( c );
+
+	c = new HashSet();
+	c.add( "normalizationService" );
+	c.add( "authenticationService" );
+	c.add( "authorizationService" );
+	c.add( "defaultAuthorizationService" );
+	c.add( "schemaService" );
+	c.add( "subentryService" );
+	c.add( "referralService" );
+	c.add( "eventService" );
+	c.add( "triggerService" );
+	LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS = Collections.unmodifiableCollection( c );
     }
 
 
