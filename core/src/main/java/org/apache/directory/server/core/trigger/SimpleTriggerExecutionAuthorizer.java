@@ -19,7 +19,7 @@ public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthori
     {
         try
         {
-            adminName = new LdapDN( PartitionNexusProxy.ADMIN_PRINCIPAL );
+            adminName = new LdapDN( PartitionNexusProxy.ADMIN_PRINCIPAL_NORMALIZED );
         }
         catch ( InvalidNameException e )
         {
