@@ -104,7 +104,7 @@ public class ServerContextFactory extends CoreContextFactory
 
     public void beforeStartup( DirectoryService service )
     {
-        threadPool.setMaximumPoolSize( service.getConfiguration().getStartupConfiguration().getMaxThreads() );
+        threadPool.getThreadPool().setMaximumPoolSize( service.getConfiguration().getStartupConfiguration().getMaxThreads() );
         this.directoryService = service;
     }
 
