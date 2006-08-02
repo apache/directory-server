@@ -17,12 +17,15 @@
 package org.apache.directory.server.core.jndi;
 
 
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 
@@ -35,6 +38,50 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
  */
 public class CreateContextITest extends AbstractAdminTestCase
 {
+    protected Attributes getPersonAttributes( String sn, String cn )
+    {
+        Attributes attrs = new BasicAttributes();
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        attrs.put( ocls );
+        attrs.put( "cn", cn );
+        attrs.put( "sn", sn );
+
+        return attrs;
+    }
+
+
+    /**
+     * DIRSERVER-628: Creation of entry with multivalued RDN leads to wrong
+     * attribute value.
+     */
+    public void testMultiValuedRdn() throws NamingException
+    {
+
+        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
+        String rdn = "cn=Kate Bush+sn=Bush";
+        super.sysRoot.createSubcontext( rdn, attrs );
+
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        String filter = "(sn=Bush)";
+        String base = "";
+
+        NamingEnumeration enm = sysRoot.search( base, filter, sctls );
+        while ( enm.hasMore() )
+        {
+            SearchResult sr = ( SearchResult ) enm.next();
+            attrs = sr.getAttributes();
+            Attribute cn = sr.getAttributes().get( "cn" );
+            assertNotNull( cn );
+            assertTrue( cn.contains( "Kate Bush" ) );
+        }
+
+        sysRoot.destroySubcontext( rdn );
+    }
+    
+    
     /**
      * Tests the creation and subsequent read of a new JNDI context under the
      * system context root.
