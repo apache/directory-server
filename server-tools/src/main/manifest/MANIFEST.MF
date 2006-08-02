@@ -6,6 +6,12 @@ Class-Path: logger.jar daemon.jar bootstrapper.jar
  ../lib/apacheds-protocol-changepw-1.1.0-SNAPSHOT.jar 
  ../lib/apacheds-protocol-shared-1.1.0-SNAPSHOT.jar 
  ../lib/apacheds-protocol-kerberos-1.1.0-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-ldap-1.1.0-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-ntp-1.1.0-SNAPSHOT.jar 
+ ../lib/apacheds-core-1.1.0-SNAPSHOT.jar 
+ ../lib/apacheds-core-shared-1.1.0-SNAPSHOT.jar 
+ ../lib/apacheds-server-jndi-1.1.0-SNAPSHOT.jar 
+ ../lib/apacheds-server-main-1.1.0-SNAPSHOT.jar 
  ../lib/commons-collections-3.0.jar 
  ../lib/commons-lang-2.0.jar 
  ../lib/commons-logging-1.0.4.jar 
