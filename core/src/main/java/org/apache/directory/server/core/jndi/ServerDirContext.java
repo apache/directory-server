@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -46,8 +47,9 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
+import org.apache.directory.shared.ldap.name.Rdn;
 
 
 /**
@@ -330,19 +332,40 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
 
         LdapDN target = buildTarget( name );
-        String rdn = name.get( name.size() - 1 );
-        String rdnAttribute = NamespaceTools.getRdnAttribute( rdn );
-        String rdnValue = NamespaceTools.getRdnValue( rdn );
-
-        // Clone the attributes and add the Rdn attributes
+        Rdn rdn = target.getRdn( target.size() - 1 );
+        
         Attributes attributes = ( Attributes ) attrs.clone();
-        boolean doRdnPut = attributes.get( rdnAttribute ) == null;
-        doRdnPut = doRdnPut || attributes.get( rdnAttribute ).size() == 0;
-        doRdnPut = doRdnPut || !attributes.get( rdnAttribute ).contains( rdnValue );
-
-        if ( doRdnPut )
+        if ( rdn.size() == 1 )
         {
-            attributes.put( rdnAttribute, rdnValue );
+            String rdnAttribute = rdn.getType();
+            String rdnValue = rdn.getValue();
+
+            // Add the Rdn attribute
+            boolean doRdnPut = attributes.get( rdnAttribute ) == null;
+            doRdnPut = doRdnPut || attributes.get( rdnAttribute ).size() == 0;
+            doRdnPut = doRdnPut || !attributes.get( rdnAttribute ).contains( rdnValue );
+    
+            if ( doRdnPut )
+            {
+                attributes.put( rdnAttribute, rdnValue );
+            }
+        }
+        else
+        {
+            for ( Iterator ii = rdn.iterator(); ii.hasNext(); /**/ )
+            {
+                AttributeTypeAndValue atav = ( AttributeTypeAndValue ) ii.next();
+
+                // Add the Rdn attribute
+                boolean doRdnPut = attributes.get( atav.getType() ) == null;
+                doRdnPut = doRdnPut || attributes.get( atav.getType() ).size() == 0;
+                doRdnPut = doRdnPut || !attributes.get( atav.getType() ).contains( atav.getValue() );
+        
+                if ( doRdnPut )
+                {
+                    attributes.put( atav.getType(), atav.getValue() );
+                }
+            }
         }
 
         // Add the new context to the server which as a side effect adds

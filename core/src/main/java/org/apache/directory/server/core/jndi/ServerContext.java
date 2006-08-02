@@ -52,8 +52,9 @@ import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -296,11 +297,20 @@ public abstract class ServerContext implements EventContext
         Attributes attributes = new LockableAttributesImpl();
         LdapDN target = buildTarget( name );
 
-        String rdn = name.get( name.size() - 1 );
-        String rdnAttribute = NamespaceTools.getRdnAttribute( rdn );
-        String rdnValue = NamespaceTools.getRdnValue( rdn );
-
-        attributes.put( rdnAttribute, rdnValue );
+        Rdn rdn = target.getRdn( target.size() - 1 );
+        if ( rdn.size() == 1 )
+        {
+            attributes.put( rdn.getType(), rdn.getValue() );
+        }
+        else
+        {
+            for ( Iterator ii = rdn.iterator(); ii.hasNext(); /**/ )
+            {
+                AttributeTypeAndValue atav = ( AttributeTypeAndValue ) ii.next();
+                attributes.put( atav.getType(), atav.getValue() );
+            }
+        }
+        
         attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.JCONTAINER_ATTR );
         attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.TOP_ATTR );
 
