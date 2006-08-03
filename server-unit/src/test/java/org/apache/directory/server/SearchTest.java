@@ -118,7 +118,7 @@ public class SearchTest extends AbstractServerTest
         // setup and search
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        NamingEnumeration ii = ctx.search( "", "( | ( cn=Kate Bush ) ( cn=Tori Amos) )", controls );
+        NamingEnumeration ii = ctx.search( "", "(|(cn=Kate Bush)(cn=Tori Amos))", controls );
         
         // collect all results 
         HashSet results = new HashSet();
@@ -130,8 +130,8 @@ public class SearchTest extends AbstractServerTest
         
         // make sure we get the results we need
         assertEquals( "returned size of results", 2, results.size() );
-        assertTrue( "contains cn=Tori Amos,ou=system", results.contains( "cn=Tori Amos,ou=system" ) );
-        assertTrue( "contains cn=Kate Bush,ou=system", results.contains( "cn=Kate Bush,ou=system" ) );
+        assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
+        assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
     }
 
 
