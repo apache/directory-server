@@ -171,6 +171,70 @@ public class SearchContextITest extends AbstractAdminTestCase
     }
 
 
+    public void testSearchOneLevelSubstring() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+        HashMap map = new HashMap();
+
+        NamingEnumeration list = sysRoot.search( "", "(ou=testing*)", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect!", 3, map.size() );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
+    }
+
+
+    public void testSearchOneLevelOr() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+        HashMap map = new HashMap();
+
+        NamingEnumeration list = sysRoot.search( "", "(| (ou=testing00) (ou=testing01) )", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect!", 2, map.size() );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
+    }
+
+
+    public void testSearchOneLevelOrSubstring() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+        HashMap map = new HashMap();
+
+        NamingEnumeration list = sysRoot.search( "", "(| (ou=testing*0) (ou=*01) )", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect!", 2, map.size() );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
+    }
+
+
     public void testSearchSubTreeLevel() throws NamingException
     {
         SearchControls controls = new SearchControls();
