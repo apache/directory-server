@@ -61,8 +61,15 @@ public class BindHandler implements LdapMessageHandler
         LdapContext ctx;
         BindRequest req = ( BindRequest ) request;
         LdapResult result = req.getResultResponse().getLdapResult();
-        Hashtable env = SessionRegistry.getSingleton().getEnvironmentByCopy();
-
+        
+        if ( !req.getVersion3() )
+        {
+            result.setResultCode( ResultCodeEnum.PROTOCOLERROR );
+            result.setErrorMessage( "Only LDAP v3 is supported" );
+            session.write( req.getResultResponse() );
+            return;
+        }
+        
         // if the bind request is not simple then we freak: no strong auth yet
         if ( !req.isSimple() )
         {
@@ -73,6 +80,7 @@ public class BindHandler implements LdapMessageHandler
         }
 
         // clone the environment first then add the required security settings
+        Hashtable env = SessionRegistry.getSingleton().getEnvironmentByCopy();
         byte[] creds = req.getCredentials();
         env.put( Context.SECURITY_PRINCIPAL, req.getName() );
         env.put( Context.SECURITY_CREDENTIALS, creds );
