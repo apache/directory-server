@@ -159,12 +159,12 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                     {
                         int version = IntegerDecoder.parse( value, 1, 127 );
 
-                        if ( version != 3 )
-                        {
-                            log.error( "The version {} is invalid : it must be 3", new Integer( version ) );
-
-                            throw new DecoderException( "Ldap Version " + version + " is not supported" );
-                        }
+                        // will handle this in higher layers: bind handler
+//                        if ( version != 3 )
+//                        {
+//                            log.error( "The version {} is invalid : it must be 3", new Integer( version ) );
+//                            throw new DecoderException( "Ldap Version " + version + " is not supported" );
+//                        }
 
                         if ( IS_DEBUG )
                         {
