@@ -142,6 +142,13 @@ public class AddRequest extends LdapMessage
      */
     public void addAttributeType( LdapString type )
     {
+        // do not create a new attribute if we have seen this attributeType before
+        if ( attributes.get( type.toString().toLowerCase() ) != null )
+        {
+            return;
+        }
+        
+        // fix this to use LockableAttributeImpl(type.getString().toLowerCase())
         currentAttribute = new BasicAttribute( type.getString().toLowerCase() );
         attributes.put( currentAttribute );
     }
@@ -154,6 +161,13 @@ public class AddRequest extends LdapMessage
      */
     public void addAttributeType( String type )
     {
+        // do not create a new attribute if we have seen this attributeType before
+        if ( attributes.get( type.toLowerCase() ) != null )
+        {
+            return;
+        }
+        
+        // fix this to use LockableAttributeImpl(type.getString().toLowerCase())
         currentAttribute = new BasicAttribute( type.toLowerCase() );
         attributes.put( currentAttribute );
     }
