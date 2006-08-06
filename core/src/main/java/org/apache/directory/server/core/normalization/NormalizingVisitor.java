@@ -69,6 +69,10 @@ public class NormalizingVisitor implements FilterVisitor
 
     public void visit( ExprNode node )
     {
+        // -------------------------------------------------------------------
+        // Handle PresenceNodes
+        // -------------------------------------------------------------------
+        
         if ( node instanceof PresenceNode )
         {
             PresenceNode pnode = ( PresenceNode ) node;
@@ -87,6 +91,10 @@ public class NormalizingVisitor implements FilterVisitor
             return;
         }
 
+        // -------------------------------------------------------------------
+        // Handle SimpleNodes
+        // -------------------------------------------------------------------
+        
         if ( node instanceof SimpleNode )
         {
             SimpleNode snode = ( SimpleNode ) node;
@@ -133,6 +141,10 @@ public class NormalizingVisitor implements FilterVisitor
             return;
         }
 
+        // -------------------------------------------------------------------
+        // Handle BranchNodes
+        // -------------------------------------------------------------------
+        
         if ( node instanceof BranchNode )
         {
             BranchNode bnode = ( BranchNode ) node;
@@ -147,21 +159,33 @@ public class NormalizingVisitor implements FilterVisitor
                     LeafNode ln = ( LeafNode ) child;
                     if ( !ncn.isDefined( ln.getAttribute() ) )
                     {
-                        if ( buf == null )
+                        if ( log.isWarnEnabled() )
                         {
-                            buf = new StringBuffer();
+                            if ( buf == null )
+                            {
+                                buf = new StringBuffer();
+                            }
+                            else
+                            {
+                                buf.setLength( 0 );
+                            }
+                            buf.append( "Removing leaf node based on undefined attribute '" );
+                            buf.append( ln.getAttribute() );
+                            buf.append( "' from filter." );
+                            log.warn( buf.toString() );
                         }
-                        else
-                        {
-                            buf.setLength( 0 );
-                        }
-                        buf.append( "Removing leaf node based on undefined attribute '" );
-                        buf.append( ln.getAttribute() );
-                        buf.append( "' from filter." );
-                        log.warn( buf.toString() );
 
                         // remove the child at ii
                         bnode.getChildren().remove( child );
+                        
+                        if ( bnode.getOperator() != BranchNode.AND )
+                        {
+                            bnode.set( "undefined", Boolean.TRUE );
+                        }
+                        else
+                        {
+                            bnode.set( "undefined", Boolean.FALSE );
+                        }
                         ii--; // decrement so we can evaluate next child which has shifted to ii
                         continue;
                     }
@@ -178,6 +202,14 @@ public class NormalizingVisitor implements FilterVisitor
                 catch( UndefinedFilterAttributeException e )
                 {
                     bnode.getChildren().remove( ii );
+                    if ( bnode.getOperator() != BranchNode.AND )
+                    {
+                        bnode.set( "undefined", Boolean.TRUE );
+                    }
+                    else
+                    {
+                        bnode.set( "undefined", Boolean.FALSE );
+                    }
                     ii--;
                     continue;
                 }
@@ -194,15 +226,16 @@ public class NormalizingVisitor implements FilterVisitor
                 {
                     BranchNode child = ( BranchNode ) unknown;
 
-                    // remove child branch node that has no children left
-                    if ( child.getChildren().size() == 0 )
+                    // remove child branch node that has no children left or 
+                    // a child branch node that is undefined as a result of removals
+                    if ( child.getChildren().size() == 0 || child.get( "undefined" ) == Boolean.TRUE )
                     {
                         // remove the child at ii
                         bnode.getChildren().remove( child );
                         ii--; // decrement so we can evaluate next child which has shifted to ii
                         continue;
                     }
-
+                    
                     // now for AND & OR nodes with a single child left replace them
                     // with their child at the same index they AND/OR node was in
                     if ( child.getChildren().size() == 1 && child.getOperator() != BranchNode.NOT )

@@ -319,10 +319,10 @@ public class MiscTest extends AbstractServerTest
         e = sysRoot.search( "", "(!(bogusAttribute=abc123))", cons );
         assertNotNull( e );
         assertEquals( e.getClass(), EmptyEnumeration.class );
-        e = sysRoot.search( "", "(& (bogusAttribute=abc123)(bogusAttribute=abc123) )", cons );
+        e = sysRoot.search( "", "(| (bogusAttribute=abc123)(bogusAttribute=abc123) )", cons );
         assertNotNull( e );
         assertEquals( e.getClass(), EmptyEnumeration.class );
-        e = sysRoot.search( "", "(& (bogusAttribute=abc123)(ou=abc123) )", cons );
+        e = sysRoot.search( "", "(| (bogusAttribute=abc123)(ou=abc123) )", cons );
         assertNotNull( e );
         assertFalse( e.getClass().equals( EmptyEnumeration.class ) );
 

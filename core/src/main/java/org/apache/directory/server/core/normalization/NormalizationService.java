@@ -198,6 +198,12 @@ public class NormalizationService extends BaseInterceptor
                 }
                 
                 bnode.getChildren().remove( e.getUndefinedFilterNode() );
+                
+                if ( bnode.getOperator() == BranchNode.AND )
+                {
+                    return new EmptyEnumeration();
+                }
+                
                 if ( bnode.getChildren().size() < 2 )
                 {
                     filter = bnode.getChild();
@@ -211,10 +217,10 @@ public class NormalizationService extends BaseInterceptor
             BranchNode child = ( BranchNode ) filter;
 
             // if the remaining filter branch node has no children return an empty enumeration
-            if ( child.getChildren().size() == 0 )
+            if ( child.getChildren().size() == 0 || child.get( "undefined" ) == Boolean.TRUE )
             {
-                log
-                    .warn( "Undefined branchnode filter without child nodes not evaluted at all.  Returning empty enumeration." );
+                log.warn( "Undefined branchnode filter without child nodes not " +
+                        "evaluted at all.  Returning empty enumeration." );
                 return new EmptyEnumeration();
             }
 
