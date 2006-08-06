@@ -352,5 +352,26 @@ public class SearchTest extends AbstractServerTest
             fail( e.getMessage() );
         }
     }
+ 
     
+    /**
+     * Tests for <a href="http://issues.apache.org/jira/browse/DIRSERVER-645">
+     * DIRSERVER-645<\a>: Wrong search filter evaluation with AND 
+     * operator and undefined operands.
+     */
+    public void testUndefinedAvaInBranchFilters() throws Exception
+    {
+        // create additional entry
+        Attributes attributes = this.getPersonAttributes( "Bush", "Kate Bush" );
+        ctx.createSubcontext( "cn=Kate Bush", attributes );
+
+        // -------------------------------------------------------------------
+        Set results = search( "(|(sn=Bush)(numberOfOctaves=4))" );
+        assertEquals( "returned size of results", 1, results.size() );
+        assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+
+        // if numberOfOctaves is undefined then this whole filter is undefined
+        results = search( "(&(sn=Bush)(numberOfOctaves=4))" );
+        assertEquals( "returned size of results", 0, results.size() );
+    }
 }
