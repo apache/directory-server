@@ -162,7 +162,81 @@ public class SearchTest extends AbstractServerTest
         assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
     }
 
+    
+    /**
+     * Search operation with a base DN which contains a BER encoded value.
+     */
+    public void testSearchBEREncodedBase() throws NamingException
+    {
+        // create additional entry
+        Attributes attributes = this.getPersonAttributes( "Ferry", "Bryan Ferry" );
+        ctx.createSubcontext( "sn=Ferry", attributes );
 
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        String filter = "(cn=Bryan Ferry)";
+
+        // sn=Ferry with BEROctetString values
+        String base = "sn=#4665727279";
+
+        try
+        {
+            // Check entry
+            NamingEnumeration enm = ctx.search( base, filter, sctls );
+            assertTrue( enm.hasMore() );
+            while ( enm.hasMore() )
+            {
+                SearchResult sr = ( SearchResult ) enm.next();
+                Attributes attrs = sr.getAttributes();
+                Attribute sn = attrs.get( "sn" );
+                assertNotNull( sn );
+                assertTrue( sn.contains( "Ferry" ) );
+            }
+        }
+        catch ( Exception e )
+        {
+            fail( e.getMessage() );
+        }
+    }
+
+    
+    /**
+     * Search operation with a base DN which contains a BER encoded value.
+     */
+    public void testSearchWithBackslashEscapedBase() throws NamingException
+    {
+        // create additional entry
+        Attributes attributes = this.getPersonAttributes( "Ferry", "Bryan Ferry" );
+        ctx.createSubcontext( "sn=Ferry", attributes );
+
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        String filter = "(cn=Bryan Ferry)";
+
+        // sn=Ferry with BEROctetString values
+        String base = "sn=\\46\\65\\72\\72\\79";
+
+        try
+        {
+            // Check entry
+            NamingEnumeration enm = ctx.search( base, filter, sctls );
+            assertTrue( enm.hasMore() );
+            while ( enm.hasMore() )
+            {
+                SearchResult sr = ( SearchResult ) enm.next();
+                Attributes attrs = sr.getAttributes();
+                Attribute sn = attrs.get( "sn" );
+                assertNotNull( sn );
+                assertTrue( sn.contains( "Ferry" ) );
+            }
+        }
+        catch ( Exception e )
+        {
+            fail( e.getMessage() );
+        }
+    }
+
+    
     /**
      * Add a new attribute to a person entry.
      * 
