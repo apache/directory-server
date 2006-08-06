@@ -775,7 +775,10 @@ public class ReferralTest extends AbstractServerTest
         }
         try
         {
-            td.rootCtx.createSubcontext( "ou=deep" );
+            Attributes ouAttrs = new BasicAttributes( "objectClass", "top", true );
+            ouAttrs.get( "objectClass" ).add( "organizationalUnit" );
+            ouAttrs.put( "ou", "deep" );
+            td.rootCtx.createSubcontext( "ou=deep", ouAttrs );
             userCtx = ( LdapContext ) td.rootCtx.createSubcontext( "cn=akarasulu,ou=deep", referral );
         }
         catch ( NameAlreadyBoundException e )

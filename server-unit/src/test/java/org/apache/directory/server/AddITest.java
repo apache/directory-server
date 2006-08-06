@@ -26,14 +26,13 @@ import java.util.Hashtable;
 
 
 /**
- * Test case to verify DIREVE-216.  Starts up the server binds via SUN JNDI provider
- * to perform add modify operations on entries.
+ * Various add scenario tests.
  * 
  * @author szoerner
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AddObjectClassesToEntryTest extends AbstractServerTest
+public class AddITest extends AbstractServerTest
 {
     private static final String RDN = "cn=The Person";
 
@@ -164,5 +163,30 @@ public class AddObjectClassesToEntryTest extends AbstractServerTest
         Attribute newDesc = attributes.get( "description" );
 
         assertTrue( "new Description", newDesc.contains( newDescription ) );
+    }
+
+
+    /**
+     * Try to add entry with required attribute missing.
+     */
+    public void testAddWithMissingRequiredAttributes() throws NamingException
+    {
+        // person without sn
+        Attributes attrs = new BasicAttributes();
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        attrs.put( ocls );
+        attrs.put( "cn", "Fiona Apple" );
+
+        try
+        {
+            ctx.createSubcontext( "cn=Fiona Apple", attrs );
+            fail( "creation of entry should fail" );
+        }
+        catch ( SchemaViolationException e )
+        {
+            // expected
+        }
     }
 }
