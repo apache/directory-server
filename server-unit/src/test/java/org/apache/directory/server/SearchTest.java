@@ -17,7 +17,9 @@
 package org.apache.directory.server;
 
 
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -106,8 +108,135 @@ public class SearchTest extends AbstractServerTest
         ctx = null;
         super.tearDown();
     }
+    
+    
+    /**
+     * Performs a single level search from ou=system base and 
+     * returns the set of DNs found.
+     */
+    private Set search( String filter ) throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        NamingEnumeration ii = ctx.search( "", filter, controls );
+        
+        // collect all results 
+        HashSet results = new HashSet();
+        while ( ii.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) ii.next();
+            results.add( result.getName() );
+        }
+        
+        return results;
+    }
 
+    
+    public void testDirserver635() throws NamingException
+    {
+        // create additional entry
+        Attributes attributes = this.getPersonAttributes( "Bush", "Kate Bush" );
+        ctx.createSubcontext( "cn=Kate Bush", attributes );
 
+        // -------------------------------------------------------------------
+        Set results = search( "(|(cn=Kate*)(cn=Tori*))" );
+        assertEquals( "returned size of results", 2, results.size() );
+        assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
+        assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+
+        // -------------------------------------------------------------------
+        results = search( "(|(cn=*Amos)(cn=Kate*))" );
+        assertEquals( "returned size of results", 2, results.size() );
+        assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
+        assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+
+        // -------------------------------------------------------------------
+        results = search( "(|(cn=Kate Bush)(cn=Tori*))" );
+        assertEquals( "returned size of results", 2, results.size() );
+        assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
+        assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+
+        // -------------------------------------------------------------------
+        results = search( "(|(cn=*Amos))" );
+        assertEquals( "returned size of results", 1, results.size() );
+        assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
+    }
+
+    
+    /**
+     * Search operation with a base DN which contains a BER encoded value.
+     */
+    public void testSearchBEREncodedBase() throws NamingException
+    {
+        // create additional entry
+        Attributes attributes = this.getPersonAttributes( "Ferry", "Bryan Ferry" );
+        ctx.createSubcontext( "sn=Ferry", attributes );
+
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        String filter = "(cn=Bryan Ferry)";
+
+        // sn=Ferry with BEROctetString values
+        String base = "sn=#4665727279";
+
+        try
+        {
+            // Check entry
+            NamingEnumeration enm = ctx.search( base, filter, sctls );
+            assertTrue( enm.hasMore() );
+            while ( enm.hasMore() )
+            {
+                SearchResult sr = ( SearchResult ) enm.next();
+                Attributes attrs = sr.getAttributes();
+                Attribute sn = attrs.get( "sn" );
+                assertNotNull( sn );
+                assertTrue( sn.contains( "Ferry" ) );
+            }
+        }
+        catch ( Exception e )
+        {
+            fail( e.getMessage() );
+        }
+    }
+
+    
+    /**
+     * Search operation with a base DN which contains a BER encoded value.
+     */
+    public void testSearchWithBackslashEscapedBase() throws NamingException
+    {
+        // create additional entry
+        Attributes attributes = this.getPersonAttributes( "Ferry", "Bryan Ferry" );
+        ctx.createSubcontext( "sn=Ferry", attributes );
+
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        String filter = "(cn=Bryan Ferry)";
+
+        // sn=Ferry with BEROctetString values
+        String base = "sn=\\46\\65\\72\\72\\79";
+
+        try
+        {
+            // Check entry
+            NamingEnumeration enm = ctx.search( base, filter, sctls );
+            assertTrue( enm.hasMore() );
+            while ( enm.hasMore() )
+            {
+                SearchResult sr = ( SearchResult ) enm.next();
+                Attributes attrs = sr.getAttributes();
+                Attribute sn = attrs.get( "sn" );
+                assertNotNull( sn );
+                assertTrue( sn.contains( "Ferry" ) );
+            }
+        }
+        catch ( Exception e )
+        {
+            fail( e.getMessage() );
+        }
+    }
+
+    
     /**
      * Add a new attribute to a person entry.
      * 
