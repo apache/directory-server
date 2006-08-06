@@ -18,6 +18,7 @@ package org.apache.directory.server.core.schema;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -51,7 +52,6 @@ import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -1063,13 +1063,18 @@ public class SchemaService extends BaseInterceptor
     /**
      * Check that all the attributes exist in the schema for this entry.
      */
-    public void add(NextInterceptor next, LdapDN normName, Attributes attrs) throws NamingException
+    public void add( NextInterceptor next, LdapDN normName, Attributes attrs ) throws NamingException
     {
         AttributeTypeRegistry atRegistry = this.globalRegistries.getAttributeTypeRegistry();
         NamingEnumeration attrEnum = attrs.getIDs();
         while ( attrEnum.hasMoreElements() )
         {
             String name = ( String ) attrEnum.nextElement();
+            
+            // ---------------------------------------------------------------
+            // make sure all attributes are valid schema defined attributes
+            // ---------------------------------------------------------------
+
             if ( !atRegistry.hasAttributeType( name ) )
             {
                 throw new LdapInvalidAttributeIdentifierException( name + " not found in attribute registry!" );
@@ -1077,6 +1082,102 @@ public class SchemaService extends BaseInterceptor
         }
 
         alterObjectClasses( attrs.get( "objectClass" ), this.globalRegistries.getObjectClassRegistry() );
+        assertRequiredAttributesPresent( attrs );
         next.add(normName, attrs );
+    }
+    
+    
+    /**
+     * Checks to see the presence of all required attributes within an entry.
+     */
+    private void assertRequiredAttributesPresent( Attributes entry ) 
+        throws NamingException
+    {
+        AttributeType[] required = getRequiredAttributes( entry.get( "objectClass" ), 
+            this.globalRegistries.getObjectClassRegistry() );
+        for ( int ii = 0; ii < required.length; ii++ )
+        {
+            boolean aliasFound = false;
+            String[] aliases = required[ii].getNames();
+            for ( int jj = 0; jj < aliases.length; jj++ )
+            {
+                if ( entry.get( aliases[jj] ) != null )
+                {
+                    aliasFound = true;
+                    break;
+                }
+            }
+            
+            if ( ! aliasFound )
+            {
+                throw new LdapSchemaViolationException( "Required attribute " + 
+                    required[ii].getName() + " not found within entry.", 
+                    ResultCodeEnum.OBJECTCLASSVIOLATION );
+            }
+        }
+    }
+
+
+    private static final AttributeType[] EMPTY_ATTRIBUTE_TYPE_ARRAY = new AttributeType[0];
+    
+    /**
+     * Uses the objectClass registry to ascend super classes and collect 
+     * all attributeTypes within must lists until top is reached on each
+     * parent.
+     */
+    private static final AttributeType[] getRequiredAttributes( Attribute objectClass, 
+        ObjectClassRegistry registry ) throws NamingException
+    {
+        AttributeType[] attributeTypes;
+        Set set = new HashSet();
+        
+        for ( int ii = 0; ii < objectClass.size(); ii++ )
+        {
+            String ocString = ( String ) objectClass.get( ii );
+            ObjectClass oc = registry.lookup( ocString );
+            infuseMustList( set, oc );
+        }
+        
+        attributeTypes = ( AttributeType[] ) set.toArray( EMPTY_ATTRIBUTE_TYPE_ARRAY );
+        return attributeTypes;
+    }
+
+    
+    /**
+     * Recursive method that finds all the required attributes for an 
+     * objectClass and infuses them into the provided non-null set.
+     * 
+     * @param set set to infuse attributeTypes into
+     * @param oc the objectClass to ascent the polymorphic inheritance tree of 
+     */
+    private static final void infuseMustList( Set set, ObjectClass oc ) throws NamingException
+    {
+        // ignore top
+        if ( oc.getName().equalsIgnoreCase( "top" ) )
+        {
+            return;
+        }
+        
+        // add all the required attributes for this objectClass 
+        Collections.addAll( set, oc.getMustList() );
+        
+        // don't bother ascending if no parents exist
+        ObjectClass[] parents = oc.getSuperClasses();
+        if ( parents == null || parents.length == 0 )
+        {
+            return;
+        }
+        
+        // save on a for loop
+        if ( parents.length == 1 ) 
+        {
+            infuseMustList( set, parents[0] );
+            return;
+        }
+        
+        for ( int ii = 0; ii < parents.length; ii++ )
+        {
+            infuseMustList( set, parents[ii] );
+        }
     }
 }
