@@ -19,6 +19,7 @@ package org.apache.directory.server;
 
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -109,16 +110,15 @@ public class SearchTest extends AbstractServerTest
     }
     
     
-    public void testDirserver635() throws NamingException
+    /**
+     * Performs a single level search from ou=system base and 
+     * returns the set of DNs found.
+     */
+    private Set search( String filter ) throws NamingException
     {
-        // create additional entry
-        Attributes attributes = this.getPersonAttributes( "Bush", "Kate Bush" );
-        ctx.createSubcontext( "cn=Kate Bush", attributes );
-        
-        // setup and search
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        NamingEnumeration ii = ctx.search( "", "(|(cn=Kate Bush)(cn=Tori Amos))", controls );
+        NamingEnumeration ii = ctx.search( "", filter, controls );
         
         // collect all results 
         HashSet results = new HashSet();
@@ -128,10 +128,38 @@ public class SearchTest extends AbstractServerTest
             results.add( result.getName() );
         }
         
-        // make sure we get the results we need
+        return results;
+    }
+
+    
+    public void testDirserver635() throws NamingException
+    {
+        // create additional entry
+        Attributes attributes = this.getPersonAttributes( "Bush", "Kate Bush" );
+        ctx.createSubcontext( "cn=Kate Bush", attributes );
+
+        // -------------------------------------------------------------------
+        Set results = search( "(|(cn=Kate*)(cn=Tori*))" );
         assertEquals( "returned size of results", 2, results.size() );
         assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
         assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+
+        // -------------------------------------------------------------------
+        results = search( "(|(cn=*Amos)(cn=Kate*))" );
+        assertEquals( "returned size of results", 2, results.size() );
+        assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
+        assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+
+        // -------------------------------------------------------------------
+        results = search( "(|(cn=Kate Bush)(cn=Tori*))" );
+        assertEquals( "returned size of results", 2, results.size() );
+        assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
+        assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+
+        // -------------------------------------------------------------------
+        results = search( "(|(cn=*Amos))" );
+        assertEquals( "returned size of results", 1, results.size() );
+        assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
     }
 
 
