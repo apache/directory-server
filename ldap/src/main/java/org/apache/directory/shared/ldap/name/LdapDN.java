@@ -1315,11 +1315,15 @@ public class LdapDN /* extends LdapString */implements Name
     
                     if ( oidNormalizer != null )
                     {
+                        // Alex asks: Why clone here when we do not use the cloned copy?
                         Rdn rdnCopy = ( Rdn ) rdn.clone();
                         rdn.clear();
+                        Object value = rdnCopy.getValue();
+                        value = DefaultStringNormalizer.normalizeString( ( String ) value );
                         
-                        rdn.addAttributeTypeAndValue( oidNormalizer.getAttributeTypeOid(), ( String ) oidNormalizer.getNormalizer()
-                            .normalize( rdnCopy.getValue() ) );
+                        rdn.addAttributeTypeAndValue( oidNormalizer.getAttributeTypeOid(), 
+                            ( String ) oidNormalizer.getNormalizer()
+                            .normalize( value ) );
     
                     }
                     else

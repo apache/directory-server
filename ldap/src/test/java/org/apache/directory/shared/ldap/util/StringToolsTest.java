@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.Assert;
@@ -37,6 +39,26 @@ import junit.framework.TestCase;
  */
 public class StringToolsTest extends TestCase
 {
+    public void testDecodeEscapedHex() throws Exception
+    {
+        assertEquals( "Ferry", StringTools.decodeEscapedHex( "\\46\\65\\72\\72\\79" ) );
+        assertEquals( "Ferry", StringTools.decodeEscapedHex( "Fe\\72\\72\\79" ) );
+        assertEquals( "Ferry", StringTools.decodeEscapedHex( "Fe\\72\\72y" ) );
+        assertEquals( "Ferry", StringTools.decodeEscapedHex( "Fe\\72ry" ) );
+    }
+    
+    public void testDecodeHexString() throws Exception
+    {
+        // weird stuff - corner cases
+        try{assertEquals( "", StringTools.decodeHexString( "" ) ); fail("should not get here");} catch( NamingException e ){};
+        assertEquals( "", StringTools.decodeHexString( "#" ) );
+        assertEquals( "F", StringTools.decodeHexString( "#46" ) );
+        try{assertEquals( "F", StringTools.decodeHexString( "46" ) ); fail("should not get here");} catch( NamingException e ){};
+
+        assertEquals( "Ferry", StringTools.decodeHexString( "#4665727279" ) );
+    }
+    
+    
     public void testTrimConsecutiveToOne()
     {
         String input = null;
