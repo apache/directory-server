@@ -1017,7 +1017,7 @@ public class LdapDN /* extends LdapString */implements Name
      */
     public Name add( Rdn newRdn ) throws InvalidNameException
     {
-        rdns.add( rdns.size() - 1, newRdn );
+        rdns.add( 0, newRdn );
         normalizeInternal();
         toUpName();
 
