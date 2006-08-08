@@ -27,12 +27,16 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.SubentriesControl;
 
 
 /**
@@ -389,5 +393,71 @@ public class SearchTest extends AbstractServerTest
         assertFalse( results.hasMore() );
         assertNotNull( result.getAttributes().get( "objectClasses" ) );
         assertEquals( 1, result.getAttributes().size() );
+    }
+    
+    
+    /**
+     * Creates an access control subentry under ou=system whose subtree covers
+     * the entire naming context.
+     *
+     * @param cn the common name and rdn for the subentry
+     * @param subtree the subtreeSpecification for the subentry
+     * @param aciItem the prescriptive ACI attribute value
+     * @throws NamingException if there is a problem creating the subentry
+     */
+    public void createAccessControlSubentry( String cn, String subtree, String aciItem ) throws NamingException
+    {
+        DirContext adminCtx = ctx;
+
+        // modify ou=system to be an AP for an A/C AA if it is not already
+        Attributes ap = adminCtx.getAttributes( "", new String[] { "administrativeRole" } );
+        Attribute administrativeRole = ap.get( "administrativeRole" );
+        if ( administrativeRole == null || !administrativeRole.contains( SubentryService.AC_AREA ) )
+        {
+            Attributes changes = new BasicAttributes( "administrativeRole", SubentryService.AC_AREA, true );
+            adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
+        }
+
+        // now add the A/C subentry below ou=system
+        Attributes subentry = new BasicAttributes( "cn", cn, true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
+        subentry.put( objectClass );
+        objectClass.add( "top" );
+        objectClass.add( "subentry" );
+        objectClass.add( "accessControlSubentry" );
+        subentry.put( "subtreeSpecification", subtree );
+        subentry.put( "prescriptiveACI", aciItem );
+        adminCtx.createSubcontext( "cn=" + cn, subentry );
+    }
+
+
+    public void testSubentryControl() throws Exception
+    {
+        // create a real access control subentry
+        createAccessControlSubentry( "anyBodyAdd", "{}", 
+            "{ " + "identificationTag \"addAci\", " + "precedence 14, "
+            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
+            + "userPermissions { { " + "protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "grantsAndDenials { grantAdd, grantBrowse } } } } }"
+        );
+        
+        // prepare the subentry control to make the subentry visible
+        SubentriesControl control = new SubentriesControl();
+        control.setVisibility( true );
+        Control[] reqControls = new Control[] { control };
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        
+        ctx.setRequestControls( reqControls );
+        NamingEnumeration enm = ctx.search( "", "(objectClass=*)", searchControls );
+        Set results = new HashSet();
+        while ( enm.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) enm.next();
+            results.add( result.getName() );
+        }
+        
+        assertEquals( "expected results size of", 1, results.size() );
+        assertTrue( results.contains( "cn=anyBodyAdd" ) );
     }
 }
