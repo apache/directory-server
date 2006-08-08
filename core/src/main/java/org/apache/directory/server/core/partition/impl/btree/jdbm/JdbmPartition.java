@@ -1210,10 +1210,17 @@ public class JdbmPartition extends BTreePartition
             dropAliasIndices( id );
         }
 
-        // Automatically replaces old attributes with new modified ones
-        entry.put( mods );
+        // replaces old attributes with new modified ones if they exist
+        if ( mods.size() > 0 )
+        {
+            entry.put( mods );
+        }
+        else  // removes old attributes if new replacements do not exist
+        {
+            entry.remove( mods.getID() );
+        }
 
-        if ( modsOid.equals( aliasAttributeOid ) )
+        if ( modsOid.equals( aliasAttributeOid ) && mods.size() > 0 )
         {
             String ndnStr = ( String ) ndnIdx.reverseLookup( id );
             addAliasIndices( id, new LdapDN( ndnStr ), ( String ) mods.get() );
