@@ -145,6 +145,7 @@ public class AddRequest extends LdapMessage
         // do not create a new attribute if we have seen this attributeType before
         if ( attributes.get( type.toString().toLowerCase() ) != null )
         {
+            currentAttribute = attributes.get( type.toString().toLowerCase() );
             return;
         }
         
@@ -164,6 +165,7 @@ public class AddRequest extends LdapMessage
         // do not create a new attribute if we have seen this attributeType before
         if ( attributes.get( type.toLowerCase() ) != null )
         {
+            currentAttribute = attributes.get( type.toLowerCase() );
             return;
         }
         
