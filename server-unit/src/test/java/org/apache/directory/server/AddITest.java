@@ -225,7 +225,88 @@ public class AddITest extends AbstractServerTest
             { "a British singer-songwriter with an expressive four-octave voice",
                 "one of the most influential female artists of the twentieth century" };
 
+        attrs.add( new LDAPAttribute( "description", descr ) );
+
+        String dn = "cn=Kate Bush," + BASE;
+        LDAPEntry kate = new LDAPEntry( dn, attrs );
+
+        con.add( kate );
+
+        // Analyze entry and description attribute
+        LDAPEntry kateReloaded = con.read( dn );
+        assertNotNull( kateReloaded );
+        LDAPAttribute attr = kateReloaded.getAttribute( "description" );
+        assertNotNull( attr );
+        assertEquals( 2, attr.getStringValueArray().length );
+
+        // Remove entry
+        con.delete( dn );
+        con.disconnect();
+    }
+
+
+    /**
+     * Testcase to demonstrate DIRSERVER-643 ("Netscape SDK: Adding an entry with
+     * two description attributes does not combine values."). Uses Sun ONE Directory
+     * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
+     */
+    public void testAddEntryWithTwoDescriptionsVariant() throws LDAPException
+    {
+        LDAPConnection con = new LDAPConnection();
+        con.connect( 3, HOST, super.port, USER, PASSWORD );
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
+            { "top", "person" } );
+        attrs.add( ocls );
+        attrs.add( new LDAPAttribute( "sn", "Bush" ) );
+        attrs.add( new LDAPAttribute( "cn", "Kate Bush" ) );
+
+        String descr[] =
+            { "a British singer-songwriter with an expressive four-octave voice",
+                "one of the most influential female artists of the twentieth century" };
+
         attrs.add( new LDAPAttribute( "description", descr[0] ) );
+        attrs.add( new LDAPAttribute( "description", descr[1] ) );
+
+        String dn = "cn=Kate Bush," + BASE;
+        LDAPEntry kate = new LDAPEntry( dn, attrs );
+
+        con.add( kate );
+
+        // Analyze entry and description attribute
+        LDAPEntry kateReloaded = con.read( dn );
+        assertNotNull( kateReloaded );
+        LDAPAttribute attr = kateReloaded.getAttribute( "description" );
+        assertNotNull( attr );
+        assertEquals( 2, attr.getStringValueArray().length );
+
+        // Remove entry
+        con.delete( dn );
+        con.disconnect();
+    }
+
+
+    /**
+     * Testcase to demonstrate DIRSERVER-643 ("Netscape SDK: Adding an entry with
+     * two description attributes does not combine values."). Uses Sun ONE Directory
+     * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
+     */
+    public void testAddEntryWithTwoDescriptionsSecondVariant() throws LDAPException
+    {
+        LDAPConnection con = new LDAPConnection();
+        con.connect( 3, HOST, super.port, USER, PASSWORD );
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
+            { "top", "person" } );
+        attrs.add( ocls );
+        attrs.add( new LDAPAttribute( "sn", "Bush" ) );
+
+        String descr[] =
+            { "a British singer-songwriter with an expressive four-octave voice",
+                "one of the most influential female artists of the twentieth century" };
+
+        attrs.add( new LDAPAttribute( "description", descr[0] ) );
+        attrs.add( new LDAPAttribute( "cn", "Kate Bush" ) );
         attrs.add( new LDAPAttribute( "description", descr[1] ) );
 
         String dn = "cn=Kate Bush," + BASE;
