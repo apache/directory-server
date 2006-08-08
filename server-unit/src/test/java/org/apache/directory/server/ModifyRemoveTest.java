@@ -19,6 +19,7 @@ package org.apache.directory.server;
 
 import java.util.Hashtable;
 
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -26,8 +27,11 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SchemaViolationException;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -63,6 +67,25 @@ public class ModifyRemoveTest extends AbstractServerTest
         attributes.put( "sn", sn );
 
         return attributes;
+    }
+
+
+    /**
+     * Creation of required attributes of an inetOrgPerson entry.
+     */
+    protected Attributes getInetOrgPersonAttributes( String sn, String cn )
+    {
+        Attributes attrs = new BasicAttributes();
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        ocls.add( "organizationalPerson" );
+        ocls.add( "inetOrgPerson" );
+        attrs.put( ocls );
+        attrs.put( "cn", cn );
+        attrs.put( "sn", sn );
+
+        return attrs;
     }
 
 
@@ -148,7 +171,6 @@ public class ModifyRemoveTest extends AbstractServerTest
      */
     public void testRemoveTwoNotRequiredAttributes() throws NamingException
     {
-
         // add telephoneNumber to entry
         Attributes tn = new BasicAttributes( "telephoneNumber", "12345678" );
         ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, tn );
@@ -178,7 +200,6 @@ public class ModifyRemoveTest extends AbstractServerTest
      */
     public void testRemoveRequiredAttribute() throws NamingException
     {
-
         // Remove sn attribute
         Attribute attr = new BasicAttribute( "sn" );
         Attributes attrs = new BasicAttributes();
@@ -205,7 +226,6 @@ public class ModifyRemoveTest extends AbstractServerTest
      */
     public void testRemovePartOfRdn() throws NamingException
     {
-
         // Remove sn attribute
         Attribute attr = new BasicAttribute( "cn" );
         Attributes attrs = new BasicAttributes();
@@ -232,7 +252,6 @@ public class ModifyRemoveTest extends AbstractServerTest
      */
     public void testRemovePartOfRdnNotRequired() throws NamingException
     {
-
         // Change RDN to another attribute
         String newRdn = "description=an American singer-songwriter";
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
@@ -269,7 +288,6 @@ public class ModifyRemoveTest extends AbstractServerTest
      */
     public void testRemoveAttributeNotPresent() throws NamingException
     {
-
         // Remove telephoneNumber Attribute
         Attribute attr = new BasicAttribute( "telephoneNumber" );
         Attributes attrs = new BasicAttributes();
@@ -296,7 +314,6 @@ public class ModifyRemoveTest extends AbstractServerTest
      */
     public void testRemoveAttributeNotValid() throws NamingException
     {
-
         // Remove phantasy attribute
         Attribute attr = new BasicAttribute( "XXX" );
         Attributes attrs = new BasicAttributes();
@@ -317,4 +334,45 @@ public class ModifyRemoveTest extends AbstractServerTest
         }
     }
 
+
+    /**
+     * Create a person entry and try to remove an attribute value
+     */
+    public void testReplaceNonExistingAttribute() throws NamingException
+    {
+        // Create an entry
+        Attributes attrs = getInetOrgPersonAttributes( "Bush", "Kate Bush" );
+        attrs.put( "givenname", "Kate" );
+        String rdn = "cn=Kate Bush";
+        ctx.createSubcontext( rdn, attrs );
+
+        // replace attribute givenName with empty value (=> deletion)
+        Attribute attr = new BasicAttribute( "givenname" );
+        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        ctx.modifyAttributes( rdn, new ModificationItem[] { item } );
+
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        String filter = "(cn=Kate Bush)";
+        String base = "";
+        NamingEnumeration enm = ctx.search( base, filter, sctls );
+        if ( enm.hasMore() )
+        {
+            SearchResult sr = ( SearchResult ) enm.next();
+            attrs = sr.getAttributes();
+            Attribute cn = sr.getAttributes().get( "cn" );
+            assertNotNull( cn );
+            assertTrue( cn.contains( "Kate Bush" ) );
+
+            // Check whether attribute has been removed
+            Attribute givenName = sr.getAttributes().get( "givenname" );
+            assertNull( givenName );
+        }
+        else
+        {
+            fail( "entry not found" );
+        }
+
+        ctx.destroySubcontext( rdn );
+    }
 }
