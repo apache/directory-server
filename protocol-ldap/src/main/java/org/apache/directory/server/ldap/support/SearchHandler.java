@@ -26,6 +26,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.directory.SearchControls;
+import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.configuration.StartupConfiguration;
@@ -198,6 +199,8 @@ public class SearchHandler implements LdapMessageHandler
                 {
                     ctx = ( ServerLdapContext ) unknown;
                 }
+                Control[] controls = ( Control[] ) req.getControls().values().toArray( new Control[0] );
+                ctx.setRequestControls( controls );
             }
             ctx.addToEnvironment( DEREFALIASES_KEY, req.getDerefAliases().getName() );
             if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
