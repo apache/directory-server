@@ -374,4 +374,20 @@ public class SearchTest extends AbstractServerTest
         results = search( "(&(sn=Bush)(numberOfOctaves=4))" );
         assertEquals( "returned size of results", 0, results.size() );
     }
+    
+    
+    public void testSearchSchema() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setReturningAttributes( new String[] { "objectClasses" } );
+        
+        NamingEnumeration results = ctx.search( "cn=schema", "objectClass=subschema", controls );
+        assertTrue( results.hasMore() );
+        SearchResult result = ( SearchResult ) results.next();
+        assertNotNull( result );
+        assertFalse( results.hasMore() );
+        assertNotNull( result.getAttributes().get( "objectClasses" ) );
+        assertEquals( 1, result.getAttributes().size() );
+    }
 }

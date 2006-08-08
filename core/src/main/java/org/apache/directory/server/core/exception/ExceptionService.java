@@ -50,7 +50,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class ExceptionService extends BaseInterceptor
 {
     private PartitionNexus nexus;
-
+    private LdapDN subschemSubentryDn;
+    
     /**
      * The OIDs normalizer map
      */
@@ -68,6 +69,9 @@ public class ExceptionService extends BaseInterceptor
     {
         nexus = factoryCfg.getPartitionNexus();
         normalizerMap = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        Attribute attr = nexus.getRootDSE().get( "subschemaSubentry" );
+        subschemSubentryDn = new LdapDN( ( String ) attr.get() );
+        subschemSubentryDn.normalize( normalizerMap );
     }
 
 
@@ -372,8 +376,7 @@ public class ExceptionService extends BaseInterceptor
             return nextInterceptor.search( base, env, filter, searchCtls );
         }
 
-        Attribute attr = nextInterceptor.getRootDSE().get( "subschemaSubentry" );
-        if ( ( ( String ) attr.get() ).equalsIgnoreCase( base.toString() ) )
+        if ( ( subschemSubentryDn.toNormName() ).equalsIgnoreCase( base.toNormName() ) )
         {
             return nextInterceptor.search( base, env, filter, searchCtls );
         }

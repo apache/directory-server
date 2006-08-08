@@ -111,7 +111,7 @@ public class SchemaService extends BaseInterceptor
     /**
      * subschemaSubentry attribute's value from Root DSE
      */
-    private String subschemaSubentryDn;
+    private LdapDN subschemaSubentryDn;
 
     /**
      * The time when the server started up.
@@ -147,7 +147,8 @@ public class SchemaService extends BaseInterceptor
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
-        subschemaSubentryDn = new LdapDN( subschemaSubentry ).toString().toLowerCase();
+        subschemaSubentryDn = new LdapDN( subschemaSubentry );
+        subschemaSubentryDn.normalize( globalRegistries.getAttributeTypeRegistry().getNormalizerMapping() );
     }
 
 
@@ -187,7 +188,7 @@ public class SchemaService extends BaseInterceptor
         SearchControls searchCtls ) throws NamingException
     {
         // check to make sure the DN searched for is a subentry
-        if ( !subschemaSubentryDn.equals( base.toString() ) )
+        if ( !subschemaSubentryDn.toNormName().equals( base.toNormName() ) )
         {
             NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
             if ( searchCtls.getReturningAttributes() != null )
@@ -203,7 +204,8 @@ public class SchemaService extends BaseInterceptor
         {
             SimpleNode node = ( SimpleNode ) filter;
 
-            if ( node.getAttribute().equalsIgnoreCase( "objectClass" )
+            // see if node attribute is objectClass
+            if ( node.getAttribute().equalsIgnoreCase( "2.5.4.0" )
                 && node.getValue().equalsIgnoreCase( "subschema" ) && node.getAssertionType() == SimpleNode.EQUALITY )
             {
                 // call.setBypass( true );
@@ -216,7 +218,8 @@ public class SchemaService extends BaseInterceptor
         {
             PresenceNode node = ( PresenceNode ) filter;
 
-            if ( node.getAttribute().equalsIgnoreCase( "objectClass" ) )
+            // see if node attribute is objectClass
+            if ( node.getAttribute().equalsIgnoreCase( "2.5.4.0" ) )
             {
                 // call.setBypass( true );
                 Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
