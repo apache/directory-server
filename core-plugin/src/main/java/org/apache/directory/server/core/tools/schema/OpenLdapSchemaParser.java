@@ -21,7 +21,7 @@ import org.apache.directory.server.core.tools.schema.antlrOpenLdapSchemaLexer;
 import org.apache.directory.server.core.tools.schema.antlrOpenLdapSchemaParser;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
-import java.util.Map;
+import java.util.List;
 import java.text.ParseException;
 import java.io.*;
 
@@ -77,13 +77,13 @@ public class OpenLdapSchemaParser
     }
 
 
-    public Map getAttributeTypes()
+    public List getAttributeTypes()
     {
         return parser.getAttributeTypes();
     }
 
 
-    public Map getObjectClassTypes()
+    public List getObjectClassTypes()
     {
         return parser.getObjectClasses();
     }

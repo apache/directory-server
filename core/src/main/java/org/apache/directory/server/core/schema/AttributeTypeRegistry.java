@@ -88,4 +88,17 @@ public interface AttributeTypeRegistry
      * names.
      */
     Map getNormalizerMapping() throws NamingException; 
+    
+    
+    /**
+     * Get's an iterator over the set of descendant attributeTypes for
+     * some ancestor's name alias or their OID.
+     * 
+     * @param ancestorId the name alias or OID for an attributeType
+     * @return an Iterator over the AttributeTypes which have the ancestor
+     * within their superior chain to the top
+     * @throws NamingException if the ancestor attributeType cannot be 
+     * discerned from the ancestorId supplied
+     */
+    Iterator descendants( String ancestorId ) throws NamingException;
 }

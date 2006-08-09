@@ -451,4 +451,10 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
     {
         return null;
     }
+
+
+    public Iterator descendants( String ancestorId ) throws NamingException
+    {
+        return null;
+    }
 }

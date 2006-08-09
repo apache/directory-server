@@ -19,8 +19,10 @@ package org.apache.directory.server.core.schema.bootstrap;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.NamingException;
 
@@ -50,6 +52,8 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
     private final Map byOid;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
+    /** maps OIDs to a Set of descendants for that OID */
+    private final Map oidToDescendantSet;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
     /** cached normalizer mapping */
@@ -63,10 +67,11 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
     /**
      * Creates an empty BootstrapAttributeTypeRegistry.
      */
-    public BootstrapAttributeTypeRegistry(OidRegistry oidRegistry)
+    public BootstrapAttributeTypeRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
+        this.oidToDescendantSet= new HashMap();
         this.oidRegistry = oidRegistry;
     }
 
@@ -91,6 +96,7 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
             oidRegistry.register( names[ii], attributeType.getOid() );
         }
 
+        registerDescendants( attributeType );
         oidToSchema.put( attributeType.getOid(), schema );
         byOid.put( attributeType.getOid(), attributeType );
         if ( log.isDebugEnabled() )
@@ -99,6 +105,43 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
         }
     }
 
+    
+    public void registerDescendants( AttributeType attributeType ) throws NamingException
+    {
+        // add/create the descendent set for this attribute
+        oidToDescendantSet.put( attributeType.getOid(), new HashSet( 5 ) );
+        
+        // add this attribute to descendant list of other attributes in superior chain
+        onRegisterAddToAncestorDescendants( attributeType, attributeType.getSuperior() );
+    }
+    
+    
+    /**
+     * Recursively adds a new attributeType to the descendant's list of all ancestors
+     * until top is reached.  Top will not have the new type added.
+     * 
+     * @param newType the new attributeType being added
+     * @param ancestor some anscestor from superior up to and including top
+     * @throws NamingException
+     */
+    protected void onRegisterAddToAncestorDescendants( AttributeType newType, AttributeType ancestor ) 
+        throws NamingException
+    {
+        if ( ancestor == null || ancestor.getName().equals( "top" ) )
+        {
+            return;
+        }
+        
+        Set descendants = ( Set ) oidToDescendantSet.get( ancestor.getOid() );
+        if ( descendants == null )
+        {
+            descendants = new HashSet( 5 );
+            oidToDescendantSet.put( ancestor.getOid(), descendants );
+        }
+        descendants.add( newType );
+        onRegisterAddToAncestorDescendants( newType, ancestor.getSuperior() );
+    }
+    
 
     public AttributeType lookup( String id ) throws NamingException
     {
@@ -187,5 +230,17 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
         }
         
         return Collections.unmodifiableMap( mapping );
+    }
+
+
+    public Iterator descendants( String ancestorId ) throws NamingException
+    {
+        String oid = oidRegistry.getOid( ancestorId );
+        Set descendants = ( Set ) oidToDescendantSet.get( oid );
+        if ( descendants == null )
+        {
+            return Collections.EMPTY_SET.iterator();
+        }
+        return descendants.iterator();
     }
 }

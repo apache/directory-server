@@ -122,6 +122,8 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
             mapping.put( aliases[jj], oidNormalizer );
             mapping.put( aliases[jj].toLowerCase(), oidNormalizer );
         }
+
+        bootstrap.registerDescendants( attributeType );
     }
 
 
@@ -210,5 +212,11 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
             }
         }
         return Collections.unmodifiableMap( mapping );
+    }
+
+
+    public Iterator descendants( String ancestorId ) throws NamingException
+    {
+        return bootstrap.descendants( ancestorId );
     }
 }

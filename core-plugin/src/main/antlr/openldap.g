@@ -114,8 +114,8 @@ options    {
 {
     public static final String[] EMPTY = new String[0];
 
-    private Map attributeTypes = new HashMap();
-    private Map objectClasses = new HashMap();
+    private List attributeTypes = new ArrayList();
+    private List objectClasses = new ArrayList();
     private ParserMonitor monitor = null;
 
 
@@ -131,15 +131,15 @@ options    {
     }
 
 
-    public Map getAttributeTypes()
+    public List getAttributeTypes()
     {
-        return Collections.unmodifiableMap( attributeTypes );
+        return Collections.unmodifiableList( attributeTypes );
     }
 
 
-    public Map getObjectClasses()
+    public List getObjectClasses()
     {
-        return Collections.unmodifiableMap( objectClasses );
+        return Collections.unmodifiableList( objectClasses );
     }
 
 
@@ -206,7 +206,7 @@ objectClass
     ( may[objectClass] )?
     CLOSE_PAREN
     {
-        objectClasses.put( objectClass.getOid(), objectClass );
+        objectClasses.add( objectClass );
     }
     ;
 
@@ -378,7 +378,7 @@ attributeType
 
     CLOSE_PAREN
     {
-        attributeTypes.put( type.getOid(), type );
+        attributeTypes.add( type );
     }
     ;
 
