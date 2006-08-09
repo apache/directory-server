@@ -38,6 +38,7 @@ import org.apache.directory.server.core.schema.NameFormRegistry;
 import org.apache.directory.server.core.schema.NormalizerRegistry;
 import org.apache.directory.server.core.schema.ObjectClassRegistry;
 import org.apache.directory.server.core.schema.ObjectFactoryRegistry;
+import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.schema.StateFactoryRegistry;
 import org.apache.directory.server.core.schema.SyntaxCheckerRegistry;
 import org.apache.directory.server.core.schema.SyntaxRegistry;
@@ -52,6 +53,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.slf4j.Logger;
@@ -230,6 +232,18 @@ public class BootstrapSchemaLoader
         BootstrapSchema schema = ( BootstrapSchema ) this.schemas.get();
         BootstrapRegistries registries = ( BootstrapRegistries ) this.registries.get();
 
+//        if ( schemaObject instanceof SchemaObject )
+//        {
+//            SchemaObject obj = ( SchemaObject ) schemaObject;
+//            OidRegistry oidRegistry = registries.getOidRegistry();
+//            String[] names = obj.getNames();
+//            for ( int ii = 0; ii < names.length; ii++ )
+//            {
+//                oidRegistry.register( names[ii], obj.getOid() );
+//            }
+//            oidRegistry.register( obj.getOid(), obj.getOid() );
+//        }
+        
         switch ( type.getValue() )
         {
             case ( ProducerTypeEnum.NORMALIZER_PRODUCER_VAL  ):

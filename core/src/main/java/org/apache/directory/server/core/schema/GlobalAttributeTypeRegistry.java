@@ -64,7 +64,7 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
      *
      * @param bootstrap the bootstrapping registry to delegate to
      */
-    public GlobalAttributeTypeRegistry(BootstrapAttributeTypeRegistry bootstrap, OidRegistry oidRegistry)
+    public GlobalAttributeTypeRegistry( BootstrapAttributeTypeRegistry bootstrap, OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
@@ -136,6 +136,8 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
             mapping.put( aliases[jj], oidNormalizer );
             mapping.put( aliases[jj].toLowerCase(), oidNormalizer );
         }
+        
+        bootstrap.registerDescendants( attributeType );
     }
 
 
@@ -226,5 +228,11 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
             }
         }
         return Collections.unmodifiableMap( mapping );
+    }
+
+
+    public Iterator descendants( String ancestorId ) throws NamingException
+    {
+        return bootstrap.descendants( ancestorId );
     }
 }

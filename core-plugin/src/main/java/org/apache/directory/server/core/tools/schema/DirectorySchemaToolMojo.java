@@ -221,7 +221,7 @@ public class DirectorySchemaToolMojo extends AbstractMojo
 
         int size = parser.getAttributeTypes().size();
         AttributeTypeLiteral[] attributeTypes = new AttributeTypeLiteral[size];
-        attributeTypes = ( AttributeTypeLiteral[] ) parser.getAttributeTypes().values().toArray( attributeTypes );
+        attributeTypes = ( AttributeTypeLiteral[] ) parser.getAttributeTypes().toArray( attributeTypes );
 
         VelocityContext context = new VelocityContext();
         context.put( "package", schema.getPackageName() );
@@ -249,7 +249,7 @@ public class DirectorySchemaToolMojo extends AbstractMojo
 
         int size = parser.getObjectClassTypes().size();
         ObjectClassLiteral[] objectClasses = new ObjectClassLiteral[size];
-        objectClasses = ( ObjectClassLiteral[] ) parser.getObjectClassTypes().values().toArray( objectClasses );
+        objectClasses = ( ObjectClassLiteral[] ) parser.getObjectClassTypes().toArray( objectClasses );
 
         VelocityContext context = new VelocityContext();
         context.put( "package", schema.getPackageName() );
