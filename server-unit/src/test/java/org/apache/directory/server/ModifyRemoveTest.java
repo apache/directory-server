@@ -375,4 +375,95 @@ public class ModifyRemoveTest extends AbstractServerTest
 
         ctx.destroySubcontext( rdn );
     }
+
+
+    /**
+     * Create a person entry and try to remove an attribute value from the RDN
+     * by Replacement
+     */
+    public void testReplaceRdnByEmptyValueAttribute() throws NamingException
+    {
+
+        // Create an entry
+        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
+        String rdn = "cn=Kate Bush";
+        ctx.createSubcontext( rdn, attrs );
+
+        // replace attribute cn with empty value (=> deletion)
+        Attribute attr = new BasicAttribute( "cn" );
+        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+
+        try
+        {
+            ctx.modifyAttributes( rdn, new ModificationItem[]
+                { item } );
+            fail( "modify should fail" );
+        }
+        catch ( SchemaViolationException e )
+        {
+            // Expected behaviour
+        }
+
+        ctx.destroySubcontext( rdn );
+    }
+
+
+    /**
+     * Create a person entry and try to remove an attribute from the RDN
+     */
+    public void testRemoveRdnAttribute() throws NamingException
+    {
+
+        // Create an entry
+        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
+        String rdn = "cn=Kate Bush";
+        ctx.createSubcontext( rdn, attrs );
+
+        // replace attribute cn with empty value (=> deletion)
+        Attribute attr = new BasicAttribute( "cn" );
+        ModificationItem item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
+
+        try
+        {
+            ctx.modifyAttributes( rdn, new ModificationItem[]
+                { item } );
+            fail( "modify should fail" );
+        }
+        catch ( SchemaViolationException e )
+        {
+            // Expected behaviour
+        }
+
+        ctx.destroySubcontext( rdn );
+    }
+
+
+    /**
+     * Create a person entry and try to remove an attribute from the RDN
+     */
+    public void testRemoveRdnAttributeValue() throws NamingException
+    {
+
+        // Create an entry
+        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
+        String rdn = "cn=Kate Bush";
+        ctx.createSubcontext( rdn, attrs );
+
+        // replace attribute cn with empty value (=> deletion)
+        Attribute attr = new BasicAttribute( "cn", "Kate Bush" );
+        ModificationItem item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
+
+        try
+        {
+            ctx.modifyAttributes( rdn, new ModificationItem[]
+                { item } );
+            fail( "modify should fail" );
+        }
+        catch ( SchemaViolationException e )
+        {
+            // Expected behaviour
+        }
+
+        ctx.destroySubcontext( rdn );
+    }
 }

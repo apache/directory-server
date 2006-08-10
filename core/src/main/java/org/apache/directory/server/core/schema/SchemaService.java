@@ -873,7 +873,8 @@ public class SchemaService extends BaseInterceptor
                     break;
                         
                 case DirContext.REPLACE_ATTRIBUTE :
-                    SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, change );
+                    SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, change, 
+                        globalRegistries.getOidRegistry() );
                     SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, change );
                     
                     attr = tmpEntry.get( change.getID() );

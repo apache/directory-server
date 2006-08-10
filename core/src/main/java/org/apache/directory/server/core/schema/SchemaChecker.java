@@ -328,7 +328,7 @@ public class SchemaChecker
      * @param attribute the attribute being modified
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyReplace( Name name, int mod, Attribute attribute )
+    public static void preventRdnChangeOnModifyReplace( Name name, int mod, Attribute attribute, OidRegistry oidRegistry )
         throws NamingException
     {
         if ( mod != DirContext.REPLACE_ATTRIBUTE )
@@ -337,7 +337,7 @@ public class SchemaChecker
         }
 
         Set rdnAttributes = getRdnAttributes( name );
-        String id = attribute.getID();
+        String id = oidRegistry.getOid( ( String ) attribute.getID() );
 
         if ( !rdnAttributes.contains( id ) )
         {
