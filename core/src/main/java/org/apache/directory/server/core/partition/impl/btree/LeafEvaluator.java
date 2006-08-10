@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -164,8 +165,9 @@ public class LeafEvaluator implements Evaluator
             record.setAttributes( db.lookup( id ) );
         }
 
-        // get the attribute associated with the node 
-        Attribute attr = record.getAttributes().get( attrId );
+        // get the attribute associated with the node
+        Attribute attr = AttributeUtils.getAttribute( record.getAttributes(), 
+            attributeTypeRegistry.lookup( node.getAttribute() ) );
 
         // If we do not have the attribute just return false
         if ( null == attr )
