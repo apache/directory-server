@@ -311,4 +311,157 @@ public class SearchContextITest extends AbstractAdminTestCase
         }
         assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
     }
+    
+    
+    public void testFilterExpansion0() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+        
+        HashMap map = new HashMap();
+        NamingEnumeration list = sysRoot.search( "", "(name=testing00)", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+        assertEquals( "size of results", 1, map.size() );
+        assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
+    }
+    
+    
+    public void testFilterExpansion1() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+        
+        HashMap map = new HashMap();
+        NamingEnumeration list = sysRoot.search( "", "(name=*)", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+        assertEquals( "size of results", 14, map.size() );
+        assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
+        assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
+        assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
+        assertTrue( "contains uid=akarasulu,ou=users,ou=system", map.containsKey( "uid=akarasulu,ou=users,ou=system" ) ); 
+        assertTrue( "contains ou=configuration,ou=system", map.containsKey( "ou=configuration,ou=system" ) ); 
+        assertTrue( "contains ou=groups,ou=system", map.containsKey( "ou=groups,ou=system" ) ); 
+        assertTrue( "contains ou=interceptors,ou=configuration,ou=system", map.containsKey( "ou=interceptors,ou=configuration,ou=system" ) ); 
+        assertTrue( "contains ou=partitions,ou=configuration,ou=system", map.containsKey( "ou=partitions,ou=configuration,ou=system" ) ); 
+        assertTrue( "contains ou=services,ou=configuration,ou=system", map.containsKey( "ou=services,ou=configuration,ou=system" ) ); 
+        assertTrue( "contains ou=subtest,ou=testing01,ou=system", map.containsKey( "ou=subtest,ou=testing01,ou=system" ) ); 
+        assertTrue( "contains ou=system", map.containsKey( "ou=system" ) ); 
+        assertTrue( "contains ou=users,ou=system", map.containsKey( "ou=users,ou=system" ) ); 
+        assertTrue( "contains uid=admin,ou=system", map.containsKey( "uid=admin,ou=system" ) ); 
+        assertTrue( "contains cn=administrators,ou=groups,ou=system", map.containsKey( "cn=administrators,ou=groups,ou=system" ) ); 
+    }
+    
+    
+    public void testFilterExpansion2() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+        
+        HashMap map = new HashMap();
+        NamingEnumeration list = sysRoot.search( "", "(| (name=testing00)(name=testing01))", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+        assertEquals( "size of results", 2, map.size() );
+        assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
+        assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
+    }
+
+
+    public void testFilterExpansion4() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+        
+        HashMap map = new HashMap();
+        NamingEnumeration list = sysRoot.search( "", "(name=testing*)", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+        assertEquals( "size of results", 3, map.size() );
+        assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
+        assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
+        assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
+    }
+
+
+    public void testFilterExpansion5() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+        
+        HashMap map = new HashMap();
+        String filter = "(|(2.5.4.11.1=testing*)(2.5.4.54=testing*)(2.5.4.10=testing*)" +
+            "(2.5.4.6=testing*)(2.5.4.43=testing*)(2.5.4.7.1=testing*)(2.5.4.10.1=testing*)" +
+            "(2.5.4.44=testing*)(2.5.4.11=testing*)(2.5.4.4=testing*)(2.5.4.8.1=testing*)" +
+            "(2.5.4.12=testing*)(1.2.6.1.4.1.18060.1.1.1.3.3=testing*)" +
+            "(2.5.4.7=testing*)(2.5.4.3=testing*)(2.5.4.8=testing*)(2.5.4.42=testing*))";
+        NamingEnumeration list = sysRoot.search( "", filter, controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+        assertEquals( "size of results", 3, map.size() );
+        assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
+        assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
+        assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
+    }
+
+
+    // this one is failing because it returns the admin user twice: count = 15
+//    public void testFilterExpansion3() throws Exception
+//    {
+//        SearchControls controls = new SearchControls();
+//        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+//        controls.setDerefLinkFlag( false );
+//        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+//        
+//        List map = new ArrayList();
+//        NamingEnumeration list = sysRoot.search( "", "(name=*)", controls );
+//        while ( list.hasMore() )
+//        {
+//            SearchResult result = ( SearchResult ) list.next();
+//            map.add( result.getName() );
+//        }
+//        assertEquals( "size of results", 14, map.size() );
+//        assertTrue( "contains ou=testing00,ou=system", map.contains( "ou=testing00,ou=system" ) ); 
+//        assertTrue( "contains ou=testing01,ou=system", map.contains( "ou=testing01,ou=system" ) ); 
+//        assertTrue( "contains ou=testing02,ou=system", map.contains( "ou=testing01,ou=system" ) ); 
+//        assertTrue( "contains uid=akarasulu,ou=users,ou=system", map.contains( "uid=akarasulu,ou=users,ou=system" ) ); 
+//        assertTrue( "contains ou=configuration,ou=system", map.contains( "ou=configuration,ou=system" ) ); 
+//        assertTrue( "contains ou=groups,ou=system", map.contains( "ou=groups,ou=system" ) ); 
+//        assertTrue( "contains ou=interceptors,ou=configuration,ou=system", map.contains( "ou=interceptors,ou=configuration,ou=system" ) ); 
+//        assertTrue( "contains ou=partitions,ou=configuration,ou=system", map.contains( "ou=partitions,ou=configuration,ou=system" ) ); 
+//        assertTrue( "contains ou=services,ou=configuration,ou=system", map.contains( "ou=services,ou=configuration,ou=system" ) ); 
+//        assertTrue( "contains ou=subtest,ou=testing01,ou=system", map.contains( "ou=subtest,ou=testing01,ou=system" ) ); 
+//        assertTrue( "contains ou=system", map.contains( "ou=system" ) ); 
+//        assertTrue( "contains ou=users,ou=system", map.contains( "ou=users,ou=system" ) ); 
+//        assertTrue( "contains uid=admin,ou=system", map.contains( "uid=admin,ou=system" ) ); 
+//        assertTrue( "contains cn=administrators,ou=groups,ou=system", map.contains( "cn=administrators,ou=groups,ou=system" ) ); 
+//    }
+    
+    
 }

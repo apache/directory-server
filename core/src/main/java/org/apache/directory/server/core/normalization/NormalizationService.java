@@ -17,6 +17,7 @@
 package org.apache.directory.server.core.normalization;
 
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -38,9 +39,14 @@ import org.apache.directory.server.core.schema.OidRegistry;
 
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.ExtensibleNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
 import org.slf4j.LoggerFactory;
@@ -61,7 +67,9 @@ public class NormalizationService extends BaseInterceptor
     private static final Logger log = LoggerFactory.getLogger( NormalizationService.class );
 
     /** a filter node value normalizer and undefined node remover */
-    private NormalizingVisitor visitor;
+    private NormalizingVisitor normVisitor;
+    /** an expanding filter that makes expressions more specific */
+    private ExpandingVisitor expVisitor;
     /** the attributeType registry used for normalization and determining if some filter nodes are undefined */
     private AttributeTypeRegistry attributeRegistry;
 
@@ -71,7 +79,8 @@ public class NormalizationService extends BaseInterceptor
         OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
         attributeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
-        visitor = new NormalizingVisitor( ncn, oidRegistry );
+        normVisitor = new NormalizingVisitor( ncn, oidRegistry );
+        expVisitor = new ExpandingVisitor( attributeRegistry );
     }
 
 
@@ -177,7 +186,7 @@ public class NormalizationService extends BaseInterceptor
                     }
                 }
 
-                filter.accept( visitor );
+                filter.accept( normVisitor );
                 isFailure = false;
             }
             catch( UndefinedFilterAttributeException e )
@@ -230,6 +239,72 @@ public class NormalizationService extends BaseInterceptor
                 filter = child.getChild();
             }
         }
+        
+        // --------------------------------------------------------------------
+        // The filter below this point is now expanded to include specific
+        // attributes when a general one is supplied.
+        // --------------------------------------------------------------------
+
+        if ( !filter.isLeaf() )
+        {
+            expVisitor.visit( filter );
+        }
+        else
+        {
+            LeafNode leaf = ( LeafNode ) filter;
+            if ( attributeRegistry.hasDescendants( leaf.getAttribute() ) )
+            {
+                // create new OR node and add the filter leaf to it 
+                // and set filter to this new branch node
+                BranchNode bnode = new BranchNode( BranchNode.OR );
+                bnode.getChildren().add( filter );
+                filter = bnode;
+                
+                // add descendant nodes to this new branch node
+                Iterator descendants = attributeRegistry.descendants( leaf.getAttribute() );
+                
+                while ( descendants.hasNext() )
+                {
+                    LeafNode newLeaf = null;
+                    AttributeType descendant = ( AttributeType ) descendants.next();
+                    
+                    switch( leaf.getAssertionType() )
+                    {
+                        case( LeafNode.EXTENSIBLE ):
+                            ExtensibleNode extensibleNode = ( ExtensibleNode ) leaf;
+                            newLeaf = new ExtensibleNode( descendant.getOid(), 
+                                extensibleNode.getValue(), 
+                                extensibleNode.getMatchingRuleId(), 
+                                extensibleNode.dnAttributes() );
+                            break;
+                        case( LeafNode.PRESENCE ):
+                            newLeaf = new PresenceNode( descendant.getOid() );
+                            break;
+                        case( LeafNode.SUBSTRING ):
+                            SubstringNode substringNode = ( SubstringNode ) leaf;
+                            newLeaf = new SubstringNode( descendant.getOid(), 
+                                substringNode.getInitial(), 
+                                substringNode.getFinal() );
+                            break;
+                        case( LeafNode.APPROXIMATE ):
+                        case( LeafNode.EQUALITY ):
+                        case( LeafNode.GREATEREQ ):
+                        case( LeafNode.LESSEQ ):
+                            SimpleNode simpleNode = ( SimpleNode ) leaf;
+                            newLeaf = new SimpleNode( descendant.getOid(), 
+                                simpleNode.getValue(), 
+                                simpleNode.getAssertionType() );
+                            break;
+                        default:
+                            throw new IllegalStateException( "Unknown assertion type: " 
+                                + leaf.getAssertionType() );
+                    }
+                    
+                    bnode.getChildren().add( newLeaf );
+                }
+            }
+        }
+        
         return nextInterceptor.search( base, env, filter, searchCtls );
     }
 

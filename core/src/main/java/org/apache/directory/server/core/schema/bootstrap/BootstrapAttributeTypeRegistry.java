@@ -243,4 +243,16 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
         }
         return descendants.iterator();
     }
+
+
+    public boolean hasDescendants( String ancestorId ) throws NamingException
+    {
+        String oid = oidRegistry.getOid( ancestorId );
+        Set descendants = ( Set ) oidToDescendantSet.get( oid );
+        if ( descendants == null )
+        {
+            return false;
+        }
+        return !descendants.isEmpty();
+    }
 }

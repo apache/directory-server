@@ -219,4 +219,10 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
     {
         return bootstrap.descendants( ancestorId );
     }
+
+
+    public boolean hasDescendants( String ancestorId ) throws NamingException
+    {
+        return bootstrap.hasDescendants( ancestorId );
+    }
 }

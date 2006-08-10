@@ -457,4 +457,10 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
     {
         return null;
     }
+
+
+    public boolean hasDescendants( String ancestorId ) throws NamingException
+    {
+        return false;
+    }
 }

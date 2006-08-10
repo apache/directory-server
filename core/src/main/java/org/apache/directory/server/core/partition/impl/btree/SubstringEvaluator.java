@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -138,7 +139,7 @@ public class SubstringEvaluator implements Evaluator
         }
 
         // get the attribute
-        Attribute attr = record.getAttributes().get( snode.getAttribute() );
+        Attribute attr = AttributeUtils.getAttribute( record.getAttributes(), type );
 
         // if the attribute does not exist just return false
         if ( null == attr )
