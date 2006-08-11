@@ -188,15 +188,15 @@ public class SchemaService extends BaseInterceptor
         SearchControls searchCtls ) throws NamingException
     {
         // check to make sure the DN searched for is a subentry
+        Invocation invocation = InvocationStack.getInstance().peek();
         if ( !subschemaSubentryDn.toNormName().equals( base.toNormName() ) )
         {
             NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
             if ( searchCtls.getReturningAttributes() != null )
             {
-                return e;
+                return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, topFilter );
             }
 
-            Invocation invocation = InvocationStack.getInstance().peek();
             return new SearchResultFilteringEnumeration( e, searchCtls, invocation, filters );
         }
 
@@ -231,10 +231,9 @@ public class SchemaService extends BaseInterceptor
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
         if ( searchCtls.getReturningAttributes() != null )
         {
-            return e;
+            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, topFilter );
         }
 
-        Invocation invocation = InvocationStack.getInstance().peek();
         return new SearchResultFilteringEnumeration( e, searchCtls, invocation, filters );
     }
 
