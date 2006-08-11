@@ -429,6 +429,91 @@ public class SearchTest extends AbstractServerTest
         subentry.put( "prescriptiveACI", aciItem );
         adminCtx.createSubcontext( "cn=" + cn, subentry );
     }
+    
+
+    /**
+     * Test case to demonstrate DIRSERVER-705 ("object class top missing in search
+     * result, if scope is base and attribute objectClass is requested explicitly").
+     */
+    public void testAddWithObjectclasses() throws NamingException
+    {
+
+        // Create entry
+        Attributes heather = new BasicAttributes();
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        heather.put( ocls );
+        heather.put( "cn", "Heather Nova" );
+        heather.put( "sn", "Nova" );
+        String rdn = "cn=Heather Nova";
+        ctx.createSubcontext( rdn, heather );
+
+        SearchControls ctls = new SearchControls();
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "objectclass" } );
+        String filter = "(objectclass=*)";
+
+        NamingEnumeration result = ctx.search( rdn, filter, ctls );
+        if ( result.hasMore() )
+        {
+            SearchResult entry = ( SearchResult ) result.next();
+            Attributes heatherReloaded = entry.getAttributes();
+            Attribute loadedOcls = heatherReloaded.get( "objectClass" );
+            assertNotNull( loadedOcls );
+            assertTrue( loadedOcls.contains( "person" ) );
+            assertTrue( loadedOcls.contains( "top" ) );
+        }
+        else
+        {
+            fail( "entry " + rdn + " not found" );
+        }
+
+        ctx.destroySubcontext( rdn );
+    }
+
+
+    /**
+     * Test case to demonstrate DIRSERVER-705 ("object class top missing in search
+     * result, if scope is base and attribute objectClass is requested explicitly").
+     */
+    public void testAddWithMissingObjectclasses() throws NamingException
+    {
+
+        // Create entry
+        Attributes kate = new BasicAttributes();
+        kate.put( "objectClass", "organizationalperson" );
+        kate.put( "cn", "Kate Bush" );
+        kate.put( "sn", "Bush" );
+        String rdn = "cn=Kate Bush";
+        ctx.createSubcontext( rdn, kate );
+
+        SearchControls ctls = new SearchControls();
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "objectclass" } );
+        String filter = "(objectclass=*)";
+
+        NamingEnumeration result = ctx.search( rdn, filter, ctls );
+        if ( result.hasMore() )
+        {
+            SearchResult entry = ( SearchResult ) result.next();
+            Attributes kateReloaded = entry.getAttributes();
+            Attribute loadedOcls = kateReloaded.get( "objectClass" );
+            assertNotNull( loadedOcls );
+            assertTrue( loadedOcls.contains( "top" ) );
+            assertTrue( loadedOcls.contains( "person" ) );
+            assertTrue( loadedOcls.contains( "organizationalperson" ) );
+
+        }
+        else
+        {
+            fail( "entry " + rdn + " not found" );
+        }
+
+        ctx.destroySubcontext( rdn );
+    }
 
 
     public void testSubentryControl() throws Exception
