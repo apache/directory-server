@@ -656,7 +656,6 @@ public class RdnParser
         if ( rdn != null )
         {
             rdn.addAttributeTypeAndValue( type, value );
-            rdn.setUpName( dn.substring( start, pos.end )  );
             rdn.normalizeString();
             
             pos.start = pos.end;
@@ -665,6 +664,7 @@ public class RdnParser
 
         parseNameComponents( dn, pos, rdn );
         
+        rdn.setUpName( dn.substring( start, pos.end )  );
         pos.start = pos.end;
         return DNUtils.PARSING_OK;
     }

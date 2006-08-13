@@ -173,6 +173,20 @@ public class LdapDNTest extends TestCase
         Assert.assertEquals( "a=b+c=d, e=f + g=h + i=j", dn.getUpName() );
     }
 
+    
+    /**
+    * Test to see if a DN with multiRdn values is preserved after an addAll.
+    */
+    public void testAddAllWithMultivaluedAttribute() throws InvalidNameException
+    {
+    	LdapDN dn = new LdapDN( "cn=Kate Bush+sn=Bush,ou=system" );
+        LdapDN target = new LdapDN();
+        target.addAll( target.size(), dn );
+        assertEquals( "cn=Kate Bush+sn=Bush,ou=system", target.toString() );
+        System.out.println( target.getUpName() );
+        assertEquals( "cn=Kate Bush+sn=Bush,ou=system", target.getUpName() );
+    }
+        
 
     /**
      * test a simple DN with an oid prefix (uppercase) : OID.12.34.56 = azerty

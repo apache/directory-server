@@ -491,4 +491,10 @@ public class RdnTest extends TestCase
         Assert.assertEquals( "\\\\\\00-\\+\\#\\7F-", res );
     }
 
+ 
+    public void testDIRSERVER_703() throws InvalidNameException 
+    {
+    	Rdn rdn = new Rdn( "cn=Kate Bush+sn=Bush" );
+    	assertEquals( "cn=Kate Bush+sn=Bush", rdn.getUpName() );
+	}
 }
