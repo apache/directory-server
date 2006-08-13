@@ -20,7 +20,7 @@
     <pluginRepository>
       <id>apache.snapshots</id>
       <name>Apache Snapshot Plugins</name>
-      <url>http://cvs.apache.org/maven-snapshot-repository</url>
+      <url>http://people.apache.org/maven-snapshot-repository</url>
     </pluginRepository>
   </pluginRepositories>
 
