@@ -545,4 +545,66 @@ public class SearchTest extends AbstractServerTest
         assertEquals( "expected results size of", 1, results.size() );
         assertTrue( results.contains( "cn=anyBodyAdd" ) );
     }
+
+    /**
+     * Create a person entry with multivalued RDN and check its content. This
+     * testcase was created to demonstrate DIRSERVER-628.
+     */
+    public void testMultiValuedRdnContent() throws NamingException
+    {
+        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
+        String rdn = "cn=Kate Bush+sn=Bush";
+        ctx.createSubcontext( rdn, attrs );
+
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        String filter = "(sn=Bush)";
+        String base = "";
+
+        NamingEnumeration enm = ctx.search( base, filter, sctls );
+        while ( enm.hasMore() )
+        {
+            SearchResult sr = ( SearchResult ) enm.next();
+            attrs = sr.getAttributes();
+            Attribute cn = sr.getAttributes().get( "cn" );
+            assertNotNull( cn );
+            assertTrue( cn.contains( "Kate Bush" ) );
+            Attribute sn = sr.getAttributes().get( "sn" );
+            assertNotNull( sn );
+            assertTrue( sn.contains( "Bush" ) );
+        }
+
+        ctx.destroySubcontext( rdn );
+    }
+
+
+    /**
+     * Create a person entry with multivalued RDN and check its name.
+     */
+    public void testMultiValuedRdnName() throws NamingException
+    {
+        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
+        String rdn = "cn=Kate Bush+sn=Bush";
+        DirContext entry = ctx.createSubcontext( rdn, attrs );
+        String nameInNamespace = entry.getNameInNamespace();
+
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        String filter = "(sn=Bush)";
+        String base = rdn;
+
+        NamingEnumeration enm = ctx.search( base, filter, sctls );
+        if ( enm.hasMore() )
+        {
+            SearchResult sr = ( SearchResult ) enm.next();
+            assertNotNull( sr );
+            assertEquals( "Name in namespace", nameInNamespace, sr.getNameInNamespace() );
+        }
+        else
+        {
+            fail( "Entry not found:" + nameInNamespace );
+        }
+
+        ctx.destroySubcontext( rdn );
+    }
 }
