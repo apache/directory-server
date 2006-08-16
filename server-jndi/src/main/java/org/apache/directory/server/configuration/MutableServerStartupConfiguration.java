@@ -84,6 +84,12 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
         super.setAllowAnonymousAccess( arg0 );
     }
 
+    
+    public void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
+    {
+        super.setDenormalizeOpAttrsEnabled( denormalizeOpAttrsEnabled );
+    }
+    
 
     public void setAuthenticatorConfigurations( Set arg0 )
     {

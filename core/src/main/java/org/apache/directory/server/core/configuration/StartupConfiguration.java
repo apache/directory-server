@@ -73,6 +73,7 @@ public class StartupConfiguration extends Configuration
     private boolean shutdownHookEnabled = true; // allow by default
     private boolean allowAnonymousAccess = true; // allow by default
     private boolean accessControlEnabled = false; // turn off by default
+    private boolean denormalizeOpAttrsEnabled = false;
     private int maxThreads = MAX_THREADS_DEFAULT; // set to default value
     private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
     private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
@@ -515,5 +516,17 @@ public class StartupConfiguration extends Configuration
     public PartitionConfiguration getSystemPartitionConfiguration()
     {
         return systemPartitionConfiguration;
+    }
+
+
+    public boolean isDenormalizeOpAttrsEnabled()
+    {
+        return denormalizeOpAttrsEnabled;
+    }
+    
+    
+    protected void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
+    {
+        this.denormalizeOpAttrsEnabled = denormalizeOpAttrsEnabled;
     }
 }

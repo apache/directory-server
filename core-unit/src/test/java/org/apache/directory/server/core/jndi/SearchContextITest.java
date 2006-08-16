@@ -48,6 +48,11 @@ public class SearchContextITest extends AbstractAdminTestCase
 {
     protected void setUp() throws Exception
     {
+        if ( this.getName().equals( "testOpAttrDenormalizationOn" ) )
+        {
+            super.configuration.setDenormalizeOpAttrsEnabled( true );
+        }
+        
         super.setUp();
 
         /*
@@ -428,6 +433,54 @@ public class SearchContextITest extends AbstractAdminTestCase
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
         assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
+    }
+    
+    
+    public void testOpAttrDenormalizationOff() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[] { "creatorsName" } );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+        HashMap map = new HashMap();
+
+        NamingEnumeration list = sysRoot.search( "", "(ou=testing00)", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
+        Attributes attrs = ( Attributes ) map.get( "ou=testing00,ou=system" );
+        assertEquals( "normalized creator's name", "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system", 
+            attrs.get( "creatorsName" ).get() );
+    }
+
+
+    public void testOpAttrDenormalizationOn() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[] { "creatorsName" } );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+        HashMap map = new HashMap();
+
+        NamingEnumeration list = sysRoot.search( "", "(ou=testing00)", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
+        Attributes attrs = ( Attributes ) map.get( "ou=testing00,ou=system" );
+        assertEquals( "normalized creator's name", "uid=admin,ou=system", 
+            attrs.get( "creatorsName" ).get() );
     }
 
 
