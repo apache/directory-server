@@ -104,7 +104,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         else if ( creds instanceof String )
         {
-            creds = ( ( String ) creds ).getBytes();
+            creds = StringTools.getBytesUtf8( ( String ) creds );
         }
 
         byte[] userPassword = null;
@@ -129,7 +129,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 String algorithm = this.getAlgorithmForHashedPassword( userPassword );
                 String digestedCredits = this.createDigestedPassword( algorithm, creds );
 
-                credentialsMatch = ArrayUtils.isEquals( digestedCredits.getBytes(), userPassword );
+                credentialsMatch = ArrayUtils.isEquals( StringTools.getBytesUtf8( digestedCredits ), userPassword );
             }
             catch ( NoSuchAlgorithmException nsae )
             {
@@ -314,7 +314,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         else if ( password instanceof String )
         {
-            data = ( ( String ) password ).getBytes();
+            data = StringTools.getBytesUtf8( ( String ) password );
         }
         else
         {
