@@ -1427,7 +1427,7 @@ CLOSE_CURLY : '}' ;
 
 SEP : ',' ;
 
-SP : ' ' ;
+SP : ' ' | '\t' | '\n' { newline(); } | '\r' ;
 
 COLON : ':' ;
 
