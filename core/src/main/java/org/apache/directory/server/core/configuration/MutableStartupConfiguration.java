@@ -143,4 +143,10 @@ public class MutableStartupConfiguration extends StartupConfiguration
     {
         super.setExitVmOnShutdown( exitVmOnShutdown );
     }
+    
+    
+    public void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
+    {
+        super.setDenormalizeOpAttrsEnabled( denormalizeOpAttrsEnabled );
+    }
 }

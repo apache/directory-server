@@ -18,11 +18,13 @@ package org.apache.directory.server.core.operational;
 
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
@@ -45,8 +47,11 @@ import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 
 
 /**
@@ -60,6 +65,20 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class OperationalAttributeService extends BaseInterceptor
 {
+    private final SearchResultFilter DENORMALIZING_SEARCH_FILTER = new SearchResultFilter()
+    {
+        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) 
+            throws NamingException
+        {
+            if ( controls.getReturningAttributes() != null )
+            {
+                return filterDenormalized( result.getAttributes() );
+            }
+            
+            return true;
+        }
+    };
+
     /**
      * the database search result filter to register with filter service
      */
@@ -84,6 +103,8 @@ public class OperationalAttributeService extends BaseInterceptor
 
     private AttributeTypeRegistry registry;
 
+    private boolean isDenormalizeOpAttrsEnabled;
+
 
     /**
      * Creates the operational attribute management service interceptor.
@@ -97,6 +118,7 @@ public class OperationalAttributeService extends BaseInterceptor
     {
         nexus = factoryCfg.getPartitionNexus();
         registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        isDenormalizeOpAttrsEnabled = factoryCfg.getStartupConfiguration().isDenormalizeOpAttrsEnabled();
     }
 
 
@@ -262,6 +284,11 @@ public class OperationalAttributeService extends BaseInterceptor
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
         if ( searchCtls.getReturningAttributes() != null )
         {
+            if ( isDenormalizeOpAttrsEnabled )
+            {
+                return new SearchResultFilteringEnumeration( e, searchCtls, invocation, DENORMALIZING_SEARCH_FILTER );
+            }
+                
             return e;
         }
 
@@ -331,8 +358,84 @@ public class OperationalAttributeService extends BaseInterceptor
             }
         }
 
+        denormalizeEntryOpAttrs( entry );
+        
         // do nothing past here since this explicity specifies which
         // attributes to include - backends will automatically populate
         // with right set of attributes using ids array
+    }
+
+    
+    public void denormalizeEntryOpAttrs( Attributes entry ) throws NamingException
+    {
+        if ( isDenormalizeOpAttrsEnabled )
+        {
+            AttributeType type = registry.lookup( "creatorsName" );
+            Attribute attr = AttributeUtils.getAttribute( entry, type );
+
+            if ( attr != null )
+            {
+                LdapDN creatorsName = new LdapDN( ( String ) attr.get() );
+                attr.set( 0, denormalizeTypes( creatorsName ).getUpName() );
+            }
+            
+            type = null;
+            type = registry.lookup( "modifiersName" );
+            attr = null;
+            attr = AttributeUtils.getAttribute( entry, type );
+            if ( attr != null )
+            {
+                LdapDN modifiersName = new LdapDN( ( String ) attr.get() );
+                attr.set( 0, denormalizeTypes( modifiersName ).getUpName() );
+            }
+        }
+    }
+
+    
+    /**
+     * Does not create a new DN but alters existing DN by using the first
+     * short name for an attributeType definition.
+     */
+    public LdapDN denormalizeTypes( LdapDN dn ) throws NamingException
+    {
+        LdapDN newDn = new LdapDN();
+        
+        for ( int ii = 0; ii < dn.size(); ii++ )
+        {
+            Rdn rdn = dn.getRdn( ii );
+            if ( rdn.size() == 0 )
+            {
+                newDn.add( new Rdn() );
+                continue;
+            }
+            else if ( rdn.size() == 1 )
+            {
+                newDn.add( new Rdn( registry.lookup( rdn.getType() ).getName(), rdn.getAtav().getValue() ) );
+                continue;
+            }
+
+            // below we only process multi-valued rdns
+            StringBuffer buf = new StringBuffer();
+            for ( Iterator jj = rdn.iterator(); jj.hasNext(); /**/ )
+            {
+                AttributeTypeAndValue atav = ( AttributeTypeAndValue ) jj.next();
+                String type = registry.lookup( rdn.getType() ).getName();
+                buf.append( type ).append( '=' ).append( atav.getValue() );
+                if ( jj.hasNext() )
+                {
+                    buf.append( '+' );
+                }
+            }
+            newDn.add( new Rdn(buf.toString()) );
+        }
+        
+        return newDn;
+    }
+
+
+    private boolean filterDenormalized( Attributes entry ) throws NamingException
+    {
+        denormalizeEntryOpAttrs( entry );
+        return true;
     }
 }
