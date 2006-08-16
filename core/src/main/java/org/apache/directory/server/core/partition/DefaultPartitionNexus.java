@@ -835,6 +835,19 @@ public class DefaultPartitionNexus extends PartitionNexus
                         }
                     }
                 }
+                else
+                {
+                    for ( NamingEnumeration ii = getRootDSE().getAll(); ii.hasMore(); /**/ )
+                    {
+                      // add user attributes specifically asked for
+                        Attribute attr = ( Attribute ) ii.next();
+                        AttributeType type = attrRegistry.lookup( attr.getID() );
+                        if ( realIds.contains( type.getOid() ) )
+                        {
+                            attrs.put( attr );
+                        }
+                    }
+                }
 
                 SearchResult result = new SearchResult( "", null, attrs, false );
                 return new SingletonEnumeration( result );
