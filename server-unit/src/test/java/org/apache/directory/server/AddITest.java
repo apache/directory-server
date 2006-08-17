@@ -325,4 +325,34 @@ public class AddITest extends AbstractServerTest
         con.delete( dn );
         con.disconnect();
     }
+    
+    /**
+     * Try to add entry with invalid number of values for a single-valued atribute
+     * @see http://issues.apache.org/jira/browse/DIRSERVER-614
+     */
+    public void testAddWithInvalidNumberOfAttributeValues() throws NamingException
+    {
+        // add inetOrgPerson with two displayNames
+        Attributes attrs = new BasicAttributes();
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "inetOrgPerson" );
+        attrs.put( ocls );
+        attrs.put( "cn", "Fiona Apple" );
+        attrs.put( "sn", "Apple" );
+        Attribute displayName = new BasicAttribute( "displayName" );
+        displayName.add( "Fiona" );
+        displayName.add( "Fiona A." );
+        attrs.put( displayName );
+
+        try
+        {
+            ctx.createSubcontext( "cn=Fiona Apple", attrs );
+            fail( "creation of entry should fail" );
+        }
+        catch ( InvalidAttributeValueException e )
+        {
+            
+        }
+    }
 }

@@ -29,6 +29,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
+import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -508,4 +509,37 @@ public class ModifyAddTest extends AbstractServerTest
         fail();
     }
     */
+    
+    /**
+     * Try to modify an entry adding invalid number of values for a single-valued atribute
+     * @see http://issues.apache.org/jira/browse/DIRSERVER-614
+     */
+    public void testModifyAddWithInvalidNumberOfAttributeValues() throws NamingException
+    {
+        Attributes attrs = new BasicAttributes();
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "inetOrgPerson" );
+        attrs.put( ocls );
+        attrs.put( "cn", "Fiona Apple" );
+        attrs.put( "sn", "Apple" );
+        ctx.createSubcontext( "cn=Fiona Apple", attrs );
+        
+        // add two displayNames to an inetOrgPerson
+        attrs = new BasicAttributes();
+        Attribute displayName = new BasicAttribute( "displayName" );
+        displayName.add( "Fiona" );
+        displayName.add( "Fiona A." );
+        attrs.put( displayName );
+        
+        try
+        {
+            ctx.modifyAttributes( "cn=Fiona Apple", DirContext.ADD_ATTRIBUTE, attrs );
+            fail( "modification of entry should fail" );
+        }
+        catch ( InvalidAttributeValueException e )
+        {
+            
+        }
+    }
 }
