@@ -654,6 +654,8 @@ public class SchemaService extends BaseInterceptor
 
         NamingEnumeration changes = mods.getIDs();
         
+        Attributes tmpEntryForAdd = (Attributes)entry.clone();
+        
         while ( changes.hasMore() )
         {
             String id = ( String ) changes.next();
@@ -662,6 +664,11 @@ public class SchemaService extends BaseInterceptor
             if ( !atRegistry.hasAttributeType( change.getID() ) && !objectClass.contains( "extensibleObject" ) )
             {
                 throw new LdapInvalidAttributeIdentifierException( "unrecognized attributeID " + change.getID() );
+            }
+            
+            if ( modOp == DirContext.ADD_ATTRIBUTE )
+            {
+                tmpEntryForAdd.put( change );
             }
 
             if ( modOp == DirContext.REMOVE_ATTRIBUTE && entry.get( change.getID() ) == null )
@@ -678,6 +685,11 @@ public class SchemaService extends BaseInterceptor
             }
         }
 
+        if ( modOp == DirContext.ADD_ATTRIBUTE )
+        {
+            assertNumberOfAttributeValuesValid( tmpEntryForAdd );
+        }
+        
         if ( modOp == DirContext.REMOVE_ATTRIBUTE )
         {
             SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, mods );
@@ -688,6 +700,7 @@ public class SchemaService extends BaseInterceptor
         {
             SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, mods );
             SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, mods );
+            assertNumberOfAttributeValuesValid( mods );
         }
 
         // let's figure out if we need to add or take away from mods to maintain 
@@ -882,10 +895,7 @@ public class SchemaService extends BaseInterceptor
                     {
                         tmpEntry.remove( change.getID() );
                     }
-                    else
-                    {
-                        attr = new LockableAttributeImpl( change.getID() );
-                    }
+                    attr = new LockableAttributeImpl( change.getID() );
                     
                     NamingEnumeration values = change.getAll();
                     
@@ -951,6 +961,8 @@ public class SchemaService extends BaseInterceptor
                 }
             }
         }
+        
+        assertNumberOfAttributeValuesValid( tmpEntry );
 
         next.modify( name, mods );
     }
@@ -1086,10 +1098,39 @@ public class SchemaService extends BaseInterceptor
 
         alterObjectClasses( attrs.get( "objectClass" ), this.globalRegistries.getObjectClassRegistry() );
         assertRequiredAttributesPresent( attrs );
+        assertNumberOfAttributeValuesValid( attrs );
         next.add(normName, attrs );
     }
     
     
+    /**
+     * Checks to see number of values of an attribute conforms to the schema
+     */
+    private void assertNumberOfAttributeValuesValid( Attributes attributes ) throws InvalidAttributeValueException, NamingException
+    {
+        NamingEnumeration list = attributes.getAll();
+        
+        while ( list.hasMore() )
+        {
+            Attribute attribute = ( Attribute ) list.next();
+            assertNumberOfAttributeValuesValid( attribute );
+        }
+    }
+    
+    /**
+     * Checks to see numbers of values of attributes conforms to the schema
+     */
+    private void assertNumberOfAttributeValuesValid( Attribute attribute ) throws InvalidAttributeValueException, NamingException
+    {
+        AttributeTypeRegistry registry = this.globalRegistries.getAttributeTypeRegistry();
+
+        if ( attribute.size() > 1 && registry.lookup( attribute.getID() ).isSingleValue() )
+        {                
+            throw new InvalidAttributeValueException( "More than one value has been provided " +
+                "for the single-valued attribute: " + attribute.getID() );
+        }
+    }
+
     /**
      * Checks to see the presence of all required attributes within an entry.
      */
