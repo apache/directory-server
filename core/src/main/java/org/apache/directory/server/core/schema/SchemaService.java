@@ -41,6 +41,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.global.GlobalRegistries;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -1126,8 +1127,8 @@ public class SchemaService extends BaseInterceptor
 
         if ( attribute.size() > 1 && registry.lookup( attribute.getID() ).isSingleValue() )
         {                
-            throw new InvalidAttributeValueException( "More than one value has been provided " +
-                "for the single-valued attribute: " + attribute.getID() );
+            throw new LdapInvalidAttributeValueException( "More than one value has been provided " +
+                "for the single-valued attribute: " + attribute.getID(), ResultCodeEnum.CONSTRAINTVIOLATION );
         }
     }
 
