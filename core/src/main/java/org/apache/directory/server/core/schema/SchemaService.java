@@ -18,7 +18,6 @@ package org.apache.directory.server.core.schema;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -1203,7 +1202,12 @@ public class SchemaService extends BaseInterceptor
         }
         
         // add all the required attributes for this objectClass 
-        Collections.addAll( set, oc.getMustList() );
+        AttributeType[] attributeTypes = oc.getMustList(); 
+        
+        for (int i = 0; i < attributeTypes.length; i++ )
+        {
+        	set.add( attributeTypes[i] );
+        }
         
         // don't bother ascending if no parents exist
         ObjectClass[] parents = oc.getSuperClasses();
