@@ -126,13 +126,13 @@ public class GetPrincipal implements ContextOperation
         if ( attrs.get( KerberosAttribute.ACCOUNT_DISABLED ) != null )
         {
             String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_DISABLED ).get(); 
-            modifier.setDisabled( Boolean.parseBoolean( val.toLowerCase() ) );
+            modifier.setDisabled( Boolean.getBoolean( val.toLowerCase() ) );
         }
 
         if ( attrs.get( KerberosAttribute.ACCOUNT_LOCKEDOUT ) != null )
         {
             String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_LOCKEDOUT ).get(); 
-            modifier.setLockedOut( Boolean.parseBoolean( val.toLowerCase() ) );
+            modifier.setLockedOut( Boolean.getBoolean( val.toLowerCase() ) );
         }
         
         if ( attrs.get( KerberosAttribute.ACCOUNT_EXPIRATION_TIME ) != null )
