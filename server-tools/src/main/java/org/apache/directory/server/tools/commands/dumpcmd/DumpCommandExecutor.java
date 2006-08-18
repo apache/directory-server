@@ -321,49 +321,18 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
 
             filterAttributes( dn, entry );
 
-            if ( !( entry instanceof LockableAttributesImpl ) )
-            {
-                Attributes tmp = entry;
-                entry = new LockableAttributesImpl();
-                NamingEnumeration attrs = tmp.getAll();
-                while ( attrs.hasMore() )
-                {
-                    Attribute attr = ( Attribute ) attrs.next();
-                    LockableAttributeImpl myattr = new LockableAttributeImpl( attr.getID() );
-                    entry.put( myattr );
-                    for ( int ii = 0; ii < attr.size(); ii++ )
-                    {
-                        Object value = attr.get(ii);
-                        
-                        // Checking if the value is binary
-                        if ( value instanceof byte[] )
-                        {
-                        	// It is binary, so we have to encode it using Base64 before adding it
-                        	char[] encoded = Base64.encode( ( byte[] ) value );
-                        	
-                        	myattr.add( new String( encoded ) );                        	
-                        }
-                        else if ( value instanceof String )
-                        {
-                        	// It's a String but, we have to check if encoding isn't required
-                        	String str = (String) value;
-                        	if ( !LdifUtils.isLDIFSafe( str ) )
-                        	{
-                        		char[] encoded = Base64.encode( ( ( String ) value ).getBytes() );
-                        		
-                        		myattr.add( new String( encoded ) );
-                        	}
-                        	else
-                        	{
-                        		myattr.add( value );
-                        	}
-                        }
-                    }
-                }
-            }
-
             buf.append( "# Entry: " ).append( id ).append( "\n#---------------------\n\n" );
-            buf.append( "dn: " ).append( dn ).append( "\n" ).append( entry );
+            if ( !LdifUtils.isLDIFSafe( dn ) )
+            {
+            	// If the DN isn't LdifSafe, it needs to be Base64 encoded.
+
+                buf.append( "dn:: " ).append( new String( Base64.encode( dn.getBytes() ) ) );
+            }
+            else
+            {
+                buf.append( "dn: " ).append( dn );
+            }
+            buf.append( "\n" ).append( LdifUtils.convertToLdif( entry ) );
             if ( list.hasMore() )
             {
                 buf.append( "\n\n#---------------------\n" );
