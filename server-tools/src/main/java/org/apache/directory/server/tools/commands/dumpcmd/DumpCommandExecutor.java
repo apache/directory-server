@@ -51,10 +51,12 @@ import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
 import org.apache.directory.server.tools.util.Parameter;
 import org.apache.directory.server.tools.util.ToolCommandException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.util.Base64;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
@@ -331,7 +333,31 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
                     entry.put( myattr );
                     for ( int ii = 0; ii < attr.size(); ii++ )
                     {
-                        myattr.add( attr.get( ii ) );
+                        Object value = attr.get(ii);
+                        
+                        // Checking if the value is binary
+                        if ( value instanceof byte[] )
+                        {
+                        	// It is binary, so we have to encode it using Base64 before adding it
+                        	char[] encoded = Base64.encode( ( byte[] ) value );
+                        	
+                        	myattr.add( new String( encoded ) );                        	
+                        }
+                        else if ( value instanceof String )
+                        {
+                        	// It's a String but, we have to check if encoding isn't required
+                        	String str = (String) value;
+                        	if ( !LdifUtils.isLDIFSafe( str ) )
+                        	{
+                        		char[] encoded = Base64.encode( ( ( String ) value ).getBytes() );
+                        		
+                        		myattr.add( new String( encoded ) );
+                        	}
+                        	else
+                        	{
+                        		myattr.add( value );
+                        	}
+                        }
                     }
                 }
             }
@@ -347,7 +373,6 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
             buf.setLength( 0 );
         }
     }
-
 
     private void filterAttributes( String dn, Attributes entry ) throws NamingException
     {
