@@ -17,6 +17,10 @@
 package org.apache.directory.server;
 
 
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
+
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
@@ -60,7 +64,8 @@ public class MiscTest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        if ( this.getName().equals( "testDisableAnonymousBinds" ) )
+        if ( this.getName().equals( "testDisableAnonymousBinds" ) ||
+             this.getName().equals( "testCompareWithoutAuthentication" ) )
         {
             configuration.setAllowAnonymousAccess( false );
         }
@@ -111,6 +116,23 @@ public class MiscTest extends AbstractServerTest
     }
 
 
+    public void testCompareWithoutAuthentication() throws LDAPException
+    {
+        LDAPConnection conn = new LDAPConnection();
+        conn.connect( "localhost", super.port );
+        LDAPAttribute attr = new LDAPAttribute( "uid", "admin" );
+        try
+        {
+            conn.compare( "uid=admin,ou=system", attr );
+            fail( "Compare success without authentication" );
+        }
+        catch( LDAPException e )
+        {
+            assertEquals( "no permission exception", 50, e.getLDAPResultCode() );
+        }
+    }
+    
+    
     /**
      * Test to make sure anonymous binds are disabled when going through
      * the wire protocol.

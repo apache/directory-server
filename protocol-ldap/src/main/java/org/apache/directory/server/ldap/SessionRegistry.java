@@ -88,7 +88,7 @@ public class SessionRegistry
      *
      * @param env the properties associated with this SessionRegistry
      */
-    SessionRegistry(Hashtable env)
+    SessionRegistry( Hashtable env )
     {
         if ( s_singleton == null )
         {
@@ -266,7 +266,9 @@ public class SessionRegistry
         if ( ctx == null && allowAnonymous )
         {
             // if configuration says disable anonymous binds we throw exection
-            if ( env.containsKey( "server.disable.anonymous" ) )
+            StartupConfiguration config = ( StartupConfiguration ) Configuration.toConfiguration( env );
+            
+            if ( ! config.isAllowAnonymousAccess() )
             {
                 throw new LdapNoPermissionException( "Anonymous binds have been disabled!" );
             }
