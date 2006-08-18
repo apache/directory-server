@@ -64,8 +64,8 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
         subentry.put( objectClass );
-        subentry.put( "c-o", "Test Org" );
         subentry.put( "subtreeSpecification", "{ }" );
+        subentry.put( "c-o", "Test Org" );
         subentry.put( "cn", cn );
         return subentry;
     }
@@ -131,8 +131,7 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
         Map resultMap = new HashMap();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "+", "*" } );
+        controls.setReturningAttributes( new String[] { "+", "*" } );
         NamingEnumeration results = super.sysRoot.search( "", "(objectClass=*)", controls );
         while ( results.hasMore() )
         {
@@ -178,7 +177,7 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
         assertTrue( accessControlSubentries.contains( "2.5.4.3=accesscontroltestsubentry,2.5.4.11=system" ) );
         
         assertFalse( "'accessControlSubentries' operational attribute SHOULD NOT " + 
-            "contain references to non-'accessControlSubentry's like collectiveAttributeSubentry's", 
+            "contain references to non-'accessControlSubentry's like 'collectiveAttributeSubentry's", 
             accessControlSubentries.contains( "2.5.4.3=collectiveattributetestsubentry,2.5.4.11=system" ) );
         
         assertEquals( 1, accessControlSubentries.size() );
