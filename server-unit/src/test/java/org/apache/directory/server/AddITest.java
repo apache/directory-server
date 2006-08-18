@@ -211,7 +211,6 @@ public class AddITest extends AbstractServerTest
      */
     public void testAddEntryWithTwoDescriptions() throws LDAPException
     {
-
         LDAPConnection con = new LDAPConnection();
         con.connect( 3, HOST, super.port, USER, PASSWORD );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
