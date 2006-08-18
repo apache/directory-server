@@ -16,6 +16,13 @@
  */
 package org.apache.directory.shared.ldap.ldif;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+
+import org.apache.directory.shared.ldap.util.Base64;
+
 
 /**
  * Some LDIF useful methods
@@ -101,5 +108,119 @@ public class LdifUtils
     	// The String cannot end with a space
     	return ( currentChar != ' ' );
     }
+    
+    /**
+     * Convert an Attributes as LDIF
+     * @param attrs the Attributes to convert
+     * @return the corresponding LDIF code as a String
+     * @throws NamingException If a naming exception is encountered.
+     */
+    public static String convertToLdif( Attributes attrs ) throws NamingException
+    {
+		StringBuffer sb = new StringBuffer();
+		
+		NamingEnumeration ne = attrs.getAll();
+		
+		while ( ne.hasMore() )
+		{
+			Object attribute = ne.next();
+			if (attribute instanceof Attribute) {
+				sb.append( convertToLdif( (Attribute) attribute ) );
+			}			
+		}
+		
+		return sb.toString();
+	}
+    
+    /**
+     * Converts an Attribute as LDIF
+     * @param attr the Attribute to convert
+     * @return the corresponding LDIF code as a String
+     * @throws NamingException If a naming exception is encountered.
+     */
+	private static String convertToLdif(Attribute attr) throws NamingException
+	{
+		StringBuffer sb = new StringBuffer();
+		
+		// iterating on the attribute's values
+		for ( int i = 0; i < attr.size(); i++ )
+        {
+			StringBuffer lineBuffer = new StringBuffer();
+			
+			lineBuffer.append( attr.getID() );
+			
+			Object value = attr.get(i);
+            
+            // Checking if the value is binary
+            if ( value instanceof byte[] )
+            {
+            	// It is binary, so we have to encode it using Base64 before adding it
+            	char[] encoded = Base64.encode( ( byte[] ) value );
+            	
+            	lineBuffer.append( ":: " + new String( encoded ) );                        	
+            }
+            else if ( value instanceof String )
+            {
+            	// It's a String but, we have to check if encoding isn't required
+            	String str = (String) value;
+            	if ( !LdifUtils.isLDIFSafe( str ) )
+            	{
+            		char[] encoded = Base64.encode( ( ( String ) value ).getBytes() );
+            		
+            		lineBuffer.append( ":: " + new String( encoded ) );
+            	}
+            	else
+            	{
+            		lineBuffer.append( ": " + value );
+            	}
+            }
+            
+            lineBuffer.append( "\n" );
+            sb.append( stripLineToNChars(lineBuffer.toString(), 80));
+        }
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * Strips the String every n specified characters
+	 * @param str the string to strip
+	 * @param nbChars the number of characters
+	 * @return the stripped String
+	 */
+	private static String stripLineToNChars( String str, int nbChars)
+	{
+		if ( str.length() <= nbChars )
+		{
+			return str;
+		}
+		
+		StringBuffer sb = new StringBuffer();
+		String substr;
+		int i = 0;
+		boolean firstPass = true;
+		
+		while ( i < (str.length() - nbChars) ) {
+			if ( firstPass )
+			{
+				substr = str.substring( i, i + nbChars);
+				firstPass = false;
+				// Since we add a space at the beginning of the next line,
+				// we need to update nbChars
+				nbChars--;
+			}
+			else
+			{
+				substr = str.substring( i, i + nbChars );
+			}
+			
+			sb.append( substr + "\n " );
+			i = i + nbChars;
+		}
+		// Adding the last characters
+		sb.append( str.substring(i, str.length() ) );
+		
+		return sb.toString();
+	}
 }
 

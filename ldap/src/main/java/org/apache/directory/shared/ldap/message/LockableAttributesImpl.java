@@ -471,7 +471,7 @@ public class LockableAttributesImpl implements Attributes, Serializable
 
 
     /**
-     * Prints out the attributes as an LDIF.
+     * Returns a string representation of the object.
      * 
      * @see java.lang.Object#toString()
      */
