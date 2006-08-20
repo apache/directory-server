@@ -390,7 +390,15 @@ public class NamespaceTools
      */
     public static Name getRelativeName( Name ancestor, Name descendant ) throws NamingException
     {
-        LdapDN rdn = new LdapDN( descendant.toString() );
+        LdapDN rdn = null;
+        if ( descendant instanceof LdapDN )
+        {
+            rdn = ( LdapDN ) descendant.clone();
+        }
+        else
+        {
+            rdn = new LdapDN( descendant.toString() );
+        }
 
         if ( rdn.startsWith( ancestor ) )
         {
