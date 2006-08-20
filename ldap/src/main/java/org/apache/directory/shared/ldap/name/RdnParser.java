@@ -1,5 +1,5 @@
 /*
- *   Copyright 2005 The Apache Software Foundation
+ *   Copyright 2006 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
  */
 package org.apache.directory.shared.ldap.name;
 
+
+import java.io.UnsupportedEncodingException;
 
 import javax.naming.InvalidNameException;
 
@@ -79,7 +81,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * 'ou=test 1'<br>
  * because we have more than one spaces inside the value.<br>
  * <br>
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class RdnParser
@@ -89,7 +91,7 @@ public class RdnParser
      * <p>
      * &lt;oidValue&gt; ::= [0-9] &lt;digits&gt; &lt;oids&gt;
      * </p>
-     * 
+     *
      * @param chars
      *            The char array to parse
      * @param pos
@@ -101,7 +103,7 @@ public class RdnParser
     {
         pos.start += pos.length;
         pos.end = pos.start;
-        
+
         // <attributType> ::= [0-9] <digits> <oids>
         if ( StringTools.isDigit( string, pos.start ) == false )
         {
@@ -142,7 +144,7 @@ public class RdnParser
                             pos.end++;
                         }
                     }
-                    
+
                 }
                 while ( StringTools.isCharASCII( string, pos.end, '.' ) );
 
@@ -157,7 +159,7 @@ public class RdnParser
      * <p>
      * &lt;oidPrefix&gt; ::= 'OID.' | 'oid.' | e
      * </p>
-     * 
+     *
      * @param bytes
      *            The buffer to parse
      * @param pos
@@ -188,7 +190,7 @@ public class RdnParser
      * [0-9] &lt;digits&gt; &lt;oids&gt; | [0-9] &lt;digits&gt; &lt;oids&gt;
      * </p>
      * The string *MUST* be an ASCII string, not an unicode string.
-     * 
+     *
      * @param chars
      *            The char array to parse
      * @param pos
@@ -249,7 +251,7 @@ public class RdnParser
      * &lt;quotechar-or-pairs&gt; | '\' &lt;pairchar&gt;
      * &lt;quotechar-or-pairs&gt; | e <br>
      * </p>
-     * 
+     *
      * @param chars
      *            The char array to parse
      * @param pos
@@ -257,25 +259,38 @@ public class RdnParser
      * @return The new position in the char array, or PARSING_ERROR if the rule
      *         does not apply to the char array
      */
-    private static String parseAttributeValue( String string, Position pos )
+    private static Object parseAttributeValue( String string, Position pos )
     {
+        StringBuffer sb = new StringBuffer();
         char c = StringTools.charAt( string, pos.start );
-        
+
         if ( c == '#' )
         {
             pos.start++;
+            int nbHex = 0;
+            int currentPos = pos.start;
 
+            // First, we will count the number of hexPairs
+            while ( DNUtils.parseHexPair( string, currentPos ) >= 0 )
+            {
+                nbHex++;
+                currentPos += DNUtils.TWO_CHARS;
+            }
+
+            byte[] hexValue = new byte[nbHex];
+
+            // Now, convert the value
             // <attributeValue> ::= '#' <hexstring>
-            if ( DNUtils.parseHexString( string, pos ) == DNUtils.PARSING_ERROR )
+            if ( DNUtils.parseHexString( string, hexValue, pos ) == DNUtils.PARSING_ERROR )
             {
                 return null;
             }
 
-            pos.start --;
+            pos.start--;
             StringTools.trimRight( string, pos );
             pos.length = pos.end - pos.start;
-            
-            return string.substring( pos.start, pos.end  ); 
+
+            return hexValue;
         }
         else if ( c == '"' )
         {
@@ -286,7 +301,7 @@ public class RdnParser
 
             // <attributeValue> ::= '"' <quotechar-or-pair> '"'
             // <quotechar-or-pairs> ::= <quotechar> <quotechar-or-pairs> | '\'
-            // <pairchar> <quotechar-or-pairs> | e
+            //                                                  <pairchar> <quotechar-or-pairs> | e
             while ( true )
             {
                 if ( StringTools.isCharASCII( string, pos.end, '\\' ) )
@@ -326,6 +341,9 @@ public class RdnParser
         }
         else
         {
+            int escapedSpace = -1;
+            boolean hasPairChar = false;
+
             while ( true )
             {
                 if ( StringTools.isCharASCII( string, pos.end, '\\' ) )
@@ -340,6 +358,28 @@ public class RdnParser
                     }
                     else
                     {
+                        if ( nbChars == 1 )
+                        {
+                            sb.append( string.charAt( pos.end ) );
+                        }
+                        else
+                        {
+                            if ( hasPairChar == false )
+                            {
+                                hasPairChar = true;
+                            }
+
+                            byte b = ( byte ) ( ( StringTools.HEX_VALUE[string.charAt( pos.end )] << 4 ) + StringTools.HEX_VALUE[string
+                                .charAt( pos.end + 1 )] );
+
+                            sb.append( (char)(b & 0x00FF) );
+                        }
+
+                        if ( string.charAt( pos.end ) == ' ' )
+                        {
+                            escapedSpace = sb.length();
+                        }
+
                         pos.end += nbChars;
                     }
                 }
@@ -353,7 +393,7 @@ public class RdnParser
                         // A special case : if we have some spaces before the
                         // '+' character,
                         // we MUST skip them.
-                        if ( StringTools.isCharASCII( string, pos.end, ' ' ) )
+                        if ( StringTools.isCharASCII( string, pos.end, '+' ) )
                         {
                             //StringTools.trimLeft( string, pos );
 
@@ -361,24 +401,44 @@ public class RdnParser
                                 && ( StringTools.isCharASCII( string, pos.end, '\\' ) == false ) )
                             {
                                 // Ok, we are done with the stringchar.
-                                return string.substring( pos.start, pos.start + pos.length );
+                                String result = string.substring( pos.start, pos.start + pos.length );
+                                
+                                if ( hasPairChar )
+                                {
+                                    return unescapeValue( result );
+                                }
+                                else
+                                {
+                                    return result; 
+                                }
                             }
                             else
                             {
+                                sb.append( string.charAt( pos.end ) );
                                 pos.end++;
                             }
                         }
                         else
                         {
-                            // An unicode char could be more than one byte long
+                            sb.append( string.charAt( pos.end ) );
                             pos.end += nbChars;
                         }
                     }
                     else
                     {
                         pos.length = pos.end - pos.start;
-                        String value = string.substring( pos.start, pos.end );
-                        return StringTools.trimRight( value );
+                        String value = sb.toString();
+                        String result = StringTools.trimRight( value, escapedSpace );
+
+                        if ( hasPairChar )
+                        {
+                            return unescapeValue( result );
+                        }
+                        else
+                        {
+                            return result;
+                        }
+                        
                     }
                 }
             }
@@ -393,7 +453,7 @@ public class RdnParser
      * &lt;attributeType&gt; &lt;spaces&gt; '=' &lt;spaces&gt;
      * &lt;attributeValue&gt; &lt;nameComponents&gt; | e
      * </p>
-     * 
+     *
      * @param chars
      *            The char buffer to parse
      * @param pos
@@ -405,7 +465,7 @@ public class RdnParser
     {
         int newStart = 0;
         String type = null;
-        String value = null;
+        Object value = null;
 
         while ( true )
         {
@@ -424,13 +484,13 @@ public class RdnParser
 
             StringTools.trimLeft( string, pos );
 
-            if ( (type = parseAttributeType( string, pos ) ) == null )
+            if ( ( type = parseAttributeType( string, pos ) ) == null )
             {
                 return DNUtils.PARSING_ERROR;
             }
 
             pos.start = pos.end;
-            
+
             StringTools.trimLeft( string, pos );
 
             if ( StringTools.isCharASCII( string, pos.end, '=' ) )
@@ -452,7 +512,7 @@ public class RdnParser
             {
                 if ( rdn != null )
                 {
-                    rdn.addAttributeTypeAndValue( type, StringTools.trimRight( value ) );
+                    rdn.addAttributeTypeAndValue( type, value );
                 }
             }
 
@@ -463,138 +523,33 @@ public class RdnParser
 
 
     /**
-     * Parse this rule : <br>
-     * <p>
-     * &lt;attributeValue&gt; ::= &lt;pairs-or-strings&gt; | '#'
-     * &lt;hexstring&gt; |'"' &lt;quotechar-or-pairs&gt; '"' <br>
-     * &lt;pairs-or-strings&gt; ::= '\' &lt;pairchar&gt;
-     * &lt;pairs-or-strings&gt; | &lt;stringchar&gt; &lt;pairs-or-strings&gt; | |
-     * e <br>
-     * &lt;quotechar-or-pairs&gt; ::= &lt;quotechar&gt;
-     * &lt;quotechar-or-pairs&gt; | '\' &lt;pairchar&gt;
-     * &lt;quotechar-or-pairs&gt; | e <br>
-     * </p>
+     * Unescape pairChars.
      * 
-     * @param chars
-     *            The char array to parse
+     * A PairChar can be a char if it's 
+     *
+     * @param value The value to modify
      * @param pos
      *            The current position in the char array
      * @return The new position in the char array, or PARSING_ERROR if the rule
      *         does not apply to the char array
      */
-    public static int unescapeValue( String value ) throws IllegalArgumentException
+    private static Object unescapeValue( String value ) throws IllegalArgumentException
     {
-        char[] chars = value.toCharArray();
+        byte[] bytes = new byte[value.length()];
         int pos = 0;
 
-        if ( StringTools.isCharASCII( chars, pos, '#' ) )
+        for ( int i = 0; i < value.length(); i++ ) 
         {
-            pos++;
-
-            // <attributeValue> ::= '#' <hexstring>
-            if ( ( pos = DNUtils.parseHexString( chars, pos ) ) == DNUtils.PARSING_ERROR )
-            {
-
-                throw new IllegalArgumentException();
-            }
-
-            return StringTools.trimLeft( chars, pos );
+            bytes[pos++] = (byte)value.charAt( i );
         }
-        else if ( StringTools.isCharASCII( chars, pos, '"' ) )
+        
+        try
         {
-            pos++;
-            int nbBytes = 0;
-
-            // <attributeValue> ::= '"' <quotechar-or-pair> '"'
-            // <quotechar-or-pairs> ::= <quotechar> <quotechar-or-pairs> | '\'
-            // <pairchar> <quotechar-or-pairs> | e
-            while ( true )
-            {
-                if ( StringTools.isCharASCII( chars, pos, '\\' ) )
-                {
-                    pos++;
-
-                    if ( DNUtils.isPairChar( chars, pos ) )
-                    {
-                        pos++;
-                    }
-                    else
-                    {
-                        return DNUtils.PARSING_ERROR;
-                    }
-                }
-                else if ( ( nbBytes = DNUtils.isQuoteChar( chars, pos ) ) != DNUtils.PARSING_ERROR )
-                {
-                    pos += nbBytes;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if ( StringTools.isCharASCII( chars, pos, '"' ) )
-            {
-                pos++;
-
-                return StringTools.trimLeft( chars, pos );
-            }
-            else
-            {
-                return DNUtils.PARSING_ERROR;
-            }
+            return new String( bytes, "UTF-8" );
         }
-        else
+        catch ( UnsupportedEncodingException uee )
         {
-            while ( true )
-            {
-                if ( StringTools.isCharASCII( chars, pos, '\\' ) )
-                {
-                    // '\' <pairchar> <pairs-or-strings>
-                    pos++;
-
-                    if ( DNUtils.isPairChar( chars, pos ) == false )
-                    {
-                        return DNUtils.PARSING_ERROR;
-                    }
-                    else
-                    {
-                        pos++;
-                    }
-                }
-                else
-                {
-                    int nbChars = 0;
-
-                    // <stringchar> <pairs-or-strings>
-                    if ( ( nbChars = DNUtils.isStringChar( chars, pos ) ) != DNUtils.PARSING_ERROR )
-                    {
-                        // A special case : if we have some spaces before the
-                        // '+' character,
-                        // we MUST skip them.
-                        if ( StringTools.isCharASCII( chars, pos, ' ' ) )
-                        {
-                            StringTools.trimLeft( chars, pos );
-
-                            if ( ( DNUtils.isStringChar( chars, pos ) == DNUtils.PARSING_ERROR )
-                                && ( StringTools.isCharASCII( chars, pos, '\\' ) == false ) )
-                            {
-                                // Ok, we are done with the stringchar.
-                                return pos;
-                            }
-                        }
-                        else
-                        {
-                            // An unicode char could be more than one byte long
-                            pos += nbChars;
-                        }
-                    }
-                    else
-                    {
-                        return pos;
-                    }
-                }
-            }
+            return bytes;
         }
     }
 
@@ -605,7 +560,7 @@ public class RdnParser
      * &lt;name-component&gt; ::= &lt;attributeType&gt; &lt;spaces&gt; '='
      * &lt;spaces&gt; &lt;attributeValue&gt; &lt;nameComponents&gt;
      * </p>
-     * 
+     *
      * @param bytes
      *            The buffer to parse
      * @param pos
@@ -616,14 +571,13 @@ public class RdnParser
     public static int parse( String dn, Position pos, Rdn rdn ) throws InvalidNameException
     {
         String type = null;
-        String value = null;
+        Object value = null;
         int start = pos.start;
 
         StringTools.trimLeft( dn, pos );
 
         pos.end = pos.start;
         pos.length = 0;
-        
         if ( ( type = parseAttributeType( dn, pos ) ) == null )
         {
             return DNUtils.PARSING_ERROR;
@@ -648,7 +602,7 @@ public class RdnParser
         StringTools.trimLeft( dn, pos );
 
         pos.end = pos.start;
-        
+
         if ( ( value = parseAttributeValue( dn, pos ) ) == null )
         {
             return DNUtils.PARSING_ERROR;
@@ -658,14 +612,14 @@ public class RdnParser
         {
             rdn.addAttributeTypeAndValue( type, value );
             rdn.normalizeString();
-            
+
             pos.start = pos.end;
             pos.length = 0;
         }
 
         parseNameComponents( dn, pos, rdn );
         
-        rdn.setUpName( dn.substring( start, pos.end )  );
+        rdn.setUpName( dn.substring( start, pos.end ) );
         pos.start = pos.end;
         return DNUtils.PARSING_OK;
     }
@@ -677,7 +631,7 @@ public class RdnParser
      * &lt;name-component&gt; ::= &lt;attributeType&gt; &lt;spaces&gt; '='
      * &lt;spaces&gt; &lt;attributeValue&gt; &lt;nameComponents&gt;
      * </p>
-     * 
+     *
      * @param string
      *            The buffer to parse
      * @param rdn

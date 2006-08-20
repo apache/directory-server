@@ -60,104 +60,106 @@ import javax.naming.NameParser;
  * [\"] <br> - &lt;separator&gt; ::= ',' | ';' <br> - &lt;spaces&gt; ::= ' '
  * &lt;spaces&gt; | e <br>
  * </p>
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LdapDnParser implements NameParser
 {
-    private static LdapDnParser instance = new LdapDnParser();
+   private static LdapDnParser instance = new LdapDnParser();
 
 
-    /**
-     * A private constructor. It's useless, as this object is totally stateless,
-     * but we need to expose a NameParser.
-     */
-    private LdapDnParser()
-    {
-    }
+   /**
+    * A private constructor. It's useless, as this object is totally stateless,
+    * but we need to expose a NameParser.
+    */
+   private LdapDnParser()
+   {
+   }
 
 
-    /**
-     * Get a reference to the NameParser. Needed to be compliant with the JNDI
-     * API
-     * 
-     * @return An instance of the NameParser
-     */
-    public static NameParser getNameParser()
-    {
-        return instance;
-    }
+   /**
+    * Get a reference to the NameParser. Needed to be compliant with the JNDI
+    * API
+    *
+    * @return An instance of the NameParser
+    */
+   public static NameParser getNameParser()
+   {
+       return instance;
+   }
 
 
-    /**
-     * Parse a DN
-     * 
-     * @param dn
-     *            The DN to be parsed
-     * @param rdns
-     *            The list that will contain the RDNs
-     * @throws InvalidNameException
-     *             If the DN is invalid
-     */
-    public static void parseInternal( String dn, List rdns ) throws InvalidNameException
-    {
-        if ( dn.length() == 0 )
-        {
-            // We have an empty DN, just get out of the function.
-            return;
-        }
+   /**
+    * Parse a DN
+    *
+    * @param dn
+    *            The DN to be parsed
+    * @param rdns
+    *            The list that will contain the RDNs
+    * @throws InvalidNameException
+    *             If the DN is invalid
+    */
+   public static void parseInternal( String dn, List rdns ) throws InvalidNameException
+   {
+       if ( dn.length() == 0 )
+       {
+           // We have an empty DN, just get out of the function.
+           return;
+       }
 
-        Position pos = new Position();
-        pos.start = 0;
-        Rdn rdn = new Rdn();
+       Position pos = new Position();
+       pos.start = 0;
+       Rdn rdn = new Rdn();
 
-        // <name> ::= <name-component> <name-components>
-        // <name-components> ::= <spaces> <separator> <spaces> <name-component>
-        // <name-components> | e
-        if ( RdnParser.parse( dn, pos, rdn ) != DNUtils.PARSING_ERROR )
-        {
-            // Now, parse the following nameComponents
-            do
-            {
-                rdns.add( rdn );
-                rdn = new Rdn();
-                
-                if ( ( StringTools.isCharASCII( dn, pos.start, ',' ) == false )
-                    && ( StringTools.isCharASCII( dn, pos.start, ';' ) == false ) )
-                {
+       // <name> ::= <name-component> <name-components>
+       // <name-components> ::= <spaces> <separator> <spaces> <name-component>
+       // <name-components> | e
+       if ( RdnParser.parse( dn, pos, rdn ) != DNUtils.PARSING_ERROR )
+       {
+           // Now, parse the following nameComponents
+           do
+           {
+               rdns.add( rdn );
+               rdn = new Rdn();
 
-                    if ( pos.start != dn.length() )
-                    {
-                        throw new InvalidNameException( "Bad DN : " + dn );
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                
-                pos.start++;
-            }
-            while ( RdnParser.parse( dn, pos, rdn ) != DNUtils.PARSING_ERROR );
-        }
-        else
-        {
-            throw new InvalidNameException( "Bad DN : " + dn );
-        }
-    }
+               if ( ( StringTools.isCharASCII( dn, pos.start, ',' ) == false )
+                   && ( StringTools.isCharASCII( dn, pos.start, ';' ) == false ) )
+               {
+
+                   if ( pos.start != dn.length() )
+                   {
+                       throw new InvalidNameException( "Bad DN : " + dn );
+                   }
+                   else
+                   {
+                       break;
+                   }
+               }
+
+               pos.start++;
+           }
+           while ( RdnParser.parse( dn, pos, rdn ) != DNUtils.PARSING_ERROR );
+       }
+       else
+       {
+           throw new InvalidNameException( "Bad DN : " + dn );
+       }
+   }
 
 
-    /**
-     * Parse a String and return a LdapDN if the String is a valid DN
-     * 
-     * @param dn
-     *            The DN to parse
-     * @return A LdapDN
-     * @throws InvalidNameException
-     *             If the String is not a valid DN
-     */
-    public Name parse( String dn ) throws InvalidNameException
-    {
-        return new LdapDN( dn );
-    }
+   /**
+    * Parse a String and return a LdapDN if the String is a valid DN
+    *
+    * @param dn
+    *            The DN to parse
+    * @return A LdapDN
+    * @throws InvalidNameException
+    *             If the String is not a valid DN
+    */
+   public Name parse( String dn ) throws InvalidNameException
+   {
+       return new LdapDN( dn );
+   }
 }
+
+
