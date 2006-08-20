@@ -830,6 +830,30 @@ public class StringTools
         return sb.toString();
     }
 
+    /**
+     * Helper function that dump an array of bytes in hex pair form, 
+     * without '0x' and space chars
+     * 
+     * @param buffer The bytes array to dump
+     * @return A string representation of the array of bytes
+     */
+    public static final String dumpHexPairs( byte[] buffer )
+    {
+        if ( buffer == null )
+        {
+            return "";
+        }
+
+        StringBuffer sb = new StringBuffer();
+
+        for ( int i = 0; i < buffer.length; i++ )
+        {
+            sb.append( ( char ) ( HEX_CHAR[( buffer[i] & 0x00F0 ) >> 4] ) ).append(
+                ( char ) ( HEX_CHAR[buffer[i] & 0x000F] ) );
+        }
+
+        return sb.toString();
+    }
 
     /**
      * Return the Unicode char which is coded in the bytes at position 0.
@@ -2184,6 +2208,48 @@ public class StringTools
         int end = length;
         
         while ( ( end > 0 ) && ( str.charAt( end - 1 ) == ' ' ) )
+        {
+            if ( ( end > 1 ) && ( str.charAt(  end - 2 ) == '\\' ) )
+            {
+                break;
+            }
+            
+            end--;
+        }
+
+        return ( end == length ? str : str.substring( 0, end ) );
+    }
+
+    /**
+     * <p>
+     * Removes spaces (char &lt;= 32) from end of this String, handling
+     * <code>null</code> by returning <code>null</code>.
+     * </p>
+     * Trim removes start characters &lt;= 32.
+     * 
+     * <pre>
+     *  StringUtils.trimRight(null)          = null
+     *  StringUtils.trimRight(&quot;&quot;)            = &quot;&quot;
+     *  StringUtils.trimRight(&quot;     &quot;)       = &quot;&quot;
+     *  StringUtils.trimRight(&quot;abc&quot;)         = &quot;abc&quot;
+     *  StringUtils.trimRight(&quot;    abc    &quot;) = &quot;    abc&quot;
+     * </pre>
+     * 
+     * @param str the String to be trimmed, may be null
+     * @param escapedSpace The last escaped space, if any
+     * @return the trimmed string, <code>null</code> if null String input
+     */
+    public static final String trimRight( String str, int escapedSpace )
+    {
+        if ( isEmpty( str ) )
+        {
+            return "";
+        }
+
+        int length = str.length();
+        int end = length;
+        
+        while ( ( end > 0 ) && ( str.charAt( end - 1 ) == ' ' ) && ( end > escapedSpace ) )
         {
             if ( ( end > 1 ) && ( str.charAt(  end - 2 ) == '\\' ) )
             {
