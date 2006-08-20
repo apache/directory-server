@@ -703,6 +703,22 @@ public class DNUtils
     }
 
     /**
+     * Parse an hex pair <hexpair> ::= <hex> <hex>
+     * 
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return The new position, -1 if the string does not contain an HexPair,
+     *         -2 if the string contains an hex byte but not two.
+     */
+    private static byte getHexPair( String string, int index )
+    {
+    	return (byte)((StringTools.HEX_VALUE[string.charAt( index )] << 4) | 
+    				(StringTools.HEX_VALUE[string.charAt( index + 1 )]) );
+    }
+
+    /**
      * Parse an hex string, which is a list of hex pairs <hexstring> ::=
      * <hexpair> <hexpairs> <hexpairs> ::= <hexpair> <hexpairs> | e
      * 
@@ -797,6 +813,42 @@ public class DNUtils
 
         while ( ( result = parseHexPair( string, pos.end ) ) >= 0 )
         {
+            pos.end += TWO_CHARS;
+        }
+
+        return ( ( result == BAD_HEX_PAIR ) ? PARSING_ERROR : PARSING_OK );
+    }
+
+    /**
+     * Parse an hex string, which is a list of hex pairs <hexstring> ::=
+     * <hexpair> <hexpairs> <hexpairs> ::= <hexpair> <hexpairs> | e
+     * 
+     * @param string The string which contains the data
+     * @param hex The result as a byte array
+     * @param Position Current position in the string
+     * @return Return the first position which is not an hex pair, or -1 if
+     *         there is no hexpair at the beginning or if an hexpair is invalid
+     *         (if we have only one hex instead of 2)
+     */
+    public static int parseHexString( String string, byte[] hex, Position pos )
+    {
+    	int i = 0;
+        pos.end = pos.start;
+        int result = parseHexPair( string, pos.start );
+
+        if ( result < 0 )
+        {
+            return PARSING_ERROR;
+        }
+        else
+        {
+        	hex[i++] = getHexPair( string, pos.end );
+            pos.end += TWO_CHARS;
+        }
+
+        while ( ( result = parseHexPair( string, pos.end ) ) >= 0 )
+        {
+        	hex[i++] = getHexPair( string, pos.end );
             pos.end += TWO_CHARS;
         }
 
