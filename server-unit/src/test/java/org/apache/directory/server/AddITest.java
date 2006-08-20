@@ -34,7 +34,6 @@ import java.util.Hashtable;
 /**
  * Various add scenario tests.
  * 
- * @author szoerner
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */

@@ -43,7 +43,7 @@ public final class NormalizationServiceITest extends AbstractAdminTestCase
         Attributes attrs = sysRoot.getAttributes( "ou=corporate category\\, operations,ou=direct report view" );
         assertNotNull( attrs );
         Attribute ou = attrs.get( "ou" );
-        assertEquals( "corporate category\\, operations", ou.get() );
+        assertEquals( "corporate category, operations", ou.get() );
         Attribute oc = attrs.get( "objectClass" );
         assertTrue( oc.contains( "top" ) );
         assertTrue( oc.contains( "organizationalUnit" ) );
