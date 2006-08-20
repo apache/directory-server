@@ -170,7 +170,7 @@ public class SearchTest extends AbstractServerTest
     /**
      * Search operation with a base DN which contains a BER encoded value.
      */
-    public void testSearchBEREncodedBase() throws NamingException
+    /*public void testSearchBEREncodedBase() throws NamingException
     {
         // create additional entry
         Attributes attributes = this.getPersonAttributes( "Ferry", "Bryan Ferry" );
@@ -181,7 +181,7 @@ public class SearchTest extends AbstractServerTest
         String filter = "(cn=Bryan Ferry)";
 
         // sn=Ferry with BEROctetString values
-        String base = "sn=#4665727279";
+        String base = "2.5.4.4=#4665727279";
 
         try
         {
@@ -201,7 +201,7 @@ public class SearchTest extends AbstractServerTest
         {
             fail( e.getMessage() );
         }
-    }
+    }*/
 
     
     /**
