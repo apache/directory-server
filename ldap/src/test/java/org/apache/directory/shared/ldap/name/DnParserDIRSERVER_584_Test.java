@@ -1,5 +1,5 @@
 /*
- *   Copyright 2004 The Apache Software Foundation
+ *   Copyright 2006 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -26,35 +26,35 @@ import junit.framework.TestCase;
 
 /**
  * Testcase devised specifically for DIRSERVER-584.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  * @see <a href="https://issues.apache.org/jira/browse/DIRSERVER-584">DIRSERVER-584</a>
  */
 public class DnParserDIRSERVER_584_Test extends TestCase
 {
-    /**
-     * Need this testa() to run first to mess up the state of the static parser.
-     */
-    public void testa() throws Exception
-    {
-        try
-        {
-            LdapDnParser.parseInternal( "ou=test=testing", new ArrayList() );
-            fail( "should never get here" );
-        }
-        catch ( InvalidNameException e )
-        {
-        }
-    }
-    
-    
-    /**
-     * Need this testb() to run second to use the mess up static parser.  This 
-     * test should succeed but fails.
-     */
-    public void testb() throws Exception
-    {
-        LdapDnParser.parseInternal( "ou=system", new ArrayList() );
-    }
+   /**
+    * Need this testa() to run first to mess up the state of the static parser.
+    */
+   public void testa() throws Exception
+   {
+       try
+       {
+           LdapDnParser.parseInternal( "ou=test=testing", new ArrayList() );
+           fail( "should never get here" );
+       }
+       catch ( InvalidNameException e )
+       {
+       }
+   }
+
+
+   /**
+    * Need this testb() to run second to use the mess up static parser.  This
+    * test should succeed but fails.
+    */
+   public void testb() throws Exception
+   {
+       LdapDnParser.parseInternal( "ou=system", new ArrayList() );
+   }
 }
