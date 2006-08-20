@@ -622,6 +622,7 @@ public class RdnParser
         StringTools.trimLeft( dn, pos );
 
         pos.end = pos.start;
+        pos.length = 0;
         
         if ( ( type = parseAttributeType( dn, pos ) ) == null )
         {

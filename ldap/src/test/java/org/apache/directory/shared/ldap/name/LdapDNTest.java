@@ -2638,4 +2638,17 @@ public class LdapDNTest extends TestCase
        Assert.assertEquals( "cn=Bush\\, Kate,dc=example,dc=com", name.getUpName() );
 
    }
+
+   
+   /**
+    * Added a test to check the parsing of a DN with more than one RDN
+    * which are OIDs, and with one RDN which has more than one atav.
+    * @throws NamingException
+    */
+   public void testDNWithMultiOidsRDN() throws NamingException
+   {
+       LdapDN name = new LdapDN( "0.9.2342.19200300.100.1.1=00123456789+2.5.4.3=pablo picasso,2.5.4.11=search,2.5.4.10=imc,2.5.4.6=us" );
+       Assert.assertEquals( "0.9.2342.19200300.100.1.1=00123456789+2.5.4.3=pablo picasso,2.5.4.11=search,2.5.4.10=imc,2.5.4.6=us", name.toString() );
+       Assert.assertEquals( "0.9.2342.19200300.100.1.1=00123456789+2.5.4.3=pablo picasso,2.5.4.11=search,2.5.4.10=imc,2.5.4.6=us", name.getUpName() );
+   }
 }
