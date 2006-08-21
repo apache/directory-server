@@ -95,8 +95,8 @@ public class SubentryService extends BaseInterceptor
 
     private static final Logger log = LoggerFactory.getLogger( SubentryService.class );
 
-    /** the hash mapping the DN of a subentry to its SubtreeSpecification */
-    private final SubtreeCache subtreeCache = new SubtreeCache();
+    /** the hash mapping the DN of a subentry to its SubtreeSpecification/types */
+    private final SubentryCache subentryCache = new SubentryCache();
     
     private DirectoryServiceConfiguration factoryCfg;
     private SubtreeSpecificationParser ssParser;
@@ -166,9 +166,44 @@ public class SubentryService extends BaseInterceptor
                 LdapDN dnName = new LdapDN( dn );
                 //dnName = LdapDN.normalize( dnName, registry.getNormalizerMapping() );
                 dnName.normalize( attrRegistry.getNormalizerMapping() );
-                subtreeCache.setSubtreeSpecification( dnName.toString(), ss );
+                subentryCache.setSubentry( dnName.toString(), ss, getSubentryTypes( subentry ) );
             }
         }
+    }
+    
+    
+    private int getSubentryTypes( Attributes subentry ) throws NamingException
+    {
+        int types = 0;
+        
+        Attribute oc = subentry.get( "objectClass" );
+        if ( oc == null )
+        {
+            throw new LdapSchemaViolationException( "A subentry must have an objectClass attribute", 
+                ResultCodeEnum.OBJECTCLASSVIOLATION );
+        }
+        
+        if ( oc.contains( AUTONOUMOUS_AREA ) )
+        {
+            types &= Subentry.AUTONOMOUS_AREA_SUBENTRY;
+        }
+        
+        if ( oc.contains( AC_AREA ) || oc.contains( AC_INNERAREA ) )
+        {
+            types &= Subentry.ACCESS_CONTROL_SUBENTRY;
+        }
+        
+        if ( oc.contains( SCHEMA_AREA ) )
+        {
+            types &= Subentry.SCHEMA_SUBENTRY;
+        }
+        
+        if ( oc.contains( COLLECTIVE_AREA ) )
+        {
+            types &= Subentry.COLLECTIVE_SUBENTRY;
+        }
+        
+        return types;
     }
 
 
@@ -265,14 +300,14 @@ public class SubentryService extends BaseInterceptor
     {
         Attributes subentryAttrs = new LockableAttributesImpl();
         Attribute objectClasses = entryAttrs.get( "objectClass" );
-        Iterator list = subtreeCache.nameIterator();
+        Iterator list = subentryCache.nameIterator();
         while ( list.hasNext() )
         {
             String subentryDnStr = ( String ) list.next();
             LdapDN subentryDn = new LdapDN( subentryDnStr );
             LdapDN apDn = ( LdapDN ) subentryDn.clone();
             apDn.remove( apDn.size() - 1 );
-            SubtreeSpecification ss = subtreeCache.getSubtreeSpecification( subentryDnStr );
+            SubtreeSpecification ss = subentryCache.getSubentry( subentryDnStr ).getSubtreeSpecification();
 
             if ( evaluator.evaluate( ss, apDn, dn, objectClasses ) )
             {
@@ -388,7 +423,7 @@ public class SubentryService extends BaseInterceptor
                 log.warn( msg );
                 throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
             }
-            subtreeCache.setSubtreeSpecification( normName.toString(), ss );
+            subentryCache.setSubentry( normName.toString(), ss, getSubentryTypes( entry ) );
             next.add(normName, entry );
 
             /* ----------------------------------------------------------------
@@ -424,14 +459,14 @@ public class SubentryService extends BaseInterceptor
         }
         else
         {
-            Iterator list = subtreeCache.nameIterator();
+            Iterator list = subentryCache.nameIterator();
             while ( list.hasNext() )
             {
                 String subentryDnStr = ( String ) list.next();
                 LdapDN subentryDn = new LdapDN( subentryDnStr );
                 LdapDN apDn = ( LdapDN ) subentryDn.clone();
                 apDn.remove( apDn.size() - 1 );
-                SubtreeSpecification ss = subtreeCache.getSubtreeSpecification( subentryDn.toNormName() );
+                SubtreeSpecification ss = subentryCache.getSubentry( subentryDn.toNormName() ).getSubtreeSpecification();
 
                 if ( evaluator.evaluate( ss, apDn, normName, objectClasses ) )
                 {
@@ -513,7 +548,7 @@ public class SubentryService extends BaseInterceptor
 
         if ( objectClasses.contains( "subentry" ) )
         {
-            SubtreeSpecification ss = subtreeCache.removeSubtreeSpecification( name.toNormName() );
+            SubtreeSpecification ss = subentryCache.removeSubentry( name.toNormName() ).getSubtreeSpecification();
             next.delete( name );
 
             /* ----------------------------------------------------------------
@@ -604,13 +639,13 @@ public class SubentryService extends BaseInterceptor
          * would be caused by chop exclusions. In this case we must add subentry
          * operational attribute values with the dn of this subentry.
          */
-        Iterator subentries = subtreeCache.nameIterator();
+        Iterator subentries = subentryCache.nameIterator();
         while ( subentries.hasNext() )
         {
             String subentryDn = ( String ) subentries.next();
             Name apDn = new LdapDN( subentryDn );
             apDn.remove( apDn.size() - 1 );
-            SubtreeSpecification ss = subtreeCache.getSubtreeSpecification( subentryDn );
+            SubtreeSpecification ss = subentryCache.getSubentry( subentryDn ).getSubtreeSpecification();
             boolean isOldNameSelected = evaluator.evaluate( ss, apDn, oldName, objectClasses );
             boolean isNewNameSelected = evaluator.evaluate( ss, apDn, newName, objectClasses );
 
@@ -666,7 +701,8 @@ public class SubentryService extends BaseInterceptor
 
         if ( objectClasses.contains( "subentry" ) )
         {
-            SubtreeSpecification ss = subtreeCache.getSubtreeSpecification( name.toNormName() );
+            Subentry subentry = subentryCache.getSubentry( name.toNormName() );
+            SubtreeSpecification ss = subentry.getSubtreeSpecification();
             LdapDN apName = ( LdapDN ) name.clone();
             apName.remove( apName.size() - 1 );
             LdapDN baseDn = ( LdapDN ) apName.clone();
@@ -679,7 +715,7 @@ public class SubentryService extends BaseInterceptor
             rdn.normalize( attrRegistry.getNormalizerMapping() );
             newName.normalize( attrRegistry.getNormalizerMapping() );
 
-            subtreeCache.setSubtreeSpecification( newName.toNormName(), ss );
+            subentryCache.setSubentry( newName.toNormName(), ss, subentry.getTypes() );
             next.modifyRn( name, newRn, deleteOldRn );
 
             Attributes apAttrs = nexus.lookup( apName );
@@ -736,7 +772,8 @@ public class SubentryService extends BaseInterceptor
 
         if ( objectClasses.contains( "subentry" ) )
         {
-            SubtreeSpecification ss = subtreeCache.getSubtreeSpecification( oriChildName.toNormName() );
+            Subentry subentry = subentryCache.getSubentry( oriChildName.toNormName() );
+            SubtreeSpecification ss = subentry.getSubtreeSpecification();
             LdapDN apName = ( LdapDN ) oriChildName.clone();
             apName.remove( apName.size() - 1 );
             LdapDN baseDn = ( LdapDN ) apName.clone();
@@ -749,7 +786,7 @@ public class SubentryService extends BaseInterceptor
             rdn.normalize( attrRegistry.getNormalizerMapping() );
             newName.normalize( attrRegistry.getNormalizerMapping() );
             
-            subtreeCache.setSubtreeSpecification( newName.toNormName(), ss );
+            subentryCache.setSubentry( newName.toNormName(), ss, subentry.getTypes() );
             next.move( oriChildName, newParentName, newRn, deleteOldRn );
 
             Attributes apAttrs = nexus.lookup( apName );
@@ -806,7 +843,8 @@ public class SubentryService extends BaseInterceptor
 
         if ( objectClasses.contains( "subentry" ) )
         {
-            SubtreeSpecification ss = subtreeCache.getSubtreeSpecification( oriChildName.toString() );
+            Subentry subentry = subentryCache.getSubentry( oriChildName.toString() );
+            SubtreeSpecification ss = subentry.getSubtreeSpecification();
             LdapDN apName = ( LdapDN ) oriChildName.clone();
             apName.remove( apName.size() - 1 );
             LdapDN baseDn = ( LdapDN ) apName.clone();
@@ -815,7 +853,7 @@ public class SubentryService extends BaseInterceptor
             newName.remove( newName.size() - 1 );
             newName.add( newParentName.get( newParentName.size() - 1 ) );
 
-            subtreeCache.setSubtreeSpecification( newName.toString(), ss );
+            subentryCache.setSubentry( newName.toString(), ss, subentry.getTypes() );
             next.move( oriChildName, newParentName );
 
             Attributes apAttrs = nexus.lookup( apName );
@@ -869,6 +907,78 @@ public class SubentryService extends BaseInterceptor
     // Methods dealing subentry modification
     // -----------------------------------------------------------------------
 
+    
+    private int getSubentryTypes( Attributes subentry, int modOp, Attributes mods ) throws NamingException
+    {
+        if ( mods.get( "objectClass" ) == null )
+        {
+            return getSubentryTypes( subentry );
+        }
+        
+        // ok user is modifying (replacing) the objectClasses of a subentry so
+        // endstate of objectClasses is contained in the mods attibutes
+        if ( modOp == DirContext.REPLACE_ATTRIBUTE )
+        {
+            return getSubentryTypes( mods );
+        }
+        
+        Attribute ocChanges = mods.get( "objectClass" );
+        Attribute ocFinalState = ( Attribute ) subentry.get( "objectClass" ).clone();
+        if ( modOp == DirContext.ADD_ATTRIBUTE )
+        {
+            for ( int ii = 0; ii < ocChanges.size(); ii++ )
+            {
+                ocFinalState.add( ocChanges.get( ii ) );
+            }
+        }
+        else // remove operation
+        {
+            for ( int ii = 0; ii < ocChanges.size(); ii++ )
+            {
+                ocFinalState.remove( ocChanges.get( ii ) );
+            }
+        }
+        
+        Attributes attrs = new LockableAttributesImpl();
+        attrs.put( ocFinalState );
+        return getSubentryTypes( attrs );
+    }
+    
+
+    private int getSubentryTypes( Attributes entry, ModificationItem[] mods ) throws NamingException
+    {
+        Attribute ocFinalState = ( Attribute ) entry.get( "objectClass" ).clone();
+        for ( int ii = 0; ii < mods.length; ii++ )
+        {
+            if ( mods[ii].getAttribute().getID().equalsIgnoreCase( "objectClass" ) )
+            {
+                switch ( mods[ii].getModificationOp() )
+                {
+                    case( DirContext.ADD_ATTRIBUTE ):
+                        for ( int jj = 0; jj < mods[ii].getAttribute().size(); jj++ )
+                        {
+                            ocFinalState.add( mods[ii].getAttribute().get( jj ) );
+                        }
+                        break;
+                    case( DirContext.REMOVE_ATTRIBUTE ):
+                        for ( int jj = 0; jj < mods[ii].getAttribute().size(); jj++ )
+                        {
+                            ocFinalState.remove( mods[ii].getAttribute().get( jj ) );
+                        }
+                        break;
+                    case( DirContext.REPLACE_ATTRIBUTE ):
+                        ocFinalState = mods[ii].getAttribute();
+                        break;
+                }
+            }
+        }
+        
+        Attributes attrs = new LockableAttributesImpl();
+        attrs.put( ocFinalState );
+        return getSubentryTypes( attrs );
+    }
+
+
     public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
@@ -876,7 +986,7 @@ public class SubentryService extends BaseInterceptor
 
         if ( objectClasses.contains( "subentry" ) && mods.get( "subtreeSpecification" ) != null )
         {
-            SubtreeSpecification ssOld = subtreeCache.removeSubtreeSpecification( name.toNormName() );
+            SubtreeSpecification ssOld = subentryCache.removeSubentry( name.toNormName() ).getSubtreeSpecification();
             SubtreeSpecification ssNew;
 
             try
@@ -890,7 +1000,7 @@ public class SubentryService extends BaseInterceptor
                 throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
             }
 
-            subtreeCache.setSubtreeSpecification( name.toNormName(), ssNew );
+            subentryCache.setSubentry( name.toNormName(), ssNew, getSubentryTypes( entry, modOp, mods ) );
             next.modify( name, modOp, mods );
 
             // search for all entries selected by the old SS and remove references to subentry
@@ -962,7 +1072,7 @@ public class SubentryService extends BaseInterceptor
 
         if ( objectClasses.contains( "subentry" ) && isSubtreeSpecificationModification )
         {
-            SubtreeSpecification ssOld = subtreeCache.removeSubtreeSpecification( name.toString() );
+            SubtreeSpecification ssOld = subentryCache.removeSubentry( name.toString() ).getSubtreeSpecification();
             SubtreeSpecification ssNew;
 
             try
@@ -976,7 +1086,7 @@ public class SubentryService extends BaseInterceptor
                 throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
             }
 
-            subtreeCache.setSubtreeSpecification( name.toNormName(), ssNew );
+            subentryCache.setSubentry( name.toNormName(), ssNew, getSubentryTypes( entry, mods ) );
             next.modify( name, mods );
 
             // search for all entries selected by the old SS and remove references to subentry
@@ -1293,7 +1403,7 @@ public class SubentryService extends BaseInterceptor
             String dn = result.getName();
 
             // see if we can get a match without normalization
-            if ( subtreeCache.hasSubtreeSpecification( dn ) )
+            if ( subentryCache.hasSubentry( dn ) )
             {
                 return false;
             }
@@ -1329,7 +1439,7 @@ public class SubentryService extends BaseInterceptor
                 LdapDN ndn = new LdapDN( dn );
                 ndn.normalize( attrRegistry.getNormalizerMapping() );
                 String normalizedDn = ndn.toString();
-                return !subtreeCache.hasSubtreeSpecification( normalizedDn );
+                return !subentryCache.hasSubentry( normalizedDn );
             }
 
             LdapDN name = new LdapDN( invocation.getCaller().getNameInNamespace() );
@@ -1338,7 +1448,7 @@ public class SubentryService extends BaseInterceptor
             LdapDN rest = new LdapDN( result.getName() );
             rest.normalize( attrRegistry.getNormalizerMapping() );
             name.addAll( rest );
-            return !subtreeCache.hasSubtreeSpecification( name.toString() );
+            return !subentryCache.hasSubentry( name.toString() );
         }
     }
 
@@ -1354,7 +1464,7 @@ public class SubentryService extends BaseInterceptor
             String dn = result.getName();
 
             // see if we can get a match without normalization
-            if ( subtreeCache.hasSubtreeSpecification( dn ) )
+            if ( subentryCache.hasSubentry( dn ) )
             {
                 return true;
             }
@@ -1389,7 +1499,7 @@ public class SubentryService extends BaseInterceptor
             {
                 LdapDN ndn = new LdapDN( dn );
                 ndn.normalize( attrRegistry.getNormalizerMapping() );
-                return subtreeCache.hasSubtreeSpecification( ndn.toNormName() );
+                return subentryCache.hasSubentry( ndn.toNormName() );
             }
 
             LdapDN name = new LdapDN( invocation.getCaller().getNameInNamespace() );
@@ -1398,7 +1508,7 @@ public class SubentryService extends BaseInterceptor
             LdapDN rest = new LdapDN( result.getName() );
             rest.normalize( attrRegistry.getNormalizerMapping() );
             name.addAll( rest );
-            return subtreeCache.hasSubtreeSpecification( name.toNormName() );
+            return subentryCache.hasSubentry( name.toNormName() );
         }
     }
 }
