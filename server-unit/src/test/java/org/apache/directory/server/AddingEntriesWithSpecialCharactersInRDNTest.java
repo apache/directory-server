@@ -13,11 +13,12 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  *
- */package org.apache.directory.server;
+ */
+package org.apache.directory.server;
+
 
 import java.util.Hashtable;
 
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -31,7 +32,6 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.unit.AbstractServerTest;
 
-import junit.framework.TestCase;
 
 /**
  * Test case to demonstrate DIRSERVER-631 ("Creation of entry with special (and

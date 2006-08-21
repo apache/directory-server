@@ -821,6 +821,19 @@ public class SchemaService extends BaseInterceptor
         ObjectClassRegistry ocRegistry = this.globalRegistries.getObjectClassRegistry();
         AttributeTypeRegistry atRegistry = this.globalRegistries.getAttributeTypeRegistry();
 
+        // -------------------------------------------------------------------
+        // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
+        // (deletion) causes an error
+        // -------------------------------------------------------------------
+        
+        if ( mods.length == 1 && 
+             mods[0].getAttribute().size() == 0 && 
+             mods[0].getModificationOp() == DirContext.REPLACE_ATTRIBUTE &&
+             ! atRegistry.hasAttributeType( mods[0].getAttribute().getID() ) )
+        {
+            return;
+        }
+        
         // Now, apply the modifications on the cloned entry before applyong it to the
         // real object.
         for ( int ii = 0; ii < mods.length; ii++ )
