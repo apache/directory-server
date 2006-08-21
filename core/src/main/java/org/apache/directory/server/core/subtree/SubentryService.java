@@ -77,16 +77,16 @@ public class SubentryService extends BaseInterceptor
 
     public static final String AUTONOUMOUS_AREA = "autonomousArea";
     public static final String AUTONOUMOUS_AREA_SUBENTRY = "autonomousAreaSubentry";
-    private static final Object AUTONOUMOUS_AREA_SUBENTRY_OC = "autonomousAreaSubentry";
+    public static final Object AUTONOUMOUS_AREA_SUBENTRY_OC = "autonomousAreaSubentry";
 
     public static final String AC_AREA = "accessControlSpecificArea";
     public static final String AC_INNERAREA = "accessControlInnerArea";
     public static final String AC_SUBENTRY = "accessControlSubentries";
-    private static final String AC_SUBENTRY_OC = "accessControlSubentry";
+    public static final String AC_SUBENTRY_OC = "accessControlSubentry";
 
     public static final String SCHEMA_AREA = "subschemaAdminSpecificArea";
     public static final String SCHEMA_AREA_SUBENTRY = "subschemaSubentry";
-    private static final String SCHEMA_SUBENTRY_OC = "subschema";
+    public static final String SCHEMA_SUBENTRY_OC = "subschema";
 
     public static final String COLLECTIVE_AREA = "collectiveAttributeSpecificArea";
     public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
