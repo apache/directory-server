@@ -27,6 +27,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
+import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SchemaViolationException;
@@ -465,5 +466,54 @@ public class ModifyRemoveTest extends AbstractServerTest
         }
 
         ctx.destroySubcontext( rdn );
+    }
+    
+    /**
+     * Create a person entry and try to remove objectClass attribute
+     */
+    public void testDeleteOclAttrWithTopPersonOrganizationalpersonInetorgperson() throws NamingException {
+
+        // Create an entry
+        Attributes attrs = getInetOrgPersonAttributes("Bush", "Kate Bush");
+        String rdn = "cn=Kate Bush";
+        ctx.createSubcontext(rdn, attrs);
+
+        ModificationItem delModOp = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute("objectclass", ""));
+
+        try {
+            ctx.modifyAttributes(rdn, new ModificationItem[] { delModOp });
+            fail("deletion of objectclass should fail");
+        } catch (SchemaViolationException e) {
+            // expected
+        } catch (NoSuchAttributeException e) {
+            // expected
+        } catch (InvalidAttributeValueException e) {
+            // expected
+        }
+
+        ctx.destroySubcontext(rdn);
+    }
+
+    /**
+     * Create a person entry and try to remove objectClass attribute. A variant
+     * which works.
+     */
+    public void testDeleteOclAttrWithTopPersonOrganizationalpersonInetorgpersonVariant() throws NamingException {
+
+        // Create an entry
+        Attributes attrs = getInetOrgPersonAttributes("Bush", "Kate Bush");
+        String rdn = "cn=Kate Bush";
+        ctx.createSubcontext(rdn, attrs);
+
+        ModificationItem delModOp = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute("objectclass"));
+
+        try {
+            ctx.modifyAttributes(rdn, new ModificationItem[] { delModOp });
+            fail("deletion of objectclass should fail");
+        } catch (SchemaViolationException e) {
+            // expected
+        }
+
+        ctx.destroySubcontext(rdn);
     }
 }

@@ -194,6 +194,17 @@ public class SchemaChecker
         {
             return;
         }
+        
+        // check if there is any attribute value as "".
+        // if there is remove it so that it will be considered as not even provided.
+        for( int ii = 0; ii < attribute.size(); ii++ )
+        {
+            Object value = attribute.get( ii );
+            if ( "".equals( value ) )
+            {
+                attribute.remove( ii );
+            }
+        }
 
         // whoever issued the modify operation is insane they want to delete
         // all the objectClass values in which case we must throw an exception
@@ -264,6 +275,17 @@ public class SchemaChecker
         if ( objectClass == null )
         {
             return;
+        }
+        
+        // check if there is any attribute value as "".
+        // if there is remove it so that it will be considered as not even provided.
+        for( int ii = 0; ii < objectClass.size(); ii++ )
+        {
+            Object value = objectClass.get( ii );
+            if ( "".equals( value ) )
+            {
+                objectClass.remove( ii );
+            }
         }
 
         // whoever issued the modify operation is insane they want to delete
