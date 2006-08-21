@@ -1,5 +1,5 @@
 /*
- *   Copyright 2004 The Apache Software Foundation
+ *   Copyright 2006 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -99,14 +99,14 @@ public class SubentryService extends BaseInterceptor
     private static final Logger log = LoggerFactory.getLogger( SubentryService.class );
 
     /** the hash mapping the DN of a subentry to its SubtreeSpecification */
-    private final Map subtrees = new HashMap();
+    private final SubtreeCache subtreeCache = new SubtreeCache();
+    
     private DirectoryServiceConfiguration factoryCfg;
     private SubtreeSpecificationParser ssParser;
     private SubtreeEvaluator evaluator;
     private PartitionNexus nexus;
     private AttributeTypeRegistry attrRegistry;
     private OidRegistry oidRegistry;
-    
     
     private AttributeType objectClassType;
     private AttributeType administrativeRoleType;
@@ -169,7 +169,7 @@ public class SubentryService extends BaseInterceptor
                 LdapDN dnName = new LdapDN( dn );
                 //dnName = LdapDN.normalize( dnName, registry.getNormalizerMapping() );
                 dnName.normalize( attrRegistry.getNormalizerMapping() );
-                subtrees.put( dnName.toString(), ss );
+                subtreeCache.setSubtreeSpecification( dnName.toString(), ss );
             }
         }
     }
@@ -268,14 +268,14 @@ public class SubentryService extends BaseInterceptor
     {
         Attributes subentryAttrs = new LockableAttributesImpl();
         Attribute objectClasses = entryAttrs.get( "objectClass" );
-        Iterator list = subtrees.keySet().iterator();
+        Iterator list = subtreeCache.nameIterator();
         while ( list.hasNext() )
         {
             String subentryDnStr = ( String ) list.next();
             LdapDN subentryDn = new LdapDN( subentryDnStr );
             LdapDN apDn = ( LdapDN ) subentryDn.clone();
             apDn.remove( apDn.size() - 1 );
-            SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( subentryDnStr );
+            SubtreeSpecification ss = subtreeCache.getSubtreeSpecification( subentryDnStr );
 
             if ( evaluator.evaluate( ss, apDn, dn, objectClasses ) )
             {
@@ -400,7 +400,7 @@ public class SubentryService extends BaseInterceptor
                 log.warn( msg );
                 throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
             }
-            subtrees.put( normName.toString(), ss );
+            subtreeCache.setSubtreeSpecification( normName.toString(), ss );
             next.add(normName, entry );
 
             /* ----------------------------------------------------------------
@@ -436,14 +436,14 @@ public class SubentryService extends BaseInterceptor
         }
         else
         {
-            Iterator list = subtrees.keySet().iterator();
+            Iterator list = subtreeCache.nameIterator();
             while ( list.hasNext() )
             {
                 String subentryDnStr = ( String ) list.next();
                 LdapDN subentryDn = new LdapDN( subentryDnStr );
                 LdapDN apDn = ( LdapDN ) subentryDn.clone();
                 apDn.remove( apDn.size() - 1 );
-                SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( subentryDn.toNormName() );
+                SubtreeSpecification ss = subtreeCache.getSubtreeSpecification( subentryDn.toNormName() );
 
                 if ( evaluator.evaluate( ss, apDn, normName, objectClasses ) )
                 {
@@ -534,7 +534,7 @@ public class SubentryService extends BaseInterceptor
 
         if ( objectClasses.contains( "subentry" ) )
         {
-            SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.remove( name.toNormName() );
+            SubtreeSpecification ss = subtreeCache.removeSubtreeSpecification( name.toNormName() );
             next.delete( name );
 
             /* ----------------------------------------------------------------
@@ -625,13 +625,13 @@ public class SubentryService extends BaseInterceptor
          * would be caused by chop exclusions. In this case we must add subentry
          * operational attribute values with the dn of this subentry.
          */
-        Iterator subentries = subtrees.keySet().iterator();
+        Iterator subentries = subtreeCache.nameIterator();
         while ( subentries.hasNext() )
         {
             String subentryDn = ( String ) subentries.next();
             Name apDn = new LdapDN( subentryDn );
             apDn.remove( apDn.size() - 1 );
-            SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( subentryDn );
+            SubtreeSpecification ss = subtreeCache.getSubtreeSpecification( subentryDn );
             boolean isOldNameSelected = evaluator.evaluate( ss, apDn, oldName, objectClasses );
             boolean isNewNameSelected = evaluator.evaluate( ss, apDn, newName, objectClasses );
 
@@ -687,7 +687,7 @@ public class SubentryService extends BaseInterceptor
 
         if ( objectClasses.contains( "subentry" ) )
         {
-            SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( name.toNormName() );
+            SubtreeSpecification ss = subtreeCache.getSubtreeSpecification( name.toNormName() );
             LdapDN apName = ( LdapDN ) name.clone();
             apName.remove( apName.size() - 1 );
             LdapDN baseDn = ( LdapDN ) apName.clone();
@@ -700,7 +700,7 @@ public class SubentryService extends BaseInterceptor
             rdn.normalize( attrRegistry.getNormalizerMapping() );
             newName.normalize( attrRegistry.getNormalizerMapping() );
 
-            subtrees.put( newName.toNormName(), ss );
+            subtreeCache.setSubtreeSpecification( newName.toNormName(), ss );
             next.modifyRn( name, newRn, deleteOldRn );
 
             Attributes apAttrs = nexus.lookup( apName );
@@ -757,7 +757,7 @@ public class SubentryService extends BaseInterceptor
 
         if ( objectClasses.contains( "subentry" ) )
         {
-            SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( oriChildName.toNormName() );
+            SubtreeSpecification ss = subtreeCache.getSubtreeSpecification( oriChildName.toNormName() );
             LdapDN apName = ( LdapDN ) oriChildName.clone();
             apName.remove( apName.size() - 1 );
             LdapDN baseDn = ( LdapDN ) apName.clone();
@@ -770,7 +770,7 @@ public class SubentryService extends BaseInterceptor
             rdn.normalize( attrRegistry.getNormalizerMapping() );
             newName.normalize( attrRegistry.getNormalizerMapping() );
             
-            subtrees.put( newName.toNormName(), ss );
+            subtreeCache.setSubtreeSpecification( newName.toNormName(), ss );
             next.move( oriChildName, newParentName, newRn, deleteOldRn );
 
             Attributes apAttrs = nexus.lookup( apName );
@@ -827,7 +827,7 @@ public class SubentryService extends BaseInterceptor
 
         if ( objectClasses.contains( "subentry" ) )
         {
-            SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( oriChildName.toString() );
+            SubtreeSpecification ss = subtreeCache.getSubtreeSpecification( oriChildName.toString() );
             LdapDN apName = ( LdapDN ) oriChildName.clone();
             apName.remove( apName.size() - 1 );
             LdapDN baseDn = ( LdapDN ) apName.clone();
@@ -836,7 +836,7 @@ public class SubentryService extends BaseInterceptor
             newName.remove( newName.size() - 1 );
             newName.add( newParentName.get( newParentName.size() - 1 ) );
 
-            subtrees.put( newName.toString(), ss );
+            subtreeCache.setSubtreeSpecification( newName.toString(), ss );
             next.move( oriChildName, newParentName );
 
             Attributes apAttrs = nexus.lookup( apName );
@@ -897,7 +897,7 @@ public class SubentryService extends BaseInterceptor
 
         if ( objectClasses.contains( "subentry" ) && mods.get( "subtreeSpecification" ) != null )
         {
-            SubtreeSpecification ssOld = ( SubtreeSpecification ) subtrees.remove( name.toNormName() );
+            SubtreeSpecification ssOld = subtreeCache.removeSubtreeSpecification( name.toNormName() );
             SubtreeSpecification ssNew;
 
             try
@@ -911,7 +911,7 @@ public class SubentryService extends BaseInterceptor
                 throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
             }
 
-            subtrees.put( name.toNormName(), ssNew );
+            subtreeCache.setSubtreeSpecification( name.toNormName(), ssNew );
             next.modify( name, modOp, mods );
 
             // search for all entries selected by the old SS and remove references to subentry
@@ -983,7 +983,7 @@ public class SubentryService extends BaseInterceptor
 
         if ( objectClasses.contains( "subentry" ) && isSubtreeSpecificationModification )
         {
-            SubtreeSpecification ssOld = ( SubtreeSpecification ) subtrees.remove( name.toString() );
+            SubtreeSpecification ssOld = subtreeCache.removeSubtreeSpecification( name.toString() );
             SubtreeSpecification ssNew;
 
             try
@@ -997,7 +997,7 @@ public class SubentryService extends BaseInterceptor
                 throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
             }
 
-            subtrees.put( name.toNormName(), ssNew );
+            subtreeCache.setSubtreeSpecification( name.toNormName(), ssNew );
             next.modify( name, mods );
 
             // search for all entries selected by the old SS and remove references to subentry
@@ -1339,7 +1339,7 @@ public class SubentryService extends BaseInterceptor
             String dn = result.getName();
 
             // see if we can get a match without normalization
-            if ( subtrees.containsKey( dn ) )
+            if ( subtreeCache.hasSubtreeSpecification( dn ) )
             {
                 return false;
             }
@@ -1375,7 +1375,7 @@ public class SubentryService extends BaseInterceptor
                 LdapDN ndn = new LdapDN( dn );
                 ndn.normalize( attrRegistry.getNormalizerMapping() );
                 String normalizedDn = ndn.toString();
-                return !subtrees.containsKey( normalizedDn );
+                return !subtreeCache.hasSubtreeSpecification( normalizedDn );
             }
 
             LdapDN name = new LdapDN( invocation.getCaller().getNameInNamespace() );
@@ -1384,7 +1384,7 @@ public class SubentryService extends BaseInterceptor
             LdapDN rest = new LdapDN( result.getName() );
             rest.normalize( attrRegistry.getNormalizerMapping() );
             name.addAll( rest );
-            return !subtrees.containsKey( name.toString() );
+            return !subtreeCache.hasSubtreeSpecification( name.toString() );
         }
     }
 
@@ -1400,7 +1400,7 @@ public class SubentryService extends BaseInterceptor
             String dn = result.getName();
 
             // see if we can get a match without normalization
-            if ( subtrees.containsKey( dn ) )
+            if ( subtreeCache.hasSubtreeSpecification( dn ) )
             {
                 return true;
             }
@@ -1435,7 +1435,7 @@ public class SubentryService extends BaseInterceptor
             {
                 LdapDN ndn = new LdapDN( dn );
                 ndn.normalize( attrRegistry.getNormalizerMapping() );
-                return subtrees.containsKey( ndn.toNormName() );
+                return subtreeCache.hasSubtreeSpecification( ndn.toNormName() );
             }
 
             LdapDN name = new LdapDN( invocation.getCaller().getNameInNamespace() );
@@ -1444,7 +1444,7 @@ public class SubentryService extends BaseInterceptor
             LdapDN rest = new LdapDN( result.getName() );
             rest.normalize( attrRegistry.getNormalizerMapping() );
             name.addAll( rest );
-            return subtrees.containsKey( name.toNormName() );
+            return subtreeCache.hasSubtreeSpecification( name.toNormName() );
         }
     }
 }
