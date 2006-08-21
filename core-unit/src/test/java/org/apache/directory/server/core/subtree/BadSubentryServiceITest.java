@@ -183,5 +183,4 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
         assertEquals( 1, accessControlSubentries.size() );
         */
     }
-    
 }
