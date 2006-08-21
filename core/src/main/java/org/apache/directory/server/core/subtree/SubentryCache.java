@@ -30,37 +30,42 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeCache
+public class SubentryCache
 {
-    private final Map subtrees = new HashMap();
+    private final Map name2subentry = new HashMap();
     
     
-    final SubtreeSpecification getSubtreeSpecification( String normalizedName )
+    final Subentry getSubentry( String normalizedName )
     {
-        return ( SubtreeSpecification ) subtrees.get( normalizedName );
+        return ( Subentry ) name2subentry.get( normalizedName );
     }
     
     
-    final SubtreeSpecification removeSubtreeSpecification( String normalizedName )
+    final Subentry removeSubentry( String normalizedName )
     {
-        return ( SubtreeSpecification ) subtrees.remove( normalizedName );
+        return ( Subentry ) name2subentry.remove( normalizedName );
     }
     
     
-    final SubtreeSpecification setSubtreeSpecification( String normalizedName, SubtreeSpecification ss )
+    final Subentry setSubentry( String normalizedName, SubtreeSpecification ss, int types )
     {
-        return ( SubtreeSpecification ) subtrees.put( normalizedName, ss );
+        Subentry old = ( Subentry ) name2subentry.get( normalizedName );
+        Subentry subentry = new Subentry();
+        subentry.setSubtreeSpecification( ss );
+        subentry.setTypes( types );
+        name2subentry.put( normalizedName, subentry );
+        return old;
     }
     
     
-    final boolean hasSubtreeSpecification( String normalizedName )
+    final boolean hasSubentry( String normalizedName )
     {
-        return subtrees.containsKey( normalizedName );
+        return name2subentry.containsKey( normalizedName );
     }
     
     
     final Iterator nameIterator()
     {
-        return subtrees.keySet().iterator();
+        return name2subentry.keySet().iterator();
     }
 }
