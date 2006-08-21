@@ -60,10 +60,6 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
-//        objectClass.add( SubentryService.AUTONOUMOUS_AREA_SUBENTRY_OC );
-//        objectClass.add( SubentryService.COLLECTIVE_SUBENTRY_OC );
-//        objectClass.add( SubentryService.SCHEMA_SUBENTRY_OC );
-        objectClass.add( SubentryService.AC_SUBENTRY_OC );
         subentry.put( objectClass );
         subentry.put( "subtreeSpecification", "{ base \"ou=configuration\" }" );
         subentry.put( "cn", "testsubentry" );
@@ -77,10 +73,6 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
-//        objectClass.add( SubentryService.AUTONOUMOUS_AREA_SUBENTRY_OC );
-//        objectClass.add( SubentryService.COLLECTIVE_SUBENTRY_OC );
-//        objectClass.add( SubentryService.SCHEMA_SUBENTRY_OC );
-        objectClass.add( SubentryService.AC_SUBENTRY_OC );
         subentry.put( objectClass );
         String spec = "{ base \"ou=configuration\", specificExclusions { chopBefore:\"cn=unmarked\" } }";
         subentry.put( "subtreeSpecification", spec );
