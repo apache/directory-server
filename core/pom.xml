@@ -165,6 +165,9 @@
       <resource>
         <directory>src/main/resources</directory>
         <filtering>false</filtering>
+        <excludes>
+          <exclude>**/*.gif</exclude>
+        </excludes>
       </resource>
     </resources>
   </build>
