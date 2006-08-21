@@ -77,21 +77,26 @@ public class SubentryService extends BaseInterceptor
 
     public static final String AUTONOUMOUS_AREA = "autonomousArea";
     public static final String AUTONOUMOUS_AREA_SUBENTRY = "autonomousAreaSubentry";
+    private static final Object AUTONOUMOUS_AREA_SUBENTRY_OC = "autonomousAreaSubentry";
 
     public static final String AC_AREA = "accessControlSpecificArea";
     public static final String AC_INNERAREA = "accessControlInnerArea";
     public static final String AC_SUBENTRY = "accessControlSubentries";
+    private static final String AC_SUBENTRY_OC = "accessControlSubentry";
 
     public static final String SCHEMA_AREA = "subschemaAdminSpecificArea";
     public static final String SCHEMA_AREA_SUBENTRY = "subschemaSubentry";
+    private static final String SCHEMA_SUBENTRY_OC = "subschema";
 
     public static final String COLLECTIVE_AREA = "collectiveAttributeSpecificArea";
     public static final String COLLECTIVE_INNERAREA = "collectiveAttributeInnerArea";
     public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
+    public static final String COLLECTIVE_SUBENTRY_OC = "collectiveAttributeSubentry";
     
     public static final String TRIGGER_AREA = "triggerSpecificArea";
     public static final String TRIGGER_INNERAREA = "triggerInnerArea";
     public static final String TRIGGER_SUBENTRIES = "triggerSubentries";
+
 
     public static final String[] SUBENTRY_OPATTRS =
         { AUTONOUMOUS_AREA_SUBENTRY, AC_SUBENTRY, SCHEMA_AREA_SUBENTRY, COLLECTIVE_ATTRIBUTE_SUBENTRIES, TRIGGER_SUBENTRIES };
@@ -186,24 +191,24 @@ public class SubentryService extends BaseInterceptor
                 ResultCodeEnum.OBJECTCLASSVIOLATION );
         }
         
-        if ( oc.contains( AUTONOUMOUS_AREA ) )
+        if ( oc.contains( AUTONOUMOUS_AREA_SUBENTRY_OC ) )
         {
-            types &= Subentry.AUTONOMOUS_AREA_SUBENTRY;
+            types |= Subentry.AUTONOMOUS_AREA_SUBENTRY;
         }
         
-        if ( oc.contains( AC_AREA ) || oc.contains( AC_INNERAREA ) )
+        if ( oc.contains( AC_SUBENTRY_OC ) )
         {
-            types &= Subentry.ACCESS_CONTROL_SUBENTRY;
+            types |= Subentry.ACCESS_CONTROL_SUBENTRY;
         }
         
-        if ( oc.contains( SCHEMA_AREA ) )
+        if ( oc.contains( SCHEMA_SUBENTRY_OC ) )
         {
-            types &= Subentry.SCHEMA_SUBENTRY;
+            types |= Subentry.SCHEMA_SUBENTRY;
         }
         
-        if ( oc.contains( COLLECTIVE_AREA ) )
+        if ( oc.contains( COLLECTIVE_SUBENTRY_OC ) )
         {
-            types &= Subentry.COLLECTIVE_SUBENTRY;
+            types |= Subentry.COLLECTIVE_SUBENTRY;
         }
         
         return types;
@@ -478,7 +483,8 @@ public class SubentryService extends BaseInterceptor
                 LdapDN subentryDn = new LdapDN( subentryDnStr );
                 LdapDN apDn = ( LdapDN ) subentryDn.clone();
                 apDn.remove( apDn.size() - 1 );
-                SubtreeSpecification ss = subentryCache.getSubentry( subentryDn.toNormName() ).getSubtreeSpecification();
+                Subentry subentry = subentryCache.getSubentry( subentryDn.toNormName() );
+                SubtreeSpecification ss = subentry.getSubtreeSpecification();
 
                 if ( evaluator.evaluate( ss, apDn, normName, objectClasses ) )
                 {
@@ -497,6 +503,11 @@ public class SubentryService extends BaseInterceptor
                                 operational = new LockableAttributeImpl( AUTONOUMOUS_AREA_SUBENTRY );
                                 entry.put( operational );
                             }
+                            
+                            if ( subentry.isAutonomousAreaSubentry() )
+                            {
+                                operational.add( subentryDn.toString() );
+                            }
                         }
                         else if ( role.equalsIgnoreCase( AC_AREA ) || role.equalsIgnoreCase( AC_INNERAREA ) )
                         {
@@ -505,6 +516,11 @@ public class SubentryService extends BaseInterceptor
                             {
                                 operational = new LockableAttributeImpl( AC_SUBENTRY );
                                 entry.put( operational );
+                            }
+                            
+                            if ( subentry.isAccessControlSubentry() )
+                            {
+                                operational.add( subentryDn.toString() );
                             }
                         }
                         else if ( role.equalsIgnoreCase( SCHEMA_AREA ) )
@@ -515,6 +531,11 @@ public class SubentryService extends BaseInterceptor
                                 operational = new LockableAttributeImpl( SCHEMA_AREA_SUBENTRY );
                                 entry.put( operational );
                             }
+                            
+                            if ( subentry.isSchemaSubentry() )
+                            {
+                                operational.add( subentryDn.toString() );
+                            }
                         }
                         else if ( role.equalsIgnoreCase( COLLECTIVE_AREA )
                             || role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
@@ -524,6 +545,11 @@ public class SubentryService extends BaseInterceptor
                             {
                                 operational = new LockableAttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                                 entry.put( operational );
+                            }
+                            
+                            if ( subentry.isCollectiveSubentry() )
+                            {
+                                operational.add( subentryDn.toString() );
                             }
                         }
                         else if ( role.equalsIgnoreCase( TRIGGER_AREA ) || role.equalsIgnoreCase( TRIGGER_INNERAREA ) )
@@ -548,7 +574,7 @@ public class SubentryService extends BaseInterceptor
                                     + " triggerArea and triggerInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
                         }
 
-                        operational.add( subentryDn.toString() );
+//                        operational.add( subentryDn.toString() );
                     }
                 }
             }
