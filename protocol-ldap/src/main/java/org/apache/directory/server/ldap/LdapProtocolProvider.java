@@ -65,6 +65,7 @@ import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.Request;
+import org.apache.directory.shared.ldap.message.ResponseCarryingMessageException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
@@ -402,6 +403,13 @@ public class LdapProtocolProvider
 
         public void exceptionCaught( IoSession session, Throwable cause )
         {
+            if ( cause.getCause() instanceof ResponseCarryingMessageException )
+            {
+                ResponseCarryingMessageException rcme = ( ResponseCarryingMessageException ) cause.getCause();
+                session.write( rcme.getResponse() );
+                return;
+            }
+            
             SessionLog.warn( session,
                 "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
             session.write( NoticeOfDisconnect.PROTOCOLERROR );
