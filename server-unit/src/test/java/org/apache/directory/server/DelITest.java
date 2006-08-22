@@ -41,11 +41,13 @@ public class DelITest extends AbstractServerTest
 
     protected void setUp() throws LDAPException, Exception {
         super.setUp();
+        
         con = new LDAPConnection();
         con.connect(3, HOST, port, USER, PASSWORD);
     }
 
-    protected void tearDown() throws LDAPException {
+    protected void tearDown() throws LDAPException, Exception {
+        super.tearDown();
         con.disconnect();
     }
 
