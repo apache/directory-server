@@ -48,7 +48,7 @@ import netscape.ldap.LDAPModification;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: $
  */
-public class IllegalModification extends AbstractServerTest
+public class IllegalModificationITest extends AbstractServerTest
 {
     static final String DN = "cn=Kate Bush,ou=system";
     static final String USER = "uid=admin,ou=system";
@@ -93,7 +93,7 @@ public class IllegalModification extends AbstractServerTest
 
         try
         {
-            con.modify( "cn=Kate Bush,dc=example,dc=com", mod );
+            con.modify( "cn=Kate Bush,ou=system", mod );
             fail( "error expected due to empty attribute value" );
         }
         catch ( LDAPException e )
@@ -103,7 +103,6 @@ public class IllegalModification extends AbstractServerTest
 
         // Check whether entry is unmodified, i.e. no description
         LDAPEntry entry = con.read( DN );
-        System.err.println( entry );
         assertEquals( "description exists?", null, entry.getAttribute( "description" ) );
     }
 }
