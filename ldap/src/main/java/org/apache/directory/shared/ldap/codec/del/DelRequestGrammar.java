@@ -122,7 +122,7 @@ public class DelRequestGrammar extends AbstractGrammar implements IGrammar
                             log.error( "{} : {}", msg, ine.getMessage() );
                             
                             DeleteResponseImpl message = new DeleteResponseImpl( ldapMessage.getMessageId() );
-                            message.getLdapResult().setErrorMessage( "abc" );
+                            message.getLdapResult().setErrorMessage( msg );
                             message.getLdapResult().setResultCode( ResultCodeEnum.INVALIDDNSYNTAX );
                             message.getLdapResult().setMatchedDn( LdapDN.EMPTY_LDAPDN );
                             
