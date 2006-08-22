@@ -403,9 +403,9 @@ public class LdapProtocolProvider
 
         public void exceptionCaught( IoSession session, Throwable cause )
         {
-            if ( cause instanceof ResponseCarryingMessageException )
+            if ( cause.getCause() instanceof ResponseCarryingMessageException )
             {
-                ResponseCarryingMessageException rcme = ( ResponseCarryingMessageException ) cause;
+                ResponseCarryingMessageException rcme = ( ResponseCarryingMessageException ) cause.getCause();
                 session.write( rcme.getResponse() );
                 return;
             }
