@@ -670,6 +670,12 @@ public class SchemaService extends BaseInterceptor
             if ( modOp == DirContext.ADD_ATTRIBUTE )
             {
                 tmpEntryForAdd.put( change );
+                if ( change.size() == 0 )
+                {
+                    // not ok for add but ok for replace and delete
+                    throw new LdapInvalidAttributeValueException( "No value is not a valid value for an attribute.", 
+                        ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
+                }
             }
 
             if ( modOp == DirContext.REMOVE_ATTRIBUTE && entry.get( change.getID() ) == null )
@@ -790,10 +796,10 @@ public class SchemaService extends BaseInterceptor
             }
             
             // Freak out under some weird cases
-            if ( mods[0].getAttribute().size() == 0 )
+            if ( mods[ii].getAttribute().size() == 0 )
             {
                 // not ok for add but ok for replace and delete
-                if ( mods[0].getModificationOp() == DirContext.ADD_ATTRIBUTE )
+                if ( mods[ii].getModificationOp() == DirContext.ADD_ATTRIBUTE )
                 {
                     throw new LdapInvalidAttributeValueException( "No value is not a valid value for an attribute.", 
                         ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
