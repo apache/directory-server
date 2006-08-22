@@ -128,6 +128,6 @@ public class IllegalModificationITest extends AbstractServerTest
 
         // Check whether entry is unmodified, i.e. no description
         LDAPEntry entry = con.read( DN );
-        assertEquals( "description exists?", null, entry.getAttribute( "description" ) );
+        assertEquals( "displayName exists?", null, entry.getAttribute( "displayName" ) );
     }
 }
