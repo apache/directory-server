@@ -96,7 +96,6 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.11 NAME 'accessControlSubentries'
     SUP distinguishedName
     EQUALITY distinguishedNameMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
-    SINGLE-VALUE
     NO-USER-MODIFICATION
     USAGE directoryOperation )
 
