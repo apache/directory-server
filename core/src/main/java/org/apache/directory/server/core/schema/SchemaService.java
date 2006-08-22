@@ -788,6 +788,17 @@ public class SchemaService extends BaseInterceptor
             {
                 objectClassMod = mods[ii];
             }
+            
+            // Freak out under some weird cases
+            if ( mods[0].getAttribute().size() == 0 )
+            {
+                // not ok for add but ok for replace and delete
+                if ( mods[0].getModificationOp() == DirContext.ADD_ATTRIBUTE )
+                {
+                    throw new LdapInvalidAttributeValueException( "No value is not a valid value for an attribute.", 
+                        ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
+                }
+            }
 
             StringBuffer keybuf = new StringBuffer();
             keybuf.append( mods[ii].getModificationOp() );
