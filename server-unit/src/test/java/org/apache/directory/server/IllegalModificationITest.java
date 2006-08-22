@@ -105,4 +105,29 @@ public class IllegalModificationITest extends AbstractServerTest
         LDAPEntry entry = con.read( DN );
         assertEquals( "description exists?", null, entry.getAttribute( "description" ) );
     }
+    
+    
+    public void testIllegalModification2() throws LDAPException
+    {
+        // first a valid attribute
+        LDAPAttribute attr = new LDAPAttribute( "description", "The description" );
+        LDAPModification mod = new LDAPModification( LDAPModification.ADD, attr );
+        // then an invalid one without any value
+        attr = new LDAPAttribute( "displayName" );
+        LDAPModification mod2 = new LDAPModification( LDAPModification.ADD, attr );
+
+        try
+        {
+            con.modify( "cn=Kate Bush,ou=system", new LDAPModification[] { mod, mod2 } );
+            fail( "error expected due to empty attribute value" );
+        }
+        catch ( LDAPException e )
+        {
+            // expected
+        }
+
+        // Check whether entry is unmodified, i.e. no description
+        LDAPEntry entry = con.read( DN );
+        assertEquals( "displayName exists?", null, entry.getAttribute( "displayName" ) );
+    }
 }
