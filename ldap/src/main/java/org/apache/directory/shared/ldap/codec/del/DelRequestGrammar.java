@@ -29,12 +29,14 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
+import org.apache.directory.shared.ldap.message.DeleteResponseImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.codec.LdapStatesEnum;
+import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * This class implements the DelRequest LDAP message. All the actions are
@@ -115,10 +117,20 @@ public class DelRequestGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "The DN to delete  (" + StringTools.dumpBytes( tlv.getValue().getData() )
+                            String msg = "The DN to delete :" + StringTools.utf8ToString( tlv.getValue().getData() )+ " (" + StringTools.dumpBytes( tlv.getValue().getData() )
                                 + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
-                            throw new DecoderException( msg, ine );
+                            
+                            DeleteResponseImpl message = new DeleteResponseImpl( ldapMessage.getMessageId() );
+                            message.getLdapResult().setErrorMessage( "abc" );
+                            message.getLdapResult().setResultCode( ResultCodeEnum.INVALIDDNSYNTAX );
+                            message.getLdapResult().setMatchedDn( LdapDN.EMPTY_LDAPDN );
+                            
+                            ResponseCarryingException exception = new ResponseCarryingException( msg, ine );
+                            
+                            exception.setResponse( message );
+                            
+                            throw exception;
                         }
                         delRequest.setEntry( entry );
                     }

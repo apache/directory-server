@@ -1,0 +1,89 @@
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+
+/*
+ * $Id: MessageException.java 379008 2006-02-20 03:35:07Z akarasulu $
+ *
+ * -- (c) LDAPd Group                                                    --
+ * -- Please refer to the LICENSE.txt file in the root directory of      --
+ * -- any LDAPd project for copyright and distribution information.      --
+ *
+ */
+
+package org.apache.directory.shared.ldap.message;
+
+
+import org.apache.directory.shared.ldap.RuntimeMultiException;
+
+
+/**
+ * This exception is thrown when a message processing error occurs.
+ * 
+ * @author Apache Software Foundation
+ */
+public class ResponseCarryingMessageException extends RuntimeMultiException
+{
+    /**
+     * Declares the Serial Version Uid.
+     * 
+     * @see <a
+     *      href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always
+     *      Declare Serial Version Uid</a>
+     */
+    private static final long serialVersionUID = 1L;
+
+    /** The response with the error cause */
+    private Message response;
+    
+    /**
+     * Constructs an Exception without a message.
+     */
+    public ResponseCarryingMessageException()
+    {
+        super();
+    }
+
+
+    /**
+     * Constructs an Exception with a detailed message.
+     * 
+     * @param a_message
+     *            The message associated with the exception.
+     */
+    public ResponseCarryingMessageException(String message)
+    {
+        super( message );
+    }
+    
+    /**
+     * Set a response if we get an exception while parsing the message
+     * @param response the constructed response
+     */
+    public void setResponse( Message response ) 
+    {
+        this.response = response;
+    }
+    
+    /**
+     * Get the constructed response
+     * @return The constructed response
+     */
+    public Message getResponse()
+    {
+        return response;
+    }
+}

@@ -28,6 +28,7 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderMonitor;
 import org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder;
+import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
 import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.directory.shared.ldap.message.spi.ProviderDecoder;
 import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
@@ -167,21 +168,28 @@ public final class MessageDecoder implements ProviderDecoder
     {
         Object providerEnvelope;
 
-        if ( lock == null )
+        try
         {
-            // Complain here somehow first then do the following w/o synch!
-
-            // Call provider decoder to demarshall PDU into berlib specific form
-            providerEnvelope = decoder.decode( lock, in );
-        }
-        else
-        {
-            synchronized ( lock )
+            if ( lock == null )
             {
-                // Same as above but a synchronized read using valid lock object
+                // Complain here somehow first then do the following w/o synch!
+    
+                // Call provider decoder to demarshall PDU into berlib specific form
                 providerEnvelope = decoder.decode( lock, in );
-                lock.notifyAll();
             }
+            else
+            {
+                synchronized ( lock )
+                {
+                    // Same as above but a synchronized read using valid lock object
+                    providerEnvelope = decoder.decode( lock, in );
+                    lock.notifyAll();
+                }
+            }
+        }
+        catch (Exception e) 
+        {
+            throw (MessageException)e;
         }
 
         // Call on transformer to convert stub based PDU into Message based PDU
@@ -207,7 +215,18 @@ public final class MessageDecoder implements ProviderDecoder
         }
         catch ( DecoderException e )
         {
-            throw new MessageException( "decoder failture: " + e.getMessage() );
+            // transform the DecoderException message to a MessageException
+            if ( e instanceof ResponseCarryingException ) 
+            {
+                ResponseCarryingMessageException rcme = new ResponseCarryingMessageException( e.getMessage() );
+                rcme.setResponse( ((ResponseCarryingException)e).getResponse() );
+                
+                throw rcme;
+            }
+            else
+            {
+                throw new MessageException( "decoder failture: " + e.getMessage() );
+            }
         }
     }
 
