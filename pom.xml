@@ -229,9 +229,9 @@ Use JDK 1.5 to make sure these modules build.
   </licenses>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/apacheds</connection>
-    <url>http://svn.apache.org/viewcvs.cgi/directory/trunks/apacheds</url>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/trunks/apacheds</developerConnection>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/branches/apacheds/1.0</connection>
+    <url>http://svn.apache.org/viewcvs.cgi/directory/branches/apacheds/1.0</url>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/branches/apacheds/1.0</developerConnection>
   </scm>
 
   <organization>
