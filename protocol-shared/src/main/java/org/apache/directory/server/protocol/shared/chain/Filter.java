@@ -36,7 +36,7 @@ package org.apache.directory.server.protocol.shared.chain;
  * can reliably release such resources in the <code>postprocess()</code>
  * method, which is guaranteed to be called by the owning {@link Chain}.</p>
  *
- * @author Craig R. McClanahan
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$ $Date$
  */
 public interface Filter extends Command

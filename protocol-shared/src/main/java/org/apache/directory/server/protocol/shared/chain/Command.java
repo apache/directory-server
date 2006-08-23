@@ -72,7 +72,7 @@ package org.apache.directory.server.protocol.shared.chain;
  * being used in this fashion, as opposed to JavaBeans properties that simply
  * configure the internal operation of this {@link Command}.</p>
  *
- * @author Craig R. McClanahan
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$ $Date$
  */
 public interface Command

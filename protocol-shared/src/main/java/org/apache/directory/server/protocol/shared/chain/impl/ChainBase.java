@@ -28,7 +28,7 @@ import org.apache.directory.server.protocol.shared.chain.Filter;
 /**
  * <p>Convenience base class for {@link Chain} implementations.</p>
  *
- * @author Craig R. McClanahan
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$ $Date$
  */
 public class ChainBase implements Chain

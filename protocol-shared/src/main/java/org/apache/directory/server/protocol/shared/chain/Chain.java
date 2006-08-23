@@ -46,7 +46,7 @@ package org.apache.directory.server.protocol.shared.chain;
  * the <code>execute()</code> method of the {@link Chain} is first called.
  * After that, the configuration of the {@link Chain} is frozen.</p>
  *
- * @author Craig R. McClanahan
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$ $Date$
  */
 public interface Chain extends Command

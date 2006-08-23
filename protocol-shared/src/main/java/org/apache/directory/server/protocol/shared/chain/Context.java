@@ -55,7 +55,7 @@ import java.util.Map;
  * simultaneously unless this is explicitly documented for a particular
  * implementation.</p>
  *
- * @author Craig R. McClanahan
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$ $Date$
  */
 public interface Context extends Map

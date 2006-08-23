@@ -45,7 +45,7 @@ import org.apache.directory.server.protocol.shared.chain.Context;
  * read-only property defined by the <code>Map</code> interface, it may not
  * be utilized as an attribute key or property name.</p>
  *
- * @author Craig R. McClanahan
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$ $Date$
  */
 public class ContextBase extends HashMap implements Context
