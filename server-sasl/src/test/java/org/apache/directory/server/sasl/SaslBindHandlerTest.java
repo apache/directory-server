@@ -21,7 +21,7 @@ import org.apache.directory.server.unit.AbstractServerTest;
 /**
  * Tests {@link SaslBindHandler}.
  *
- * @author Trustin Lee
+ * @author The Apache Directory Project (dev@directory.apache.org)
  * @version $Rev: 27 $, $Date: 2005-11-14 17:10:05 +0900 (Mon, 14 Nov 2005) $
  */
 public class SaslBindHandlerTest extends AbstractServerTest
