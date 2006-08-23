@@ -32,7 +32,7 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RFC2713ITests extends AbstractAdminTestCase
+public class RFC2713ITest extends AbstractAdminTestCase
 {
     public void testSerialization() throws Exception
     {
