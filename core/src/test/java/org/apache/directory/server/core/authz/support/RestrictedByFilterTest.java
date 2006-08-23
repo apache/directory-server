@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 /**
  * Tests {@link RestrictedByFilter}.
  *
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class RestrictedByFilterTest extends TestCase

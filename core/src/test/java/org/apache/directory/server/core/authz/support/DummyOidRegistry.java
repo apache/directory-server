@@ -33,7 +33,7 @@ import org.apache.directory.server.core.schema.OidRegistry;
 /**
  * A mock {@link OidRegistry} to test {@link ACITupleFilter} implementations.
  *
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  *
  */

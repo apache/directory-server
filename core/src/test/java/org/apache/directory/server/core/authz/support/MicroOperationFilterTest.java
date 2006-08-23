@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 /**
  * Tests {@link MicroOperationFilter}.
  *
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class MicroOperationFilterTest extends TestCase
