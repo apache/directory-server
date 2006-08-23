@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * configure a {@link DirectoryService} with 3rd party containers such as <a
  * href="http://www.springframework.org/">Spring Framework</a>.
  * 
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class AttributesPropertyEditor extends PropertyEditorSupport
