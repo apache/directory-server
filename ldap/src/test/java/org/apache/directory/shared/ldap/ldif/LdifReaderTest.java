@@ -34,7 +34,7 @@ import javax.naming.NamingException;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
- * @author <a href="mailto:akarasulu@safehaus.org">Alex Karasulu</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 379008 $
  */
 public class LdifReaderTest extends TestCase
