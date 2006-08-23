@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * matching UserGroup, discard all other tuples. Otherwise if there are any tuples
  * matching subtree, discard all other tuples.
  *
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class MostSpecificUserClassFilter implements ACITupleFilter

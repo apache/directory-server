@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * which is a rangeOfValues is to be treated as specifying an attribute value
  * explicitly.
  * 
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class MostSpecificProtectedItemFilter implements ACITupleFilter

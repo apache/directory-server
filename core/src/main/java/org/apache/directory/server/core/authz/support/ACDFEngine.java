@@ -58,7 +58,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * Operation is determined to be permitted if and only if there is at least one
  * tuple left and all of them grants the access. (18.8.4. X.501)
  * 
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class ACDFEngine

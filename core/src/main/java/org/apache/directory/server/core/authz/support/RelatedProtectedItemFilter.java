@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  * An {@link ACITupleFilter} that discards all tuples whose {@link ProtectedItem}s
  * are not related with the operation. (18.8.3.2, X.501)
  *
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class RelatedProtectedItemFilter implements ACITupleFilter
