@@ -38,7 +38,6 @@ import org.apache.mina.util.AvailablePortFinder;
  * Test case to verify DIREVE-216.  Starts up the server binds via SUN JNDI provider
  * to perform add modify operations on entries.
  * 
- * @author szoerner
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
