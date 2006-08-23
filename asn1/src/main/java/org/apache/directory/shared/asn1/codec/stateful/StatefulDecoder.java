@@ -30,7 +30,7 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
  * encoding scheme, has been decoded, the <code>decode()</code> method of the
  * registered DecoderCallback is called.
  * 
- * @author <a href="mailto:commons-dev@jakarta.apache.org">Jakarta Commons</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface StatefulDecoder

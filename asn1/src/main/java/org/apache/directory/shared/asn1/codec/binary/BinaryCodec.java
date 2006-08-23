@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
  * 
  * @todo may want to add more bit vector functions like and/or/xor/nand
  * @todo also might be good to generate boolean[] from byte[] et. cetera.
- * @author Apache Software Foundation
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @since 1.3
  * @version $Id $
  */

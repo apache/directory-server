@@ -20,7 +20,7 @@ package org.apache.directory.shared.asn1.codec.stateful;
 /**
  * Callback interface for stateful decoder callbacks.
  * 
- * @author <a href="mailto:commons-dev@jakarta.apache.org">Jakarta Commons</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface DecoderCallback

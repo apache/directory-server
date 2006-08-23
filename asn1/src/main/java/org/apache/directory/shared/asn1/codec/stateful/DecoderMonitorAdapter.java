@@ -22,7 +22,7 @@ package org.apache.directory.shared.asn1.codec.stateful;
  * fatal exceptions are reported to the console when using this adapter to
  * prevent exceptions from being completely ignored.
  * 
- * @author Apache Software Foundation
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class DecoderMonitorAdapter implements DecoderMonitor

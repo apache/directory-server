@@ -23,7 +23,7 @@ package org.apache.directory.shared.asn1.codec;
  * such as invalid data, inability to calculate a checksum, characters outside
  * of the expected range.
  * 
- * @author Apache Software Foundation
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Id$
  */
 public class EncoderException extends Exception

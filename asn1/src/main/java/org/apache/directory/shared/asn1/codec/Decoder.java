@@ -31,7 +31,7 @@ package org.apache.directory.shared.asn1.codec;
  * One of the two interfaces at the center of the codec package.
  * </p>
  * 
- * @author Apache Software Foundation
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Id$
  */
 public interface Decoder

@@ -27,7 +27,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
  * Hex encoder and decoder.
  * 
  * @since 1.1
- * @author Apache Software Foundation
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Id$
  */
 public class Hex implements BinaryEncoder, BinaryDecoder
