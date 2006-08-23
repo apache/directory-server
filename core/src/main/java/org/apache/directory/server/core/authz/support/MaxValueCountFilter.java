@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * An {@link ACITupleFilter} that discards all tuples that doesn't satisfy
  * {@link ProtectedItem.MaxValueCount} constraint if available. (18.8.3.3, X.501)
  *
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class MaxValueCountFilter implements ACITupleFilter

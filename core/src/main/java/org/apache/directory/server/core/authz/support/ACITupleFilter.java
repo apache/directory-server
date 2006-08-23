@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * An interface that filters the specified collection of tuples using the
  * specified extra information.
  *
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  *
  */

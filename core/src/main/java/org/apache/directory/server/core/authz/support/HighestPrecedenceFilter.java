@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * An {@link ACITupleFilter} that discards all tuples having a precedence less
  * than the highest remaining precedence. (18.8.4.1, X.501)
  *
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class HighestPrecedenceFilter implements ACITupleFilter

@@ -29,7 +29,7 @@ import java.util.Iterator;
 /**
  * The top level evaluation node for a refinement.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class RefinementEvaluator

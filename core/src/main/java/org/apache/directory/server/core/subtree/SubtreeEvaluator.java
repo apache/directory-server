@@ -32,7 +32,7 @@ import java.util.Iterator;
  * An evaluator used to determine if an entry is included in the collection
  * represented by a subtree specification.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class SubtreeEvaluator

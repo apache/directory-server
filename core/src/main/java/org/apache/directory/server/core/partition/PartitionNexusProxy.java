@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * {@link InvocationStack} of the current thread, and popped when
  * the operation ends.  All invocations are filtered by {@link InterceptorChain}.
  *
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class PartitionNexusProxy extends PartitionNexus

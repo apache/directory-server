@@ -52,9 +52,7 @@ import org.slf4j.LoggerFactory;
 /**
  * An {@link Interceptor} that authenticates users.
  *
- * @author Apache Directory Project (dev@directory.apache.org)
- * @author Alex Karasulu (akarasulu@apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class AuthenticationService extends BaseInterceptor

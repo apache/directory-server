@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 /**
  * Test case for helper methods within SimpleAuthenticator.
  * 
- * @author Apache Directory Project (dev@directory.apache.org)
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SimpleAuthenticatorOneWayEncryptedTest extends TestCase
 {

@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
  * An {@link ACITupleFilter} that discards all tuples whose {@link UserClass}es
  * are not related with the current user. (18.8.3.1, X.501)
  *
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class RelatedUserClassFilter implements ACITupleFilter
