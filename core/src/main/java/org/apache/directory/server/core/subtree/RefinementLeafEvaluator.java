@@ -31,7 +31,7 @@ import java.util.Iterator;
  * objectClass attribute of a candidate entry is matched by a leaf node in
  * a refinement filter expression tree.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class RefinementLeafEvaluator
