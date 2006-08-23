@@ -32,8 +32,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 /**
  * Filter expression tree node for extensible assertions.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $author$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public class ExtensibleNode extends LeafNode

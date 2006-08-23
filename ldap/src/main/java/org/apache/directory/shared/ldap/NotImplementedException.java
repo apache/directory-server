@@ -33,8 +33,7 @@ package org.apache.directory.shared.ldap;
  * operations on a backend set to readonly throw a type of unsupported exception
  * called ReadOnlyException.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public class NotImplementedException extends RuntimeException

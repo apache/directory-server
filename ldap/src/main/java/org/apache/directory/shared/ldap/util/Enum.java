@@ -275,12 +275,7 @@ import java.util.Map;
  * <p>
  * For more details, see the 'Nested' test cases.
  * 
- * @author Apache Avalon project
- * @author Stephen Colebourne
- * @author Chris Webb
- * @author Mike Bowler
- * @since 1.0
- * @version $Id$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public abstract class Enum implements Comparable, Serializable
 {

@@ -39,10 +39,7 @@ import java.util.*;
  * 
  * @since Commons Collections 2.0
  * @version $Revision$ $Date$
- * @author Michael A. Smith
- * @author Daniel Rall
- * @author Henning P. Schmiedehausen
- * @author Stephen Colebourne
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SequencedHashMap implements Map, Cloneable, Externalizable
 {

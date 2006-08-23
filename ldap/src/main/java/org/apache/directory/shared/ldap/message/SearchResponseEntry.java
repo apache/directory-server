@@ -36,8 +36,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * Search entry protocol response message used to return non referral entries to
  * the client in response to a search request message.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: jmachols $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface SearchResponseEntry extends Response

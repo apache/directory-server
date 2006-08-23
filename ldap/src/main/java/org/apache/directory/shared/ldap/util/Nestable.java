@@ -24,12 +24,7 @@ import java.io.PrintWriter;
  * An interface to be implemented by {@link java.lang.Throwable} extensions
  * which would like to be able to nest root exceptions inside themselves.
  * 
- * @author <a href="mailto:dlr@collab.net">Daniel Rall</a>
- * @author <a href="mailto:knielsen@apache.org">Kasper Nielsen</a>
- * @author <a href="mailto:steven@caswell.name">Steven Caswell</a>
- * @author Pete Gieser
- * @since 1.0
- * @version $Id$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public interface Nestable
 {

@@ -23,8 +23,7 @@ import org.apache.directory.shared.ldap.message.Message;
 /**
  * Thrown when a Decoder has encountered a failure condition during a decode.
  * 
- * @author Apache Software Foundation
- * @version $Id: DecoderException.java 379008 2006-02-20 03:35:07Z akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ResponseCarryingException extends DecoderException
 {

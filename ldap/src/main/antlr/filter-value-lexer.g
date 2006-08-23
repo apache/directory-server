@@ -34,7 +34,7 @@ package org.apache.directory.shared.ldap.filter;
  * TokenStreamSelector to multiplex lexical states in a parser.
  * 
  * @see <a href="http://ietf.org/internet-drafts/draft-ietf-ldapbis-filter-08.txt">String Representation of Search Filters</a>
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 class AntlrFilterValueLexer extends Lexer;
 

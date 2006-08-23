@@ -29,16 +29,7 @@ import java.io.File;
  * message will be written to <code>System.err</code>.
  * </p>
  * 
- * @author Based on code from Avalon Excalibur
- * @author Based on code from Lucene
- * @author Stephen Colebourne
- * @author <a href="mailto:sdowney@panix.com">Steve Downey</a>
- * @author Gary Gregory
- * @author Michael Becke
- * @author Tetsuya Kaneuchi
- * @author Rafal Krupinski
- * @since 1.0
- * @version $Id$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SystemUtils
 {

@@ -31,8 +31,7 @@ package org.apache.directory.shared.ldap.filter;
  * Root expression node interface which all expression nodes in the filter
  * expression tree implement.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface ExprNode

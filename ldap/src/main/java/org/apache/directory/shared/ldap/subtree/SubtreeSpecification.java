@@ -27,8 +27,7 @@ import java.util.Set;
  * <a href="http://www.faqs.org/rfcs/rfc3672.html">RFC 3672</a> defined a
  * subtree specification to be included within subentries.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory
- *         Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface SubtreeSpecification

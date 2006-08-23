@@ -84,11 +84,7 @@ import java.lang.reflect.Modifier;
  * }
  * </pre>
  * 
- * @author Stephen Colebourne
- * @author Gary Gregory
- * @author Pete Gieser
- * @since 1.0
- * @version $Id$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class HashCodeBuilder
 {

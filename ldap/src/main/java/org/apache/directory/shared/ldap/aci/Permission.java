@@ -30,7 +30,7 @@ import java.util.Set;
 /**
  * An abstract base class for {@link ItemPermission} and {@link UserPermission}.
  * 
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public abstract class Permission implements Serializable

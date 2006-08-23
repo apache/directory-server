@@ -133,8 +133,7 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
  * <li> extended </li>
  * </ul>
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public class ResultCodeEnum extends ValuedEnum

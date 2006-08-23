@@ -43,8 +43,7 @@ package org.apache.directory.shared.ldap.message;
  * interface takes this into account providing a Response with an LdapResult
  * property.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface Response extends Message

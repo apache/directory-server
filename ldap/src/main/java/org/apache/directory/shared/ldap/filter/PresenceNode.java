@@ -30,8 +30,7 @@ package org.apache.directory.shared.ldap.filter;
  * Filter expression tree node representing a filter attribute value assertion
  * for presence.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $author$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public final class PresenceNode extends LeafNode

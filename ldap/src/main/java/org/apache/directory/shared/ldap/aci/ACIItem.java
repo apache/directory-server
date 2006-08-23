@@ -31,7 +31,7 @@ import java.util.Set;
  * {@link ItemFirstACIItem} and {@link UserFirstACIItem} as specified X.501
  * specification.
  * 
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public abstract class ACIItem implements Serializable

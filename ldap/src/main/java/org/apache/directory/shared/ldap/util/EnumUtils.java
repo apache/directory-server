@@ -28,10 +28,7 @@ import java.util.Map;
  * 
  * @see Enum
  * @see ValuedEnum
- * @author Stephen Colebourne
- * @author Gary Gregory
- * @since 1.0
- * @version $Id$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class EnumUtils
 {

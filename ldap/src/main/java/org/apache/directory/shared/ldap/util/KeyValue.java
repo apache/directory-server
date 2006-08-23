@@ -25,7 +25,7 @@ package org.apache.directory.shared.ldap.util;
  * 
  * @since Commons Collections 3.0
  * @version $Revision$ $Date$
- * @author Stephen Colebourne
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public interface KeyValue
 {

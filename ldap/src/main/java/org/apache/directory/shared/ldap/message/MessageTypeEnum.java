@@ -23,8 +23,7 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
 /**
  * Type safe enumeration over the various LDAPv3 message types.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public class MessageTypeEnum extends ValuedEnum

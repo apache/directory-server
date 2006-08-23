@@ -26,9 +26,7 @@ package org.apache.directory.shared.ldap.util;
  * behaviour in more detail.
  * </p>
  * 
- * @author Stephen Colebourne
- * @author Matthew Hawthorne
- * @author Gary Gregory
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @since 2.0
  * @version $Id$
  */

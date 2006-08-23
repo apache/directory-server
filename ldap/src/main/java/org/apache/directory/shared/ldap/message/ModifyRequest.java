@@ -89,7 +89,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  *  borrow good ideas and familiar signatures, interfaces and classes where we
  *  can.
  *  
- *  @author &lt;a href=&quot;mailto:dev@directory.apache.org&quot;&gt;Apache Directory Project&lt;/a&gt;
+ *  @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *  @version $Revision$
  * 
  */

@@ -33,8 +33,7 @@ import javax.naming.NamingException;
 /**
  * Normalizers of ldap name component attributes and their values.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface NameComponentNormalizer

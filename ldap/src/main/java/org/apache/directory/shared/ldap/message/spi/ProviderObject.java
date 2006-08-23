@@ -31,8 +31,7 @@ package org.apache.directory.shared.ldap.message.spi;
  * All Service Provider Interfaces extend this super interface to corralate SPI
  * implementations with the appropriate provider.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface ProviderObject

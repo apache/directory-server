@@ -36,8 +36,7 @@ import java.math.BigInteger;
  * provided the opportunity to constrain the search further without altering the
  * search algorithm.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $author$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public class AssertionNode extends AbstractExprNode

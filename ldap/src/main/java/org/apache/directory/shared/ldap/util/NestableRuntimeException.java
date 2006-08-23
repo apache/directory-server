@@ -23,13 +23,7 @@ import java.io.PrintWriter;
 /**
  * The base class of all runtime exceptions which can contain other exceptions.
  * 
- * @author <a href="mailto:Rafal.Krzewski@e-point.pl">Rafal Krzewski</a>
- * @author <a href="mailto:dlr@collab.net">Daniel Rall</a>
- * @author <a href="mailto:knielsen@apache.org">Kasper Nielsen</a>
- * @author <a href="mailto:steven@caswell.name">Steven Caswell</a>
- * @since 1.0
- * @version $Id: NestableRuntimeException.java,v 1.10 2004/02/18 22:54:04
- *          ggregory Exp $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class NestableRuntimeException extends RuntimeException implements Nestable
 {

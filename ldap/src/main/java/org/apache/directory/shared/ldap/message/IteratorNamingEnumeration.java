@@ -34,9 +34,7 @@ import javax.naming.NamingEnumeration;
 /**
  * A NamingEnumeration over an Iterator.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author <a href="mailto:jmachols@attbi.com">Jeff Machols</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public class IteratorNamingEnumeration implements NamingEnumeration

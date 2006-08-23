@@ -40,8 +40,7 @@ import java.io.Externalizable;
  * 
  * @since Commons Collections 1.0
  * @version $Revision$ $Date$
- * @author <a href="mailto:jstrachan@apache.org">James Strachan</a>
- * @author <a href="mailto:morgand@apache.org">Morgan Delagrange</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public final class SynchronizedLRUMap extends SequencedHashMap implements Externalizable
 {

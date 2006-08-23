@@ -29,14 +29,7 @@ import java.io.Serializable;
  * documents its behaviour in more detail.
  * </p>
  * 
- * @author <a href="mailto:nissim@nksystems.com">Nissim Karpenstein</a>
- * @author <a href="mailto:janekdb@yahoo.co.uk">Janek Bogucki</a>
- * @author <a href="mailto:dlr@finemaltcoding.com">Daniel Rall</a>
- * @author Stephen Colebourne
- * @author Gary Gregory
- * @author Mario Winterer
- * @since 1.0
- * @version $Id$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ObjectUtils
 {

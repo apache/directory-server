@@ -33,7 +33,7 @@ package org.apache.directory.shared.ldap.codec.util;
 /**
  * Signals that an error has occurred.
  * 
- * @author Ortwin Gl?ck
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$ $Date: 2005-02-26 08:01:52 -0500 (Sat, 26 Feb
  *          2005) $
  * @since 3.0

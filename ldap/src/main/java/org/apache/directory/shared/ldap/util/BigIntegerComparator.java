@@ -32,8 +32,7 @@ import java.math.BigInteger;
 /**
  * Compares BigInteger keys and values within a table.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public class BigIntegerComparator implements java.util.Comparator, java.io.Serializable

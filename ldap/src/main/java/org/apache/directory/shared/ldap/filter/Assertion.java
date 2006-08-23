@@ -34,8 +34,7 @@ import javax.naming.directory.Attributes;
  * A candidacy predicate which tests if an entry satisfies some condition before
  * being returned by a search.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface Assertion

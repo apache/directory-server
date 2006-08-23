@@ -29,7 +29,7 @@ import java.util.Iterator;
  * Represents permissions to be applied to all {@link ProtectedItem}s in
  * {@link ItemFirstACIItem}.
  * 
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class ItemPermission extends Permission

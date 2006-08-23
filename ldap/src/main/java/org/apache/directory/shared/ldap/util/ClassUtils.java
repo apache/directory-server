@@ -33,11 +33,7 @@ import java.util.Map;
  * method documents its behaviour in more detail.
  * </p>
  * 
- * @author Stephen Colebourne
- * @author Gary Gregory
- * @author Norm Deane
- * @since 2.0
- * @version $Id$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ClassUtils
 {

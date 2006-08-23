@@ -32,7 +32,7 @@ import java.util.Set;
  * A flatten entity which is converted from an {@link ACIItem}. The tuples are
  * accepted by ACDF (Access Control Decision Function, 18.8, X.501)
  * 
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class ACITuple implements Serializable

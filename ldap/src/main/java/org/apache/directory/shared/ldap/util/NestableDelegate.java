@@ -35,14 +35,7 @@ import java.util.List;
  * The code is shared between
  * </p>
  * 
- * @author <a href="mailto:Rafal.Krzewski@e-point.pl">Rafal Krzewski</a>
- * @author <a href="mailto:dlr@collab.net">Daniel Rall</a>
- * @author <a href="mailto:knielsen@apache.org">Kasper Nielsen</a>
- * @author <a href="mailto:steven@caswell.name">Steven Caswell</a>
- * @author Sean C. Sullivan
- * @author Stephen Colebourne
- * @since 1.0
- * @version $Id$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class NestableDelegate implements Serializable
 {

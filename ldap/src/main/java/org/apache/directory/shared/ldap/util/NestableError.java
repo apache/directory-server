@@ -23,9 +23,7 @@ import java.io.PrintWriter;
 /**
  * The base class of all errors which can contain other exceptions.
  * 
- * @author <a href="mailto:dlr@finemaltcoding.com">Daniel Rall</a>
- * @since 1.0
- * @version $Id$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class NestableError extends Error implements Nestable
 {

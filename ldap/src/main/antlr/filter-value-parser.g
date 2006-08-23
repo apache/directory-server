@@ -38,7 +38,7 @@ import java.util.*;
  * token stream by driving filter assertion value lexer.
  *
  * @see <a href="http://ietf.org/internet-drafts/draft-ietf-ldapbis-filter-08.txt">String Representation of Search Filters</a>
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 class AntlrFilterValueParser extends Parser;
  

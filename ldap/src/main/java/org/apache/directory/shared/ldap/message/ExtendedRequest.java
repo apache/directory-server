@@ -46,7 +46,7 @@ package org.apache.directory.shared.ldap.message;
  *  &lt;pre&gt;
  * <br>
  *  
- *  @author &lt;a href=&quot;mailto:dev@directory.apache.org&quot;&gt;Apache Directory Project&lt;/a&gt;
+ *  @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *  @version $Revision$
  * 
  */

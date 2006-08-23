@@ -34,8 +34,7 @@ import javax.naming.NamingException;
  * An LDAP URL parser.
  * 
  * @see <a href="http://www.faqs.org/rfcs/rfc2255.html">RFC 2255</a>
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface LdapUrlParser

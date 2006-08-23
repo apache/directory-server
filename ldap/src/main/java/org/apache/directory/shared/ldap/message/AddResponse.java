@@ -31,8 +31,7 @@ package org.apache.directory.shared.ldap.message;
  * Add protocol response message used to confirm the results of a add request
  * message.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface AddResponse extends ResultResponse

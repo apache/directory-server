@@ -35,8 +35,7 @@ import java.util.ArrayList;
 /**
  * Tools dealing with common Naming operations.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  * @testcase test.ldapdd.util.TestNamespaceTools
  */

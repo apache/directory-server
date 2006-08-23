@@ -30,7 +30,7 @@ import java.util.Set;
  * An {@link ACIItem} which specifies {@link UserClass}es first and then
  * {@link ProtectedItem}s each {@link UserClass} will have. (18.4.2.4. X.501)
  * 
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class UserFirstACIItem extends ACIItem

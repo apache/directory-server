@@ -35,8 +35,7 @@ import org.apache.directory.shared.ldap.message.Message;
  * containment trees of compiler generated stubs into Message implementations in
  * both directions: marshaling and demarshaling.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface TransformerSpi extends ProviderObject

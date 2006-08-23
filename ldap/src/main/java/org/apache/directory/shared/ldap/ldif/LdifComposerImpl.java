@@ -41,8 +41,7 @@ import org.apache.directory.shared.ldap.util.MultiMap;
  * An LDAP Data Interchange Format (LDIF) composer.
  * 
  * @task Get the RFC for LDIF syntax in this javadoc.
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public class LdifComposerImpl implements LdifComposer

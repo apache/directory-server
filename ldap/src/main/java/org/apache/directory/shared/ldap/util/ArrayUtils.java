@@ -33,17 +33,7 @@ import java.util.Map;
  * Each method documents its behaviour.
  * </p>
  * 
- * @author Alex Karasulu
- * @author Stephen Colebourne
- * @author Moritz Petersen
- * @author <a href="mailto:fredrik@westermarck.com">Fredrik Westermarck</a>
- * @author Nikolay Metchev
- * @author Matthew Hawthorne
- * @author Tim O'Brien
- * @author Pete Gieser
- * @author Gary Gregory
- * @author <a href="mailto:equinus100@hotmail.com">Ashwin S</a>
- * @author Maarten Coene
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @since 2.0
  */
 public class ArrayUtils

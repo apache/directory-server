@@ -38,8 +38,7 @@ import java.util.Set;
  * Abstract Provider base class and factory for accessing berlib specific
  * Provider implementations and their SPI implementation classes.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public abstract class Provider

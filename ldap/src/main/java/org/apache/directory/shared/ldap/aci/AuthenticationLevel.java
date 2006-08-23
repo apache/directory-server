@@ -25,7 +25,7 @@ import java.io.Serializable;
 /**
  * An enumeration that represents the level of authentication.
  * 
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class AuthenticationLevel implements Comparable, Serializable

@@ -27,8 +27,7 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
  * of alias handling. Note that the names of these ValuedEnums correspond to the
  * value for the java.naming.ldap.derefAliases JNDI LDAP specific property.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public class DerefAliasesEnum extends ValuedEnum

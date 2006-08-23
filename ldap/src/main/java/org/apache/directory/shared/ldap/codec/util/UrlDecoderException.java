@@ -20,7 +20,7 @@ package org.apache.directory.shared.ldap.codec.util;
 /**
  * Thrown when a Decoder has encountered a failure condition during a decode.
  * 
- * @author Apache Software Foundation
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Id$
  */
 public class UrlDecoderException extends Exception

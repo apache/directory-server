@@ -28,7 +28,7 @@ import java.util.Iterator;
  * Represents permissions to be applied to all {@link UserClass}es in
  * {@link UserFirstACIItem}.
  * 
- * @author The Apache Directory Project
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class UserPermission extends Permission

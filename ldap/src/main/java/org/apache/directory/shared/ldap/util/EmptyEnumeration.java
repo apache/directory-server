@@ -38,8 +38,7 @@ import javax.naming.NamingEnumeration;
  * hasMore/hasMoreElements() always returns false, and next/nextElement() always
  * throws a NoSuchElementException.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public class EmptyEnumeration implements NamingEnumeration

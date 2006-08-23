@@ -44,11 +44,7 @@ import java.util.Map;
  * whole array, whereas the summary method will just output the array length.
  * </p>
  * 
- * @author Stephen Colebourne
- * @author Gary Gregory
- * @author Pete Gieser
- * @since 1.0
- * @version $Id$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public abstract class ToStringStyle implements Serializable
 {

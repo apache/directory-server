@@ -123,10 +123,7 @@ import java.util.List;
  * shown in each subclass. An alternative choice is to use the {@link } class.
  * </p>
  * 
- * @author Apache Avalon project
- * @author Stephen Colebourne
- * @since 1.0
- * @version $Id$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public abstract class ValuedEnum extends Enum
 {

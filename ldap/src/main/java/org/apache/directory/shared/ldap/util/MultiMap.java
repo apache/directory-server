@@ -47,9 +47,7 @@ import java.util.Map;
  * 
  * @since Commons Collections 2.0
  * @version $Revision$ $Date$
- * @author Christopher Berry
- * @author James Strachan
- * @author Stephen Colebourne
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public interface MultiMap extends Map
 {

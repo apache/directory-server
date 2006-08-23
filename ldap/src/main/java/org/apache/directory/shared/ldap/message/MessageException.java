@@ -33,8 +33,7 @@ import org.apache.directory.shared.ldap.RuntimeMultiException;
 /**
  * This exception is thrown when a message processing error occurs.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public class MessageException extends RuntimeMultiException

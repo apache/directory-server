@@ -47,8 +47,7 @@ import java.util.ArrayList;
  * </ul>
  * </ul>
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface FilterVisitor

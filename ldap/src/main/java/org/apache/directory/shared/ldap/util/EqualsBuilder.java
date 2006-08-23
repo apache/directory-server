@@ -79,13 +79,7 @@ import java.lang.reflect.Modifier;
  * }
  * </pre>
  * 
- * @author <a href="mailto:steve.downey@netfolio.com">Steve Downey</a>
- * @author Stephen Colebourne
- * @author Gary Gregory
- * @author Pete Gieser
- * @author Arun Mammen Thomas
- * @since 1.0
- * @version $Id$
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class EqualsBuilder
 {

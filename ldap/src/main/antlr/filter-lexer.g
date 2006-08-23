@@ -31,7 +31,7 @@ package org.apache.directory.shared.ldap.filter;
  * 
  * @see <a href="http://ietf.org/internet-drafts/draft-ietf-ldapbis-filter-08.txt">String Representation of Search Filters</a>
  * @see <a href="http://ietf.org/internet-drafts/draft-ietf-ldapbis-models-12.txt">LDAP: Directory Information Models</a>
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 class AntlrFilterLexer extends Lexer;
 

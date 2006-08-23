@@ -35,8 +35,7 @@ import org.apache.directory.shared.ldap.util.MultiMap;
  * Builds or composes an Ldap Data Interchange Format representation of an
  * Entry.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface LdifComposer

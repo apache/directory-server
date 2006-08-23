@@ -83,12 +83,7 @@ import java.util.Set;
  * {@link ToStringStyle} passed into the constructor.
  * </p>
  * 
- * @author Gary Gregory
- * @author Stephen Colebourne
- * @author Pete Gieser
- * @since 2.0
- * @version $Id: ReflectionToStringBuilder.java,v 1.15 2003/12/02 19:11:58
- *          ggregory Exp $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ReflectionToStringBuilder extends ToStringBuilder
 {

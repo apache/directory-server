@@ -31,12 +31,8 @@ package org.apache.directory.shared.ldap.util;
 /**
  * decoding of base64 characters to raw bytes.
  * 
- * @author Kevin Kelley (kelley@ruralnet.net)
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
- * @date 06 August 1998
- * @modified 14 February 2000
- * @modified 22 September 2000
  */
 public class Base64
 {

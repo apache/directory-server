@@ -35,8 +35,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 /**
  * Add protocol operation request used to add a new entry to the DIT.
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface AddRequest extends SingleReplyRequest, AbandonableRequest

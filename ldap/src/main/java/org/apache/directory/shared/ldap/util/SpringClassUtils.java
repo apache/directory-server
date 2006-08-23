@@ -28,10 +28,7 @@ import java.util.Set;
  * framework; consider Jakarta's Commons Lang for a more comprehensive suite
  * of utilities.
  *
- * @author Keith Donald
- * @author Rob Harrop
- * @author Juergen Hoeller
- * @since 1.1
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public abstract class SpringClassUtils {
 
