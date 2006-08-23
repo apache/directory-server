@@ -31,7 +31,7 @@ import javax.net.ssl.SSLContext;
 /**
  * Factory to create a bougus SSLContext.
  *
- * @author The Apache Directory Project (dev@directory.apache.org)
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class BogusSSLContextFactory
