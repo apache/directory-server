@@ -1,0 +1,69 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>${groupId}</groupId>
+  <artifactId>${artifactId}</artifactId>
+  <packaging>jar</packaging>
+  <version>${version}</version>
+  <name>Schema Project</name>
+  <url>http://directory.apache.org/</url>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core</artifactId>
+      <version>1.0-RC4-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-server-unit</artifactId>
+      <version>1.0-RC4-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <version>1.2.25</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <!-- Uncomment to override default jar naming convention
+    <finalName>car-schema.jar</finalName>
+    -->
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.directory.server</groupId>
+        <artifactId>apacheds-core-plugin</artifactId>
+        <configuration>
+          <schemaSourcesDir>src/main/schema</schemaSourcesDir>
+          <schemas>
+            <schema>
+              <name>car</name>
+              <pkg>${groupId}</pkg>
+              <dependencies>
+                <dependency>system</dependency>
+                <dependency>core</dependency>
+              </dependencies>
+            </schema>
+          </schemas>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
