@@ -35,7 +35,7 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.1003 NAME 'carYear'
     EQUALITY integerMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.1000
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.1001
     NAME 'car'
     SUP top
     STRUCTURAL
