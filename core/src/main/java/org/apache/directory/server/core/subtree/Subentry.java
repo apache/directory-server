@@ -31,7 +31,6 @@ public class Subentry
     static final int COLLECTIVE_SUBENTRY = 1;
     static final int SCHEMA_SUBENTRY = 2;
     static final int ACCESS_CONTROL_SUBENTRY = 4;
-    static final int AUTONOMOUS_AREA_SUBENTRY = 8;
     
     private SubtreeSpecification ss;
     private int type;
@@ -76,11 +75,5 @@ public class Subentry
     final boolean isAccessControlSubentry()
     {
         return ( ACCESS_CONTROL_SUBENTRY & type ) == ACCESS_CONTROL_SUBENTRY;
-    }
-    
-    
-    final boolean isAutonomousAreaSubentry()
-    {
-        return ( AUTONOMOUS_AREA_SUBENTRY & type ) == AUTONOMOUS_AREA_SUBENTRY;
     }
 }
