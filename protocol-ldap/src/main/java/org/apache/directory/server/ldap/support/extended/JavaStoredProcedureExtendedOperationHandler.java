@@ -17,10 +17,7 @@
 package org.apache.directory.server.ldap.support.extended;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,13 +25,13 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.sp.LdapClassLoader;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure.StoredProcedureParameter;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.util.ClassUtils;
 import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
 import org.apache.directory.shared.ldap.util.SpringClassUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -59,7 +56,6 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
         {
             StoredProcedureParameter pPojo = ( StoredProcedureParameter ) it.next();
             
-            // Get type from String even if it holds a primitive type name
             Class type;
             try
             {
@@ -74,45 +70,17 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
             
             types.add( type );
             
-            byte[] value = pPojo.getValue();
+            byte[] serializedValue = pPojo.getValue();
             
-            /**
-             * If the type name refers to a Java primitive then
-             * we know that the value is encoded as its String representation and
-             * we retrieve the String and initialize a wrapper of the primitive.
-             * 
-             * Note that this is just how we prefer Java Specific Stored Procedures
-             * to handle parameters. Of course we do not have to it this way.
-             */
-            if ( type.isPrimitive() )
+            try
             {
-                values.add( getInitializedPrimitiveWrapperInstance( type, value ) );
+                values.add( SerializationUtils.deserialize( serializedValue ) );
             }
-            /**
-             * If the type is a complex Java type then
-             * just deserialize the object.
-             */
-            else
+            catch ( Exception e )
             {
-                try
-                {
-                    // TODO Irritating syntax! Just wanted to see how it looks like..
-                    values.add
-                    ( 
-                        (
-                            new ObjectInputStream
-                            ( 
-                                new ByteArrayInputStream( value )
-                            ) 
-                        ).readObject()
-                    );
-                }
-                catch ( Exception e )
-                {
-                    NamingException ne = new NamingException();
-                    ne.setRootCause( e );
-                    throw ne;
-                }
+                NamingException ne = new NamingException();
+                ne.setRootCause( e );
+                throw ne;
             }
             
         }
@@ -121,12 +89,11 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
         Object response = executeProcedure( ctx, StringTools.utf8ToString( pojo.getProcedure() ), 
                 ( Class[] ) types.toArray( EMPTY_CLASS_ARRAY ), values.toArray() );
         
-        ByteArrayOutputStream baos;
+        byte[] serializedResponse = null;
+        
         try
         {
-            baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream( baos );
-            oos.writeObject( response );
+            serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
         }
         catch ( Exception e )
         {
@@ -135,10 +102,9 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
             throw ne;
         }
         
-        return baos.toByteArray();
+        return serializedResponse;
         
     }
-
     
     public Object executeProcedure( ServerLdapContext ctx, String procedure, Class[] types, Object[] values ) 
         throws NamingException
@@ -162,21 +128,4 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
         }
     }
     
-    
-    private Object getInitializedPrimitiveWrapperInstance( Class type, byte[] value )
-    {
-        Object instance = null;
-        try
-        {
-            instance = ClassUtils
-                    .primitiveToWrapper( type )
-                    .getConstructor( new Class[] {String.class} )
-                    .newInstance( new Object[] { StringTools.utf8ToString( value ) } );
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-        }
-        return instance;
-    }
 }

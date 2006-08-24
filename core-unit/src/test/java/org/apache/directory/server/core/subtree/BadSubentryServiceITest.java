@@ -147,7 +147,7 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
     
     public void testTrackingOfSubentryOperationals() throws NamingException
     {
-        /*
+        
         addAdministrativeRoles();        
         super.sysRoot.createSubcontext( "cn=collectiveAttributeTestSubentry", 
             getCollectiveAttributeTestSubentry( "collectiveAttributeTestSubentry" ) );
@@ -181,7 +181,7 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
             accessControlSubentries.contains( "2.5.4.3=collectiveattributetestsubentry,2.5.4.11=system" ) );
         
         assertEquals( 1, accessControlSubentries.size() );
-        */
+        
     }
     
 }

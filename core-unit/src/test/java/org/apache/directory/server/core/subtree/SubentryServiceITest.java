@@ -52,7 +52,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         subentry.put( "sn", "testentry" );
         return subentry;
     }
-
+    
 
     public Attributes getTestSubentry()
     {
@@ -60,8 +60,10 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
+        objectClass.add( "collectiveAttributeSubentry" );
         subentry.put( objectClass );
         subentry.put( "subtreeSpecification", "{ base \"ou=configuration\" }" );
+        subentry.put( "c-o", "Test Org" );
         subentry.put( "cn", "testsubentry" );
         return subentry;
     }
@@ -73,9 +75,11 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
+        objectClass.add( "collectiveAttributeSubentry" );
         subentry.put( objectClass );
         String spec = "{ base \"ou=configuration\", specificExclusions { chopBefore:\"cn=unmarked\" } }";
         subentry.put( "subtreeSpecification", spec );
+        subentry.put( "c-o", "Test Org" );
         subentry.put( "cn", "testsubentry" );
         return subentry;
     }
@@ -110,7 +114,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 
     public void testEntryAdd() throws NamingException
     {
-        addAdministrativeRole( "autonomousArea" );
+        addAdministrativeRole( "collectiveArributeSpecificArea" );
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         super.sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
         super.sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
@@ -121,10 +125,10 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes marked = ( Attributes ) results.get( "cn=marked,ou=configuration,ou=system" );
-        Attribute autonomousSubentry = marked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=marked,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        Attribute collectiveAttributeSubentries = marked.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentry do not have the mark
@@ -132,7 +136,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 
         Attributes unmarked = ( Attributes ) results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
     }
 
 
@@ -147,7 +151,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         {
         }
 
-        addAdministrativeRole( "autonomousArea" );
+        addAdministrativeRole( "collectiveArributeSpecificArea" );
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         Map results = getAllEntries();
 
@@ -156,55 +160,55 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = ( Attributes ) results.get( "ou=configuration,ou=system" );
-        Attribute autonomousSubentry = configuration.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        Attribute collectiveAttributeSubentries = configuration.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = ( Attributes ) results.get( "ou=interceptors,ou=configuration,ou=system" );
-        autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = interceptors.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = ( Attributes ) results.get( "ou=partitions,ou=configuration,ou=system" );
-        autonomousSubentry = partitions.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = partitions.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
-        autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = services.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentry do not have the mark
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
     }
 
 
     public void testSubentryModify() throws NamingException
     {
-        addAdministrativeRole( "autonomousArea" );
+        addAdministrativeRole( "collectiveArributeSpecificArea" );
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         Map results = getAllEntries();
 
@@ -213,48 +217,48 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = ( Attributes ) results.get( "ou=configuration,ou=system" );
-        Attribute autonomousSubentry = configuration.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        Attribute collectiveAttributeSubentries = configuration.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = ( Attributes ) results.get( "ou=interceptors,ou=configuration,ou=system" );
-        autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = interceptors.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = ( Attributes ) results.get( "ou=partitions,ou=configuration,ou=system" );
-        autonomousSubentry = partitions.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = partitions.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
-        autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = services.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentry do not have the mark
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         // --------------------------------------------------------------------
         // Now modify the subentry by introducing an exclusion
@@ -272,55 +276,55 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         configuration = ( Attributes ) results.get( "ou=configuration,ou=system" );
-        autonomousSubentry = configuration.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = configuration.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         interceptors = ( Attributes ) results.get( "ou=interceptors,ou=configuration,ou=system" );
-        autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = interceptors.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         partitions = ( Attributes ) results.get( "ou=partitions,ou=configuration,ou=system" );
-        autonomousSubentry = partitions.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = partitions.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentry do not have the mark
         // --------------------------------------------------------------------
 
         system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
-        autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        if ( autonomousSubentry != null )
+        collectiveAttributeSubentries = services.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        if ( collectiveAttributeSubentries != null )
         {
-            assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0, autonomousSubentry.size() );
+            assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries.size() );
         }
     }
 
 
     public void testSubentryModify2() throws NamingException
     {
-        addAdministrativeRole( "autonomousArea" );
+        addAdministrativeRole( "collectiveArributeSpecificArea" );
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         Map results = getAllEntries();
 
@@ -329,48 +333,48 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = ( Attributes ) results.get( "ou=configuration,ou=system" );
-        Attribute autonomousSubentry = configuration.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        Attribute collectiveAttributeSubentries = configuration.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = ( Attributes ) results.get( "ou=interceptors,ou=configuration,ou=system" );
-        autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = interceptors.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = ( Attributes ) results.get( "ou=partitions,ou=configuration,ou=system" );
-        autonomousSubentry = partitions.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = partitions.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
-        autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = services.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentry do not have the mark
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         // --------------------------------------------------------------------
         // Now modify the subentry by introducing an exclusion
@@ -387,55 +391,55 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         configuration = ( Attributes ) results.get( "ou=configuration,ou=system" );
-        autonomousSubentry = configuration.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = configuration.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         interceptors = ( Attributes ) results.get( "ou=interceptors,ou=configuration,ou=system" );
-        autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = interceptors.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         partitions = ( Attributes ) results.get( "ou=partitions,ou=configuration,ou=system" );
-        autonomousSubentry = partitions.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = partitions.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentry do not have the mark
         // --------------------------------------------------------------------
 
         system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
-        autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        if ( autonomousSubentry != null )
+        collectiveAttributeSubentries = services.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        if ( collectiveAttributeSubentries != null )
         {
-            assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0, autonomousSubentry.size() );
+            assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries.size() );
         }
     }
 
 
     public void testSubentryDelete() throws NamingException
     {
-        addAdministrativeRole( "autonomousArea" );
+        addAdministrativeRole( "collectiveArributeSpecificArea" );
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         super.sysRoot.destroySubcontext( "cn=testsubentry" );
 
@@ -446,53 +450,53 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = ( Attributes ) results.get( "ou=configuration,ou=system" );
-        Attribute autonomousSubentry = configuration.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        if ( autonomousSubentry != null )
+        Attribute collectiveAttributeSubentries = configuration.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        if ( collectiveAttributeSubentries != null )
         {
-            assertEquals( "ou=configuration,ou=system should not be marked", 0, autonomousSubentry.size() );
+            assertEquals( "ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries.size() );
         }
 
         Attributes interceptors = ( Attributes ) results.get( "ou=interceptors,ou=configuration,ou=system" );
-        autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        if ( autonomousSubentry != null )
+        collectiveAttributeSubentries = interceptors.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        if ( collectiveAttributeSubentries != null )
         {
-            assertEquals( "ou=interceptors,ou=configuration,ou=system should not be marked", 0, autonomousSubentry
+            assertEquals( "ou=interceptors,ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries
                 .size() );
         }
 
         Attributes partitions = ( Attributes ) results.get( "ou=partitions,ou=configuration,ou=system" );
-        autonomousSubentry = partitions.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        if ( autonomousSubentry != null )
+        collectiveAttributeSubentries = partitions.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        if ( collectiveAttributeSubentries != null )
         {
-            assertEquals( "ou=partitions,ou=configuration,ou=system should not be marked", 0, autonomousSubentry.size() );
+            assertEquals( "ou=partitions,ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries.size() );
         }
 
         Attributes services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
-        autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        if ( autonomousSubentry != null )
+        collectiveAttributeSubentries = services.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        if ( collectiveAttributeSubentries != null )
         {
-            assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0, autonomousSubentry.size() );
+            assertEquals( "ou=services,ou=configuration,ou=system should not be marked", 0, collectiveAttributeSubentries.size() );
         }
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
     }
 
 
     public void testSubentryModifyRdn() throws NamingException
     {
-        addAdministrativeRole( "autonomousArea" );
+        addAdministrativeRole( "collectiveArributeSpecificArea" );
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         super.sysRoot.rename( "cn=testsubentry", "cn=newname" );
         Map results = getAllEntries();
@@ -502,55 +506,55 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = ( Attributes ) results.get( "ou=configuration,ou=system" );
-        Attribute autonomousSubentry = configuration.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=newname,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        Attribute collectiveAttributeSubentries = configuration.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=newname,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = ( Attributes ) results.get( "ou=interceptors,ou=configuration,ou=system" );
-        autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=newname,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = interceptors.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=newname,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = ( Attributes ) results.get( "ou=partitions,ou=configuration,ou=system" );
-        autonomousSubentry = partitions.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=newname,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = partitions.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=newname,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
-        autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=newname,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = services.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=newname,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentry do not have the mark
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
     }
 
 
     public void testEntryModifyRdn() throws NamingException
     {
-        addAdministrativeRole( "autonomousArea" );
+        addAdministrativeRole( "collectiveArributeSpecificArea" );
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         super.sysRoot.createSubcontext( "cn=unmarked,ou=configuration", getTestEntry( "unmarked" ) );
         super.sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
@@ -561,58 +565,58 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = ( Attributes ) results.get( "ou=configuration,ou=system" );
-        Attribute autonomousSubentry = configuration.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        Attribute collectiveAttributeSubentries = configuration.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = ( Attributes ) results.get( "ou=interceptors,ou=configuration,ou=system" );
-        autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = interceptors.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = ( Attributes ) results.get( "ou=partitions,ou=configuration,ou=system" );
-        autonomousSubentry = partitions.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = partitions.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
-        autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = services.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes marked = ( Attributes ) results.get( "cn=marked,ou=configuration,ou=system" );
-        autonomousSubentry = marked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = marked.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentry do not have the mark
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes unmarked = ( Attributes ) results.get( "cn=unmarked,ou=configuration,ou=system" );
         assertNull( "cn=unmarked,ou=configuration,ou=system should not be marked", unmarked
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         // --------------------------------------------------------------------
         // Now destry one of the marked/unmarked and rename to deleted entry
@@ -624,7 +628,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 
         unmarked = ( Attributes ) results.get( "cn=unmarked,ou=configuration,ou=system" );
         assertNull( "cn=unmarked,ou=configuration,ou=system should not be marked", unmarked
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
         assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
 
         // --------------------------------------------------------------------
@@ -636,16 +640,16 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         assertNull( results.get( "cn=unmarked,ou=configuration,ou=system" ) );
         marked = ( Attributes ) results.get( "cn=marked,ou=configuration,ou=system" );
         assertNotNull( marked );
-        autonomousSubentry = marked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = marked.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
     }
 
 
     public void testEntryMoveWithRdnChange() throws NamingException
     {
-        addAdministrativeRole( "autonomousArea" );
+        addAdministrativeRole( "collectiveArributeSpecificArea" );
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         super.sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
         super.sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
@@ -656,58 +660,58 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = ( Attributes ) results.get( "ou=configuration,ou=system" );
-        Attribute autonomousSubentry = configuration.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        Attribute collectiveAttributeSubentries = configuration.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = ( Attributes ) results.get( "ou=interceptors,ou=configuration,ou=system" );
-        autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = interceptors.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = ( Attributes ) results.get( "ou=partitions,ou=configuration,ou=system" );
-        autonomousSubentry = partitions.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = partitions.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
-        autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = services.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes marked = ( Attributes ) results.get( "cn=marked,ou=configuration,ou=system" );
-        autonomousSubentry = marked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = marked.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentry do not have the mark
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes unmarked = ( Attributes ) results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         // --------------------------------------------------------------------
         // Now destry one of the marked/unmarked and rename to deleted entry
@@ -719,7 +723,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 
         unmarked = ( Attributes ) results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
         assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
 
         // --------------------------------------------------------------------
@@ -731,16 +735,16 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         assertNull( results.get( "cn=unmarked,ou=system" ) );
         marked = ( Attributes ) results.get( "cn=marked,ou=configuration,ou=system" );
         assertNotNull( marked );
-        autonomousSubentry = marked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = marked.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
     }
 
 
     public void testEntryMove() throws NamingException
     {
-        addAdministrativeRole( "autonomousArea" );
+        addAdministrativeRole( "collectiveArributeSpecificArea" );
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         super.sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
         super.sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
@@ -751,58 +755,58 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = ( Attributes ) results.get( "ou=configuration,ou=system" );
-        Attribute autonomousSubentry = configuration.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        Attribute collectiveAttributeSubentries = configuration.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes interceptors = ( Attributes ) results.get( "ou=interceptors,ou=configuration,ou=system" );
-        autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = interceptors.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes partitions = ( Attributes ) results.get( "ou=partitions,ou=configuration,ou=system" );
-        autonomousSubentry = partitions.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = partitions.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
-        autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = services.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         Attributes marked = ( Attributes ) results.get( "cn=marked,ou=configuration,ou=system" );
-        autonomousSubentry = marked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = marked.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
 
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentry do not have the mark
         // --------------------------------------------------------------------
 
         Attributes system = ( Attributes ) results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=system should not be marked", system.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
-        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "ou=groups,ou=system should not be marked", groups.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
-        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+        assertNull( "uid=admin,ou=system should not be marked", admin.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
         assertNull( "prefNode=sysPrefRoot,ou=system should not be marked", sysPrefRoot
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         Attributes unmarked = ( Attributes ) results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+            .get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES ) );
 
         // --------------------------------------------------------------------
         // Now destry one of the marked/unmarked and rename to deleted entry
@@ -818,16 +822,16 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 
         marked = ( Attributes ) results.get( "cn=marked,ou=services,ou=configuration,ou=system" );
         assertNotNull( marked );
-        autonomousSubentry = marked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
-        assertNotNull( "cn=marked,ou=services,ou=configuration should be marked", autonomousSubentry );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", autonomousSubentry.get() );
-        assertEquals( 1, autonomousSubentry.size() );
+        collectiveAttributeSubentries = marked.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        assertNotNull( "cn=marked,ou=services,ou=configuration should be marked", collectiveAttributeSubentries );
+        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
+        assertEquals( 1, collectiveAttributeSubentries.size() );
     }
 
 
     public void testSubentriesControl() throws Exception
     {
-        addAdministrativeRole( "autonomousArea" );
+        addAdministrativeRole( "collectiveArributeSpecificArea" );
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
