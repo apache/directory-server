@@ -34,12 +34,12 @@ import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 
 /**
- * A utility class for working with Java classes as Stored Procedures.
+ * A utility class for working with Java Stored Procedures.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class StoredProcedureUtils
+public class JavaStoredProcedureUtils
 {
     
     /**
@@ -123,18 +123,32 @@ public class StoredProcedureUtils
         Object responseObject;
         try
         {
+            /**
+             * Create a new stored procedure execution request.
+             */
             StoredProcedureRequest req = new StoredProcedureRequest( 0, procedureName, language );
+            
+            /**
+             * For each argument UTF-8-encode the type name
+             * and Java-serialize the value
+             * and add them to the request as a parameter object.
+             */
             for ( int i = 0; i < arguments.length; i++ )
             {
                 byte[] type = arguments[i].getClass().getName().getBytes( "UTF-8" );
-                
                 byte[] value = SerializationUtils.serialize( ( Serializable ) arguments[i] );
-                
                 req.addParameter( type, value );
             }
             
+            /**
+             * Call the stored prcedure via the extended operation
+             * and get back its return value.
+             */
             StoredProcedureResponse resp = ( StoredProcedureResponse ) ctx.extendedOperation( req );
             
+            /**
+             * Restore a Java object from the return value.
+             */
             byte[] responseStream = resp.getEncodedValue();
             responseObject = SerializationUtils.deserialize( responseStream );
         }
