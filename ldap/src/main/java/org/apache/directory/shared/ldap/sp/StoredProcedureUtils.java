@@ -18,13 +18,10 @@
 
 package org.apache.directory.shared.ldap.sp;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.URL;
 
 import javax.naming.NamingException;
@@ -32,6 +29,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 
@@ -130,25 +128,15 @@ public class StoredProcedureUtils
             {
                 byte[] type = arguments[i].getClass().getName().getBytes( "UTF-8" );
                 
-                /**
-                 * FIXME: We need to reuse the object stream instances here.
-                 */
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream( baos );
-                
-                oos.reset();
-                oos.writeObject( arguments[i] );
-                byte[] value = baos.toByteArray();
+                byte[] value = SerializationUtils.serialize( ( Serializable ) arguments[i] );
                 
                 req.addParameter( type, value );
             }
             
             StoredProcedureResponse resp = ( StoredProcedureResponse ) ctx.extendedOperation( req );
+            
             byte[] responseStream = resp.getEncodedValue();
-            ByteArrayInputStream bais = new ByteArrayInputStream( responseStream );
-            ObjectInputStream ois = new ObjectInputStream( bais );
-            responseObject = ois.readObject();
-        
+            responseObject = SerializationUtils.deserialize( responseStream );
         }
         catch ( Exception e )
         {
@@ -159,6 +147,4 @@ public class StoredProcedureUtils
         
         return responseObject;
     }
-    
-
 }
