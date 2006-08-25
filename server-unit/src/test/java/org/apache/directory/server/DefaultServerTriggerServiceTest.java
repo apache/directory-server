@@ -31,7 +31,7 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.shared.ldap.sp.StoredProcedureUtils;
+import org.apache.directory.shared.ldap.sp.JavaStoredProcedureUtils;
 
 
 /**
@@ -72,7 +72,7 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
     public void testAfterDeleteBackupDeletedEntry() throws NamingException
     {
         // Load the stored procedure unit which has the stored procedure to be triggered.
-        StoredProcedureUtils.loadStoredProcedureClass( ctx, BackupUtilities.class.getName(), this.getClass() );
+        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, BackupUtilities.class.getName(), this.getClass() );
         
         // Create a container for backing up deleted entries.
         Attributes backupContext = new BasicAttributes( "ou", "backupContext", true );

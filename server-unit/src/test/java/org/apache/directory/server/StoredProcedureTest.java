@@ -28,7 +28,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.sp.StoredProcedureUtils;
+import org.apache.directory.shared.ldap.sp.JavaStoredProcedureUtils;
 
 
 /**
@@ -56,7 +56,7 @@ public class StoredProcedureTest extends AbstractServerTest
         env.put( "java.naming.security.authentication", "simple" );
         ctx = new InitialLdapContext( env, null );
 
-        StoredProcedureUtils.loadStoredProcedureClass( ctx, HelloWorldProcedure.class.getName(), getClass() );
+        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, HelloWorldProcedure.class.getName(), getClass() );
     }
 
 
@@ -73,7 +73,7 @@ public class StoredProcedureTest extends AbstractServerTest
     {
         String procedureName = HelloWorldProcedure.class.getName() + ".sayHello";
         
-        Object response = StoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { } );
+        Object response = JavaStoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { } );
         
         assertEquals( "Hello World!", response );
     }
@@ -83,7 +83,7 @@ public class StoredProcedureTest extends AbstractServerTest
     {
         String procedureName = HelloWorldProcedure.class.getName() + ".sayHelloTo";
         
-        Object response = StoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { "Ersin" } );
+        Object response = JavaStoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { "Ersin" } );
         
         assertEquals( "Hello Ersin!", response );
     }
