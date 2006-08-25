@@ -1,18 +1,21 @@
 /*
- *   Copyright 2005 The Apache Software Foundation
- *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
- *
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
  */
 package org.apache.directory.shared.ldap.codec.modifyDn;
 
@@ -34,6 +37,9 @@ import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapStatesEnum;
+import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
+import org.apache.directory.shared.ldap.message.ModifyDnResponseImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -141,16 +147,29 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                     }
                     else
                     {
+                        byte[] dnBytes = tlv.getValue().getData();
+                        
                         try
                         {
-                            entry = new LdapDN( tlv.getValue().getData() );
+                            entry = new LdapDN( dnBytes );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "The DN to modify  (" + StringTools.dumpBytes( tlv.getValue().getData() )
-                                + ") is invalid";
+                            String msg = "Invalid DN given : " + StringTools.utf8ToString( dnBytes ) + 
+                                " (" + StringTools.dumpBytes( dnBytes ) + 
+                                ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
-                            throw new DecoderException( msg, ine );
+        
+                            ModifyDnResponseImpl message = new ModifyDnResponseImpl( ldapMessage.getMessageId() );
+                            message.getLdapResult().setErrorMessage( msg );
+                            message.getLdapResult().setResultCode( ResultCodeEnum.INVALIDDNSYNTAX );
+                            message.getLdapResult().setMatchedDn( LdapDN.EMPTY_LDAPDN );
+        
+                            ResponseCarryingException exception = new ResponseCarryingException( msg, ine );
+        
+                            exception.setResponse( message );
+        
+                            throw exception;
                         }
 
                         modifyDNRequest.setEntry( entry );
@@ -206,17 +225,30 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                     }
                     else
                     {
+                        byte[] dnBytes = tlv.getValue().getData();
+                        
                         try
                         {
-                            LdapDN dn = new LdapDN( tlv.getValue().getData() );
+                            LdapDN dn = new LdapDN( dnBytes );
                             newRdn = ( ( LdapDN ) dn ).getRdn( 0 );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "The new RDN (" + StringTools.dumpBytes( tlv.getValue().getData() )
-                                + ") is invalid";
+                            String msg = "Invalid new RDN given : " + StringTools.utf8ToString( dnBytes ) + 
+                                " (" + StringTools.dumpBytes( dnBytes ) + 
+                                ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
-                            throw new DecoderException( msg, ine );
+    
+                            ModifyDnResponseImpl message = new ModifyDnResponseImpl( ldapMessage.getMessageId() );
+                            message.getLdapResult().setErrorMessage( msg );
+                            message.getLdapResult().setResultCode( ResultCodeEnum.INVALIDDNSYNTAX );
+                            message.getLdapResult().setMatchedDn( LdapDN.EMPTY_LDAPDN );
+    
+                            ResponseCarryingException exception = new ResponseCarryingException( msg, ine );
+    
+                            exception.setResponse( message );
+    
+                            throw exception;
                         }
 
                         modifyDNRequest.setNewRDN( newRdn );
@@ -349,16 +381,29 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                     }
                     else
                     {
+                        byte[] dnBytes = tlv.getValue().getData();
+                        
                         try
                         {
-                            newSuperior = new LdapDN( tlv.getValue().getData() );
+                            newSuperior = new LdapDN( dnBytes );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "The new superior DN (" + StringTools.dumpBytes( tlv.getValue().getData() )
-                                + ") is invalid";
+                            String msg = "Invalid new superior DN given : " + StringTools.utf8ToString( dnBytes ) + 
+                                " (" + StringTools.dumpBytes( dnBytes ) + 
+                                ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
-                            throw new DecoderException( msg, ine );
+    
+                            ModifyDnResponseImpl message = new ModifyDnResponseImpl( ldapMessage.getMessageId() );
+                            message.getLdapResult().setErrorMessage( msg );
+                            message.getLdapResult().setResultCode( ResultCodeEnum.INVALIDDNSYNTAX );
+                            message.getLdapResult().setMatchedDn( LdapDN.EMPTY_LDAPDN );
+    
+                            ResponseCarryingException exception = new ResponseCarryingException( msg, ine );
+    
+                            exception.setResponse( message );
+    
+                            throw exception;
                         }
 
                         modifyDNRequest.setNewSuperior( newSuperior );

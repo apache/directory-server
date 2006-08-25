@@ -1,18 +1,21 @@
 /*
- *   Copyright 2005 The Apache Software Foundation
- *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
- *
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
  */
 package org.apache.directory.shared.ldap.codec.search;
 
@@ -36,8 +39,11 @@ import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapStatesEnum;
+import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
 import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchResponseDoneImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -129,8 +135,8 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-
-                    SearchRequest searchRequest = ldapMessageContainer.getLdapMessage().getSearchRequest();
+                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    SearchRequest searchRequest = ldapMessage.getSearchRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -143,15 +149,29 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                     // root.
                     if ( tlv.getLength().getLength() != 0 )
                     {
+                        byte[] dnBytes = tlv.getValue().getData();
+
                         try
                         {
-                            baseObject = new LdapDN( tlv.getValue().getData() );
+                            baseObject = new LdapDN( dnBytes );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "The root DN " + baseObject.toString() + " is invalid";
+                            String msg = "Invalid root DN given : " + StringTools.utf8ToString( dnBytes ) + 
+                                " (" + StringTools.dumpBytes( dnBytes ) +
+                                ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
-                            throw new DecoderException( msg, ine );
+                    
+                            SearchResponseDoneImpl message = new SearchResponseDoneImpl( ldapMessage.getMessageId() );
+                            message.getLdapResult().setErrorMessage( msg );
+                            message.getLdapResult().setResultCode( ResultCodeEnum.INVALIDDNSYNTAX );
+                            message.getLdapResult().setMatchedDn( LdapDN.EMPTY_LDAPDN );
+                    
+                            ResponseCarryingException exception = new ResponseCarryingException( msg, ine );
+                    
+                            exception.setResponse( message );
+                    
+                            throw exception;
                         }
                     }
 
