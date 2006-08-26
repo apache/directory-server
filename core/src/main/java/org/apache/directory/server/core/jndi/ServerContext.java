@@ -299,20 +299,7 @@ public abstract class ServerContext implements EventContext
     {
         Attributes attributes = new LockableAttributesImpl();
         LdapDN target = buildTarget( name );
-
-        Rdn rdn = target.getRdn( target.size() - 1 );
-        if ( rdn.size() == 1 )
-        {
-            attributes.put( rdn.getType(), rdn.getValue() );
-        }
-        else
-        {
-            for ( Iterator ii = rdn.iterator(); ii.hasNext(); /**/ )
-            {
-                AttributeTypeAndValue atav = ( AttributeTypeAndValue ) ii.next();
-                attributes.put( atav.getType(), atav.getValue() );
-            }
-        }
+        injectRdnAttributeValues( target, attributes );
         
         attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.JCONTAINER_ATTR );
         attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.TOP_ATTR );
@@ -361,7 +348,26 @@ public abstract class ServerContext implements EventContext
         bind( new LdapDN( name ), obj );
     }
 
+    
+    private void injectRdnAttributeValues( LdapDN target, Attributes attributes ) throws NamingException
+    {
+        // Add all the RDN attributes and their values to this entry
+        Rdn rdn = target.getRdn( target.size() - 1 );
+        if ( rdn.size() == 1 )
+        {
+            attributes.put( rdn.getType(), rdn.getValue() );
+        }
+        else
+        {
+            for ( Iterator ii = rdn.iterator(); ii.hasNext(); /**/ )
+            {
+                AttributeTypeAndValue atav = ( AttributeTypeAndValue ) ii.next();
+                attributes.put( atav.getType(), atav.getValue() );
+            }
+        }
+    }
 
+    
     /**
      * @see javax.naming.Context#bind(javax.naming.Name, java.lang.Object)
      */
@@ -403,7 +409,9 @@ public abstract class ServerContext implements EventContext
                 }
             }
 
+            // Get target and inject all rdn attributes into entry
             LdapDN target = buildTarget( name );
+            injectRdnAttributeValues( target, attributes );
 
             // Serialize object into entry attributes and add it.
             JavaLdapSupport.serialize( attributes, obj );
@@ -423,6 +431,7 @@ public abstract class ServerContext implements EventContext
             }
 
             LdapDN target = buildTarget( name );
+            injectRdnAttributeValues( target, attributes );
             nexusProxy.add( target, attributes );
         }
         else
