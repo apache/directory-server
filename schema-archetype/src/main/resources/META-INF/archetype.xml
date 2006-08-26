@@ -2,8 +2,10 @@
   <id>apacheds-schema-archetype</id>
   <sources>
     <source>src/main/java/Dummy.java</source>
-    <source>src/test/java/SchemaTest.java</source>
   </sources>
+  <testSources>
+    <source>src/test/java/SchemaTest.java</source>
+  </testSources>
   <resources>
     <resource>src/main/schema/car.schema</resource>
     <resource>src/test/resources/log4j.properties</resource>
