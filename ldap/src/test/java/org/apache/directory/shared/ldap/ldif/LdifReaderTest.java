@@ -148,6 +148,27 @@ public class LdifReaderTest extends TestCase
     }
 
     /**
+     * Test the ldif parser with a file without a version. It should default to 1
+     * @throws NamingException
+     */
+    public void testLdifWithoutVersion() throws NamingException
+    {
+        String ldif = 
+            "#Comment 1\r" + 
+            "#\r" + 
+            " th\n" + 
+            " is is still a comment\n" + 
+            "\n" + 
+            "# end";
+
+        LdifReader reader = new LdifReader();
+        List entries = reader.parseLdif( ldif );
+
+        assertEquals( 0, entries.size() );
+        assertEquals( 1, reader.getVersion() );
+    }
+
+    /**
      * Spaces at the end of values should not be included into values.
      * 
      * @throws NamingException
