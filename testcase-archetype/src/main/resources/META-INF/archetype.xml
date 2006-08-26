@@ -2,8 +2,10 @@
   <id>apacheds-testcase-archetype</id>
   <sources>
     <source>src/main/java/Dummy.java</source>
-    <source>src/test/java/ApacheDSITest.java</source>
   </sources>
+  <testSources>
+    <source>src/test/java/ApacheDSITest.java</source>
+  </testSources>
   <resources>
     <resource>src/test/resources/log4j.properties</resource>
   </resources>
