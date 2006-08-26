@@ -39,7 +39,6 @@ public class RFC2713ITest extends AbstractAdminTestCase
 {
     public void testSerialization() throws Exception
     {
-        /*
         ArrayList colors = new ArrayList();
         colors.add( "red" );
         colors.add( "white" );
@@ -71,6 +70,5 @@ public class RFC2713ITest extends AbstractAdminTestCase
         attr = attrs.get( "javaSerializedData" );
         assertNotNull( attr );
         assertEquals( 1, attr.size() );
-        */
     }
 }
