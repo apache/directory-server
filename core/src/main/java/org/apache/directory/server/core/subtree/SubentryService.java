@@ -106,7 +106,6 @@ public class SubentryService extends BaseInterceptor
     private OidRegistry oidRegistry;
     
     private AttributeType objectClassType;
-    private AttributeType administrativeRoleType;
 
 
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
@@ -119,7 +118,6 @@ public class SubentryService extends BaseInterceptor
         
         // setup various attribute type values
         objectClassType = attrRegistry.lookup( oidRegistry.getOid( "objectClass" ) );
-        administrativeRoleType = attrRegistry.lookup( oidRegistry.getOid( "administrativeRole" ) );
         
         ssParser = new SubtreeSpecificationParser( new NormalizerMappingResolver()
         {
