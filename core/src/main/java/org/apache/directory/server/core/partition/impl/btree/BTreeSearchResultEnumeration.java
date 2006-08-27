@@ -206,7 +206,9 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             }
         }
 
-        return new BTreeSearchResult( rec.getEntryId(), name, null, entry );
+        BTreeSearchResult result = new BTreeSearchResult( rec.getEntryId(), name, null, entry );
+        result.setRelative( false );
+        return result;
     }
 
 
