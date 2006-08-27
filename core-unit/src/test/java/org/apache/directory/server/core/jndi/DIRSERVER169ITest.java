@@ -68,7 +68,6 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
         user.put( "sn", "Hamilton" );
 
         sysRoot.createSubcontext( "uid=bob,ou=people", user );
-        System.out.println( sysRoot.getNameInNamespace() );
     }
 
 

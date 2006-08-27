@@ -275,10 +275,10 @@ class DefaultDirectoryService extends DirectoryService
         }
         finally
         {
+            serviceListener.afterShutdown( this );
             environment = null;
             interceptorChain = null;
             startupConfiguration = null;
-            serviceListener.afterShutdown( this );
         }
     }
 

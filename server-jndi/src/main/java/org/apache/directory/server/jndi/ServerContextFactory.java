@@ -416,6 +416,7 @@ public class ServerContextFactory extends CoreContextFactory
                 ServerContextFactory.class.getClassLoader() ).getMethod( "init", new Class[]
                 { ServerStartupConfiguration.class } ).invoke( null, new Object[]
                 { cfg } );
+            ldapsStarted = true;
         }
         catch ( InvocationTargetException e )
         {
@@ -464,7 +465,8 @@ public class ServerContextFactory extends CoreContextFactory
             ((SocketSessionConfig)(acceptorCfg.getSessionConfig())).setTcpNoDelay( true );
             
             tcpAcceptor.bind( new InetSocketAddress( port ), protocolProvider.getHandler(), acceptorCfg );
-
+            ldapStarted = true;
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Successful bind of an LDAP Service (" + port + ") is complete." );
