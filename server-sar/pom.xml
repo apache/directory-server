@@ -65,8 +65,8 @@
     <plugins>
       <plugin>
         <extensions>true</extensions>
-        <groupId>org.codehaus.mojo</groupId>
-      	<artifactId>jboss-sar-maven-plugin</artifactId>
+        <groupId>org.apache.directory.server</groupId>
+      	<artifactId>apacheds-sar-plugin</artifactId>
         <configuration>
           <excludes>
             <exclude>
