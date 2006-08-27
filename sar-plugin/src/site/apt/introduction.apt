@@ -1,0 +1,16 @@
+ ------
+ Maven 2 Sar Plugin
+ ------
+ Frank Mena
+ <frankm.os@gmail.com>
+ ------
+ September 23, 2005
+
+Introduction
+
+  This plugin generates a JBoss service sar archive (SAR) file.
+
+  The full description of goals is available {{{index.html}here}}.
+
+
+
