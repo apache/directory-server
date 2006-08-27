@@ -97,7 +97,7 @@ public class ModifyHandler implements LdapMessageHandler
         }
         catch ( NamingException e )
         {
-            String msg = "failed to modify entry " + req.getName();
+            String msg = "failed to modify entry " + req.getName() + ": " + e.getMessage();
             
             if ( IS_DEBUG )
             {

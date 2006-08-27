@@ -385,7 +385,7 @@ public class SearchHandler implements LdapMessageHandler
                 return;
             }
 
-            String msg = "failed on search operation";
+            String msg = "failed on search operation: " + e.getMessage();
             if ( log.isDebugEnabled() )
             {
                 msg += ":\n" + req + ":\n" + ExceptionUtils.getStackTrace( e );

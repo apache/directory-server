@@ -99,7 +99,7 @@ public class AddHandler implements LdapMessageHandler
         }
         catch ( NamingException e )
         {
-            String msg = "failed to add entry " + req.getEntry();
+            String msg = "failed to add entry " + req.getEntry() + ": " + e.getMessage();
 
             if ( log.isDebugEnabled() )
             {
