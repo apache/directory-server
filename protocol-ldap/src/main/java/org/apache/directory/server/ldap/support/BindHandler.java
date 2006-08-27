@@ -134,7 +134,7 @@ public class BindHandler implements LdapMessageHandler
                 result.setResultCode( code );
             }
 
-            String msg = "Bind failed";
+            String msg = "Bind failed: " + e.getMessage();
             
             if ( IS_DEBUG )
             {

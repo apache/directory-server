@@ -107,7 +107,7 @@ public class CompareHandler implements LdapMessageHandler
         }
         catch ( Exception e )
         {
-            String msg = "failed to compare entry " + req.getName();
+            String msg = "failed to compare entry " + req.getName() + ": " + e.getMessage();
 
             if ( IS_DEBUG )
             {

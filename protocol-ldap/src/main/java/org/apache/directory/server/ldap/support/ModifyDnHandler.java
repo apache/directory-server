@@ -155,7 +155,7 @@ public class ModifyDnHandler implements LdapMessageHandler
             }
             catch ( NamingException e )
             {
-                String msg = "failed to modify DN of entry " + req.getName();
+                String msg = "failed to modify DN of entry " + req.getName() + ": " + e.getMessage();
                 
                 if ( IS_DEBUG )
                 {

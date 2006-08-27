@@ -94,7 +94,7 @@ public class DeleteHandler implements LdapMessageHandler
         }
         catch ( NamingException e )
         {
-            String msg = "failed to delete entry " + req.getName();
+            String msg = "failed to delete entry " + req.getName() + ": " + e.getMessage();
 
             if ( IS_DEBUG )
             {
