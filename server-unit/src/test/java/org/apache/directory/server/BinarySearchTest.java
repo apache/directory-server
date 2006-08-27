@@ -123,11 +123,11 @@ public class BinarySearchTest extends AbstractServerTest
         // as a String value.  I see the value sent to the SearchHandler of the
         // filter to be a String looking like: "[B@17210a5".
         
-//        enm = ctx.search( "", "(userCertificate={0})", new Object[] {certData}, controls );
-//        assertTrue( enm.hasMore() );
-//        sr = ( SearchResult ) enm.next();
-//        assertNotNull( sr );
-//        assertFalse( enm.hasMore() );
-//        assertEquals( "cn=Kate Bush", sr.getName() );
+        enm = ctx.search( "", "(userCertificate={0})", new Object[] {certData}, controls );
+        assertTrue( enm.hasMore() );
+        sr = ( SearchResult ) enm.next();
+        assertNotNull( sr );
+        assertFalse( enm.hasMore() );
+        assertEquals( "cn=Kate Bush", sr.getName() );
     }
 }
