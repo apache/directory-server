@@ -50,8 +50,8 @@ public class DelITest extends AbstractServerTest
     }
 
     protected void tearDown() throws LDAPException, Exception {
-        super.tearDown();
         con.disconnect();
+        super.tearDown();
     }
 
     /**
