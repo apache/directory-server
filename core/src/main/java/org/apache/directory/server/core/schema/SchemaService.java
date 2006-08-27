@@ -207,10 +207,19 @@ public class SchemaService extends BaseInterceptor
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE && filter instanceof SimpleNode )
         {
             SimpleNode node = ( SimpleNode ) filter;
+            String compareto = null;
+            if ( node.getValue() instanceof String )
+            {
+                compareto = ( String ) node.getValue();
+            }
+            else
+            {
+                compareto = node.getValue().toString();
+            }
 
             // see if node attribute is objectClass
             if ( node.getAttribute().equalsIgnoreCase( "2.5.4.0" )
-                && node.getValue().equalsIgnoreCase( "subschema" ) && node.getAssertionType() == SimpleNode.EQUALITY )
+                && "subschema".equalsIgnoreCase( compareto ) && node.getAssertionType() == SimpleNode.EQUALITY )
             {
                 // call.setBypass( true );
                 Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );

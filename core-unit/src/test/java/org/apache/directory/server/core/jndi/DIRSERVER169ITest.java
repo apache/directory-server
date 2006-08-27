@@ -106,12 +106,11 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
 
 
     /**
-     * TODO re-enable this test after fixing binary attribute searches.
-     * @throws Exception
+     * Search over binary attributes now should work via the core JNDI 
+     * provider.
      */
     public void testPasswordComparisonSucceeds() throws Exception
     {
-        /*
         Hashtable env = configuration.toJndiEnvironment();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
@@ -127,6 +126,5 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
 
         // We should have a match
         assertTrue( results.hasMore() );
-        */
     }
 }

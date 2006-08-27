@@ -101,7 +101,7 @@ public class NormalizingVisitor implements FilterVisitor
         if ( node instanceof SimpleNode )
         {
             SimpleNode snode = ( SimpleNode ) node;
-            String normalized;
+            Object normalized;
 
             try
             {
@@ -113,11 +113,33 @@ public class NormalizingVisitor implements FilterVisitor
                 }
                 else if ( Character.isDigit( snode.getAttribute().charAt( 0 ) ) )
                 {
-                    normalized = ncn.normalizeByOid( snode.getAttribute(), snode.getValue() );
+                    if ( snode.getValue() instanceof String )
+                    {
+                        normalized = ncn.normalizeByOid( snode.getAttribute(), ( String ) snode.getValue() );
+                    }
+                    else if ( snode.getValue() instanceof byte [] )
+                    {
+                        normalized = ncn.normalizeByOid( snode.getAttribute(), ( byte[] ) snode.getValue() );
+                    }
+                    else
+                    {
+                        normalized = ncn.normalizeByOid( snode.getAttribute(), snode.getValue().toString() );
+                    }
                 }
                 else
                 {
-                    normalized = ncn.normalizeByName( snode.getAttribute(), snode.getValue() );
+                    if ( snode.getValue() instanceof String )
+                    {
+                        normalized = ncn.normalizeByName( snode.getAttribute(), ( String ) snode.getValue() );
+                    }
+                    else if ( snode.getValue() instanceof byte [] )
+                    {
+                        normalized = ncn.normalizeByName( snode.getAttribute(), ( byte[] ) snode.getValue() );
+                    }
+                    else
+                    {
+                        normalized = ncn.normalizeByName( snode.getAttribute(), snode.getValue().toString() );
+                    }
                 }
             }
             catch ( NamingException e )

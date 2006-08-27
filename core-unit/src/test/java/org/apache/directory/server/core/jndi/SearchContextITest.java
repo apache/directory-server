@@ -486,6 +486,50 @@ public class SearchContextITest extends AbstractAdminTestCase
             attrs.get( "creatorsName" ).get() );
     }
 
+    
+    /**
+     * Creation of required attributes of a person entry.
+     */
+    protected Attributes getPersonAttributes( String sn, String cn )
+    {
+        Attributes attributes = new BasicAttributes();
+        Attribute attribute = new BasicAttribute( "objectClass" );
+        attribute.add( "top" );
+        attribute.add( "person" );
+        attributes.put( attribute );
+        attributes.put( "cn", cn );
+        attributes.put( "sn", sn );
+
+        return attributes;
+    }
+
+
+    public void testBinaryAttributesInFilter() throws NamingException
+    {
+        byte[] certData = new byte[] { 0x34, 0x56, 0x4e, 0x5f };
+        
+        // First let's add a some binary data representing a userCertificate
+        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
+        attrs.put( "userCertificate", certData );
+        sysRoot.createSubcontext( "cn=Kate Bush", attrs );
+        
+        // Search for kate by cn first
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        NamingEnumeration enm = sysRoot.search( "", "(cn=Kate Bush)", controls );
+        assertTrue( enm.hasMore() );
+        SearchResult sr = ( SearchResult ) enm.next();
+        assertNotNull( sr );
+        assertFalse( enm.hasMore() );
+        assertEquals( "cn=Kate Bush,ou=system", sr.getName() );
+
+        enm = sysRoot.search( "", "(userCertificate={0})", new Object[] {certData}, controls );
+        assertTrue( enm.hasMore() );
+        sr = ( SearchResult ) enm.next();
+        assertNotNull( sr );
+        assertFalse( enm.hasMore() );
+        assertEquals( "cn=Kate Bush,ou=system", sr.getName() );
+    }
 
     // this one is failing because it returns the admin user twice: count = 15
 //    public void testFilterExpansion3() throws Exception

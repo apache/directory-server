@@ -294,9 +294,24 @@ public class NormalizationService extends BaseInterceptor
                         case( LeafNode.GREATEREQ ):
                         case( LeafNode.LESSEQ ):
                             SimpleNode simpleNode = ( SimpleNode ) leaf;
-                            newLeaf = new SimpleNode( descendant.getOid(), 
-                                simpleNode.getValue(), 
-                                simpleNode.getAssertionType() );
+                            if ( simpleNode.getValue() instanceof String )
+                            {
+                                newLeaf = new SimpleNode( descendant.getOid(), 
+                                    ( String ) simpleNode.getValue(), 
+                                    simpleNode.getAssertionType() );
+                            }
+                            else if ( simpleNode.getValue() instanceof byte[] )
+                            {
+                                newLeaf = new SimpleNode( descendant.getOid(), 
+                                    ( byte[] ) simpleNode.getValue(), 
+                                    simpleNode.getAssertionType() );
+                            }
+                            else
+                            {
+                                newLeaf = new SimpleNode( descendant.getOid(), 
+                                    simpleNode.getValue().toString(), 
+                                    simpleNode.getAssertionType() );
+                            }
                             break;
                         default:
                             throw new IllegalStateException( "Unknown assertion type: " 
