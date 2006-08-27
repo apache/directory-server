@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class SimpleNode extends LeafNode
 {
     /** the value */
-    private String value;
+    private Object value;
 
 
     /**
@@ -47,7 +47,39 @@ public class SimpleNode extends LeafNode
      */
     public SimpleNode( String attribute, byte[] value, int type )
     {
-        this( attribute, StringTools.utf8ToString( value ), type );
+//        this( attribute, StringTools.utf8ToString( value ), type );
+        super( attribute, type );
+        this.value = value;
+
+        switch ( type )
+        {
+            case ( APPROXIMATE ):
+                break;
+
+            case ( EQUALITY ):
+                break;
+
+            case ( EXTENSIBLE ):
+                throw new IllegalArgumentException( "Assertion type supplied is "
+                    + "extensible.  Use ExtensibleNode instead." );
+
+            case ( GREATEREQ ):
+                break;
+
+            case ( LESSEQ ):
+                break;
+
+            case ( PRESENCE ):
+                throw new IllegalArgumentException( "Assertion type supplied is "
+                    + "presence.  Use PresenceNode instead." );
+
+            case ( SUBSTRING ):
+                throw new IllegalArgumentException( "Assertion type supplied is "
+                    + "substring.  Use SubstringNode instead." );
+
+            default:
+                throw new IllegalArgumentException( "Attribute value assertion type is undefined." );
+        }
     }
 
 
@@ -103,7 +135,7 @@ public class SimpleNode extends LeafNode
      * 
      * @return the value
      */
-    public final String getValue()
+    public final Object getValue()
     {
         return value;
     }
@@ -112,10 +144,9 @@ public class SimpleNode extends LeafNode
     /**
      * Sets the value of this node.
      * 
-     * @param value
-     *            the value for this node
+     * @param value the value for this node
      */
-    public void setValue( String value )
+    public void setValue( Object value )
     {
         this.value = value;
     }

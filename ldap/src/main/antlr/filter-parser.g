@@ -27,6 +27,7 @@ package org.apache.directory.shared.ldap.filter;
 
 import antlr.*;
 import java.util.ArrayList;
+import org.apache.directory.shared.ldap.util.StringTools;
 }
 
 // ----------------------------------------------------------------------------
@@ -288,18 +289,42 @@ simple returns [LeafNode node]
       {
         selector.select( valueLexer );
         Object value = valueParser.value( attribute );
+        
+        if ( value instanceof String )
+        {
+            String str = ( String ) value;
+            if ( str.charAt( 0 ) == '#' )
+            {
+                value = StringTools.toByteArray( str.substring( 1 ) );
+            }
+            else
+            {
+                value = str.trim();
+            }
+        }
 
         switch( type )
         {
             case( AbstractExprNode.APPROXIMATE ):
             case( AbstractExprNode.GREATEREQ ):
             case( AbstractExprNode.LESSEQ ):
-                node = new SimpleNode( attribute, ( ( String ) value).trim(), type );
+                if ( value instanceof String )
+                {
+                    node = new SimpleNode( attribute, ( String ) value, type );
+                }
+                else if ( value instanceof byte[] )
+                {
+                    node = new SimpleNode( attribute, ( byte[] ) value, type );
+                }
                 break;
             case( AbstractExprNode.EQUALITY ):
                 if ( value instanceof String )
                 {
-                    node = new SimpleNode( attribute, ( ( String ) value ).trim(), type );
+                    node = new SimpleNode( attribute, ( String ) value, type );
+                }
+                else if ( value instanceof byte[] )
+                {
+                    node = new SimpleNode( attribute, ( byte[] ) value, type );
                 }
                 else
                 {

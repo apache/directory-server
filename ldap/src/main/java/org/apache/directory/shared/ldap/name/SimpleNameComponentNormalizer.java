@@ -53,27 +53,27 @@ public class SimpleNameComponentNormalizer implements NameComponentNormalizer
     }
 
 
-    public String normalizeByName( String name, String val ) throws NamingException
+    public Object normalizeByName( String name, String val ) throws NamingException
     {
-        return ( String ) normalizer.normalize( val );
+        return normalizer.normalize( val );
     }
 
 
-    public String normalizeByName( String name, byte[] val ) throws NamingException
+    public Object normalizeByName( String name, byte[] val ) throws NamingException
     {
-        return ( String ) normalizer.normalize( val );
+        return normalizer.normalize( val );
     }
 
 
-    public String normalizeByOid( String oid, String val ) throws NamingException
+    public Object normalizeByOid( String oid, String val ) throws NamingException
     {
-        return ( String ) normalizer.normalize( val );
+        return normalizer.normalize( val );
     }
 
 
-    public String normalizeByOid( String oid, byte[] val ) throws NamingException
+    public Object normalizeByOid( String oid, byte[] val ) throws NamingException
     {
-        return ( String ) normalizer.normalize( val );
+        return normalizer.normalize( val );
     }
 
 

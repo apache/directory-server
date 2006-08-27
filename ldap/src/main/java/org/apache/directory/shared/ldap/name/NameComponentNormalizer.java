@@ -62,7 +62,7 @@ public interface NameComponentNormalizer
      * @throws NamingException
      *             if there is a recognition problem or a syntax issue
      */
-    String normalizeByName( String attributeName, String value ) throws NamingException;
+    Object normalizeByName( String attributeName, String value ) throws NamingException;
 
 
     /**
@@ -77,7 +77,7 @@ public interface NameComponentNormalizer
      * @throws NamingException
      *             if there is a recognition problem or a syntax issue
      */
-    String normalizeByName( String attributeName, byte[] value ) throws NamingException;
+    Object normalizeByName( String attributeName, byte[] value ) throws NamingException;
 
 
     /**
@@ -91,7 +91,7 @@ public interface NameComponentNormalizer
      * @throws NamingException
      *             if there is a recognition problem or a syntax issue
      */
-    String normalizeByOid( String attributeOid, String value ) throws NamingException;
+    Object normalizeByOid( String attributeOid, String value ) throws NamingException;
 
 
     /**
@@ -105,5 +105,5 @@ public interface NameComponentNormalizer
      * @throws NamingException
      *             if there is a recognition problem or a syntax issue
      */
-    String normalizeByOid( String attributeOid, byte[] value ) throws NamingException;
+    Object normalizeByOid( String attributeOid, byte[] value ) throws NamingException;
 }

@@ -31,8 +31,9 @@ import java.io.Serializable;
  */
 public class NoOpNormalizer implements Normalizer, Serializable
 {
+    public static final NoOpNormalizer INSTANCE = new NoOpNormalizer();
     static final long serialVersionUID = -7817763636668562489L;
-
+    
 
     /**
      * Creates a do nothing normalizer.
