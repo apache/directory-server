@@ -464,23 +464,67 @@ public class TwixTransformer implements TransformerSpi
                     switch ( ( ( AttributeValueAssertionFilter ) twixFilter ).getFilterType() )
                     {
                         case LdapConstants.EQUALITY_MATCH_FILTER:
-                            branch = new SimpleNode( ava.getAttributeDesc().toString(), ava.getAssertionValue()
-                                .toString(), AbstractExprNode.EQUALITY );
+                            if ( ava.getAssertionValue() instanceof String )
+                            {
+                                branch = new SimpleNode( ava.getAttributeDesc().toString(), 
+                                    (String)ava.getAssertionValue(), 
+                                    AbstractExprNode.EQUALITY );
+                            }
+                            else
+                            {
+                                branch = new SimpleNode( ava.getAttributeDesc().toString(), 
+                                    (byte[])ava.getAssertionValue(), 
+                                    AbstractExprNode.EQUALITY );
+                            }
+
                             break;
 
                         case LdapConstants.GREATER_OR_EQUAL_FILTER:
-                            branch = new SimpleNode( ava.getAttributeDesc().toString(), ava.getAssertionValue()
-                                .toString(), AbstractExprNode.GREATEREQ );
+                            if ( ava.getAssertionValue() instanceof String )
+                            {
+                                branch = new SimpleNode( ava.getAttributeDesc().toString(),
+                                    (String)ava.getAssertionValue(),
+                                    AbstractExprNode.GREATEREQ );
+                            }
+                            else
+                            {
+                                branch = new SimpleNode( ava.getAttributeDesc().toString(),
+                                    (byte[])ava.getAssertionValue(),
+                                    AbstractExprNode.GREATEREQ );
+                            }
+
                             break;
 
                         case LdapConstants.LESS_OR_EQUAL_FILTER:
-                            branch = new SimpleNode( ava.getAttributeDesc().toString(), ava.getAssertionValue()
-                                .toString(), AbstractExprNode.LESSEQ );
+                            if ( ava.getAssertionValue() instanceof String )
+                            {
+                                branch = new SimpleNode( ava.getAttributeDesc().toString(), 
+                                    (String)ava.getAssertionValue(), 
+                                    AbstractExprNode.LESSEQ );
+                            }
+                            else
+                            {
+                                branch = new SimpleNode( ava.getAttributeDesc().toString(), 
+                                    (byte[])ava.getAssertionValue(), 
+                                    AbstractExprNode.LESSEQ );
+                            }
+
                             break;
 
                         case LdapConstants.APPROX_MATCH_FILTER:
-                            branch = new SimpleNode( ava.getAttributeDesc().toString(), ava.getAssertionValue()
-                                .toString(), AbstractExprNode.APPROXIMATE );
+                            if ( ava.getAssertionValue() instanceof String )
+                            {
+                                branch = new SimpleNode( ava.getAttributeDesc().toString(), 
+                                    (String)ava.getAssertionValue(), 
+                                    AbstractExprNode.APPROXIMATE );
+                            }
+                            else
+                            {
+                                branch = new SimpleNode( ava.getAttributeDesc().toString(), 
+                                    (byte[])ava.getAssertionValue(), 
+                                    AbstractExprNode.APPROXIMATE );
+                            }
+
                             break;
                     }
 
@@ -521,7 +565,6 @@ public class TwixTransformer implements TransformerSpi
                     // Transform Extensible Match Filter
                     ExtensibleMatchFilter filter = ( ExtensibleMatchFilter ) twixFilter;
                     String attribute = null;
-                    String value = null;
                     String matchingRule = null;
 
                     if ( filter.getType() != null )
@@ -529,17 +572,28 @@ public class TwixTransformer implements TransformerSpi
                         attribute = filter.getType().toString();
                     }
 
-                    if ( filter.getMatchValue() != null )
-                    {
-                        value = filter.getMatchValue().toString();
-                    }
+                    Object value = filter.getMatchValue();
 
                     if ( filter.getMatchingRule() != null )
                     {
                         matchingRule = filter.getMatchingRule().toString();
                     }
 
-                    branch = new ExtensibleNode( attribute, value, matchingRule, filter.isDnAttributes() );
+                    if ( value instanceof String )
+                    {
+                        branch = new ExtensibleNode( attribute, (String)value, matchingRule, filter.isDnAttributes() );
+                    }
+                    else
+                    {
+                        if ( value != null )
+                        {
+                            branch = new ExtensibleNode( attribute, (byte[])value, matchingRule, filter.isDnAttributes() );
+                        }
+                        else
+                        {
+                            branch = new ExtensibleNode( attribute, (byte[])null, matchingRule, filter.isDnAttributes() );
+                        }
+                    }
                 }
 
                 return branch;
