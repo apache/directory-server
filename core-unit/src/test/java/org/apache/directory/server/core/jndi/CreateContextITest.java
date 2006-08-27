@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.jndi;
 
 
+import javax.naming.CompositeName;
+import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -240,5 +242,20 @@ public class CreateContextITest extends AbstractAdminTestCase
         }
 
         assertNull( ctx );
+    }
+    
+    
+    public void testCreateContextWithCompositeName() throws Exception
+    {
+        Attributes attrs = new BasicAttributes( true );
+        Attribute objclass = new BasicAttribute( "objectClass" );
+        objclass.add( "top" );
+        objclass.add( "extensibleObject" );
+        attrs.put( objclass );
+
+        Name relativeName = new CompositeName( "ou=services" );
+
+        //sysRoot.createSubcontext(relativeName.toString(), attrs);//Passes!
+        sysRoot.createSubcontext( relativeName, attrs );//Fails!
     }
 }
