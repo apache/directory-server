@@ -33,7 +33,7 @@
 
   <issueManagement>
     <system>JIRA</system>
-    <url>http://issues.apache.org/jira/browse/DIREVE</url>
+    <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
   </issueManagement>
   
   <inceptionYear>2003</inceptionYear>
