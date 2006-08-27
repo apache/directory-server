@@ -24,6 +24,8 @@ import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
@@ -60,36 +62,36 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
     /**
      * @see NameComponentNormalizer#normalizeByName(String, String)
      */
-    public String normalizeByName( String name, String value ) throws NamingException
+    public Object normalizeByName( String name, String value ) throws NamingException
     {
-        return lookup( name ).normalize( value ).toString();
+        return lookup( name ).normalize( value );
     }
 
 
     /**
      * @see NameComponentNormalizer#normalizeByName(String, String)
      */
-    public String normalizeByName( String name, byte[] value ) throws NamingException
+    public Object normalizeByName( String name, byte[] value ) throws NamingException
     {
-        return lookup( name ).normalize( value ).toString();
+        return lookup( name ).normalize( value );
     }
 
 
     /**
      * @see NameComponentNormalizer#normalizeByOid(String, String)
      */
-    public String normalizeByOid( String oid, String value ) throws NamingException
+    public Object normalizeByOid( String oid, String value ) throws NamingException
     {
-        return lookup( oid ).normalize( value ).toString();
+        return lookup( oid ).normalize( value );
     }
 
 
     /**
      * @see NameComponentNormalizer#normalizeByOid(String, String)
      */
-    public String normalizeByOid( String oid, byte[] value ) throws NamingException
+    public Object normalizeByOid( String oid, byte[] value ) throws NamingException
     {
-        return lookup( oid ).normalize( value ).toString();
+        return lookup( oid ).normalize( value );
     }
 
 
@@ -107,6 +109,13 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
     private Normalizer lookup( String id ) throws NamingException
     {
         AttributeType type = attributeRegistry.lookup( id );
+        MatchingRule mrule = type.getEquality();
+        
+        if ( mrule == null )
+        {
+            return NoOpNormalizer.INSTANCE;
+        }
+        
         return type.getEquality().getNormalizer();
     }
 

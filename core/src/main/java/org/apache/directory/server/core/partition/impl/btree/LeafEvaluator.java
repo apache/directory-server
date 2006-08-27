@@ -38,7 +38,9 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
@@ -350,6 +352,12 @@ public class LeafEvaluator implements Evaluator
     private Comparator getComparator( String attrId ) throws NamingException
     {
         MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
+        
+        if ( mrule == null )
+        {
+            return ByteArrayComparator.INSTANCE;
+        }
+        
         return mrule.getComparator();
     }
 
@@ -364,6 +372,12 @@ public class LeafEvaluator implements Evaluator
     private Normalizer getNormalizer( String attrId ) throws NamingException
     {
         MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
+        
+        if ( mrule == null )
+        {
+            return NoOpNormalizer.INSTANCE;
+        }
+        
         return mrule.getNormalizer();
     }
 

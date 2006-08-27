@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -636,11 +637,27 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             // Parse index
             index = Integer.parseInt( buf.substring( start + 1, ii ) );
 
-            /*
-             * Replace the '{ i }' with the string representation of the value
-             * held in the filterArgs array at index index.
-             */
-            buf.replace( start, ii + 1, filterArgs[index].toString() );
+            if ( filterArgs[index] instanceof String )
+            {
+                /*
+                 * Replace the '{ i }' with the string representation of the value
+                 * held in the filterArgs array at index index.
+                 */
+                buf.replace( start, ii + 1, ( String ) filterArgs[index] );
+            }
+            else if ( filterArgs[index] instanceof byte[] )
+            {
+                String hexstr = "#" + StringTools.toHexString( ( byte[] ) filterArgs[index] );
+                buf.replace( start, ii + 1, hexstr );
+            }
+            else
+            {
+                /*
+                 * Replace the '{ i }' with the string representation of the value
+                 * held in the filterArgs array at index index.
+                 */
+                buf.replace( start, ii + 1, filterArgs[index].toString() );
+            }
         }
 
         return search( name, buf.toString(), cons );

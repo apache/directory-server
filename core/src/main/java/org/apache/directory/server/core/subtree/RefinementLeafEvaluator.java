@@ -23,6 +23,7 @@ package org.apache.directory.server.core.subtree;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -95,8 +96,20 @@ public class RefinementLeafEvaluator
         }
 
         // If the filter value for the objectClass is an OID we need to resolve a name
-        String value = node.getValue();
-
+        String value = null;
+        if ( node.getValue() instanceof String )
+        {
+            value = ( String ) node.getValue();
+        }
+        else if ( node.getValue() instanceof byte[] )
+        {
+            value = "#" + StringTools.toHexString( ( byte[] ) node.getValue() );
+        }
+        else
+        {
+            value = node.getValue().toString();
+        }
+        
         if ( Character.isDigit( value.charAt( 0 ) ) )
         {
             Iterator list = registry.getNameSet( value ).iterator();

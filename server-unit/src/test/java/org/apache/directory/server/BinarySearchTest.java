@@ -118,7 +118,16 @@ public class BinarySearchTest extends AbstractServerTest
         assertFalse( enm.hasMore() );
         assertEquals( "cn=Kate Bush", sr.getName() );
 
+        // TODO enable this test here
+        // Failing here below this due to the frontend interpretting the byte[]
+        // as a String value.  I see the value sent to the SearchHandler of the
+        // filter to be a String looking like: "[B@17210a5".
         
 //        enm = ctx.search( "", "(userCertificate={0})", new Object[] {certData}, controls );
+//        assertTrue( enm.hasMore() );
+//        sr = ( SearchResult ) enm.next();
+//        assertNotNull( sr );
+//        assertFalse( enm.hasMore() );
+//        assertEquals( "cn=Kate Bush", sr.getName() );
     }
 }
