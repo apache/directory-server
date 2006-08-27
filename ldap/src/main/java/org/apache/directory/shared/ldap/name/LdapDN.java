@@ -976,14 +976,23 @@ public class LdapDN /* extends LdapString */implements Name
            // Regenerate the normalized name and the original string
            normalizeInternal();
            toUpName();
-
-           return this;
        }
        else
        {
-           log.error( "Not a valid LdapDN suffix : " + name );
-           throw new InvalidNameException( "The suffix is not a LdapDN" );
+           if ( ( name == null ) || ( name.size() == 0 ) )
+           {
+               return this;
+           }
+
+           for ( int ii = 0; ii < name.size(); ii++ )
+           {
+               Rdn rdn = new Rdn( name.get( ii ) );
+               rdns.add( size() - posn, rdn );
+           }
+           normalizeInternal();
+           toUpName();
        }
+       return this;
    }
 
 
