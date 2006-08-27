@@ -20,9 +20,6 @@
 package org.apache.directory.shared.ldap.filter;
 
 
-import org.apache.directory.shared.ldap.util.StringTools;
-
-
 /**
  * A simple assertion value node.
  * 
