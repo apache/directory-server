@@ -50,7 +50,7 @@ public class TupleEnumeration implements NamingEnumeration
      * @param key the keys whose duplicate values are to be returned
      * @param iterator the underlying iterator this cursor uses
      */
-    public TupleEnumeration(Object key, Iterator iterator)
+    public TupleEnumeration( Object key, Iterator iterator )
     {
         this.key = key;
         tuple.setKey( key );
