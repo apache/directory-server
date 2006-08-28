@@ -34,6 +34,7 @@ import jdbm.RecordManager;
 import jdbm.btree.BTree;
 import jdbm.helper.TupleBrowser;
 
+import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.directory.server.core.partition.impl.btree.DupsEnumeration;
 import org.apache.directory.server.core.partition.impl.btree.KeyOnlyComparator;
 import org.apache.directory.server.core.partition.impl.btree.NoDupsEnumeration;
@@ -843,7 +844,10 @@ public class JdbmTable implements Table
             return new EmptyEnumeration();
         }
 
-        return new TupleEnumeration( key, set.iterator() );
+        Object[] objs = new Object[set.size()];
+        objs = set.toArray( objs );
+        ArrayIterator iterator = new ArrayIterator( objs );
+        return new TupleEnumeration( key, iterator );
     }
 
 
@@ -951,7 +955,10 @@ public class JdbmTable implements Table
 
         if ( isGreaterThan )
         {
-            return new TupleEnumeration( key, set.tailSet( val ).iterator() );
+            Object[] objs = new Object[set.size()];
+            objs = set.tailSet( val ).toArray( objs );
+            ArrayIterator iterator = new ArrayIterator( objs );
+            return new TupleEnumeration( key, iterator );
         }
         else
         {
