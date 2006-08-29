@@ -82,7 +82,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             ServerLdapContext slc = ( ServerLdapContext ) ctx;
             DirectoryService service = slc.getService();
 
-            if ( !slc.getPrincipal().getName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL ) )
+            if ( !slc.getPrincipal().getName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
             {
                 requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId(),
                     ResultCodeEnum.INSUFFICIENTACCESSRIGHTS ) );
