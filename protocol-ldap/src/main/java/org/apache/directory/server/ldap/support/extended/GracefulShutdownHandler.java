@@ -98,7 +98,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
 
         // make sue only the administrator can issue this shutdown request if 
         // not we respond to the requestor with with insufficientAccessRights(50)
-        if ( !slc.getPrincipal().getName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL ) )
+        if ( !slc.getPrincipal().getName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
         {
             if ( log.isInfoEnabled() )
             {
