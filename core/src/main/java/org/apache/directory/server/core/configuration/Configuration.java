@@ -49,15 +49,24 @@ public abstract class Configuration implements Cloneable, Serializable
 
     /**
      * Gets {@link Configuration} instance from the specified JNDI environment
-     * {@link Hashtable}.
+     * {@link Hashtable}.  If a configuration instance is not present the default
+     * StartupConfiguration is returned and injected into the environment.
      * 
      * @throws ConfigurationException if the specified environment doesn't
-     *                                contain the configuration instance.
+     *                                contain the proper configuration instance.
      */
     public static Configuration toConfiguration( Hashtable jndiEnvironment )
     {
         Object value = jndiEnvironment.get( JNDI_KEY );
-        if ( value == null || !( value instanceof Configuration ) )
+        
+        if ( value == null )
+        {
+            MutableStartupConfiguration msc = new MutableStartupConfiguration();
+            jndiEnvironment.put( JNDI_KEY, msc );
+            return msc;
+        }
+        
+        if ( !( value instanceof Configuration ) )
         {
             throw new ConfigurationException( "Not an ApacheDS configuration: " + value );
         }
