@@ -428,8 +428,6 @@ public class MoveRenameAuthorizationITest extends AbstractAuthorizationITest
     
     
     /**
-     * FIXME: THIS TEST FAILS
-     * 
      * Checks to make sure Export and Import permissions work correctly
      * when they are defined on seperate contexts.
      *
