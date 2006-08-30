@@ -44,7 +44,7 @@ import org.apache.mina.util.AvailablePortFinder;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapsTest extends AbstractServerTest
+public class LdapsITest extends AbstractServerTest
 {
     private static final String RDN = "cn=The Person";
 

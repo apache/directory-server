@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RootDSETest extends TestCase
+public class RootDSEITest extends TestCase
 {
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
