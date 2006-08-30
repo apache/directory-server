@@ -32,7 +32,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
-      <version>1.2.24</version>
+      <version>1.2.25</version>
     </dependency>
     <dependency>
       <groupId>commons-daemon</groupId>
