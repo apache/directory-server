@@ -435,7 +435,6 @@ public class MoveRenameAuthorizationITest extends AbstractAuthorizationITest
      *
      * @throws javax.naming.NamingException if the test encounters an error
      */
-    /*
     public void testExportAndImportSeperately() throws NamingException
     {
         // ----------------------------------------------------------------------------
@@ -500,5 +499,4 @@ public class MoveRenameAuthorizationITest extends AbstractAuthorizationITest
         deleteAccessControlSubentry( "grantImportToASubtree" );
         deleteUser( "billyd" );
     }
-    */
 }
