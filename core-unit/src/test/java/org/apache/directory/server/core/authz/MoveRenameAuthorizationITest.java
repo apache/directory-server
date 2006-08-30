@@ -65,7 +65,7 @@ public class MoveRenameAuthorizationITest extends AbstractAuthorizationITest
             // create the new entry as the admin user
             adminContext.createSubcontext( entryRdn, testEntry );
 
-            LdapDN userName = new LdapDN( "uid=" + uid + ",ou=users,ou=system" );
+            LdapDN userName = new LdapDN( "uid=" + uid + ",ou=users,ou=system" ); 
             DirContext userContext = getContextAs( userName, password );
             userContext.rename( entryRdn, newRdn );
 
@@ -423,6 +423,80 @@ public class MoveRenameAuthorizationITest extends AbstractAuthorizationITest
 
         // now let's cleanup
         deleteAccessControlSubentry( "grantMoveByAny" );
+        deleteUser( "billyd" );
+    }
+    
+    
+    /**
+     * FIXME: THIS TEST FAILS
+     * 
+     * Checks to make sure Export and Import permissions work correctly
+     * when they are defined on seperate contexts.
+     *
+     * @throws javax.naming.NamingException if the test encounters an error
+     */
+    public void testExportAndImportSeperately() throws NamingException
+    {
+        // ----------------------------------------------------------------------------
+        // Test move and RDN change at the same time.
+        // ----------------------------------------------------------------------------
+
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // try an move w/ rdn change which should fail without any ACI
+        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+
+        
+        // Gives grantBrowse perm to all users in the Administrators
+        // group for entries
+        // It's is needed just to read navigate the tree at root
+        createAccessControlSubentry(
+            "grantBrowseForTheWholeNamingContext",
+            "{ }",
+            "{ " + "identificationTag \"browseACI\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { { "
+            + "protectedItems { entry }, "
+            + "grantsAndDenials { grantBrowse } } } } }" );
+        
+        // Gives grantExport, grantRename perm to all users in the Administrators
+        // group for entries
+        createAccessControlSubentry(
+            "grantExportFromASubtree",
+            "{ base \"ou=users\" }", // !!!!! =====>>>>> { base "ou=users" }
+            "{ " + "identificationTag \"exportACI\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { { "
+            + "protectedItems { entry }, "
+            + "grantsAndDenials { grantExport, grantRename } } } } }" );
+        
+        // Gives grantImport perm to all users in the Administrators
+        // group for the target context
+        createAccessControlSubentry(
+            "grantImportToASubtree",
+            "{ base \"ou=groups\" }", // !!!!! =====>>>>> { base "ou=groups" }
+            "{ " + "identificationTag \"importACI\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { { "
+            + "protectedItems { entry }, "
+            + "grantsAndDenials { grantImport } } } } }" );
+
+        // see if we can move and rename the test entry which we could not before
+        // op should still fail since billyd is not in the admin group
+        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+
+        // now add billyd to the Administrator group and try again
+        addUserToGroup( "billyd", "Administrators" );
+
+        // try move w/ rdn change which should succeed with ACI and group membership change
+        assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+
+        // now let's cleanup
+        removeUserFromGroup( "billyd", "Administrators" );
+        deleteAccessControlSubentry( "grantBrowseForTheWholeNamingContext" );
+        deleteAccessControlSubentry( "grantExportFromASubtree" );
+        deleteAccessControlSubentry( "grantImportToASubtree" );
         deleteUser( "billyd" );
     }
 }

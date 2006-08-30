@@ -112,8 +112,7 @@ public class AuthorizationService extends BaseInterceptor
         set.add( MicroOperation.REMOVE );
         REPLACE_PERMS = Collections.unmodifiableCollection( set );
 
-        set = new HashSet( 3 );
-        set.add( MicroOperation.IMPORT );
+        set = new HashSet( 2 );
         set.add( MicroOperation.EXPORT );
         set.add( MicroOperation.RENAME );
         MOVERENAME_PERMS = Collections.unmodifiableCollection( set );
@@ -818,12 +817,32 @@ public class AuthorizationService extends BaseInterceptor
         engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), oriChildName, null,
             null, MOVERENAME_PERMS, tuples, entry );
 
+        // Get the entry again without operational attributes
+        // because access control subentry operational attributes
+        // will not be valid at the new location.
+        // This will certainly be fixed by the SubentryService,
+        // but after this service.
+        Attributes importedEntry = proxy.lookup( oriChildName, PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        // As the target entry does not exist yet and so
+        // its subentry operational attributes are not there,
+        // we need to construct an entry to represent it
+        // at least with minimal requirements which are object class
+        // and access control subentry operational attributes.
+        SubentryService subentryService = ( SubentryService ) chain.get( "subentryService" );
+        Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
+        NamingEnumeration attrList = importedEntry.getAll();
+        while ( attrList.hasMore() )
+        {
+            subentryAttrs.put( ( Attribute ) attrList.next() );
+        }
+        
         Collection destTuples = new HashSet();
-        addPerscriptiveAciTuples( proxy, destTuples, oriChildName, entry );
-        addEntryAciTuples( destTuples, entry );
-        addSubentryAciTuples( proxy, destTuples, oriChildName, entry );
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), oriChildName, null,
-            null, IMPORT_PERMS, tuples, entry );
+        // Import permission is only valid for prescriptive ACIs
+        addPerscriptiveAciTuples( proxy, destTuples, newName, subentryAttrs );
+        // Evaluate the target context to see whether it
+        // allows an entry named newName to be imported as a subordinate.
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), newName, null,
+            null, IMPORT_PERMS, destTuples, subentryAttrs );
 
         //        if ( deleteOldRn )
         //        {
@@ -893,13 +912,33 @@ public class AuthorizationService extends BaseInterceptor
 
         engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), oriChildName, null,
             null, EXPORT_PERMS, tuples, entry );
-
+        
+        // Get the entry again without operational attributes
+        // because access control subentry operational attributes
+        // will not be valid at the new location.
+        // This will certainly be fixed by the SubentryService,
+        // but after this service.
+        Attributes importedEntry = proxy.lookup( oriChildName, PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        // As the target entry does not exist yet and so
+        // its subentry operational attributes are not there,
+        // we need to construct an entry to represent it
+        // at least with minimal requirements which are object class
+        // and access control subentry operational attributes.
+        SubentryService subentryService = ( SubentryService ) chain.get( "subentryService" );
+        Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
+        NamingEnumeration attrList = importedEntry.getAll();
+        while ( attrList.hasMore() )
+        {
+            subentryAttrs.put( ( Attribute ) attrList.next() );
+        }
+        
         Collection destTuples = new HashSet();
-        addPerscriptiveAciTuples( proxy, destTuples, oriChildName, entry );
-        addEntryAciTuples( destTuples, entry );
-        addSubentryAciTuples( proxy, destTuples, oriChildName, entry );
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), oriChildName, null,
-            null, IMPORT_PERMS, tuples, entry );
+        // Import permission is only valid for prescriptive ACIs
+        addPerscriptiveAciTuples( proxy, destTuples, newName, subentryAttrs );
+        // Evaluate the target context to see whether it
+        // allows an entry named newName to be imported as a subordinate.
+        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), newName, null,
+            null, IMPORT_PERMS, destTuples, subentryAttrs );
 
         next.move( oriChildName, newParentName );
         tupleCache.subentryRenamed( oriChildName, newName );
