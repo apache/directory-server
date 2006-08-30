@@ -71,7 +71,7 @@ public class AuthzAuthnITest extends AbstractAuthorizationITest
         try
         {
             // Authenticate to "ou=system"
-            getContextAs( userName, "billyd" );
+            getContextAs( userName, "billyd", "ou=system" );
             fail( "Authentication should have failed." );
         }
         catch ( LdapNoPermissionException e )
@@ -110,7 +110,7 @@ public class AuthzAuthnITest extends AbstractAuthorizationITest
         try
         {
             // Authenticate to "ou=system"
-            getContextAs( userName, "billyd" );
+            getContextAs( userName, "billyd", "ou=system" );
         }
         catch ( LdapNoPermissionException e )
         {
