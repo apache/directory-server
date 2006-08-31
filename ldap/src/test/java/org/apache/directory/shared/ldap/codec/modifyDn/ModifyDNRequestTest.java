@@ -33,7 +33,11 @@ import org.apache.directory.shared.ldap.codec.Control;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
+import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequest;
+import org.apache.directory.shared.ldap.message.Message;
+import org.apache.directory.shared.ldap.message.ModifyDnResponseImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
@@ -57,20 +61,23 @@ public class ModifyDNRequestTest extends TestCase
 
         stream.put( new byte[]
             {
-
-            0x30, 0x46, // LDAPMessage ::= SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x6C, 0x41, // CHOICE { ..., modifyDNRequest ModifyDNRequest,
-                            // ...
-                // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
-                // entry LDAPDN,
-                0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
-                's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
-                // newrdn RelativeLDAPDN,
-                0x04, 0x0F, 'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 0x01, 0x01,
-                0x00, // deleteoldrdn BOOLEAN,
-                // newSuperior [0] LDAPDN OPTIONAL }
-                ( byte ) 0x80, 0x09, 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm' } );
+            0x30, 0x46,                 // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x6C, 0x41,               // CHOICE { ..., modifyDNRequest ModifyDNRequest,
+                                        // ...
+                                        // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
+                                        // entry LDAPDN,
+                0x04, 0x20, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
+                  's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+                                        // newrdn RelativeLDAPDN,
+                0x04, 0x0F, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 
+                0x01, 0x01, 0x00, // deleteoldrdn BOOLEAN,
+                                        // newSuperior [0] LDAPDN OPTIONAL }
+                ( byte ) 0x80, 0x09, 
+                  'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm' 
+            } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -116,7 +123,171 @@ public class ModifyDNRequestTest extends TestCase
         }
     }
 
+    /**
+     * Test the decoding of a bad DN ModifyDNRequest
+     */
+    public void testDecodeModifyDNRequestBadDN() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
 
+        ByteBuffer stream = ByteBuffer.allocate( 0x48 );
+
+        stream.put( new byte[]
+            {
+            0x30, 0x46,                 // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x6C, 0x41,               // CHOICE { ..., modifyDNRequest ModifyDNRequest,
+                                        // ...
+                                        // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
+                                        // entry LDAPDN,
+                0x04, 0x20, 
+                  'c', 'n', ':', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
+                  's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+                                        // newrdn RelativeLDAPDN,
+                0x04, 0x0F, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 
+                0x01, 0x01, 0x00, // deleteoldrdn BOOLEAN,
+                                        // newSuperior [0] LDAPDN OPTIONAL }
+                ( byte ) 0x80, 0x09, 
+                  'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm' 
+            } );
+
+        stream.flip();
+
+        // Allocate a ModifyRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( de instanceof ResponseCarryingException );
+            Message response = ((ResponseCarryingException)de).getResponse();
+            assertTrue( response instanceof ModifyDnResponseImpl );
+            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((ModifyDnResponseImpl)response).getLdapResult().getResultCode() );
+            return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
+
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a bad RDN ModifyDNRequest
+     */
+    public void testDecodeModifyDNRequestBadRDN() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x48 );
+
+        stream.put( new byte[]
+            {
+            0x30, 0x46,                 // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x6C, 0x41,               // CHOICE { ..., modifyDNRequest ModifyDNRequest,
+                                        // ...
+                                        // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
+                                        // entry LDAPDN,
+                0x04, 0x20, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
+                  's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+                                        // newrdn RelativeLDAPDN,
+                0x04, 0x0F, 
+                  'c', 'n', ':', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 
+                0x01, 0x01, 0x00,       // deleteoldrdn BOOLEAN,
+                                        // newSuperior [0] LDAPDN OPTIONAL }
+                ( byte ) 0x80, 0x09, 
+                  'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm' 
+            } );
+
+        stream.flip();
+
+        // Allocate a ModifyRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( de instanceof ResponseCarryingException );
+            Message response = ((ResponseCarryingException)de).getResponse();
+            assertTrue( response instanceof ModifyDnResponseImpl );
+            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((ModifyDnResponseImpl)response).getLdapResult().getResultCode() );
+            return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
+
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a bad RDN ModifyDNRequest
+     */
+    public void testDecodeModifyDNRequestBadNewSuperior() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x48 );
+
+        stream.put( new byte[]
+            {
+            0x30, 0x46,                 // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x6C, 0x41,               // CHOICE { ..., modifyDNRequest ModifyDNRequest,
+                                        // ...
+                                        // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
+                                        // entry LDAPDN,
+                0x04, 0x20, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
+                  's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+                                        // newrdn RelativeLDAPDN,
+                0x04, 0x0F, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 
+                0x01, 0x01, 0x00,       // deleteoldrdn BOOLEAN,
+                                        // newSuperior [0] LDAPDN OPTIONAL }
+                ( byte ) 0x80, 0x09, 
+                  'o', 'u', ':', 's', 'y', 's', 't', 'e', 'm' 
+            } );
+
+        stream.flip();
+
+        // Allocate a ModifyRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( de instanceof ResponseCarryingException );
+            Message response = ((ResponseCarryingException)de).getResponse();
+            assertTrue( response instanceof ModifyDnResponseImpl );
+            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((ModifyDnResponseImpl)response).getLdapResult().getResultCode() );
+            return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
+
+        fail( "We should not reach this point" );
+    }
+    
     /**
      * Test the decoding of a full ModifyDNRequest with controls
      */
@@ -128,23 +299,26 @@ public class ModifyDNRequestTest extends TestCase
 
         stream.put( new byte[]
             {
-
-            0x30, 0x63, // LDAPMessage ::= SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x6C, 0x41, // CHOICE { ..., modifyDNRequest ModifyDNRequest,
-                            // ...
-                // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
-                // entry LDAPDN,
-                0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
-                's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
-                // newrdn RelativeLDAPDN,
-                0x04, 0x0F, 'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 0x01, 0x01,
-                0x00, // deleteoldrdn BOOLEAN,
-                // newSuperior [0] LDAPDN OPTIONAL }
-                ( byte ) 0x80, 0x09, 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm', ( byte ) 0xA0, 0x1B, // A
-                                                                                                        // control
+            0x30, 0x63,                 // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x6C, 0x41,               // CHOICE { ..., modifyDNRequest ModifyDNRequest,
+                                        // ...
+                                        // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
+                                        // entry LDAPDN,
+                0x04, 0x20, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
+                  's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+                                        // newrdn RelativeLDAPDN,
+                0x04, 0x0F, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 
+                0x01, 0x01, 0x00,       // deleteoldrdn BOOLEAN,
+                                        // newSuperior [0] LDAPDN OPTIONAL }
+                ( byte ) 0x80, 0x09, 
+                  'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm', 
+              ( byte ) 0xA0, 0x1B, // A control
                 0x30, 0x19, 0x04, 0x17, 0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31,
-                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 } );
+                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 
+            } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -211,19 +385,20 @@ public class ModifyDNRequestTest extends TestCase
 
         stream.put( new byte[]
             {
-
-            0x30, 0x3B, // LDAPMessage ::= SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x6C, 0x36, // CHOICE { ..., modifyDNRequest ModifyDNRequest,
-                            // ...
-                // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
-                // entry LDAPDN,
-                0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
-                's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
-                // newrdn RelativeLDAPDN,
-                0x04, 0x0F, 'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 0x01, 0x01, 0x00 // deleteoldrdn
-                                                                                                                        // BOOLEAN,
-            // newSuperior [0] LDAPDN OPTIONAL }
+            0x30, 0x3B,                 // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x6C, 0x36,               // CHOICE { ..., modifyDNRequest ModifyDNRequest,
+                                        // ...
+                                        // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
+                                        // entry LDAPDN,
+                0x04, 0x20, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
+                  's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+                                        // newrdn RelativeLDAPDN,
+                0x04, 0x0F, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 
+                0x01, 0x01, 0x00        // deleteoldrdn BOOLEAN,
+                                        // newSuperior [0] LDAPDN OPTIONAL }
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -281,22 +456,24 @@ public class ModifyDNRequestTest extends TestCase
 
         stream.put( new byte[]
             {
-
-            0x30, 0x58, // LDAPMessage ::= SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x6C, 0x36, // CHOICE { ..., modifyDNRequest ModifyDNRequest,
-                            // ...
-                // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
-                // entry LDAPDN,
-                0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
-                's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
-                // newrdn RelativeLDAPDN,
-                0x04, 0x0F, 'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 0x01, 0x01,
-                0x00, // deleteoldrdn BOOLEAN,
-                // newSuperior [0] LDAPDN OPTIONAL }
-                ( byte ) 0xA0, 0x1B, // A control
+            0x30, 0x58,                 // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x6C, 0x36,               // CHOICE { ..., modifyDNRequest ModifyDNRequest,
+                                        // ...
+                                        // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
+                                        // entry LDAPDN,
+                0x04, 0x20, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
+                  's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+                                        // newrdn RelativeLDAPDN,
+                0x04, 0x0F, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 
+                0x01, 0x01, 0x00,       // deleteoldrdn BOOLEAN,
+                                        // newSuperior [0] LDAPDN OPTIONAL }
+              ( byte ) 0xA0, 0x1B,      // A control
                 0x30, 0x19, 0x04, 0x17, 0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31,
-                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 } );
+                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 
+            } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -363,10 +540,11 @@ public class ModifyDNRequestTest extends TestCase
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
         stream.put( new byte[]
-            { 0x30, 0x05, // LDAPMessage ::= SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x6C, 0x00 // CHOICE { ..., modifyDNRequest ModifyDNRequest,
-                            // ...
+            { 
+            0x30, 0x05,                 // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x6C, 0x00                // CHOICE { ..., modifyDNRequest ModifyDNRequest,
+                                        // ...
             } );
 
         stream.flip();
@@ -397,10 +575,11 @@ public class ModifyDNRequestTest extends TestCase
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
         stream.put( new byte[]
-            { 0x30, 0x07, // LDAPMessage ::= SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x6C, 0x02, // CHOICE { ..., modifyDNRequest ModifyDNRequest,
-                            // ...
+            { 
+            0x30, 0x07,                 // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x6C, 0x02,               // CHOICE { ..., modifyDNRequest ModifyDNRequest,
+                                        // ...
                 0x04, 0x00 } );
 
         stream.flip();
@@ -431,12 +610,16 @@ public class ModifyDNRequestTest extends TestCase
         ByteBuffer stream = ByteBuffer.allocate( 0x2D );
 
         stream.put( new byte[]
-            { 0x30, 0x2B, // LDAPMessage ::= SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x6C, 0x26, // CHOICE { ..., modifyDNRequest ModifyDNRequest,
+            { 
+            0x30, 0x2B,                 // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x6C, 0x26,               // CHOICE { ..., modifyDNRequest ModifyDNRequest,
                             // ...
-                0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
-                's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm', 0x04, 0x00 } );
+                0x04, 0x20, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
+                  's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm', 
+                0x04, 0x00 
+            } );
 
         stream.flip();
 
@@ -466,14 +649,17 @@ public class ModifyDNRequestTest extends TestCase
         ByteBuffer stream = ByteBuffer.allocate( 0x3C );
 
         stream.put( new byte[]
-            { 0x30, 0x3A, // LDAPMessage ::= SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x6C, 0x35, // CHOICE { ..., modifyDNRequest ModifyDNRequest,
-                            // ...
-                0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
-                's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm', 0x04, 0x0F, 'c', 'n', '=', 't',
-                'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 0x01, 0x00 // deleteoldrdn
-                                                                                    // BOOLEAN,
+            { 
+            0x30, 0x3A,                 // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x6C, 0x35,               // CHOICE { ..., modifyDNRequest ModifyDNRequest,
+                                        // ...
+                0x04, 0x20, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u',
+                  's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm', 
+                0x04, 0x0F, 
+                  'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y', 
+                0x01, 0x00              // deleteoldrdn BOOLEAN
             } );
 
         stream.flip();

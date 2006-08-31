@@ -440,37 +440,6 @@ public class SearchRequest extends LdapMessage
                 // We can stop the recursion, we have reached the searchResult Object
                 break;
             }
-            
-            /*
-            if ( filterParent instanceof Filter )
-            {
-                // The terminalfilter set has been completed
-                // we can get its parent and add the terminal to it
-                // but onlyu if it's not a connector filter
-                if ( ! (filter instanceof ConnectorFilter ) )
-                {
-                    addCurrentFilter( filter );
-                }
-                
-                // and update the current filter with the parent
-                Asn1Object parentFilter = currentFilter.getParent();
-                
-                if ( parentFilter instanceof Filter )
-                {
-                    searchRequest.setCurrentFilter( (Filter)parentFilter );
-                }
-                
-                parent = parent.getParent();
-                filter = currentFilter;
-            }
-            else
-            {
-                // We have reached the top level, we can stop
-                // the loop after having updated the currentFilter
-                //searchRequest.setCurrentFilter( filter );
-                break;
-            }
-            */
         }
     }
 

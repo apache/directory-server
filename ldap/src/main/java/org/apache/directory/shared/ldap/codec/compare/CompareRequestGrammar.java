@@ -21,6 +21,7 @@ package org.apache.directory.shared.ldap.codec.compare;
 
 
 import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
@@ -37,6 +38,7 @@ import org.apache.directory.shared.ldap.codec.LdapStatesEnum;
 import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
 import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.message.CompareResponseImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -139,6 +141,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
                     // DN
                     if ( tlv.getLength().getLength() == 0 )
                     {
+                        // This will generate a PROTOCOL_ERROR
                         throw new DecoderException( "The entry must not be null" );
                     }
                     else
@@ -156,16 +159,8 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
                                 ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
             
-                            CompareResponseImpl message = new CompareResponseImpl( ldapMessage.getMessageId() );
-                            message.getLdapResult().setErrorMessage( msg );
-                            message.getLdapResult().setResultCode( ResultCodeEnum.INVALIDDNSYNTAX );
-                            message.getLdapResult().setMatchedDn( LdapDN.EMPTY_LDAPDN );
-            
-                            ResponseCarryingException exception = new ResponseCarryingException( msg, ine );
-            
-                            exception.setResponse( message );
-            
-                            throw exception;
+                            CompareResponseImpl response = new CompareResponseImpl( ldapMessage.getMessageId() );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
 
                         compareRequest.setEntry( entry );
@@ -210,7 +205,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
             LdapStatesEnum.COMPARE_REQUEST_ATTRIBUTE_DESC_VALUE, LdapStatesEnum.COMPARE_REQUEST_ASSERTION_VALUE_TAG,
             new GrammarAction( "Store attribute desc" )
             {
-                public void action( IAsn1Container container ) throws DecoderException
+                public void action( IAsn1Container container ) throws DecoderException, NamingException
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
@@ -226,7 +221,11 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
                     // DN
                     if ( tlv.getLength().getLength() == 0 )
                     {
-                        throw new DecoderException( "The attribute description must not be null" );
+                        String msg = "The attribute description must not be null";
+                        log.error( msg );
+                        CompareResponseImpl response = new CompareResponseImpl( ldapMessage.getMessageId() );
+                        
+                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDATTRIBUTESYNTAX, compareRequest.getEntry(), null );
                     }
                     else
                     {
@@ -239,9 +238,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
                         {
                             log.error( "The attribute description ({}) is invalid.", StringTools.dumpBytes( tlv
                                 .getValue().getData() ) );
-                            throw new DecoderException( "Invalid attribute description "
-                                + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + lsee.getMessage() );
-
+                            throw new LdapInvalidAttributeIdentifierException( "Invalid attribute type : " + lsee.getMessage() );
                         }
                     }
 

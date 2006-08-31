@@ -159,16 +159,8 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                                 ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
                     
-                            ModifyResponseImpl message = new ModifyResponseImpl( ldapMessage.getMessageId() );
-                            message.getLdapResult().setErrorMessage( msg );
-                            message.getLdapResult().setResultCode( ResultCodeEnum.INVALIDDNSYNTAX );
-                            message.getLdapResult().setMatchedDn( LdapDN.EMPTY_LDAPDN );
-                    
-                            ResponseCarryingException exception = new ResponseCarryingException( msg, ine );
-                    
-                            exception.setResponse( message );
-                    
-                            throw exception;
+                            ModifyResponseImpl response = new ModifyResponseImpl( ldapMessage.getMessageId() );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
 
                         modifyRequest.setObject( object );
@@ -283,6 +275,8 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                         String msg = "Invalid operation ( " + StringTools.dumpBytes( tlv.getValue().getData() )
                             + "), it should be 0, 1 or 2";
                         log.error( msg );
+                        
+                        // This will generate a PROTOCOL_ERROR
                         throw new DecoderException( msg );
                     }
 
@@ -355,7 +349,11 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
 
                     if ( tlv.getLength().getLength() == 0 )
                     {
-                        throw new DecoderException( "The type can't be null" );
+                        String msg = "The type can't be null";
+                        log.error( msg );
+                        
+                        ModifyResponseImpl response = new ModifyResponseImpl( ldapMessage.getMessageId() );
+                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDATTRIBUTESYNTAX, modifyRequest.getObject(), null );
                     }
                     else
                     {
@@ -366,8 +364,11 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( LdapStringEncodingException lsee )
                         {
-                            log.error( "Invalid type : {}", StringTools.dumpBytes( tlv.getValue().getData() ) );
-                            throw new DecoderException( "Invalid type : " + lsee.getMessage() );
+                            String msg = "Invalid type : " + StringTools.dumpBytes( tlv.getValue().getData() );
+                            log.error( msg );
+
+                            ModifyResponseImpl response = new ModifyResponseImpl( ldapMessage.getMessageId() );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDATTRIBUTESYNTAX, modifyRequest.getObject(), lsee );
                         }
                     }
 
@@ -461,8 +462,7 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
                     // Store the value. It can't be null
-                    Object value = new byte[]
-                        {};
+                    Object value = StringTools.EMPTY_BYTES;
 
                     if ( tlv.getLength().getLength() == 0 )
                     {

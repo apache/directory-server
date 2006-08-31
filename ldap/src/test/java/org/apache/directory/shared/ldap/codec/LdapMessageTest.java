@@ -56,7 +56,8 @@ public class LdapMessageTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
         stream.put( new byte[]
-            { 0x30, 0x00, // LDAPMessage ::=SEQUENCE {
+            { 
+            0x30, 0x00,                 // LDAPMessage ::=SEQUENCE {
             } );
 
         stream.flip();
@@ -94,8 +95,9 @@ public class LdapMessageTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
         stream.put( new byte[]
-            { 0x30, 0x02, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x00 // messageID MessageID
+            { 
+            0x30, 0x02,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x00                // messageID MessageID
             } );
 
         stream.flip();
@@ -133,8 +135,9 @@ public class LdapMessageTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x05 );
         stream.put( new byte[]
-            { 0x30, 0x03, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, ( byte ) 0xff // messageID MessageID = -1
+            { 
+            0x30, 0x03,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, ( byte ) 0xff // messageID MessageID = -1
             } );
 
         stream.flip();
@@ -163,7 +166,7 @@ public class LdapMessageTest extends TestCase
 
 
     /**
-     * Test the decoding of null length messageId
+     * Test the decoding of messageId which value is -1
      */
     public void testDecodeMessageIdMaxInt()
     {
@@ -172,10 +175,10 @@ public class LdapMessageTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x08 );
         stream.put( new byte[]
-            { 0x30, 0x06, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x04, ( byte ) 0x7f, ( byte ) 0xff, ( byte ) 0xff, ( byte ) 0xff // messageID
-                                                                                        // MessageID
-                                                                                        // = -1
+            { 
+            0x30, 0x06,                 // LDAPMessage ::=SEQUENCE {
+                                        // messageID MessageID = -1
+              0x02, 0x04, ( byte ) 0x7f, ( byte ) 0xff, ( byte ) 0xff, ( byte ) 0xff
             } );
 
         stream.flip();
@@ -204,15 +207,16 @@ public class LdapMessageTest extends TestCase
 
 
     /**
-     * Test the decoding of null length messageId
+     * Test the decoding of a message with a wrong protocol operation
      */
     public void testDecodeWrongProtocolOpMaxInt()
     {
 
         byte[] buffer = new byte[]
-            { 0x30, 0x05, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID = 1
-                0x42, 0x00 // ProtocolOp
+            { 
+            0x30, 0x05,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID = 1
+              0x42, 0x00                // ProtocolOp
             };
 
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -299,10 +303,11 @@ public class LdapMessageTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x08 );
         stream.put( new byte[]
-            { 0x30, 0x06, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x02, 0x01, ( byte ) 0xF4, // messageID MessageID (500)
-                0x42, 0x00, // CHOICE { ..., unbindRequest UnbindRequest,...
-            // UnbindRequest ::= [APPLICATION 2] NULL
+            { 
+            0x30, 0x06,                         // LDAPMessage ::=SEQUENCE {
+              0x02, 0x02, 0x01, ( byte ) 0xF4,  // messageID MessageID (500)
+              0x42, 0x00,                       // CHOICE { ..., unbindRequest UnbindRequest,...
+                                                // UnbindRequest ::= [APPLICATION 2] NULL
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );

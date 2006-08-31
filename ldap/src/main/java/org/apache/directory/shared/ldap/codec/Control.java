@@ -57,10 +57,6 @@ public class Control extends Asn1Object
     /** The control length */
     private transient int controlLength;
 
-    private static final byte[] EMPTY_BYTES = new byte[]
-        {};
-
-
     // ~ Methods
     // ------------------------------------------------------------------------------------
 
@@ -96,7 +92,7 @@ public class Control extends Asn1Object
     {
         if ( controlValue == null )
         {
-            return EMPTY_BYTES;
+            return StringTools.EMPTY_BYTES;
         }
         else if ( controlValue instanceof String )
         {
@@ -130,7 +126,7 @@ public class Control extends Asn1Object
     {
         if ( encodedValue == null )
         {
-            return EMPTY_BYTES;
+            return StringTools.EMPTY_BYTES;
         }
 
         return encodedValue;

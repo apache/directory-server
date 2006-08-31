@@ -112,6 +112,8 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                     {
                         String msg = "The AddRequest must not be null";
                         log.error( msg );
+                        
+                        // Will generate a PROTOCOL_ERROR
                         throw new DecoderException( msg );
                     }
 
@@ -148,7 +150,14 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                     // Store the entry. It can't be null
                     if ( tlv.getLength().getLength() == 0 )
                     {
-                        throw new DecoderException( "The DN can't be null" );
+                        String msg = "Empty entry DN given";
+                        log.error( msg );
+                
+                        AddResponseImpl response = new AddResponseImpl( ldapMessage.getMessageId() );
+                
+                        // I guess that trying to add an entry which DN is empty is a naming violation...
+                        // Not 100% sure though ...
+                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.NAMINGVIOLATION, LdapDN.EMPTY_LDAPDN, null );
                     }
                     else
                     {
@@ -166,16 +175,8 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                                 ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
                 
-                            AddResponseImpl message = new AddResponseImpl( ldapMessage.getMessageId() );
-                            message.getLdapResult().setErrorMessage( msg );
-                            message.getLdapResult().setResultCode( ResultCodeEnum.INVALIDDNSYNTAX );
-                            message.getLdapResult().setMatchedDn( LdapDN.EMPTY_LDAPDN );
-                
-                            ResponseCarryingException exception = new ResponseCarryingException( msg, ine );
-                
-                            exception.setResponse( message );
-                
-                            throw exception;
+                            AddResponseImpl response = new AddResponseImpl( ldapMessage.getMessageId() );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
 
                         addRequest.setEntry( entry );
@@ -261,8 +262,12 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
 
                     if ( tlv.getLength().getLength() == 0 )
                     {
-                        log.error( "Null types are not allowed" );
-                        throw new DecoderException( "The type can't be null" );
+                        String msg = "Null or empty types are not allowed"; 
+                        log.error( msg );
+
+                        AddResponseImpl response = new AddResponseImpl( ldapMessage.getMessageId() );
+                        
+                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDATTRIBUTESYNTAX, addRequest.getEntry(), null );
                     }
                     else
                     {

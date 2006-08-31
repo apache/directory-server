@@ -105,23 +105,6 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
                     // We can allocate the ExtensibleMatch Filter
                     Filter extensibleMatchFilter = new ExtensibleMatchFilter();
 
-                    // Get the parent, if any
-                    Filter currentFilter = searchRequest.getCurrentFilter();
-
-                    if ( currentFilter != null )
-                    {
-                        // Ok, we have a parent. The new Filter will be added to
-                        // this parent, then.
-                        ( ( ConnectorFilter ) currentFilter ).addFilter( extensibleMatchFilter );
-                        extensibleMatchFilter.setParent( currentFilter );
-                    }
-                    else
-                    {
-                        // No parent. This Filter will become the root.
-                        searchRequest.setFilter( extensibleMatchFilter );
-                        extensibleMatchFilter.setParent( searchRequest );
-                    }
-
                     searchRequest.addCurrentFilter( extensibleMatchFilter );
                     searchRequest.setTerminalFilter( extensibleMatchFilter );
                 }
@@ -159,6 +142,8 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
                     if ( tlv.getLength().getLength() == 0 )
                     {
                         log.error( "The matching rule is empty" );
+                        
+                        // It will generate a PROTOCOL_ERROR
                         throw new DecoderException( "Invalid matching rule : it can't be empty" );
                     }
                     else
@@ -171,6 +156,8 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
                         {
                             String msg = StringTools.dumpBytes( tlv.getValue().getData() );
                             log.error( "The matching rule ({}) is invalid", msg );
+
+                            // It will generate a PROTOCOL_ERROR
                             throw new DecoderException( "Invalid matching rule " + msg + ", : " + lsee.getMessage() );
                         }
                     }

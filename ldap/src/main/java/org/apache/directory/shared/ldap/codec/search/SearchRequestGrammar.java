@@ -162,16 +162,8 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                                 ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
                     
-                            SearchResponseDoneImpl message = new SearchResponseDoneImpl( ldapMessage.getMessageId() );
-                            message.getLdapResult().setErrorMessage( msg );
-                            message.getLdapResult().setResultCode( ResultCodeEnum.INVALIDDNSYNTAX );
-                            message.getLdapResult().setMatchedDn( LdapDN.EMPTY_LDAPDN );
-                    
-                            ResponseCarryingException exception = new ResponseCarryingException( msg, ine );
-                    
-                            exception.setResponse( message );
-                    
-                            throw exception;
+                            SearchResponseDoneImpl response = new SearchResponseDoneImpl( ldapMessage.getMessageId() );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
                     }
 

@@ -17,8 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.abandon;
-
+package org.apache.directory.shared.ldap.codec;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -29,27 +28,17 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.Control;
-import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
-import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.abandon.AbandonRequest;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
 
-
-/**
- * Test an AbandonRequest
- * 
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- */
-public class AbandonRequestTest extends TestCase
+public class LdapControlTest extends TestCase
 {
     /**
-     * Test the decoding of a AbandonRequest with controls
+     * Test the decoding of a Request with controls
      */
-    public void testDecodeAbandonRequestWithControls()
+    public void testDecodeRequestWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -60,29 +49,31 @@ public class AbandonRequestTest extends TestCase
               0x02, 0x01, 0x03,         // messageID MessageID
               0x50, 0x01, 0x02,         // CHOICE { ..., abandonRequest
                                         // AbandonRequest,...
-                ( byte ) 0xA0, 0x5A,    // controls [0] Controls OPTIONAL }
-                  0x30, 0x1A,           // Control ::= SEQUENCE {
+              ( byte ) 0xA0, 0x5A,      // controls [0] Controls OPTIONAL }
+                0x30, 0x1A,             // Control ::= SEQUENCE {
                                         // controlType LDAPOID,
-                    0x04, 0x0D, 
-                      '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '1',
+                  0x04, 0x0D, 
+                    '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '1',
                                         // criticality BOOLEAN DEFAULT FALSE,
-                    0x01, 0x01, ( byte ) 0xFF, 
+                  0x01, 0x01, ( byte ) 0xFF, 
                                         // controlValue OCTET STRING OPTIONAL }
-                    0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f', 
-                    0x30, 0x17,         // Control ::= SEQUENCE {
+                  0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f', 
+                0x30, 0x17,             // Control ::= SEQUENCE {
                                         // controlType LDAPOID,
-                    0x04, 0x0D, '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '2',
+                  0x04, 0x0D, 
+                    '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '2',
                                         // controlValue OCTET STRING OPTIONAL }
-                    0x04, 0x06, 'g', 'h', 'i', 'j', 'k', 'l', 
-                  0x30, 0x12,           // Control ::= SEQUENCE {
+                  0x04, 0x06, 'g', 'h', 'i', 'j', 'k', 'l', 
+                0x30, 0x12,             // Control ::= SEQUENCE {
                                         // controlType LDAPOID,
-                    0x04, 0x0D, 
-                      '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '3',
-                                        // criticality BOOLEAN DEFAULT FALSE }
-                    0x01, 0x01, ( byte ) 0xFF, 
-                  0x30, 0x0F,           // Control ::= SEQUENCE {
+                  0x04, 0x0D, 
+                    '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '3',
+                                        // criticality BOOLEAN DEFAULT FALSE}
+                  0x01, 0x01, ( byte ) 0xFF, 
+                0x30, 0x0F,             // Control ::= SEQUENCE {
                                         // controlType LDAPOID}
-                    0x04, 0x0D, '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '4' 
+                0x04, 0x0D, 
+                  '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '4' 
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -158,88 +149,28 @@ public class AbandonRequestTest extends TestCase
         }
     }
 
-
     /**
-     * Test the decoding of a AbandonRequest with no controls
+     * Test the decoding of a Request with null OID controls
      */
-    public void testDecodeAbandonRequestNoControlsHighMessageId()
+    public void testDecodeRequestWithControlsNullOID()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer stream = ByteBuffer.allocate( 0x0A );
+        ByteBuffer stream = ByteBuffer.allocate( 0x19 );
         stream.put( new byte[]
             { 
-            0x30, 0x08,                 // LDAPMessage ::=SEQUENCE {
-                                        // messageID MessageID
-              0x02, 0x03, 0x00, ( byte ) 0x80, 0x13, 
-              0x50, 0x01, 0x02          // CHOICE { ..., abandonRequest
+            0x30, 0x17,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x03,         // messageID MessageID
+              0x50, 0x01, 0x02,         // CHOICE { ..., abandonRequest
                                         // AbandonRequest,...
-                                        // AbandonRequest ::= [APPLICATION 16] MessageID
-            } );
-
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
-        stream.flip();
-
-        // Allocate a LdapMessageContainer Container
-        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
-
-        // Decode the PDU
-        try
-        {
-            ldapDecoder.decode( stream, ldapMessageContainer );
-        }
-        catch ( DecoderException de )
-        {
-            de.printStackTrace();
-            fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
-
-        // Check that everything is OK
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AbandonRequest abandonRequest = message.getAbandonRequest();
-
-        assertEquals( 32787, message.getMessageId() );
-        assertEquals( 2, abandonRequest.getAbandonedMessageId() );
-
-        // Check the length
-        assertEquals( 10, message.computeLength() );
-
-        // Check the encoding
-        try
-        {
-            ByteBuffer bb = message.encode( null );
-
-            String encodedPdu = StringTools.dumpBytes( bb.array() );
-
-            assertEquals( encodedPdu, decodedPdu );
-        }
-        catch ( EncoderException ee )
-        {
-            ee.printStackTrace();
-            fail( ee.getMessage() );
-        }
-    }
-
-
-    /**
-     * Test the decoding of a AbandonRequest with a null messageId
-     */
-    public void testDecodeAbandonRequestNoMessageId()
-    {
-        Asn1Decoder ldapDecoder = new LdapDecoder();
-
-        ByteBuffer stream = ByteBuffer.allocate( 0x0A );
-        stream.put( new byte[]
-            { 
-            0x30, 0x08,                 // LDAPMessage ::=SEQUENCE {
-              0x02, 0x01, 0x01,         // messageID MessageID
-              0x50, 0x00                // CHOICE { ..., abandonRequest AbandonRequest,...
-                                        // AbandonRequest ::= [APPLICATION 16] MessageID
+              ( byte ) 0xA0, 0x0F,      // controls [0] Controls OPTIONAL }
+                0x30, 0x0D,             // Control ::= SEQUENCE {
+                                        // controlType LDAPOID,
+                  0x04, 0x00, 
+                                        // criticality BOOLEAN DEFAULT FALSE,
+                  0x01, 0x01, ( byte ) 0xFF, 
+                                        // controlValue OCTET STRING OPTIONAL }
+                  0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f', 
             } );
 
         stream.flip();
@@ -267,19 +198,76 @@ public class AbandonRequestTest extends TestCase
     }
 
     /**
-     * Test the decoding of a AbandonRequest with a bad Message Id
+     * Test the decoding of a Request with bad OID controls
      */
-    public void testDecodeAbandonRequestBadMessageId()
+    public void testDecodeRequestWithControlsBadOID()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer stream = ByteBuffer.allocate( 0x0B );
+        ByteBuffer stream = ByteBuffer.allocate( 0x20 );
         stream.put( new byte[]
             { 
-            0x30, 0x09,                 // LDAPMessage ::=SEQUENCE {
-              0x02, 0x01, 0x01,         // messageID MessageID
-              0x50, 0x01, (byte)0xFF    // CHOICE { ..., abandonRequest AbandonRequest,...
-                                        // AbandonRequest ::= [APPLICATION 16] MessageID
+            0x30, 0x1E,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x03,         // messageID MessageID
+              0x50, 0x01, 0x02,         // CHOICE { ..., abandonRequest
+                                        // AbandonRequest,...
+              ( byte ) 0xA0, 0x16,      // controls [0] Controls OPTIONAL }
+                0x30, 0x14,             // Control ::= SEQUENCE {
+                                        // controlType LDAPOID,
+                  0x04, 0x07, 'b', 'a', 'd', ' ', 'o', 'i', 'd',
+                                        // criticality BOOLEAN DEFAULT FALSE,
+                  0x01, 0x01, ( byte ) 0xFF, 
+                                        // controlValue OCTET STRING OPTIONAL }
+                  0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f', 
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessageContainer Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
+            return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
+
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a Request with bad criticality
+     */
+    public void testDecodeRequestWithControlsBadCriticality()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x25 );
+        stream.put( new byte[]
+            { 
+            0x30, 0x23,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x03,         // messageID MessageID
+              0x50, 0x01, 0x02,         // CHOICE { ..., abandonRequest
+                                        // AbandonRequest,...
+              ( byte ) 0xA0, 0x1B,      // controls [0] Controls OPTIONAL }
+                0x30, 0x19,             // Control ::= SEQUENCE {
+                                        // controlType LDAPOID,
+                  0x04, 0x0D, 
+                    '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '1',
+                                        // criticality BOOLEAN DEFAULT FALSE,
+                  0x01, 0x00, 
+                                        // controlValue OCTET STRING OPTIONAL }
+                  0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f', 
             } );
 
         stream.flip();

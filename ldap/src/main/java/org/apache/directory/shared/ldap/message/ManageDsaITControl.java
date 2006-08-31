@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.message;
 
+import org.apache.directory.shared.ldap.util.StringTools;
+
 
 /**
  * Control which allows for the management of referrals and other DSA specific
@@ -64,15 +66,12 @@ public class ManageDsaITControl extends ControlImpl
 
     private static final long serialVersionUID = -8844249964346248321L;
 
-    private final static byte[] EMPTY_BYTES = new byte[0];
-
-
     /**
      * Returns an empty byte[] everytime.
      */
     public byte[] getEncodedValue()
     {
-        return EMPTY_BYTES;
+        return StringTools.EMPTY_BYTES;
     }
 
 
@@ -81,7 +80,7 @@ public class ManageDsaITControl extends ControlImpl
      */
     public byte[] getValue()
     {
-        return EMPTY_BYTES;
+        return StringTools.EMPTY_BYTES;
     }
 
 

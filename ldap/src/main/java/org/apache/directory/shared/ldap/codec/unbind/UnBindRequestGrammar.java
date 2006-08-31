@@ -120,6 +120,8 @@ public class UnBindRequestGrammar extends AbstractGrammar implements IGrammar
                     {
                         log.error( "The length of a UnBindRequest must be null, the actual value is {}", new Integer(
                             expectedLength ) );
+                        
+                        // This will generate a PROTOCOL_ERROR
                         throw new DecoderException( "The length of a UnBindRequest must be null" );
                     }
 

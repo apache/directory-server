@@ -98,6 +98,7 @@ public class SubEntryControlGrammar extends AbstractGrammar implements IGrammar
                         log.error( "The visibility flag {} is invalid : {}. It should be 0 or 255", StringTools
                             .dumpBytes( value.getData() ), bde.getMessage() );
 
+                        // This will generate a PROTOCOL_ERROR
                         throw new DecoderException( bde.getMessage() );
                     }
                 }

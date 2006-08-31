@@ -52,10 +52,11 @@ public class UnBindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
         stream.put( new byte[]
-            { 0x30, 0x05, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x42, 0x00, // CHOICE { ..., unbindRequest UnbindRequest,...
-            // UnbindRequest ::= [APPLICATION 2] NULL
+            { 
+            0x30, 0x05,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x42, 0x00,               // CHOICE { ..., unbindRequest UnbindRequest,...
+                                        // UnbindRequest ::= [APPLICATION 2] NULL
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -111,13 +112,17 @@ public class UnBindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x24 );
         stream.put( new byte[]
-            { 0x30, 0x22, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x42, 0x00, // CHOICE { ..., unbindRequest UnbindRequest,...
-                // UnbindRequest ::= [APPLICATION 2] NULL
-                ( byte ) 0xA0, 0x1B, // A control
-                0x30, 0x19, 0x04, 0x17, 0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31,
-                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 } );
+            { 
+            0x30, 0x22,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x42, 0x00,               // CHOICE { ..., unbindRequest UnbindRequest,...
+                                        // UnbindRequest ::= [APPLICATION 2] NULL
+              ( byte ) 0xA0, 0x1B,      // A control
+                0x30, 0x19, 
+                  0x04, 0x17,
+                    '2', '.', '1', '6', '.', '8', '4', '0', '.', '1', '.', '1', '1', '3', '7', 
+                    '3', '0', '.', '3', '.', '4', '.', '2'
+            } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -181,10 +186,11 @@ public class UnBindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
         stream.put( new byte[]
-            { 0x30, 0x07, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x42, 0x02, // CHOICE { ..., unbindRequest UnbindRequest,...
-                0x04, 0x00 // UnbindRequest ::= [APPLICATION 2] NULL
+            { 
+            0x30, 0x07,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x42, 0x02,               // CHOICE { ..., unbindRequest UnbindRequest,...
+                0x04, 0x00              // UnbindRequest ::= [APPLICATION 2] NULL
 
             } );
 

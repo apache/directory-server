@@ -113,6 +113,8 @@ public class AbandonRequestGrammar extends AbstractGrammar implements IGrammar
                     {
                         String msg = "The AbandonRequest messageId must not be null";
                         log.error( msg );
+
+                        // This will generate a PROTOCOL_ERROR
                         throw new DecoderException( msg );
                     }
 
@@ -143,6 +145,7 @@ public class AbandonRequestGrammar extends AbstractGrammar implements IGrammar
                                 "The Abandonned Message Id {} is invalid : {}. The message ID must be between (0 .. 2 147 483 647)",
                                 StringTools.dumpBytes( value.getData() ), ide.getMessage() );
 
+                        // This will generate a PROTOCOL_ERROR
                         throw new DecoderException( ide.getMessage() );
                     }
                 }

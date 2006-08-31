@@ -33,9 +33,13 @@ import org.apache.directory.shared.ldap.codec.Control;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
+import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
 import org.apache.directory.shared.ldap.codec.bind.BindRequest;
 import org.apache.directory.shared.ldap.codec.bind.SaslCredentials;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
+import org.apache.directory.shared.ldap.message.BindResponseImpl;
+import org.apache.directory.shared.ldap.message.Message;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
@@ -56,21 +60,25 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x52 );
         stream.put( new byte[]
-            { 0x30, 0x50, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x2E, // CHOICE { ..., bindRequest BindRequest, ...
-                // BindRequest ::= APPLICATION[0] SEQUENCE {
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
-                0x04, 0x1F, // name LDAPDN,
+            { 
+            0x30, 0x50,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x2E,               // CHOICE { ..., bindRequest BindRequest, ...
+                                        // BindRequest ::= APPLICATION[0] SEQUENCE {
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x1F,             // name LDAPDN,
                 'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', ( byte ) 0x80, 0x08, // authentication
-                                                                                            // AuthenticationChoice
-                // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
-                // ...
-                'p', 'a', 's', 's', 'w', 'o', 'r', 'd', ( byte ) 0xA0, 0x1B, // A
-                                                                                // control
-                0x30, 0x19, 0x04, 0x17, 0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31,
-                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 } );
+                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                ( byte ) 0x80, 0x08,    // authentication AuthenticationChoice
+                                        // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
+                                        // ...
+                  'p', 'a', 's', 's', 'w', 'o', 'r', 'd', 
+              ( byte ) 0xA0, 0x1B, // A control
+                0x30, 0x19, 
+                  0x04, 0x17, 
+                    0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
+                    0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 
+            } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -144,18 +152,20 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x35 );
         stream.put( new byte[]
-            { 0x30, 0x33, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x2E, // CHOICE { ..., bindRequest BindRequest, ...
-                // BindRequest ::= APPLICATION[0] SEQUENCE {
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
-                0x04, 0x1F, // name LDAPDN,
+            { 
+            0x30, 0x33,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x2E,               // CHOICE { ..., bindRequest BindRequest, ...
+                                        // BindRequest ::= APPLICATION[0] SEQUENCE {
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x1F,             // name LDAPDN,
                 'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', ( byte ) 0x80, 0x08, // authentication
-                                                                                            // AuthenticationChoice
-                // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
-                // ...
-                'p', 'a', 's', 's', 'w', 'o', 'r', 'd' } );
+                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                ( byte ) 0x80, 0x08,    // authentication AuthenticationChoice
+                                        // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
+                                        // ...
+                  'p', 'a', 's', 's', 'w', 'o', 'r', 'd' 
+            } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -209,6 +219,58 @@ public class BindRequestTest extends TestCase
         }
     }
 
+    /**
+     * Test the decoding of a BindRequest with Simple authentication and
+     * controls
+     */
+    public void testDecodeBindRequestBadDN()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x35 );
+        stream.put( new byte[]
+            { 
+            0x30, 0x33,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x2E,               // CHOICE { ..., bindRequest BindRequest, ...
+                                        // BindRequest ::= APPLICATION[0] SEQUENCE {
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x1F,             // name LDAPDN,
+                  'u', 'i', 'd', ':', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                  'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                ( byte ) 0x80, 0x08,    // authentication AuthenticationChoice
+                                        // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
+                                        // ...
+                'p', 'a', 's', 's', 'w', 'o', 'r', 'd' 
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the BindRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( de instanceof ResponseCarryingException );
+            Message response = ((ResponseCarryingException)de).getResponse();
+            assertTrue( response instanceof BindResponseImpl );
+            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((BindResponseImpl)response).getLdapResult().getResultCode() );
+            return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
+
+        fail( "We should not reach this point" );
+    }
+
 
     /**
      * Test the decoding of a BindRequest with Simple authentication, no name
@@ -220,15 +282,17 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x15 );
         stream.put( new byte[]
-            { 0x30, 0x13, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x0D, // CHOICE { ..., bindRequest BindRequest, ...
-                // BindRequest ::= APPLICATION[0] SEQUENCE {
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
-                ( byte ) 0x80, 0x08, // authentication AuthenticationChoice
-                // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
-                // ...
-                'p', 'a', 's', 's', 'w', 'o', 'r', 'd' } );
+            { 
+            0x30, 0x13,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x0D,               // CHOICE { ..., bindRequest BindRequest, ...
+                                        // BindRequest ::= APPLICATION[0] SEQUENCE {
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                ( byte ) 0x80, 0x08,    // authentication AuthenticationChoice
+                                        // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
+                                        // ...
+                'p', 'a', 's', 's', 'w', 'o', 'r', 'd' 
+            } );
 
         stream.flip();
 
@@ -266,16 +330,18 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x16 );
         stream.put( new byte[]
-            { 0x30, 0x14, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x0F, // CHOICE { ..., bindRequest BindRequest, ...
-                // BindRequest ::= APPLICATION[0] SEQUENCE {
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
-                0x04, 0x00, // name LDAPDN,
-                ( byte ) 0x80, 0x08, // authentication AuthenticationChoice
-                // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
-                // ...
-                'p', 'a', 's', 's', 'w', 'o', 'r', 'd' } );
+            { 
+            0x30, 0x14,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x0F,               // CHOICE { ..., bindRequest BindRequest, ...
+                                        // BindRequest ::= APPLICATION[0] SEQUENCE {
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x00,             // name LDAPDN,
+                ( byte ) 0x80, 0x08,    // authentication AuthenticationChoice
+                                        // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
+                                        // ...
+                'p', 'a', 's', 's', 'w', 'o', 'r', 'd' 
+            } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
 
@@ -341,21 +407,24 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x3A );
         stream.put( new byte[]
-            { 0x30, 0x38, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x33, // CHOICE { ..., bindRequest BindRequest, ...
-                // BindRequest ::= APPLICATION[0] SEQUENCE {
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
-                0x04, 0x1F, // name LDAPDN,
-                'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', ( byte ) 0xA3, 0x0D, // authentication
-                                                                                            // AuthenticationChoice
-                // AuthenticationChoice ::= CHOICE { ... sasl [3]
-                // SaslCredentials }
-                // SaslCredentials ::= SEQUENCE {
-                // mechanism LDAPSTRING,
-                // ...
-                0x04, 0x0B, 'K', 'E', 'R', 'B', 'E', 'R', 'O', 'S', '_', 'V', '4' } );
+            { 
+            0x30, 0x38,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x33,               // CHOICE { ..., bindRequest BindRequest, ...
+                                        // BindRequest ::= APPLICATION[0] SEQUENCE {
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x1F,             // name LDAPDN,
+                  'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                  'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                ( byte ) 0xA3, 0x0D,    // authentication AuthenticationChoice
+                                        // AuthenticationChoice ::= CHOICE { ... sasl [3]
+                                        // SaslCredentials }
+                                        // SaslCredentials ::= SEQUENCE {
+                                        // mechanism LDAPSTRING,
+                                        // ...
+                  0x04, 0x0B, 
+                    'K', 'E', 'R', 'B', 'E', 'R', 'O', 'S', '_', 'V', '4' 
+            } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -419,29 +488,31 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x42 );
         stream.put( new byte[]
-            { 0x30, 0x40, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x3B, // CHOICE { ..., bindRequest BindRequest, ...
-                // BindRequest ::= APPLICATION[0] SEQUENCE {
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
-                0x04, 0x1F, // name LDAPDN,
+            { 
+            0x30, 0x40,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x3B,               // CHOICE { ..., bindRequest BindRequest, ...
+                                        // BindRequest ::= APPLICATION[0] SEQUENCE {
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x1F,             // name LDAPDN,
                 'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', ( byte ) 0xA3, 0x15, // authentication
-                                                                                            // AuthenticationChoice
-                                                                                            // }
-                // AuthenticationChoice ::= CHOICE { ... sasl [3]
-                // SaslCredentials }
-                // SaslCredentials ::= SEQUENCE {
-                // mechanism LDAPSTRING,
-                // ...
-                0x04, 0x0B, 'K', 'E', 'R', 'B', 'E', 'R', 'O', 'S', '_', 'V', '4', ( byte ) 0x04, 0x06, // SaslCredentials
-                                                                                                        // ::=
-                                                                                                        // SEQUENCE
-                                                                                                        // {
-                // ...
-                // credentials OCTET STRING OPTIONAL }
-                // 
-                'a', 'b', 'c', 'd', 'e', 'f' } );
+                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                ( byte ) 0xA3, 0x15,    // authentication AuthenticationChoice
+                                        // }
+                                        // AuthenticationChoice ::= CHOICE { ... sasl [3]
+                                        // SaslCredentials }
+                                        // SaslCredentials ::= SEQUENCE {
+                                        // mechanism LDAPSTRING,
+                                        // ...
+                  0x04, 0x0B, 
+                    'K', 'E', 'R', 'B', 'E', 'R', 'O', 'S', '_', 'V', '4', 
+                  ( byte ) 0x04, 0x06,  // SaslCredentials ::= SEQUENCE {
+                                        // ...
+                                        // credentials OCTET STRING OPTIONAL }
+                                        // 
+                  'a', 'b', 'c', 'd', 'e', 'f' 
+            } );
+        
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -506,9 +577,10 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
         stream.put( new byte[]
-            { 0x30, 0x05, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x00 // CHOICE { ..., bindRequest BindRequest, ...
+            { 
+            0x30, 0x05,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x00                // CHOICE { ..., bindRequest BindRequest, ...
             } );
 
         stream.flip();
@@ -545,10 +617,11 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
         stream.put( new byte[]
-            { 0x30, 0x07, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x02, // CHOICE { ..., bindRequest BindRequest, ...
-                0x02, 0x00 // version INTEGER (1..127),
+            { 
+            0x30, 0x07,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x02,               // CHOICE { ..., bindRequest BindRequest, ...
+                0x02, 0x00              // version INTEGER (1..127),
             } );
 
         stream.flip();
@@ -585,10 +658,11 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0A );
         stream.put( new byte[]
-            { 0x30, 0x08, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x03, // CHOICE { ..., bindRequest BindRequest, ...
-                0x02, 0x01, 0x00 // version INTEGER (1..127),
+            { 
+            0x30, 0x08,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+                0x60, 0x03,             // CHOICE { ..., bindRequest BindRequest, ...
+                0x02, 0x01, 0x00        // version INTEGER (1..127),
             } );
 
         stream.flip();
@@ -625,10 +699,11 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0A );
         stream.put( new byte[]
-            { 0x30, 0x08, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x03, // CHOICE { ..., bindRequest BindRequest, ...
-                0x02, 0x01, 0x04 // version INTEGER (1..127),
+            { 
+            0x30, 0x08,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+                0x60, 0x03,             // CHOICE { ..., bindRequest BindRequest, ...
+                0x02, 0x01, 0x04        // version INTEGER (1..127),
             } );
 
         stream.flip();
@@ -665,10 +740,12 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0C );
         stream.put( new byte[]
-            { 0x30, 0x0A, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x04, // CHOICE { ..., bindRequest BindRequest, ...
-                0x02, 0x02, 0x00, ( byte ) 0x80 // version INTEGER (1..127),
+            { 
+            0x30, 0x0A,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+                0x60, 0x04,             // CHOICE { ..., bindRequest BindRequest, ...
+                0x02, 0x02, 0x00, 
+                ( byte ) 0x80           // version INTEGER (1..127),
             } );
 
         stream.flip();
@@ -705,10 +782,11 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0A );
         stream.put( new byte[]
-            { 0x30, 0x08, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x03, // CHOICE { ..., bindRequest BindRequest, ...
-                0x02, 0x01, 0x03 // version INTEGER (1..127),
+            { 
+            0x30, 0x08,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+                0x60, 0x03,             // CHOICE { ..., bindRequest BindRequest, ...
+                0x02, 0x01, 0x03        // version INTEGER (1..127),
             } );
 
         stream.flip();
@@ -745,10 +823,11 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0C );
         stream.put( new byte[]
-            { 0x30, 0x0A, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x05, // CHOICE { ..., bindRequest BindRequest, ...
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
+            { 
+            0x30, 0x0A,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x05,               // CHOICE { ..., bindRequest BindRequest, ...
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
                 0x04, 0x00 } );
 
         stream.flip();
@@ -785,10 +864,11 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0E );
         stream.put( new byte[]
-            { 0x30, 0x0C, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x07, // CHOICE { ..., bindRequest BindRequest, ...
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
+            { 
+            0x30, 0x0C,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x07,               // CHOICE { ..., bindRequest BindRequest, ...
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
                 0x04, 0x00, ( byte ) 0x80, 0x00 } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -852,11 +932,14 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0E );
         stream.put( new byte[]
-            { 0x30, 0x0C, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x07, // CHOICE { ..., bindRequest BindRequest, ...
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
-                0x04, 0x00, ( byte ) 0xA3, 0x00 } );
+            { 
+            0x30, 0x0C,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x07,               // CHOICE { ..., bindRequest BindRequest, ...
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x00, 
+                ( byte ) 0xA3, 0x00 
+            } );
 
         stream.flip();
 
@@ -870,7 +953,10 @@ public class BindRequestTest extends TestCase
         }
         catch ( DecoderException de )
         {
-            assertTrue( true );
+            assertTrue( de instanceof ResponseCarryingException );
+            Message response = ((ResponseCarryingException)de).getResponse();
+            assertTrue( response instanceof BindResponseImpl );
+            assertEquals( ResultCodeEnum.INVALIDCREDENTIALS, ((BindResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
         catch ( NamingException ne )
@@ -892,11 +978,15 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x10 );
         stream.put( new byte[]
-            { 0x30, 0x0E, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x09, // CHOICE { ..., bindRequest BindRequest, ...
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
-                0x04, 0x00, ( byte ) 0xA3, 0x02, 0x04, 0x00 } );
+            { 
+            0x30, 0x0E,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+                0x60, 0x09,             // CHOICE { ..., bindRequest BindRequest, ...
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x00, 
+                ( byte ) 0xA3, 0x02, 
+                  0x04, 0x00 
+            } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -951,6 +1041,54 @@ public class BindRequestTest extends TestCase
 
 
     /**
+     * Test the decoding of a BindRequest with an bad mechanism
+     */
+    /* This test is not valid. I don't know how to generate a UnsupportedEncodingException ...
+    public void testDecodeBindRequestBadMechanism()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x11 );
+        stream.put( new byte[]
+            { 
+            0x30, 0x0F,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x0A,               // CHOICE { ..., bindRequest BindRequest, ...
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x00, 
+                ( byte ) 0xA3, 0x03, 
+                  0x04, 0x01, (byte)0xFF
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the BindRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( de instanceof ResponseCarryingException );
+            Message response = ((ResponseCarryingException)de).getResponse();
+            assertTrue( response instanceof BindResponseImpl );
+            assertEquals( ResultCodeEnum.INAPPROPRIATEAUTHENTICATION, ((BindResponseImpl)response).getLdapResult().getResultCode() );
+            return;
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
+
+        fail( "We should not reach this point" );
+    }
+    */
+
+    /**
      * Test the decoding of a BindRequest with an empty credentials
      */
     public void testDecodeBindRequestEmptyCredentials()
@@ -959,11 +1097,15 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x12 );
         stream.put( new byte[]
-            { 0x30, 0x10, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x0B, // CHOICE { ..., bindRequest BindRequest, ...
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
-                0x04, 0x00, ( byte ) 0xA3, 0x04, 0x04, 0x00, 0x04, 0x00, } );
+            { 
+            0x30, 0x10,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+                0x60, 0x0B,             // CHOICE { ..., bindRequest BindRequest, ...
+                  0x02, 0x01, 0x03,     // version INTEGER (1..127),
+                  0x04, 0x00, 
+                  ( byte ) 0xA3, 0x04, 
+                    0x04, 0x00, 
+                    0x04, 0x00, } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -1028,14 +1170,19 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x2F );
         stream.put( new byte[]
-            { 0x30, 0x2D, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x0B, // CHOICE { ..., bindRequest BindRequest, ...
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
-                0x04, 0x00, ( byte ) 0xA3, 0x04, 0x04, 0x00, 0x04, 0x00, ( byte ) 0xA0, 0x1B, // A
-                                                                                                // control
+            { 
+            0x30, 0x2D,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x0B,               // CHOICE { ..., bindRequest BindRequest, ...
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x00, 
+                ( byte ) 0xA3, 0x04, 
+                  0x04, 0x00, 
+                  0x04, 0x00, 
+              ( byte ) 0xA0, 0x1B,      // A control
                 0x30, 0x19, 0x04, 0x17, 0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31,
-                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 } );
+                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 
+            } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -1108,14 +1255,18 @@ public class BindRequestTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x2D );
         stream.put( new byte[]
-            { 0x30, 0x2B, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x60, 0x09, // CHOICE { ..., bindRequest BindRequest, ...
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
-                0x04, 0x00, ( byte ) 0xA3, 0x02, 0x04, 0x00, ( byte ) 0xA0, 0x1B, // A
-                                                                                    // control
+            { 
+            0x30, 0x2B,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x09,               // CHOICE { ..., bindRequest BindRequest, ...
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x00, 
+                ( byte ) 0xA3, 0x02, 
+                  0x04, 0x00, 
+              ( byte ) 0xA0, 0x1B,      // A control
                 0x30, 0x19, 0x04, 0x17, 0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31,
-                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 } );
+                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 
+            } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();

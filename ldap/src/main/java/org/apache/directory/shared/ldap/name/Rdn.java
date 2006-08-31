@@ -33,7 +33,6 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
 import org.apache.commons.collections.MultiHashMap;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -858,20 +857,6 @@ public class Rdn implements Cloneable, Comparable, Serializable
        }
 
        return compareTo( ( Rdn ) rdn ) == EQUALS;
-   }
-
-
-   /**
-    * Returns the hash code of this RDN. Two RDNs that are equal (according to
-    * the equals method) will have the same hash code.
-    *
-    * @returnAn int representing the hash code of this Rdn
-    */
-   public int hashcode()
-   {
-       // We compute the hashcode using the string, which is a
-       // normalized form of a rdn. unescapeValue
-       return 37 * 17 + string.hashCode();
    }
 
 

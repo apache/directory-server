@@ -415,21 +415,29 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
 
                     AttributeValueAssertion assertion = new AttributeValueAssertion();
 
-                    try
+                    if ( tlv.getLength().getLength() == 0 )
                     {
-                        LdapString type = new LdapString( tlv.getValue().getData() );
-                        assertion.setAttributeDesc( type );
+                        log.error( "The attribute description is empty " );
+                        throw new DecoderException( "The type can't be null" );
                     }
-                    catch ( LdapStringEncodingException lsee )
+                    else
                     {
-                        String msg = StringTools.dumpBytes( tlv.getValue().getData() );
-                        log.error( "The assertion description ({}) is invalid", msg );
-                        throw new DecoderException( "Invalid assertion description " + msg + ", : " + lsee.getMessage() );
-                    }
+                        try
+                        {
+                            LdapString type = new LdapString( tlv.getValue().getData() );
+                            assertion.setAttributeDesc( type );
+                        }
+                        catch ( LdapStringEncodingException lsee )
+                        {
+                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
+                            log.error( "The assertion value ({}) is invalid", msg );
+                            throw new DecoderException( "Invalid assertion value " + msg + ", : " + lsee.getMessage() );
+                        }
 
-                    AttributeValueAssertionFilter comparisonFilter = ( AttributeValueAssertionFilter ) searchRequest
-                        .getTerminalFilter();
-                    comparisonFilter.setAssertion( assertion );
+                        AttributeValueAssertionFilter terminalFilter = ( AttributeValueAssertionFilter ) searchRequest
+                            .getTerminalFilter();
+                        terminalFilter.setAssertion( assertion );
+                    }
                 }
             } );
 
@@ -485,52 +493,6 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                     searchRequest.unstackFilters( container );
 
                     container.grammarPopAllowed( true );
-                }
-            } );
-
-        // AttributeValueAssertion ::= SEQUENCE {
-        //    attributeDesc   AttributeDescription, (VALUE)
-        //     ...
-        // We have to set the attribute description in the current filter.
-        // It could be an equalityMatch, greaterOrEqual, lessOrEqual or an
-        // approxMatch filter.
-        super.transitions[LdapStatesEnum.FILTER_ATTRIBUTE_DESC_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-            LdapStatesEnum.FILTER_ATTRIBUTE_DESC_VALUE, LdapStatesEnum.FILTER_ASSERTION_VALUE_TAG, new GrammarAction(
-                "Init attributeDesc Value" )
-            {
-                public void action( IAsn1Container container ) throws DecoderException
-                {
-                    LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-                    TLV tlv = ldapMessageContainer.getCurrentTLV();
-
-                    AttributeValueAssertion assertion = new AttributeValueAssertion();
-
-                    if ( tlv.getLength().getLength() == 0 )
-                    {
-                        log.error( "The attribute description is empty " );
-                        throw new DecoderException( "The type can't be null" );
-                    }
-                    else
-                    {
-                        try
-                        {
-                            LdapString type = new LdapString( tlv.getValue().getData() );
-                            assertion.setAttributeDesc( type );
-                        }
-                        catch ( LdapStringEncodingException lsee )
-                        {
-                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
-                            log.error( "The assertion value ({}) is invalid", msg );
-                            throw new DecoderException( "Invalid assertion value " + msg + ", : " + lsee.getMessage() );
-                        }
-
-                        AttributeValueAssertionFilter terminalFilter = ( AttributeValueAssertionFilter ) searchRequest
-                            .getTerminalFilter();
-                        terminalFilter.setAssertion( assertion );
-                    }
                 }
             } );
 

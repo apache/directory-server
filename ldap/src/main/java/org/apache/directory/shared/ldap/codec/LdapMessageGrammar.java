@@ -99,6 +99,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                     if ( tlv.getLength().getLength() == 0 )
                     {
                         log.error( "The LdapMessage has a zero length. This is not allowed" );
+                        // This will generate a PROTOCOL_ERROR
                         throw new DecoderException( "The LdapMessage should not be empty" );
                     }
 
@@ -142,6 +143,8 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                     if ( tlv.getLength().getLength() == 0 )
                     {
                         log.error( "The messageId has a zero length. This is not allowed" );
+                        
+                        // This will generate a PROTOCOL_ERROR
                         throw new DecoderException( "The messageId should not be null" );
                     }
 
@@ -163,6 +166,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                         log.error( "The Message Id " + StringTools.dumpBytes( value.getData() ) + " is invalid : "
                             + ide.getMessage() + ". The message ID must be between (0 .. 2 147 483 647)" );
 
+                        // This will generate a PROTOCOL_ERROR                        
                         throw new DecoderException( ide.getMessage() );
                     }
 

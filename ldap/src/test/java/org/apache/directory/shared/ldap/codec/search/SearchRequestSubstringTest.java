@@ -1305,16 +1305,22 @@ public class SearchRequestSubstringTest extends TestCase
     public void testDecodeSearchRequestEmptySubstringFilter()
     {
         byte[] asn1BER = new byte[]
-            { 0x30, 0x3B, 0x02, 0x01, 0x04, // messageID
-                0x63, 0x36, 0x04, 0x1F, // baseObject LDAPDN,
-                'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 0x0A, 0x01, 0x01, 0x0A, 0x01, 0x03, 0x02, 0x01,
-                0x00, 0x02, 0x01, 0x00, 0x01, 0x01, ( byte ) 0xFF, ( byte ) 0xA4, 0x00, 0x30, 0x02, // AttributeDescriptionList
-                                                                                                    // ::=
-                                                                                                    // SEQUENCE
-                                                                                                    // OF
-                                                                                                    // AttributeDescription
-                0x04, 0x00 };
+            { 
+            0x30, 0x3B, 
+              0x02, 0x01, 0x04,                 // messageID
+              0x63, 0x36, 
+                0x04, 0x1F,                     // baseObject LDAPDN,
+                  'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                  'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                0x0A, 0x01, 0x01, 
+                0x0A, 0x01, 0x03, 
+                0x02, 0x01, 0x00, 
+                0x02, 0x01, 0x00, 
+                0x01, 0x01, ( byte ) 0xFF, 
+                ( byte ) 0xA4, 0x00, 
+                0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                  0x04, 0x00 
+            };
 
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1352,16 +1358,23 @@ public class SearchRequestSubstringTest extends TestCase
     public void testDecodeSearchRequestSubstringFilterEmptyType()
     {
         byte[] asn1BER = new byte[]
-            { 0x30, 0x3D, 0x02, 0x01, 0x04, // messageID
-                0x63, 0x38, 0x04, 0x1F, // baseObject LDAPDN,
-                'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 0x0A, 0x01, 0x01, 0x0A, 0x01, 0x03, 0x02, 0x01,
-                0x00, 0x02, 0x01, 0x00, 0x01, 0x01, ( byte ) 0xFF, ( byte ) 0xA4, 0x02, 0x04, 0x00, 0x30, 0x02, // AttributeDescriptionList
-                                                                                                                // ::=
-                                                                                                                // SEQUENCE
-                                                                                                                // OF
-                                                                                                                // AttributeDescription
-                0x04, 0x00 };
+            { 
+            0x30, 0x3D, 
+              0x02, 0x01, 0x04, // messageID
+              0x63, 0x38, 
+                0x04, 0x1F, // baseObject LDAPDN,
+                  'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                  'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                0x0A, 0x01, 0x01, 
+                0x0A, 0x01, 0x03, 
+                0x02, 0x01, 0x00, 
+                0x02, 0x01, 0x00, 
+                0x01, 0x01, ( byte ) 0xFF, 
+                ( byte ) 0xA4, 0x02, 
+                  0x04, 0x00, 
+                0x30, 0x02, // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                  0x04, 0x00 
+            };
 
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1399,14 +1412,23 @@ public class SearchRequestSubstringTest extends TestCase
     public void testDecodeSearchRequestSubstringFilterNoSubstrings()
     {
         byte[] asn1BER = new byte[]
-            { 0x30, 0x41, 0x02, 0x01, 0x04, // messageID
-                0x63, 0x3D, 0x04, 0x1F, // baseObject LDAPDN,
-                'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 0x0A, 0x01, 0x01, 0x0A, 0x01, 0x03, 0x02, 0x01,
-                0x00, 0x02, 0x01, 0x00, 0x01, 0x01, ( byte ) 0xFF, ( byte ) 0xA4, 0x06, 0x04, 0x04, 't', 'e', 's', 't',
-                0x30, 0x02, // AttributeDescriptionList ::= SEQUENCE OF
-                            // AttributeDescription
-                0x04, 0x00 };
+            { 
+            0x30, 0x41, 
+              0x02, 0x01, 0x04,                 // messageID
+              0x63, 0x3D, 
+                0x04, 0x1F,                     // baseObject LDAPDN,
+                  'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                  'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                  0x0A, 0x01, 0x01, 
+                  0x0A, 0x01, 0x03, 
+                  0x02, 0x01, 0x00, 
+                  0x02, 0x01, 0x00, 
+                  0x01, 0x01, ( byte ) 0xFF, 
+                  ( byte ) 0xA4, 0x06, 0x04, 
+                    0x04, 't', 'e', 's', 't',
+                0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                  0x04, 0x00 
+            };
 
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1444,14 +1466,24 @@ public class SearchRequestSubstringTest extends TestCase
     public void testDecodeSearchRequestSubstringFilterEmptySubstrings()
     {
         byte[] asn1BER = new byte[]
-            { 0x30, 0x43, 0x02, 0x01, 0x04, // messageID
-                0x63, 0x3E, 0x04, 0x1F, // baseObject LDAPDN,
-                'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 0x0A, 0x01, 0x01, 0x0A, 0x01, 0x03, 0x02, 0x01,
-                0x00, 0x02, 0x01, 0x00, 0x01, 0x01, ( byte ) 0xFF, ( byte ) 0xA4, 0x08, 0x04, 0x04, 't', 'e', 's', 't',
-                0x30, 0x00, 0x30, 0x02, // AttributeDescriptionList ::= SEQUENCE
-                                        // OF AttributeDescription
-                0x04, 0x00 };
+            { 
+            0x30, 0x43, 
+              0x02, 0x01, 0x04,                 // messageID
+              0x63, 0x3E, 
+                0x04, 0x1F,                     // baseObject LDAPDN,
+                  'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                  'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                0x0A, 0x01, 0x01, 
+                0x0A, 0x01, 0x03, 
+                0x02, 0x01, 0x00, 
+                0x02, 0x01, 0x00, 
+                0x01, 0x01, ( byte ) 0xFF, 
+                ( byte ) 0xA4, 0x08, 
+                  0x04, 0x04, 't', 'e', 's', 't',
+                  0x30, 0x00, 
+                0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                  0x04, 0x00 
+            };
 
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1489,16 +1521,25 @@ public class SearchRequestSubstringTest extends TestCase
     public void testDecodeSearchRequestSubstringFilterEmptyInitial()
     {
         byte[] asn1BER = new byte[]
-            { 0x30, 0x45, 0x02, 0x01, 0x04, // messageID
-                0x63, 0x40, 0x04, 0x1F, // baseObject LDAPDN,
-                'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 0x0A, 0x01, 0x01, 0x0A, 0x01, 0x03, 0x02, 0x01,
-                0x00, 0x02, 0x01, 0x00, 0x01, 0x01, ( byte ) 0xFF, ( byte ) 0xA4, 0x0A, 0x04, 0x04, 't', 'e', 's', 't',
-                0x30, 0x02, ( byte ) 0x80, 0x00, 0x30, 0x02, // AttributeDescriptionList
-                                                                // ::= SEQUENCE
-                                                                // OF
-                                                                // AttributeDescription
-                0x04, 0x00 };
+            { 
+            0x30, 0x45, 
+              0x02, 0x01, 0x04,                 // messageID
+              0x63, 0x40, 
+                0x04, 0x1F,                     // baseObject LDAPDN,
+                  'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                  'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                0x0A, 0x01, 0x01, 
+                0x0A, 0x01, 0x03, 
+                0x02, 0x01, 0x00, 
+                0x02, 0x01, 0x00, 
+                0x01, 0x01, ( byte ) 0xFF, 
+                ( byte ) 0xA4, 0x0A, 
+                  0x04, 0x04, 't', 'e', 's', 't',
+                  0x30, 0x02, 
+                    ( byte ) 0x80, 0x00, 
+                0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                  0x04, 0x00 
+            };
 
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1536,16 +1577,25 @@ public class SearchRequestSubstringTest extends TestCase
     public void testDecodeSearchRequestSubstringFilterEmptyAny()
     {
         byte[] asn1BER = new byte[]
-            { 0x30, 0x45, 0x02, 0x01, 0x04, // messageID
-                0x63, 0x40, 0x04, 0x1F, // baseObject LDAPDN,
-                'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 0x0A, 0x01, 0x01, 0x0A, 0x01, 0x03, 0x02, 0x01,
-                0x00, 0x02, 0x01, 0x00, 0x01, 0x01, ( byte ) 0xFF, ( byte ) 0xA4, 0x0A, 0x04, 0x04, 't', 'e', 's', 't',
-                0x30, 0x02, ( byte ) 0x81, 0x00, 0x30, 0x02, // AttributeDescriptionList
-                                                                // ::= SEQUENCE
-                                                                // OF
-                                                                // AttributeDescription
-                0x04, 0x00 };
+            { 
+            0x30, 0x45, 
+              0x02, 0x01, 0x04,                 // messageID
+              0x63, 0x40, 
+                0x04, 0x1F,                     // baseObject LDAPDN,
+                  'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                  'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                0x0A, 0x01, 0x01, 
+                0x0A, 0x01, 0x03, 
+                0x02, 0x01, 0x00, 
+                0x02, 0x01, 0x00, 
+                0x01, 0x01, ( byte ) 0xFF, 
+                ( byte ) 0xA4, 0x0A, 
+                  0x04, 0x04, 't', 'e', 's', 't',
+                  0x30, 0x02, 
+                    ( byte ) 0x81, 0x00, 
+                0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                  0x04, 0x00 
+            };
 
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1583,16 +1633,25 @@ public class SearchRequestSubstringTest extends TestCase
     public void testDecodeSearchRequestSubstringFilterEmptyFinal()
     {
         byte[] asn1BER = new byte[]
-            { 0x30, 0x45, 0x02, 0x01, 0x04, // messageID
-                0x63, 0x40, 0x04, 0x1F, // baseObject LDAPDN,
-                'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 0x0A, 0x01, 0x01, 0x0A, 0x01, 0x03, 0x02, 0x01,
-                0x00, 0x02, 0x01, 0x00, 0x01, 0x01, ( byte ) 0xFF, ( byte ) 0xA4, 0x0A, 0x04, 0x04, 't', 'e', 's', 't',
-                0x30, 0x02, ( byte ) 0x82, 0x00, 0x30, 0x02, // AttributeDescriptionList
-                                                                // ::= SEQUENCE
-                                                                // OF
-                                                                // AttributeDescription
-                0x04, 0x00 };
+            { 
+            0x30, 0x45, 
+              0x02, 0x01, 0x04,                 // messageID
+              0x63, 0x40, 
+                0x04, 0x1F,                     // baseObject LDAPDN,
+                  'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                  'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                0x0A, 0x01, 0x01, 
+                0x0A, 0x01, 0x03, 
+                0x02, 0x01, 0x00, 
+                0x02, 0x01, 0x00, 
+                0x01, 0x01, ( byte ) 0xFF, 
+                ( byte ) 0xA4, 0x0A, 
+                  0x04, 0x04, 't', 'e', 's', 't',
+                  0x30, 0x02, 
+                    ( byte ) 0x82, 0x00, 
+                0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                  0x04, 0x00 
+            };
 
         Asn1Decoder ldapDecoder = new LdapDecoder();
 

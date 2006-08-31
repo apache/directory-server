@@ -22,6 +22,8 @@ package org.apache.directory.shared.ldap.codec.util;
 
 import java.io.UnsupportedEncodingException;
 
+import org.apache.directory.shared.ldap.util.StringTools;
+
 
 /**
  * Decodes a LdapString, and checks that the character set used comply the ISO
@@ -33,10 +35,6 @@ public class LdapString
 {
     /** A null LdapString */
     public transient static final LdapString EMPTY_STRING = new LdapString();
-
-    /** A null LdapString */
-    public transient static final byte[] EMPTY_BYTES = new byte[]
-        {};
 
     /** The inner String containing the LdapString */
     protected String string;
@@ -50,7 +48,7 @@ public class LdapString
      */
     public LdapString()
     {
-        bytes = EMPTY_BYTES;
+        bytes = StringTools.EMPTY_BYTES;
         string = "";
     }
 

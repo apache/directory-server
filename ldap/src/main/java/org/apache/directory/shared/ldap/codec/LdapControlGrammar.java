@@ -181,6 +181,8 @@ public class LdapControlGrammar extends AbstractGrammar implements IGrammar
                     if ( tlv.getLength().getLength() == 0 )
                     {
                         log.error( "The OID must not be null" );
+                        
+                        // This will generate a PROTOCOL_ERROR
                         throw new DecoderException( "The OID must not be null" );
                     }
                     else
@@ -195,6 +197,7 @@ public class LdapControlGrammar extends AbstractGrammar implements IGrammar
                             log.error( "The control type " + StringTools.dumpBytes( tlv.getValue().getData() )
                                 + " is not a valid OID : " + de.getMessage() );
 
+                            // This will generate a PROTOCOL_ERROR
                             throw de;
                         }
 
@@ -207,6 +210,7 @@ public class LdapControlGrammar extends AbstractGrammar implements IGrammar
                             log.error( "The control type " + StringTools.dumpBytes( tlv.getValue().getData() )
                                 + " is invalid : " + lsee.getMessage() );
 
+                            // This will generate a PROTOCOL_ERROR
                             throw new DecoderException( lsee.getMessage() );
                         }
                     }
@@ -267,6 +271,7 @@ public class LdapControlGrammar extends AbstractGrammar implements IGrammar
                         log.error( "The control criticality flag " + StringTools.dumpBytes( value.getData() )
                             + " is invalid : " + bde.getMessage() + ". It should be 0 or 255" );
 
+                        // This will generate a PROTOCOL_ERROR
                         throw new DecoderException( bde.getMessage() );
                     }
 

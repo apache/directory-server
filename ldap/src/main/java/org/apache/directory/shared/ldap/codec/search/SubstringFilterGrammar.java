@@ -79,10 +79,8 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
             LdapStatesEnum.SUBSTRINGS_FILTER_TAG, LdapStatesEnum.SUBSTRINGS_FILTER_VALUE, null );
 
         // Here we are dealing with substrings. LDAP grammar is not very
-        // explicit about
-        // what is allowed (-- at least one must be present !!!), while RFC 2254
-        // is
-        // really clear. But LDAP grammar is the one to follow...
+        // explicit about what is allowed (-- at least one must be present !!!), while RFC 2254
+        // is really clear. But LDAP grammar is the one to follow...
         //
         // substring ::= attr "=" [AttributeValue] any [AttributeValue]
         // any ::= "*" *(AttributeValue "*")
@@ -193,8 +191,7 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
         // substrings SEQUENCE OF CHOICE { (Value)
         // ...
         // Here, we may have three possibilities. We may have an "initial"
-        // value,
-        // or an "any" value, or a "final" value. Any other option is an error.
+        // value, or an "any" value, or a "final" value. Any other option is an error.
         // We must have at least one of those three.
         super.transitions[LdapStatesEnum.SUBSTRINGS_FILTER_SUBSTRINGS_SEQ_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
             LdapStatesEnum.SUBSTRINGS_FILTER_SUBSTRINGS_SEQ_VALUE,

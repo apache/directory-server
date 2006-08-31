@@ -22,6 +22,9 @@ package org.apache.directory.shared.ldap.codec;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.message.Message;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -63,9 +66,15 @@ public class ResponseCarryingException extends DecoderException
      * @param cause
      *            The Exception which caused the error
      */
-    public ResponseCarryingException(String message, Throwable cause)
+    public ResponseCarryingException(String message, ResultResponse response, ResultCodeEnum code, LdapDN matchedDn, Throwable cause)
     {
         super( message, cause );
+
+        response.getLdapResult().setErrorMessage( message );
+        response.getLdapResult().setResultCode( code );
+        response.getLdapResult().setMatchedDn( matchedDn );
+    
+        this.response = response; 
     }
     
     /**

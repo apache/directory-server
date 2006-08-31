@@ -110,6 +110,7 @@ public class DelRequestGrammar extends AbstractGrammar implements IGrammar
 
                     if ( tlv.getLength().getLength() == 0 )
                     {
+                        // This will generate a PROTOCOL_ERROR
                         throw new DecoderException( "The entry must not be null" );
                     }
                     else
@@ -127,16 +128,8 @@ public class DelRequestGrammar extends AbstractGrammar implements IGrammar
                                 + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
                             
-                            DeleteResponseImpl message = new DeleteResponseImpl( ldapMessage.getMessageId() );
-                            message.getLdapResult().setErrorMessage( msg );
-                            message.getLdapResult().setResultCode( ResultCodeEnum.INVALIDDNSYNTAX );
-                            message.getLdapResult().setMatchedDn( LdapDN.EMPTY_LDAPDN );
-                            
-                            ResponseCarryingException exception = new ResponseCarryingException( msg, ine );
-                            
-                            exception.setResponse( message );
-                            
-                            throw exception;
+                            DeleteResponseImpl response = new DeleteResponseImpl( ldapMessage.getMessageId() );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
 
                         delRequest.setEntry( entry );
