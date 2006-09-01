@@ -71,16 +71,24 @@ public class GroupCache
      */
     private Map normalizerMap;
     
+    /** the normalized dn of the administrators group */
+    LdapDN administratorsGroupDn;
+    
     /**
      * Creates a static group cache.
      *
      * @param factoryCfg the context factory configuration for the server
      */
-    public GroupCache(DirectoryServiceConfiguration factoryCfg) throws NamingException
+    public GroupCache( DirectoryServiceConfiguration factoryCfg ) throws NamingException
     {
     	normalizerMap = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         this.nexus = factoryCfg.getPartitionNexus();
         this.env = ( Hashtable ) factoryCfg.getEnvironment().clone();
+        
+        // stuff for dealing with the admin group
+        administratorsGroupDn = new LdapDN( "cn=Administrators,ou=groups,ou=system" );
+        administratorsGroupDn.normalize( normalizerMap );
+
         initialize();
     }
 
@@ -405,6 +413,31 @@ public class GroupCache
         }
     }
 
+    
+    /**
+     * An optimization.  By having this method here we can directly access the group
+     * membership information and lookup to see if the principalDn is contained within.
+     * 
+     * @param principalDn the normalized DN of the user to check if they are an admin
+     * @return true if the principal is an admin or the admin
+     */
+    public final boolean isPrincipalAnAdministrator( LdapDN principalDn )
+    {
+        if ( principalDn.toNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+        {
+            return true;
+        }
+        
+        Set members = ( Set ) groups.get( administratorsGroupDn.toNormName() );
+        if ( members == null )
+        {
+            log.warn( "What do you mean there is no administrators group? This is bad news." );
+            return false;
+        }
+        
+        return members.contains( principalDn.toNormName() );
+    }
+    
 
     /**
      * Gets the set of groups a user is a member of.  The groups are returned
