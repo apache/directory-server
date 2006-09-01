@@ -267,7 +267,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
      *
      * @throws javax.naming.NamingException if the test encounters an error
      */
-    public void testGrantModifyByAdministrators() throws NamingException
+    public void testGrantModifyByTestGroup() throws NamingException
     {
         // ----------------------------------------------------------------------------------
         // Modify with Attribute Addition
@@ -279,15 +279,17 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
 
         // create the non-admin user
         createUser( "billyd", "billyd" );
+        
+        createGroup( "TestGroup" );
 
         // try a modify operation which should fail without any ACI
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
-        // Gives grantModify, and grantRead perm to all users in the Administrators group for
+        // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
         createAccessControlSubentry( "administratorModifyAdd", "{ " + "identificationTag \"addAci\", "
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { "
+            + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
             + "{ protectedItems {allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
 
@@ -295,8 +297,8 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         // add op should still fail since billd is not in the admin group
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
-        // now add billyd to the Administrator group and try again
-        addUserToGroup( "billyd", "Administrators" );
+        // now add billyd to the TestGroup group and try again
+        addUserToGroup( "billyd", "TestGroup" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -312,11 +314,11 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
-        // Gives grantModify, and grantRead perm to all users in the Administrators group for
+        // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
         createAccessControlSubentry( "administratorModifyRemove", "{ " + "identificationTag \"addAci\", "
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { "
+            + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
             + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
 
@@ -334,11 +336,11 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
-        // Gives grantModify, and grantRead perm to all users in the Administrators group for
+        // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
         createAccessControlSubentry( "administratorModifyReplace", "{ " + "identificationTag \"addAci\", "
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { "
+            + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
             + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
             + "} } }" );
@@ -360,11 +362,11 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         // try a modify operation which should fail without any ACI
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.ADD_ATTRIBUTE, changes ) );
 
-        // Gives grantModify, and grantRead perm to all users in the Administrators group for
+        // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
         createAccessControlSubentry( "administratorModifyAdd", "{ " + "identificationTag \"addAci\", "
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { "
+            + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
             + "{ protectedItems {allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
 
@@ -382,11 +384,11 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REMOVE_ATTRIBUTE, changes ) );
 
-        // Gives grantModify, and grantRead perm to all users in the Administrators group for
+        // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
         createAccessControlSubentry( "administratorModifyRemove", "{ " + "identificationTag \"addAci\", "
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { "
+            + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
             + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
 
@@ -404,11 +406,11 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REPLACE_ATTRIBUTE, changes ) );
 
-        // Gives grantModify, and grantRead perm to all users in the Administrators group for
+        // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
         createAccessControlSubentry( "administratorModifyReplace", "{ " + "identificationTag \"addAci\", "
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { "
+            + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
             + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
             + "} } }" );
@@ -417,6 +419,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REPLACE_ATTRIBUTE, changes ) );
         deleteAccessControlSubentry( "administratorModifyReplace" );
     }
+
 
     //    /**
     //     * Checks to make sure name based userClass works for modify operations.

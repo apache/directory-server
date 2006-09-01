@@ -20,12 +20,15 @@
 package org.apache.directory.server.core.authz;
 
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -60,11 +63,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class DefaultAuthorizationService extends BaseInterceptor
 {
     /**
-     * the administrator's distinguished {@link Name}
-     */
-    private static LdapDN ADMIN_DN;
-
-    /**
      * the base distinguished {@link Name} for all users
      */
     private static LdapDN USER_BASE_DN;
@@ -77,13 +75,21 @@ public class DefaultAuthorizationService extends BaseInterceptor
     private static LdapDN GROUP_BASE_DN_NORMALIZED;
 
     /**
+     * the distinguished {@link Name} for the administrator group
+     */
+    private static LdapDN ADMIN_GROUP_DN;
+    private static LdapDN ADMIN_GROUP_DN_NORMALIZED;
+
+    /**
      * the name parser used by this service
      */
     private boolean enabled = true;
     
-    private Map oidsMap;
+    private Set administrators = new HashSet(2);
     
-
+    private Map normalizerMapping;
+    
+    private PartitionNexus nexus;
 
     /**
      * Creates a new instance.
@@ -95,21 +101,47 @@ public class DefaultAuthorizationService extends BaseInterceptor
 
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
-        oidsMap = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
-        //dnParser = new DnParser( new ConcreteNameComponentNormalizer( atr ) );
+        nexus = factoryCfg.getPartitionNexus();
+        normalizerMapping = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
 
         // disable this static module if basic access control mechanisms are enabled
         enabled = !factoryCfg.getStartupConfiguration().isAccessControlEnabled();
-        ADMIN_DN = PartitionNexus.getAdminName(); 
         
         USER_BASE_DN = PartitionNexus.getUsersBaseName();
-        USER_BASE_DN_NORMALIZED = LdapDN.normalize( USER_BASE_DN, oidsMap );
+        USER_BASE_DN_NORMALIZED = LdapDN.normalize( USER_BASE_DN, normalizerMapping );
         
         GROUP_BASE_DN = PartitionNexus.getGroupsBaseName();
-        GROUP_BASE_DN_NORMALIZED = LdapDN.normalize( GROUP_BASE_DN, oidsMap );
+        GROUP_BASE_DN_NORMALIZED = LdapDN.normalize( GROUP_BASE_DN, normalizerMapping );
+     
+        ADMIN_GROUP_DN = new LdapDN( "cn=Administrators,ou=groups,ou=system" );
+        ADMIN_GROUP_DN_NORMALIZED = ( LdapDN ) ADMIN_GROUP_DN.clone();
+        ADMIN_GROUP_DN_NORMALIZED.normalize( normalizerMapping );
+        loadAdministrators();
+    }
+    
+    
+    private void loadAdministrators() throws NamingException
+    {
+        // read in the administrators and cache their normalized names
+        Set newAdministrators = new HashSet( 2 );
+        Attributes adminGroup = nexus.lookup( ADMIN_GROUP_DN_NORMALIZED );
+        
+        if ( adminGroup == null )
+        {
+            return;
+        }
+        
+        Attribute uniqueMember = adminGroup.get( "uniqueMember" );
+        for ( int ii = 0; ii < uniqueMember.size(); ii++ )
+        {
+            LdapDN memberDn = new LdapDN( ( String ) uniqueMember.get( ii ) );
+            memberDn.normalize( normalizerMapping );
+            newAdministrators.add( memberDn.toNormName() );
+        }
+        administrators = newAdministrators;
     }
 
-
+    
     // Note:
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
@@ -122,7 +154,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             return;
         }
 
-        Name principalDn = getPrincipal().getJndiName();
+        LdapDN principalDn = getPrincipal().getJndiName();
 
         if ( name.toString().equals( "" ) )
         {
@@ -130,7 +162,13 @@ public class DefaultAuthorizationService extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( name == ADMIN_DN || name.equals( ADMIN_DN ) )
+        if ( name.toNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
+        {
+            String msg = "The Administrators group cannot be deleted!";
+            throw new LdapNoPermissionException( msg );
+        }
+
+        if ( isTheAdministrator( name ) )
         {
             String msg = "User " + principalDn;
             msg += " does not have permission to delete the admin account.";
@@ -138,7 +176,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( name.size() > 2 && name.startsWith( USER_BASE_DN ) && !principalDn.equals( ADMIN_DN ) )
+        if ( name.size() > 2 && name.startsWith( USER_BASE_DN ) && !isAnAdministrator( principalDn ) )
         {
             String msg = "User " + principalDn;
             msg += " does not have permission to delete the user account: ";
@@ -146,7 +184,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( name.size() > 2 && name.startsWith( GROUP_BASE_DN ) && !principalDn.equals( ADMIN_DN ) )
+        if ( name.size() > 2 && name.startsWith( GROUP_BASE_DN ) && !isAnAdministrator( principalDn ) )
         {
             String msg = "User " + principalDn;
             msg += " does not have permission to delete the group entry: ";
@@ -157,6 +195,24 @@ public class DefaultAuthorizationService extends BaseInterceptor
         nextInterceptor.delete( name );
     }
 
+    
+    private final boolean isTheAdministrator( LdapDN normalizedDn )
+    {
+        return normalizedDn.toNormName() == PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED || 
+             normalizedDn.toNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+    }
+    
+    
+    private final boolean isAnAdministrator( LdapDN normalizedDn ) throws NamingException
+    {
+        if ( isTheAdministrator( normalizedDn ) )
+        {
+            return true;
+        }
+        
+        return administrators.contains( normalizedDn.toNormName() );
+    }
+    
 
     /**
      * Note that we do nothing here. First because this is not an externally
@@ -186,6 +242,14 @@ public class DefaultAuthorizationService extends BaseInterceptor
         if ( enabled )
         {
             protectModifyAlterations( name );
+            nextInterceptor.modify( name, modOp, attrs );
+
+            // update administrators if we change administrators group
+            if ( name.toNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
+            {
+                loadAdministrators();
+            }
+            return;
         }
 
         nextInterceptor.modify( name, modOp, attrs );
@@ -203,7 +267,16 @@ public class DefaultAuthorizationService extends BaseInterceptor
         if ( enabled )
         {
             protectModifyAlterations( name );
+            nextInterceptor.modify( name, items );
+
+            // update administrators if we change administrators group
+            if ( name.toNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
+            {
+                loadAdministrators();
+            }
+            return;
         }
+        
         nextInterceptor.modify( name, items );
     }
 
@@ -218,8 +291,14 @@ public class DefaultAuthorizationService extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( !principalDn.toNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+        if ( ! isAnAdministrator( principalDn ) )
         {
+            // allow self modifications 
+            if ( dn.toNormName().equals( getPrincipal().getJndiName().toNormName() ) )
+            {
+                return;
+            }
+            
             if ( dn.toNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
             {
                 String msg = "User " + principalDn;
@@ -228,7 +307,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
                 throw new LdapNoPermissionException( msg );
             }
 
-            if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) )
+            if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN_NORMALIZED ) )
             {
                 String msg = "User " + principalDn;
                 msg += " does not have permission to modify the account of the";
@@ -238,7 +317,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
                 throw new LdapNoPermissionException( msg );
             }
 
-            if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN ) )
+            if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN_NORMALIZED ) )
             {
                 String msg = "User " + principalDn;
                 msg += " does not have permission to modify the group entry ";
@@ -247,8 +326,8 @@ public class DefaultAuthorizationService extends BaseInterceptor
             }
         }
     }
-
-
+    
+    
     // ------------------------------------------------------------------------
     // DN altering operations are a no no for any user entry.  Basically here
     // are the rules of conduct to follow:
@@ -290,7 +369,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
     }
 
 
-    private void protectDnAlterations( Name dn ) throws LdapNoPermissionException
+    private void protectDnAlterations( LdapDN dn ) throws NamingException
     {
         LdapDN principalDn = getPrincipal().getJndiName();
 
@@ -300,7 +379,12 @@ public class DefaultAuthorizationService extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( dn == ADMIN_DN || dn.equals( ADMIN_DN ) )
+        if ( dn.toNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
+        {
+            throw new LdapNoPermissionException( "The Administrators group cannot be moved or renamed!" );
+        }
+        
+        if ( isTheAdministrator( dn ) )
         {
             String msg = "User '" + principalDn.getUpName();
             msg += "' does not have permission to move or rename the admin";
@@ -309,7 +393,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && !principalDn.equals( ADMIN_DN ) )
+        if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN_NORMALIZED ) && !isAnAdministrator( principalDn ) )
         {
             String msg = "User '" + principalDn;
             msg += "' does not have permission to move or rename the user";
@@ -318,7 +402,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN ) && !principalDn.equals( ADMIN_DN ) )
+        if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN_NORMALIZED ) && !isAnAdministrator( principalDn ) )
         {
             String msg = "User " + principalDn;
             msg += " does not have permission to move or rename the group entry ";
@@ -358,9 +442,9 @@ public class DefaultAuthorizationService extends BaseInterceptor
     {
         LdapContext ctx = ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
         LdapDN principalDn = ( ( ServerContext ) ctx ).getPrincipal().getJndiName();
-        if ( !principalDn.equals( ADMIN_DN ) )
+        if ( !isAnAdministrator( principalDn ) )
         {
-            if ( normalizedDn.size() > 2 && normalizedDn.startsWith( USER_BASE_DN ) )
+            if ( normalizedDn.size() > 2 && normalizedDn.startsWith( USER_BASE_DN_NORMALIZED ) )
             {
                 // allow for self reads
                 if ( normalizedDn.getNormName().equals( principalDn.getNormName() ) )
@@ -374,7 +458,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
                 throw new LdapNoPermissionException( msg );
             }
 
-            if ( normalizedDn.size() > 2 && normalizedDn.startsWith( GROUP_BASE_DN ) )
+            if ( normalizedDn.size() > 2 && normalizedDn.startsWith( GROUP_BASE_DN_NORMALIZED ) )
             {
                 // allow for self reads
                 if ( normalizedDn.getNormName().equals( principalDn.getNormName() ) )
@@ -388,7 +472,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
                 throw new LdapNoPermissionException( msg );
             }
 
-            if ( normalizedDn.equals( ADMIN_DN ) )
+            if ( isTheAdministrator( normalizedDn ) )
             {
                 // allow for self reads
                 if ( normalizedDn.getNormName().equals( principalDn.getNormName() ) )
@@ -455,12 +539,10 @@ public class DefaultAuthorizationService extends BaseInterceptor
         LdapDN principalDn = ( ( ServerContext ) invocation.getCaller() ).getPrincipal().getJndiName();
         LdapDN dn;
         dn = new LdapDN( result.getName() );
-        dn.normalize( oidsMap );
+        dn.normalize( normalizerMapping );
 
-        boolean isAdmin = principalDn.toNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
-        
-        // Admin user gets full access to all entries
-        if ( isAdmin )
+        // Admin users gets full access to all entries
+        if ( isAnAdministrator( principalDn ) )
         {
             return true;
         }
@@ -486,7 +568,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
         }
         
         // Non-admin users cannot read the admin entry
-        if ( dn.toNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+        if ( isTheAdministrator( dn ) )
         {
             return false;
         }

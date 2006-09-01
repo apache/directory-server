@@ -34,7 +34,6 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
@@ -361,7 +360,7 @@ public class AuthorizationService extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN userName = principal.getJndiName();
+        LdapDN principalDn = principal.getJndiName();
 
         // bypass authz code if we are disabled
         if ( !enabled )
@@ -371,7 +370,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toNormName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+        if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.add( normName, entry );
             tupleCache.subentryAdded( normName.toNormName(), normName, entry );
@@ -389,7 +388,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // Assemble all the information required to make an access control decision
-        Set userGroups = groupCache.getGroups( userName.toNormName() );
+        Set userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection tuples = new HashSet();
 
         // Build the total collection of tuples to be considered for add rights
@@ -399,7 +398,7 @@ public class AuthorizationService extends BaseInterceptor
 
         // check if entry scope permission is granted
         PartitionNexusProxy proxy = invocation.getProxy();
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), normName, null, null,
+        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), normName, null, null,
             ADD_PERMS, tuples, subentryAttrs );
 
         // now we must check if attribute type and value scope permission is granted
@@ -409,7 +408,7 @@ public class AuthorizationService extends BaseInterceptor
             Attribute attr = ( Attribute ) attributeList.next();
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
-                engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), normName, attr
+                engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), normName, attr
                     .getID(), attr.get( ii ), ADD_PERMS, tuples, entry );
             }
         }
@@ -431,7 +430,7 @@ public class AuthorizationService extends BaseInterceptor
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN userName = principal.getJndiName();
+        LdapDN principalDn = principal.getJndiName();
 
         // bypass authz code if we are disabled
         if ( !enabled )
@@ -441,7 +440,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+        if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.delete( name );
             tupleCache.subentryDeleted( name, entry );
@@ -449,13 +448,13 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set userGroups = groupCache.getGroups( userName.toString() );
+        Set userGroups = groupCache.getGroups( principalDn.toString() );
         Collection tuples = new HashSet();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, name, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null, null,
+        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
             REMOVE_PERMS, tuples, entry );
 
         next.delete( name );
@@ -471,7 +470,7 @@ public class AuthorizationService extends BaseInterceptor
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN userName = principal.getJndiName();
+        LdapDN principalDn = principal.getJndiName();
 
         // bypass authz code if we are disabled
         if ( !enabled )
@@ -481,7 +480,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+        if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.modify( name, modOp, mods );
             tupleCache.subentryModified( name, modOp, mods, entry );
@@ -489,13 +488,13 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set userGroups = groupCache.getGroups( userName.toString() );
+        Set userGroups = groupCache.getGroups( principalDn.toString() );
         Collection tuples = new HashSet();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, name, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null, null,
+        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
             Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
 
         NamingEnumeration attrList = mods.getAll();
@@ -518,7 +517,7 @@ public class AuthorizationService extends BaseInterceptor
             Attribute attr = ( Attribute ) attrList.next();
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
-                engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, attr
+                engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attr
                     .getID(), attr.get( ii ), perms, tuples, entry );
             }
         }
@@ -536,7 +535,7 @@ public class AuthorizationService extends BaseInterceptor
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN userName = principal.getJndiName();
+        LdapDN principalDn = principal.getJndiName();
 
         // bypass authz code if we are disabled
         if ( !enabled )
@@ -546,7 +545,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+        if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.modify( name, mods );
             tupleCache.subentryModified( name, mods, entry );
@@ -554,13 +553,13 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set userGroups = groupCache.getGroups( userName.toString() );
+        Set userGroups = groupCache.getGroups( principalDn.toString() );
         Collection tuples = new HashSet();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, name, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null, null,
+        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
             Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
 
         Collection perms = null;
@@ -582,7 +581,7 @@ public class AuthorizationService extends BaseInterceptor
             Attribute attr = mods[ii].getAttribute();
             for ( int jj = 0; jj < attr.size(); jj++ )
             {
-                engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, attr
+                engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attr
                     .getID(), attr.get( jj ), perms, tuples, entry );
             }
         }
@@ -599,22 +598,21 @@ public class AuthorizationService extends BaseInterceptor
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN userName = principal.getJndiName();
+        LdapDN principalDn = principal.getJndiName();
 
-        if ( userName.toNormName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled
-            || name.toString().trim().equals( "" ) ) // no checks on the rootdse
+        if ( isPrincipalAnAdministrator( principalDn ) || !enabled || name.toString().trim().equals( "" ) ) // no checks on the rootdse
         {
             return next.hasEntry( name );
         }
 
-        Set userGroups = groupCache.getGroups( userName.toNormName() );
+        Set userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection tuples = new HashSet();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, name, entry );
 
         // check that we have browse access to the entry
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null, null,
+        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
             BROWSE_PERMS, tuples, entry );
 
         return next.hasEntry( name );
@@ -679,7 +677,7 @@ public class AuthorizationService extends BaseInterceptor
         LdapDN principalDn = new LdapDN( principal.getName() );
         principalDn.normalize( attrRegistry.getNormalizerMapping() );
         
-        if ( principalDn.toNormName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled )
+        if ( isPrincipalAnAdministrator( principalDn ) || !enabled )
         {
             return next.lookup( dn, attrIds );
         }
@@ -698,7 +696,7 @@ public class AuthorizationService extends BaseInterceptor
         LdapDN principalDn = (LdapDN)user.getJndiName();
         principalDn.normalize( attrRegistry.getNormalizerMapping() );
         
-        if ( principalDn.toString().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled )
+        if ( isPrincipalAnAdministrator( principalDn ) || !enabled )
         {
             return next.lookup( name );
         }
@@ -715,7 +713,7 @@ public class AuthorizationService extends BaseInterceptor
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN userName = principal.getJndiName();
+        LdapDN principalDn = principal.getJndiName();
         LdapDN newName = ( LdapDN ) name.clone();
         newName.remove( name.size() - 1 );
         newName.add( parseNormalized( newRn ).get( 0 ) );
@@ -728,7 +726,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+        if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.modifyRn( name, newRn, deleteOldRn );
             tupleCache.subentryRenamed( name, newName );
@@ -738,13 +736,13 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set userGroups = groupCache.getGroups( userName.toString() );
+        Set userGroups = groupCache.getGroups( principalDn.toString() );
         Collection tuples = new HashSet();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, name, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null, null,
+        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
             RENAME_PERMS, tuples, entry );
 
         //        if ( deleteOldRn )
@@ -788,7 +786,7 @@ public class AuthorizationService extends BaseInterceptor
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( oriChildName, PartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN userName = principal.getJndiName();
+        LdapDN principalDn = principal.getJndiName();
         LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( newRn );
 
@@ -800,7 +798,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+        if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.move( oriChildName, newParentName, newRn, deleteOldRn );
             tupleCache.subentryRenamed( oriChildName, newName );
@@ -808,13 +806,13 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set userGroups = groupCache.getGroups( userName.toString() );
+        Set userGroups = groupCache.getGroups( principalDn.toString() );
         Collection tuples = new HashSet();
         addPerscriptiveAciTuples( proxy, tuples, oriChildName, entry );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, oriChildName, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), oriChildName, null,
+        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), oriChildName, null,
             null, MOVERENAME_PERMS, tuples, entry );
 
         // Get the entry again without operational attributes
@@ -841,7 +839,7 @@ public class AuthorizationService extends BaseInterceptor
         addPerscriptiveAciTuples( proxy, destTuples, newName, subentryAttrs );
         // Evaluate the target context to see whether it
         // allows an entry named newName to be imported as a subordinate.
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), newName, null,
+        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), newName, null,
             null, IMPORT_PERMS, destTuples, subentryAttrs );
 
         //        if ( deleteOldRn )
@@ -886,7 +884,7 @@ public class AuthorizationService extends BaseInterceptor
         LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN userName = principal.getJndiName();
+        LdapDN principalDn = principal.getJndiName();
 
         // bypass authz code if we are disabled
         if ( !enabled )
@@ -896,7 +894,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
-        if ( userName.toString().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+        if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.move( oriChildName, newParentName );
             tupleCache.subentryRenamed( oriChildName, newName );
@@ -904,13 +902,13 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set userGroups = groupCache.getGroups( userName.toString() );
+        Set userGroups = groupCache.getGroups( principalDn.toString() );
         Collection tuples = new HashSet();
         addPerscriptiveAciTuples( proxy, tuples, oriChildName, entry );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, oriChildName, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), oriChildName, null,
+        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), oriChildName, null,
             null, EXPORT_PERMS, tuples, entry );
         
         // Get the entry again without operational attributes
@@ -937,7 +935,7 @@ public class AuthorizationService extends BaseInterceptor
         addPerscriptiveAciTuples( proxy, destTuples, newName, subentryAttrs );
         // Evaluate the target context to see whether it
         // allows an entry named newName to be imported as a subordinate.
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), newName, null,
+        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), newName, null,
             null, IMPORT_PERMS, destTuples, subentryAttrs );
 
         next.move( oriChildName, newParentName );
@@ -954,7 +952,7 @@ public class AuthorizationService extends BaseInterceptor
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
         NamingEnumeration e = next.list( base );
-        if ( user.getName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled )
+        if ( isPrincipalAnAdministrator( user.getJndiName() ) || !enabled )
         {
             return e;
         }
@@ -974,8 +972,7 @@ public class AuthorizationService extends BaseInterceptor
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( base.toNormName() );
         boolean isRootDSELookup = base.size() == 0 && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
-        if ( principalDn.toNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled || 
-            isRootDSELookup || isSubschemaSubentryLookup )
+        if ( isPrincipalAnAdministrator( principalDn ) || !enabled || isRootDSELookup || isSubschemaSubentryLookup )
         {
             return e;
         }
@@ -983,6 +980,12 @@ public class AuthorizationService extends BaseInterceptor
         return new SearchResultFilteringEnumeration( e, searchCtls, invocation, authzFilter );
     }
 
+    
+    public final boolean isPrincipalAnAdministrator( LdapDN principalDn ) throws NamingException
+    {
+        return groupCache.isPrincipalAnAdministrator( principalDn );
+    }
+    
 
     public boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException
     {
@@ -991,22 +994,22 @@ public class AuthorizationService extends BaseInterceptor
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN userName = principal.getJndiName();
+        LdapDN principalDn = principal.getJndiName();
 
-        if ( userName.toNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled )
+        if ( isPrincipalAnAdministrator( principalDn ) || !enabled )
         {
             return next.compare( name, oid, value );
         }
 
-        Set userGroups = groupCache.getGroups( userName.toNormName() );
+        Set userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection tuples = new HashSet();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, name, entry );
 
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, null, null,
+        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
             READ_PERMS, tuples, entry );
-        engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), name, oid, value,
+        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, oid, value,
             COMPARE_PERMS, tuples, entry );
 
         return next.compare( name, oid, value );
@@ -1019,8 +1022,9 @@ public class AuthorizationService extends BaseInterceptor
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN userName = principal.getJndiName();
-        if ( userName.toString().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) || !enabled )
+        LdapDN principalDn = principal.getJndiName();
+        
+        if ( isPrincipalAnAdministrator( principalDn ) || !enabled )
         {
             return next.getMatchedName( dn );
         }
@@ -1035,13 +1039,13 @@ public class AuthorizationService extends BaseInterceptor
         while ( matched.size() > 0 )
         {
             entry = proxy.lookup( matched, PartitionNexusProxy.GETMATCHEDDN_BYPASS );
-            Set userGroups = groupCache.getGroups( userName.toString() );
+            Set userGroups = groupCache.getGroups( principalDn.toString() );
             Collection tuples = new HashSet();
             addPerscriptiveAciTuples( proxy, tuples, matched, entry );
             addEntryAciTuples( tuples, entry );
             addSubentryAciTuples( proxy, tuples, matched, entry );
 
-            if ( engine.hasPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), matched, null,
+            if ( engine.hasPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), matched, null,
                 null, MATCHEDNAME_PERMS, tuples, entry ) )
             {
                 return matched;

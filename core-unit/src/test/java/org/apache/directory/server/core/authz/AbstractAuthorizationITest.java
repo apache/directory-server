@@ -158,6 +158,25 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
 
 
     /**
+     * Creates a simple groupOfUniqueNames under the ou=groups,ou=system
+     * container.  The admin user is always a member of this newly created 
+     * group.
+     */
+    public Name createGroup( String groupName ) throws NamingException
+    {
+        DirContext adminCtx = getContextAsAdmin();
+        Attributes group = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
+        group.put( objectClass );
+        objectClass.add( "top" );
+        objectClass.add( "groupOfUniqueNames" );
+        group.put( "uniqueMember", PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+        adminCtx.createSubcontext( "cn=" + groupName + ",ou=groups", group );
+        return new LdapDN( "cn=" + groupName + ",ou=groups,ou=system" );
+    }
+
+
+    /**
      * Adds an existing user under ou=users,ou=system to an existing group under the
      * ou=groups,ou=system container.
      *
