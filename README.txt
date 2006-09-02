@@ -8,6 +8,13 @@ folder.
 
 apacheds branch 1.0
 daemon branch 1.0
-shared trunk
-mina trunk 
+shared branch 0.9.5 
+mina releases
 
+Before committing after making changes make sure that all integration tests pass
+for apacheds.  You can run these integration tests with maven like so:
+
+   mvn -Dintegration test 
+
+Thanks,
+The Apache Directory Team

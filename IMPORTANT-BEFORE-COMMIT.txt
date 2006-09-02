@@ -1,7 +1,0 @@
-***IMPORTANT***
-
-Do'nt forget to run 
-
-mvn -Dintegration test 
-
-before committing some source !!!
