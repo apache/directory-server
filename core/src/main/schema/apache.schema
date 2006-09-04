@@ -213,13 +213,13 @@ objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.7
 #    MUST ( fqcn $ byteCode ) )
 
 attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.21
-    NAME 'fullyQualifiedClassName'
+    NAME 'javaClassName'
     DESC 'The fully qualified name for a (Java) class'
 	 EQUALITY caseExactIA5Match
 	 SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
 
 attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.22
-    NAME 'byteCode'
+    NAME 'javaClassByteCode'
 	 DESC 'The actual byte code for a (Java) class'
 	 SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 SINGLE-VALUE )
 

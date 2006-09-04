@@ -71,7 +71,7 @@ public class LdapClassLoader extends ClassLoader
         byte[] classBytes = null;
         
         BranchNode filter = new BranchNode( BranchNode.AND );
-        filter.addNode( new SimpleNode( "fullyQualifiedClassName", name, LeafNode.EQUALITY ) );
+        filter.addNode( new SimpleNode( "javaClassName", name, LeafNode.EQUALITY ) );
         filter.addNode( new SimpleNode( "objectClass", "javaClass", LeafNode.EQUALITY ) );
         
         SearchControls controls = new SearchControls();
@@ -88,7 +88,7 @@ public class LdapClassLoader extends ClassLoader
                 if ( javaClassEntries.hasMore() ) // there should be only one!
                 {
                     SearchResult javaClassEntry = ( SearchResult ) javaClassEntries.next();
-                    Attribute byteCode = javaClassEntry.getAttributes().get( "byteCode" );
+                    Attribute byteCode = javaClassEntry.getAttributes().get( "javaClassByteCode" );
                     classBytes = ( byte[] ) byteCode.get();
                     break; // exit on first hit!
                 }
