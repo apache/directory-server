@@ -227,7 +227,7 @@ objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.8
     NAME 'javaClass'
     SUP top
     STRUCTURAL
-    MUST ( fullyQualifiedClassName $ byteCode ) )
+    MUST ( javaClassName $ byjavaClassByteCodeteCode ) )
 
 attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.23
     NAME 'classLoaderDefaultSearchContext'
