@@ -97,10 +97,10 @@ public class JavaStoredProcedureUtils
         
         Attributes attributes = new BasicAttributes( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );
-        attributes.put( "javaClassName", fullClassName );
+        attributes.put( "fullyQualifiedJavaClassName", fullClassName );
         attributes.put( "javaClassByteCode", buf );
         
-        ctx.createSubcontext( "javaClassName=" + fullClassName , attributes );
+        ctx.createSubcontext( "fullyQualifiedJavaClassName=" + fullClassName , attributes );
     }
     
     /**
