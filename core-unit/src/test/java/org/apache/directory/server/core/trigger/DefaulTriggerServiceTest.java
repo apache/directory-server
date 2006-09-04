@@ -42,7 +42,7 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
     public void testAfterDeleteBackupDeletedEntry() throws NamingException
     {
         // Load the stored procedure unit which has the stored procedure to be triggered.
-        JavaStoredProcedureUtils.loadStoredProcedureClass( sysRoot, BackupUtilities.class.getName(), getClass() );
+        JavaStoredProcedureUtils.loadStoredProcedureClass( sysRoot, BackupUtilities.class );
         
         // Create a container for backing up deleted entries.
         Attributes backupContext = new BasicAttributes( "ou", "backupContext", true );
@@ -78,7 +78,7 @@ public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
     public void testBeforeDeleteLogWarning() throws NamingException
     {
         // Load the stored procedure unit which has the stored procedure to be triggered.
-        JavaStoredProcedureUtils.loadStoredProcedureClass( sysRoot, LoggingUtilities.class.getName(), getClass() );
+        JavaStoredProcedureUtils.loadStoredProcedureClass( sysRoot, LoggingUtilities.class );
         
         // Create the Triger Specification within a Trigger Subentry.
         createTriggerSubentry( "triggerSubentry1",
