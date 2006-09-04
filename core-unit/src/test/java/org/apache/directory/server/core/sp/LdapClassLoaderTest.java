@@ -68,12 +68,12 @@ public class LdapClassLoaderTest extends AbstractAdminTestCase
         // set up
         Attributes attributes = new BasicAttributes( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );
-        attributes.put( "javaClassName", "HelloWorld" );
+        attributes.put( "fullyQualifiedJavaClassName", "HelloWorld" );
         attributes.put( "javaClassByteCode", HELLOWORLD_CLASS_BYTES );
-        defaultContext.createSubcontext( "javaClassName=HelloWorld", attributes );
+        defaultContext.createSubcontext( "fullyQualifiedJavaClassName=HelloWorld", attributes );
 
         // assert set up successfull
-        assertNotNull( defaultContext.lookup( "javaClassName=HelloWorld" ) );
+        assertNotNull( defaultContext.lookup( "fullyQualifiedJavaClassName=HelloWorld" ) );
 
         // load the class
         LdapClassLoader loader = new LdapClassLoader( ( ServerLdapContext ) ( sysRoot.lookup( "" ) ) );
@@ -110,12 +110,12 @@ public class LdapClassLoaderTest extends AbstractAdminTestCase
         // create a class holder entry and add it to the DIT
         Attributes attributes = new BasicAttributes( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );
-        attributes.put( "javaClassName", "HelloWorld" );
+        attributes.put( "fullyQualifiedJavaClassName", "HelloWorld" );
         attributes.put( "javaClassByteCode", HELLOWORLD_CLASS_BYTES );
-        defaultContext.createSubcontext( "javaClassName=HelloWorld", attributes );
+        defaultContext.createSubcontext( "fullyQualifiedJavaClassName=HelloWorld", attributes );
 
         // assert set up successfull
-        assertNotNull( defaultContext.lookup( "javaClassName=HelloWorld" ) );
+        assertNotNull( defaultContext.lookup( "fullyQualifiedJavaClassName=HelloWorld" ) );
 
         // load the class
         LdapClassLoader loader = new LdapClassLoader( ( ServerLdapContext ) ( sysRoot.lookup( "" ) ) );
