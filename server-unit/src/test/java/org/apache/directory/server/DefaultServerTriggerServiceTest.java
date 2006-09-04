@@ -75,7 +75,7 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
     public void testAfterDeleteBackupDeletedEntry() throws NamingException
     {
         // Load the stored procedure unit which has the stored procedure to be triggered.
-        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, BackupUtilities.class.getName(), this.getClass() );
+        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, BackupUtilities.class );
         
         // Create a container for backing up deleted entries.
         Attributes backupContext = new BasicAttributes( "ou", "backupContext", true );

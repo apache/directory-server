@@ -59,7 +59,7 @@ public class StoredProcedureTest extends AbstractServerTest
         env.put( "java.naming.security.authentication", "simple" );
         ctx = new InitialLdapContext( env, null );
 
-        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, HelloWorldProcedure.class.getName(), getClass() );
+        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, HelloWorldProcedure.class );
     }
 
 
