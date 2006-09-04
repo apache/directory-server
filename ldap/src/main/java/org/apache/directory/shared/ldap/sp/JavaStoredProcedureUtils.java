@@ -59,13 +59,14 @@ public class JavaStoredProcedureUtils
      * @throws NamingException
      *           If an IO error occurs during reading the class file.
      */
-    public static byte[] getClassFileAsStream( String fullClassName, Class resourceLoader ) throws NamingException
+    public static byte[] getClassFileAsStream( Class clazz ) throws NamingException
     {
+        String fullClassName = clazz.getName();
         int lastDot = fullClassName.lastIndexOf( '.' );
         String classFileName = fullClassName.substring( lastDot + 1 ) + ".class";
         
-        URL url = resourceLoader.getResource( classFileName );
-        InputStream in = resourceLoader.getResourceAsStream( classFileName );
+        URL url = clazz.getResource( classFileName );
+        InputStream in = clazz.getResourceAsStream( classFileName );
         File file = new File( url.getFile() );
         int size = ( int ) file.length();
         byte[] buf = new byte[size];
@@ -98,9 +99,10 @@ public class JavaStoredProcedureUtils
      * @throws NamingException
      *           If an error occurs during creating the subcontext.
      */
-    public static void loadStoredProcedureClass( LdapContext ctx, String fullClassName, Class resourceLoader ) throws NamingException
+    public static void loadStoredProcedureClass( LdapContext ctx, Class clazz ) throws NamingException
     {
-        byte[] buf = getClassFileAsStream( fullClassName, resourceLoader );
+        byte[] buf = getClassFileAsStream( clazz );
+        String fullClassName = clazz.getName();
         
         Attributes attributes = new BasicAttributes( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );
