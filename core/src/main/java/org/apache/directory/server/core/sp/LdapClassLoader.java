@@ -71,7 +71,7 @@ public class LdapClassLoader extends ClassLoader
         byte[] classBytes = null;
         
         BranchNode filter = new BranchNode( BranchNode.AND );
-        filter.addNode( new SimpleNode( "javaClassName", name, LeafNode.EQUALITY ) );
+        filter.addNode( new SimpleNode( "fullyQualifiedJavaClassName", name, LeafNode.EQUALITY ) );
         filter.addNode( new SimpleNode( "objectClass", "javaClass", LeafNode.EQUALITY ) );
         
         SearchControls controls = new SearchControls();

@@ -195,25 +195,8 @@ objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.7
     STRUCTURAL
     MUST ( unixFilePath ) )
 
-#attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.21
-#    NAME 'fqcn'
-#    DESC 'The fully qualified class name of a java class'
-#	 EQUALITY caseExactIA5Match
-#	 SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
-#
-#attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.22
-#    NAME 'byteCode'
-#	 DESC 'The actual byte code for a java class'
-#	 SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 SINGLE-VALUE )
-#
-#objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.8
-#    NAME 'javaClass'
-#    SUP top
-#    STRUCTURAL
-#    MUST ( fqcn $ byteCode ) )
-
 attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.21
-    NAME 'javaClassName'
+    NAME 'fullyQualifiedJavaClassName'
     DESC 'The fully qualified name for a (Java) class'
 	 EQUALITY caseExactIA5Match
 	 SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
@@ -227,7 +210,7 @@ objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.8
     NAME 'javaClass'
     SUP top
     STRUCTURAL
-    MUST ( javaClassName $ byjavaClassByteCodeteCode ) )
+    MUST ( fullyQualifiedJavaClassName $ javaClassByteCode ) )
 
 attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.23
     NAME 'classLoaderDefaultSearchContext'
