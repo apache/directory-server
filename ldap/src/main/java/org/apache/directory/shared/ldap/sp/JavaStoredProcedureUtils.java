@@ -46,14 +46,10 @@ public class JavaStoredProcedureUtils
 {
     
     /**
-     * Returns the stream data of a Java class file
-     * whose fully qualified name is provided.
+     * Returns the stream data of a Java class.
      * 
-     * @param fullClassName
-     *           Fully qualified name of the class
-     *           with package name included and ".class" extension excluded.
-     * @param resourceLoader
-     *           The resource loader for the Stored Procedure Class. 
+     * @param class
+     *           The class whose stream data will be retrieved.
      * @return
      *           Stream data of the class file as a byte array.
      * @throws NamingException
@@ -64,13 +60,11 @@ public class JavaStoredProcedureUtils
         String fullClassName = clazz.getName();
         int lastDot = fullClassName.lastIndexOf( '.' );
         String classFileName = fullClassName.substring( lastDot + 1 ) + ".class";
-        
         URL url = clazz.getResource( classFileName );
         InputStream in = clazz.getResourceAsStream( classFileName );
         File file = new File( url.getFile() );
         int size = ( int ) file.length();
         byte[] buf = new byte[size];
-        
         try
         {
             in.read( buf );
@@ -91,11 +85,8 @@ public class JavaStoredProcedureUtils
      * 
      * @param ctx
      *           The parent context of the Java class entry to be loaded.
-     * @param fullClassName
-     *           Fully qualified name of the class
-     *           with package name included and ".class" extension excluded.
-     * @param resourceLoader
-     *           The resource loader for the Stored Procedure Class. 
+     * @param clazz
+     *           Class to be loaded. 
      * @throws NamingException
      *           If an error occurs during creating the subcontext.
      */
@@ -106,10 +97,10 @@ public class JavaStoredProcedureUtils
         
         Attributes attributes = new BasicAttributes( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );
-        attributes.put( "fullyQualifiedClassName", fullClassName );
-        attributes.put( "byteCode", buf );
+        attributes.put( "javaClassName", fullClassName );
+        attributes.put( "javaClassByteCode", buf );
         
-        ctx.createSubcontext( "fullyQualifiedClassName=" + fullClassName , attributes );
+        ctx.createSubcontext( "javaClassName=" + fullClassName , attributes );
     }
     
     /**
