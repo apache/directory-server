@@ -138,8 +138,20 @@ public class JavaStoredProcedureUtils
              */
             for ( int i = 0; i < arguments.length; i++ )
             {
-                byte[] type = arguments[i].getClass().getName().getBytes( "UTF-8" );
-                byte[] value = SerializationUtils.serialize( ( Serializable ) arguments[i] );
+                byte[] type;
+                byte[] value;
+                if ( arguments[i] instanceof LdapContextParameter )
+                {
+                    LdapContextParameter lcp = ( LdapContextParameter ) arguments[i];
+                    type = lcp.getType().getBytes( "UTF-8" );
+                    value = SerializationUtils.serialize( ( Serializable ) lcp.getValue() );
+                }
+                else
+                {
+                    type = arguments[i].getClass().getName().getBytes( "UTF-8" );
+                    value = SerializationUtils.serialize( ( Serializable ) arguments[i] );    
+                }
+                
                 req.addParameter( type, value );
             }
             
