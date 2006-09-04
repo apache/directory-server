@@ -121,6 +121,7 @@
       <list>
         <bean class="org.apache.directory.server.ldap.support.extended.GracefulShutdownHandler"/>
         <bean class="org.apache.directory.server.ldap.support.extended.LaunchDiagnosticUiHandler"/>
+        <bean class="org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler"/>
       </list>
     </property>
 
