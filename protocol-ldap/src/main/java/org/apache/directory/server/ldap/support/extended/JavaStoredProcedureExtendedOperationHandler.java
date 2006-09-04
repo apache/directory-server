@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -59,10 +60,20 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
         {
             StoredProcedureParameter pPojo = ( StoredProcedureParameter ) it.next();
             
+            String typeName;
             Class type;
             try
             {
-                type = SpringClassUtils.forName( StringTools.utf8ToString( pPojo.getType() ) );
+                typeName = StringTools.utf8ToString( pPojo.getType() );
+                if ( typeName.equals( "$ldapContext" ) )
+                {
+                    type = LdapContext.class;
+                }
+                else
+                {
+                    type = SpringClassUtils.forName( typeName );
+                }
+                
             }
             catch ( ClassNotFoundException e )
             {
@@ -77,7 +88,15 @@ public class JavaStoredProcedureExtendedOperationHandler implements LanguageSpec
             
             try
             {
-                values.add( SerializationUtils.deserialize( serializedValue ) );
+                if ( typeName.equals( "$ldapContext" ) )
+                {
+                    String newCtx = (String) SerializationUtils.deserialize( serializedValue );
+                    values.add( ctx.lookup( newCtx ) );
+                }
+                else
+                {
+                    values.add( SerializationUtils.deserialize( serializedValue ) );
+                }
             }
             catch ( Exception e )
             {
