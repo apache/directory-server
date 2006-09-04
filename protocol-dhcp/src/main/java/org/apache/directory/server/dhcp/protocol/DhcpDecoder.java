@@ -41,4 +41,10 @@ public class DhcpDecoder implements ProtocolDecoder
     public void dispose( IoSession arg0 ) throws Exception
     {
     }
+
+
+    public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
+    {
+        // TODO Auto-generated method stub
+    }
 }
