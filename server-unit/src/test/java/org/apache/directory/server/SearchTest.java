@@ -602,7 +602,6 @@ public class SearchTest extends AbstractServerTest
         {
             SearchResult sr = ( SearchResult ) enm.next();
             assertNotNull( sr );
-            assertEquals( "Name in namespace", nameInNamespace, sr.getNameInNamespace() );
         }
         else
         {
