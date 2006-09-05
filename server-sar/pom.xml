@@ -67,6 +67,7 @@
         <extensions>true</extensions>
         <groupId>org.apache.directory.server</groupId>
       	<artifactId>apacheds-sar-plugin</artifactId>
+        <version>1.0-RC4</version>
         <configuration>
           <excludes>
             <exclude>

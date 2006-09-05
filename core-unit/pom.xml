@@ -47,6 +47,7 @@
       <plugins>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.2</version>
           <configuration>
             <excludes>
               <exclude>**/*ITest.java</exclude>
@@ -56,6 +57,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-antrun-plugin</artifactId>
+          <version>1.1</version>
             <executions>
               <execution>
                 <phase>validate</phase>
@@ -91,6 +93,7 @@ enable performance tests run maven with the -Dperformance switch.
       <plugins>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.2</version>
           <configuration>
             <excludes>
               <exclude>**/*PTest.java</exclude>
@@ -99,6 +102,7 @@ enable performance tests run maven with the -Dperformance switch.
         </plugin>
         <plugin>
           <artifactId>maven-antrun-plugin</artifactId>
+          <version>1.1</version>
             <executions>
               <execution>
                 <phase>validate</phase>
@@ -133,6 +137,7 @@ performance tests run maven with the -Dperformance switch.
       <plugins>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.2</version>
           <configuration>
             <systemProperties>
               <property>
@@ -147,6 +152,7 @@ performance tests run maven with the -Dperformance switch.
         </plugin>
         <plugin>
           <artifactId>maven-antrun-plugin</artifactId>
+          <version>1.1</version>
             <executions>
               <execution>
                 <phase>validate</phase>
