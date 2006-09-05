@@ -18,9 +18,9 @@ Class-Path: logger.jar daemon.jar bootstrapper.jar
  ../lib/commons-cli-1.0.jar 
  ../lib/jdbm-1.0.jar 
  ../lib/lcrypto-jdk14-131.jar 
- ../lib/mina-core-0.9.4.jar 
- ../lib/mina-filter-codec-asn1-0.9.4.jar 
- ../lib/mina-filter-ssl-0.9.4.jar 
+ ../lib/mina-core-0.9.5.jar 
+ ../lib/mina-filter-codec-asn1-0.9.5.jar 
+ ../lib/mina-filter-ssl-0.9.5.jar 
  ../lib/oro-2.0.8.jar 
  ../lib/shared-asn1-0.9.5.2.jar 
  ../lib/shared-ldap-0.9.5.2.jar 

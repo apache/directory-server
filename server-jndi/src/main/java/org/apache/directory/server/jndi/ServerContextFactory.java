@@ -61,7 +61,7 @@ import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoFilterChainBuilder;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.WriteFuture;
-import org.apache.mina.filter.ThreadPoolFilter;
+import org.apache.mina.filter.thread.ThreadPoolFilter;
 import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
@@ -108,7 +108,7 @@ public class ServerContextFactory extends CoreContextFactory
 
     public void beforeStartup( DirectoryService service )
     {
-        threadPool.setMaximumPoolSize( service.getConfiguration().getStartupConfiguration().getMaxThreads() );
+        threadPool.getThreadPool().setMaximumPoolSize( service.getConfiguration().getStartupConfiguration().getMaxThreads() );
         this.directoryService = service;
     }
 
