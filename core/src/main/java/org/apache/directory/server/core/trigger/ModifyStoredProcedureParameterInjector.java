@@ -26,13 +26,12 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.ModifyStoredProcedureParameter;
+import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 public class ModifyStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
@@ -68,16 +67,17 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     {
         this.modifiedEntryName = modifiedEntryName;
         this.modifications = modifications;
+        this.oldEntry = getEntry();
         injectors = super.getInjectors();
-        injectors.put( ModifyStoredProcedureParameter.OBJECT, $objectInjector.inject() );
-        injectors.put( ModifyStoredProcedureParameter.MODIFICATION, $modificationInjector.inject() );
-        injectors.put( ModifyStoredProcedureParameter.OLD_ENTRY, $oldEntryInjector.inject() );
-        injectors.put( ModifyStoredProcedureParameter.NEW_ENTRY, $newEntryInjector.inject() );
+        injectors.put( StoredProcedureParameter.Modify_OBJECT.class, $objectInjector );
+        injectors.put( StoredProcedureParameter.Modify_MODIFICATION.class, $modificationInjector );
+        injectors.put( StoredProcedureParameter.Modify_OLD_ENTRY.class, $oldEntryInjector );
+        injectors.put( StoredProcedureParameter.Modify_NEW_ENTRY.class, $newEntryInjector );
     }
     
     MicroInjector $objectInjector = new MicroInjector()
     {
-        public Object inject() throws NamingException
+        public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( modifiedEntryName.getUpName() );
@@ -86,7 +86,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     
     MicroInjector $modificationInjector = new MicroInjector()
     {
-        public Object inject() throws NamingException
+        public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             return modifications.clone();
         };
@@ -94,43 +94,28 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     
     MicroInjector $oldEntryInjector = new MicroInjector()
     {
-        public Object inject() throws NamingException
+        public Object inject( StoredProcedureParameter param ) throws NamingException
         {
-            PartitionNexusProxy proxy = getInvocation().getProxy();
-            /**
-             * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
-             * especially subentry related ones like "triggerSubentries".
-             */
-            oldEntry = proxy.lookup( modifiedEntryName, PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
             return oldEntry;
         };
     };
     
     MicroInjector $newEntryInjector = new MicroInjector()
     {
-        public Object inject() throws NamingException
+        public Object inject( StoredProcedureParameter param ) throws NamingException
         {
-            Attributes newEntry = ( Attributes ) oldEntry.clone();
-            
-            for ( int i = 0; i < modifications.length; i++ )
-            {
-                switch ( modifications[i].getModificationOp() )
-                {
-                    case ( DirContext.ADD_ATTRIBUTE  ):
-                        newEntry.put( modifications[i].getAttribute() );
-                        break;
-                    case ( DirContext.REMOVE_ATTRIBUTE  ):
-                        newEntry.remove( modifications[i].getAttribute().getID() );
-                        break;
-                    case ( DirContext.REPLACE_ATTRIBUTE  ):
-                        newEntry.remove( modifications[i].getAttribute().getID() );
-                        newEntry.put( modifications[i].getAttribute() );
-                        break;
-                }
-            }
-            
-            return newEntry;
+            return getEntry();
         };
     };
+    
+    private Attributes getEntry() throws NamingException
+    {
+        PartitionNexusProxy proxy = getInvocation().getProxy();
+        /**
+         * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
+         * especially subentry related ones like "triggerExecutionSubentries".
+         */
+        return proxy.lookup( modifiedEntryName, PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+    }
 
 }

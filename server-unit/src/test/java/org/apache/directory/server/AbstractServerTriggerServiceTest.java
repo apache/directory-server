@@ -159,9 +159,9 @@ public abstract class AbstractServerTriggerServiceTest extends AbstractServerTes
         subentry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
-        objectClass.add( "triggerSubentry" );
+        objectClass.add( "triggerExecutionSubentry" );
         subentry.put( "subtreeSpecification", subtree );
-        subentry.put( "prescriptiveTrigger", triggerSpec );
+        subentry.put( "prescriptiveTriggerSpecification", triggerSpec );
         adminCtx.createSubcontext( "cn=" + cn, subentry );
     }
 
@@ -176,7 +176,7 @@ public abstract class AbstractServerTriggerServiceTest extends AbstractServerTes
      */
     public void addEntryTrigger( LdapContext adminCtx, Name rdn, String triggerSpec ) throws NamingException
     {
-        Attributes changes = new BasicAttributes( "entryTrigger", triggerSpec, true );
+        Attributes changes = new BasicAttributes( "entryTriggerSpecification", triggerSpec, true );
         adminCtx.modifyAttributes( rdn, DirContext.ADD_ATTRIBUTE, changes );
     }
 

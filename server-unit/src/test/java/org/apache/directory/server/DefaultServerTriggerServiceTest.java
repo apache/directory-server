@@ -87,7 +87,7 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         
         // Create the Triger Specification within a Trigger Subentry.
         createTriggerSubentry( ctx, "triggerSubentry1",
-            "AFTER delete CALL \"" + BackupUtilities.class.getName() + ".backupDeleted\" ( $rootDSE, $name, $operationPrincipal, $deletedEntry )" );
+            "AFTER Delete CALL \"" + BackupUtilities.class.getName() + ".backupDeleted\" ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry )" );
         
         // Create a test entry which is selected by the Trigger Subentry.
         Attributes testEntry = new BasicAttributes( "ou", "testou", true );

@@ -22,7 +22,6 @@ package org.apache.directory.server.core.trigger;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +35,7 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
+import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.Generic_LDAP_CONTEXT;
 
 public abstract class AbstractStoredProcedureParameterInjector implements StoredProcedureParameterInjector
 {
@@ -46,9 +46,8 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
     {
         this.invocation = invocation;
         injectors = new HashMap();
-        injectors.put( StoredProcedureParameter.OPERATION_PRINCIPAL, $operationPrincipalInjector.inject() );
-        injectors.put( StoredProcedureParameter.OPERATION_TIME, $operationTimeInjector.inject() );
-        injectors.put( StoredProcedureParameter.ROOT_DSE, $rootDSE.inject() );
+        injectors.put( StoredProcedureParameter.Generic_OPERATION_PRINCIPAL.class, $operationPrincipalInjector );
+        injectors.put( StoredProcedureParameter.Generic_LDAP_CONTEXT.class, $ldapContextInjector );
     }
     
     protected Name getOperationPrincipal() throws NamingException
@@ -56,11 +55,6 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         Principal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         Name userName = new LdapDN( principal.getName() );
         return userName;
-    }
-    
-    protected Date getOperationTime()
-    {
-        return new Date();
     }
     
     protected Map getInjectors()
@@ -78,7 +72,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         this.invocation = invocation;
     }
     
-    public final List getArgumentsToInject( List parameterList )
+    public final List getArgumentsToInject( List parameterList ) throws NamingException
     {
         List arguments = new ArrayList();
         
@@ -86,7 +80,8 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         while ( it.hasNext() )
         {
             StoredProcedureParameter spParameter = ( StoredProcedureParameter ) it.next();
-            arguments.add( injectors.get( spParameter ) );
+            MicroInjector injector = ( MicroInjector ) injectors.get( spParameter.getClass() );
+            arguments.add( injector.inject( spParameter ) );
         }
         
         return arguments;
@@ -94,25 +89,19 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
     
     MicroInjector $operationPrincipalInjector = new MicroInjector()
     {
-        public Object inject() throws NamingException
+        public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             return getOperationPrincipal();
         };
     };
     
-    MicroInjector $operationTimeInjector = new MicroInjector()
+    MicroInjector $ldapContextInjector = new MicroInjector()
     {
-        public Object inject() throws NamingException
+        public Object inject( StoredProcedureParameter param ) throws NamingException
         {
-            return getOperationTime();
-        };
-    };
-
-    MicroInjector $rootDSE = new MicroInjector()
-    {
-        public Object inject() throws NamingException
-        {
-            return ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
+            Generic_LDAP_CONTEXT ldapCtxParam = ( Generic_LDAP_CONTEXT ) param;
+            LdapDN ldapCtxName = ldapCtxParam.getCtxName();
+            return (( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext()).lookup( ldapCtxName );
         };
     };
 

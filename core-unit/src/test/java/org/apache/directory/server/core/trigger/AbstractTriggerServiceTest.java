@@ -170,9 +170,9 @@ public abstract class AbstractTriggerServiceTest extends AbstractTestCase
         subentry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
-        objectClass.add( "triggerSubentry" );
+        objectClass.add( "triggerExecutionSubentry" );
         subentry.put( "subtreeSpecification", subtree );
-        subentry.put( "prescriptiveTrigger", triggerSpec );
+        subentry.put( "prescriptiveTriggerSpecification", triggerSpec );
         adminCtx.createSubcontext( "cn=" + cn, subentry );
     }
 

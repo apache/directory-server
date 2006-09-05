@@ -24,12 +24,14 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
+
 public interface StoredProcedureParameterInjector
 {
-    List getArgumentsToInject( List parameterList );
+    List getArgumentsToInject( List parameterList ) throws NamingException;
     
     public interface MicroInjector
     {
-        Object inject() throws NamingException;
+        Object inject( StoredProcedureParameter param ) throws NamingException;
     }
 }

@@ -63,11 +63,11 @@ import org.slf4j.LoggerFactory;
 public class TriggerSpecCache
 {
     /** the attribute id for prescriptive trigger: prescriptiveTrigger */
-    private static final String PRESCRIPTIVE_TRIGGER_ATTR = "prescriptiveTrigger";
+    private static final String PRESCRIPTIVE_TRIGGER_ATTR = "prescriptiveTriggerSpecification";
     /** the attribute id for an object class: objectClass */
     private static final String OC_ATTR = "objectClass";
-    /** the object class for trigger subentries: triggerSubentry */
-    private static final String TRIGGER_SUBENTRY_OC = "triggerSubentry";
+    /** the object class for trigger subentries: triggerExecutionSubentry */
+    private static final String TRIGGER_SUBENTRY_OC = "triggerExecutionSubentry";
 
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( TriggerSpecCache.class );
@@ -126,7 +126,7 @@ public class TriggerSpecCache
                 Attribute triggerSpec = result.getAttributes().get( PRESCRIPTIVE_TRIGGER_ATTR );
                 if ( triggerSpec == null )
                 {
-                    log.warn( "Found triggerSubentry '" + subentryDn + "' without any " + PRESCRIPTIVE_TRIGGER_ATTR );
+                    log.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any " + PRESCRIPTIVE_TRIGGER_ATTR );
                     continue;
                 }
 

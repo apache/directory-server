@@ -29,12 +29,13 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.DeleteStoredProcedureParameter;
+import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 
 public class DeleteStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private LdapDN deletedEntryName;
+    private Attributes deletedEntry;
     
     private Map injectors;
     
@@ -42,14 +43,15 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     {
         super( invocation );
         this.deletedEntryName = deletedEntryName;
+        this.deletedEntry = getDeletedEntry();
         injectors = super.getInjectors();
-        injectors.put( DeleteStoredProcedureParameter.NAME, $nameInjector.inject() );
-        injectors.put( DeleteStoredProcedureParameter.DELETED_ENTRY, $deletedEntryInjector.inject() );
+        injectors.put( StoredProcedureParameter.Delete_NAME.class, $nameInjector );
+        injectors.put( StoredProcedureParameter.Delete_DELETED_ENTRY.class, $deletedEntryInjector );
     }
     
     MicroInjector $nameInjector = new MicroInjector()
     {
-        public Object inject() throws NamingException
+        public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( deletedEntryName.getUpName() );
@@ -58,16 +60,20 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     
     MicroInjector $deletedEntryInjector = new MicroInjector()
     {
-        public Object inject() throws NamingException
+        public Object inject( StoredProcedureParameter param ) throws NamingException
         {
-            PartitionNexusProxy proxy = getInvocation().getProxy();
-            /**
-             * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
-             * especially subentry related ones like "triggerSubentries".
-             */
-            Attributes deletedEntry = proxy.lookup( deletedEntryName, PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
             return deletedEntry;
         };
     };
-
+    
+    private Attributes getDeletedEntry() throws NamingException
+    {
+        PartitionNexusProxy proxy = getInvocation().getProxy();
+        /**
+         * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
+         * especially subentry related ones like "triggerExecutionSubentries".
+         */
+        Attributes deletedEntry = proxy.lookup( deletedEntryName, PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        return deletedEntry;
+    }
 }

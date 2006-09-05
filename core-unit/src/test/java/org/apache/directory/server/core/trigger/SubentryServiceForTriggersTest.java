@@ -67,10 +67,10 @@ public class SubentryServiceForTriggersTest extends AbstractAdminTestCase
         Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
-        objectClass.add( "triggerSubentry" );
+        objectClass.add( "triggerExecutionSubentry" );
         subentry.put( objectClass );
         subentry.put( "subtreeSpecification", "{ base \"ou=configuration\" }" );
-        subentry.put( "prescriptiveTrigger", "BEFORE bind CALL \"AuthUtilities.beforeBind\"($name)" );
+        subentry.put( "prescriptiveTriggerSpecification", "AFTER Delete CALL \"LogUtils.logDelete\"($name)" );
         subentry.put( "cn", "testsubentry" );
         return subentry;
     }
@@ -81,11 +81,11 @@ public class SubentryServiceForTriggersTest extends AbstractAdminTestCase
         Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
-        objectClass.add( "triggerSubentry" );
+        objectClass.add( "triggerExecutionSubentry" );
         subentry.put( objectClass );
         String spec = "{ base \"ou=configuration\", specificExclusions { chopBefore:\"cn=unmarked\" } }";
         subentry.put( "subtreeSpecification", spec );
-        subentry.put( "prescriptiveTrigger", "BEFORE bind CALL \"AuthUtilities.beforeBind\"($name)" );
+        subentry.put( "prescriptiveTriggerSpecification", "AFTER Delete CALL \"LogUtils.logDelete\"($name)" );
         subentry.put( "cn", "testsubentry" );
         return subentry;
     }

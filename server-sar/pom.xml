@@ -21,7 +21,7 @@
     <dependency>
       <groupId>org.apache.directory.daemon</groupId>
       <artifactId>daemon-bootstrappers</artifactId>
-      <version>1.0-RC3-SNAPSHOT</version>
+      <version>1.0-RC3</version>
     </dependency>
     <dependency>
       <groupId>jboss</groupId>

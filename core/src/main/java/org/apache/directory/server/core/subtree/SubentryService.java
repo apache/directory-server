@@ -89,9 +89,9 @@ public class SubentryService extends BaseInterceptor
     public static final String COLLECTIVE_INNERAREA = "collectiveAttributeInnerArea";
     public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
     
-    public static final String TRIGGER_AREA = "triggerSpecificArea";
-    public static final String TRIGGER_INNERAREA = "triggerInnerArea";
-    public static final String TRIGGER_SUBENTRIES = "triggerSubentries";
+    public static final String TRIGGER_AREA = "triggerExecutionSpecificArea";
+    public static final String TRIGGER_INNERAREA = "triggerExecutionInnerArea";
+    public static final String TRIGGER_SUBENTRIES = "triggerExecutionSubentries";
 
     public static final String[] SUBENTRY_OPATTRS =
         { AC_SUBENTRIES, SCHEMA_SUBENTRY, COLLECTIVE_ATTRIBUTE_SUBENTRIES, TRIGGER_SUBENTRIES };
@@ -199,7 +199,7 @@ public class SubentryService extends BaseInterceptor
             types |= Subentry.COLLECTIVE_SUBENTRY;
         }
         
-        if ( oc.contains( "triggerSubentry" ) )
+        if ( oc.contains( "triggerExecutionSubentry" ) )
         {
             types |= Subentry.TRIGGER_SUBENTRY;
         }

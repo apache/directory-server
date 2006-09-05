@@ -223,19 +223,19 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.23
 # Trigger related
 # ===============
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.25 NAME 'prescriptiveTrigger'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.25 NAME 'prescriptiveTriggerSpecification'
     DESC 'Trigger specification that applies to a set of entries'
     EQUALITY directoryStringFirstComponentMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.59
     USAGE directoryOperation )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.26 NAME 'entryTrigger'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.26 NAME 'entryTriggerSpecification'
     DESC 'Trigger specification that applies to a single entry'
     EQUALITY directoryStringFirstComponentMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.59
     USAGE directoryOperation )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.27 NAME 'triggerSubentries'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.27 NAME 'triggerExecutionSubentries'
     DESC 'Used to track subentries associated with a trigger area which an entry falls under'
     SUP distinguishedName
     EQUALITY distinguishedNameMatch
@@ -243,10 +243,10 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.27 NAME 'triggerSubentries'
     NO-USER-MODIFICATION
     USAGE directoryOperation )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.1.3.28 NAME 'triggerSubentry'
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.3.28 NAME 'triggerExecutionSubentry'
     DESC 'Used to track a subentry associated with trigger areas'
     AUXILIARY
-    MUST prescriptiveTrigger )
+    MUST prescriptiveTriggerSpecification )
 
 # ======================
 # End of Trigger related

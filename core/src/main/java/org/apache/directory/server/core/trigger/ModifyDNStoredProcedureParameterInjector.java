@@ -28,7 +28,7 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
-public class ModDNStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
+public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private LdapDN oldName;
     private String newRn;
@@ -36,7 +36,8 @@ public class ModDNStoredProcedureParameterInjector extends AbstractStoredProcedu
     
     private Map injectors;
     
-    public ModDNStoredProcedureParameterInjector( Invocation invocation, LdapDN oldName, String newRn, boolean deleteOldRn ) throws NamingException
+    public ModifyDNStoredProcedureParameterInjector( Invocation invocation, boolean deleteOldRn,
+        LdapDN oldRDN, LdapDN newRDN, LdapDN oldSuperiorDN, LdapDN newSuperiorDN, LdapDN oldDN, LdapDN newDN) throws NamingException
     {
         super( invocation );
         init( oldName, newRn, deleteOldRn );

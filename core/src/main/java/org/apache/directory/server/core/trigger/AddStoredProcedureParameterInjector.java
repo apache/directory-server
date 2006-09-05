@@ -27,7 +27,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.AddStoredProcedureParameter;
+import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 public class AddStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
@@ -42,13 +42,13 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
         this.addedEntryName = addedEntryName;
         this.addedEntry = addedEntry;
         injectors = super.getInjectors();
-        injectors.put( AddStoredProcedureParameter.ENTRY, $entryInjector.inject() );
-        injectors.put( AddStoredProcedureParameter.ATTRIBUTES, $attributesInjector.inject() );
+        injectors.put( StoredProcedureParameter.Add_ENTRY.class, $entryInjector );
+        injectors.put( StoredProcedureParameter.Add_ATTRIBUTES.class, $attributesInjector );
     }
     
     MicroInjector $entryInjector = new MicroInjector()
     {
-        public Object inject() throws NamingException
+        public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( addedEntryName.getUpName() );
@@ -57,7 +57,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
     
     MicroInjector $attributesInjector = new MicroInjector()
     {
-        public Object inject() throws NamingException
+        public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             return addedEntry.clone();
         };
