@@ -120,7 +120,7 @@ public class TriggerSpecification
             while ( it.hasNext() )
             {
                 StoredProcedureParameter spParameter = ( StoredProcedureParameter ) it.next();
-                buffer.append( spParameter );
+                buffer.append( spParameter.toString() );
                 if ( it.hasNext() )
                 {
                     buffer.append( ", " );

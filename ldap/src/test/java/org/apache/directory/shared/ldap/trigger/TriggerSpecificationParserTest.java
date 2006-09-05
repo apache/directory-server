@@ -52,7 +52,7 @@ public class TriggerSpecificationParserTest extends TestCase
     /**
      * Creates a TriggerSpecificationParserTest instance.
      */
-    public TriggerSpecificationParserTest(String s)
+    public TriggerSpecificationParserTest( String s )
     {
         super( s );
         parser = new TriggerSpecificationParser();
@@ -62,27 +62,27 @@ public class TriggerSpecificationParserTest extends TestCase
     {        
         TriggerSpecification triggerSpecification = null;
         
-        String spec = "BEFORE delete CALL \"BackupUtilities.backupDeletedEntry\" ($name, $deletedEntry)";
+        String spec = "AFTER Delete CALL \"BackupUtilities.backupDeletedEntry\" ($name, $deletedEntry)";
 
         triggerSpecification = parser.parse( spec );
         
         assertNotNull( triggerSpecification );
-        assertEquals( triggerSpecification.getActionTime(), ActionTime.BEFORE );
+        assertEquals( triggerSpecification.getActionTime(), ActionTime.AFTER );
         assertEquals( triggerSpecification.getStoredProcedureName(), "BackupUtilities.backupDeletedEntry" );
         assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.DELETE );
         assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 0 );
         assertEquals( triggerSpecification.getStoredProcedureParameters().size(), 2 );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
-            StoredProcedureParameter.DeleteStoredProcedureParameter.NAME ) );
+            StoredProcedureParameter.Delete_NAME.instance() ) );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
-            StoredProcedureParameter.DeleteStoredProcedureParameter.DELETED_ENTRY ) );
+            StoredProcedureParameter.Delete_DELETED_ENTRY.instance() ) );
     }
     
     public void testWithGenericParameters() throws Exception
     {        
         TriggerSpecification triggerSpecification = null;
         
-        String spec = "AFTER add CALL \"Logger.logAddOperation\" ($entry, $attributes, $operationPrincipal)";
+        String spec = "AFTER Add CALL \"Logger.logAddOperation\" ($entry, $attributes, $operationPrincipal)";
 
         triggerSpecification = parser.parse( spec );
         
@@ -93,29 +93,28 @@ public class TriggerSpecificationParserTest extends TestCase
         assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 0 );
         assertEquals( triggerSpecification.getStoredProcedureParameters().size(), 3 );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
-            StoredProcedureParameter.AddStoredProcedureParameter.ENTRY ) );
+            StoredProcedureParameter.Add_ENTRY.instance() ) );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
-            StoredProcedureParameter.AddStoredProcedureParameter.ATTRIBUTES ) );
+            StoredProcedureParameter.Add_ATTRIBUTES.instance()) );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
-            StoredProcedureParameter.OPERATION_PRINCIPAL ) );
+            StoredProcedureParameter.Generic_OPERATION_PRINCIPAL.instance() ) );
     }
     
-    public void testWithLanguageOptionAndComments() throws Exception
+    public void testWithLanguageSchemeOption() throws Exception
     {        
         TriggerSpecification triggerSpecification = null;
         
-        String spec = "INSTEADOF search # do not do search \n" +
-            "CALL \"RestrictionUtilities.searchNoWay\"{language \"Java\"}() # but run a procedure";
+        String spec = "AFTER Modify CALL \"Logger.logModifyOperation\" {languageScheme \"Java\"}()";
 
         triggerSpecification = parser.parse( spec );
         
         assertNotNull( triggerSpecification );
-        assertEquals( triggerSpecification.getActionTime(), ActionTime.INSTEADOF );
-        assertEquals( triggerSpecification.getStoredProcedureName(), "RestrictionUtilities.searchNoWay" );
-        assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.SEARCH );
+        assertEquals( triggerSpecification.getActionTime(), ActionTime.AFTER );
+        assertEquals( triggerSpecification.getStoredProcedureName(), "Logger.logModifyOperation" );
+        assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.MODIFY );
         assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 1 );
         assertTrue( triggerSpecification.getStoredProcedureOptions().contains(
-            new StoredProcedureLanguageOption( "Java" ) ) );
+            new StoredProcedureLanguageSchemeOption( "Java" ) ) );
         assertEquals( triggerSpecification.getStoredProcedureParameters().size(),  0 );
     }
     
@@ -123,24 +122,47 @@ public class TriggerSpecificationParserTest extends TestCase
     {        
         TriggerSpecification triggerSpecification = null;
         
-        String spec = "BEFORE bind  # Action Time and Operation \n" +
-            "CALL \"AuthUtilities.beforeBind\"  # Stored Procedure Call \n" +
-            "{ searchContext { scope one } \"cn=Auth,cn=System Stored Procedures,ou=system\" }  # Stored Procedure Call Options \n" +
-            "($name)  # Stored Procedure Parameter(s)";
+        String spec = "AFTER ModifyDN.Rename CALL \"Logger.logModifyDNRenameOperation\" \n" +
+            "{ searchContext { scope one } \"cn=Logger,ou=Stored Procedures,ou=system\" } \n" +
+            "($entry, $newrdn)  # Stored Procedure Parameter(s)";
 
         triggerSpecification = parser.parse( spec );
         
         assertNotNull( triggerSpecification );
-        assertEquals( triggerSpecification.getActionTime(), ActionTime.BEFORE );
-        assertEquals( triggerSpecification.getStoredProcedureName(), "AuthUtilities.beforeBind" );
-        assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.BIND );
+        assertEquals( triggerSpecification.getActionTime(), ActionTime.AFTER );
+        assertEquals( triggerSpecification.getStoredProcedureName(), "Logger.logModifyDNRenameOperation" );
+        assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.MODIFYDN_RENAME );
         assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 1 );
         assertTrue( triggerSpecification.getStoredProcedureOptions().contains(
             new StoredProcedureSearchContextOption(
-                new LdapDN( "cn=Auth,cn=System Stored Procedures,ou=system" ), SearchScope.ONE ) ) );
-        assertEquals( triggerSpecification.getStoredProcedureParameters().size(), 1 );
+                new LdapDN( "cn=Logger,ou=Stored Procedures,ou=system" ), SearchScope.ONE ) ) );
+        assertEquals( triggerSpecification.getStoredProcedureParameters().size(), 2 );
         assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
-            StoredProcedureParameter.BindStoredProcedureParameter.NAME ) );
+            StoredProcedureParameter.ModifyDN_ENTRY.instance() ) );
+        assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
+            StoredProcedureParameter.ModifyDN_NEW_RDN.instance() ) );
+    }
+    
+    public void testWithLdapContextParameter() throws Exception
+    {        
+        TriggerSpecification triggerSpecification = null;
+        
+        String spec = "AFTER Delete CALL \"BackupUtilities.backupDeletedEntry\" ($ldapContext \"ou=Backup,ou=System\", $name, $deletedEntry)";
+
+        triggerSpecification = parser.parse( spec );
+        
+        assertNotNull( triggerSpecification );
+        assertEquals( triggerSpecification.getActionTime(), ActionTime.AFTER );
+        assertEquals( triggerSpecification.getStoredProcedureName(), "BackupUtilities.backupDeletedEntry" );
+        assertEquals( triggerSpecification.getLdapOperation(), LdapOperation.DELETE );
+        assertEquals( triggerSpecification.getStoredProcedureOptions().size(), 0 );
+        assertEquals( triggerSpecification.getStoredProcedureParameters().size(), 3 );
+        assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
+            StoredProcedureParameter.Delete_NAME.instance() ) );
+        assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
+            StoredProcedureParameter.Delete_DELETED_ENTRY.instance() ) );
+        assertTrue( triggerSpecification.getStoredProcedureParameters().contains(
+            StoredProcedureParameter.Generic_LDAP_CONTEXT.instance( new LdapDN( "ou=Backup,ou=System" ) ) ) );
     }
     
 }

@@ -30,11 +30,11 @@ package org.apache.directory.shared.ldap.trigger;
  */
 public class ActionTime
 {
-    public static final ActionTime BEFORE = new ActionTime( "BEFORE" );
+    //public static final ActionTime BEFORE = new ActionTime( "BEFORE" );
 
     public static final ActionTime AFTER = new ActionTime( "AFTER" );
 
-    public static final ActionTime INSTEADOF = new ActionTime( "INSTEADOF" );
+    //public static final ActionTime INSTEADOF = new ActionTime( "INSTEADOF" );
 
     
     private final String name;

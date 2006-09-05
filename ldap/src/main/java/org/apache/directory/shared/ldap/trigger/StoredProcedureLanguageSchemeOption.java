@@ -26,12 +26,12 @@ package org.apache.directory.shared.ldap.trigger;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$, $Date:$
  */
-public class StoredProcedureLanguageOption implements StoredProcedureOption
+public class StoredProcedureLanguageSchemeOption implements StoredProcedureOption
 {
     
     private String language;
     
-    public StoredProcedureLanguageOption( String language )
+    public StoredProcedureLanguageSchemeOption( String language )
     {
         this.language = language;
     }
@@ -72,7 +72,7 @@ public class StoredProcedureLanguageOption implements StoredProcedureOption
             return false;
         if ( getClass() != obj.getClass() )
             return false;
-        final StoredProcedureLanguageOption other = ( StoredProcedureLanguageOption ) obj;
+        final StoredProcedureLanguageSchemeOption other = ( StoredProcedureLanguageSchemeOption ) obj;
         if ( language == null )
         {
             if ( other.language != null )

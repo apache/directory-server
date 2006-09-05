@@ -30,33 +30,64 @@ import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
 /**
- * A utility class for working with Triggers Subentries.
+ * A utility class for working with Triggers Execution Administrative Points
+ * Trigger Execution Subentries and Trigger Specifications.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
 public class TriggerUtils
 {
+    public static String ADMINISTRATIVE_ROLE_ATTR = "administrativeRole";
+    public static String TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE = "triggerExecutionSpecificArea";
+    public static String TRIGGER_EXECUTION_SUBENTRY_OC = "triggerExecutionSubentry";
+    public static String ENTRY_TRIGGER_SPECIFICATION_ATTR = "entryTriggerSpecification";
+    public static String PRESCRIPTIVE_TRIGGER_SPECIFICATION_ATTR = "prescriptiveTriggerSpecification";
     
-    public static void loadTriggerSpecification( LdapContext ctx, String cn, String subtree, String triggerSpec ) throws NamingException
+    
+    public static void defineTriggerExecutionSpecificPoint( LdapContext apCtx ) throws NamingException
     {
-        Attributes ap = ctx.getAttributes( "", new String[] { "administrativeRole" } );
-        Attribute administrativeRole = ap.get( "administrativeRole" );
-        if ( administrativeRole == null || !administrativeRole.contains( "triggerSpecificArea" ) )
+        Attributes ap = apCtx.getAttributes( "", new String[] { ADMINISTRATIVE_ROLE_ATTR } );
+        Attribute administrativeRole = ap.get( ADMINISTRATIVE_ROLE_ATTR );
+        if ( administrativeRole == null || !administrativeRole.contains( TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE ) )
         {
-            Attributes changes = new BasicAttributes( "administrativeRole", "triggerSpecificArea", true );
-            ctx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
+            Attributes changes = new BasicAttributes( ADMINISTRATIVE_ROLE_ATTR, TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE, true );
+            apCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
-        
-        Attributes subentry = new BasicAttributes( "cn", cn, true );
+    }
+    
+    
+    public static void createTriggerExecutionSubentry(
+        LdapContext apCtx,
+        String subentryCN,
+        String subtreeSpec ) throws NamingException
+    {
+        Attributes subentry = new BasicAttributes( "cn", subentryCN, true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
         subentry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
-        objectClass.add( "triggerSubentry" );
-        subentry.put( "subtreeSpecification", subtree );
-        subentry.put( "prescriptiveTrigger", triggerSpec );
-        ctx.createSubcontext( "cn=" + cn, subentry );
+        objectClass.add( TRIGGER_EXECUTION_SUBENTRY_OC );
+        subentry.put( "subtreeSpecification", subtreeSpec );
+        apCtx.createSubcontext( "cn=" + subentryCN, subentry );
     }
-
+    
+    
+    public static void loadPrescriptiveTriggerSpecification(
+        LdapContext apCtx,
+        String subentryCN,
+        String triggerSpec ) throws NamingException
+    {        
+        Attributes changes = new BasicAttributes( PRESCRIPTIVE_TRIGGER_SPECIFICATION_ATTR, triggerSpec, true );
+        apCtx.modifyAttributes( "cn=" + subentryCN, DirContext.ADD_ATTRIBUTE, changes );
+    }
+    
+    
+    public static void loadEntryTriggerSpecification(
+        LdapContext ctx,
+        String triggerSpec ) throws NamingException
+    {        
+        Attributes changes = new BasicAttributes( ENTRY_TRIGGER_SPECIFICATION_ATTR, triggerSpec, true );
+        ctx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
+    }
 }

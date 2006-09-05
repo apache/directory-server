@@ -22,32 +22,26 @@ package org.apache.directory.shared.ldap.trigger;
 
 
 /**
- * An enumeration that represents all standard LDAP operations.
+ * An enumeration that represents change inducing LDAP operations.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$, $Date:$
  */
 public class LdapOperation
 {
-    public static final LdapOperation BIND = new LdapOperation( "bind" );
+    public static final LdapOperation MODIFY = new LdapOperation( "Modify" );
 
-    public static final LdapOperation UNBIND = new LdapOperation( "unbind" );
+    public static final LdapOperation ADD = new LdapOperation( "Add" );
 
-    public static final LdapOperation SEARCH = new LdapOperation( "search" );
+    public static final LdapOperation DELETE = new LdapOperation( "Delete" );
 
-    public static final LdapOperation MODIFY = new LdapOperation( "modify" );
-
-    public static final LdapOperation ADD = new LdapOperation( "add" );
-
-    public static final LdapOperation DELETE = new LdapOperation( "delete" );
-
-    public static final LdapOperation MODDN = new LdapOperation( "moddn" );
-
-    public static final LdapOperation COMPARE = new LdapOperation( "compare" );
+    public static final LdapOperation MODIFYDN = new LdapOperation( "ModifyDN" );
     
-    public static final LdapOperation ABANDON = new LdapOperation( "abandon" );
+    public static final LdapOperation MODIFYDN_RENAME = new LdapOperation( "ModifyDN.Rename" );
     
-    public static final LdapOperation EXTENDED = new LdapOperation( "extended" );
+    public static final LdapOperation MODIFYDN_EXPORT = new LdapOperation( "ModifyDN.Export" );
+    
+    public static final LdapOperation MODIFYDN_IMPORT = new LdapOperation( "ModifyDN.Import" );
 
     
     private final String name;

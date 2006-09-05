@@ -20,6 +20,8 @@
 
 package org.apache.directory.shared.ldap.trigger;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * An entity that represents a stored procedure parameter which can be
@@ -28,14 +30,50 @@ package org.apache.directory.shared.ldap.trigger;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$, $Date:$
  */
-public class StoredProcedureParameter
+public abstract class StoredProcedureParameter
 {
+    public static class Generic_LDAP_CONTEXT extends StoredProcedureParameter
+    {
+        private LdapDN ctxName;
+        
+        private Generic_LDAP_CONTEXT( LdapDN ctxName )
+        {
+            super( "$ldapContext" );
+            this.ctxName = ctxName;
+        }
+        
+        public static StoredProcedureParameter instance( LdapDN ctxName )
+        {
+            return new Generic_LDAP_CONTEXT( ctxName );
+        }
+        
+        public LdapDN getCtxName()
+        {
+            return ctxName;
+        }
+        
+        public String toString()
+        {
+            return name + " \"" + ctxName.getUpName() + "\"";
+        }
+    }
+    
+    public static class Generic_OPERATION_PRINCIPAL extends StoredProcedureParameter
+    {
+        private static Generic_OPERATION_PRINCIPAL instance = new Generic_OPERATION_PRINCIPAL( "$operationPrincipal" );
+        
+        private Generic_OPERATION_PRINCIPAL( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
+    }
 
-    public static final StoredProcedureParameter OPERATION_TIME = new StoredProcedureParameter( "$operationTime" );
-    public static final StoredProcedureParameter OPERATION_PRINCIPAL = new StoredProcedureParameter( "$operationPrincipal" );
-    public static final StoredProcedureParameter ROOT_DSE = new StoredProcedureParameter( "$rootDSE" );
-
-    private final String name;
+    protected final String name;
 
 
     protected StoredProcedureParameter( String name )
@@ -92,62 +130,11 @@ public class StoredProcedureParameter
             return false;
         return true;
     }
+
     
     // Operation Specific Subclasses
 
-    public static class BindStoredProcedureParameter extends StoredProcedureParameter
-    {
-
-        public static final BindStoredProcedureParameter VERSION = new BindStoredProcedureParameter( "$version" );
-        public static final BindStoredProcedureParameter NAME = new BindStoredProcedureParameter( "$name" );
-        public static final BindStoredProcedureParameter AUTHENTICATION = new BindStoredProcedureParameter(
-            "$authentication" );
-
-
-        private BindStoredProcedureParameter( String name )
-        {
-            super( name );
-        }
-
-    }
-
-    public static class UnbindStoredProcedureParameter extends StoredProcedureParameter
-    {
-
-        private UnbindStoredProcedureParameter( String name )
-        {
-            super( name );
-        }
-
-    }
-
-    public static class SearchStoredProcedureParameter extends StoredProcedureParameter
-    {
-
-        public static final SearchStoredProcedureParameter BASE_OBJECT = new SearchStoredProcedureParameter(
-            "$baseObject" );
-        public static final SearchStoredProcedureParameter SCOPE = new SearchStoredProcedureParameter( "$scope" );
-        public static final SearchStoredProcedureParameter DEREF_ALIASES = new SearchStoredProcedureParameter(
-            "$derefAliases" );
-        public static final SearchStoredProcedureParameter SIZE_LIMIT = new SearchStoredProcedureParameter(
-            "$sizeLimit" );
-        public static final SearchStoredProcedureParameter TIME_LIMIT = new SearchStoredProcedureParameter(
-            "$timeLimit" );
-        public static final SearchStoredProcedureParameter TYPES_ONLY = new SearchStoredProcedureParameter(
-            "$typesOnly" );
-        public static final SearchStoredProcedureParameter FILTER = new SearchStoredProcedureParameter( "$filter" );
-        public static final SearchStoredProcedureParameter ATTRIBUTES = new SearchStoredProcedureParameter(
-            "$attributes" );
-
-
-        private SearchStoredProcedureParameter( String name )
-        {
-            super( name );
-        }
-
-    }
-
-    public static class ModifyStoredProcedureParameter extends StoredProcedureParameter
+    /*public static class ModifyStoredProcedureParameter extends StoredProcedureParameter
     {
 
         public static final ModifyStoredProcedureParameter OBJECT = new ModifyStoredProcedureParameter( "$object" );
@@ -162,9 +149,69 @@ public class StoredProcedureParameter
             super( name );
         }
 
+    }*/
+    
+    public static class Modify_OBJECT extends StoredProcedureParameter
+    {
+        private static Modify_OBJECT instance = new Modify_OBJECT( "$object" );
+        
+        private Modify_OBJECT( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
+    }
+    
+    public static class Modify_MODIFICATION extends StoredProcedureParameter
+    {
+        private static Modify_MODIFICATION instance = new Modify_MODIFICATION( "$modification" );
+        
+        private Modify_MODIFICATION( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
+    }
+    
+    public static class Modify_OLD_ENTRY extends StoredProcedureParameter
+    {
+        private static Modify_OLD_ENTRY instance = new Modify_OLD_ENTRY( "$oldEntry" );
+        
+        private Modify_OLD_ENTRY( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
+    }
+    
+    public static class Modify_NEW_ENTRY extends StoredProcedureParameter
+    {
+        private static Modify_NEW_ENTRY instance = new Modify_NEW_ENTRY( "$newEntry" );
+        
+        private Modify_NEW_ENTRY( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
     }
 
-    public static class AddStoredProcedureParameter extends StoredProcedureParameter
+    /*public static class AddStoredProcedureParameter extends StoredProcedureParameter
     {
 
         public static final AddStoredProcedureParameter ENTRY = new AddStoredProcedureParameter( "$entry" );
@@ -176,9 +223,39 @@ public class StoredProcedureParameter
             super( name );
         }
 
+    }*/
+    
+    public static class Add_ENTRY extends StoredProcedureParameter
+    {
+        private static Add_ENTRY instance = new Add_ENTRY( "$entry" );
+        
+        private Add_ENTRY( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
+    }
+    
+    public static class Add_ATTRIBUTES extends StoredProcedureParameter
+    {
+        private static Add_ATTRIBUTES instance = new Add_ATTRIBUTES( "$attributes" );
+        
+        private Add_ATTRIBUTES( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
     }
 
-    public static class DeleteStoredProcedureParameter extends StoredProcedureParameter
+    /*public static class DeleteStoredProcedureParameter extends StoredProcedureParameter
     {
 
         public static final DeleteStoredProcedureParameter NAME = new DeleteStoredProcedureParameter( "$name" );
@@ -191,68 +268,113 @@ public class StoredProcedureParameter
             super( name );
         }
 
+    }*/
+    
+    public static class Delete_NAME extends StoredProcedureParameter
+    {
+        private static Delete_NAME instance = new Delete_NAME( "$name" );
+        
+        private Delete_NAME( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
+    }
+    
+    public static class Delete_DELETED_ENTRY extends StoredProcedureParameter
+    {
+        private static Delete_DELETED_ENTRY instance = new Delete_DELETED_ENTRY( "$deletedEntry" );
+        
+        private Delete_DELETED_ENTRY( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
     }
 
-    public static class ModDNStoredProcedureParameter extends StoredProcedureParameter
+    /*public static class ModifyDNStoredProcedureParameter extends StoredProcedureParameter
     {
 
-        public static final ModDNStoredProcedureParameter ENTRY = new ModDNStoredProcedureParameter( "$entry" );
-        public static final ModDNStoredProcedureParameter NEW_RDN = new ModDNStoredProcedureParameter( "$newrdn" );
-        public static final ModDNStoredProcedureParameter DELETE_OLD_RDN = new ModDNStoredProcedureParameter(
+        public static final ModifyDNStoredProcedureParameter ENTRY = new ModifyDNStoredProcedureParameter( "$entry" );
+        public static final ModifyDNStoredProcedureParameter NEW_RDN = new ModifyDNStoredProcedureParameter( "$newrdn" );
+        public static final ModifyDNStoredProcedureParameter DELETE_OLD_RDN = new ModifyDNStoredProcedureParameter(
             "$deleteoldrdn" );
-        public static final ModDNStoredProcedureParameter NEW_SUPERIOR = new ModDNStoredProcedureParameter(
+        public static final ModifyDNStoredProcedureParameter NEW_SUPERIOR = new ModifyDNStoredProcedureParameter(
             "$newSuperior" );
 
 
-        private ModDNStoredProcedureParameter( String name )
+        private ModifyDNStoredProcedureParameter( String name )
         {
             super( name );
         }
 
-    }
-
-    public static class CompareStoredProcedureParameter extends StoredProcedureParameter
+    }*/
+    
+    public static class ModifyDN_ENTRY extends StoredProcedureParameter
     {
-
-        public static final CompareStoredProcedureParameter ENTRY = new CompareStoredProcedureParameter( "$entry" );
-        public static final CompareStoredProcedureParameter AVA = new CompareStoredProcedureParameter( "$ava" );
-
-
-        private CompareStoredProcedureParameter( String name )
+        private static ModifyDN_ENTRY instance = new ModifyDN_ENTRY( "$entry" );
+        
+        private ModifyDN_ENTRY( String identifier )
         {
-            super( name );
+            super( identifier );
         }
-
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
     }
     
-    public static class AbandonStoredProcedureParameter extends StoredProcedureParameter
+    public static class ModifyDN_NEW_RDN extends StoredProcedureParameter
     {
-
-        public static final AbandonStoredProcedureParameter MESSAGE_ID = new  AbandonStoredProcedureParameter( "$messageId"
-     );
-
-
-        private AbandonStoredProcedureParameter( String name )
+        private static ModifyDN_NEW_RDN instance = new ModifyDN_NEW_RDN( "$newrdn" );
+        
+        private ModifyDN_NEW_RDN( String identifier )
         {
-            super( name );
+            super( identifier );
         }
-
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
     }
-
-    public static class ExtendedStoredProcedureParameter extends StoredProcedureParameter
+    
+    public static class ModifyDN_DELETE_OLD_RDN extends StoredProcedureParameter
     {
-
-        public static final ExtendedStoredProcedureParameter REQUEST_NAME = new ExtendedStoredProcedureParameter(
-            "$requestName" );
-        public static final ExtendedStoredProcedureParameter REQUEST_VALUE = new ExtendedStoredProcedureParameter(
-            "$requestValue" );
-
-
-        private ExtendedStoredProcedureParameter( String name )
+        private static ModifyDN_DELETE_OLD_RDN instance = new ModifyDN_DELETE_OLD_RDN( "$deleteoldrdn" );
+        
+        private ModifyDN_DELETE_OLD_RDN( String identifier )
         {
-            super( name );
+            super( identifier );
         }
-
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
     }
-
+    
+    public static class ModifyDN_NEW_SUPERIOR extends StoredProcedureParameter
+    {
+        private static ModifyDN_NEW_SUPERIOR instance = new ModifyDN_NEW_SUPERIOR( "$newSuperior" );
+        
+        private ModifyDN_NEW_SUPERIOR( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
+    }
 }

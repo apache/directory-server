@@ -138,63 +138,22 @@ actionTime
 {
     log.debug( "entered actionTime()" );
 }
-    : ID_BEFORE { triggerActionTime = ActionTime.BEFORE; }
-    | ID_AFTER { triggerActionTime = ActionTime.AFTER; }
-    | ID_INSTEADOF { triggerActionTime = ActionTime.INSTEADOF; }
+    : ID_AFTER { triggerActionTime = ActionTime.AFTER; }
     ;
     
 ldapOperationAndStoredProcedureCall
 {
     log.debug( "entered ldapOperationAndStoredProcedureCall()" );
 }
-    : bindOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.BIND; }
-    | unbindOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.UNBIND; }
-    | searchOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.SEARCH; }
-    | modifyOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.MODIFY; }
+    : modifyOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.MODIFY; }
     | addOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.ADD; }
     | deleteOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.DELETE; }
-    | modDNOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.MODDN; }
-    | compareOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.COMPARE; }
-    | abandonOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.ABANDON; }
-    | extendedOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.EXTENDED; }
+    | modifyDNOperationAndStoredProcedureCall
     ;
 
 // -----------------------------------------------------------------------------
 //  XXXOperationAndStoredProcedureCall
 // -----------------------------------------------------------------------------
-
-bindOperationAndStoredProcedureCall
-{
-    log.debug( "entered bindOperationAndStoredProcedureCall()" );
-}
-    :
-    ID_bind theCompositeRuleForCallAndSPNameAndSPOptionList
-    OPEN_PARAN ( SP )*
-        ( bindStoredProcedureParameterList )?
-    CLOSE_PARAN
-    ;
-
-unbindOperationAndStoredProcedureCall
-{
-    log.debug( "entered unbindOperationAndStoredProcedureCall()" );
-}
-    :
-    ID_unbind theCompositeRuleForCallAndSPNameAndSPOptionList
-    OPEN_PARAN ( SP )*
-        ( unbindStoredProcedureParameterList )?
-    CLOSE_PARAN
-    ;
-
-searchOperationAndStoredProcedureCall
-{
-    log.debug( "entered searchOperationAndStoredProcedureCall()" );
-}
-    :
-    ID_search theCompositeRuleForCallAndSPNameAndSPOptionList
-    OPEN_PARAN ( SP )*
-        ( searchStoredProcedureParameterList )?
-    CLOSE_PARAN
-    ;
 
 modifyOperationAndStoredProcedureCall
 {
@@ -229,47 +188,18 @@ deleteOperationAndStoredProcedureCall
     CLOSE_PARAN
     ;
 
-modDNOperationAndStoredProcedureCall
+modifyDNOperationAndStoredProcedureCall
 {
-    log.debug( "entered modDNOperationAndStoredProcedureCall()" );
+    log.debug( "entered modifyDNOperationAndStoredProcedureCall()" );
 }
     :
-    ID_modDN theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_modifyDN DOT
+    ( ID_modifyDNRename { triggerLdapOperation = LdapOperation.MODIFYDN_RENAME; }
+    | ID_modifyDNExport { triggerLdapOperation = LdapOperation.MODIFYDN_EXPORT; }
+    | ID_modifyDNImport { triggerLdapOperation = LdapOperation.MODIFYDN_IMPORT; } )
+    theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
-        ( modDNStoredProcedureParameterList )?
-    CLOSE_PARAN
-    ;
-
-compareOperationAndStoredProcedureCall
-{
-    log.debug( "entered compareOperationAndStoredProcedureCall()" );
-}
-    :
-    ID_compare theCompositeRuleForCallAndSPNameAndSPOptionList
-    OPEN_PARAN ( SP )*
-        ( compareStoredProcedureParameterList )?
-    CLOSE_PARAN
-    ;
-
-abandonOperationAndStoredProcedureCall
-{
-    log.debug( "entered abandonOperationAndStoredProcedureCall()" );
-}
-    :
-    ID_abandon theCompositeRuleForCallAndSPNameAndSPOptionList
-    OPEN_PARAN ( SP )*
-        ( abandonStoredProcedureParameterList )?
-    CLOSE_PARAN
-    ;
-
-extendedOperationAndStoredProcedureCall
-{
-    log.debug( "entered extendedOperationAndStoredProcedureCall()" );
-}
-    :
-    ID_extended theCompositeRuleForCallAndSPNameAndSPOptionList
-    OPEN_PARAN ( SP )*
-        ( extendedStoredProcedureParameterList )?
+        ( modifyDNStoredProcedureParameterList )?
     CLOSE_PARAN
     ;
 
@@ -295,33 +225,6 @@ theCompositeRuleForCallAndSPNameAndSPOptionList
 // -----------------------------------------------------------------------------
 //  XXXStoredProcedureParameterList
 // -----------------------------------------------------------------------------
-
-bindStoredProcedureParameterList
-{
-    log.debug( "entered bindStoredProcedureParameterList()" );
-}
-    :
-    bindStoredProcedureParameter ( SP )*
-        ( SEP ( SP )* bindStoredProcedureParameter ( SP )* )*
-    ;
-
-unbindStoredProcedureParameterList
-{
-    log.debug( "entered unbindStoredProcedureParameterList()" );
-}
-    :
-    unbindStoredProcedureParameter ( SP )*
-        ( SEP ( SP )* unbindStoredProcedureParameter ( SP )* )*
-    ;
-
-searchStoredProcedureParameterList
-{
-    log.debug( "entered searchStoredProcedureParameterList()" );
-}
-    :
-    searchStoredProcedureParameter ( SP )*
-        ( SEP ( SP )* searchStoredProcedureParameter ( SP )* )*
-    ;
 
 modifyStoredProcedureParameterList
 {
@@ -350,86 +253,27 @@ deleteStoredProcedureParameterList
         ( SEP ( SP )* deleteStoredProcedureParameter ( SP )* )*
     ;
 
-modDNStoredProcedureParameterList
+modifyDNStoredProcedureParameterList
 {
-    log.debug( "entered modDNStoredProcedureParameterList()" );
+    log.debug( "entered modifyDNStoredProcedureParameterList()" );
 }
     :
-    modDNStoredProcedureParameter ( SP )*
-        ( SEP ( SP )* modDNStoredProcedureParameter ( SP )* )*
-    ;
-
-compareStoredProcedureParameterList
-{
-    log.debug( "entered compareStoredProcedureParameterList()" );
-}
-    :
-    compareStoredProcedureParameter ( SP )*
-        ( SEP ( SP )* compareStoredProcedureParameter ( SP )* )*
-    ;
-
-abandonStoredProcedureParameterList
-{
-    log.debug( "entered abandonStoredProcedureParameterList()" );
-}
-    :
-    abandonStoredProcedureParameter ( SP )*
-        ( SEP ( SP )* abandonStoredProcedureParameter ( SP )* )*
-    ;
-
-extendedStoredProcedureParameterList
-{
-    log.debug( "entered extendedStoredProcedureParameterList()" );
-}
-    :
-    extendedStoredProcedureParameter ( SP )*
-        ( SEP ( SP )* extendedStoredProcedureParameter ( SP )* )*
+    modifyDNStoredProcedureParameter ( SP )*
+        ( SEP ( SP )* modifyDNStoredProcedureParameter ( SP )* )*
     ;
 
 // -----------------------------------------------------------------------------
 // XXXStoredProcedureParameter
 // -----------------------------------------------------------------------------
 
-bindStoredProcedureParameter
-{
-    log.debug( "entered bindStoredProcedureParameter()" );
-}
-    : ID_version { triggerStoredProcedureParameters.add( StoredProcedureParameter.BindStoredProcedureParameter.VERSION ); }
-    | ID_name { triggerStoredProcedureParameters.add( StoredProcedureParameter.BindStoredProcedureParameter.NAME ); }
-    | ID_authentication { triggerStoredProcedureParameters.add( StoredProcedureParameter.BindStoredProcedureParameter.AUTHENTICATION ); }
-    | genericStoredProcedureParameter
-    ;
-
-unbindStoredProcedureParameter
-{
-    log.debug( "entered unbindStoredProcedureParameter()" );
-}
-    : genericStoredProcedureParameter
-    ;
-
-searchStoredProcedureParameter
-{
-    log.debug( "entered searchStoredProcedureParameter()" );
-}
-    : ID_baseObject { triggerStoredProcedureParameters.add( StoredProcedureParameter.SearchStoredProcedureParameter.BASE_OBJECT ); }
-    | ID_scope { triggerStoredProcedureParameters.add( StoredProcedureParameter.SearchStoredProcedureParameter.SCOPE ); }
-    | ID_derefAliases { triggerStoredProcedureParameters.add( StoredProcedureParameter.SearchStoredProcedureParameter.DEREF_ALIASES ); }
-    | ID_sizeLimit { triggerStoredProcedureParameters.add( StoredProcedureParameter.SearchStoredProcedureParameter.SIZE_LIMIT ); }
-    | ID_timeLimit { triggerStoredProcedureParameters.add( StoredProcedureParameter.SearchStoredProcedureParameter.TIME_LIMIT ); }
-    | ID_typesOnly { triggerStoredProcedureParameters.add( StoredProcedureParameter.SearchStoredProcedureParameter.TYPES_ONLY ); }
-    | ID_filter { triggerStoredProcedureParameters.add( StoredProcedureParameter.SearchStoredProcedureParameter.FILTER ); }
-    | ID_attributes { triggerStoredProcedureParameters.add( StoredProcedureParameter.SearchStoredProcedureParameter.ATTRIBUTES ); }
-    | genericStoredProcedureParameter
-    ;
-
 modifyStoredProcedureParameter
 {
     log.debug( "entered modifyStoredProcedureParameter()" );
 }
-    : ID_object { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyStoredProcedureParameter.OBJECT ); }
-    | ID_modification { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyStoredProcedureParameter.MODIFICATION ); }
-    | ID_oldEntry { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyStoredProcedureParameter.OLD_ENTRY ); }
-    | ID_newEntry { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyStoredProcedureParameter.NEW_ENTRY ); }
+    : ID_object { triggerStoredProcedureParameters.add( StoredProcedureParameter.Modify_OBJECT.instance() ); }
+    | ID_modification { triggerStoredProcedureParameters.add( StoredProcedureParameter.Modify_MODIFICATION.instance() ); }
+    | ID_oldEntry { triggerStoredProcedureParameters.add( StoredProcedureParameter.Modify_OLD_ENTRY.instance() ); }
+    | ID_newEntry { triggerStoredProcedureParameters.add( StoredProcedureParameter.Modify_NEW_ENTRY.instance() ); }
     | genericStoredProcedureParameter
     ;
 
@@ -437,8 +281,8 @@ addStoredProcedureParameter
 {
     log.debug( "entered addStoredProcedureParameter()" );
 }
-    : ID_entry { triggerStoredProcedureParameters.add( StoredProcedureParameter.AddStoredProcedureParameter.ENTRY ); }
-    | ID_attributes { triggerStoredProcedureParameters.add( StoredProcedureParameter.AddStoredProcedureParameter.ATTRIBUTES ); }
+    : ID_entry { triggerStoredProcedureParameters.add( StoredProcedureParameter.Add_ENTRY.instance() ); }
+    | ID_attributes { triggerStoredProcedureParameters.add( StoredProcedureParameter.Add_ATTRIBUTES.instance() ); }
     | genericStoredProcedureParameter
     ;
 
@@ -446,45 +290,19 @@ deleteStoredProcedureParameter
 {
     log.debug( "entered deleteStoredProcedureParameter()" );
 }
-    : ID_name { triggerStoredProcedureParameters.add( StoredProcedureParameter.DeleteStoredProcedureParameter.NAME ); }
-    | ID_deletedEntry { triggerStoredProcedureParameters.add( StoredProcedureParameter.DeleteStoredProcedureParameter.DELETED_ENTRY ); }
+    : ID_name { triggerStoredProcedureParameters.add( StoredProcedureParameter.Delete_NAME.instance() ); }
+    | ID_deletedEntry { triggerStoredProcedureParameters.add( StoredProcedureParameter.Delete_DELETED_ENTRY.instance() ); }
     | genericStoredProcedureParameter
     ;
 
-modDNStoredProcedureParameter
+modifyDNStoredProcedureParameter
 {
-    log.debug( "entered modDNStoredProcedureParameter()" );
+    log.debug( "entered modifyDNStoredProcedureParameter()" );
 }
-    : ID_entry { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModDNStoredProcedureParameter.ENTRY ); }
-    | ID_newrdn { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModDNStoredProcedureParameter.NEW_RDN ); }
-    | ID_deleteoldrdn { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModDNStoredProcedureParameter.DELETE_OLD_RDN ); }
-    | ID_newSuperior { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModDNStoredProcedureParameter.NEW_SUPERIOR ); }
-    | genericStoredProcedureParameter
-    ;
-
-compareStoredProcedureParameter
-{
-    log.debug( "entered compareStoredProcedureParameter()" );
-}
-    : ID_entry { triggerStoredProcedureParameters.add( StoredProcedureParameter.CompareStoredProcedureParameter.ENTRY ); }
-    | ID_ava { triggerStoredProcedureParameters.add( StoredProcedureParameter.CompareStoredProcedureParameter.AVA ); }
-    | genericStoredProcedureParameter
-    ;
-
-abandonStoredProcedureParameter
-{
-    log.debug( "entered abandonStoredProcedureParameter()" );
-}
-    : ID_messageId { triggerStoredProcedureParameters.add( StoredProcedureParameter.AbandonStoredProcedureParameter.MESSAGE_ID ); }
-    | genericStoredProcedureParameter
-    ;
-    
-extendedStoredProcedureParameter
-{
-    log.debug( "entered extendedStoredProcedureParameter()" );
-}
-    : ID_requestName { triggerStoredProcedureParameters.add( StoredProcedureParameter.ExtendedStoredProcedureParameter.REQUEST_NAME ); }
-    | ID_requestValue { triggerStoredProcedureParameters.add( StoredProcedureParameter.ExtendedStoredProcedureParameter.REQUEST_VALUE ); }
+    : ID_entry { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyDN_ENTRY.instance() ); }
+    | ID_newrdn { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyDN_NEW_RDN.instance() ); }
+    | ID_deleteoldrdn { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyDN_DELETE_OLD_RDN.instance() ); }
+    | ID_newSuperior { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyDN_NEW_SUPERIOR.instance() ); }
     | genericStoredProcedureParameter
     ;
 
@@ -494,10 +312,18 @@ genericStoredProcedureParameter
 {
     log.debug( "entered genericStoredProcedureParameter()" );
 }
-    : ID_operationTime { triggerStoredProcedureParameters.add( StoredProcedureParameter.OPERATION_TIME ); }
-    | ID_operationPrincipal { triggerStoredProcedureParameters.add( StoredProcedureParameter.OPERATION_PRINCIPAL ); }
-    | ID_rootDSE { triggerStoredProcedureParameters.add( StoredProcedureParameter.ROOT_DSE ); }
+    : ldapContextStoredProcedureParameter
+    | ID_operationPrincipal { triggerStoredProcedureParameters.add( StoredProcedureParameter.Generic_OPERATION_PRINCIPAL.instance() ); }
     ;
+
+ldapContextStoredProcedureParameter
+{
+    log.debug( "entered ldapContextStoredProcedureParameter()" );
+    LdapDN ldapContext = null;
+}
+    : ID_ldapContext ( SP )+ ldapContext=distinguishedName
+    { triggerStoredProcedureParameters.add( StoredProcedureParameter.Generic_LDAP_CONTEXT.instance( ldapContext ) ); }
+	;
 
 // -----------------------------------------------------------------------------
 
@@ -515,17 +341,17 @@ genericStoredProcedureOption
     log.debug( "entered genericStoredProcedureOption()" );
     StoredProcedureOption spOption = null;
 }
-    : ( spOption=storedProcedureLanguageOption | spOption=storedProcedureSearchContextOption )
+    : ( spOption=storedProcedureLanguageSchemeOption | spOption=storedProcedureSearchContextOption )
     { triggerStoredProcedureOptions.add( spOption ); }
     ;
 
-storedProcedureLanguageOption returns [ StoredProcedureLanguageOption spLanguageOption ]
+storedProcedureLanguageSchemeOption returns [ StoredProcedureLanguageSchemeOption spLanguageSchemeOption ]
 {
-    log.debug( "entered storedProcedureLanguageOption()" );
-    spLanguageOption = null;
+    log.debug( "entered storedProcedureLanguageSchemeOption()" );
+    spLanguageSchemeOption = null;
 }
-    : ID_language ( SP )+ languageToken:UTF8String
-    { spLanguageOption = new StoredProcedureLanguageOption( languageToken.getText() ); }
+    : ID_languageScheme ( SP )+ languageToken:UTF8String
+    { spLanguageSchemeOption = new StoredProcedureLanguageSchemeOption( languageToken.getText() ); }
     ;
 
 storedProcedureSearchContextOption returns [ StoredProcedureSearchContextOption spSearchContextOption ]
@@ -624,39 +450,16 @@ options
 tokens
 {
     // action time identifiers
-    ID_BEFORE = "before";
     ID_AFTER = "after";
-    ID_INSTEADOF = "insteadof";
     
     // operation identifiers
-    ID_bind = "bind";
-    ID_unbind = "unbind";
-    ID_search  = "search";
     ID_modify  = "modify";
     ID_add = "add";
     ID_delete = "delete";
-    ID_modDN = "moddn";
-    ID_compare = "compare";
-    ID_abandon = "abandon";
-    ID_extended = "extended";
-    
-    // bind specific parameters
-    ID_version = "$version";
-    ID_name = "$name";
-    ID_authentication = "$authentication";
-    
-    // unbind specific parameters
-    // there is non currently
-    
-    // search specific parameters
-    ID_baseObject = "$baseobject";
-    ID_scope = "$scope";
-    ID_derefAliases = "$derefaliases";
-    ID_sizeLimit = "$sizelimit";
-    ID_timeLimit = "$timelimit";
-    ID_typesOnly = "$typesonly";
-    ID_filter = "$filter";
-    ID_attributes = "$attributes";
+    ID_modifyDN = "modifydn";
+    ID_modifyDNRename = "rename";
+    ID_modifyDNExport = "export";
+    ID_modifyDNImport = "import";
     
     // modify specific parameters
     ID_object = "$object";
@@ -666,37 +469,25 @@ tokens
     
     // add specific parameters
     ID_entry = "$entry";
-    // ID_attributes = "$attributes"; // defined before
+    ID_attributes = "$attributes";
     
     // delete specific parameters
-    // ID_name = "$name"; // defined before
+    ID_name = "$name";
     ID_deletedEntry = "$deletedentry";
     
-    // modDN specific parameters
+    // modifyDN specific parameters
     // ID_entry = "$entry"; // defined before
     ID_newrdn = "$newrdn";
     ID_deleteoldrdn = "$deleteoldrdn";
     ID_newSuperior = "$newsuperior";
     
-    // compare specific parameters
-    // ID_entry = "$entry"; // defined before
-    ID_ava = "$ava";
-    
-    // abandon specific parameters
-    ID_messageId = "$messageid";
-    
-    // extended specific parameters
-    ID_requestName = "$requestname";
-    ID_requestValue = "$requestvalue";
-    
     // generic parameters
-    ID_operationTime = "$operationtime";
+    ID_ldapContext = "$ldapcontext";
     ID_operationPrincipal = "$operationprincipal";
-    ID_rootDSE = "$rootDSE";
     
     ID_CALL = "call";
     
-    ID_language = "language";
+    ID_languageScheme = "languagescheme";
     ID_searchContext = "searchcontext";
     ID_search_scope = "scope";
     ID_scope_base = "base";
@@ -734,6 +525,8 @@ SP
     | '\n' { newline(); }
     | '\r' ('\n')? { newline(); }
     ;
+
+DOT : '.' ;
 
 UTF8String : '"'! ( SAFEUTF8CHAR )* '"'! ;
 
