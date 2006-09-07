@@ -290,7 +290,7 @@ public interface Table
 
     /**
      * Sets a cursor to the first record in the Table with a key equal to
-     * the key argument whose value is greater/less than or equal to key and
+     * the key argument whose value is greater/less than or equal to val and
      * enables single next steps across all records with key equal to key.
      * Hence this cursor will only iterate over duplicate keys where values are
      * less than or greater than or equal to val.

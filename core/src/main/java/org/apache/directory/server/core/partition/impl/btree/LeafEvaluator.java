@@ -200,7 +200,7 @@ public class LeafEvaluator implements Evaluator
                 Object value = normalizer.normalize( list.next() );
 
                 // Found a value that is greater than or equal to the ava value
-                if ( 0 >= comparator.compare( value, filterValue ) )
+                if ( 0 >= comparator.compare( filterValue, value ) )
                 {
                     return true;
                 }
@@ -213,7 +213,7 @@ public class LeafEvaluator implements Evaluator
                 Object value = normalizer.normalize( list.next() );
 
                 // Found a value that is less than or equal to the ava value
-                if ( 0 <= comparator.compare( value, filterValue ) )
+                if ( 0 <= comparator.compare( filterValue, value ) )
                 {
                     return true;
                 }

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -228,7 +229,8 @@ public class JdbmTable implements Table
      */
     public int count( Object key, boolean isGreaterThan ) throws NamingException
     {
-        throw new UnsupportedOperationException();
+        // take a best guess
+        return count;
     }
 
 
@@ -955,8 +957,15 @@ public class JdbmTable implements Table
 
         if ( isGreaterThan )
         {
-            Object[] objs = new Object[set.size()];
-            objs = set.tailSet( val ).toArray( objs );
+            Set tailSet = set.tailSet( val );
+            
+            if ( tailSet.isEmpty() )
+            {
+                return new EmptyEnumeration();
+            }
+            
+            Object[] objs = new Object[tailSet.size()];
+            objs = tailSet.toArray( objs );
             ArrayIterator iterator = new ArrayIterator( objs );
             return new TupleEnumeration( key, iterator );
         }
@@ -966,7 +975,7 @@ public class JdbmTable implements Table
             // a list.  They will be in ascending order so we need to reverse
             // the list after adding val which is not included in headSet.
             SortedSet headset = set.headSet( val );
-            ArrayList list = new ArrayList( set.size() + 1 );
+            ArrayList list = new ArrayList( headset.size() + 1 );
             list.addAll( headset );
 
             // Add largest value (val) if it is in the set.  TreeSet.headSet
