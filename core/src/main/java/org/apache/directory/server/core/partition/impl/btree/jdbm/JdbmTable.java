@@ -228,7 +228,8 @@ public class JdbmTable implements Table
      */
     public int count( Object key, boolean isGreaterThan ) throws NamingException
     {
-        throw new UnsupportedOperationException();
+        // take a best guess
+        return count;
     }
 
 
