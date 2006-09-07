@@ -70,20 +70,23 @@ public class SearchOpsITest extends AbstractAdminTestCase
         // Alter the partition configuration to index gidNumber
         // -------------------------------------------------------------------
 
-        MutablePartitionConfiguration sysConf = new MutablePartitionConfiguration();
-        sysConf.setName( "system" );
-        Attributes attrs = new BasicAttributes( "objectClass", "top", true );
-        attrs.get( "objectClass" ).add( "organizationalUnit" );
-        attrs.put( "ou", "system" );
-        sysConf.setContextEntry( attrs );
-        sysConf.setSuffix( "ou=system" );
-        Set indices = new HashSet();
-        indices.addAll( sysConf.getIndexedAttributes() );
-        MutableIndexConfiguration idxConfig = new MutableIndexConfiguration();
-        idxConfig.setAttributeId( "gidNumber" );
-        indices.add( idxConfig );
-        sysConf.setIndexedAttributes( indices );
-        configuration.setSystemPartitionConfiguration( sysConf );
+        if ( getName().indexOf( "WithIndices" ) != -1 )
+        {
+            MutablePartitionConfiguration sysConf = new MutablePartitionConfiguration();
+            sysConf.setName( "system" );
+            Attributes attrs = new BasicAttributes( "objectClass", "top", true );
+            attrs.get( "objectClass" ).add( "organizationalUnit" );
+            attrs.put( "ou", "system" );
+            sysConf.setContextEntry( attrs );
+            sysConf.setSuffix( "ou=system" );
+            Set indices = new HashSet();
+            indices.addAll( sysConf.getIndexedAttributes() );
+            MutableIndexConfiguration idxConfig = new MutableIndexConfiguration();
+            idxConfig.setAttributeId( "gidNumber" );
+            indices.add( idxConfig );
+            sysConf.setIndexedAttributes( indices );
+            configuration.setSystemPartitionConfiguration( sysConf );
+        }
         
         super.setUp();
         
@@ -173,6 +176,86 @@ public class SearchOpsITest extends AbstractAdminTestCase
 
     
     public void testGreaterThanSearch() throws Exception
+    {
+        Set results = searchGroups( "(gidNumber>=0)" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber>=1)" );
+        assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber>=3)" );
+        assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber>=6)" );
+        assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+    }
+
+    
+    public void testLessThanSearchWithIndices() throws Exception
+    {
+        Set results = searchGroups( "(gidNumber<=5)" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber<=4)" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber<=3)" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber<=0)" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber<=-1)" );
+        assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+    }
+
+    
+    public void testGreaterThanSearchWithIndices() throws Exception
     {
         Set results = searchGroups( "(gidNumber>=0)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
