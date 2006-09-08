@@ -12,3 +12,4 @@ dn: cn=newperson2, o=neworganization, dc=example,dc=com
 cn: newperson2
 objectclass: top
 objectclass: person
+sn: aValue

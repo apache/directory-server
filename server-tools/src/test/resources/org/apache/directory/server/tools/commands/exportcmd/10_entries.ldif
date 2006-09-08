@@ -8,51 +8,60 @@ cn: newperson1
 objectclass: top
 objectclass: person
 telephoneNumber: 0101010101
+sn: aValue
 
 dn: cn=newperson2, o=neworganization, dc=example,dc=com
 cn: newperson2
 objectclass: top
 objectclass: person
 telephoneNumber: 0202020202
+sn: aValue
 
 dn: cn=newperson3, o=neworganization, dc=example,dc=com
 cn: newperson3
 objectclass: top
 objectclass: person
 telephoneNumber: 0303030303
+sn: aValue
 
 dn: cn=newperson4, o=neworganization, dc=example,dc=com
 cn: newperson4
 objectclass: top
 objectclass: person
 telephoneNumber: 0404040404
+sn: aValue
 
 dn: cn=newperson5, o=neworganization, dc=example,dc=com
 cn: newperson5
 objectclass: top
 objectclass: person
 telephoneNumber: 0505050505
+sn: aValue
 
 dn: cn=newperson6, o=neworganization, dc=example,dc=com
 cn: newperson6
 objectclass: top
 objectclass: person
 telephoneNumber: 0606060606
+sn: aValue
 
 dn: cn=newperson7, o=neworganization, dc=example,dc=com
 cn: newperson7
 objectclass: top
 objectclass: person
 telephoneNumber: 0707070707
+sn: aValue
 
 dn: cn=newperson8, o=neworganization, dc=example,dc=com
 cn: newperson8
 objectclass: top
 objectclass: person
 telephoneNumber: 0808080808
+sn: aValue
 
 dn: cn=newperson9, o=neworganization, dc=example,dc=com
 cn: newperson9
 objectclass: top
 objectclass: person
 telephoneNumber: 0909090909
+sn: aValue

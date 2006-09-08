@@ -7,44 +7,53 @@ dn: cn=newperson1, o=neworganization, dc=example,dc=com
 cn: newperson1
 objectclass: top
 objectclass: person
+sn: aValue
 
 dn: cn=newperson2, o=neworganization, dc=example,dc=com
 cn: newperson2
 objectclass: top
 objectclass: person
+sn: aValue
 
 dn: cn=newperson3, o=neworganization, dc=example,dc=com
 cn: newperson3
 objectclass: top
 objectclass: person
+sn: aValue
 
 dn: cn=newperson4, o=neworganization, dc=example,dc=com
 cn: newperson4
 objectclass: top
 objectclass: person
+sn: aValue
 
 dn: cn=newperson5, o=neworganization, dc=example,dc=com
 cn: newperson5
 objectclass: top
 objectclass: person
+sn: aValue
 
 dn: cn=newperson6, o=neworganization, dc=example,dc=com
 cn: newperson6
 objectclass: top
 objectclass: person
+sn: aValue
 
 dn: cn=newperson7, o=neworganization, dc=example,dc=com
 cn: newperson7
 objectclass: top
 objectclass: person
+sn: aValue
 
 dn: cn=newperson8, o=neworganization, dc=example,dc=com
 cn: newperson8
 objectclass: top
 objectclass: person
+sn: aValue
 
 dn: cn=newperson9, o=neworganization, dc=example,dc=com
 cn: newperson9
 objectclass: top
 objectclass: person
+sn: aValue
 
