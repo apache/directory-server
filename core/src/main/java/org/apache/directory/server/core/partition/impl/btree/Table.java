@@ -139,6 +139,9 @@ public interface Table
      * depends on the fact that duplicate key values are sorted according to
      * a valid value comparator function.
      *
+     * If the table does not support duplicates then an 
+     * UnsupportedOperationException is thrown.
+     *
      * @param key the key Object
      * @param val the value Object to compare values to
      * @param isGreaterThan boolean for greater than or less then comparison
@@ -229,6 +232,7 @@ public interface Table
      * duplicates.
      *
      * @param key the key of the records to remove
+     * @return the first value removed
      * @throws NamingException if there is a failure to read or write to
      * the underlying Db
      */
@@ -294,6 +298,9 @@ public interface Table
      * enables single next steps across all records with key equal to key.
      * Hence this cursor will only iterate over duplicate keys where values are
      * less than or greater than or equal to val.
+     *
+     * If the table does not support duplicates then an 
+     * UnsupportedOperationException is thrown.
      *
      * @param key the key to use to position this cursor to record with a key
      * equal to it.

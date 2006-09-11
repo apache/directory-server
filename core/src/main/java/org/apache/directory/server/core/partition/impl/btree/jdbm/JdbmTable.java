@@ -627,10 +627,14 @@ public class JdbmTable implements Table
             return null;
         }
 
+        Object oldValue = getRaw( key );
+        
         // Remove the value only if it is the same as value.
-        if ( getRaw( key ).equals( value ) )
+        if ( oldValue != null && oldValue.equals( value ) )
         {
-            return removeRaw( key );
+            removeRaw( key );
+            count--;
+            return oldValue;
         }
 
         return null;
@@ -659,7 +663,7 @@ public class JdbmTable implements Table
 
                 if ( values.hasMore() )
                 {
-                    throw new UnsupportedOperationException( "Attempting to put duplicate keys into table " + name
+                    throw new UnsupportedOperationException( "Attempting to remove duplicate keys from table " + name
                         + " which does not support duplicates" );
                 }
 
@@ -685,11 +689,18 @@ public class JdbmTable implements Table
          * is in the set and remove it if it is present.  We decrement the 
          * counter while doing so.
          */
+        Object firstValue = null;
         while ( values.hasMore() )
         {
             Object val = values.next();
+            
+            // get the first value
+            if ( firstValue == null )
+            {
+                firstValue = val;
+            }
 
-            if ( !set.contains( val ) )
+            if ( set.contains( val ) )
             {
                 set.remove( val );
                 count--;
@@ -697,7 +708,8 @@ public class JdbmTable implements Table
         }
 
         // Return the raw TreeSet and put the changed one back.
-        return putRaw( key, set, true );
+        putRaw( key, set, true );
+        return firstValue;
     }
 
 
@@ -925,28 +937,30 @@ public class JdbmTable implements Table
 
         if ( !allowsDuplicates )
         {
-            Object rval = getRaw( key );
-
-            if ( null == rval ) // key does not exist so return nothing
-            {
-                return new EmptyEnumeration();
-            }
-            else if ( val.equals( rval ) ) // val == rval return tuple
-            {
-                return new SingletonEnumeration( new Tuple( key, val ) );
-            }
-            // val >= val and test is for greater then return tuple
-            else if ( comparator.compareValue( val, rval ) >= 1 && isGreaterThan )
-            {
-                return new SingletonEnumeration( new Tuple( key, val ) );
-            }
-            // val <= val and test is for lesser then return tuple
-            else if ( comparator.compareValue( val, rval ) <= 1 && !isGreaterThan )
-            {
-                return new SingletonEnumeration( new Tuple( key, val ) );
-            }
-
-            return new EmptyEnumeration();
+            throw new UnsupportedOperationException( "Cannot list tuples over duplicates on table that " +
+                    "does not support duplicates." );
+//            Object rval = getRaw( key );
+//
+//            if ( null == rval ) // key does not exist so return nothing
+//            {
+//                return new EmptyEnumeration();
+//            }
+//            else if ( val.equals( rval ) ) // val == rval return tuple
+//            {
+//                return new SingletonEnumeration( new Tuple( key, val ) );
+//            }
+//            // val >= val and test is for greater then return tuple
+//            else if ( comparator.compareValue( val, rval ) >= 1 && isGreaterThan )
+//            {
+//                return new SingletonEnumeration( new Tuple( key, val ) );
+//            }
+//            // val <= val and test is for lesser then return tuple
+//            else if ( comparator.compareValue( val, rval ) <= 1 && !isGreaterThan )
+//            {
+//                return new SingletonEnumeration( new Tuple( key, val ) );
+//            }
+//
+//            return new EmptyEnumeration();
         }
 
         set = ( TreeSet ) getRaw( key );
