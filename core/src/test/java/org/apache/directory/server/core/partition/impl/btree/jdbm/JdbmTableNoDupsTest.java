@@ -28,7 +28,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
-import org.apache.directory.server.core.partition.impl.btree.TupleComparator;
+import org.apache.directory.server.core.partition.impl.btree.TupleRenderer;
 import org.apache.directory.server.core.schema.SerializableComparator;
 import org.apache.directory.shared.ldap.util.ArrayEnumeration;
 import org.apache.directory.shared.ldap.util.BigIntegerComparator;
@@ -45,7 +45,7 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
+public class JdbmTableNoDupsTest extends TestCase implements Serializable
 {
     private static final long serialVersionUID = 1L;
     private transient File tempFile = null;
@@ -60,30 +60,6 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
             return biComparator.compare( o1, o2 );
         }
     };
-    private TupleComparator comparator = new TupleComparator()
-    {
-        private static final long serialVersionUID = 1L;
-
-        public int compareKey( Object key1, Object key2 )
-        {
-            return biComparator.compare( key1, key2 );
-        }
-
-        public int compareValue( Object value1, Object value2 )
-        {
-            return biComparator.compare( value1, value2 );
-        }
-
-        public SerializableComparator getKeyComparator()
-        {
-            return serializableComparator;
-        }
-
-        public SerializableComparator getValueComparator()
-        {
-            return serializableComparator;
-        }
-    };
 
 
     transient JdbmTable table;
@@ -93,9 +69,7 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
      * Here's what the table looks like:
      * <pre>
      * .-.-.
-     * |1|0|
      * |1|1|
-     * |1|2|
      * |2|1|
      * |4|1|
      * |5|1|
@@ -107,19 +81,39 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         tempFile = File.createTempFile( "jdbm", "test" );
         rm = new BaseRecordManager( tempFile.getAbsolutePath() );
 
-        // make sure the table never uses a btree for duplicates
-        table = new JdbmTable( "test", true, rm, comparator );
+        // make sure the table does not use duplicates
+        table = new JdbmTable( "test", rm, serializableComparator );
 
-        for ( BigInteger ii = BigInteger.ZERO; ii.intValue() < 3; ii = ii.add( BigInteger.ONE ) )
-        {
-            table.put( BigInteger.ONE, ii );
-        }
-
+        table.put( new BigInteger( "1" ), BigInteger.ONE );
         table.put( new BigInteger( "2" ), BigInteger.ONE );
         table.put( new BigInteger( "4" ), BigInteger.ONE );
         table.put( new BigInteger( "5" ), BigInteger.ONE );
     }
 
+    
+    public void testCatchAll() throws Exception
+    {
+        assertFalse( table.isDupsEnabled() );
+        assertFalse( table.isSortedDupsEnabled() );
+        assertEquals( "test", table.getName() );
+        assertNotNull( table.getComparator() );
+        assertNull( table.getRenderer() );
+        table.setRenderer( new TupleRenderer() {
+            public String getKeyString( Object key )
+            {
+                return null;
+            }
+            public String getValueString( Object value )
+            {
+                return null;
+            }} );
+        assertNotNull( table.getRenderer() );
+        table.sync();
+        table.close();
+
+        table = new JdbmTable( "test", rm, serializableComparator );
+    }
+    
 
     /**
      * Tests the has() methods for correct behavoir:
@@ -163,12 +157,14 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         assertFalse( table.has( new BigInteger( "999" ), true ) ); // we do NOT have a key greater than or equal to 12
 
         // test the has( Object, Object, boolean ) method
-        assertTrue( table.has( BigInteger.ONE, BigInteger.ZERO, true ) );
-        assertTrue( table.has( BigInteger.ONE, BigInteger.ONE, true ) );
-        assertTrue( table.has( BigInteger.ONE, new BigInteger("2"), true ) );
-        assertFalse( table.has( BigInteger.ONE, new BigInteger("3"), true ) );
-        assertTrue( table.has( BigInteger.ONE, BigInteger.ZERO, false ) );
-        assertFalse( table.has( BigInteger.ONE, new BigInteger("-1"), false ) );
+        try
+        {
+            table.has( BigInteger.ONE, BigInteger.ZERO, true );
+        }
+        catch ( UnsupportedOperationException usoe )
+        {
+            
+        }
     }
     
     
@@ -185,10 +181,10 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
     public void testCount() throws Exception
     {
         // test the count() method
-        assertEquals( 6, table.count() );
+        assertEquals( 4, table.count() );
         
         // test the count(Object) method
-        assertEquals( 3, table.count( BigInteger.ONE ) );
+        assertEquals( 1, table.count( BigInteger.ONE ) );
         assertEquals( 0, table.count( BigInteger.ZERO ) );
         assertEquals( 1, table.count( new BigInteger( "2" ) ) );
         
@@ -205,7 +201,7 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
      */
     public void testGet() throws Exception
     {
-        assertEquals( BigInteger.ZERO, table.get( BigInteger.ONE ) );
+        assertEquals( BigInteger.ONE, table.get( BigInteger.ONE ) );
         assertEquals( BigInteger.ONE, table.get( new BigInteger( "2" ) ) );
         assertEquals( null, table.get( new BigInteger( "3" ) ) );
         assertEquals( BigInteger.ONE, table.get( new BigInteger( "4" ) ) );
@@ -237,17 +233,7 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
         assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ZERO, tuple.getValue() );
-        
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
         assertEquals( BigInteger.ONE, tuple.getValue() );
-        
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
@@ -273,29 +259,12 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         tuples = table.listTuples( BigInteger.ZERO );
         assertFalse( tuples.hasMore() );
 
+
         tuples = table.listTuples( new BigInteger( "2" ) );
         assertTrue( tuples.hasMore() );
         tuple = ( Tuple ) tuples.next();
         assertEquals( new BigInteger( "2" ), tuple.getKey() );
         assertEquals( BigInteger.ONE, tuple.getValue() );
-        assertFalse( tuples.hasMore() );
-        
-        tuples = table.listTuples( BigInteger.ONE );
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ZERO, tuple.getValue() );
-        
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
-        
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
-        
         assertFalse( tuples.hasMore() );
         
         // -------------------------------------------------------------------
@@ -310,17 +279,7 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
         assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
-        
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
-        
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ZERO, tuple.getValue() );
+        assertEquals( new BigInteger( "1" ), tuple.getValue() );
         assertFalse( tuples.hasMore() );
 
 
@@ -334,17 +293,7 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
         assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
-        
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
         assertEquals( BigInteger.ONE, tuple.getValue() );
-        
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ZERO, tuple.getValue() );
         assertFalse( tuples.hasMore() );
 
         
@@ -375,71 +324,15 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         // -------------------------------------------------------------------
         // test the listTuples(Object,Object,boolean) method
         // -------------------------------------------------------------------
-        
-        tuples = table.listTuples( BigInteger.ZERO, BigInteger.ZERO, true );
-        assertFalse( tuples.hasMore() );
 
-        tuples = table.listTuples( BigInteger.ZERO, BigInteger.ZERO, false );
-        assertFalse( tuples.hasMore() );
-        
-        tuples = table.listTuples( new BigInteger( "2" ), BigInteger.ZERO, false );
-        assertFalse( tuples.hasMore() );
-        
-        tuples = table.listTuples( new BigInteger( "2" ), new BigInteger( "99" ), true );
-        assertFalse( tuples.hasMore() );
-        
-        tuples = table.listTuples( new BigInteger( "2" ), BigInteger.ONE, false );
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( new BigInteger( "2" ), tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
-        assertFalse( tuples.hasMore() );
-
-        tuples = table.listTuples( new BigInteger( "2" ), new BigInteger( "99" ), false );
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( new BigInteger( "2" ), tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
-        assertFalse( tuples.hasMore() );
-
-        
-        tuples = table.listTuples( BigInteger.ONE, new BigInteger( "3" ), true );
-        assertFalse( tuples.hasMore() );
-
-
-        tuples = table.listTuples( BigInteger.ONE, new BigInteger( "-1" ), false );
-        assertFalse( tuples.hasMore() );
-
-
-        tuples = table.listTuples( BigInteger.ONE, new BigInteger( "1" ), true );
-
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
-
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
-
-        assertFalse( tuples.hasMore() );
-
-        
-        tuples = table.listTuples( BigInteger.ONE, new BigInteger( "1" ), false );
-
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
-
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ZERO, tuple.getValue() );
-
-        assertFalse( tuples.hasMore() );
-
+        try
+        {
+            tuples = table.listTuples( BigInteger.ZERO, BigInteger.ZERO, true );
+        }
+        catch( UnsupportedOperationException e )
+        {
+            
+        }
     }
 
     
@@ -464,16 +357,7 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         values = table.listValues( BigInteger.ONE );
         assertTrue( values.hasMore() ) ;
         value = values.next();
-        assertEquals( BigInteger.ZERO, value );
-        
-        assertTrue( values.hasMore() ) ;
-        value = values.next();
         assertEquals( BigInteger.ONE, value );
-        
-        assertTrue( values.hasMore() ) ;
-        value = values.next();
-        assertEquals( new BigInteger( "2" ), value );
-        
         assertFalse( values.hasMore() );
     }
     
@@ -496,59 +380,14 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
             new BigInteger( "5" ),
             new BigInteger( "6" ),
         } );
-        
-        table.put( BigInteger.ONE, values );
-        assertFalse( values.hasMore() );
-        
-        values = table.listValues( BigInteger.ONE );
-        
-        assertTrue( values.hasMore() );
-        assertEquals( BigInteger.ZERO, values.next() );
-        
-        assertTrue( values.hasMore() );
-        assertEquals( BigInteger.ONE, values.next() );
-        
-        assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "2" ), values.next() );
-        
-        assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "3" ), values.next() );
-        
-        assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "4" ), values.next() );
-        
-        assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "5" ), values.next() );
-        
-        assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "6" ), values.next() );
-        assertFalse( values.hasMore() );
 
-    
-        values = new ArrayNE( new Object[] {
-            new BigInteger( "3" ),
-            new BigInteger( "4" ),
-            new BigInteger( "5" ),
-            new BigInteger( "6" ),
-        } );
-        
-        table.put( BigInteger.ZERO, values );
-        assertFalse( values.hasMore() );
-        
-        values = table.listValues( BigInteger.ZERO );
-        
-        assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "3" ), values.next() );
-        
-        assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "4" ), values.next() );
-        
-        assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "5" ), values.next() );
-        
-        assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "6" ), values.next() );
-        assertFalse( values.hasMore() );
+        try
+        {
+            table.put( BigInteger.ONE, values );
+        }
+        catch( UnsupportedOperationException e )
+        {
+        }
     }
     
     
@@ -572,10 +411,10 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         
         Object value = table.remove( new BigInteger( "2" ) );
         assertEquals( BigInteger.ONE, value );
-        assertEquals( 5, table.count() );
+        assertEquals( 3, table.count() );
         
         value = table.remove( BigInteger.ONE );
-        assertEquals( BigInteger.ZERO, value ); // return first value of dups
+        assertEquals( BigInteger.ONE, value );
         assertEquals( 2, table.count() );
     }
     
@@ -594,11 +433,11 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         
         value = table.remove( new BigInteger( "2" ), BigInteger.ONE );
         assertEquals( BigInteger.ONE, value );
-        assertEquals( 5, table.count() );
+        assertEquals( 3, table.count() );
         
         value = table.remove( BigInteger.ONE, new BigInteger( "2" ) );
-        assertEquals( new BigInteger( "2" ), value ); 
-        assertEquals( 4, table.count() );
+        assertEquals( null, value ); 
+        assertEquals( 3, table.count() );
     }
     
     
@@ -612,20 +451,17 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
             new BigInteger( "2" )
         } );
         
-        Object value = table.remove( BigInteger.ONE, values );
-        assertEquals( BigInteger.ONE, value );
-        assertEquals( 4, table.count() );
+        try
+        {
+            table.remove( BigInteger.ONE, values );
+        }
+        catch( UnsupportedOperationException e )
+        {
+            
+        }
+
+        values.close();
     }
-    
-    
-//    private void printTuples( NamingEnumeration tuples ) throws NamingException
-//    {
-//        while ( tuples.hasMore() )
-//        {
-//            Tuple tuple = ( Tuple ) tuples.next();
-//            System.out.println( "(" + tuple.getKey() + ", " + tuple.getValue() + ")" );
-//        }
-//    }
     
     
     class ArrayNE extends ArrayEnumeration implements NamingEnumeration
