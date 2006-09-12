@@ -31,9 +31,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.directory.mina</groupId>
+      <groupId>org.apache.mina</groupId>
       <artifactId>mina-filter-ssl</artifactId>
-      <version>0.9.5-SNAPSHOT</version>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
