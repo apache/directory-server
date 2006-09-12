@@ -13,6 +13,7 @@
   <version>0.9.6-SNAPSHOT</version>
   <modules>
     <module>asn1</module>
+    <module>asn1-codec</module>
     <module>ldap</module>
   </modules>
 </project>

@@ -6,8 +6,8 @@
     <artifactId>build</artifactId>
     <version>0.9.6-SNAPSHOT</version>
   </parent>
-  <artifactId>mina-asn1-filter</artifactId>
-  <name>Apache Shared MINA ASN.1 Filter</name>
+  <artifactId>shared-asn1-codec</artifactId>
+  <name>Apache Directory MINA ASN.1 Codec Shared</name>
   <packaging>jar</packaging>
 
   <dependencies>
