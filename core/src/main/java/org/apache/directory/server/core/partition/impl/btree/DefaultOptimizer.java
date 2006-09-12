@@ -178,7 +178,7 @@ public class DefaultOptimizer implements Optimizer
      */
     private BigInteger getConjunctionScan( BranchNode node ) throws NamingException
     {
-        BigInteger count = BigInteger.valueOf( Integer.MAX_VALUE );
+        BigInteger count = MAX;
         ArrayList children = node.getChildren();
 
         for ( int ii = 0; ii < children.size(); ii++ )
@@ -243,6 +243,12 @@ public class DefaultOptimizer implements Optimizer
             ExprNode child = ( ExprNode ) children.get( ii );
             annotate( child );
             total = total.add( ( BigInteger ) child.get( "count" ) );
+        }
+        
+        // we don't want values bigger than Integer.MAX_VALUE
+        if ( total.compareTo( MAX ) > 0 )
+        {
+            total = MAX;
         }
 
         return total;

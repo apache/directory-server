@@ -29,9 +29,12 @@ package org.apache.directory.server.core.partition.impl.btree;
 public class IndexConfiguration
 {
     public static final int DEFAULT_INDEX_CACHE_SIZE = 100;
+
+    public static final int DEFAULT_DUPLICATE_LIMIT = 512;
     
     private String attributeId;
     private int cacheSize = DEFAULT_INDEX_CACHE_SIZE;
+    private int duplicateLimit = DEFAULT_DUPLICATE_LIMIT;
     
     
     protected void setAttributeId( String attributeId )
@@ -52,9 +55,21 @@ public class IndexConfiguration
     }
 
 
+    protected void setDuplicateLimit( int duplicateLimit )
+    {
+        this.duplicateLimit = duplicateLimit;
+    }
+
+
     public int getCacheSize()
     {
         return cacheSize;
+    }
+
+
+    public int getDuplicateLimit()
+    {
+        return duplicateLimit;
     }
     
     

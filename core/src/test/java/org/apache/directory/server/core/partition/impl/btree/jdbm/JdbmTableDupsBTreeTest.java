@@ -45,7 +45,7 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
+public class JdbmTableDupsBTreeTest extends TestCase implements Serializable
 {
     private static final long serialVersionUID = 1L;
     private transient File tempFile = null;
@@ -108,7 +108,7 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         rm = new BaseRecordManager( tempFile.getAbsolutePath() );
 
         // make sure the table never uses a btree for duplicates
-        table = new JdbmTable( "test", true, Integer.MAX_VALUE, rm, comparator );
+        table = new JdbmTable( "test", true, 1, rm, comparator );
 
         for ( BigInteger ii = BigInteger.ZERO; ii.intValue() < 3; ii = ii.add( BigInteger.ONE ) )
         {

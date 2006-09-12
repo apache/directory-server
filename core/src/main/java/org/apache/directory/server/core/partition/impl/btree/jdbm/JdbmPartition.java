@@ -325,9 +325,9 @@ public class JdbmPartition extends BTreePartition
     // I N D E X   M E T H O D S
     // ------------------------------------------------------------------------
 
-    public void addIndexOn( AttributeType spec, int cacheSize ) throws NamingException
+    public void addIndexOn( AttributeType spec, int cacheSize, int numDupLimit ) throws NamingException
     {
-        Index idx = new JdbmIndex( spec, workingDirectory, cacheSize );
+        Index idx = new JdbmIndex( spec, workingDirectory, cacheSize, numDupLimit );
         indices.put( spec.getOid(), idx );
     }
 
@@ -338,7 +338,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public void setExistanceIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
+    public void setExistanceIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
     {
         if ( existanceIdx != null )
         {
@@ -346,7 +346,7 @@ public class JdbmPartition extends BTreePartition
             throw e;
         }
 
-        existanceIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
+        existanceIdx = new JdbmIndex( attrType, workingDirectory, cacheSize, numDupLimit );
         sysIndices.put( attrType.getOid(), existanceIdx );
     }
 
@@ -357,7 +357,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public void setHierarchyIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
+    public void setHierarchyIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
     {
         if ( hierarchyIdx != null )
         {
@@ -365,7 +365,7 @@ public class JdbmPartition extends BTreePartition
             throw e;
         }
 
-        hierarchyIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
+        hierarchyIdx = new JdbmIndex( attrType, workingDirectory, cacheSize, numDupLimit );
         sysIndices.put( attrType.getOid(), hierarchyIdx );
     }
 
@@ -376,7 +376,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public void setAliasIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
+    public void setAliasIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
     {
         if ( aliasIdx != null )
         {
@@ -384,7 +384,7 @@ public class JdbmPartition extends BTreePartition
             throw e;
         }
 
-        aliasIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
+        aliasIdx = new JdbmIndex( attrType, workingDirectory, cacheSize, numDupLimit );
         sysIndices.put( attrType.getOid(), aliasIdx );
     }
 
@@ -395,7 +395,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public void setOneAliasIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
+    public void setOneAliasIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
     {
         if ( oneAliasIdx != null )
         {
@@ -403,7 +403,7 @@ public class JdbmPartition extends BTreePartition
             throw e;
         }
 
-        oneAliasIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
+        oneAliasIdx = new JdbmIndex( attrType, workingDirectory, cacheSize, numDupLimit );
         sysIndices.put( attrType.getOid(), oneAliasIdx );
     }
 
@@ -414,7 +414,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public void setSubAliasIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
+    public void setSubAliasIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
     {
         if ( subAliasIdx != null )
         {
@@ -422,7 +422,7 @@ public class JdbmPartition extends BTreePartition
             throw e;
         }
 
-        subAliasIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
+        subAliasIdx = new JdbmIndex( attrType, workingDirectory, cacheSize, numDupLimit );
         sysIndices.put( attrType.getOid(), subAliasIdx );
     }
 
@@ -433,7 +433,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public void setUpdnIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
+    public void setUpdnIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
     {
         if ( updnIdx != null )
         {
@@ -441,7 +441,7 @@ public class JdbmPartition extends BTreePartition
             throw e;
         }
 
-        updnIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
+        updnIdx = new JdbmIndex( attrType, workingDirectory, cacheSize, numDupLimit );
         sysIndices.put( attrType.getOid(), updnIdx );
     }
 
@@ -452,7 +452,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public void setNdnIndexOn( AttributeType attrType, int cacheSize ) throws NamingException
+    public void setNdnIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
     {
         if ( ndnIdx != null )
         {
@@ -460,7 +460,7 @@ public class JdbmPartition extends BTreePartition
             throw e;
         }
 
-        ndnIdx = new JdbmIndex( attrType, workingDirectory, cacheSize );
+        ndnIdx = new JdbmIndex( attrType, workingDirectory, cacheSize, numDupLimit );
         sysIndices.put( attrType.getOid(), ndnIdx );
     }
 

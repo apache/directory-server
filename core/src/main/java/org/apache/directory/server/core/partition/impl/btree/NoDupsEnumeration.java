@@ -147,7 +147,7 @@ public class NoDupsEnumeration implements NamingEnumeration
      * @return true if this NamingEnumeration is ascending on keys, false 
      * otherwise.
      */
-    boolean doAscendingScan()
+    public boolean doAscendingScan()
     {
         return doAscendingScan;
     }

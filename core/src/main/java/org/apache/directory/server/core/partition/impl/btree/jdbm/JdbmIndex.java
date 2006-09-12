@@ -38,6 +38,7 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexComparator;
+import org.apache.directory.server.core.partition.impl.btree.IndexConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.IndexEnumeration;
 import org.apache.directory.server.core.schema.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -70,6 +71,8 @@ public class JdbmIndex implements Index
      * will cache values for us.
      */
     private SynchronizedLRUMap keyCache = null;
+    
+    private int numDupLimit = IndexConfiguration.DEFAULT_DUPLICATE_LIMIT;
 
 
     // ------------------------------------------------------------------------
@@ -94,8 +97,9 @@ public class JdbmIndex implements Index
 //    }
 
 
-    public JdbmIndex( AttributeType attribute, File wkDirPath, int cacheSize ) throws NamingException
+    public JdbmIndex( AttributeType attribute, File wkDirPath, int cacheSize, int numDupLimit ) throws NamingException
     {
+        this.numDupLimit = numDupLimit;
         File file = new File( wkDirPath.getPath() + File.separator + attribute.getName() );
         this.attribute = attribute;
         keyCache = new SynchronizedLRUMap( cacheSize );
@@ -134,7 +138,7 @@ public class JdbmIndex implements Index
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        forward = new JdbmTable( attribute.getName() + FORWARD_BTREE, true, recMan, new IndexComparator( comp, true ) );
+        forward = new JdbmTable( attribute.getName() + FORWARD_BTREE, true, numDupLimit, recMan, new IndexComparator( comp, true ) );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -142,7 +146,7 @@ public class JdbmIndex implements Index
          * is single valued according to its specification based on a schema 
          * then duplicate keys should not be allowed within the reverse table.
          */
-        reverse = new JdbmTable( attribute.getName() + REVERSE_BTREE, !attribute.isSingleValue(), recMan,
+        reverse = new JdbmTable( attribute.getName() + REVERSE_BTREE, !attribute.isSingleValue(), numDupLimit, recMan,
             new IndexComparator( comp, false ) );
     }
 

@@ -172,6 +172,7 @@ public abstract class BTreePartition implements Partition
             Object nextObject = ii.next();
             String name = null;
             int cacheSize = IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE;
+            int numDupLimit = IndexConfiguration.DEFAULT_DUPLICATE_LIMIT;
             
             // no custom cacheSize info is available so default sticks
             if ( nextObject instanceof String ) 
@@ -186,16 +187,30 @@ public abstract class BTreePartition implements Partition
                 IndexConfiguration indexConfiguration = ( IndexConfiguration ) nextObject;
                 name = indexConfiguration.getAttributeId();
                 cacheSize = indexConfiguration.getCacheSize();
+                numDupLimit = indexConfiguration.getDuplicateLimit();
                 
                 if ( cacheSize <= 0 ) 
                 {
-                    log.warn( "Cache size {} for index on attribute is null or negative. Using default value.", new Integer(cacheSize), name );
+                    log.warn( "Cache size {} for index on attribute is null or negative. Using default value.", 
+                        new Integer(cacheSize), name );
                     cacheSize = IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE;
                 }
                 else
                 {
                     log.info( "Using cache size of {} for index on attribute {}", 
                         new Integer( cacheSize ), name );
+                }
+                
+                if ( cacheSize <= 0 ) 
+                {
+                    log.warn( "Duplicate limit {} for index on attribute is null or negative. Using default value.", 
+                        new Integer(numDupLimit), name );
+                    cacheSize = IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE;
+                }
+                else
+                {
+                    log.info( "Using duplicate limit of {} for index on attribute {}", 
+                        new Integer( numDupLimit ), name );
                 }
             }
             
@@ -207,37 +222,37 @@ public abstract class BTreePartition implements Partition
             {
                 if ( oid.equals( Oid.EXISTANCE ) )
                 {
-                    setExistanceIndexOn( type, cacheSize );
+                    setExistanceIndexOn( type, cacheSize, numDupLimit );
                     customAddedSystemIndices.add( Oid.EXISTANCE );
                 }
                 else if ( oid.equals( Oid.HIERARCHY ) )
                 {
-                    setHierarchyIndexOn( type, cacheSize );
+                    setHierarchyIndexOn( type, cacheSize, numDupLimit );
                     customAddedSystemIndices.add( Oid.HIERARCHY );
                 }
                 else if ( oid.equals( Oid.UPDN ) )
                 {
-                    setUpdnIndexOn( type, cacheSize );
+                    setUpdnIndexOn( type, cacheSize, numDupLimit );
                     customAddedSystemIndices.add( Oid.UPDN );
                 }
                 else if ( oid.equals( Oid.NDN ) )
                 {
-                    setNdnIndexOn( type, cacheSize );
+                    setNdnIndexOn( type, cacheSize, numDupLimit );
                     customAddedSystemIndices.add( Oid.NDN );
                 }
                 else if ( oid.equals( Oid.ONEALIAS ) )
                 {
-                    setOneAliasIndexOn( type, cacheSize );
+                    setOneAliasIndexOn( type, cacheSize, numDupLimit );
                     customAddedSystemIndices.add( Oid.ONEALIAS );
                 }
                 else if ( oid.equals( Oid.SUBALIAS ) )
                 {
-                    setSubAliasIndexOn( type, cacheSize );
+                    setSubAliasIndexOn( type, cacheSize, numDupLimit );
                     customAddedSystemIndices.add( Oid.SUBALIAS);
                 }
                 else if ( oid.equals( Oid.ALIAS ) )
                 {
-                    setAliasIndexOn( type, cacheSize );
+                    setAliasIndexOn( type, cacheSize, numDupLimit );
                     customAddedSystemIndices.add( Oid.ALIAS );
                 }
                 else
@@ -247,7 +262,7 @@ public abstract class BTreePartition implements Partition
             }
             else
             {
-                addIndexOn( type, cacheSize );
+                addIndexOn( type, cacheSize, numDupLimit );
             }
         }
         
@@ -269,31 +284,38 @@ public abstract class BTreePartition implements Partition
                     new Integer( IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE ), systemIndexName );
                 if ( systemIndexName.equals( Oid.EXISTANCE ) )
                 {
-                    setExistanceIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE );
+                    setExistanceIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE, 
+                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
                 }
                 else if ( systemIndexName.equals( Oid.HIERARCHY ) )
                 {
-                    setHierarchyIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE );
+                    setHierarchyIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
+                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
                 }
                 else if ( systemIndexName.equals( Oid.UPDN ) )
                 {
-                    setUpdnIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE );
+                    setUpdnIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
+                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
                 }
                 else if ( systemIndexName.equals( Oid.NDN ) )
                 {
-                    setNdnIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE );
+                    setNdnIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
+                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
                 }
                 else if ( systemIndexName.equals( Oid.ONEALIAS ) )
                 {
-                    setOneAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE );
+                    setOneAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
+                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
                 }
                 else if ( systemIndexName.equals( Oid.SUBALIAS ) )
                 {
-                    setSubAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE );
+                    setSubAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
+                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
                 }
                 else if ( systemIndexName.equals( Oid.ALIAS ) )
                 {
-                    setAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE );
+                    setAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
+                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
                 }
                 else
                 {
@@ -460,7 +482,7 @@ public abstract class BTreePartition implements Partition
     // Index Operations 
     // ------------------------------------------------------------------------
 
-    public abstract void addIndexOn( AttributeType attribute, int cacheSize ) throws NamingException;
+    public abstract void addIndexOn( AttributeType attribute, int cacheSize, int numDupLimit ) throws NamingException;
 
 
     public abstract boolean hasUserIndexOn( String attribute ) throws NamingException;
@@ -534,7 +556,7 @@ public abstract class BTreePartition implements Partition
      * 
      * @param attrType the index on the ALIAS_ATTRIBUTE
      */
-    public abstract void setAliasIndexOn( AttributeType attrType, int cacheSize ) throws NamingException;
+    public abstract void setAliasIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
 
 
     /**
@@ -542,7 +564,7 @@ public abstract class BTreePartition implements Partition
      *
      * @param attrType the attribute existance Index
      */
-    public abstract void setExistanceIndexOn( AttributeType attrType, int cacheSize ) throws NamingException;
+    public abstract void setExistanceIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
 
 
     /**
@@ -550,7 +572,7 @@ public abstract class BTreePartition implements Partition
      *
      * @param attrType the hierarchy Index
      */
-    public abstract void setHierarchyIndexOn( AttributeType attrType, int cacheSize ) throws NamingException;
+    public abstract void setHierarchyIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
 
 
     /**
@@ -558,7 +580,7 @@ public abstract class BTreePartition implements Partition
      *
      * @param attrType the updn Index
      */
-    public abstract void setUpdnIndexOn( AttributeType attrType, int cacheSize ) throws NamingException;
+    public abstract void setUpdnIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
 
 
     /**
@@ -566,7 +588,7 @@ public abstract class BTreePartition implements Partition
      *
      * @param attrType the ndn Index
      */
-    public abstract void setNdnIndexOn( AttributeType attrType, int cacheSize ) throws NamingException;
+    public abstract void setNdnIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
 
 
     /**
@@ -576,7 +598,7 @@ public abstract class BTreePartition implements Partition
      * 
      * @param attrType a one level alias index
      */
-    public abstract void setOneAliasIndexOn( AttributeType attrType, int cacheSize ) throws NamingException;
+    public abstract void setOneAliasIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
 
 
     /**
@@ -586,7 +608,7 @@ public abstract class BTreePartition implements Partition
      * 
      * @param attrType a subtree alias index
      */
-    public abstract void setSubAliasIndexOn( AttributeType attrType, int cacheSize ) throws NamingException;
+    public abstract void setSubAliasIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
 
 
     public abstract Index getUserIndex( String attribute ) throws IndexNotFoundException;
