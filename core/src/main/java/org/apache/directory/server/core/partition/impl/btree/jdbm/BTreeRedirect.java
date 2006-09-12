@@ -17,31 +17,37 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.core.partition.impl.btree.jdbm;
+
+import java.io.Serializable;
 
 
 /**
- * A mutable version of {@link IndexConfiguration}.
- *
+ * A redirection pointer to another BTree.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
+ * @version $Rev$
  */
-public class MutableIndexConfiguration extends IndexConfiguration
+public class BTreeRedirect implements Serializable
 {
-    public void setAttributeId( String attributeId )
+    private static final long serialVersionUID = -4289810071005184834L;
+
+    private Long recId;
+
+    
+    public BTreeRedirect()
     {
-        super.setAttributeId( attributeId );
+    }
+
+    
+    public BTreeRedirect( long recId )
+    {
+        this.recId = new Long( recId );
     }
     
     
-    public void setCacheSize( int cacheSize )
+    public Long getRecId()
     {
-        super.setCacheSize( cacheSize );
-    }
-    
-    
-    public void setDuplicateLimit( int duplicateLimit )
-    {
-        super.setDuplicateLimit( duplicateLimit );
+        return recId;
     }
 }

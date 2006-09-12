@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import java.util.ArrayList;
@@ -28,6 +28,11 @@ import java.util.TreeSet;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+
+import jdbm.btree.BTree;
+
+import org.apache.directory.server.core.partition.impl.btree.NoDupsEnumeration;
+import org.apache.directory.server.core.partition.impl.btree.Tuple;
 
 
 /**
@@ -65,7 +70,9 @@ public class DupsEnumeration implements NamingEnumeration
      */
     private Iterator dupIterator;
 
+    private JdbmTable table;
 
+    
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
@@ -77,8 +84,9 @@ public class DupsEnumeration implements NamingEnumeration
      * @param list the underlying enumeration
      * @throws NamingException if there is a problem
      */
-    public DupsEnumeration(NoDupsEnumeration list) throws NamingException
+    public DupsEnumeration( JdbmTable table, NoDupsEnumeration list ) throws NamingException
     {
+        this.table = table;
         underlying = list;
 
         // Protect against closed cursors
@@ -193,26 +201,37 @@ public class DupsEnumeration implements NamingEnumeration
             if ( underlying.hasMore() )
             {
                 duplicates = ( Tuple ) underlying.next();
-                TreeSet set = ( TreeSet ) duplicates.getValue();
-
-                if ( underlying.doAscendingScan() )
+                
+                Object values = duplicates.getValue();
+                
+                if ( values instanceof TreeSet )
                 {
-                    dupIterator = set.iterator();
+                    TreeSet set = ( TreeSet ) duplicates.getValue();
+    
+                    if ( underlying.doAscendingScan() )
+                    {
+                        dupIterator = set.iterator();
+                    }
+                    else
+                    {
+                        /*
+                         * Need to reverse the list and iterate over the reversed
+                         * list.  
+                         * 
+                         * TODO This can be optimized by using a ReverseIterator 
+                         * over the array list.  I don't think there is a way to 
+                         * do this on the TreeSet.
+                         */
+                        ArrayList list = new ArrayList( set.size() );
+                        list.addAll( set );
+                        Collections.reverse( list );
+                        dupIterator = list.iterator();
+                    }
                 }
-                else
+                else if ( values instanceof BTreeRedirect )
                 {
-                    /*
-                     * Need to reverse the list and iterate over the reversed
-                     * list.  
-                     * 
-                     * TODO This can be optimized by using a ReverseIterator 
-                     * over the array list.  I don't think there is a way to 
-                     * do this on the TreeSet.
-                     */
-                    ArrayList list = new ArrayList( set.size() );
-                    list.addAll( set );
-                    Collections.reverse( list );
-                    dupIterator = list.iterator();
+                    BTree tree = table.getBTree( ( BTreeRedirect ) values );
+                    dupIterator = new BTreeIterator( tree, underlying.doAscendingScan() );
                 }
             }
             else

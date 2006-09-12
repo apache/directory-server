@@ -23,8 +23,10 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -36,7 +38,7 @@ import jdbm.btree.BTree;
 import jdbm.helper.TupleBrowser;
 
 import org.apache.commons.collections.iterators.ArrayIterator;
-import org.apache.directory.server.core.partition.impl.btree.DupsEnumeration;
+import org.apache.directory.server.core.partition.impl.btree.IndexConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.KeyOnlyComparator;
 import org.apache.directory.server.core.partition.impl.btree.NoDupsEnumeration;
 import org.apache.directory.server.core.partition.impl.btree.Table;
@@ -46,6 +48,8 @@ import org.apache.directory.server.core.partition.impl.btree.TupleEnumeration;
 import org.apache.directory.server.core.partition.impl.btree.TupleRenderer;
 import org.apache.directory.server.core.schema.SerializableComparator;
 
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 
@@ -77,7 +81,11 @@ public class JdbmTable implements Table
     /** */
     private TupleRenderer renderer;
 
+    private int numDupLimit = IndexConfiguration.DEFAULT_DUPLICATE_LIMIT;
 
+    private Map duplicateBtrees = new HashMap();
+    
+    
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R
     // ------------------------------------------------------------------------
@@ -92,9 +100,11 @@ public class JdbmTable implements Table
      * @param comparator a tuple comparator
      * @throws NamingException if the table's file cannot be created
      */
-    public JdbmTable( String name, boolean allowsDuplicates, RecordManager manager, TupleComparator comparator )
+    public JdbmTable( String name, boolean allowsDuplicates, int numDupLimit, 
+        RecordManager manager, TupleComparator comparator )
         throws NamingException
     {
+        this.numDupLimit = numDupLimit;
         this.name = name;
         this.recMan = manager;
         this.comparator = comparator;
@@ -155,7 +165,7 @@ public class JdbmTable implements Table
      */
     public JdbmTable( String name, RecordManager manager, SerializableComparator keyComparator ) throws NamingException
     {
-        this( name, false, manager, new KeyOnlyComparator( keyComparator ) );
+        this( name, false, Integer.MAX_VALUE, manager, new KeyOnlyComparator( keyComparator ) );
     }
 
 
@@ -251,14 +261,32 @@ public class JdbmTable implements Table
             }
         }
 
-        TreeSet set = ( TreeSet ) getRaw( key );
-
-        if ( set != null )
+        Object values = getRaw( key );
+        
+        if ( values == null )
         {
-            return set.size();
+            return 0;
+        }
+        
+        // -------------------------------------------------------------------
+        // Handle the use of a TreeSet for storing duplicates
+        // -------------------------------------------------------------------
+
+        if ( values instanceof TreeSet )
+        {
+            return ( ( TreeSet ) values ).size();
         }
 
-        return 0;
+        // -------------------------------------------------------------------
+        // Handle the use of a BTree for storing duplicates
+        // -------------------------------------------------------------------
+
+        if ( values instanceof BTreeRedirect )
+        {
+            return getBTree( ( BTreeRedirect ) values ).size();
+        }
+        
+        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
 
 
@@ -270,7 +298,7 @@ public class JdbmTable implements Table
         return count;
     }
 
-
+    
     // ------------------------------------------------------------------------
     // get/has/put/remove Methods and Overloads
     // ------------------------------------------------------------------------
@@ -280,10 +308,23 @@ public class JdbmTable implements Table
      */
     public Object get( Object key ) throws NamingException
     {
-        if ( allowsDuplicates )
+        if ( ! allowsDuplicates )
         {
-            TreeSet set = ( TreeSet ) getRaw( key );
-            if ( null == set || set.size() == 0 )
+            return getRaw( key );
+        }
+
+        Object values = getRaw( key );
+        
+        if ( values == null )
+        {
+            return null;
+        }
+        
+        if ( values instanceof TreeSet )
+        {
+            TreeSet set = ( TreeSet ) values;
+            
+            if ( set.size() == 0 )
             {
                 return null;
             }
@@ -293,20 +334,30 @@ public class JdbmTable implements Table
             }
         }
 
-        Object value = getRaw( key );
-        return value;
+        if ( values instanceof BTreeRedirect )
+        {
+            BTree tree = getBTree( ( BTreeRedirect ) values );
+            
+            if ( tree.size() == 0 )
+            {
+                return null;
+            }
+            else
+            {
+                return firstKey( tree );
+            }
+        }
+        
+        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
 
-
+    
     /**
      * @see Table#has(java.lang.Object,
      * java.lang.Object, boolean)
      */
     public boolean has( Object key, Object val, boolean isGreaterThan ) throws NamingException
     {
-        TreeSet set = null;
-        SortedSet subset = null;
-
         if ( !allowsDuplicates )
         {
             Object rval = getRaw( key );
@@ -316,17 +367,17 @@ public class JdbmTable implements Table
             {
                 return false;
             }
-            // val == val return tuple
+            // val == val return true
             else if ( val.equals( rval ) )
             {
                 return true;
             }
-            // val >= val and test is for greater then return tuple
+            // val >= val and test is for greater then return true
             else if ( comparator.compareValue( rval, val ) >= 1 && isGreaterThan )
             {
                 return true;
             }
-            // val <= val and test is for lesser then return tuple
+            // val <= val and test is for lesser then return true
             else if ( comparator.compareValue( rval, val ) <= 1 && !isGreaterThan )
             {
                 return true;
@@ -335,30 +386,54 @@ public class JdbmTable implements Table
             return false;
         }
 
-        set = ( TreeSet ) getRaw( key );
-
-        if ( null == set || set.size() == 0 )
+        Object values = getRaw( key );
+        
+        if ( values == null )
         {
             return false;
         }
-
-        if ( isGreaterThan )
+        
+        if ( values instanceof TreeSet )
         {
-            subset = set.tailSet( val );
+            TreeSet set = ( TreeSet ) values;
+            SortedSet subset = null;
+    
+            if ( set.size() == 0 )
+            {
+                return false;
+            }
+    
+            if ( isGreaterThan )
+            {
+                subset = set.tailSet( val );
+            }
+            else
+            {
+                subset = set.headSet( val );
+            }
+    
+            if ( subset.size() > 0 || set.contains( val ) )
+            {
+                return true;
+            }
+    
+            return false;
         }
-        else
+        
+        if ( values instanceof BTreeRedirect )
         {
-            subset = set.headSet( val );
-        }
+            BTree tree = getBTree( ( BTreeRedirect ) values );
+            if ( tree.size() == 0 )
+            {
+                return false;
+            }
 
-        if ( subset.size() > 0 || set.contains( val ) )
-        {
-            return true;
+            return btreeHas( tree, val, isGreaterThan );
         }
-
-        return false;
+        
+        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
-
+    
 
     /**
      * @see Table#has(java.lang.Object, boolean)
@@ -461,28 +536,38 @@ public class JdbmTable implements Table
      */
     public boolean has( Object key, Object value ) throws NamingException
     {
-        if ( allowsDuplicates )
+        if ( ! allowsDuplicates )
         {
-            TreeSet set = ( TreeSet ) getRaw( key );
+            Object obj = getRaw( key );
 
-            if ( null == set )
+            if ( null == obj )
             {
                 return false;
             }
 
-            return set.contains( value );
+            return obj.equals( value );
         }
-
-        Object obj = getRaw( key );
-
-        if ( null == obj )
+        
+        Object values = getRaw( key );
+        
+        if ( values == null )
         {
             return false;
         }
-
-        return obj.equals( value );
+        
+        if ( values instanceof TreeSet )
+        {
+            return ( ( TreeSet ) values ).contains( value );
+        }
+        
+        if ( values instanceof BTreeRedirect )
+        {
+            return btreeHas( getBTree( ( BTreeRedirect ) values ), value );
+        }
+        
+        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
-
+    
 
     /**
      * @see Table#has(java.lang.Object)
@@ -501,35 +586,69 @@ public class JdbmTable implements Table
     {
         Object replaced = null;
 
-        if ( allowsDuplicates )
+        if ( ! allowsDuplicates )
         {
-            TreeSet set = ( TreeSet ) getRaw( key );
+            replaced = putRaw( key, value, true );
 
-            if ( null == set )
+            if ( null == replaced )
             {
-                set = new TreeSet( comparator.getValueComparator() );
+                count++;
             }
-            else if ( set.contains( value ) )
+
+            return replaced;
+        }
+        
+        Object values = getRaw( key );
+        
+        if ( values == null )
+        {
+            values = new TreeSet( comparator.getValueComparator() );
+        }
+        
+        if ( values instanceof TreeSet )
+        {
+            TreeSet set = ( TreeSet ) values;
+            
+            if ( set.contains( value ) )
             {
                 return value;
             }
-
-            set.add( value );
-            putRaw( key, set, true );
-            count++;
+            
+            boolean addSuccessful = set.add( value );
+            
+            if ( set.size() > numDupLimit )
+            {
+                BTree tree = convertToBTree( set );
+                BTreeRedirect redirect = new BTreeRedirect( tree.getRecid() );
+                replaced = putRaw( key, redirect, true );
+            }
+            else
+            {
+                replaced = putRaw( key, set, true );
+            }
+            
+            if ( addSuccessful )
+            {
+                count++;
+                return replaced;
+            }
             return null;
         }
-
-        replaced = putRaw( key, value, true );
-
-        if ( null == replaced )
+        
+        if ( values instanceof BTreeRedirect )
         {
-            count++;
+            BTree tree = getBTree( ( BTreeRedirect ) values );
+            if ( insertDupIntoBTree( tree, value ) )
+            {
+                count++;
+                return values;
+            }
+            return null;
         }
-
-        return replaced;
+        
+        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
-
+    
 
     /**
      * @see Table#put(java.lang.Object,
@@ -537,8 +656,6 @@ public class JdbmTable implements Table
      */
     public Object put( Object key, NamingEnumeration values ) throws NamingException
     {
-        TreeSet set = null;
-
         /*
          * If we do not allow duplicates call the single add put using the
          * first value in the enumeration if it exists.  If it does not we
@@ -563,32 +680,65 @@ public class JdbmTable implements Table
             return null;
         }
 
-        /*
-         * Here the table allows duplicates so we get the TreeSet from the 
-         * Table holding all the duplicate key values or create one if it
-         * does not exist for key.  We check if the value is present and
-         * if it is we add it and increment the table entry counter.
-         */
-        set = ( TreeSet ) getRaw( key );
-
-        if ( null == set )
+        Object storedValues = getRaw( key );
+        
+        if ( storedValues == null )
         {
-            set = new TreeSet( comparator.getValueComparator() );
+            storedValues = new TreeSet( comparator.getValueComparator() );
         }
-
-        while ( values.hasMore() )
+        
+        if ( storedValues instanceof TreeSet )
         {
-            Object val = values.next();
-
-            if ( !set.contains( val ) )
+            /*
+             * Here the table allows duplicates so we get the TreeSet from the 
+             * Table holding all the duplicate key values or create one if it
+             * does not exist for key.  We check if the value is present and
+             * if it is we add it and increment the table entry counter.
+             */
+            TreeSet set = ( TreeSet ) storedValues;
+            while ( values.hasMore() )
             {
-                set.add( val );
-                count++;
+                Object val = values.next();
+    
+                if ( !set.contains( val ) )
+                {
+                    boolean isAddSuccessful = set.add( val );
+                    if ( isAddSuccessful )
+                    {
+                        count++;
+                    }
+                }
+            }
+    
+            if ( set.size() > numDupLimit )
+            {
+                BTree tree = convertToBTree( set );
+                BTreeRedirect redirect = new BTreeRedirect( tree.getRecid() );
+                return putRaw( key, redirect, true );
+            }
+            else
+            {
+                return putRaw( key, set, true );
             }
         }
+        
+        if ( storedValues instanceof BTreeRedirect )
+        {
+            BTree tree = getBTree( ( BTreeRedirect ) storedValues );
+            while ( values.hasMore() )
+            {
+                Object val = values.next();
+                
+                if ( insertDupIntoBTree( tree, val ) )
+                {
+                    count++;
+                }
+            }
 
-        // Return the raw TreeSet
-        return putRaw( key, set, true );
+            return storedValues;
+        }
+        
+        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
 
 
@@ -598,14 +748,31 @@ public class JdbmTable implements Table
      */
     public Object remove( Object key, Object value ) throws NamingException
     {
-        if ( allowsDuplicates )
+        if ( ! allowsDuplicates )
         {
-            TreeSet set = ( TreeSet ) getRaw( key );
-
-            if ( null == set )
+            Object oldValue = getRaw( key );
+        
+            // Remove the value only if it is the same as value.
+            if ( oldValue != null && oldValue.equals( value ) )
             {
-                return null;
+                removeRaw( key );
+                count--;
+                return oldValue;
             }
+
+            return null;
+        }
+
+        Object values = getRaw( key );
+        
+        if ( values == null )
+        {
+            return null;
+        }
+        
+        if ( values instanceof TreeSet )
+        {
+            TreeSet set = ( TreeSet ) values;
 
             // If removal succeeds then remove if set is empty else replace it
             if ( set.remove( value ) )
@@ -627,17 +794,27 @@ public class JdbmTable implements Table
             return null;
         }
 
-        Object oldValue = getRaw( key );
-        
-        // Remove the value only if it is the same as value.
-        if ( oldValue != null && oldValue.equals( value ) )
+        // TODO might be nice to add code here that reverts to a TreeSet
+        // if the number of duplicates falls below the numDupLimit value
+        if ( values instanceof BTreeRedirect )
         {
-            removeRaw( key );
-            count--;
-            return oldValue;
+            BTree tree = getBTree( ( BTreeRedirect ) values );
+            
+            if ( removeDupFromBTree( tree, value ) )
+            {
+                if ( tree.size() == 0 )
+                {
+                    removeRaw( key );
+                }
+                
+                count--;
+                return value;
+            }
+            
+            return null;
         }
-
-        return null;
+        
+        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
 
 
@@ -647,8 +824,6 @@ public class JdbmTable implements Table
      */
     public Object remove( Object key, NamingEnumeration values ) throws NamingException
     {
-        TreeSet set = null;
-
         /*
          * If we do not allow dupliicates call the single remove using the
          * first value in the enumeration if it exists.  If it does not we
@@ -673,43 +848,75 @@ public class JdbmTable implements Table
             return null;
         }
 
-        /*
-         * Here the table allows duplicates so we get the TreeSet from the 
-         * Table holding all the duplicate key values or return null if it
-         * does not exist for key - nothing to do here.
-         */
-        set = ( TreeSet ) getRaw( key );
-        if ( null == set )
+        Object storedValues = getRaw( key );
+        
+        if ( storedValues == null )
         {
             return null;
         }
-
-        /*
-         * So we have a valid TreeSet with values in it.  We check if each value
-         * is in the set and remove it if it is present.  We decrement the 
-         * counter while doing so.
-         */
-        Object firstValue = null;
-        while ( values.hasMore() )
+        
+        if ( storedValues instanceof TreeSet )
         {
-            Object val = values.next();
-            
-            // get the first value
-            if ( firstValue == null )
+            /*
+             * Here the table allows duplicates so we get the TreeSet from the 
+             * Table holding all the duplicate key values or return null if it
+             * does not exist for key - nothing to do here.
+             */
+            TreeSet set = ( TreeSet ) storedValues;
+    
+            /*
+             * So we have a valid TreeSet with values in it.  We check if each value
+             * is in the set and remove it if it is present.  We decrement the 
+             * counter while doing so.
+             */
+            Object firstValue = null;
+            while ( values.hasMore() )
             {
-                firstValue = val;
-            }
+                Object val = values.next();
+    
+                // get the first value
+                if ( firstValue == null )
+                {
+                    firstValue = val;
+                }
 
-            if ( set.contains( val ) )
-            {
-                set.remove( val );
-                count--;
+                if ( set.contains( val ) )
+                {
+                    set.remove( val );
+                    count--;
+                }
             }
+    
+            // Return the raw TreeSet and put the changed one back.
+            putRaw( key, set, true );
+            return firstValue;
         }
-
-        // Return the raw TreeSet and put the changed one back.
-        putRaw( key, set, true );
-        return firstValue;
+        
+        // TODO might be nice to add code here that reverts to a TreeSet
+        // if the number of duplicates falls below the numDupLimit value
+        if ( storedValues instanceof BTreeRedirect )
+        {
+            BTree tree = getBTree( ( BTreeRedirect ) storedValues );
+            Object first = null;
+            while ( values.hasMore() )
+            {
+                Object val = values.next();
+                
+                if ( removeDupFromBTree( tree, val ) )
+                {
+                    count--;
+                    
+                    if ( first == null )
+                    {
+                        first = val;
+                    }
+                }
+            }
+            
+            return first;
+        }
+        
+        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
 
 
@@ -725,15 +932,27 @@ public class JdbmTable implements Table
             return null;
         }
 
-        if ( allowsDuplicates )
+        if ( ! allowsDuplicates )
+        {
+            this.count--;
+            return returned;
+        }
+
+        if ( returned instanceof TreeSet )
         {
             TreeSet set = ( TreeSet ) returned;
             this.count -= set.size();
             return set.first();
         }
-
-        this.count--;
-        return returned;
+        
+        if ( returned instanceof BTreeRedirect )
+        {
+            BTree tree = getBTree( ( BTreeRedirect ) returned );
+            this.count -= tree.size();
+            return removeAll( tree );
+        }
+        
+        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
 
 
@@ -742,8 +961,6 @@ public class JdbmTable implements Table
      */
     public NamingEnumeration listValues( Object key ) throws NamingException
     {
-        TreeSet set = null;
-
         if ( !allowsDuplicates )
         {
             Object value = get( key );
@@ -758,43 +975,56 @@ public class JdbmTable implements Table
             }
         }
 
-        set = ( TreeSet ) getRaw( key );
-        if ( null == set )
+        Object values = getRaw( key );
+        
+        if ( values == null )
         {
             return new EmptyEnumeration();
         }
-
-        final Iterator list = set.iterator();
-        return new NamingEnumeration()
+        
+        if ( values instanceof TreeSet )
         {
-            public void close()
+            TreeSet set = ( TreeSet ) values;
+            final Iterator list = set.iterator();
+            return new NamingEnumeration()
             {
-            }
-
-
-            public Object nextElement()
-            {
-                return list.next();
-            }
-
-
-            public Object next()
-            {
-                return list.next();
-            }
-
-
-            public boolean hasMore()
-            {
-                return list.hasNext();
-            }
-
-
-            public boolean hasMoreElements()
-            {
-                return list.hasNext();
-            }
-        };
+                public void close()
+                {
+                }
+    
+    
+                public Object nextElement()
+                {
+                    return list.next();
+                }
+    
+    
+                public Object next()
+                {
+                    return list.next();
+                }
+    
+    
+                public boolean hasMore()
+                {
+                    return list.hasNext();
+                }
+    
+    
+                public boolean hasMoreElements()
+                {
+                    return list.hasNext();
+                }
+            };
+        }
+        
+        if ( values instanceof BTreeRedirect )
+        {
+            BTree tree = getBTree( ( BTreeRedirect ) values );
+            return new BTreeEnumeration( tree );
+        }
+        
+        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
 
 
@@ -823,7 +1053,7 @@ public class JdbmTable implements Table
 
         if ( allowsDuplicates )
         {
-            return new DupsEnumeration( ( NoDupsEnumeration ) list );
+            return new DupsEnumeration( this, ( NoDupsEnumeration ) list );
         }
 
         return list;
@@ -835,8 +1065,6 @@ public class JdbmTable implements Table
      */
     public NamingEnumeration listTuples( Object key ) throws NamingException
     {
-        TreeSet set = null;
-
         // Handle single and zero value returns without duplicates enabled
         if ( !allowsDuplicates )
         {
@@ -852,16 +1080,28 @@ public class JdbmTable implements Table
             }
         }
 
-        set = ( TreeSet ) getRaw( key );
-        if ( set == null )
+        Object values = getRaw( key );
+
+        if ( values == null )
         {
             return new EmptyEnumeration();
         }
+        
+        if ( values instanceof TreeSet )
+        {
+            TreeSet set = ( TreeSet ) values;
+            Object[] objs = new Object[set.size()];
+            objs = set.toArray( objs );
+            ArrayIterator iterator = new ArrayIterator( objs );
+            return new TupleEnumeration( key, iterator );
+        }
+        
+        if ( values instanceof BTreeRedirect )
+        {
+            return new BTreeTupleEnumeration( getBTree( ( BTreeRedirect ) values ), key );
+        }
 
-        Object[] objs = new Object[set.size()];
-        objs = set.toArray( objs );
-        ArrayIterator iterator = new ArrayIterator( objs );
-        return new TupleEnumeration( key, iterator );
+        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
 
 
@@ -920,7 +1160,7 @@ public class JdbmTable implements Table
 
         if ( allowsDuplicates )
         {
-            list = new DupsEnumeration( ( NoDupsEnumeration ) list );
+            list = new DupsEnumeration( this, ( NoDupsEnumeration ) list );
         }
 
         return list;
@@ -933,8 +1173,6 @@ public class JdbmTable implements Table
      */
     public NamingEnumeration listTuples( Object key, Object val, boolean isGreaterThan ) throws NamingException
     {
-        TreeSet set = null;
-
         if ( !allowsDuplicates )
         {
             throw new UnsupportedOperationException( "Cannot list tuples over duplicates on table that " +
@@ -963,51 +1201,65 @@ public class JdbmTable implements Table
 //            return new EmptyEnumeration();
         }
 
-        set = ( TreeSet ) getRaw( key );
-        if ( set == null )
+        Object values = getRaw( key );
+        
+        if ( values == null )
         {
             return new EmptyEnumeration();
         }
 
-        if ( isGreaterThan )
+        if ( values instanceof TreeSet )
         {
-            Set tailSet = set.tailSet( val );
-            
-            if ( tailSet.isEmpty() )
+            TreeSet set = ( TreeSet ) values;
+    
+            if ( isGreaterThan )
             {
-                return new EmptyEnumeration();
+                Set tailSet = set.tailSet( val );
+                
+                if ( tailSet.isEmpty() )
+                {
+                    return new EmptyEnumeration();
+                }
+                
+                Object[] objs = new Object[tailSet.size()];
+                objs = tailSet.toArray( objs );
+                ArrayIterator iterator = new ArrayIterator( objs );
+                return new TupleEnumeration( key, iterator );
             }
-            
-            Object[] objs = new Object[tailSet.size()];
-            objs = tailSet.toArray( objs );
-            ArrayIterator iterator = new ArrayIterator( objs );
-            return new TupleEnumeration( key, iterator );
+            else
+            {
+                // Get all values from the smallest upto val and put them into
+                // a list.  They will be in ascending order so we need to reverse
+                // the list after adding val which is not included in headSet.
+                SortedSet headset = set.headSet( val );
+                ArrayList list = new ArrayList( headset.size() + 1 );
+                list.addAll( headset );
+    
+                // Add largest value (val) if it is in the set.  TreeSet.headSet
+                // does not get val if val is in the set.  So we add it now to
+                // the end of the list.  List is now ascending from smallest to
+                // val
+                if ( set.contains( val ) )
+                {
+                    list.add( val );
+                }
+    
+                // Reverse the list now we have descending values from val to the
+                // smallest value that key has.  Return tuple cursor over list.
+                Collections.reverse( list );
+                return new TupleEnumeration( key, list.iterator() );
+            }
         }
-        else
+        
+        if ( values instanceof BTreeRedirect )
         {
-            // Get all values from the smallest upto val and put them into
-            // a list.  They will be in ascending order so we need to reverse
-            // the list after adding val which is not included in headSet.
-            SortedSet headset = set.headSet( val );
-            ArrayList list = new ArrayList( headset.size() + 1 );
-            list.addAll( headset );
-
-            // Add largest value (val) if it is in the set.  TreeSet.headSet
-            // does not get val if val is in the set.  So we add it now to
-            // the end of the list.  List is now ascending from smallest to
-            // val
-            if ( set.contains( val ) )
-            {
-                list.add( val );
-            }
-
-            // Reverse the list now we have descending values from val to the
-            // smallest value that key has.  Return tuple cursor over list.
-            Collections.reverse( list );
-            return new TupleEnumeration( key, list.iterator() );
+            return new BTreeTupleEnumeration( getBTree( ( BTreeRedirect ) values ), 
+                comparator.getValueComparator(), key, val, isGreaterThan );
         }
+
+        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
-
+    
 
     // ------------------------------------------------------------------------
     // Maintenance Operations 
@@ -1173,4 +1425,231 @@ public class JdbmTable implements Table
 
         return val;
     }
+
+
+    BTree getBTree( BTreeRedirect redirect ) throws NamingException
+    {
+        if ( duplicateBtrees.containsKey( redirect.getRecId() ) )
+        {
+            return ( BTree ) duplicateBtrees.get( redirect.getRecId() );
+        }
+        
+        try
+        {
+            BTree tree = BTree.load( recMan, redirect.getRecId().longValue() );
+            duplicateBtrees.put( redirect.getRecId(), tree );
+            return tree;
+        }
+        catch ( IOException e )
+        {
+            LdapNamingException lne = new LdapNamingException( "Failed to load btree", 
+                ResultCodeEnum.OTHER );
+            lne.setRootCause( e );
+            throw lne;
+        }
+    }
+
+
+    private Object firstKey ( BTree tree ) throws NamingException
+    {
+        jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
+        boolean success = false;
+        
+        try
+        {
+            success = tree.browse().getNext( tuple );
+            
+            if ( success )
+            {
+                return tuple.getKey();
+            }
+            else 
+            {
+                return null;
+            }
+        }
+        catch ( IOException e )
+        {
+            LdapNamingException lne = new LdapNamingException( "IO failure while acessing btree: "
+                + e.getMessage(), ResultCodeEnum.OTHER );
+            lne.setRootCause( e );
+            throw lne;
+        }
+    }
+
+    
+    private boolean btreeHas( BTree tree, Object key, boolean isGreaterThan ) throws NamingException
+    {
+        jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
+        
+        try
+        {
+            TupleBrowser browser = tree.browse( key );
+            if ( isGreaterThan )
+            {
+                boolean success = browser.getNext( tuple );
+                if ( success )
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                boolean success = browser.getPrevious( tuple );
+                if ( success )
+                {
+                    return true;
+                }
+                else
+                {
+                    /*
+                     * Calls to getPrevious() will return a lower key even
+                     * if there exists a key equal to the one searched
+                     * for.  Since isGreaterThan when false really means
+                     * 'less than or equal to' we must check to see if 
+                     * the key in front is equal to the key argument provided.
+                     */
+                    success = browser.getNext( tuple );
+                    if ( success )
+                    {
+                        Object biggerKey = tuple.getKey();
+                        if ( comparator.compareValue( key, biggerKey ) == 0 )
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        catch ( IOException e )
+        {
+            LdapNamingException lne = new LdapNamingException( "IO failure while acessing btree: "
+                + e.getMessage(), ResultCodeEnum.OTHER );
+            lne.setRootCause( e );
+            throw lne;
+        }
+    }
+
+
+    private boolean btreeHas( BTree tree, Object key ) throws NamingException
+    {
+        jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
+        
+        try
+        {
+            TupleBrowser browser = tree.browse( key );
+            boolean success = browser.getNext( tuple );
+            if ( success )
+            {
+                if ( comparator.compareValue( key, tuple.getKey() ) == 0 )
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        catch ( IOException e )
+        {
+            LdapNamingException lne = new LdapNamingException( "IO failure while acessing btree: "
+                + e.getMessage(), ResultCodeEnum.OTHER );
+            lne.setRootCause( e );
+            throw lne;
+        }
+    }
+
+    
+    private boolean insertDupIntoBTree( BTree tree, Object value ) throws LdapNamingException
+    {
+        try
+        {
+            Object replaced = tree.insert( value, EMPTY_BYTES, true );
+            return null == replaced;
+        }
+        catch ( IOException e )
+        {
+            LdapNamingException lne = new LdapNamingException( "Failed to insert dup into BTree", 
+                ResultCodeEnum.OTHER );
+            lne.setRootCause( e );
+            throw lne;
+        }
+    }
+    
+
+    private boolean removeDupFromBTree( BTree tree, Object value ) throws LdapNamingException
+    {
+        try
+        {
+            Object removed = null;
+            if ( tree.find( value ) != null )
+            {
+                removed = tree.remove( value );
+            }
+            return null != removed;
+        }
+        catch ( IOException e )
+        {
+            LdapNamingException lne = new LdapNamingException( "Failed to remove dup from BTree", 
+                ResultCodeEnum.OTHER );
+            lne.setRootCause( e );
+            throw lne;
+        }
+    }
+    
+
+    private static final byte[] EMPTY_BYTES = new byte[0];
+    private BTree convertToBTree( TreeSet set ) throws NamingException
+    {
+        try
+        {
+            BTree tree = BTree.createInstance( recMan, comparator.getValueComparator() );
+            for ( Iterator ii = set.iterator(); ii.hasNext(); /**/ )
+            {
+                tree.insert( ii.next(), EMPTY_BYTES, true );
+            }
+            return tree;
+        }
+        catch ( IOException e )
+        {
+            LdapNamingException lne = new LdapNamingException( "Failed to convert TreeSet values to BTree", 
+                ResultCodeEnum.OTHER );
+            lne.setRootCause( e );
+            throw lne;
+        }
+    }
+    
+    
+    private Object removeAll( BTree tree ) throws NamingException
+    {
+        Object first = null;
+        jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
+        TupleBrowser browser;
+        try
+        {
+            browser = tree.browse();
+            while( browser.getNext( jdbmTuple ) )
+            {
+                tree.remove( jdbmTuple.getKey() );
+                if ( first == null )
+                {
+                    first = jdbmTuple.getKey();
+                }
+            }
+        }
+        catch ( IOException e )
+        {
+            LdapNamingException lne = new LdapNamingException( "Failed to remove all keys in BTree",
+                ResultCodeEnum.OTHER );
+            lne.setRootCause( e );
+            throw lne;
+        }
+        
+        return first;
+    }
 }
+

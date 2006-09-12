@@ -110,6 +110,10 @@ public class BaseCommand
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
+//        command = new CapacityTestCommand();
+        commands.put( command.getName(), command );
+        commandsOrdered.add( command.getName() );
+
         Option op = new Option( "i", "install-path", true, "path to installation directory" );
         getGlobal().addOption( op );
         op = new Option( "b", "banner", false, "suppress banner print outs" );
