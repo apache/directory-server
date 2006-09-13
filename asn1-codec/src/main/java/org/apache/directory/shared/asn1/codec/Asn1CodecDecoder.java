@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.mina.filter.codec.asn1;
+package org.apache.directory.shared.asn1.codec;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
