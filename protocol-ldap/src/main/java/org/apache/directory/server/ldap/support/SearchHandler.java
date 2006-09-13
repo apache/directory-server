@@ -244,7 +244,7 @@ public class SearchHandler implements LdapMessageHandler
                 controls = getSearchControls( req, ids, false );
             }
             else if ( ( ( ServerLdapContext ) ctx ).getPrincipal().getName()
-                .trim().equals( PartitionNexus.ADMIN_PRINCIPAL ) )
+                .trim().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
             {
                 controls = getSearchControls( req, ids, true );
             }
