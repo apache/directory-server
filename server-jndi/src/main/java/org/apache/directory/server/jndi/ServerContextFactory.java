@@ -57,17 +57,23 @@ import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
+import org.apache.mina.common.ExecutorThreadModel;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoFilterChainBuilder;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.WriteFuture;
-import org.apache.mina.filter.thread.ThreadPoolFilter;
 import org.apache.mina.transport.socket.nio.DatagramAcceptor;
+import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketSessionConfig;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
+import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 
 /**
@@ -83,17 +89,11 @@ public class ServerContextFactory extends CoreContextFactory
     private static final Logger log = LoggerFactory.getLogger( ServerContextFactory.class.getName() );
     private static final String LDIF_FILES_DN = "ou=loadedLdifFiles,ou=configuration,ou=system";
 
-    protected static final IoAcceptor tcpAcceptor = new SocketAcceptor();
-    protected static final IoAcceptor udpAcceptor = new DatagramAcceptor();
-    protected static final ThreadPoolFilter threadPool;
+    protected static IoAcceptor tcpAcceptor;
+    protected static IoAcceptor udpAcceptor;
+    protected static ThreadPoolExecutor threadPoolExecutor;
+    protected static ExecutorThreadModel threadModel = ExecutorThreadModel.getInstance( "ApacheDS" );
     
-    static
-    {
-        threadPool = new ThreadPoolFilter();
-        tcpAcceptor.getFilterChain().addFirst( "threadPool", threadPool );
-        udpAcceptor.getFilterChain().addFirst( "threadPool", threadPool );
-    }
-
     private static boolean ldapStarted;
     private static boolean ldapsStarted;
     private static KerberosServer tcpKdcServer;
@@ -107,7 +107,14 @@ public class ServerContextFactory extends CoreContextFactory
 
     public void beforeStartup( DirectoryService service )
     {
-        threadPool.getThreadPool().setMaximumPoolSize( service.getConfiguration().getStartupConfiguration().getMaxThreads() );
+        int maxThreads = service.getConfiguration().getStartupConfiguration().getMaxThreads();
+        threadPoolExecutor = new ThreadPoolExecutor( maxThreads, maxThreads, 60, TimeUnit.SECONDS, 
+            new LinkedBlockingQueue() );
+        threadModel.setExecutor( threadPoolExecutor );
+        
+        udpAcceptor = new DatagramAcceptor();
+        tcpAcceptor = new SocketAcceptor();
+
         this.directoryService = service;
     }
 
@@ -462,6 +469,8 @@ public class ServerContextFactory extends CoreContextFactory
             acceptorCfg.setDisconnectOnUnbind( false );
             acceptorCfg.setReuseAddress( true );
             acceptorCfg.setFilterChainBuilder( chainBuilder );
+            acceptorCfg.setThreadModel( threadModel );
+            
             ((SocketSessionConfig)(acceptorCfg.getSessionConfig())).setTcpNoDelay( true );
             
             tcpAcceptor.bind( new InetSocketAddress( port ), protocolProvider.getHandler(), acceptorCfg );
@@ -491,8 +500,18 @@ public class ServerContextFactory extends CoreContextFactory
             {
                 KdcConfiguration kdcConfiguration = new KdcConfiguration( env, LoadStrategy.PROPS );
                 PrincipalStore kdcStore = new JndiPrincipalStoreImpl( kdcConfiguration, this );
-                tcpKdcServer = new KerberosServer( kdcConfiguration, tcpAcceptor, kdcStore );
-                udpKdcServer = new KerberosServer( kdcConfiguration, udpAcceptor, kdcStore );
+                
+                DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
+                udpConfig.setThreadModel( threadModel );
+
+                SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
+                tcpConfig.setDisconnectOnUnbind( false );
+                tcpConfig.setReuseAddress( true );
+                tcpConfig.setFilterChainBuilder( new DefaultIoFilterChainBuilder() );
+                tcpConfig.setThreadModel( threadModel );
+
+                tcpKdcServer = new KerberosServer( kdcConfiguration, tcpAcceptor, tcpConfig, kdcStore );
+                udpKdcServer = new KerberosServer( kdcConfiguration, udpAcceptor, udpConfig, kdcStore );
             }
             catch ( Throwable t )
             {
@@ -511,8 +530,20 @@ public class ServerContextFactory extends CoreContextFactory
                 ChangePasswordConfiguration changePasswordConfiguration = new ChangePasswordConfiguration( env,
                     LoadStrategy.PROPS );
                 PrincipalStore store = new JndiPrincipalStoreImpl( changePasswordConfiguration, this );
-                tcpChangePasswordServer = new ChangePasswordServer( changePasswordConfiguration, tcpAcceptor, store );
-                udpChangePasswordServer = new ChangePasswordServer( changePasswordConfiguration, udpAcceptor, store );
+
+                DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
+                udpConfig.setThreadModel( threadModel );
+
+                SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
+                tcpConfig.setDisconnectOnUnbind( false );
+                tcpConfig.setReuseAddress( true );
+                tcpConfig.setFilterChainBuilder( new DefaultIoFilterChainBuilder() );
+                tcpConfig.setThreadModel( threadModel );
+
+                tcpChangePasswordServer = new ChangePasswordServer( changePasswordConfiguration, tcpAcceptor, 
+                    tcpConfig, store );
+                udpChangePasswordServer = new ChangePasswordServer( changePasswordConfiguration, udpAcceptor, 
+                    udpConfig, store );
             }
             catch ( Throwable t )
             {
@@ -529,8 +560,18 @@ public class ServerContextFactory extends CoreContextFactory
             try
             {
                 NtpConfiguration ntpConfig = new NtpConfiguration( env, LoadStrategy.PROPS );
-                tcpNtpServer = new NtpServer( ntpConfig, tcpAcceptor );
-                udpNtpServer = new NtpServer( ntpConfig, udpAcceptor );
+
+                DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
+                udpConfig.setThreadModel( threadModel );
+
+                SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
+                tcpConfig.setDisconnectOnUnbind( false );
+                tcpConfig.setReuseAddress( true );
+                tcpConfig.setFilterChainBuilder( new DefaultIoFilterChainBuilder() );
+                tcpConfig.setThreadModel( threadModel );
+
+                tcpNtpServer = new NtpServer( ntpConfig, tcpAcceptor, tcpConfig );
+                udpNtpServer = new NtpServer( ntpConfig, udpAcceptor, udpConfig );
             }
             catch ( Throwable t )
             {
