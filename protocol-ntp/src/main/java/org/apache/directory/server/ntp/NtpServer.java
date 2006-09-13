@@ -28,6 +28,7 @@ import java.util.Dictionary;
 import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoHandler;
+import org.apache.mina.common.IoServiceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,7 @@ public class NtpServer
     private IoHandler handler;
 
 
-    public NtpServer( NtpConfiguration config, IoAcceptor acceptor )
+    public NtpServer( NtpConfiguration config, IoAcceptor acceptor, IoServiceConfig serviceConfig )
     {
         this.config = config;
         this.acceptor = acceptor;
@@ -55,7 +56,7 @@ public class NtpServer
         {
             handler = new NtpProtocolHandler();
 
-            acceptor.bind( new InetSocketAddress( port ), handler );
+            acceptor.bind( new InetSocketAddress( port ), handler, serviceConfig );
 
             log.debug( name + " listening on port " + port );
         }

@@ -29,6 +29,7 @@ import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoHandler;
+import org.apache.mina.common.IoServiceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ public class KerberosServer
     private IoHandler handler;
 
 
-    public KerberosServer(KdcConfiguration config, IoAcceptor acceptor, PrincipalStore store)
+    public KerberosServer( KdcConfiguration config, IoAcceptor acceptor, IoServiceConfig serviceConfig, PrincipalStore store )
     {
         this.config = config;
         this.acceptor = acceptor;
@@ -65,7 +66,7 @@ public class KerberosServer
         {
             handler = new KerberosProtocolHandler( new KdcConfiguration(), this.store );
 
-            acceptor.bind( new InetSocketAddress( port ), handler );
+            acceptor.bind( new InetSocketAddress( port ), handler, serviceConfig );
 
             log.debug( name + " listening on port " + port );
         }
