@@ -30,8 +30,6 @@ import java.util.Set;
 
 import javax.naming.Context;
 
-import org.apache.mina.filter.codec.asn1.Asn1CodecDecoder;
-import org.apache.mina.filter.codec.asn1.Asn1CodecEncoder;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.ldap.support.AbandonHandler;
 import org.apache.directory.server.ldap.support.AddHandler;
@@ -44,6 +42,8 @@ import org.apache.directory.server.ldap.support.ModifyDnHandler;
 import org.apache.directory.server.ldap.support.ModifyHandler;
 import org.apache.directory.server.ldap.support.SearchHandler;
 import org.apache.directory.server.ldap.support.UnbindHandler;
+import org.apache.directory.shared.asn1.codec.Asn1CodecDecoder;
+import org.apache.directory.shared.asn1.codec.Asn1CodecEncoder;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.AbandonRequestImpl;
