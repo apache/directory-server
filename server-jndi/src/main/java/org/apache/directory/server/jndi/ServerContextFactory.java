@@ -61,7 +61,7 @@ import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoFilterChainBuilder;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.WriteFuture;
-import org.apache.mina.filter.thread.ThreadPoolFilter;
+import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
@@ -86,11 +86,11 @@ public class ServerContextFactory extends CoreContextFactory
 
     protected static final IoAcceptor tcpAcceptor = new SocketAcceptor();
     protected static final IoAcceptor udpAcceptor = new DatagramAcceptor();
-    protected static final ThreadPoolFilter threadPool;
+    protected static final ExecutorFilter threadPool;
     
     static
     {
-        threadPool = new ThreadPoolFilter();
+        threadPool = new ExecutorFilter();
         tcpAcceptor.getFilterChain().addFirst( "threadPool", threadPool );
         udpAcceptor.getFilterChain().addFirst( "threadPool", threadPool );
     }
@@ -108,7 +108,9 @@ public class ServerContextFactory extends CoreContextFactory
 
     public void beforeStartup( DirectoryService service )
     {
-        threadPool.getThreadPool().setMaximumPoolSize( service.getConfiguration().getStartupConfiguration().getMaxThreads() );
+        // TODO Find out how now with executor we are to set the max pool size
+        
+//        threadPool.setMaximumPoolSize( service.getConfiguration().getStartupConfiguration().getMaxThreads() );
         this.directoryService = service;
     }
 

@@ -43,7 +43,7 @@
       <plugin>
         <groupId>org.apache.directory.server</groupId>
         <artifactId>apacheds-core-plugin</artifactId>
-        <version>1.0-RC4</version>
+        <version>1.0-SNAPSHOT</version>
         <configuration>
           <schemaSourcesDir>src/main/schema</schemaSourcesDir>
           <schemas>
