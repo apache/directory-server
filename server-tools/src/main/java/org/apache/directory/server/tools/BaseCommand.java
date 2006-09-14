@@ -74,7 +74,15 @@ public class BaseCommand
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
+        command = new DisconnectNotificationCommand();
+        commands.put( command.getName(), command );
+        commandsOrdered.add( command.getName() );
+
         command = new DumpCommand();
+        commands.put( command.getName(), command );
+        commandsOrdered.add( command.getName() );
+
+        command = new CapacityTestCommand();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
@@ -86,11 +94,7 @@ public class BaseCommand
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
-        command = new DisconnectNotificationCommand();
-        commands.put( command.getName(), command );
-        commandsOrdered.add( command.getName() );
-
-        command = new CapacityTestCommand();
+        command = new IndexCommand();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
