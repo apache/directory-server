@@ -64,6 +64,7 @@ import javax.swing.tree.TreePath;
 
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
 import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
 import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
 
@@ -828,11 +829,21 @@ public class PartitionFrame extends JFrame
         while ( list.hasNext() )
         {
             String idx = ( String ) list.next();
+            Index index = null;
+            try
+            {
+                index = partition.getSystemIndex( idx );
+            }
+            catch ( IndexNotFoundException e )
+            {
+                e.printStackTrace();
+            }
+            
             item = new JMenuItem();
             item.setBackground( new java.awt.Color( 205, 205, 205 ) );
             indices.add( item );
-            item.setText( idx );
-            item.setActionCommand( idx );
+            item.setText( index.getAttribute().getName() );
+            item.setActionCommand( index.getAttribute().getName() );
             item.addActionListener( listener );
         }
 
@@ -841,10 +852,20 @@ public class PartitionFrame extends JFrame
         while ( list.hasNext() )
         {
             String idx = ( String ) list.next();
+            Index index = null;
+            try
+            {
+                index = partition.getUserIndex( idx );
+            }
+            catch ( IndexNotFoundException e )
+            {
+                e.printStackTrace();
+            }
+            
             item = new JMenuItem();
             item.setBackground( new java.awt.Color( 205, 205, 205 ) );
             indices.add( item );
-            item.setText( idx );
+            item.setText( index.getAttribute().getName() );
             item.setActionCommand( idx );
             item.addActionListener( listener );
         }
