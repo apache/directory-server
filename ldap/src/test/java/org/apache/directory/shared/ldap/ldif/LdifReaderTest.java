@@ -1423,4 +1423,53 @@ public class LdifReaderTest extends TestCase
             assertTrue( true );
         }
     }
+
+    public void testLdifReaderDirServer() throws NamingException, Exception
+    {
+        String ldif = 
+            "# -------------------------------------------------------------------\n" +
+            "#\n" +
+            "#  Licensed to the Apache Software Foundation (ASF) under one\n" +
+            "#  or more contributor license agreements.  See the NOTICE file\n" +
+            "#  distributed with this work for additional information\n" +
+            "#  regarding copyright ownership.  The ASF licenses this file\n" +
+            "#  to you under the Apache License, Version 2.0 (the\n" +
+            "#  \"License\"); you may not use this file except in compliance\n" +
+            "#  with the License.  You may obtain a copy of the License at\n" +
+            "#  \n" +
+            "#    http://www.apache.org/licenses/LICENSE-2.0\n" +
+            "#  \n" +
+            "#  Unless required by applicable law or agreed to in writing,\n" +
+            "#  software distributed under the License is distributed on an\n" +
+            "#  \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n" +
+            "#  KIND, either express or implied.  See the License for the\n" +
+            "#  specific language governing permissions and limitations\n" +
+            "#  under the License. \n" +
+            "#  \n" +
+            "#\n" +
+            "# EXAMPLE.COM is freely and reserved for testing according to this RFC:\n" +
+            "#\n" +
+            "# http://www.rfc-editor.org/rfc/rfc2606.txt\n" +
+            "#\n" +
+            "# -------------------------------------------------------------------\n" +
+            "\n" +
+            "dn: ou=Users, dc=example, dc=com\n" +
+            "objectclass: top\n" +
+            "objectclass: organizationalunit\n" +
+            "ou: Users";
+            
+        LdifReader reader = new LdifReader();
+
+        List entries = reader.parseLdif( ldif );
+        Entry entry = (Entry) entries.get( 0 );
+
+        assertEquals( "ou=Users, dc=example, dc=com", entry.getDn() );
+
+        Attribute attr = entry.get( "objectclass" );
+        assertTrue( attr.contains( "top" ) );
+        assertTrue( attr.contains( "organizationalunit" ) );
+
+        attr = entry.get( "ou" );
+        assertTrue( attr.contains( "Users" ) );
+    }
 }
