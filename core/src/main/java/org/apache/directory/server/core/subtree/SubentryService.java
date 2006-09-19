@@ -136,8 +136,7 @@ public class SubentryService extends BaseInterceptor
         ExprNode filter = new SimpleNode( "objectclass", "subentry", LeafNode.EQUALITY );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "subtreeSpecification" } );
+        controls.setReturningAttributes( new String[] { "subtreeSpecification", "objectClass" } );
 
         // search each namingContext for subentries
         while ( suffixes.hasNext() )
