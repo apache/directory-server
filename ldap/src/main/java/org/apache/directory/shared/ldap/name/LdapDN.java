@@ -984,7 +984,7 @@ public class LdapDN /* extends LdapString */implements Name
                return this;
            }
 
-           for ( int ii = 0; ii < name.size(); ii++ )
+           for ( int ii = name.size() - 1; ii >= 0; ii-- )
            {
                Rdn rdn = new Rdn( name.get( ii ) );
                rdns.add( size() - posn, rdn );

@@ -34,7 +34,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
+import javax.naming.CompoundName;
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -2653,5 +2655,28 @@ public class LdapDNTest extends TestCase
        LdapDN name = new LdapDN( "0.9.2342.19200300.100.1.1=00123456789+2.5.4.3=pablo picasso,2.5.4.11=search,2.5.4.10=imc,2.5.4.6=us" );
        Assert.assertEquals( "0.9.2342.19200300.100.1.1=00123456789+2.5.4.3=pablo picasso,2.5.4.11=search,2.5.4.10=imc,2.5.4.6=us", name.toString() );
        Assert.assertEquals( "0.9.2342.19200300.100.1.1=00123456789+2.5.4.3=pablo picasso,2.5.4.11=search,2.5.4.10=imc,2.5.4.6=us", name.getUpName() );
+   }
+   
+   
+   public void testNameAddAll() throws NamingException
+   {
+       Properties props = new Properties();
+       props.setProperty( "jndi.syntax.direction", "right_to_left" );
+       props.setProperty( "jndi.syntax.separator", "," );
+       props.setProperty( "jndi.syntax.ignorecase", "true" );
+       props.setProperty( "jndi.syntax.trimblanks", "true" );
+
+       Name dn = new CompoundName( "cn=blah,dc=example,dc=com", props );
+       LdapDN ldapDn = new LdapDN();
+       ldapDn.addAll( 0, dn );
+       
+       assertEquals( "cn=blah,dc=example,dc=com", ldapDn.toString() );
+
+       dn = new CompoundName( "cn=blah,dc=example,dc=com", props );
+       ldapDn = new LdapDN( "cn=xyz" );
+       ldapDn.addAll( 0, dn );
+       
+       System.out.println( ldapDn.toString() );
+       assertEquals( "cn=xyz,cn=blah,dc=example,dc=com", ldapDn.toString() );
    }
 }
