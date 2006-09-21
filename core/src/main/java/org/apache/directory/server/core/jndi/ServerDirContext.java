@@ -474,6 +474,31 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             return getNexusProxy().search( target, getEnvironment(), filter, ctls );
         }
 
+        // Handle simple filter expressions without multiple terms
+        if ( matchingAttributes.size() == 1 )
+        {
+            NamingEnumeration list = matchingAttributes.getAll();
+            Attribute attr = ( Attribute ) list.next();
+            list.close();
+            
+            if ( attr.size() == 1 )
+            {
+                Object value = attr.get();
+                SimpleNode node;
+                
+                if ( value instanceof byte[] )
+                {
+                    node = new SimpleNode( attr.getID(), ( byte [] ) value, SimpleNode.EQUALITY );
+                }
+                else 
+                {
+                    node = new SimpleNode( attr.getID(), ( String ) value, SimpleNode.EQUALITY );
+                }
+
+                return getNexusProxy().search( target, getEnvironment(), node, ctls );
+            }
+        }
+        
         /*
          * Go through the set of attributes using each attribute value pair as 
          * an attribute value assertion within one big AND filter expression.
