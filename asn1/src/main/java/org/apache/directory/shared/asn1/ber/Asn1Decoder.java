@@ -312,8 +312,15 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
         if ( IS_DEBUG )
         {
-            Tag tag = container.getCurrentTLV().getTag();
-            log.debug( "Tag {} has been decoded", tag.toString() );
+            if ( container.getCurrentTLV() != null )
+            {
+                Tag tag = container.getCurrentTLV().getTag();
+                log.debug( "Tag {} has been decoded", tag.toString() );
+            }
+            else
+            {
+                log.debug( "Tag has been decoded, but is null" );
+            }
         }
 
         // Create a link between the current TLV with its parent
@@ -513,7 +520,14 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
             if ( IS_DEBUG )
             {
-                log.debug( "Root TLV[{}]", new Integer( tlv.getLength().getLength() ) );
+                if  ( ( tlv != null ) && ( tlv.getLength() != null ) )
+                {
+                    log.debug( "Root TLV[{}]", new Integer( tlv.getLength().getLength() ) );
+                }
+                else
+                {
+                    log.debug( "Root TLV[ null ]");
+                }
             }
         }
         else
@@ -974,18 +988,32 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
             if ( container.getState() == TLVStateEnum.PDU_DECODED )
             {
-                log.debug( "<-- Stop decoding : {}", container.getCurrentTLV().toString() );
+                if ( container.getCurrentTLV() != null )
+                {
+                    log.debug( "<-- Stop decoding : {}", container.getCurrentTLV().toString() );
+                }
+                else
+                {
+                    log.debug( "<-- Stop decoding : null current TLV" );
+                }            
             }
             else
             {
-                log.debug( "<-- End decoding : {}", container.getCurrentTLV().toString() );
+                if ( container.getCurrentTLV() != null )
+                {
+                    log.debug( "<-- End decoding : {}", container.getCurrentTLV().toString() );
+                }
+                else
+                {
+                    log.debug( "<-- End decoding : null current TLV" );
+                }
             }
 
             log.debug( "<<<==========================================" );
         }
 
         return;
-    } // end method decode
+    }
 
 
     /**
@@ -1075,5 +1103,5 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         this.maxTagLength = maxTagLength;
     }
 
-} // end class TLVTagDecoder
+}
 
