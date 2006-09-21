@@ -441,6 +441,11 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
                 length.incCurrentLength();
                 length.incSize();
                 length.setLength( ( length.getLength() << 8 ) | ( octet & 0x00FF ) );
+
+                if ( stream.hasRemaining() == false )
+                {
+                    return END;
+                }
             }
 
             container.setState( TLVStateEnum.LENGTH_STATE_END );
