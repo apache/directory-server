@@ -425,7 +425,7 @@ public abstract class BTreePartition implements Partition
 
         for ( int ii = 0; ii < attrIds.length; ii++ )
         {
-            Attribute attr = entry.get( attrIds[0] );
+            Attribute attr = entry.get( attrIds[ii] );
 
             if ( attr != null )
             {

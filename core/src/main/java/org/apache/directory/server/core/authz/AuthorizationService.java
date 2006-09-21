@@ -671,8 +671,6 @@ public class AuthorizationService extends BaseInterceptor
     public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( dn, PartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = new LdapDN( principal.getName() );
         principalDn.normalize( attrRegistry.getNormalizerMapping() );
@@ -682,6 +680,8 @@ public class AuthorizationService extends BaseInterceptor
             return next.lookup( dn, attrIds );
         }
 
+        PartitionNexusProxy proxy = invocation.getProxy();
+        Attributes entry = proxy.lookup( dn, PartitionNexusProxy.LOOKUP_BYPASS );
         checkLookupAccess( principal, dn, entry );
         return next.lookup( dn, attrIds );
     }
