@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.bind.BindRequest;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
+import org.apache.directory.shared.ldap.codec.del.DelRequest;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import java.nio.ByteBuffer;
@@ -390,5 +391,78 @@ public class LdapDecoderTest extends TestCase
         }
 
         fail( "Should never reach this point." );
+    }
+
+    /**
+     * Test the decoding of a splitted length
+     */
+    public void testDecodeSplittedLength() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x03 );
+
+        stream.put( new byte[]
+            {
+            0x30, (byte)0x82, 0x01          // LDAPMessage ::= SEQUENCE {
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a DelRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+
+        assertEquals( TLVStateEnum.LENGTH_STATE_PENDING, ldapMessageContainer.getState() );
+
+        stream = ByteBuffer.allocate( 0x101 );
+
+        stream.put( new byte[]
+            {
+            0x00,                                       // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,                         // messageID MessageID
+                                                        // CHOICE { ..., delRequest DelRequest, ...
+                                                        // DelRequest ::= [APPLICATION 10] LDAPDN;
+              0x4A, (byte)0x81, (byte)0xFA,
+                'c', 'n', '=',  
+            } );
+
+        for ( int i = 0; i < 0xFA - 3; i++ )
+        {
+            stream.put( (byte)'a' );
+        }
+        
+        stream.flip();
+
+        // Decode a DelRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+
+        // Check the decoded DelRequest PDU
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        DelRequest delRequest = message.getDelRequest();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "cn=aaaaaaaaaaaaaaaaa", delRequest.getEntry().toString().substring( 0, 20 ) );
+
+        // Check the length
+        assertEquals( 0x104, message.computeLength() );
     }
 }
