@@ -200,6 +200,9 @@ Use JDK 1.5 to make sure these modules build.
       <url>http://directory.apache.org/community/who/noel.html</url>
     </developer>
     <developer>
+      <id>pamarcelot</id>
+    </developer>
+    <developer>
       <id>psteitz</id>
       <url>http://directory.apache.org/community/who/psteitz.html</url>
     </developer>
