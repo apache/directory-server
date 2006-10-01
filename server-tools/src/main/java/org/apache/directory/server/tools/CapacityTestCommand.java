@@ -24,6 +24,8 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Hashtable;
 
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
@@ -97,6 +99,9 @@ public class CapacityTestCommand extends ToolCommand
 
         LdapContext ctx = new InitialLdapContext( env, null );
 
+        // create the base dn if it does not exist
+        createBase( ctx );
+        
         StringBuffer dnBuf = new StringBuffer();
         StringBuffer outBuf = new StringBuffer();
         int counter = 0;
@@ -128,6 +133,23 @@ public class CapacityTestCommand extends ToolCommand
     }
     
     
+    private boolean createBase( LdapContext ctx ) throws NamingException
+    {
+        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
+        attrs.put( "ou", "users" );
+        
+        try
+        {
+            ctx.createSubcontext( "ou=users,dc=example,dc=com", attrs );
+            return true;
+        }
+        catch( NameAlreadyBoundException e )
+        {
+            return false;
+        }
+    }
+
+
     private Attributes generateLdif( int counter )
     {
         BasicAttributes attrs = new BasicAttributes( "objectClass", "top", true );
