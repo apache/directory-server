@@ -21,6 +21,8 @@ package org.apache.directory.server;
 
 
 import javax.naming.directory.*;
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import netscape.ldap.LDAPAttribute;
@@ -355,5 +357,122 @@ public class AddITest extends AbstractServerTest
         {
             
         }
+    }
+
+
+    /**
+     * Try to add entry and an alias to it. Afterwards, remove it.
+     */
+    public void testAddAlias() throws NamingException
+    {
+
+        // Create entry
+        Attributes entry = new BasicAttributes();
+        Attribute entryOcls = new BasicAttribute( "objectclass" );
+        entryOcls.add( "top" );
+        entryOcls.add( "organizationalUnit" );
+        entry.put( entryOcls );
+        entry.put( "ou", "favorite" );
+        String entryRdn = "ou=favorite";
+        ctx.createSubcontext( entryRdn, entry );
+
+        // Create Alias
+        String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
+        Attributes alias = new BasicAttributes();
+        Attribute aliasOcls = new BasicAttribute( "objectclass" );
+        aliasOcls.add( "top" );
+        aliasOcls.add( "alias" );
+        alias.put( aliasOcls );
+        alias.put( "ou", "bestFruit" );
+        alias.put( "aliasedObjectName", aliasedObjectName );
+        String rdnAlias = "ou=bestFruit";
+        ctx.createSubcontext( rdnAlias, alias );
+
+        // Remove alias and entry
+        ctx.destroySubcontext( rdnAlias );
+        ctx.destroySubcontext( entryRdn );
+    }
+
+
+    /**
+     * Try to add entry and an alias to it. Afterwards, remove it. This version
+     * cretes a container entry before the operations.
+     */
+    public void testAddAliasInContainer() throws NamingException
+    {
+
+        // Create container
+        Attributes container = new BasicAttributes();
+        Attribute containerOcls = new BasicAttribute( "objectclass" );
+        containerOcls.add( "top" );
+        containerOcls.add( "organizationalUnit" );
+        container.put( containerOcls );
+        container.put( "ou", "Fruits" );
+        String containerRdn = "ou=Fruits";
+        DirContext containerCtx = ctx.createSubcontext( containerRdn, container );
+
+        // Create entry
+        Attributes entry = new BasicAttributes();
+        Attribute entryOcls = new BasicAttribute( "objectclass" );
+        entryOcls.add( "top" );
+        entryOcls.add( "organizationalUnit" );
+        entry.put( entryOcls );
+        entry.put( "ou", "favorite" );
+        String entryRdn = "ou=favorite";
+        containerCtx.createSubcontext( entryRdn, entry );
+
+        // Create alias ou=bestFruit,ou=Fruits to entry ou=favorite,ou=Fruits
+        String aliasedObjectName = entryRdn + "," + containerCtx.getNameInNamespace();
+        Attributes alias = new BasicAttributes();
+        Attribute aliasOcls = new BasicAttribute( "objectclass" );
+        aliasOcls.add( "top" );
+        aliasOcls.add( "alias" );
+        alias.put( aliasOcls );
+        alias.put( "ou", "bestFruit" );
+        alias.put( "aliasedObjectName", aliasedObjectName );
+        String rdnAlias = "ou=bestFruit";
+        containerCtx.createSubcontext( rdnAlias, alias );
+
+        // search one level scope for alias 
+        SearchControls controls = new SearchControls();
+        controls.setDerefLinkFlag( true );
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        containerCtx.addToEnvironment( "java.naming.ldap.derefAliases", "never" );
+        NamingEnumeration ne = containerCtx.search( "", "(objectClass=*)", controls );
+        assertTrue( ne.hasMore() );
+        SearchResult sr = ( SearchResult ) ne.next();
+        assertEquals( "ou=favorite", sr.getName() );
+        assertTrue( ne.hasMore() );
+        sr = ( SearchResult ) ne.next();
+        assertEquals( "ou=bestFruit", sr.getName() );
+        
+        // search one level with dereferencing turned on
+        controls = new SearchControls();
+        controls.setDerefLinkFlag( true );
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        containerCtx.addToEnvironment( "java.naming.ldap.derefAliases", "always" );
+        ne = containerCtx.search( "", "(objectClass=*)", controls );
+        assertTrue( ne.hasMore() );
+        sr = ( SearchResult ) ne.next();
+        assertEquals( "ou=favorite", sr.getName() );
+        assertFalse( ne.hasMore() );
+        
+        // search with base set to alias and dereferencing turned on
+        controls = new SearchControls();
+        controls.setDerefLinkFlag( false );
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        containerCtx.addToEnvironment( "java.naming.ldap.derefAliases", "always" );
+        ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
+        assertTrue( ne.hasMore() );
+        sr = ( SearchResult ) ne.next();
+        assertEquals( "ldap://localhost:1024/ou=favorite,ou=Fruits,ou=system", sr.getName() );
+        assertFalse( ne.hasMore() );
+        
+        // Remove alias and entry
+        containerCtx.destroySubcontext( rdnAlias );
+        containerCtx.destroySubcontext( entryRdn );
+
+        // Remove container
+        ctx.destroySubcontext( containerRdn );
     }
 }

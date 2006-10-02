@@ -62,6 +62,6 @@ public class DnNormalizer implements Normalizer
         }
         
         dn.normalize( attrRegistry.getNormalizerMapping() );
-        return dn;
+        return dn.getNormName();
     }
 }
