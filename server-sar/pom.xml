@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
   <artifactId>apacheds-server-sar</artifactId>
   <name>ApacheDS Server Sar (JBoss 3.x)</name>
@@ -21,7 +21,7 @@
     <dependency>
       <groupId>org.apache.directory.daemon</groupId>
       <artifactId>daemon-bootstrappers</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.0</version>
     </dependency>
     <dependency>
       <groupId>jboss</groupId>
@@ -60,7 +60,6 @@
         <extensions>true</extensions>
         <groupId>org.apache.directory.server</groupId>
       	<artifactId>apacheds-sar-plugin</artifactId>
-        <version>1.0-SNAPSHOT</version>
         <configuration>
           <excludes>
             <exclude>
