@@ -21,7 +21,6 @@ package org.apache.directory.server;
 
 
 import javax.naming.directory.*;
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
@@ -465,7 +464,7 @@ public class AddITest extends AbstractServerTest
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ( SearchResult ) ne.next();
-        assertEquals( "ldap://localhost:1024/ou=favorite,ou=Fruits,ou=system", sr.getName() );
+        assertTrue( sr.getName().endsWith( "ou=favorite,ou=Fruits,ou=system" ) );
         assertFalse( ne.hasMore() );
         
         // Remove alias and entry
