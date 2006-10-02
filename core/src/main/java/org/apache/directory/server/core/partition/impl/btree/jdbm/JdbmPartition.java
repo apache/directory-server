@@ -642,7 +642,7 @@ public class JdbmPartition extends BTreePartition
         oneAliasIdx.drop( ancestorId, targetId );
         subAliasIdx.drop( ancestorId, targetId );
 
-        while ( !ancestorDn.equals( upSuffix ) )
+        while ( !ancestorDn.equals( normSuffix ) )
         {
             ancestorDn = ( LdapDN ) ancestorDn.getPrefix( 1 );
             ancestorId = getEntryId( ancestorDn.toString() );
@@ -751,7 +751,7 @@ public class JdbmPartition extends BTreePartition
         // Add the alias to the simple alias index
         // TODO should we be adding aliasTarget which is not normalized or 
         //      should we be adding targetDn.toNormName()
-        aliasIdx.add( aliasTarget, aliasId );
+        aliasIdx.add( normalizedAliasTargetDn.getNormName(), aliasId );
 
         /*
          * Handle One Level Scope Alias Index
@@ -786,7 +786,7 @@ public class JdbmPartition extends BTreePartition
                 subAliasIdx.add( ancestorId, targetId );
             }
 
-            ancestorDn = ( LdapDN ) ancestorDn.remove( ancestorDn.size() - 1 );
+            ancestorDn.remove( ancestorDn.size() - 1 );
             ancestorId = getEntryId( ancestorDn.toNormName() );
         }
     }
