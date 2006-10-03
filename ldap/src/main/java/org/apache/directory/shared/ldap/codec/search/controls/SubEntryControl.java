@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 
 
 /**
- * A searchRequest control.
+ * A searchRequest control : SubEntry
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -52,8 +52,7 @@ public class SubEntryControl extends Asn1Object
     /**
      * Set the visibility flag
      * 
-     * @param visibility
-     *            The visibility flag : true or false
+     * @param visibility The visibility flag : true or false
      */
     public void setVisibility( boolean visibility )
     {
@@ -73,11 +72,9 @@ public class SubEntryControl extends Asn1Object
     /**
      * Encodes the subEntry control.
      * 
-     * @param buffer
-     *            The encoded sink
+     * @param buffer The encoded sink
      * @return A ByteBuffer that contains the encoded PDU
-     * @throws EncoderException
-     *             If anything goes wrong.
+     * @throws EncoderException If anything goes wrong.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {

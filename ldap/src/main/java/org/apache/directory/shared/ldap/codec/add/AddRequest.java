@@ -20,13 +20,12 @@
 package org.apache.directory.shared.ldap.codec.add;
 
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -48,10 +47,16 @@ import javax.naming.directory.BasicAttributes;
 
 
 /**
- * An AddRequest Message. Its syntax is : AddRequest ::= [APPLICATION 8]
- * SEQUENCE { entry LDAPDN, attributes AttributeList } AttributeList ::=
- * SEQUENCE OF SEQUENCE { type AttributeDescription, vals SET OF AttributeValue }
- * AttributeValue ::= OCTET STRING
+ * An AddRequest Message. Its syntax is : 
+ *   AddRequest ::= [APPLICATION 8] SEQUENCE {
+ *              entry           LDAPDN,
+ *              attributes      AttributeList }
+ *
+ *   AttributeList ::= SEQUENCE OF SEQUENCE {
+ *              type    AttributeDescription,
+ *              vals    SET OF AttributeValue }
+ * 
+ *   AttributeValue ::= OCTET STRING
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -136,32 +141,10 @@ public class AddRequest extends LdapMessage
         return attributes;
     }
 
-
     /**
      * Create a new attributeValue
      * 
-     * @param type
-     *            The attribute's name (called 'type' in the grammar)
-     */
-    public void addAttributeType( LdapString type )
-    {
-        // do not create a new attribute if we have seen this attributeType before
-        if ( attributes.get( type.toString().toLowerCase() ) != null )
-        {
-            currentAttribute = attributes.get( type.toString().toLowerCase() );
-            return;
-        }
-        
-        // fix this to use LockableAttributeImpl(type.getString().toLowerCase())
-        currentAttribute = new BasicAttribute( type.getString().toLowerCase() );
-        attributes.put( currentAttribute );
-    }
-
-    /**
-     * Create a new attributeValue
-     * 
-     * @param type
-     *            The attribute's name (called 'type' in the grammar)
+     * @param type The attribute's name (called 'type' in the grammar)
      */
     public void addAttributeType( String type )
     {
@@ -181,8 +164,7 @@ public class AddRequest extends LdapMessage
     /**
      * Add a new value to the current attribute
      * 
-     * @param value
-     *            The value to be added
+     * @param value The value to be added
      */
     public void addAttributeValue( Object value )
     {
@@ -204,8 +186,7 @@ public class AddRequest extends LdapMessage
     /**
      * Set the added DN.
      * 
-     * @param entry
-     *            The entry to set.
+     * @param entry The entry to set.
      */
     public void setEntry( LdapDN entry )
     {
@@ -214,19 +195,48 @@ public class AddRequest extends LdapMessage
 
 
     /**
-     * Compute the AddRequest length AddRequest : 0x68 L1 | +--> 0x04 L2 entry
-     * +--> 0x30 L3 (attributes) | +--> 0x30 L4-1 (attribute) | | | +--> 0x04
-     * L5-1 type | +--> 0x31 L6-1 (values) | | | +--> 0x04 L7-1-1 value | +-->
-     * ... | +--> 0x04 L7-1-n value | +--> 0x30 L4-2 (attribute) | | | +--> 0x04
-     * L5-2 type | +--> 0x31 L6-2 (values) | | | +--> 0x04 L7-2-1 value | +-->
-     * ... | +--> 0x04 L7-2-n value | +--> ... | +--> 0x30 L4-m (attribute) |
-     * +--> 0x04 L5-m type +--> 0x31 L6-m (values) | +--> 0x04 L7-m-1 value +-->
-     * ... +--> 0x04 L7-m-n value
+     * Compute the AddRequest length
+     * 
+     * AddRequest :
+     * 
+     * 0x68 L1
+     *  |
+     *  +--> 0x04 L2 entry
+     *  +--> 0x30 L3 (attributes)
+     *        |
+     *        +--> 0x30 L4-1 (attribute)
+     *        |     |
+     *        |     +--> 0x04 L5-1 type
+     *        |     +--> 0x31 L6-1 (values)
+     *        |           |
+     *        |           +--> 0x04 L7-1-1 value
+     *        |           +--> ...
+     *        |           +--> 0x04 L7-1-n value
+     *        |
+     *        +--> 0x30 L4-2 (attribute)
+     *        |     |
+     *        |     +--> 0x04 L5-2 type
+     *        |     +--> 0x31 L6-2 (values)
+     *        |           |
+     *        |           +--> 0x04 L7-2-1 value
+     *        |           +--> ...
+     *        |           +--> 0x04 L7-2-n value
+     *        |
+     *        +--> ...
+     *        |
+     *        +--> 0x30 L4-m (attribute)
+     *              |
+     *              +--> 0x04 L5-m type
+     *              +--> 0x31 L6-m (values)
+     *                    |
+     *                    +--> 0x04 L7-m-1 value
+     *                    +--> ...
+     *                    +--> 0x04 L7-m-n value
      */
     public int computeLength()
     {
         // The entry
-        addRequestLength = 1 + Length.getNbBytes( LdapDN.getNbBytes( entry ) ) + LdapDN.getNbBytes( entry );
+        addRequestLength = 1 + TLV.getNbBytes( LdapDN.getNbBytes( entry ) ) + LdapDN.getNbBytes( entry );
 
         // The attributes sequence
         attributesLength = 0;
@@ -246,7 +256,7 @@ public class AddRequest extends LdapMessage
 
                 // Get the type length
                 int idLength = attribute.getID().getBytes().length;
-                localAttributeLength = 1 + Length.getNbBytes( idLength ) + idLength;
+                localAttributeLength = 1 + TLV.getNbBytes( idLength ) + idLength;
 
                 // The values
                 try
@@ -264,16 +274,16 @@ public class AddRequest extends LdapMessage
                             if ( value instanceof String )
                             {
                                 int valueLength = StringTools.getBytesUtf8( ( String ) value ).length;
-                                localValuesLength += 1 + Length.getNbBytes( valueLength ) + valueLength;
+                                localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
                             }
                             else
                             {
                                 int valueLength = ( ( byte[] ) value ).length;
-                                localValuesLength += 1 + Length.getNbBytes( valueLength ) + valueLength;
+                                localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
                             }
                         }
 
-                        localAttributeLength += 1 + Length.getNbBytes( localValuesLength ) + localValuesLength;
+                        localAttributeLength += 1 + TLV.getNbBytes( localValuesLength ) + localValuesLength;
                     }
 
                 }
@@ -283,17 +293,17 @@ public class AddRequest extends LdapMessage
                 }
 
                 // add the attribute length to the attributes length
-                attributesLength += 1 + Length.getNbBytes( localAttributeLength ) + localAttributeLength;
+                attributesLength += 1 + TLV.getNbBytes( localAttributeLength ) + localAttributeLength;
 
                 attributeLength.add( new Integer( localAttributeLength ) );
                 valuesLength.add( new Integer( localValuesLength ) );
             }
         }
 
-        addRequestLength += 1 + Length.getNbBytes( attributesLength ) + attributesLength;
+        addRequestLength += 1 + TLV.getNbBytes( attributesLength ) + attributesLength;
 
         // Return the result.
-        int result = 1 + Length.getNbBytes( addRequestLength ) + addRequestLength;
+        int result = 1 + TLV.getNbBytes( addRequestLength ) + addRequestLength;
 
         if ( IS_DEBUG )
         {
@@ -305,15 +315,28 @@ public class AddRequest extends LdapMessage
 
 
     /**
-     * Encode the AddRequest message to a PDU. AddRequest : 0x68 LL 0x04 LL
-     * entry 0x30 LL attributesList 0x30 LL attributeList 0x04 LL
-     * attributeDescription 0x31 LL attributeValues 0x04 LL attributeValue ...
-     * 0x04 LL attributeValue ... 0x30 LL attributeList 0x04 LL
-     * attributeDescription 0x31 LL attributeValue 0x04 LL attributeValue ...
-     * 0x04 LL attributeValue
+     * Encode the AddRequest message to a PDU. 
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * AddRequest :
+     * 
+     * 0x68 LL
+     *   0x04 LL entry
+     *   0x30 LL attributesList
+     *     0x30 LL attributeList
+     *       0x04 LL attributeDescription
+     *       0x31 LL attributeValues
+     *         0x04 LL attributeValue
+     *         ... 
+     *         0x04 LL attributeValue
+     *     ... 
+     *     0x30 LL attributeList
+     *       0x04 LL attributeDescription
+     *       0x31 LL attributeValue
+     *         0x04 LL attributeValue
+     *         ... 
+     *         0x04 LL attributeValue 
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -327,14 +350,14 @@ public class AddRequest extends LdapMessage
         {
             // The AddRequest Tag
             buffer.put( LdapConstants.ADD_REQUEST_TAG );
-            buffer.put( Length.getBytes( addRequestLength ) );
+            buffer.put( TLV.getBytes( addRequestLength ) );
 
             // The entry
             Value.encode( buffer, LdapDN.getBytes( entry ) );
 
             // The attributes sequence
             buffer.put( UniversalTag.SEQUENCE_TAG );
-            buffer.put( Length.getBytes( attributesLength ) );
+            buffer.put( TLV.getBytes( attributesLength ) );
 
             // The partial attribute list
             if ( ( attributes != null ) && ( attributes.size() != 0 ) )
@@ -350,7 +373,7 @@ public class AddRequest extends LdapMessage
                     // The attributes list sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
                     int localAttributeLength = ( ( Integer ) attributeLength.get( attributeNumber ) ).intValue();
-                    buffer.put( Length.getBytes( localAttributeLength ) );
+                    buffer.put( TLV.getBytes( localAttributeLength ) );
 
                     // The attribute type
                     Value.encode( buffer, attribute.getID() );
@@ -358,7 +381,7 @@ public class AddRequest extends LdapMessage
                     // The values
                     buffer.put( UniversalTag.SET_TAG );
                     int localValuesLength = ( ( Integer ) valuesLength.get( attributeNumber ) ).intValue();
-                    buffer.put( Length.getBytes( localValuesLength ) );
+                    buffer.put( TLV.getBytes( localValuesLength ) );
 
                     try
                     {

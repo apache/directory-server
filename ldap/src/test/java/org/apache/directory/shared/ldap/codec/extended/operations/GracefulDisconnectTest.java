@@ -274,15 +274,17 @@ public class GracefulDisconnectTest extends TestCase
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer stream = ByteBuffer.allocate( 0x6A );
         stream.put( new byte[]
-            { 0x30, 0x68, // GracefulDisconnec ::= SEQUENCE {
-                0x30, 0x66, // replicatedContexts Referral OPTIONAL
-                0x04, 0x1F, 'l', 'd', 'a', 'p', ':', '/', '/', 'd', 'i', 'r', 'e', 'c', 't', 'o', 'r', 'y', '.', 'a',
-                'p', 'a', 'c', 'h', 'e', '.', 'o', 'r', 'g', ':', '8', '0', '/', 0x04, 0x43, 'l', 'd', 'a', 'p', ':',
-                '/', '/', 'l', 'd', 'a', 'p', '.', 'n', 'e', 't', 's', 'c', 'a', 'p', 'e', '.', 'c', 'o', 'm', '/',
-                'o', '=', 'B', 'a', 'b', 's', 'c', 'o', ',', 'c', '=', 'U', 'S', '?', '?', '?', '(', 'i', 'n', 't',
-                '=', '%', '5', 'c', '0', '0', '%', '5', 'c', '0', '0', '%', '5', 'c', '0', '0', '%', '5', 'c', '0',
-                '4', ')'
-            // }
+            { 
+            0x30, 0x68,             // GracefulDisconnec ::= SEQUENCE {
+              0x30, 0x66,           // replicatedContexts Referral OPTIONAL
+                0x04, 0x1F, 
+                  'l', 'd', 'a', 'p', ':', '/', '/', 'd', 'i', 'r', 'e', 'c', 't', 'o', 'r', 'y', '.', 'a',
+                  'p', 'a', 'c', 'h', 'e', '.', 'o', 'r', 'g', ':', '8', '0', '/', 
+                0x04, 0x43, 
+                  'l', 'd', 'a', 'p', ':', '/', '/', 'l', 'd', 'a', 'p', '.', 'n', 'e', 't', 's', 'c', 'a', 
+                  'p', 'e', '.', 'c', 'o', 'm', '/', 'o', '=', 'B', 'a', 'b', 's', 'c', 'o', ',', 'c', '=', 
+                  'U', 'S', '?', '?', '?', '(', 'i', 'n', 't', '=', '%', '5', 'c', '0', '0', '%', '5', 'c', 
+                  '0', '0', '%', '5', 'c', '0', '0', '%', '5', 'c', '0', '4', ')'
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );

@@ -20,13 +20,12 @@
 package org.apache.directory.shared.ldap.codec.search;
 
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -132,8 +131,7 @@ public class SearchResultEntry extends LdapMessage
     /**
      * Set the entry DN
      * 
-     * @param objectName
-     *            The objectName to set.
+     * @param objectName The objectName to set.
      */
     public void setObjectName( LdapDN objectName )
     {
@@ -157,7 +155,6 @@ public class SearchResultEntry extends LdapMessage
      */
     public void setPartialAttributeList( Attributes partialAttributeList )
     {
-
         this.partialAttributeList = ( Attributes ) partialAttributeList;
     }
 
@@ -165,12 +162,11 @@ public class SearchResultEntry extends LdapMessage
     /**
      * Create a new attributeValue
      * 
-     * @param type
-     *            The attribute's name
+     * @param type The attribute's name
      */
-    public void addAttributeValues( LdapString type )
+    public void addAttributeValues( String type )
     {
-        currentAttributeValue = new BasicAttribute( StringTools.lowerCase( type.getString() ) );
+        currentAttributeValue = new BasicAttribute( StringTools.lowerCase( type ) );
 
         partialAttributeList.put( currentAttributeValue );
     }
@@ -230,7 +226,7 @@ public class SearchResultEntry extends LdapMessage
     public int computeLength()
     {
         // The entry
-        searchResultEntryLength = 1 + Length.getNbBytes( LdapDN.getNbBytes( objectName ) )
+        searchResultEntryLength = 1 + TLV.getNbBytes( LdapDN.getNbBytes( objectName ) )
             + LdapDN.getNbBytes( objectName );
 
         // The attributes sequence
@@ -252,7 +248,7 @@ public class SearchResultEntry extends LdapMessage
 
                 // Get the type length
                 int idLength = attribute.getID().getBytes().length;
-                localAttributeLength = 1 + Length.getNbBytes( idLength ) + idLength;
+                localAttributeLength = 1 + TLV.getNbBytes( idLength ) + idLength;
 
                 if ( attribute.size() != 0 )
                 {
@@ -274,18 +270,18 @@ public class SearchResultEntry extends LdapMessage
                                     String stringValue = ( String ) value;
 
                                     int stringLength = StringTools.getBytesUtf8( stringValue ).length;
-                                    localValuesLength += 1 + Length.getNbBytes( stringLength ) + stringLength;
+                                    localValuesLength += 1 + TLV.getNbBytes( stringLength ) + stringLength;
                                 }
                                 else
                                 {
                                     byte[] binaryValue = ( byte[] ) value;
-                                    localValuesLength += 1 + Length.getNbBytes( binaryValue.length )
+                                    localValuesLength += 1 + TLV.getNbBytes( binaryValue.length )
                                         + binaryValue.length;
                                 }
 
                             }
 
-                            localAttributeLength += 1 + Length.getNbBytes( localValuesLength ) + localValuesLength;
+                            localAttributeLength += 1 + TLV.getNbBytes( localValuesLength ) + localValuesLength;
                         }
                         else
                         {
@@ -310,17 +306,17 @@ public class SearchResultEntry extends LdapMessage
                 }
 
                 // add the attribute length to the attributes length
-                attributesLength += 1 + Length.getNbBytes( localAttributeLength ) + localAttributeLength;
+                attributesLength += 1 + TLV.getNbBytes( localAttributeLength ) + localAttributeLength;
 
                 attributeLength.add( new Integer( localAttributeLength ) );
                 valsLength.add( new Integer( localValuesLength ) );
             }
         }
 
-        searchResultEntryLength += 1 + Length.getNbBytes( attributesLength ) + attributesLength;
+        searchResultEntryLength += 1 + TLV.getNbBytes( attributesLength ) + attributesLength;
 
         // Return the result.
-        return 1 + Length.getNbBytes( searchResultEntryLength ) + searchResultEntryLength;
+        return 1 + TLV.getNbBytes( searchResultEntryLength ) + searchResultEntryLength;
     }
 
 
@@ -360,14 +356,14 @@ public class SearchResultEntry extends LdapMessage
         {
             // The SearchResultEntry Tag
             buffer.put( LdapConstants.SEARCH_RESULT_ENTRY_TAG );
-            buffer.put( Length.getBytes( searchResultEntryLength ) );
+            buffer.put( TLV.getBytes( searchResultEntryLength ) );
 
             // The objectName
             Value.encode( buffer, LdapDN.getBytes( objectName ) );
 
             // The attributes sequence
             buffer.put( UniversalTag.SEQUENCE_TAG );
-            buffer.put( Length.getBytes( attributesLength ) );
+            buffer.put( TLV.getBytes( attributesLength ) );
 
             // The partial attribute list
             if ( ( partialAttributeList != null ) && ( partialAttributeList.size() != 0 ) )
@@ -383,7 +379,7 @@ public class SearchResultEntry extends LdapMessage
                     // The partial attribute list sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
                     int localAttributeLength = ( ( Integer ) attributeLength.get( attributeNumber ) ).intValue();
-                    buffer.put( Length.getBytes( localAttributeLength ) );
+                    buffer.put( TLV.getBytes( localAttributeLength ) );
 
                     // The attribute type
                     Value.encode( buffer, attribute.getID() );
@@ -391,7 +387,7 @@ public class SearchResultEntry extends LdapMessage
                     // The values
                     buffer.put( UniversalTag.SET_TAG );
                     int localValuesLength = ( ( Integer ) valsLength.get( attributeNumber ) ).intValue();
-                    buffer.put( Length.getBytes( localValuesLength ) );
+                    buffer.put( TLV.getBytes( localValuesLength ) );
 
                     if ( attribute.size() != 0 )
                     {

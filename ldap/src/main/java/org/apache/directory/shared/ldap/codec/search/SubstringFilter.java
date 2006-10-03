@@ -25,18 +25,26 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A Object that stores the substring filter. A substring filter follow this
- * grammar : substring = attr "=" ([initial] any [final] | (initial [any]
- * [final) | ([initial] [any] final) initial = value any = "*" *(value "*")
+ * A Object that stores the substring filter. 
+ * 
+ * A substring filter follow this
+ * grammar : 
+ * 
+ * substring = attr "=" ( ([initial] any [final] | 
+ *                        (initial [any] [final) | 
+ *                        ([initial] [any] final) ) 
+ *                       
+ * initial = value 
+ * any = "*" *(value "*")
  * final = value
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -47,25 +55,30 @@ public class SubstringFilter extends Filter
     // ----------------------------------------------------------------------------
 
     /** The substring filter type (an attributeDescription) */
-    private LdapString type;
+    private String type;
+    
+    /** The type length */
+    private transient int typeLength;
 
     /**
      * This member is used to control the length of the three parts of the
-     * substring filter *
+     * substring filter
      */
     private transient int substringsLength;
 
     /** The initial filter */
-    private LdapString initialSubstrings;
+    private String initialSubstrings;
 
     /** The any filter. It's a list of LdapString */
     private ArrayList anySubstrings;
 
     /** The final filter */
-    private LdapString finalSubstrings;
+    private String finalSubstrings;
 
+    /** Temporary storage for substringsFilter length */
     private transient int substringsFilterLength;
 
+    /** Temporary storage for substringsFilter sequence length */
     private transient int substringsFilterSequenceLength;
 
 
@@ -96,10 +109,9 @@ public class SubstringFilter extends Filter
     /**
      * Add a internal substring
      * 
-     * @param anySubstrings
-     *            The anySubstrings to set.
+     * @param anySubstrings The anySubstrings to set.
      */
-    public void addAnySubstrings( LdapString anySubstrings )
+    public void addAnySubstrings( String anySubstrings )
     {
         this.anySubstrings.add( anySubstrings );
     }
@@ -110,7 +122,7 @@ public class SubstringFilter extends Filter
      * 
      * @return Returns the finalSubstrings.
      */
-    public LdapString getFinalSubstrings()
+    public String getFinalSubstrings()
     {
         return finalSubstrings;
     }
@@ -119,10 +131,9 @@ public class SubstringFilter extends Filter
     /**
      * Set the final substring
      * 
-     * @param finalSubstrings
-     *            The finalSubstrings to set.
+     * @param finalSubstrings The finalSubstrings to set.
      */
-    public void setFinalSubstrings( LdapString finalSubstrings )
+    public void setFinalSubstrings( String finalSubstrings )
     {
         this.finalSubstrings = finalSubstrings;
     }
@@ -133,7 +144,7 @@ public class SubstringFilter extends Filter
      * 
      * @return Returns the initialSubstrings.
      */
-    public LdapString getInitialSubstrings()
+    public String getInitialSubstrings()
     {
         return initialSubstrings;
     }
@@ -142,10 +153,9 @@ public class SubstringFilter extends Filter
     /**
      * Set the initial substring
      * 
-     * @param initialSubstrings
-     *            The initialSubstrings to set.
+     * @param initialSubstrings The initialSubstrings to set.
      */
-    public void setInitialSubstrings( LdapString initialSubstrings )
+    public void setInitialSubstrings( String initialSubstrings )
     {
         this.initialSubstrings = initialSubstrings;
     }
@@ -156,7 +166,7 @@ public class SubstringFilter extends Filter
      * 
      * @return Returns the type.
      */
-    public LdapString getType()
+    public String getType()
     {
         return type;
     }
@@ -165,10 +175,9 @@ public class SubstringFilter extends Filter
     /**
      * Set the attribute to match
      * 
-     * @param type
-     *            The type to set.
+     * @param type The type to set.
      */
-    public void setType( LdapString type )
+    public void setType( String type )
     {
         this.type = type;
     }
@@ -184,8 +193,7 @@ public class SubstringFilter extends Filter
 
 
     /**
-     * @param substringsLength
-     *            The substringsLength to set.
+     * @param substringsLength The substringsLength to set.
      */
     public void setSubstringsLength( int substringsLength )
     {
@@ -194,21 +202,36 @@ public class SubstringFilter extends Filter
 
 
     /**
-     * Compute the SubstringFilter length SubstringFilter : 0xA4 L1 | +--> 0x04
-     * L2 type +--> 0x30 L3 | [+--> 0x80 L4 initial] [+--> 0x81 L5-1 any] [+-->
-     * 0x81 L5-2 any] [+--> ... [+--> 0x81 L5-i any] [+--> ... [+--> 0x81 L5-n
-     * any] [+--> 0x82 L6 final]
+     * Compute the SubstringFilter length 
+     * 
+     * SubstringFilter : 
+     * 0xA4 L1 
+     *   | 
+     *   +--> 0x04 L2 type 
+     *   +--> 0x30 L3 
+     *          | 
+     *         [+--> 0x80 L4 initial] 
+     *         [+--> 0x81 L5-1 any] 
+     *         [+--> 0x81 L5-2 any] 
+     *         [+--> ... 
+     *         [+--> 0x81 L5-i any] 
+     *         [+--> ... 
+     *         [+--> 0x81 L5-n any] 
+     *         [+--> 0x82 L6 final]
      */
     public int computeLength()
     {
         // The type
-        substringsFilterLength = 1 + Length.getNbBytes( type.getNbBytes() ) + type.getNbBytes();
+        typeLength = StringTools.getBytesUtf8( type ).length;
+        
+        substringsFilterLength = 1 + TLV.getNbBytes( typeLength ) + typeLength;
         substringsFilterSequenceLength = 0;
 
         if ( initialSubstrings != null )
         {
-            substringsFilterSequenceLength += 1 + Length.getNbBytes( initialSubstrings.getNbBytes() )
-                + initialSubstrings.getNbBytes();
+            int initialLength = StringTools.getBytesUtf8( initialSubstrings ).length; 
+            substringsFilterSequenceLength += 1 + TLV.getNbBytes( initialLength )
+                + initialLength;
         }
 
         if ( anySubstrings != null )
@@ -217,32 +240,44 @@ public class SubstringFilter extends Filter
 
             while ( anyIterator.hasNext() )
             {
-                LdapString any = ( LdapString ) anyIterator.next();
-                substringsFilterSequenceLength += 1 + Length.getNbBytes( any.getNbBytes() ) + any.getNbBytes();
+                String any = ( String ) anyIterator.next();
+                int anyLength = StringTools.getBytesUtf8( any ).length; 
+                substringsFilterSequenceLength += 1 + TLV.getNbBytes( anyLength ) + anyLength;
             }
         }
 
         if ( finalSubstrings != null )
         {
-            substringsFilterSequenceLength += 1 + Length.getNbBytes( finalSubstrings.getNbBytes() )
-                + finalSubstrings.getNbBytes();
+            int finalLength = StringTools.getBytesUtf8( finalSubstrings ).length; 
+            substringsFilterSequenceLength += 1 + TLV.getNbBytes( finalLength )
+                + finalLength;
         }
 
-        substringsFilterLength += 1 + Length.getNbBytes( substringsFilterSequenceLength )
+        substringsFilterLength += 1 + TLV.getNbBytes( substringsFilterSequenceLength )
             + substringsFilterSequenceLength;
 
-        return 1 + Length.getNbBytes( substringsFilterLength ) + substringsFilterLength;
+        return 1 + TLV.getNbBytes( substringsFilterLength ) + substringsFilterLength;
     }
 
 
     /**
-     * Encode the Substrings Filter to a PDU. Substrings Filter : 0xA4 LL 0x30
-     * LL substringsFilter 0x04 LL type 0x30 LL substrings sequence | 0x80 LL
-     * initial | / [0x81 LL any]* |/ [0x82 LL final] +--[0x81 LL any]+ \ [0x82
-     * LL final] \ 0x82 LL final
+     * Encode the Substrings Filter to a PDU. 
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * Substrings Filter :
+     * 
+     * 0xA4 LL 
+     * 0x30 LL substringsFilter
+     *   0x04 LL type
+     *   0x30 LL substrings sequence
+     *    |  0x80 LL initial
+     *    | /  [0x81 LL any]* 
+     *    |/   [0x82 LL final]
+     *    +--[0x81 LL any]+
+     *     \   [0x82 LL final]
+     *      \
+     *       0x82 LL final
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -256,14 +291,14 @@ public class SubstringFilter extends Filter
         {
             // The SubstringFilter Tag
             buffer.put( ( byte ) LdapConstants.SUBSTRINGS_FILTER_TAG );
-            buffer.put( Length.getBytes( substringsFilterLength ) );
+            buffer.put( TLV.getBytes( substringsFilterLength ) );
 
             // The type
             Value.encode( buffer, type.getBytes() );
 
             // The SubstringSequenceFilter Tag
             buffer.put( UniversalTag.SEQUENCE_TAG );
-            buffer.put( Length.getBytes( substringsFilterSequenceLength ) );
+            buffer.put( TLV.getBytes( substringsFilterSequenceLength ) );
 
             if ( ( initialSubstrings == null ) && ( ( anySubstrings == null ) || ( anySubstrings.size() == 0 ) )
                 && ( finalSubstrings == null ) )
@@ -274,9 +309,10 @@ public class SubstringFilter extends Filter
             // The initial substring
             if ( initialSubstrings != null )
             {
+                byte[] initialBytes = StringTools.getBytesUtf8( initialSubstrings );
                 buffer.put( ( byte ) LdapConstants.SUBSTRINGS_FILTER_INITIAL_TAG );
-                buffer.put( Length.getBytes( initialSubstrings.getNbBytes() ) );
-                buffer.put( initialSubstrings.getBytes() );
+                buffer.put( TLV.getBytes( initialBytes.length ) );
+                buffer.put( initialBytes );
             }
 
             // The any substrings
@@ -286,19 +322,21 @@ public class SubstringFilter extends Filter
 
                 while ( anyIterator.hasNext() )
                 {
-                    LdapString any = ( LdapString ) anyIterator.next();
+                    String any = ( String ) anyIterator.next();
+                    byte[] anyBytes = StringTools.getBytesUtf8( any );
                     buffer.put( ( byte ) LdapConstants.SUBSTRINGS_FILTER_ANY_TAG );
-                    buffer.put( Length.getBytes( any.getNbBytes() ) );
-                    buffer.put( any.getBytes() );
+                    buffer.put( TLV.getBytes( anyBytes.length ) );
+                    buffer.put( anyBytes );
                 }
             }
 
             // The final substring
             if ( finalSubstrings != null )
             {
+                byte[] finalBytes = StringTools.getBytesUtf8( finalSubstrings );
                 buffer.put( ( byte ) LdapConstants.SUBSTRINGS_FILTER_FINAL_TAG );
-                buffer.put( Length.getBytes( finalSubstrings.getNbBytes() ) );
-                buffer.put( finalSubstrings.getBytes() );
+                buffer.put( TLV.getBytes( finalBytes.length ) );
+                buffer.put( finalBytes );
             }
         }
         catch ( BufferOverflowException boe )
@@ -333,7 +371,7 @@ public class SubstringFilter extends Filter
 
             while ( anyIterator.hasNext() )
             {
-                sb.append( ( LdapString ) anyIterator.next() ).append( '*' );
+                sb.append( ( String ) anyIterator.next() ).append( '*' );
             }
         }
 

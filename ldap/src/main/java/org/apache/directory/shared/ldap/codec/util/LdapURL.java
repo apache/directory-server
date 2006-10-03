@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.codec.util;
 
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -42,19 +41,28 @@ import javax.naming.directory.SearchControls;
 
 
 /**
- * Decodes a LdapUrl, and checks that it complies with the RFC 2255. The grammar
- * is the following : ldapurl = scheme "://" [hostport] ["/" [dn ["?"
- * [attributes] ["?" [scope] ["?" [filter] ["?" extensions]]]]]] scheme = "ldap"
- * attributes = attrdesc *("," attrdesc) scope = "base" / "one" / "sub" dn =
- * LdapDN hostport = hostport from Section 5 of RFC 1738 attrdesc =
- * AttributeDescription from Section 4.1.5 of RFC 2251 filter = filter from
- * Section 4 of RFC 2254 extensions = extension *("," extension) extension =
- * ["!"] extype ["=" exvalue] extype = token / xtoken exvalue = LDAPString token =
- * oid from section 4.1 of RFC 2252 xtoken = ("X-" / "x-") token
+ * Decodes a LdapUrl, and checks that it complies with
+ * the RFC 2255. The grammar is the following :
+ * ldapurl    = scheme "://" [hostport] ["/"
+ *                   [dn ["?" [attributes] ["?" [scope]
+ *                   ["?" [filter] ["?" extensions]]]]]]
+ * scheme     = "ldap"
+ * attributes = attrdesc *("," attrdesc)
+ * scope      = "base" / "one" / "sub"
+ * dn         = LdapDN
+ * hostport   = hostport from Section 5 of RFC 1738
+ * attrdesc   = AttributeDescription from Section 4.1.5 of RFC 2251
+ * filter     = filter from Section 4 of RFC 2254
+ * extensions = extension *("," extension)
+ * extension  = ["!"] extype ["=" exvalue]
+ * extype     = token / xtoken
+ * exvalue    = LDAPString
+ * token      = oid from section 4.1 of RFC 2252
+ * xtoken     = ("X-" / "x-") token
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapURL extends LdapString
+public class LdapURL
 {
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
@@ -95,7 +103,12 @@ public class LdapURL extends LdapString
     /** The criticals extensions */
     private HashMap criticalExtensions;
 
+    /** Stores the LdapURL as a String */
+    private String string;
 
+    /** Stores the LdapURL as a byte array */
+    private byte[] bytes;
+    
     // ~ Constructors
     // -------------------------------------------------------------------------------
 
@@ -115,7 +128,11 @@ public class LdapURL extends LdapString
         criticalExtensions = new HashMap();
     }
 
-
+    /**
+     * Parse a LdapURL
+     * @param chars The chars containing the URL
+     * @throws LdapURLEncodingException If the URL is invalid
+     */
     public void parse( char[] chars ) throws LdapURLEncodingException
     {
         host = null;
@@ -277,13 +294,11 @@ public class LdapURL extends LdapString
     /**
      * Create a new LdapURL from a String after having parsed it.
      * 
-     * @param string
-     *            TheString that contains the LDAPURL
+     * @param string TheString that contains the LDAPURL
      * @return A MutableString containing the LDAPURL
-     * @throws DecoderException
-     *             If the String does not comply with RFC 2255
+     * @throws DecoderException If the String does not comply with RFC 2255
      */
-    public LdapURL(String string) throws LdapURLEncodingException
+    public LdapURL( String string ) throws LdapURLEncodingException
     {
         if ( string == null )
         {
@@ -306,11 +321,9 @@ public class LdapURL extends LdapString
     /**
      * Create a new LdapURL after having parsed it.
      * 
-     * @param bytes
-     *            The byte buffer that contains the LDAPURL
+     * @param bytes The byte buffer that contains the LDAPURL
      * @return A MutableString containing the LDAPURL
-     * @throws DecoderException
-     *             If the byte array does not comply with RFC 2255
+     * @throws DecoderException If the byte array does not comply with RFC 2255
      */
     public LdapURL(byte[] bytes) throws LdapURLEncodingException
     {
@@ -350,10 +363,8 @@ public class LdapURL extends LdapString
      * &lt;digits&gt; "." &lt;digits&gt;
      * </p>
      * 
-     * @param chars
-     *            The buffer to parse
-     * @param pos
-     *            The current position in the byte buffer
+     * @param chars The buffer to parse
+     * @param pos The current position in the byte buffer
      * @return The new position in the byte buffer, or -1 if the rule does not
      *         apply to the byte buffer TODO check that the topLabel is valid
      *         (it must start with an alpha)
@@ -508,10 +519,8 @@ public class LdapURL extends LdapString
      * </p>
      * The port must be between 0 and 65535.
      * 
-     * @param chars
-     *            The buffer to parse
-     * @param pos
-     *            The current position in the byte buffer
+     * @param chars The buffer to parse
+     * @param pos The current position in the byte buffer
      * @return The new position in the byte buffer, or -1 if the rule does not
      *         apply to the byte buffer
      */
@@ -549,10 +558,8 @@ public class LdapURL extends LdapString
      * &lt;hostport&gt; ::= &lt;host&gt; ':' &lt;port&gt;
      * </p>
      * 
-     * @param chars
-     *            The char array to parse
-     * @param pos
-     *            The current position in the byte buffer
+     * @param chars The char array to parse
+     * @param pos The current position in the byte buffer
      * @return The new position in the byte buffer, or -1 if the rule does not
      *         apply to the byte buffer
      */
@@ -589,14 +596,10 @@ public class LdapURL extends LdapString
      * characters to a string. If the specified charset is not supported,
      * default system encoding is used.
      * 
-     * @param data
-     *            the byte array to be encoded
-     * @param offset
-     *            the index of the first byte to encode
-     * @param length
-     *            the number of bytes to encode
-     * @param charset
-     *            the desired character encoding
+     * @param data the byte array to be encoded
+     * @param offset the index of the first byte to encode
+     * @param length the number of bytes to encode
+     * @param charset the desired character encoding
      * @return The result of the conversion.
      * @since 3.0
      */
@@ -628,10 +631,8 @@ public class LdapURL extends LdapString
      * characters to a string. If the specified charset is not supported,
      * default system encoding is used.
      * 
-     * @param data
-     *            the byte array to be encoded
-     * @param charset
-     *            the desired character encoding
+     * @param data the byte array to be encoded
+     * @param charset the desired character encoding
      * @return The result of the conversion.
      * @since 3.0
      */
@@ -644,8 +645,7 @@ public class LdapURL extends LdapString
     /**
      * Converts the specified string to byte array of ASCII characters.
      * 
-     * @param data
-     *            the string to be encoded
+     * @param data the string to be encoded
      * @return The string as a byte array.
      * @since 3.0
      */
@@ -673,11 +673,9 @@ public class LdapURL extends LdapString
      * array of original bytes. Escaped characters are converted back to their
      * original representation.
      * 
-     * @param bytes
-     *            array of URL safe characters
+     * @param bytes array of URL safe characters
      * @return array of original bytes
-     * @throws DecoderException
-     *             Thrown if URL decoding is unsuccessful
+     * @throws DecoderException Thrown if URL decoding is unsuccessful
      */
     private static final byte[] decodeUrl( byte[] bytes ) throws UrlDecoderException
     {
@@ -729,11 +727,9 @@ public class LdapURL extends LdapString
      * From commons-httpclients. Unescape and decode a given string regarded as
      * an escaped string with the default protocol charset.
      * 
-     * @param escaped
-     *            a string
+     * @param escaped a string
      * @return the unescaped string
-     * @throws URIException
-     *             if the string cannot be decoded (invalid)
+     * @throws URIException if the string cannot be decoded (invalid)
      * @see URI#getDefaultProtocolCharset
      */
     private static String decode( String escaped ) throws URIException
@@ -754,10 +750,8 @@ public class LdapURL extends LdapString
      * Parse a string and check that it complies with RFC 2253. Here, we will
      * just call the LdapDN parser to do the job.
      * 
-     * @param chars
-     *            The char array to be checked
-     * @param pos
-     *            the starting position
+     * @param chars The char array to be checked
+     * @param pos the starting position
      * @return -1 if the char array does not contains a DN
      */
     private int parseDN( char[] chars, int pos )
@@ -790,10 +784,8 @@ public class LdapURL extends LdapString
     /**
      * Parse the attributes part
      * 
-     * @param chars
-     *            The char array to be checked
-     * @param pos
-     *            the starting position
+     * @param chars The char array to be checked
+     * @param pos the starting position
      * @return -1 if the char array does not contains attributes
      */
     private int parseAttributes( char[] chars, int pos )
@@ -900,10 +892,8 @@ public class LdapURL extends LdapString
     /**
      * Parse the filter part. We will use the FilterParserImpl class
      * 
-     * @param chars
-     *            The char array to be checked
-     * @param pos
-     *            the starting position
+     * @param chars The char array to be checked
+     * @param pos the starting position
      * @return -1 if the char array does not contains a filter
      */
     private int parseFilter( char[] chars, int pos )
@@ -941,10 +931,8 @@ public class LdapURL extends LdapString
     /**
      * Parse the scope part.
      * 
-     * @param chars
-     *            The char array to be checked
-     * @param pos
-     *            the starting position
+     * @param chars The char array to be checked
+     * @param pos the starting position
      * @return -1 if the char array does not contains a scope
      */
     private int parseScope( char[] chars, int pos )
@@ -1018,14 +1006,14 @@ public class LdapURL extends LdapString
 
 
     /**
-     * Parse extensions and critical extensions. The grammar is : extensions ::=
-     * extension [ ',' extension ]* extension ::= [ '!' ] ( token | ( 'x-' |
-     * 'X-' ) token ) ) [ '=' exvalue ]
+     * Parse extensions and critical extensions. 
      * 
-     * @param char
-     *            The char array to be checked
-     * @param pos
-     *            the starting position
+     * The grammar is : 
+     * extensions ::= extension [ ',' extension ]* 
+     * extension ::= [ '!' ] ( token | ( 'x-' | 'X-' ) token ) ) [ '=' exvalue ]
+     * 
+     * @param char The char array to be checked
+     * @param pos the starting position
      * @return -1 if the char array does not contains valid extensions or
      *         critical extensions
      */
@@ -1153,15 +1141,16 @@ public class LdapURL extends LdapString
 
 
     /**
-     * Encode a String to avoid special characters *NOTE* : this is an ugly
-     * function, just needed because the RFC 2255 is VERY unclear about the way
-     * LDAP searches are to be encoded. Some references to RFC 1738 are made,
-     * but they are really useless and inadequat.
+     * Encode a String to avoid special characters 
      * 
-     * @param string
-     *            The String to encode
-     * @param doubleEncode
-     *            Set if we need to encode the comma
+     * *NOTE* : this is an ugly function, just needed because the RFC 2255 
+     * is VERY unclear about the way LDAP searches are to be encoded. 
+     * 
+     * Some references to RFC 1738 are made, but they are really useless 
+     * and inadequat.
+     * 
+     * @param string The String to encode
+     * @param doubleEncode Set if we need to encode the comma
      * @return An encoded string
      */
     private String urlEncode( String string, boolean doubleEncode )
@@ -1423,5 +1412,29 @@ public class LdapURL extends LdapString
     public String getScheme()
     {
         return scheme;
+    }
+    
+    /**
+     * @return the number of bytes for this LdapURL
+     */
+    public int getNbBytes()
+    {
+        return ( bytes != null ? bytes.length : 0 );
+    }
+    
+    /**
+     * @return the bytes representing this LdapURL
+     */
+    public byte[] getBytes()
+    {
+        return bytes;
+    }
+    
+    /**
+     * @return the LdapURL as a String
+     */
+    public String getString()
+    {
+        return string;
     }
 }

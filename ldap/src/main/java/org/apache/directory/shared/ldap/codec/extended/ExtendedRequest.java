@@ -23,7 +23,7 @@ package org.apache.directory.shared.ldap.codec.extended;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
@@ -32,9 +32,10 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A ExtendedRequest Message. Its syntax is : ExtendedRequest ::= [APPLICATION
- * 23] SEQUENCE { requestName [0] LDAPOID, requestValue [1] OCTET STRING
- * OPTIONAL }
+ * A ExtendedRequest Message. Its syntax is :
+ *   ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
+ *              requestName      [0] LDAPOID,
+ *              requestValue     [1] OCTET STRING OPTIONAL }
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -96,8 +97,7 @@ public class ExtendedRequest extends LdapMessage
     /**
      * Set the extended request name
      * 
-     * @param requestName
-     *            The request name to set.
+     * @param requestName The request name to set.
      */
     public void setRequestName( OID requestName )
     {
@@ -119,8 +119,7 @@ public class ExtendedRequest extends LdapMessage
     /**
      * Set the extended request value
      * 
-     * @param requestValue
-     *            The request value to set.
+     * @param requestValue The request value to set.
      */
     public void setRequestValue( byte[] requestValue )
     {
@@ -129,32 +128,44 @@ public class ExtendedRequest extends LdapMessage
 
 
     /**
-     * Compute the ExtendedRequest length ExtendedRequest : 0x77 L1 | +--> 0x80
-     * L2 name [+--> 0x81 L3 value] L1 = Length(0x80) + Length(L2) + L2 [+
-     * Length(0x81) + Length(L3) + L3] Length(ExtendedRequest) = Length(0x77) +
-     * Length(L1) + L1
+     * Compute the ExtendedRequest length
+     * 
+     * ExtendedRequest :
+     * 
+     * 0x77 L1
+     *  |
+     *  +--> 0x80 L2 name
+     *  [+--> 0x81 L3 value]
+     * 
+     * L1 = Length(0x80) + Length(L2) + L2
+     *      [+ Length(0x81) + Length(L3) + L3]
+     * 
+     * Length(ExtendedRequest) = Length(0x77) + Length(L1) + L1
      */
     public int computeLength()
     {
         oidLength = requestName.toString().length();
-        extendedRequestLength = 1 + Length.getNbBytes( oidLength ) + oidLength;
+        extendedRequestLength = 1 + TLV.getNbBytes( oidLength ) + oidLength;
 
         if ( requestValue != null )
         {
-            extendedRequestLength += 1 + Length.getNbBytes( ( ( byte[] ) requestValue ).length )
+            extendedRequestLength += 1 + TLV.getNbBytes( ( ( byte[] ) requestValue ).length )
                 + ( ( byte[] ) requestValue ).length;
         }
 
-        return 1 + Length.getNbBytes( extendedRequestLength ) + extendedRequestLength;
+        return 1 + TLV.getNbBytes( extendedRequestLength ) + extendedRequestLength;
     }
 
 
     /**
-     * Encode the ExtendedRequest message to a PDU. ExtendedRequest : 0x80 LL
-     * resquest name [0x81 LL request value]
+     * Encode the ExtendedRequest message to a PDU. 
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * ExtendedRequest :
+     * 
+     * 0x80 LL resquest name
+     * [0x81 LL request value]
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -168,7 +179,7 @@ public class ExtendedRequest extends LdapMessage
         {
             // The BindResponse Tag
             buffer.put( LdapConstants.EXTENDED_REQUEST_TAG );
-            buffer.put( Length.getBytes( extendedRequestLength ) );
+            buffer.put( TLV.getBytes( extendedRequestLength ) );
 
             // The requestName, if any
             if ( requestName == null )
@@ -177,7 +188,7 @@ public class ExtendedRequest extends LdapMessage
             }
 
             buffer.put( ( byte ) LdapConstants.EXTENDED_REQUEST_NAME_TAG );
-            buffer.put( Length.getBytes( oidLength ) );
+            buffer.put( TLV.getBytes( oidLength ) );
 
             if ( requestName.getOIDLength() != 0 )
             {
@@ -189,7 +200,7 @@ public class ExtendedRequest extends LdapMessage
             {
                 buffer.put( ( byte ) LdapConstants.EXTENDED_REQUEST_VALUE_TAG );
 
-                buffer.put( Length.getBytes( requestValue.length ) );
+                buffer.put( TLV.getBytes( requestValue.length ) );
 
                 if ( requestValue.length != 0 )
                 {

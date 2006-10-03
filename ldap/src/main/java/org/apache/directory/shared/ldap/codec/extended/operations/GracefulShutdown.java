@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -49,8 +49,13 @@ public class GracefulShutdown extends GracefulAction
 
 
     /**
-     * Compute the GracefulShutdown length 0x30 L1 | +--> [0x02 0x0(1-4)
-     * [0..720] ] +--> [0x80 0x0(1-3) [0..86400] ] L1 will always be &lt 11.
+     * Compute the GracefulShutdown length 
+     * 0x30 L1 
+     *   | 
+     *   +--> [0x02 0x0(1-4) [0..720] ] 
+     *   +--> [0x80 0x0(1-3) [0..86400] ] 
+     *   
+     * L1 will always be &lt 11.
      */
     public int computeLength()
     {
@@ -74,11 +79,9 @@ public class GracefulShutdown extends GracefulAction
     /**
      * Encodes the gracefulShutdown extended operation.
      * 
-     * @param buffer
-     *            The encoded sink
+     * @param buffer The encoded sink
      * @return A ByteBuffer that contains the encoded PDU
-     * @throws EncoderException
-     *             If anything goes wrong.
+     * @throws EncoderException If anything goes wrong.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
@@ -86,7 +89,7 @@ public class GracefulShutdown extends GracefulAction
         ByteBuffer bb = ByteBuffer.allocate( computeLength() );
 
         bb.put( UniversalTag.SEQUENCE_TAG );
-        bb.put( Length.getBytes( gracefulSequenceLength ) );
+        bb.put( TLV.getBytes( gracefulSequenceLength ) );
 
         if ( timeOffline != 0 )
         {

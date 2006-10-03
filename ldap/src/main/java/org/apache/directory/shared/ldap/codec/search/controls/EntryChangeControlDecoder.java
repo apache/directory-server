@@ -37,17 +37,31 @@ import org.apache.directory.shared.ldap.codec.ControlDecoder;
  */
 public class EntryChangeControlDecoder extends Asn1Decoder implements ControlDecoder
 {
+    /** The entry change OID */
     private final static String CONTROL_TYPE_OID = "2.16.840.1.113730.3.4.7";
 
+    /** An instance of this decoder */
     private static final Asn1Decoder decoder = new Asn1Decoder();
 
-
+    /**
+     * @return The Entry Change controm OID
+     */
     public String getControlType()
     {
         return CONTROL_TYPE_OID;
     }
 
-
+    /**
+     * Decode the entry change control
+     * 
+     * @param controlBytes The bytes array which contains the encoded entry change
+     * 
+     * @return A valid EntryChange object
+     * 
+     * @throws DecoderException If the decoding found an error
+     * @throws NamingException It will never be throw by this method
+     */
+    
     public Asn1Object decode( byte[] controlBytes ) throws DecoderException, NamingException
     {
         ByteBuffer bb = ByteBuffer.wrap( controlBytes );

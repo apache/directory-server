@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 
 
 /**
@@ -35,20 +34,13 @@ public class SubEntryControlContainer extends AbstractContainer implements IAsn1
 
 
     /**
-     * Creates a new SubEntryControlContainer object. We will store one grammar,
-     * it's enough ...
+     * Creates a new SubEntryControlContainer object. 
      */
     public SubEntryControlContainer()
     {
         super();
-        currentGrammar = 0;
-        grammars = new IGrammar[SubEntryControlStatesEnum.NB_GRAMMARS];
-        grammarStack = new IGrammar[1];
         stateStack = new int[1];
-        nbGrammars = 0;
-
-        grammars[SubEntryControlStatesEnum.SUB_ENTRY_GRAMMAR] = SubEntryControlGrammar.getInstance();
-        grammarStack[currentGrammar] = grammars[SubEntryControlStatesEnum.SUB_ENTRY_GRAMMAR];
+        grammar = SubEntryControlGrammar.getInstance();
         states = SubEntryControlStatesEnum.getInstance();
     }
 
@@ -58,7 +50,6 @@ public class SubEntryControlContainer extends AbstractContainer implements IAsn1
      */
     public SubEntryControl getSubEntryControl()
     {
-
         return control;
     }
 
@@ -67,15 +58,16 @@ public class SubEntryControlContainer extends AbstractContainer implements IAsn1
      * Set a SubEntryControl Object into the container. It will be completed by
      * the ldapDecoder.
      * 
-     * @param control
-     *            the SubEntryControl to set.
+     * @param control the SubEntryControl to set.
      */
     public void setSubEntryControl( SubEntryControl control )
     {
         this.control = control;
     }
 
-
+    /**
+     * Clean the current container
+     */
     public void clean()
     {
         super.clean();

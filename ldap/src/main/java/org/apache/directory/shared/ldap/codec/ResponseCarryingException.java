@@ -49,8 +49,7 @@ public class ResponseCarryingException extends DecoderException
     /**
      * Creates a DecoderException
      * 
-     * @param message
-     *            A message with meaning to a human
+     * @param message A message with meaning to a human
      */
     public ResponseCarryingException(String message)
     {
@@ -61,10 +60,8 @@ public class ResponseCarryingException extends DecoderException
     /**
      * Creates a DecoderException
      * 
-     * @param message
-     *            A message with meaning to a human
-     * @param cause
-     *            The Exception which caused the error
+     * @param message A message with meaning to a human
+     * @param cause The Exception which caused the error
      */
     public ResponseCarryingException(String message, ResultResponse response, ResultCodeEnum code, LdapDN matchedDn, Throwable cause)
     {

@@ -39,7 +39,11 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * The TwixDecoder decodes ASN.1 BER encoded PDUs.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class TwixDecoder implements ProviderDecoder
 {
     /** The logger */
@@ -78,10 +82,8 @@ public class TwixDecoder implements ProviderDecoder
     /**
      * Decodes a PDU
      * 
-     * @param encoded
-     *            The PDU containing the LdapMessage to decode
-     * @throws DecoderException
-     *             If anything went wrong
+     * @param encodedThe PDU containing the LdapMessage to decode
+     * @throws DecoderExceptionIf anything went wrong
      */
     public void decode( Object encoded ) throws DecoderException
     {
@@ -158,10 +160,8 @@ public class TwixDecoder implements ProviderDecoder
      * Feeds the bytes within the input stream to the digester to generate the
      * resultant decoded Message.
      * 
-     * @param in
-     *            The InputStream containing the PDU to be decoded
-     * @throws ProviderException
-     *             If the decoding went wrong
+     * @param in The InputStream containing the PDU to be decoded
+     * @throws ProviderException If the decoding went wrong
      */
     private void digest( InputStream in ) throws ProviderException
     {
@@ -197,10 +197,8 @@ public class TwixDecoder implements ProviderDecoder
      * Decodes a PDU from an input stream into a Snickers compiler generated
      * stub envelope.
      * 
-     * @param lock
-     *            Lock object used to exclusively read from the input stream
-     * @param in
-     *            The input stream to read and decode PDU bytes from
+     * @param lock Lock object used to exclusively read from the input stream
+     * @param in The input stream to read and decode PDU bytes from
      * @return return decoded stub
      */
     public Object decode( Object lock, InputStream in ) throws ProviderException
@@ -292,8 +290,7 @@ public class TwixDecoder implements ProviderDecoder
     /**
      * Set the callback to call when the PDU has been decoded
      * 
-     * @param cb
-     *            The callback
+     * @param cb The callback
      */
     public void setCallback( DecoderCallback cb )
     {

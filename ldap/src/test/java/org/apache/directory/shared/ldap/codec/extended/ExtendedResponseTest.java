@@ -131,25 +131,32 @@ public class ExtendedResponseTest extends TestCase
         ByteBuffer stream = ByteBuffer.allocate( 0x41 );
 
         stream.put( new byte[]
-            { 0x30, 0x3F, // LDAPMessage ::= SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                // CHOICE { ..., extendedResp ExtendedResponse, ...
-                0x78, 0x1D, // ExtendedResponse ::= [APPLICATION 23] SEQUENCE {
-                // COMPONENTS OF LDAPResult,
-                0x0A, 0x01, 0x00, // LDAPResult ::= SEQUENCE {
-                // resultCode ENUMERATED {
-                // success (0), ...
-                // },
-                0x04, 0x00, // matchedDN LDAPDN,
-                0x04, 0x00, // errorMessage LDAPString,
-                // referral [3] Referral OPTIONAL }
-                // responseName [10] LDAPOID OPTIONAL,
-                ( byte ) 0x8A, 0x0D, '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '2',
-                // response [11] OCTET STRING OPTIONAL }
-                ( byte ) 0x8B, 0x05, 'v', 'a', 'l', 'u', 'e', ( byte ) 0xA0, 0x1B, // A
-                                                                                    // control
-                0x30, 0x19, 0x04, 0x17, 0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31,
-                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 } );
+            { 
+            0x30, 0x3F,                 // LDAPMessage ::= SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+                                        // CHOICE { 
+                                        //    ..., 
+                                        //    extendedResp ExtendedResponse, 
+                                        //    ...
+              0x78, 0x1D,               // ExtendedResponse ::= [APPLICATION 23] SEQUENCE {
+                                        //   COMPONENTS OF LDAPResult,
+                0x0A, 0x01, 0x00,       //   LDAPResult ::= SEQUENCE {
+                                        //     resultCode ENUMERATED {
+                                        //         success (0), ...
+                                        //     },
+                0x04, 0x00,             //     matchedDN LDAPDN,
+                0x04, 0x00,             //     errorMessage LDAPString,
+                                        //     referral [3] Referral OPTIONAL }
+                ( byte ) 0x8A, 0x0D,    //   responseName [10] LDAPOID OPTIONAL,
+                  '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '2',
+                ( byte ) 0x8B, 0x05,    // response [11] OCTET STRING OPTIONAL } 
+                  'v', 'a', 'l', 'u', 'e', 
+              ( byte ) 0xA0, 0x1B,      // A control
+                0x30, 0x19, 
+                  0x04, 0x17,
+                    '2', '.', '1', '6', '.', '8', '4', '0', '.', '1', '.', '1', 
+                    '1', '3', '7', '3', '0', '.', '3', '.', '4', '.', '2'
+            } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();

@@ -43,51 +43,17 @@ import junit.framework.TestCase;
 public class PSearchControlTest extends TestCase
 {
     /**
-     * Test the decoding of a PSearchControl
-     */
-    public void testDecodeModifyDNRequestSuccess() throws NamingException
-    {
-        Asn1Decoder decoder = new PSearchControlDecoder();
-        ByteBuffer bb = ByteBuffer.allocate( 0x0b );
-        bb.put( new byte[]
-            { 0x30, 0x09, // PersistentSearch ::= SEQUENCE {
-                0x02, 0x01, 0x01, // changeTypes INTEGER,
-                0x01, 0x01, 0x00, // changesOnly BOOLEAN,
-                0x01, 0x01, 0x00 // returnECs BOOLEAN
-            // }
-            } );
-        bb.flip();
-
-        PSearchControlContainer container = new PSearchControlContainer();
-        try
-        {
-            decoder.decode( bb, container );
-        }
-        catch ( DecoderException de )
-        {
-            de.printStackTrace();
-            Assert.fail( de.getMessage() );
-        }
-
-        PSearchControl control = container.getPSearchControl();
-        assertEquals( 1, control.getChangeTypes() );
-        assertEquals( false, control.isChangesOnly() );
-        assertEquals( false, control.isReturnECs() );
-    }
-
-
-    /**
      * Test encoding of a PSearchControl.
      */
     public void testEncodePSearchControl() throws Exception
     {
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
         bb.put( new byte[]
-            { 0x30, 0x09, // PersistentSearch ::= SEQUENCE {
-                0x02, 0x01, 0x01, // changeTypes INTEGER,
-                0x01, 0x01, 0x00, // changesOnly BOOLEAN,
-                0x01, 0x01, 0x00 // returnECs BOOLEAN
-            // }
+            { 
+              0x30, 0x09,           // PersistentSearch ::= SEQUENCE {
+                0x02, 0x01, 0x01,   // changeTypes INTEGER,
+                0x01, 0x01, 0x00,   // changesOnly BOOLEAN,
+                0x01, 0x01, 0x00    // returnECs BOOLEAN
             } );
 
         String expected = StringTools.dumpBytes( bb.array() );
@@ -100,5 +66,203 @@ public class PSearchControlTest extends TestCase
         bb = ctrl.encode( null );
         String decoded = StringTools.dumpBytes( bb.array() );
         assertEquals( expected, decoded );
+    }
+
+    /**
+     * Test the decoding of a PSearchControl with combined changes types
+     */
+    public void testDecodeModifyDNRequestSuccessChangeTypesAddModDN() throws NamingException
+    {
+        Asn1Decoder decoder = new PSearchControlDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x0b );
+        bb.put( new byte[]
+            { 
+            0x30, 0x09,         // PersistentSearch ::= SEQUENCE {
+              0x02, 0x01, 0x09, // changeTypes INTEGER,
+              0x01, 0x01, 0x00, // changesOnly BOOLEAN,
+              0x01, 0x01, 0x00  // returnECs BOOLEAN
+            } );
+        bb.flip();
+
+        PSearchControlContainer container = new PSearchControlContainer();
+        try
+        {
+            decoder.decode( bb, container );
+        }
+        catch ( DecoderException de )
+        {
+            Assert.fail( de.getMessage() );
+        }
+
+        PSearchControl control = container.getPSearchControl();
+        int changeTypes = control.getChangeTypes();
+        assertEquals( PSearchControl.CHANGE_TYPE_ADD, changeTypes & PSearchControl.CHANGE_TYPE_ADD );
+        assertEquals( PSearchControl.CHANGE_TYPE_MODDN, changeTypes & PSearchControl.CHANGE_TYPE_MODDN );
+        assertEquals( false, control.isChangesOnly() );
+        assertEquals( false, control.isReturnECs() );
+    }
+
+    /**
+     * Test the decoding of a PSearchControl with a changes types which
+     * value is 0
+     */
+    public void testDecodeModifyDNRequestSuccessChangeTypes0() throws NamingException
+    {
+        Asn1Decoder decoder = new PSearchControlDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x0b );
+        bb.put( new byte[]
+            { 
+            0x30, 0x09,         // PersistentSearch ::= SEQUENCE {
+              0x02, 0x01, 0x00, // changeTypes INTEGER,
+              0x01, 0x01, 0x00, // changesOnly BOOLEAN,
+              0x01, 0x01, 0x00  // returnECs BOOLEAN
+            } );
+        bb.flip();
+
+        PSearchControlContainer container = new PSearchControlContainer();
+        try
+        {
+            decoder.decode( bb, container );
+            fail( "We should never reach this point" );
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Test the decoding of a PSearchControl with a changes types which
+     * value is above 15
+     */
+    public void testDecodeModifyDNRequestSuccessChangeTypes22() throws NamingException
+    {
+        Asn1Decoder decoder = new PSearchControlDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x0b );
+        bb.put( new byte[]
+            { 
+            0x30, 0x09,         // PersistentSearch ::= SEQUENCE {
+              0x02, 0x01, 0x22, // changeTypes INTEGER,
+              0x01, 0x01, 0x00, // changesOnly BOOLEAN,
+              0x01, 0x01, 0x00  // returnECs BOOLEAN
+            } );
+        bb.flip();
+
+        PSearchControlContainer container = new PSearchControlContainer();
+        try
+        {
+            decoder.decode( bb, container );
+            fail( "We should never reach this point" );
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Test the decoding of a PSearchControl with a null sequence
+     */
+    public void testDecodeModifyDNRequestSuccessNullSequence() throws NamingException
+    {
+        Asn1Decoder decoder = new PSearchControlDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x02 );
+        bb.put( new byte[]
+            { 
+            0x30, 0x00,         // PersistentSearch ::= SEQUENCE {
+            } );
+        bb.flip();
+
+        PSearchControlContainer container = new PSearchControlContainer();
+        try
+        {
+            decoder.decode( bb, container );
+            fail( "We should never reach this point" );
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Test the decoding of a PSearchControl without changeTypes
+     */
+    public void testDecodeModifyDNRequestSuccessWithoutChangeTypes() throws NamingException
+    {
+        Asn1Decoder decoder = new PSearchControlDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x08 );
+        bb.put( new byte[]
+            { 
+            0x30, 0x06,         // PersistentSearch ::= SEQUENCE {
+              0x01, 0x01, 0x00, // changesOnly BOOLEAN,
+              0x01, 0x01, 0x00  // returnECs BOOLEAN
+            } );
+        bb.flip();
+
+        PSearchControlContainer container = new PSearchControlContainer();
+        try
+        {
+            decoder.decode( bb, container );
+            fail( "We should never reach this point" );
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Test the decoding of a PSearchControl without changeOnly
+     */
+    public void testDecodeModifyDNRequestSuccessWithoutChangesOnly() throws NamingException
+    {
+        Asn1Decoder decoder = new PSearchControlDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x08 );
+        bb.put( new byte[]
+            { 
+            0x30, 0x06,         // PersistentSearch ::= SEQUENCE {
+              0x02, 0x01, 0x01, // changeTypes INTEGER,
+              0x01, 0x01, 0x00  // returnECs BOOLEAN
+            } );
+        bb.flip();
+
+        PSearchControlContainer container = new PSearchControlContainer();
+        try
+        {
+            decoder.decode( bb, container );
+            fail( "We should never reach this point" );
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Test the decoding of a PSearchControl without returnECs
+     */
+    public void testDecodeModifyDNRequestSuccessWithoutReturnECs() throws NamingException
+    {
+        Asn1Decoder decoder = new PSearchControlDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x08 );
+        bb.put( new byte[]
+            { 
+            0x30, 0x06,         // PersistentSearch ::= SEQUENCE {
+              0x02, 0x01, 0x01, // changeTypes INTEGER,
+              0x01, 0x01, 0x00, // changesOnly BOOLEAN,
+            } );
+        bb.flip();
+
+        PSearchControlContainer container = new PSearchControlContainer();
+        try
+        {
+            decoder.decode( bb, container );
+            fail( "We should never reach this point" );
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
+        }
     }
 }

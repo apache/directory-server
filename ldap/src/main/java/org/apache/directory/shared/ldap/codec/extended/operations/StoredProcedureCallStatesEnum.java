@@ -37,120 +37,75 @@ public class StoredProcedureCallStatesEnum implements IStates
     //=========================================================================
     // Tags and values
     //=========================================================================
-    /** StoredProcedureCall Tag */
-    public static int STORED_PROCEDURE_CALL_TAG = 0;
+    /** starting state */
+    public static int START_STATE = 0;
 
-    /** StoredProcedureCall Value */
-    public static int STORED_PROCEDURE_CALL_VALUE = 1;
+    /** StoredProcedureCall */
+    public static int STORED_PROCEDURE_CALL_STATE = 1;
 
     // Name -------------------------------------------------------------------
-    /** Name Tag */
-    public static int NAME_TAG = 2;
-
-    /** Name Value */
-    public static int NAME_VALUE = 3;
+    /** Name */
+    public static int NAME_STATE = 2;
 
     // Options ----------------------------------------------------------------
-    /** Options Tag */
-    public static int OPTIONS_TAG = 4;
-
-    /** Options Value */
-    public static int OPTIONS_VALUE = 5;
+    /** Options */
+    public static int OPTIONS_STATE = 3;
 
     // --- Language Scheme ----------------------------------------------------
-    /** Language Scheme Tag */
-    public static int LANGUAGE_SCHEME_TAG = 6;
-
-    /** Language Scheme Value */
-    public static int LANGUAGE_SCHEME_VALUE = 7;
+    /** Language Scheme */
+    public static int LANGUAGE_SCHEME_STATE = 4;
 
     // --- Search Context -----------------------------------------------------
-    /** Search Context Tag */
-    public static int SEARCH_CONTEXT_TAG = 8;
-
-    /** Search Context Value */
-    public static int SEARCH_CONTEXT_VALUE = 9;
+    /** Search Context */
+    public static int SEARCH_CONTEXT_STATE = 5;
 
     // ------ Context ---------------------------------------------------------
-    /** Context Tag */
-    public static int CONTEXT_TAG = 10;
-
-    /** Context Value */
-    public static int CONTEXT_VALUE = 11;
+    /** Context */
+    public static int CONTEXT_STATE = 6;
 
     // ------ Scope -----------------------------------------------------------
-    /** Scope Tag */
-    public static int SCOPE_TAG = 12;
-
-    /** Scope Value */
-    public static int SCOPE_VALUE = 13;
+    /** Scope */
+    public static int SCOPE_STATE = 7;
 
     // Parameters -------------------------------------------------------------
-    /** Parameters Tag */
-    public static int PARAMETERS_TAG = 14;
-
-    /** Parameters Value */
-    public static int PARAMETERS_VALUE = 15;
+    /** Parameters */
+    public static int PARAMETERS_STATE = 8;
 
     // --- Parameter ----------------------------------------------------------
-    /** Parameter Tag */
-    public static int PARAMETER_TAG = 16;
-
-    /** Parameter Value */
-    public static int PARAMETER_VALUE = 17;
+    /** Parameter */
+    public static int PARAMETER_STATE = 9;
 
     // ------ Parameter type --------------------------------------------------
-    /** Parameter type Tag */
-    public static int PARAMETER_TYPE_TAG = 18;
-
-    /** Parameter type Value */
-    public static int PARAMETER_TYPE_VALUE = 19;
+    /** Parameter type */
+    public static int PARAMETER_TYPE_STATE = 10;
 
     // ------ Parameter value -------------------------------------------------
-    /** Parameter value Tag */
-    public static int PARAMETER_VALUE_TAG = 20;
+    /** Parameter value */
+    public static int PARAMETER_VALUE_STATE = 11;
 
-    /** Parameter value Value */
-    public static int PARAMETER_VALUE_VALUE = 21;
-
-    public static int LAST_STORED_PROCEDURE_CALL_STATE = 22;
-
-    //=========================================================================
-    // Grammar declarations
-    //=========================================================================
-    /** Ldap Message grammar */
-    public static final int STORED_PROCEDURE_CALL_GRAMMAR_SWITCH = 0x0100;
-
-    /** Ldap Message grammar number */
-    public static final int STORED_PROCEDURE_CALL_GRAMMAR = 0;
-
-    /** The total number of grammars used */
-    public static final int NB_GRAMMARS = 1;
-
-    //=========================================================================
-    // Grammar switches debug strings 
-    //=========================================================================
-    /** A string representation of grammars */
-    private static String[] GrammarSwitchString = new String[]
-        { "STORED_PROCEDURE_CALL_GRAMMAR_SWITCH", };
+    public static int LAST_STORED_PROCEDURE_CALL_STATE = 12;
 
     //=========================================================================
     // States debug strings 
     //=========================================================================
     /** A string representation of all the states */
     private static String[] StoredProcedureCallString = new String[]
-        { "STORED_PROCEDURE_CALL_TAG", "STORED_PROCEDURE_CALL_VALUE",
-          "NAME_TAG", "NAME_VALUE",
-          "OPTIONS_TAG", "OPTIONS_VALUE",
-          "LANGUAGE_SCHEME_TAG", "LANGUAGE_SCHEME_VALUE",
-          "SEARCH_CONTEXT_TAG", "SEARCH_CONTEXT_VALUE",
-          "CONTEXT_TAG", "CONTEXT_VALUE",
-          "SCOPE_TAG", "SCOPE_VALUE",
-          "PARAMETERS_TAG", "PARAMETERS_VALUE",
-          "PARAMETER_TYPE_TAG", "PARAMETER_TYPE_VALUE",
-          "PARAMETER_VALUE_TAG", "PARAMETER_VALUE_VALUE" };
-
-    /** The instance */
+        { 
+        "START_STATE",
+        "STORED_PROCEDURE_CALL_STATE", 
+        "NAME_STATE",
+        "OPTIONS_STATE",
+        "LANGUAGE_SCHEME_STATE",
+        "SEARCH_CONTEXT_STATE",
+        "CONTEXT_STATE",
+        "SCOPE_STATE",
+        "PARAMETERS_STATE",
+        "PARAMETER_STATE",
+        "PARAMETER_TYPE_STATE",
+        "PARAMETER_VALUE_STATE" 
+        };
+    
+     /** The instance */
     private static StoredProcedureCallStatesEnum instance = new StoredProcedureCallStatesEnum();
 
 
@@ -171,14 +126,7 @@ public class StoredProcedureCallStatesEnum implements IStates
 
     public String getGrammarName( int grammar )
     {
-        switch ( grammar )
-        {
-            case STORED_PROCEDURE_CALL_GRAMMAR:
-                return "STORED_PROCEDURE_CALL_GRAMMAR";
-
-            default:
-                return "UNKNOWN";
-        }
+        return "STORED_PROCEDURE_CALL_GRAMMAR";
     }
 
 
@@ -195,28 +143,10 @@ public class StoredProcedureCallStatesEnum implements IStates
     }
 
 
-    public String getState( int grammar, int state )
+    public String getState( int state )
     {
-
-        if ( ( state & GRAMMAR_SWITCH_MASK ) != 0 )
-        {
-            return ( state == END_STATE )
-                ? "END_STATE"
-                : GrammarSwitchString[( ( state & GRAMMAR_SWITCH_MASK ) >> 8 ) - 1];
-        }
-        else
-        {
-            switch ( grammar )
-            {
-
-                case STORED_PROCEDURE_CALL_GRAMMAR:
-                    return( ( state == GRAMMAR_END )
+        return( ( state == GRAMMAR_END )
                         ? "STORED_PROCEDURE_CALL_END_STATE"
                         : StoredProcedureCallString[state] );
-
-                default:
-                    return "UNKNOWN";
-            }
-        }
     }
 }

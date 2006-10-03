@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 
 
 /**
@@ -44,17 +43,8 @@ public class StoredProcedureCallContainer extends AbstractContainer implements I
     public StoredProcedureCallContainer()
     {
         super();
-        currentGrammar = 0;
-        grammars = new IGrammar[1];
-        grammarStack = new IGrammar[1];
         stateStack = new int[1];
-        nbGrammars = 0;
-
-        grammars[StoredProcedureCallStatesEnum.STORED_PROCEDURE_CALL_GRAMMAR] = StoredProcedureCallGrammar
-            .getInstance();
-
-        grammarStack[currentGrammar] = grammars[StoredProcedureCallStatesEnum.STORED_PROCEDURE_CALL_GRAMMAR];
-
+        grammar = StoredProcedureCallGrammar.getInstance();
         states = StoredProcedureCallStatesEnum.getInstance();
     }
 

@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.codec.search;
 
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
-import org.apache.directory.shared.asn1.ber.tlv.Length;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
@@ -31,7 +30,6 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -148,12 +146,11 @@ public class SearchRequest extends LdapMessage
     /**
      * Add an attribute to the attributes list.
      * 
-     * @param attribute
-     *            The attribute to add to the list
+     * @param attribute The attribute to add to the list
      */
-    public void addAttribute( LdapString attribute )
+    public void addAttribute( String attribute )
     {
-        attributes.put( new BasicAttribute( StringTools.lowerCase( attribute.getString() ) ) );
+        attributes.put( new BasicAttribute( StringTools.lowerCase( attribute ) ) );
     }
 
 
@@ -171,8 +168,7 @@ public class SearchRequest extends LdapMessage
     /**
      * Set the base object
      * 
-     * @param baseObject
-     *            The baseObject to set.
+     * @param baseObject The baseObject to set.
      */
     public void setBaseObject( LdapDN baseObject )
     {
@@ -194,8 +190,7 @@ public class SearchRequest extends LdapMessage
     /**
      * Set the derefAliases flag
      * 
-     * @param derefAliases
-     *            The derefAliases to set.
+     * @param derefAliases The derefAliases to set.
      */
     public void setDerefAliases( int derefAliases )
     {
@@ -217,8 +212,7 @@ public class SearchRequest extends LdapMessage
     /**
      * Set the filter
      * 
-     * @param filter
-     *            The filter to set.
+     * @param filter The filter to set.
      */
     public void setFilter( Filter filter )
     {
@@ -240,8 +234,7 @@ public class SearchRequest extends LdapMessage
     /**
      * Set the search scope
      * 
-     * @param scope
-     *            The scope to set.
+     * @param scope The scope to set.
      */
     public void setScope( int scope )
     {
@@ -263,8 +256,7 @@ public class SearchRequest extends LdapMessage
     /**
      * Set the size limit
      * 
-     * @param sizeLimit
-     *            The sizeLimit to set.
+     * @param sizeLimit The sizeLimit to set.
      */
     public void setSizeLimit( int sizeLimit )
     {
@@ -286,8 +278,7 @@ public class SearchRequest extends LdapMessage
     /**
      * Set the time limit
      * 
-     * @param timeLimit
-     *            The timeLimit to set.
+     * @param timeLimit The timeLimit to set.
      */
     public void setTimeLimit( int timeLimit )
     {
@@ -309,8 +300,7 @@ public class SearchRequest extends LdapMessage
     /**
      * Set the typesOnly flag
      * 
-     * @param typesOnly
-     *            The typesOnly to set.
+     * @param typesOnly The typesOnly to set.
      */
     public void setTypesOnly( boolean typesOnly )
     {
@@ -388,8 +378,7 @@ public class SearchRequest extends LdapMessage
     /**
      * Set the current dilter
      * 
-     * @param currentFilter
-     *            The currentFilter to set.
+     * @param currentFilter The currentFilter to set.
      */
     public void setCurrentFilter( Filter filter ) throws DecoderException
     {
@@ -408,8 +397,6 @@ public class SearchRequest extends LdapMessage
     public void unstackFilters( IAsn1Container container ) throws DecoderException
     {
         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-        //LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-        //SearchRequest searchRequest = ldapMessage.getSearchRequest();
 
         TLV tlv = ldapMessageContainer.getCurrentTLV();
         TLV parent = tlv.getParent();
@@ -444,20 +431,34 @@ public class SearchRequest extends LdapMessage
     }
 
     /**
-     * Compute the SearchRequest length SearchRequest : 0x63 L1 | +--> 0x04 L2
-     * baseObject +--> 0x0A 0x01 scope +--> 0x0A 0x01 derefAliases +--> 0x02
-     * 0x0(1..4) sizeLimit +--> 0x02 0x0(1..4) timeLimit +--> 0x01 0x01
-     * typesOnly +--> filter.computeLength() +--> 0x30 L3 (Attribute description
-     * list) | +--> 0x04 L4-1 Attribute description +--> 0x04 L4-2 Attribute
-     * description +--> ... +--> 0x04 L4-i Attribute description +--> ... +-->
-     * 0x04 L4-n Attribute description
+     * Compute the SearchRequest length
+     * 
+     * SearchRequest :
+     * 
+     * 0x63 L1
+     *  |
+     *  +--> 0x04 L2 baseObject
+     *  +--> 0x0A 0x01 scope
+     *  +--> 0x0A 0x01 derefAliases
+     *  +--> 0x02 0x0(1..4) sizeLimit
+     *  +--> 0x02 0x0(1..4) timeLimit
+     *  +--> 0x01 0x01 typesOnly
+     *  +--> filter.computeLength()
+     *  +--> 0x30 L3 (Attribute description list)
+     *        |
+     *        +--> 0x04 L4-1 Attribute description 
+     *        +--> 0x04 L4-2 Attribute description 
+     *        +--> ... 
+     *        +--> 0x04 L4-i Attribute description 
+     *        +--> ... 
+     *        +--> 0x04 L4-n Attribute description 
      */
     public int computeLength()
     {
         searchRequestLength = 0;
 
         // The baseObject
-        searchRequestLength += 1 + Length.getNbBytes( LdapDN.getNbBytes( baseObject ) )
+        searchRequestLength += 1 + TLV.getNbBytes( LdapDN.getNbBytes( baseObject ) )
             + LdapDN.getNbBytes( baseObject );
 
         // The scope
@@ -494,14 +495,13 @@ public class SearchRequest extends LdapMessage
                 try
                 {
                     int idLength = attribute.getID().getBytes( "UTF-8" ).length;
-                    attributeDescriptionListLength += 1 + Length.getNbBytes( idLength ) + idLength;
+                    attributeDescriptionListLength += 1 + TLV.getNbBytes( idLength ) + idLength;
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
                     // Should not be possible. The encoding of the Attribute ID
                     // will check that this ID is valid, and if not, it will
-                    // throw
-                    // an exception.
+                    // throw an exception.
                     // The allocated length will be set to a null length value
                     // in order to avoid an exception thrown while encoding the
                     // Attribute ID.
@@ -510,22 +510,32 @@ public class SearchRequest extends LdapMessage
             }
         }
 
-        searchRequestLength += 1 + Length.getNbBytes( attributeDescriptionListLength ) + attributeDescriptionListLength;
+        searchRequestLength += 1 + TLV.getNbBytes( attributeDescriptionListLength ) + attributeDescriptionListLength;
 
         // Return the result.
-        return 1 + Length.getNbBytes( searchRequestLength ) + searchRequestLength;
+        return 1 + TLV.getNbBytes( searchRequestLength ) + searchRequestLength;
     }
 
 
     /**
-     * Encode the SearchRequest message to a PDU. SearchRequest : 0x63 LL 0x04
-     * LL baseObject 0x0A 01 scope 0x0A 01 derefAliases 0x02 0N sizeLimit 0x02
-     * 0N timeLimit 0x01 0x01 typesOnly filter.encode() 0x30 LL
-     * attributeDescriptionList 0x04 LL attributeDescription ... 0x04 LL
-     * attributeDescription
+     * Encode the SearchRequest message to a PDU.
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * SearchRequest :
+     * 
+     * 0x63 LL
+     *   0x04 LL baseObject
+     *   0x0A 01 scope
+     *   0x0A 01 derefAliases
+     *   0x02 0N sizeLimit
+     *   0x02 0N timeLimit
+     *   0x01 0x01 typesOnly
+     *   filter.encode()
+     *   0x30 LL attributeDescriptionList
+     *     0x04 LL attributeDescription
+     *     ... 
+     *     0x04 LL attributeDescription
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -539,7 +549,7 @@ public class SearchRequest extends LdapMessage
         {
             // The SearchRequest Tag
             buffer.put( LdapConstants.SEARCH_REQUEST_TAG );
-            buffer.put( Length.getBytes( searchRequestLength ) );
+            buffer.put( TLV.getBytes( searchRequestLength ) );
 
             // The baseObject
             Value.encode( buffer, LdapDN.getBytes( baseObject ) );
@@ -564,7 +574,7 @@ public class SearchRequest extends LdapMessage
 
             // The attributeDescriptionList
             buffer.put( UniversalTag.SEQUENCE_TAG );
-            buffer.put( Length.getBytes( attributeDescriptionListLength ) );
+            buffer.put( TLV.getBytes( attributeDescriptionListLength ) );
 
             if ( ( attributes != null ) && ( attributes.size() != 0 ) )
             {

@@ -54,31 +54,32 @@ public class BindRequestTest extends TestCase
      * Test the decoding of a BindRequest with Simple authentication and no
      * controls
      */
-    public void testDecodeBindRequestSimpleNoControls()
+    /* Not used in unit tests
+    public void testDecodeBindRequestSimpleNoControlsPerf()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x52 );
         stream.put( new byte[]
-            { 
-            0x30, 0x50,                 // LDAPMessage ::=SEQUENCE {
-              0x02, 0x01, 0x01,         // messageID MessageID
-              0x60, 0x2E,               // CHOICE { ..., bindRequest BindRequest, ...
-                                        // BindRequest ::= APPLICATION[0] SEQUENCE {
-                0x02, 0x01, 0x03,       // version INTEGER (1..127),
-                0x04, 0x1F,             // name LDAPDN,
-                'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
-                ( byte ) 0x80, 0x08,    // authentication AuthenticationChoice
-                                        // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
-                                        // ...
-                  'p', 'a', 's', 's', 'w', 'o', 'r', 'd', 
-              ( byte ) 0xA0, 0x1B, // A control
-                0x30, 0x19, 
-                  0x04, 0x17, 
-                    0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
-                    0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 
-            } );
+             { 
+             0x30, 0x50,                 // LDAPMessage ::=SEQUENCE {
+               0x02, 0x01, 0x01,         // messageID MessageID
+               0x60, 0x2E,               // CHOICE { ..., bindRequest BindRequest, ...
+                                         // BindRequest ::= APPLICATION[0] SEQUENCE {
+                 0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                 0x04, 0x1F,             // name LDAPDN,
+                 'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                 ( byte ) 0x80, 0x08,    // authentication AuthenticationChoice
+                                         // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
+                                         // ...
+                   'p', 'a', 's', 's', 'w', 'o', 'r', 'd', 
+               ( byte ) 0xA0, 0x1B, // A control
+                 0x30, 0x19, 
+                   0x04, 0x17, 
+                     0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
+                     0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 
+             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -89,6 +90,16 @@ public class BindRequestTest extends TestCase
         // Decode the BindRequest PDU
         try
         {
+            long t0 = System.currentTimeMillis();
+            for ( int i = 0; i < 10000; i++ )
+            {
+                ldapDecoder.decode( stream, ldapMessageContainer );
+                ( ( LdapMessageContainer ) ldapMessageContainer).clean();
+                stream.flip();
+            }
+            long t1 = System.currentTimeMillis();
+            System.out.println( "Delta = " + ( t1 - t0 ) );
+            
             ldapDecoder.decode( stream, ldapMessageContainer );
         }
         catch ( DecoderException de )
@@ -140,7 +151,7 @@ public class BindRequestTest extends TestCase
             fail( ee.getMessage() );
         }
     }
-
+    */
 
     /**
      * Test the decoding of a BindRequest with Simple authentication and
@@ -306,8 +317,7 @@ public class BindRequestTest extends TestCase
         }
         catch ( DecoderException de )
         {
-            assertEquals( "Cannot pop the grammar BIND_REQUEST_GRAMMAR for state BIND_REQUEST_NAME_TAG", de
-                .getMessage() );
+            assertEquals( "Bad transition !", de.getMessage() );
             return;
         }
         catch ( NamingException ne )
@@ -1328,4 +1338,51 @@ public class BindRequestTest extends TestCase
             fail( ee.getMessage() );
         }
     }
+
+    /**
+     * Test the decoding of a BindRequest with Simple authentication and no
+     * controls
+     */
+    /* No used by unit tests
+    public void testPerf() throws Exception
+    {
+        LdapDN name = new LdapDN( "uid=akarasulu,dc=example,dc=com" );
+        long t0 = System.currentTimeMillis();
+        
+        for ( int i = 0; i< 10000; i++)
+        {
+            // Check the decoded BindRequest
+            LdapMessage message = new LdapMessage();
+            message.setMessageId( 1 );
+            
+            BindRequest br = new BindRequest();
+            br.setMessageId( 1 );
+            br.setName( name );
+            
+            Control control = new Control();
+            control.setControlType( "2.16.840.1.113730.3.4.2" );
+
+            LdapAuthentication authentication = new SimpleAuthentication();
+            ((SimpleAuthentication)authentication).setSimple( StringTools.getBytesUtf8( "password" ) );
+
+            br.addControl( control );
+            br.setAuthentication( authentication );
+            message.setProtocolOP( br );
+    
+            // Check the encoding
+            try
+            {
+                message.encode( null );
+            }
+            catch ( EncoderException ee )
+            {
+                ee.printStackTrace();
+                fail( ee.getMessage() );
+            }
+        }
+
+        long t1 = System.currentTimeMillis();
+        System.out.println( "Delta = " + (t1 - t0));
+    }
+    */
 }

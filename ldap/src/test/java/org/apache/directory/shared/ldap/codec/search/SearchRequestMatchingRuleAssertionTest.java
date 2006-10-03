@@ -659,18 +659,19 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
             { 
             0x30, 0x43, 
               0x02, 0x01, 0x04, // messageID
-              0x63, 0x3E, 0x04, 0x1F, // baseObject LDAPDN,
-                'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
-              0x0A, 0x01, 0x01, 
-              0x0A, 0x01, 0x03, 
-              0x02, 0x01, 0x00, 
-              0x02, 0x01, 0x00, 
-              0x01, 0x01, ( byte ) 0xFF, 
-              ( byte ) 0xA9, 0x06, 
-                ( byte ) 0x83, 0x04, 't', 'e', 's', 't', 
-              0x30, 0x02, // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
-                0x04, 0x00 
+              0x63, 0x3E, 0x04, 
+                0x1F, // baseObject LDAPDN,
+                  'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                  'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                0x0A, 0x01, 0x01, 
+                0x0A, 0x01, 0x03, 
+                0x02, 0x01, 0x00, 
+                0x02, 0x01, 0x00, 
+                0x01, 0x01, ( byte ) 0xFF, 
+                ( byte ) 0xA9, 0x06, 
+                  ( byte ) 0x83, 0x04, 't', 'e', 's', 't', 
+                0x30, 0x02, // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                  0x04, 0x00 
             };
 
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -689,8 +690,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
         }
         catch ( DecoderException de )
         {
-            assertTrue( true );
-            return;
+            fail( de.getMessage() );
         }
         catch ( NamingException ne )
         {
@@ -698,6 +698,33 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
             fail( ne.getMessage() );
         }
 
-        fail( "We should not reach this point" );
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequest sr = message.getSearchRequest();
+
+        assertEquals( 4, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 0, sr.getSizeLimit() );
+        assertEquals( 0, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
+
+        // Extended
+        ExtensibleMatchFilter extensibleMatchFilter = ( ExtensibleMatchFilter ) sr.getFilter();
+        assertNotNull( extensibleMatchFilter );
+
+        assertNull( extensibleMatchFilter.getMatchingRule() );
+        assertNull( extensibleMatchFilter.getType() );
+        assertEquals( "test", extensibleMatchFilter.getMatchValue() );
+        assertFalse( extensibleMatchFilter.isDnAttributes() );
+
+        Attributes attributes = sr.getAttributes();
+
+        assertEquals( 1, attributes.size() );
+
+        for ( int i = 0; i < attributes.size(); i++ )
+        {
+            assertNull( attributes.get( "" ) );
+        }
     }
 }

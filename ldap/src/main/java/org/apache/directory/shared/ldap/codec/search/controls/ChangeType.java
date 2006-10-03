@@ -55,7 +55,7 @@ public class ChangeType
     public static final ChangeType MODIFY = new ChangeType( "MODIFY", MODIFY_VALUE );
 
     public static final ChangeType MODDN = new ChangeType( "MODDN", MODDN_VALUE );
-
+    
     private final String label;
 
     private final int value;
@@ -76,18 +76,16 @@ public class ChangeType
 
     public String toString()
     {
-        return ( label );
+        return label;
     }
 
 
     /**
      * Gets the changeType enumeration type for an integer value.
      * 
-     * @param value
-     *            the value to get the enumeration for
+     * @param value the value to get the enumeration for
      * @return the enueration type for the value if the value is valid
-     * @throws IllegalArgumentException
-     *             if the value is undefined
+     * @throws IllegalArgumentException if the value is undefined
      */
     public static ChangeType getChangeType( int value )
     {

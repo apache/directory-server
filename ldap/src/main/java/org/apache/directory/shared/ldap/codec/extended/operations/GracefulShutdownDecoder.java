@@ -44,11 +44,9 @@ public class GracefulShutdownDecoder extends Asn1Decoder
      * Decode a PDU which must contain a GracefulShutdown extended operation.
      * Note that the stream of bytes much contain a full PDU, not a partial one.
      * 
-     * @param stream
-     *            The bytes to be decoded
+     * @param stream The bytes to be decoded
      * @return An GracefulShutdown object
-     * @throws DecoderException
-     *             If the decoding failed
+     * @throws DecoderException If the decoding failed
      */
     public Asn1Object decode( byte[] stream ) throws DecoderException, NamingException
     {

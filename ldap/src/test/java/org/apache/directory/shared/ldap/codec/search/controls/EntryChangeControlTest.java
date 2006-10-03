@@ -52,15 +52,13 @@ public class EntryChangeControlTest extends TestCase
         Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0D );
         bb.put( new byte[]
-            { 0x30, 0x0B, // EntryChangeNotification ::= SEQUENCE {
-                0x0A, 0x01, 0x08, // changeType ENUMERATED {
-                // modDN (8)
-                // }
-                0x04, 0x03, 'a', '=', 'b', // previousDN LDAPDN OPTIONAL, --
-                                            // modifyDN ops. only
-                0x02, 0x01, 0x10 // changeNumber INTEGER OPTIONAL -- if
-                                    // supported
-            // }
+            { 
+            0x30, 0x0B,                     // EntryChangeNotification ::= SEQUENCE {
+              0x0A, 0x01, 0x08,             //     changeType ENUMERATED {
+                                            //         modDN (8)
+                                            //     }
+              0x04, 0x03, 'a', '=', 'b',    //     previousDN LDAPDN OPTIONAL, -- modifyDN ops. only
+              0x02, 0x01, 0x10              //     changeNumber INTEGER OPTIONAL } -- if supported
             } );
         bb.flip();
 
@@ -90,13 +88,13 @@ public class EntryChangeControlTest extends TestCase
         Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x08 );
         bb.put( new byte[]
-            { 0x30, 0x06, // EntryChangeNotification ::= SEQUENCE {
-                0x0A, 0x01, 0x01, // changeType ENUMERATED {
-                // Add (1)
-                // }
-                0x02, 0x01, 0x10 // changeNumber INTEGER OPTIONAL -- if
-                                    // supported
-            // }
+            { 
+            0x30, 0x06,             // EntryChangeNotification ::= SEQUENCE {
+              0x0A, 0x01, 0x01,     //     changeType ENUMERATED {
+                                    //         Add (1)
+                                    //     }
+              0x02, 0x01, 0x10      //     changeNumber INTEGER OPTIONAL -- if supported
+                                    // }
             } );
         bb.flip();
 
@@ -127,15 +125,15 @@ public class EntryChangeControlTest extends TestCase
         Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0D );
         bb.put( new byte[]
-            { 0x30, 0x0B, // EntryChangeNotification ::= SEQUENCE {
-                0x0A, 0x01, 0x01, // changeType ENUMERATED {
-                // ADD (1)
-                // }
-                0x04, 0x03, 'a', '=', 'b', // previousDN LDAPDN OPTIONAL, --
-                                            // modifyDN ops. only
-                0x02, 0x01, 0x10 // changeNumber INTEGER OPTIONAL -- if
-                                    // supported
-            // }
+            { 
+            0x30, 0x0B,                     // EntryChangeNotification ::= SEQUENCE {
+              0x0A, 0x01, 0x01,             //     changeType ENUMERATED {
+                                            //         ADD (1)
+                                            //     }
+              0x04, 0x03, 'a', '=', 'b',    //     previousDN LDAPDN OPTIONAL, --
+                                            //     modifyDN ops. only
+              0x02, 0x01, 0x10              //     changeNumber INTEGER OPTIONAL -- if supported
+                                            // }
             } );
         bb.flip();
 
@@ -164,11 +162,12 @@ public class EntryChangeControlTest extends TestCase
         Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x05 );
         bb.put( new byte[]
-            { 0x30, 0x03, // EntryChangeNotification ::= SEQUENCE {
-                0x0A, 0x01, 0x01, // changeType ENUMERATED {
-            // ADD (1)
-            // }
-            // }
+            { 
+            0x30, 0x03,                 // EntryChangeNotification ::= SEQUENCE {
+              0x0A, 0x01, 0x01,         //     changeType ENUMERATED {
+                                        //         ADD (1)
+                                        //     }
+                                        // }
             } );
         bb.flip();
 
@@ -200,11 +199,12 @@ public class EntryChangeControlTest extends TestCase
         Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x05 );
         bb.put( new byte[]
-            { 0x30, 0x03, // EntryChangeNotification ::= SEQUENCE {
-                0x0A, 0x01, 0x03, // changeType ENUMERATED {
-            // BAD Change Type
-            // }
-            // }
+            { 
+            0x30, 0x03,                 // EntryChangeNotification ::= SEQUENCE {
+              0x0A, 0x01, 0x03,         //     changeType ENUMERATED {
+                                        //         BAD Change Type
+                                        //     }
+                                        // }
             } );
         bb.flip();
 
@@ -232,14 +232,13 @@ public class EntryChangeControlTest extends TestCase
     {
         ByteBuffer bb = ByteBuffer.allocate( 0x0D );
         bb.put( new byte[]
-            { 0x30, 0x0B, // EntryChangeNotification ::= SEQUENCE {
-                0x0A, 0x01, 0x08, // changeType ENUMERATED {
-                // modDN (8)
-                // }
-                0x04, 0x03, 'a', '=', 'b', // previousDN LDAPDN OPTIONAL, --
-                                            // modifyDN ops. only
-                0x02, 0x01, 0x10 // changeNumber INTEGER OPTIONAL -- if
-                                    // supported
+            { 
+            0x30, 0x0B,                     // EntryChangeNotification ::= SEQUENCE {
+              0x0A, 0x01, 0x08,             //     changeType ENUMERATED {
+                                            //         modDN (8)
+                                            //     }
+              0x04, 0x03, 'a', '=', 'b',    //     previousDN LDAPDN OPTIONAL, -- modifyDN ops. only
+              0x02, 0x01, 0x10              //     changeNumber INTEGER OPTIONAL -- if supported
             } );
 
         String expected = StringTools.dumpBytes( bb.array() );

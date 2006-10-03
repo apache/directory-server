@@ -24,7 +24,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 
@@ -63,23 +63,28 @@ public class OrFilter extends ConnectorFilter
 
 
     /**
-     * Compute the OrFilter length OrFilter : 0xA1 L1 super.computeLength()
+     * Compute the OrFilter length 
+     * 
+     * OrFilter : 
+     * 0xA1 L1 super.computeLength()
+     * 
      * Length(OrFilter) = Length(0xA1) + Length(super.computeLength()) +
-     * super.computeLength()
+     *      super.computeLength()
      */
     public int computeLength()
     {
         filtersLength = super.computeLength();
 
-        return 1 + Length.getNbBytes( filtersLength ) + filtersLength;
+        return 1 + TLV.getNbBytes( filtersLength ) + filtersLength;
     }
 
 
     /**
-     * Encode the OrFilter message to a PDU. OrFilter : 0xA1 LL filter.encode()
+     * Encode the OrFilter message to a PDU. 
+     * OrFilter : 
+     *   0xA1 LL filter.encode()
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -93,7 +98,7 @@ public class OrFilter extends ConnectorFilter
         {
             // The OrFilter Tag
             buffer.put( ( byte ) LdapConstants.OR_FILTER_TAG );
-            buffer.put( Length.getBytes( filtersLength ) );
+            buffer.put( TLV.getBytes( filtersLength ) );
         }
         catch ( BufferOverflowException boe )
         {

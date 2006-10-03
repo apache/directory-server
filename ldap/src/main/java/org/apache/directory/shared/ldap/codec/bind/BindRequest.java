@@ -23,7 +23,7 @@ package org.apache.directory.shared.ldap.codec.bind;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
@@ -55,10 +55,6 @@ public class BindRequest extends LdapMessage
     /** The bind request length */
     private transient int bindRequestLength;
 
-
-    // ~ Constructors
-    // -------------------------------------------------------------------------------
-
     /**
      * Creates a new BindRequest object.
      */
@@ -66,10 +62,6 @@ public class BindRequest extends LdapMessage
     {
         super();
     }
-
-
-    // ~ Methods
-    // ------------------------------------------------------------------------------------
 
     /**
      * Get the message type
@@ -118,8 +110,7 @@ public class BindRequest extends LdapMessage
     /**
      * Set the user authentication
      * 
-     * @param authentication
-     *            The user authentication
+     * @param authentication The user authentication
      */
     public void setAuthentication( LdapAuthentication authentication )
     {
@@ -141,8 +132,7 @@ public class BindRequest extends LdapMessage
     /**
      * Set the user name
      * 
-     * @param name
-     *            The user name
+     * @param name The user name
      */
     public void setName( LdapDN name )
     {
@@ -175,8 +165,7 @@ public class BindRequest extends LdapMessage
     /**
      * Set the protocol version
      * 
-     * @param version
-     *            The protocol version
+     * @param version The protocol version
      */
     public void setVersion( int version )
     {
@@ -185,34 +174,48 @@ public class BindRequest extends LdapMessage
 
 
     /**
-     * Compute the BindRequest length BindRequest : 0x60 L1 | +--> 0x02 0x01
-     * (1..127) version +--> 0x04 L2 name +--> authentication L2 = Length(name)
-     * L3/4 = Length(authentication) Length(BindRequest) = Length(0x60) +
-     * Length(L1) + L1 + Length(0x02) + 1 + 1 + Length(0x04) + Length(L2) + L2 +
-     * Length(authentication)
+     * Compute the BindRequest length 
+     * 
+     * BindRequest : 
+     * 0x60 L1 
+     *   | 
+     *   +--> 0x02 0x01 (1..127) version 
+     *   +--> 0x04 L2 name 
+     *   +--> authentication 
+     *   
+     * L2 = Length(name)
+     * L3/4 = Length(authentication) 
+     * Length(BindRequest) = Length(0x60) + Length(L1) + L1 + Length(0x02) + 1 + 1 + 
+     *      Length(0x04) + Length(L2) + L2 + Length(authentication)
      */
     public int computeLength()
     {
         bindRequestLength = 1 + 1 + 1; // Initialized with version
 
         // The name
-        bindRequestLength += 1 + Length.getNbBytes( LdapDN.getNbBytes( name ) ) + LdapDN.getNbBytes( name );
+        bindRequestLength += 1 + TLV.getNbBytes( LdapDN.getNbBytes( name ) ) + LdapDN.getNbBytes( name );
 
         // The authentication
         bindRequestLength += authentication.computeLength();
 
         // Return the result.
-        return 1 + Length.getNbBytes( bindRequestLength ) + bindRequestLength;
+        return 1 + TLV.getNbBytes( bindRequestLength ) + bindRequestLength;
     }
 
 
     /**
-     * Encode the BindRequest message to a PDU. BindRequest : 0x60 LL 0x02 LL
-     * version 0x04 LL name authentication.encode() 0x80 LL simple / \ 0x83 LL
-     * mechanism [0x04 LL credential]
+     * Encode the BindRequest message to a PDU. 
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * BindRequest : 
+     * 
+     * 0x60 LL 
+     *   0x02 LL version         0x80 LL simple 
+     *   0x04 LL name           /   
+     *   authentication.encode() 
+     *                          \ 0x83 LL mechanism [0x04 LL credential]
+     * 
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -226,7 +229,7 @@ public class BindRequest extends LdapMessage
         {
             // The BindRequest Tag
             buffer.put( LdapConstants.BIND_REQUEST_TAG );
-            buffer.put( Length.getBytes( bindRequestLength ) );
+            buffer.put( TLV.getBytes( bindRequestLength ) );
 
         }
         catch ( BufferOverflowException boe )
@@ -280,4 +283,62 @@ public class BindRequest extends LdapMessage
 
         return sb.toString();
     }
+
+    /* Used only for test perfs
+    public static void main( String[] args ) throws Exception
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x52 );
+        stream.put( new byte[]
+             { 
+             0x30, 0x50,                 // LDAPMessage ::=SEQUENCE {
+               0x02, 0x01, 0x01,         // messageID MessageID
+               0x60, 0x2E,               // CHOICE { ..., bindRequest BindRequest, ...
+                                         // BindRequest ::= APPLICATION[0] SEQUENCE {
+                 0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                 0x04, 0x1F,             // name LDAPDN,
+                 'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                 ( byte ) 0x80, 0x08,    // authentication AuthenticationChoice
+                                         // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
+                                         // ...
+                   'p', 'a', 's', 's', 'w', 'o', 'r', 'd', 
+               ( byte ) 0xA0, 0x1B, // A control
+                 0x30, 0x19, 
+                   0x04, 0x17, 
+                     0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
+                     0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 
+             } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the BindRequest PDU
+        try
+        {
+            long t0 = System.currentTimeMillis();
+            for ( int i = 0; i < 10000000; i++ )
+            {
+                ldapDecoder.decode( stream, ldapMessageContainer );
+                ( ( LdapMessageContainer ) ldapMessageContainer).clean();
+                stream.flip();
+            }
+            long t1 = System.currentTimeMillis();
+            System.out.println( "Delta = " + ( t1 - t0 ) );
+            
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+        }
+    }
+    */
 }

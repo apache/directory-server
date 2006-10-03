@@ -32,7 +32,6 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.bind.BindRequest;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
-import org.apache.directory.shared.ldap.codec.del.DelRequest;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import java.nio.ByteBuffer;
@@ -305,19 +304,20 @@ public class LdapDecoderTest extends TestCase
 
         ByteBuffer stream = ByteBuffer.allocate( 0x35 );
         stream.put( new byte[]
-            { 0x30, 0x33, // LDAPMessage ::=SEQUENCE {
-                // Length should be 0x01...
-                0x02, 0x02, 0x01, // messageID MessageID
-                0x60, 0x2E, // CHOICE { ..., bindRequest BindRequest, ...
-                // BindRequest ::= APPLICATION[0] SEQUENCE {
-                0x02, 0x01, 0x03, // version INTEGER (1..127),
-                0x04, 0x1F, // name LDAPDN,
-                'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', ( byte ) 0x80, 0x08, // authentication
-                                                                                            // AuthenticationChoice
-                // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
-                // ...
-                'p', 'a', 's', 's', 'w', 'o', 'r' } );
+            { 
+            0x30, 0x33,                 // LDAPMessage ::=SEQUENCE {
+                                        // Length should be 0x01...
+              0x02, 0x02, 0x01,         // messageID MessageID
+              0x60, 0x2E,               // CHOICE { ..., bindRequest BindRequest, ...
+                                        // BindRequest ::= APPLICATION[0] SEQUENCE {
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x1F,             // name LDAPDN,
+                  'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                  'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                ( byte ) 0x80, 0x08,    // authentication AuthenticationChoice
+                                        // AuthenticationChoice ::= CHOICE { simple [0] OCTET STRING,
+                                        // ...
+                  'p', 'a', 's', 's', 'w', 'o', 'r' } );
 
         stream.flip();
 
@@ -331,7 +331,7 @@ public class LdapDecoderTest extends TestCase
         }
         catch ( DecoderException de )
         {
-            assertEquals( "Universal tag 14 is reserved", de.getMessage() );
+            assertEquals( "Bad transition !", de.getMessage() );
             return;
         }
         catch ( NamingException ne )
@@ -394,17 +394,20 @@ public class LdapDecoderTest extends TestCase
     }
 
     /**
-     * Test the decoding of a splitted length
+     * Test the decoding of a splitted Length.
+     * 
+     * The length is 3 bytes long, but the PDU has been splitted 
+     * just after the first byte 
      */
-    public void testDecodeSplittedLength() throws NamingException
+    public void testDecodeSplittedLength()
     {
+
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer stream = ByteBuffer.allocate( 0x03 );
-
+        ByteBuffer stream = ByteBuffer.allocate( 3 );
         stream.put( new byte[]
-            {
-            0x30, (byte)0x82, 0x01          // LDAPMessage ::= SEQUENCE {
+            { 
+            0x30, (byte)0x82, 0x01,// LDAPMessage ::=SEQUENCE {
             } );
 
         stream.flip();
@@ -412,7 +415,7 @@ public class LdapDecoderTest extends TestCase
         // Allocate a LdapMessage Container
         IAsn1Container ldapMessageContainer = new LdapMessageContainer();
 
-        // Decode a DelRequest PDU
+        // Decode a BindRequest PDU first block of data
         try
         {
             ldapDecoder.decode( stream, ldapMessageContainer );
@@ -421,30 +424,25 @@ public class LdapDecoderTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.LENGTH_STATE_PENDING, ldapMessageContainer.getState() );
 
-        stream = ByteBuffer.allocate( 0x101 );
-
+        // Second block of data
+        stream = ByteBuffer.allocate( 1 );
         stream.put( new byte[]
-            {
-            0x00,                                       // LDAPMessage ::= SEQUENCE {
-              0x02, 0x01, 0x01,                         // messageID MessageID
-                                                        // CHOICE { ..., delRequest DelRequest, ...
-                                                        // DelRequest ::= [APPLICATION 10] LDAPDN;
-              0x4A, (byte)0x81, (byte)0xFA,
-                'c', 'n', '=',  
+            { 
+                (byte)0x80 // End of the length
             } );
 
-        for ( int i = 0; i < 0xFA - 3; i++ )
-        {
-            stream.put( (byte)'a' );
-        }
-        
         stream.flip();
 
-        // Decode a DelRequest PDU
+        // Decode a BindRequest PDU second block of data
         try
         {
             ldapDecoder.decode( stream, ldapMessageContainer );
@@ -454,15 +452,15 @@ public class LdapDecoderTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
 
-        // Check the decoded DelRequest PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        DelRequest delRequest = message.getDelRequest();
+        assertEquals( TLVStateEnum.LENGTH_STATE_END, ldapMessageContainer.getState() );
 
-        assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=aaaaaaaaaaaaaaaaa", delRequest.getEntry().toString().substring( 0, 20 ) );
-
-        // Check the length
-        assertEquals( 0x104, message.computeLength() );
+        // Check the decoded length
+        assertEquals( 384, ldapMessageContainer.getCurrentTLV().getLength() );
     }
 }

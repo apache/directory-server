@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 
 
 /**
@@ -43,14 +42,8 @@ public class GracefulDisconnectContainer extends AbstractContainer implements IA
     public GracefulDisconnectContainer()
     {
         super();
-        currentGrammar = 0;
-        grammars = new IGrammar[GracefulDisconnectStatesEnum.NB_GRAMMARS];
-        grammarStack = new IGrammar[1];
         stateStack = new int[1];
-        nbGrammars = 0;
-
-        grammars[GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_GRAMMAR] = GracefulDisconnectGrammar.getInstance();
-        grammarStack[currentGrammar] = grammars[GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_GRAMMAR];
+        grammar = GracefulDisconnectGrammar.getInstance();
         states = GracefulDisconnectStatesEnum.getInstance();
     }
 
@@ -68,8 +61,7 @@ public class GracefulDisconnectContainer extends AbstractContainer implements IA
      * Set a GracefulDisconnect Object into the container. It will be completed
      * by the ldapDecoder.
      * 
-     * @param control
-     *            the GracefulShutdown to set.
+     * @param control the GracefulShutdown to set.
      */
     public void setGracefulDisconnect( GracefulDisconnect gracefulDisconnect )
     {

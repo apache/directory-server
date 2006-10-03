@@ -80,16 +80,16 @@ public class UnBindRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        LdapMessage ldapMessage = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
 
-        assertEquals( 1, message.getMessageId() );
+        assertEquals( 1, ldapMessage.getMessageId() );
 
         // Check the length
-        assertEquals( 7, message.computeLength() );
+        assertEquals( 7, ldapMessage.computeLength() );
 
         try
         {
-            ByteBuffer bb = message.encode( null );
+            ByteBuffer bb = ldapMessage.encode( null );
 
             String encodedPdu = StringTools.dumpBytes( bb.array() );
 
@@ -145,25 +145,25 @@ public class UnBindRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        LdapMessage ldapMessage = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
 
-        assertEquals( 1, message.getMessageId() );
+        assertEquals( 1, ldapMessage.getMessageId() );
 
         // Check the Control
-        List controls = message.getControls();
+        List controls = ldapMessage.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        Control control = ldapMessage.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
         // Check the length
-        assertEquals( 0x24, message.computeLength() );
+        assertEquals( 0x24, ldapMessage.computeLength() );
 
         try
         {
-            ByteBuffer bb = message.encode( null );
+            ByteBuffer bb = ldapMessage.encode( null );
 
             String encodedPdu = StringTools.dumpBytes( bb.array() );
 

@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 
 
 /**
@@ -41,14 +40,8 @@ public class PSearchControlContainer extends AbstractContainer implements IAsn1C
     public PSearchControlContainer()
     {
         super();
-        currentGrammar = 0;
-        grammars = new IGrammar[PSearchControlStatesEnum.NB_GRAMMARS];
-        grammarStack = new IGrammar[1];
         stateStack = new int[1];
-        nbGrammars = 0;
-
-        grammars[PSearchControlStatesEnum.PSEARCH_GRAMMAR] = PSearchControlGrammar.getInstance();
-        grammarStack[currentGrammar] = grammars[PSearchControlStatesEnum.PSEARCH_GRAMMAR];
+        grammar = PSearchControlGrammar.getInstance();
         states = PSearchControlStatesEnum.getInstance();
     }
 
@@ -67,15 +60,16 @@ public class PSearchControlContainer extends AbstractContainer implements IAsn1C
      * Set a PSearchControl Object into the container. It will be completed by
      * the ldapDecoder.
      * 
-     * @param control
-     *            the PSearchControl to set.
+     * @param control the PSearchControl to set.
      */
     public void setPSearchControl( PSearchControl control )
     {
         this.control = control;
     }
 
-
+    /**
+     * Clean the container
+     */
     public void clean()
     {
         super.clean();

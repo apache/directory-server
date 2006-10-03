@@ -21,14 +21,14 @@ package org.apache.directory.shared.ldap.codec;
 
 
 import org.apache.directory.shared.asn1.Asn1Object;
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.util.LdapResultEnum;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -47,25 +47,55 @@ public class LdapResult extends Asn1Object
     // ----------------------------------------------------------------------------
 
     /**
-     * The result code. The different values are : success (0), operationsError
-     * (1), protocolError (2), timeLimitExceeded (3), sizeLimitExceeded (4),
-     * compareFalse (5), compareTrue (6), authMethodNotSupported (7),
-     * strongAuthRequired (8), -- 9 reserved -- referral (10), -- new
-     * adminLimitExceeded (11), -- new unavailableCriticalExtension (12), -- new
-     * confidentialityRequired (13), -- new saslBindInProgress (14), -- new
-     * noSuchAttribute (16), undefinedAttributeType (17), inappropriateMatching
-     * (18), constraintViolation (19), attributeOrValueExists (20),
-     * invalidAttributeSyntax (21), -- 22-31 unused -- noSuchObject (32),
-     * aliasProblem (33), invalidDNSyntax (34), -- 35 reserved for undefined
-     * isLeaf -- aliasDereferencingProblem (36), -- 37-47 unused --
-     * inappropriateAuthentication (48), invalidCredentials (49),
-     * insufficientAccessRights (50), busy (51), unavailable (52),
-     * unwillingToPerform (53), loopDetect (54), -- 55-63 unused --
-     * namingViolation (64), objectClassViolation (65), notAllowedOnNonLeaf
-     * (66), notAllowedOnRDN (67), entryAlreadyExists (68),
-     * objectClassModsProhibited (69), -- 70 reserved for CLDAP --
-     * affectsMultipleDSAs (71), -- new -- 72-79 unused -- other (80) }, --
-     * 81-90 reserved for APIs --
+     * The result code. The different values are : 
+     * 
+     * success                                  (0), 
+     * operationsError                          (1), 
+     * protocolError                            (2), 
+     * timeLimitExceeded                        (3), 
+     * sizeLimitExceeded                        (4),
+     * compareFalse                             (5), 
+     * compareTrue                              (6), 
+     * authMethodNotSupported                   (7),
+     * strongAuthRequired                       (8), 
+     *                                          -- 9 reserved -- 
+     * referral                                 (10), -- new 
+     * adminLimitExceeded                       (11), -- new 
+     * unavailableCriticalExtension             (12), -- new 
+     * confidentialityRequired                  (13), -- new 
+     * saslBindInProgress                       (14), -- new
+     * noSuchAttribute                          (16), 
+     * undefinedAttributeType                   (17), 
+     * inappropriateMatching                    (18), 
+     * constraintViolation                      (19), 
+     * attributeOrValueExists                   (20),
+     * invalidAttributeSyntax                   (21), 
+     *                                          -- 22-31 unused -- 
+     * noSuchObject                             (32),
+     * aliasProblem                             (33), 
+     * invalidDNSyntax                          (34), 
+     *                                          -- 35 reserved for undefined isLeaf -- 
+     * aliasDereferencingProblem                (36), 
+     *                                          -- 37-47 unused --
+     * inappropriateAuthentication              (48), 
+     * invalidCredentials                       (49),
+     * insufficientAccessRights                 (50), 
+     * busy                                     (51), 
+     * unavailable                              (52),
+     * unwillingToPerform                       (53), 
+     * loopDetect                               (54), 
+     *                                          -- 55-63 unused --
+     * namingViolation                          (64), 
+     * objectClassViolation                     (65), 
+     * notAllowedOnNonLeaf                      (66), 
+     * notAllowedOnRDN                          (67), 
+     * entryAlreadyExists                       (68),
+     * objectClassModsProhibited                (69), 
+     *                                          -- 70 reserved for CLDAP --
+     * affectsMultipleDSAs                      (71), -- new 
+     *                                          -- 72-79 unused -- 
+     * other                                    (80) 
+     * }                                        -- 81-90 reserved for APIs --
      */
     private int resultCode;
 
@@ -73,7 +103,10 @@ public class LdapResult extends Asn1Object
     private LdapDN matchedDN;
 
     /** The error message */
-    private LdapString errorMessage;
+    private String errorMessage;
+    
+    /** Temporary storage for message bytes */
+    private transient byte[] errorMessageBytes;
 
     /** The referrals, if any. This is an optional element */
     private ArrayList referrals;
@@ -90,7 +123,6 @@ public class LdapResult extends Asn1Object
      */
     public LdapResult()
     {
-        referrals = new ArrayList();
     }
 
 
@@ -98,23 +130,30 @@ public class LdapResult extends Asn1Object
     // ------------------------------------------------------------------------------------
 
     /**
+     * Initialize the referrals list
+     */
+    public void initReferrals()
+    {
+        referrals = new ArrayList();
+    }
+    
+    /**
      * Get the error message
      * 
      * @return Returns the errorMessage.
      */
     public String getErrorMessage()
     {
-        return ( ( errorMessage == null ) ? null : errorMessage.getString() );
+        return errorMessage;
     }
 
 
     /**
      * Set the error message
      * 
-     * @param errorMessage
-     *            The errorMessage to set.
+     * @param errorMessage The errorMessage to set.
      */
-    public void setErrorMessage( LdapString errorMessage )
+    public void setErrorMessage( String errorMessage )
     {
         this.errorMessage = errorMessage;
     }
@@ -134,8 +173,7 @@ public class LdapResult extends Asn1Object
     /**
      * Set the Matched DN
      * 
-     * @param matchedDN
-     *            The matchedDN to set.
+     * @param matchedDN The matchedDN to set.
      */
     public void setMatchedDN( LdapDN matchedDN )
     {
@@ -157,8 +195,7 @@ public class LdapResult extends Asn1Object
     /**
      * Add a referral
      * 
-     * @param referral
-     *            The referral to add.
+     * @param referral The referral to add.
      */
     public void addReferral( LdapURL referral )
     {
@@ -180,8 +217,7 @@ public class LdapResult extends Asn1Object
     /**
      * Set the result code
      * 
-     * @param resultCode
-     *            The resultCode to set.
+     * @param resultCode The resultCode to set.
      */
     public void setResultCode( int resultCode )
     {
@@ -190,15 +226,28 @@ public class LdapResult extends Asn1Object
 
 
     /**
-     * Compute the LdapResult length LdapResult : 0x0A 01 resultCode (0..80)
-     * 0x04 L1 matchedDN (L1 = Length(matchedDN)) 0x04 L2 errorMessage (L2 =
-     * Length(errorMessage)) [0x83 L3] referrals | +--> 0x04 L4 referral +-->
-     * 0x04 L5 referral +--> ... +--> 0x04 Li referral +--> ... +--> 0x04 Ln
-     * referral L1 = Length(matchedDN) L2 = Length(errorMessage) L3 =
-     * n*Length(0x04) + sum(Length(L4) .. Length(Ln)) + sum(L4..Ln) L4..n =
-     * Length(0x04) + Length(Li) + Li Length(LdapResult) = Length(0x0x0A) +
-     * Length(0x01) + 1 + Length(0x04) + Length(L1) + L1 + Length(0x04) +
-     * Length(L2) + L2 + Length(0x83) + Length(L3) + L3
+     * Compute the LdapResult length 
+     * 
+     * LdapResult : 
+     * 0x0A 01 resultCode (0..80)
+     *   0x04 L1 matchedDN (L1 = Length(matchedDN)) 
+     *   0x04 L2 errorMessage (L2 = Length(errorMessage)) 
+     *   [0x83 L3] referrals 
+     *     | 
+     *     +--> 0x04 L4 referral 
+     *     +--> 0x04 L5 referral 
+     *     +--> ... 
+     *     +--> 0x04 Li referral 
+     *     +--> ... 
+     *     +--> 0x04 Ln referral 
+     *     
+     * L1 = Length(matchedDN) 
+     * L2 = Length(errorMessage) 
+     * L3 = n*Length(0x04) + sum(Length(L4) .. Length(Ln)) + sum(L4..Ln) 
+     * L4..n = Length(0x04) + Length(Li) + Li 
+     * Length(LdapResult) = Length(0x0x0A) +
+     *      Length(0x01) + 1 + Length(0x04) + Length(L1) + L1 + Length(0x04) +
+     *      Length(L2) + L2 + Length(0x83) + Length(L3) + L3
      */
     public int computeLength()
     {
@@ -214,11 +263,12 @@ public class LdapResult extends Asn1Object
         }
         else
         {
-            ldapResultLength += 1 + Length.getNbBytes( LdapDN.getNbBytes( matchedDN ) ) + LdapDN.getNbBytes( matchedDN );
+            ldapResultLength += 1 + TLV.getNbBytes( LdapDN.getNbBytes( matchedDN ) ) + LdapDN.getNbBytes( matchedDN );
         }
 
         // The errorMessage length
-        ldapResultLength += 1 + Length.getNbBytes( errorMessage.getNbBytes() ) + errorMessage.getNbBytes();
+        errorMessageBytes = StringTools.getBytesUtf8( errorMessage ); 
+        ldapResultLength += 1 + TLV.getNbBytes( errorMessageBytes.length ) + errorMessageBytes.length;
 
         if ( ( referrals != null ) && ( referrals.size() != 0 ) )
         {
@@ -231,11 +281,11 @@ public class LdapResult extends Asn1Object
             {
                 LdapURL referral = ( LdapURL ) referralIterator.next();
 
-                referralsLength += 1 + Length.getNbBytes( referral.getNbBytes() ) + referral.getNbBytes();
+                referralsLength += 1 + TLV.getNbBytes( referral.getNbBytes() ) + referral.getNbBytes();
             }
 
             // The referrals
-            ldapResultLength += 1 + Length.getNbBytes( referralsLength ) + referralsLength;
+            ldapResultLength += 1 + TLV.getNbBytes( referralsLength ) + referralsLength;
         }
 
         return ldapResultLength;
@@ -245,8 +295,7 @@ public class LdapResult extends Asn1Object
     /**
      * Encode the LdapResult message to a PDU.
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -272,7 +321,7 @@ public class LdapResult extends Asn1Object
         Value.encode( buffer, LdapDN.getBytes( matchedDN ) );
 
         // The error message
-        Value.encode( buffer, errorMessage.getBytes() );
+        Value.encode( buffer, errorMessageBytes );
 
         // The referrals, if any
         if ( ( referrals != null ) && ( referrals.size() != 0 ) )
@@ -280,7 +329,7 @@ public class LdapResult extends Asn1Object
             // Encode the referrals sequence
             // The referrals length MUST have been computed before !
             buffer.put( ( byte ) LdapConstants.LDAP_RESULT_REFERRAL_SEQUENCE_TAG );
-            buffer.put( Length.getBytes( referralsLength ) );
+            buffer.put( TLV.getBytes( referralsLength ) );
 
             // Each referral
             Iterator referralIterator = referrals.iterator();
@@ -549,8 +598,8 @@ public class LdapResult extends Asn1Object
                 sb.append( "Unknown error code : " ).append( resultCode );
         }
 
-        sb.append( "            Matched DN : '" ).append( matchedDN.toString() ).append( "'\n" );
-        sb.append( "            Error message : '" ).append( errorMessage.toString() ).append( "'\n" );
+        sb.append( "            Matched DN : '" ).append( matchedDN == null ? "": matchedDN.toString() ).append( "'\n" );
+        sb.append( "            Error message : '" ).append( errorMessage == null ? "" : errorMessage.toString() ).append( "'\n" );
 
         if ( referrals.size() != 0 )
         {
@@ -561,7 +610,7 @@ public class LdapResult extends Asn1Object
 
                 LdapURL referral = ( LdapURL ) referrals.get( i );
 
-                sb.append( "                Referral[" ).append( i ).append( "] :" ).append( referral.toString() )
+                sb.append( "                Referral[" ).append( i ).append( "] :" ).append( referral == null ? "" : referral.toString() )
                     .append( '\n' );
             }
         }

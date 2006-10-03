@@ -37,83 +37,52 @@ public class StoredProcedureStatesEnum implements IStates
     //=========================================================================
     // StoredProcedure
     //=========================================================================
-    /** StoredProcedure Tag */
-    public static int STORED_PROCEDURE_TAG = 0;
+    /** starting state */
+    public static int START_STATE = 0;
 
-    /** StoredProcedure Value */
-    public static int STORED_PROCEDURE_VALUE = 1;
+    /** StoredProcedure */
+    public static int STORED_PROCEDURE_STATE = 1;
 
     // Language ---------------------------------------------------------------
-    /** Language Tag */
-    public static int LANGUAGE_TAG = 2;
-
-    /** Language Value */
-    public static int LANGUAGE_VALUE = 3;
+    /** Language */
+    public static int LANGUAGE_STATE = 2;
 
     // Procedure --------------------------------------------------------------
-    /** Procedure Tag */
-    public static int PROCEDURE_TAG = 4;
-
-    /** Procedure Value */
-    public static int PROCEDURE_VALUE = 5;
+    /** Procedure */
+    public static int PROCEDURE_STATE = 3;
 
     // Parameters -------------------------------------------------------------
-    /** Parameters Tag */
-    public static int PARAMETERS_TAG = 6;
-
-    /** Parameters Value */
-    public static int PARAMETERS_VALUE = 7;
+    /** Parameters */
+    public static int PARAMETERS_STATE = 4;
 
     // Parameter --------------------------------------------------------------
-    /** Parameter Tag */
-    public static int PARAMETER_TAG = 8;
-
-    /** Parameter Value */
-    public static int PARAMETER_VALUE = 9;
+    /** Parameter */
+    public static int PARAMETER_STATE = 5;
 
     // Parameter type ---------------------------------------------------------
-    /** Parameter type Tag */
-    public static int PARAMETER_TYPE_TAG = 10;
-
-    /** Parameter type Value */
-    public static int PARAMETER_TYPE_VALUE = 11;
+    /** Parameter type */
+    public static int PARAMETER_TYPE_STATE = 6;
 
     // Parameters value -------------------------------------------------------
-    /** Parameter value Tag */
-    public static int PARAMETER_VALUE_TAG = 12;
+    /** Parameter value */
+    public static int PARAMETER_VALUE_STATE = 7;
 
-    /** Parameter value Value */
-    public static int PARAMETER_VALUE_VALUE = 13;
-
-    public static int LAST_STORED_PROCEDURE_STATE = 14;
-
-    //=========================================================================
-    // Grammars declaration.
-    //=========================================================================
-    /** Ldap Message Grammar */
-    public static final int STORED_PROCEDURE_GRAMMAR_SWITCH = 0x0100;
-
-    /** LdapMessage grammar number */
-    public static final int STORED_PROCEDURE_GRAMMAR = 0;
-
-    /** The total number of grammars used */
-    public static final int NB_GRAMMARS = 1;
-
-    //=========================================================================
-    // Grammar switches debug strings 
-    //=========================================================================
-    /** A string representation of grammars */
-    private static String[] GrammarSwitchString = new String[]
-        { "STORED_PROCEDURE_GRAMMAR_SWITCH", };
+    public static int LAST_STORED_PROCEDURE_STATE = 8;
 
     //=========================================================================
     // States debug strings 
     //=========================================================================
     /** A string representation of all the states */
     private static String[] StoredProcedureString = new String[]
-        { "STORED_PROCEDURE_TAG", "STORED_PROCEDURE_VALUE", "LANGUAGE_TAG", "LANGUAGE_VALUE", "PROCEDURE_TAG",
-            "PROCEDURE_VALUE", "PARAMETERS_TAG", "PARAMETERS_VALUE", "PARAMETER_TYPE_TAG", "PARAMETER_TYPE_VALUE",
-            "PARAMETER_VALUE_TAG", "PARAMETER_VALUE_VALUE" };
+        { 
+        "START_STATE", 
+        "STORED_PROCEDURE_STATE", 
+        "LANGUAGE_STATE", 
+        "PROCEDURE_STATE", 
+        "PARAMETERS_STATE", 
+        "PARAMETER_TYPE_STATE",
+        "PARAMETER_VALUE_STATE" 
+        };
 
     /** The instance */
     private static StoredProcedureStatesEnum instance = new StoredProcedureStatesEnum();
@@ -149,14 +118,7 @@ public class StoredProcedureStatesEnum implements IStates
      */
     public String getGrammarName( int grammar )
     {
-        switch ( grammar )
-        {
-            case STORED_PROCEDURE_GRAMMAR:
-                return "STORED_PROCEDURE_GRAMMAR";
-
-            default:
-                return "UNKNOWN";
-        }
+        return "STORED_PROCEDURE_GRAMMAR";
     }
 
 
@@ -185,26 +147,8 @@ public class StoredProcedureStatesEnum implements IStates
      * @param state The state number
      * @return The String representing the state
      */
-    public String getState( int grammar, int state )
+    public String getState( int state )
     {
-
-        if ( ( state & GRAMMAR_SWITCH_MASK ) != 0 )
-        {
-            return ( state == END_STATE ) ? "END_STATE"
-                : GrammarSwitchString[( ( state & GRAMMAR_SWITCH_MASK ) >> 8 ) - 1];
-        }
-        else
-        {
-
-            switch ( grammar )
-            {
-
-                case STORED_PROCEDURE_GRAMMAR:
-                    return ( ( state == GRAMMAR_END ) ? "STORED_PROCEDURE_END_STATE" : StoredProcedureString[state] );
-
-                default:
-                    return "UNKNOWN";
-            }
-        }
+        return ( ( state == GRAMMAR_END ) ? "STORED_PROCEDURE_END_STATE" : StoredProcedureString[state] );
     }
 }

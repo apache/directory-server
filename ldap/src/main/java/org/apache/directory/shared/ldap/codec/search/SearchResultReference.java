@@ -20,7 +20,7 @@
 package org.apache.directory.shared.ldap.codec.search;
 
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
@@ -34,8 +34,9 @@ import java.util.Iterator;
 
 
 /**
- * A SearchResultReference Message. Its syntax is : SearchResultReference ::=
- * [APPLICATION 19] SEQUENCE OF LDAPURL
+ * A SearchResultReference Message. Its syntax is : 
+ * 
+ * SearchResultReference ::= [APPLICATION 19] SEQUENCE OF LDAPURL
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -81,8 +82,7 @@ public class SearchResultReference extends LdapMessage
     /**
      * Add a new reference to the list.
      * 
-     * @param searchResultReference
-     *            The search result reference
+     * @param searchResultReference The search result reference
      */
     public void addSearchResultReference( LdapURL searchResultReference )
     {
@@ -102,11 +102,22 @@ public class SearchResultReference extends LdapMessage
 
 
     /**
-     * Compute the SearchResultReference length SearchResultReference : 0x73 L1 |
-     * +--> 0x04 L2 reference +--> 0x04 L3 reference +--> ... +--> 0x04 Li
-     * reference +--> ... +--> 0x04 Ln reference L1 = n*Length(0x04) +
-     * sum(Length(Li)) + sum(Length(reference[i])) Length(SearchResultReference) =
-     * Length(0x73 + Length(L1) + L1
+     * Compute the SearchResultReference length
+     * 
+     * SearchResultReference :
+     * 
+     * 0x73 L1
+     *  |
+     *  +--> 0x04 L2 reference
+     *  +--> 0x04 L3 reference
+     *  +--> ...
+     *  +--> 0x04 Li reference
+     *  +--> ...
+     *  +--> 0x04 Ln reference
+     * 
+     * L1 = n*Length(0x04) + sum(Length(Li)) + sum(Length(reference[i]))
+     * 
+     * Length(SearchResultReference) = Length(0x73 + Length(L1) + L1
      */
     public int computeLength()
     {
@@ -118,19 +129,23 @@ public class SearchResultReference extends LdapMessage
         while ( referencesIterator.hasNext() )
         {
             int ldapUrlLength = ( ( LdapURL ) referencesIterator.next() ).getNbBytes();
-            searchResultReferenceLength += 1 + Length.getNbBytes( ldapUrlLength ) + ldapUrlLength;
+            searchResultReferenceLength += 1 + TLV.getNbBytes( ldapUrlLength ) + ldapUrlLength;
         }
 
-        return 1 + Length.getNbBytes( searchResultReferenceLength ) + searchResultReferenceLength;
+        return 1 + TLV.getNbBytes( searchResultReferenceLength ) + searchResultReferenceLength;
     }
 
 
     /**
-     * Encode the SearchResultReference message to a PDU. SearchResultReference :
-     * 0x73 LL 0x04 LL reference [0x04 LL reference]*
+     * Encode the SearchResultReference message to a PDU.
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * SearchResultReference :
+     * 
+     * 0x73 LL
+     *   0x04 LL reference
+     *   [0x04 LL reference]*
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -144,7 +159,7 @@ public class SearchResultReference extends LdapMessage
         {
             // The SearchResultReference Tag
             buffer.put( LdapConstants.SEARCH_RESULT_REFERENCE_TAG );
-            buffer.put( Length.getBytes( searchResultReferenceLength ) );
+            buffer.put( TLV.getBytes( searchResultReferenceLength ) );
 
             // The references. We must at least have one reference
             Iterator referencesIterator = searchResultReferences.iterator();

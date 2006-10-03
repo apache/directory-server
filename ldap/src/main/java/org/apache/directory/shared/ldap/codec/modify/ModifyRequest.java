@@ -20,13 +20,12 @@
 package org.apache.directory.shared.ldap.codec.modify;
 
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -48,12 +47,28 @@ import javax.naming.directory.ModificationItem;
 
 
 /**
- * A ModifyRequest Message. Its syntax is : ModifyRequest ::= [APPLICATION 6]
- * SEQUENCE { object LDAPDN, modification SEQUENCE OF SEQUENCE { operation
- * ENUMERATED { add (0), delete (1), replace (2) }, modification
- * AttributeTypeAndValues } } AttributeTypeAndValues ::= SEQUENCE { type
- * AttributeDescription, vals SET OF AttributeValue } AttributeValue ::= OCTET
- * STRING
+ * A ModifyRequest Message. 
+ * 
+ * Its syntax is : 
+ * 
+ * ModifyRequest ::= [APPLICATION 6] SEQUENCE { 
+ *     object LDAPDN, 
+ *     modification SEQUENCE OF SEQUENCE { 
+ *         operation ENUMERATED { 
+ *             add (0), 
+ *             delete (1), 
+ *             replace (2) 
+ *         }, 
+ *         modification AttributeTypeAndValues 
+ *     } 
+ * } 
+ * 
+ * AttributeTypeAndValues ::= SEQUENCE {
+ *     type AttributeDescription, 
+ *     vals SET OF AttributeValue 
+ * } 
+ * 
+ * AttributeValue ::= OCTET STRING
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -145,8 +160,7 @@ public class ModifyRequest extends LdapMessage
     /**
      * Add a new modification to the list
      * 
-     * @param operation
-     *            The type of operation (add, delete or replace)
+     * @param operation The type of operation (add, delete or replace)
      */
     public void addModification( int operation )
     {
@@ -162,19 +176,7 @@ public class ModifyRequest extends LdapMessage
     /**
      * Add a new attributeTypeAndValue
      * 
-     * @param type
-     *            The attribute's name
-     */
-    public void addAttributeTypeAndValues( LdapString type )
-    {
-        addAttributeTypeAndValues( type.getString() );
-    }
-
-    /**
-     * Add a new attributeTypeAndValue
-     * 
-     * @param type
-     *            The attribute's name
+     * @param type The attribute's name
      */
     public void addAttributeTypeAndValues( String type )
     {
@@ -206,8 +208,7 @@ public class ModifyRequest extends LdapMessage
     /**
      * Add a new value to the current attribute
      * 
-     * @param value
-     *            The value to add
+     * @param value The value to add
      */
     public void addAttributeValue( Object value )
     {
@@ -238,8 +239,7 @@ public class ModifyRequest extends LdapMessage
     /**
      * Set the modification DN.
      * 
-     * @param object
-     *            The DN to set.
+     * @param object The DN to set.
      */
     public void setObject( LdapDN object )
     {
@@ -261,8 +261,7 @@ public class ModifyRequest extends LdapMessage
     /**
      * Store the current operation
      * 
-     * @param currentOperation
-     *            The currentOperation to set.
+     * @param currentOperation The currentOperation to set.
      */
     public void setCurrentOperation( int currentOperation )
     {
@@ -271,21 +270,49 @@ public class ModifyRequest extends LdapMessage
 
 
     /**
-     * Compute the ModifyRequest length ModifyRequest : 0x66 L1 | +--> 0x04 L2
-     * object +--> 0x30 L3 modifications | +--> 0x30 L4-1 modification sequence | | |
-     * +--> 0x0A 0x01 (0..2) operation | +--> 0x30 L5-1 modification | | | +-->
-     * 0x04 L6-1 type | +--> 0x31 L7-1 vals | | | +--> 0x04 L8-1-1
-     * attributeValue | +--> 0x04 L8-1-2 attributeValue | +--> ... | +--> 0x04
-     * L8-1-i attributeValue | +--> ... | +--> 0x04 L8-1-n attributeValue | +-->
-     * 0x30 L4-2 modification sequence . | . +--> 0x0A 0x01 (0..2) operation .
-     * +--> 0x30 L5-2 modification | +--> 0x04 L6-2 type +--> 0x31 L7-2 vals |
-     * +--> 0x04 L8-2-1 attributeValue +--> 0x04 L8-2-2 attributeValue +--> ...
-     * +--> 0x04 L8-2-i attributeValue +--> ... +--> 0x04 L8-2-n attributeValue
+     * Compute the ModifyRequest length 
+     * 
+     * ModifyRequest :
+     * 
+     * 0x66 L1
+     *  |
+     *  +--> 0x04 L2 object
+     *  +--> 0x30 L3 modifications
+     *        |
+     *        +--> 0x30 L4-1 modification sequence
+     *        |     |
+     *        |     +--> 0x0A 0x01 (0..2) operation
+     *        |     +--> 0x30 L5-1 modification
+     *        |           |
+     *        |           +--> 0x04 L6-1 type
+     *        |           +--> 0x31 L7-1 vals
+     *        |                 |
+     *        |                 +--> 0x04 L8-1-1 attributeValue
+     *        |                 +--> 0x04 L8-1-2 attributeValue
+     *        |                 +--> ...
+     *        |                 +--> 0x04 L8-1-i attributeValue
+     *        |                 +--> ...
+     *        |                 +--> 0x04 L8-1-n attributeValue
+     *        |
+     *        +--> 0x30 L4-2 modification sequence
+     *        .     |
+     *        .     +--> 0x0A 0x01 (0..2) operation
+     *        .     +--> 0x30 L5-2 modification
+     *                    |
+     *                    +--> 0x04 L6-2 type
+     *                    +--> 0x31 L7-2 vals
+     *                          |
+     *                          +--> 0x04 L8-2-1 attributeValue
+     *                          +--> 0x04 L8-2-2 attributeValue
+     *                          +--> ...
+     *                          +--> 0x04 L8-2-i attributeValue
+     *                          +--> ...
+     *                          +--> 0x04 L8-2-n attributeValue
      */
     public int computeLength()
     {
         // Initialized with object
-        modifyRequestLength = 1 + Length.getNbBytes( LdapDN.getNbBytes( object ) ) + LdapDN.getNbBytes( object );
+        modifyRequestLength = 1 + TLV.getNbBytes( LdapDN.getNbBytes( object ) ) + LdapDN.getNbBytes( object );
 
         // Modifications
         modificationsLength = 0;
@@ -307,7 +334,7 @@ public class ModifyRequest extends LdapMessage
 
                 // Modification length initialized with the type
                 int typeLength = modification.getAttribute().getID().length();
-                int localModificationLength = 1 + Length.getNbBytes( typeLength ) + typeLength;
+                int localModificationLength = 1 + TLV.getNbBytes( typeLength ) + typeLength;
 
                 try
                 {
@@ -324,17 +351,17 @@ public class ModifyRequest extends LdapMessage
                             if ( value instanceof String )
                             {
                                 int valueLength = StringTools.getBytesUtf8( ( String ) value ).length;
-                                localValuesLength += 1 + Length.getNbBytes( valueLength ) + valueLength;
+                                localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
                             }
                             else
                             {
-                                localValuesLength += 1 + Length.getNbBytes( ( ( byte[] ) value ).length )
+                                localValuesLength += 1 + TLV.getNbBytes( ( ( byte[] ) value ).length )
                                     + ( ( byte[] ) value ).length;
                             }
                         }
                     }
 
-                    localModificationLength += 1 + Length.getNbBytes( localValuesLength ) + localValuesLength;
+                    localModificationLength += 1 + TLV.getNbBytes( localValuesLength ) + localValuesLength;
                 }
                 catch ( NamingException ne )
                 {
@@ -342,11 +369,11 @@ public class ModifyRequest extends LdapMessage
                 }
 
                 // Compute the modificationSequenceLength
-                localModificationSequenceLength += 1 + Length.getNbBytes( localModificationLength )
+                localModificationSequenceLength += 1 + TLV.getNbBytes( localModificationLength )
                     + localModificationLength;
 
                 // Add the tag and the length
-                modificationsLength += 1 + Length.getNbBytes( localModificationSequenceLength )
+                modificationsLength += 1 + TLV.getNbBytes( localModificationSequenceLength )
                     + localModificationSequenceLength;
 
                 // Store the arrays of values
@@ -356,23 +383,40 @@ public class ModifyRequest extends LdapMessage
             }
 
             // Add the modifications length to the modificationRequestLength
-            modifyRequestLength += 1 + Length.getNbBytes( modificationsLength ) + modificationsLength;
+            modifyRequestLength += 1 + TLV.getNbBytes( modificationsLength ) + modificationsLength;
         }
 
-        return 1 + Length.getNbBytes( modifyRequestLength ) + modifyRequestLength;
+        return 1 + TLV.getNbBytes( modifyRequestLength ) + modifyRequestLength;
     }
 
 
     /**
-     * Encode the ModifyRequest message to a PDU. AddRequest : 0x66 LL 0x04 LL
-     * object 0x30 LL modifiations 0x30 LL modification sequence 0x0A 0x01
-     * operation 0x30 LL modification 0x04 LL type 0x31 LL vals 0x04 LL
-     * attributeValue ... 0x04 LL attributeValue ... 0x30 LL modification
-     * sequence 0x0A 0x01 operation 0x30 LL modification 0x04 LL type 0x31 LL
-     * vals 0x04 LL attributeValue ... 0x04 LL attributeValue
+     * Encode the ModifyRequest message to a PDU. 
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * ModifyRequest : 
+     * 0x66 LL
+     *   0x04 LL object
+     *   0x30 LL modifiations
+     *     0x30 LL modification sequence
+     *       0x0A 0x01 operation
+     *       0x30 LL modification
+     *         0x04 LL type
+     *         0x31 LL vals
+     *           0x04 LL attributeValue
+     *           ... 
+     *           0x04 LL attributeValue
+     *     ... 
+     *     0x30 LL modification sequence
+     *       0x0A 0x01 operation
+     *       0x30 LL modification
+     *         0x04 LL type
+     *         0x31 LL vals
+     *           0x04 LL attributeValue
+     *           ... 
+     *           0x04 LL attributeValue
+     * 
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -386,14 +430,14 @@ public class ModifyRequest extends LdapMessage
         {
             // The AddRequest Tag
             buffer.put( LdapConstants.MODIFY_REQUEST_TAG );
-            buffer.put( Length.getBytes( modifyRequestLength ) );
+            buffer.put( TLV.getBytes( modifyRequestLength ) );
 
             // The entry
             Value.encode( buffer, LdapDN.getBytes( object ) );
 
             // The modifications sequence
             buffer.put( UniversalTag.SEQUENCE_TAG );
-            buffer.put( Length.getBytes( modificationsLength ) );
+            buffer.put( TLV.getBytes( modificationsLength ) );
 
             // The modifications list
             if ( ( modifications != null ) && ( modifications.size() != 0 ) )
@@ -410,7 +454,7 @@ public class ModifyRequest extends LdapMessage
                     buffer.put( UniversalTag.SEQUENCE_TAG );
                     int localModificationSequenceLength = ( ( Integer ) modificationSequenceLength
                         .get( modificationNumber ) ).intValue();
-                    buffer.put( Length.getBytes( localModificationSequenceLength ) );
+                    buffer.put( TLV.getBytes( localModificationSequenceLength ) );
 
                     // The operation. The value has to be changed, it's not
                     // the same value in DirContext and in RFC 2251.
@@ -437,7 +481,7 @@ public class ModifyRequest extends LdapMessage
                     buffer.put( UniversalTag.SEQUENCE_TAG );
                     int localModificationLength = ( ( Integer ) modificationLength.get( modificationNumber ) )
                         .intValue();
-                    buffer.put( Length.getBytes( localModificationLength ) );
+                    buffer.put( TLV.getBytes( localModificationLength ) );
 
                     // The modification type
                     Value.encode( buffer, modification.getAttribute().getID() );
@@ -445,7 +489,7 @@ public class ModifyRequest extends LdapMessage
                     // The values
                     buffer.put( UniversalTag.SET_TAG );
                     int localValuesLength = ( ( Integer ) valuesLength.get( modificationNumber ) ).intValue();
-                    buffer.put( Length.getBytes( localValuesLength ) );
+                    buffer.put( TLV.getBytes( localValuesLength ) );
 
                     try
                     {

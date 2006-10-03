@@ -24,7 +24,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 
@@ -61,24 +61,30 @@ public class AndFilter extends ConnectorFilter
 
 
     /**
-     * Compute the AndFilter length AndFilter : 0xA0 L1 super.computeLength()
+     * Compute the AndFilter length 
+     * 
+     * AndFilter : 
+     * 0xA0 L1 super.computeLength()
+     * 
      * Length(AndFilter) = Length(0xA0) + Length(super.computeLength()) +
-     * super.computeLength()
+     *          super.computeLength()
      */
     public int computeLength()
     {
         filtersLength = super.computeLength();
 
-        return 1 + Length.getNbBytes( filtersLength ) + filtersLength;
+        return 1 + TLV.getNbBytes( filtersLength ) + filtersLength;
     }
 
 
     /**
-     * Encode the AndFilter message to a PDU. AndFilter : 0xA0 LL
-     * filter.encode() ... filter.encode()
+     * Encode the AndFilter message to a PDU. 
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * AndFilter : 
+     * 0xA0 LL
+     *  filter.encode() ... filter.encode()
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -92,7 +98,7 @@ public class AndFilter extends ConnectorFilter
         {
             // The AndFilter Tag
             buffer.put( ( byte ) LdapConstants.AND_FILTER_TAG );
-            buffer.put( Length.getBytes( filtersLength ) );
+            buffer.put( TLV.getBytes( filtersLength ) );
         }
         catch ( BufferOverflowException boe )
         {

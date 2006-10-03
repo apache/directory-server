@@ -24,11 +24,10 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.Asn1Object;
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -43,7 +42,7 @@ public class Control extends Asn1Object
     // ----------------------------------------------------------------------------
 
     /** The control type */
-    private LdapString controlType;
+    private String controlType;
 
     /** The criticality (default value is false) */
     private boolean criticality = false;
@@ -67,17 +66,16 @@ public class Control extends Asn1Object
      */
     public String getControlType()
     {
-        return ( controlType == null ? "" : controlType.toString() );
+        return controlType == null ? "" : controlType;
     }
 
 
     /**
      * Set the control type
      * 
-     * @param controlType
-     *            An OID to store
+     * @param controlType The OID to be stored
      */
-    public void setControlType( LdapString controlType )
+    public void setControlType( String controlType )
     {
         this.controlType = controlType;
     }
@@ -108,8 +106,7 @@ public class Control extends Asn1Object
     /**
      * Set the encoded control value
      * 
-     * @param encodedValue
-     *            The encoded control value to store
+     * @param encodedValue The encoded control value to store
      */
     public void setEncodedValue( byte[] encodedValue )
     {
@@ -136,8 +133,7 @@ public class Control extends Asn1Object
     /**
      * Set the control value
      * 
-     * @param controlValue
-     *            The control value to store
+     * @param controlValue The control value to store
      */
     public void setControlValue( Object controlValue )
     {
@@ -159,8 +155,7 @@ public class Control extends Asn1Object
     /**
      * Set the criticality
      * 
-     * @param criticality
-     *            The criticality value
+     * @param criticality The criticality value
      */
     public void setCriticality( boolean criticality )
     {
@@ -169,16 +164,25 @@ public class Control extends Asn1Object
 
 
     /**
-     * Compute the Control length Control : 0x30 L1 | +--> 0x04 L2 controlType
-     * [+--> 0x01 0x01 criticality] [+--> 0x04 L3 controlValue] Control length =
-     * Length(0x30) + length(L1) + Length(0x04) + Length(L2) + L2 [+
-     * Length(0x01) + 1 + 1] [+ Length(0x04) + Length(L3) + L3]
+     * Compute the Control length 
+     * Control :
+     * 
+     * 0x30 L1
+     *  |
+     *  +--> 0x04 L2 controlType
+     * [+--> 0x01 0x01 criticality]
+     * [+--> 0x04 L3 controlValue] 
+     * 
+     * Control length = Length(0x30) + length(L1) 
+     *                  + Length(0x04) + Length(L2) + L2
+     *                  [+ Length(0x01) + 1 + 1]
+     *                  [+ Length(0x04) + Length(L3) + L3]
      */
     public int computeLength()
     {
         // The controlType
-        int controlTypeLengh = controlType.getNbBytes();
-        controlLength = 1 + Length.getNbBytes( controlTypeLengh ) + controlTypeLengh;
+        int controlTypeLengh = StringTools.getBytesUtf8( controlType ).length;
+        controlLength = 1 + TLV.getNbBytes( controlTypeLengh ) + controlTypeLengh;
 
         // The criticality, only if true
         if ( criticality )
@@ -193,17 +197,17 @@ public class Control extends Asn1Object
             if ( controlValue instanceof byte[] )
             {
                 controlBytes = ( byte[] ) controlValue;
-                controlLength += 1 + Length.getNbBytes( controlBytes.length ) + controlBytes.length;
+                controlLength += 1 + TLV.getNbBytes( controlBytes.length ) + controlBytes.length;
             }
             else if ( controlValue instanceof String )
             {
                 controlBytes = StringTools.getBytesUtf8( ( String ) controlValue );
-                controlLength += 1 + Length.getNbBytes( controlBytes.length ) + controlBytes.length;
+                controlLength += 1 + TLV.getNbBytes( controlBytes.length ) + controlBytes.length;
             }
             else if ( controlValue instanceof Asn1Object )
             {
                 int length = ( ( Asn1Object ) controlValue ).computeLength();
-                controlLength += 1 + Length.getNbBytes( length ) + length;
+                controlLength += 1 + TLV.getNbBytes( length ) + length;
             }
             else
             {
@@ -212,19 +216,21 @@ public class Control extends Asn1Object
             }
         }
 
-        return 1 + Length.getNbBytes( controlLength ) + controlLength;
+        return 1 + TLV.getNbBytes( controlLength ) + controlLength;
     }
 
 
     /**
-     * Generate the PDU which contains the Control. Control : 0x30 LL 0x04 LL
-     * type [0x01 0x01 criticality] [0x04 LL value]
+     * Generate the PDU which contains the Control. 
+     * Control : 
+     * 0x30 LL
+     *   0x04 LL type 
+     *   [0x01 0x01 criticality]
+     *   [0x04 LL value]
      * 
-     * @param buffer
-     *            The encoded PDU
+     * @param buffer The encoded PDU
      * @return A ByteBuffer that contaons the PDU
-     * @throws EncoderException
-     *             If anything goes wrong.
+     * @throws EncoderException If anything goes wrong.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
@@ -234,7 +240,7 @@ public class Control extends Asn1Object
             buffer.put( UniversalTag.SEQUENCE_TAG );
 
             // The length has been calculated by the computeLength method
-            buffer.put( Length.getBytes( controlLength ) );
+            buffer.put( TLV.getBytes( controlLength ) );
         }
         catch ( BufferOverflowException boe )
         {

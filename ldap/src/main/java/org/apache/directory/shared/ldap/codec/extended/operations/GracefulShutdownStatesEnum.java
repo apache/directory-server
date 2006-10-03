@@ -39,53 +39,32 @@ public class GracefulShutdownStatesEnum implements IStates
     // GracefulShutdown grammar states
     // =========================================================================
 
-    /** Sequence Tag */
-    public static int GRACEFUL_SHUTDOWN_SEQUENCE_TAG = 0;
+    /** Initial state */
+    public static final int START_STATE = 0;
 
-    /** Sequence Value */
-    public static int GRACEFUL_SHUTDOWN_SEQUENCE_VALUE = 1;
+    /** Sequence */
+    public static int GRACEFUL_SHUTDOWN_SEQUENCE_STATE = 1;
 
-    /** Time offline Tag */
-    public static int TIME_OFFLINE_OR_DELAY_OR_END_TAG = 2;
+    /** Time offline */
+    public static int TIME_OFFLINE_STATE = 2;
 
-    /** Time offline Value */
-    public static int TIME_OFFLINE_VALUE = 3;
-
-    /** Delay Tag */
-    public static int DELAY_OR_END_TAG = 4;
-
-    /** Delay Value */
-    public static int DELAY_VALUE = 5;
+    /** Delay */
+    public static int DELAY_STATE = 3;
 
     /** terminal state */
-    public static int LAST_GRACEFUL_SHUTDOWN_STATE = 6;
-
-    // =========================================================================
-    // Grammars declaration.
-    // =========================================================================
-    /** GracefulShutdown grammar */
-    public static final int GRACEFUL_SHUTDOWN_GRAMMAR_SWITCH = 0x0100;
-
-    /** GracefulShutdown grammar number */
-    public static final int GRACEFUL_SHUTDOWN_GRAMMAR = 0;
-
-    /** The total number of grammars used */
-    public static final int NB_GRAMMARS = 1;
-
-    // =========================================================================
-    // Grammar switches debug strings
-    // =========================================================================
-    /** A string representation of grammars */
-    private static String[] GrammarSwitchString = new String[]
-        { "GRACEFUL_SHUTDOWN_GRAMMAR_SWITCH" };
+    public static int LAST_GRACEFUL_SHUTDOWN_STATE = 4;
 
     // =========================================================================
     // States debug strings
     // =========================================================================
     /** A string representation of all the states */
     private static String[] GracefulShutdownString = new String[]
-        { "GRACEFUL_SHUTDOWN_SEQUENCE_TAG", "GRACEFUL_SHUTDOWN_SEQUENCE_VALUE", "TIME_OFFLINE_OR_DELAY_OR_END_TAG",
-            "TIME_OFFLINE_VALUE", "DELAY_OR_END_TAG", "DELAY_VALUE" };
+        { 
+        "START_STATE",
+        "GRACEFUL_SHUTDOWN_SEQUENCE_STATE", 
+        "TIME_OFFLINE_STATE", 
+        "DELAY_STATE" 
+        };
 
     /** The instance */
     private static GracefulShutdownStatesEnum instance = new GracefulShutdownStatesEnum();
@@ -119,27 +98,19 @@ public class GracefulShutdownStatesEnum implements IStates
     /**
      * Get the grammar name
      * 
-     * @param grammar
-     *            The grammar code
+     * @param grammar The grammar code
      * @return The grammar name
      */
     public String getGrammarName( int grammar )
     {
-        switch ( grammar )
-        {
-            case GRACEFUL_SHUTDOWN_GRAMMAR:
-                return "GRACEFUL_SHUTDOWN_GRAMMAR";
-            default:
-                return "UNKNOWN";
-        }
+        return "GRACEFUL_SHUTDOWN_GRAMMAR";
     }
 
 
     /**
      * Get the grammar name
      * 
-     * @param grammar
-     *            The grammar class
+     * @param grammar The grammar class
      * @return The grammar name
      */
     public String getGrammarName( IGrammar grammar )
@@ -156,32 +127,11 @@ public class GracefulShutdownStatesEnum implements IStates
     /**
      * Get the string representing the state
      * 
-     * @param grammar
-     *            The current grammar being used
-     * @param state
-     *            The state number
+     * @param state The state number
      * @return The String representing the state
      */
-    public String getState( int grammar, int state )
+    public String getState( int state )
     {
-
-        if ( ( state & GRAMMAR_SWITCH_MASK ) != 0 )
-        {
-            return ( state == END_STATE ) ? "END_STATE"
-                : GrammarSwitchString[( ( state & GRAMMAR_SWITCH_MASK ) >> 8 ) - 1];
-        }
-        else
-        {
-
-            switch ( grammar )
-            {
-
-                case GRACEFUL_SHUTDOWN_GRAMMAR:
-                    return ( ( state == GRAMMAR_END ) ? "GRACEFUL_SHUTDOWN_END_STATE" : GracefulShutdownString[state] );
-
-                default:
-                    return "UNKNOWN";
-            }
-        }
+        return ( ( state == GRAMMAR_END ) ? "GRACEFUL_SHUTDOWN_END_STATE" : GracefulShutdownString[state] );
     }
 }

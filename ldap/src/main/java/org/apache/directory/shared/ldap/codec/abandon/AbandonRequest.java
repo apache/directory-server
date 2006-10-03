@@ -32,9 +32,14 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A AbandonRequest Message. Its syntax is : AbandonRequest ::= [APPLICATION 16]
- * MessageID MessageID ::= INTEGER (0 .. maxInt) maxInt INTEGER ::= 2147483647 --
- * (2^^31 - 1) --
+ * A AbandonRequest Message. 
+ * 
+ * Its syntax is : 
+ * AbandonRequest ::= [APPLICATION 16] MessageID 
+ * 
+ * MessageID ::= INTEGER (0 .. maxInt) 
+ * 
+ * maxInt INTEGER ::= 2147483647 -- (2^^31 - 1) --
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -93,8 +98,7 @@ public class AbandonRequest extends LdapMessage
     /**
      * Set the abandoned message ID
      * 
-     * @param abandonedMessageId
-     *            The abandoned messageID to set.
+     * @param abandonedMessageId The abandoned messageID to set.
      */
     public void setAbandonedMessageId( int abandonedMessageId )
     {
@@ -103,9 +107,12 @@ public class AbandonRequest extends LdapMessage
 
 
     /**
-     * Compute the AbandonRequest length AbandonRequest : 0x50 0x0(1..4)
-     * abandoned MessageId Length(AbandonRequest) = Length(0x50) + 1 +
-     * Length(abandoned MessageId)
+     * Compute the AbandonRequest length 
+     * 
+     * AbandonRequest : 
+     * 0x50 0x0(1..4) abandoned MessageId 
+     * 
+     * Length(AbandonRequest) = Length(0x50) + 1 + Length(abandoned MessageId)
      */
     public int computeLength()
     {
@@ -123,8 +130,7 @@ public class AbandonRequest extends LdapMessage
     /**
      * Encode the AbandonRequest message to a PDU.
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException

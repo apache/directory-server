@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 
 
 /**
@@ -43,14 +42,8 @@ public class GracefulShutdownContainer extends AbstractContainer implements IAsn
     public GracefulShutdownContainer()
     {
         super();
-        currentGrammar = 0;
-        grammars = new IGrammar[GracefulShutdownStatesEnum.NB_GRAMMARS];
-        grammarStack = new IGrammar[1];
         stateStack = new int[1];
-        nbGrammars = 0;
-
-        grammars[GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_GRAMMAR] = GracefulShutdownGrammar.getInstance();
-        grammarStack[currentGrammar] = grammars[GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_GRAMMAR];
+        grammar = GracefulShutdownGrammar.getInstance();
         states = GracefulShutdownStatesEnum.getInstance();
     }
 
@@ -68,8 +61,7 @@ public class GracefulShutdownContainer extends AbstractContainer implements IAsn
      * Set a GracefulShutdown Object into the container. It will be completed by
      * the ldapDecoder.
      * 
-     * @param control
-     *            the GracefulShutdown to set.
+     * @param control the GracefulShutdown to set.
      */
     public void setGracefulShutdown( GracefulShutdown gracefulShutdown )
     {

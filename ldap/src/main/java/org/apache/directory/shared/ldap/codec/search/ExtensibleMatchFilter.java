@@ -23,11 +23,10 @@ package org.apache.directory.shared.ldap.codec.search;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -45,10 +44,15 @@ public class ExtensibleMatchFilter extends Filter
     private transient int expectedMatchingRuleLength;
 
     /** Matching rule */
-    private LdapString matchingRule;
+    private String matchingRule;
+    
+    /** Matching rule bytes */
+    private transient byte[] matchingRuleBytes;
 
     /** Matching rule type */
-    private LdapString type;
+    private String type;
+    
+    private transient byte[] typeBytes;
 
     /** Matching rule value */
     private Object matchValue;
@@ -59,9 +63,6 @@ public class ExtensibleMatchFilter extends Filter
     /** The extensible match length */
     private transient int extensibleMatchLength;
 
-
-    /** The matching Rule Assertion Length */
-    // private transient int matchingRuleAssertionLength;
     // ~ Constructors
     // -------------------------------------------------------------------------------
     /**
@@ -91,8 +92,7 @@ public class ExtensibleMatchFilter extends Filter
     /**
      * Set the dnAttributes flag
      * 
-     * @param dnAttributes
-     *            The dnAttributes to set.
+     * @param dnAttributes The dnAttributes to set.
      */
     public void setDnAttributes( boolean dnAttributes )
     {
@@ -105,7 +105,7 @@ public class ExtensibleMatchFilter extends Filter
      * 
      * @return Returns the matchingRule.
      */
-    public LdapString getMatchingRule()
+    public String getMatchingRule()
     {
         return matchingRule;
     }
@@ -114,10 +114,9 @@ public class ExtensibleMatchFilter extends Filter
     /**
      * Set the matchingRule
      * 
-     * @param matchingRule
-     *            The matchingRule to set.
+     * @param matchingRule The matchingRule to set.
      */
-    public void setMatchingRule( LdapString matchingRule )
+    public void setMatchingRule( String matchingRule )
     {
         this.matchingRule = matchingRule;
     }
@@ -137,8 +136,7 @@ public class ExtensibleMatchFilter extends Filter
     /**
      * Set the matchValue
      * 
-     * @param matchValue
-     *            The matchValue to set.
+     * @param matchValue The matchValue to set.
      */
     public void setMatchValue( Object matchValue )
     {
@@ -151,7 +149,7 @@ public class ExtensibleMatchFilter extends Filter
      * 
      * @return Returns the type.
      */
-    public LdapString getType()
+    public String getType()
     {
         return type;
     }
@@ -160,10 +158,9 @@ public class ExtensibleMatchFilter extends Filter
     /**
      * Set the type
      * 
-     * @param type
-     *            The type to set.
+     * @param type The type to set.
      */
-    public void setType( LdapString type )
+    public void setType( String type )
     {
         this.type = type;
     }
@@ -183,8 +180,7 @@ public class ExtensibleMatchFilter extends Filter
     /**
      * Set the expectedMatchingRuleLength
      * 
-     * @param expectedMatchingRuleLength
-     *            The expectedMatchingRuleLength to set.
+     * @param expectedMatchingRuleLength The expectedMatchingRuleLength to set.
      */
     public void setExpectedMatchingRuleLength( int expectedMatchingRuleLength )
     {
@@ -193,20 +189,27 @@ public class ExtensibleMatchFilter extends Filter
 
 
     /**
-     * Compute the ExtensibleMatchFilter length ExtensibleMatchFilter : 0xA9 L1 |
-     * [+--> 0x81 L3 matchingRule] [+--> 0x82 L4 type] [+--> 0x83 L5 matchValue]
-     * [+--> 0x01 0x01 dnAttributes]
+     * Compute the ExtensibleMatchFilter length 
+     * ExtensibleMatchFilter : 
+     * 0xA9 L1 
+     *   |
+     *  [+--> 0x81 L3 matchingRule] 
+     *  [+--> 0x82 L4 type] 
+     *  [+--> 0x83 L5 matchValue]
+     *  [+--> 0x01 0x01 dnAttributes]
      */
     public int computeLength()
     {
         if ( matchingRule != null )
         {
-            extensibleMatchLength = 1 + Length.getNbBytes( matchingRule.getNbBytes() ) + matchingRule.getNbBytes();
+            matchingRuleBytes = StringTools.getBytesUtf8(  matchingRule );
+            extensibleMatchLength = 1 + TLV.getNbBytes( matchingRuleBytes.length ) + matchingRuleBytes.length;
         }
 
         if ( type != null )
         {
-            extensibleMatchLength += 1 + Length.getNbBytes( type.getNbBytes() ) + type.getNbBytes();
+            typeBytes = StringTools.getBytesUtf8( type );
+            extensibleMatchLength += 1 + TLV.getNbBytes( typeBytes.length ) + typeBytes.length;
         }
 
         if ( matchValue != null )
@@ -214,11 +217,11 @@ public class ExtensibleMatchFilter extends Filter
             if ( matchValue instanceof String )
             {
                 int matchValueLength = StringTools.getBytesUtf8( ( String ) matchValue ).length;
-                extensibleMatchLength += 1 + Length.getNbBytes( matchValueLength ) + matchValueLength;
+                extensibleMatchLength += 1 + TLV.getNbBytes( matchValueLength ) + matchValueLength;
             }
             else
             {
-                extensibleMatchLength += 1 + Length.getNbBytes( ( ( byte[] ) matchValue ).length )
+                extensibleMatchLength += 1 + TLV.getNbBytes( ( ( byte[] ) matchValue ).length )
                     + ( ( byte[] ) matchValue ).length;
             }
         }
@@ -228,18 +231,27 @@ public class ExtensibleMatchFilter extends Filter
             extensibleMatchLength += 1 + 1 + 1;
         }
 
-        return 1 + Length.getNbBytes( extensibleMatchLength ) + extensibleMatchLength;
+        return 1 + TLV.getNbBytes( extensibleMatchLength ) + extensibleMatchLength;
     }
 
 
     /**
-     * Encode the ExtensibleMatch Filters to a PDU. ExtensibleMatch filter :
-     * 0xA9 LL | 0x81 LL matchingRule | / | 0x82 LL Type | / | /0x83 LL
-     * matchValue +--+ +-+ | \ \ | \ 0x83 LL MatchValue | 0x82 LL type | 0x83 LL
-     * matchValue +--[0x84 0x01 dnAttributes]
+     * Encode the ExtensibleMatch Filters to a PDU. 
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * ExtensibleMatch filter :
+     * 
+     * 0xA9 LL 
+     *  |     0x81 LL matchingRule
+     *  |    / |   0x82 LL Type  
+     *  |   /  |  /0x83 LL matchValue
+     *  +--+   +-+
+     *  |   \     \
+     *  |    \     0x83 LL MatchValue
+     *  |     0x82 LL type
+     *  |     0x83 LL matchValue
+     *  +--[0x84 0x01 dnAttributes]
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -253,7 +265,7 @@ public class ExtensibleMatchFilter extends Filter
         {
             // The ExtensibleMatch Tag
             buffer.put( ( byte ) LdapConstants.EXTENSIBLE_MATCH_FILTER_TAG );
-            buffer.put( Length.getBytes( extensibleMatchLength ) );
+            buffer.put( TLV.getBytes( extensibleMatchLength ) );
 
             if ( ( matchingRule == null ) && ( type == null ) )
             {
@@ -263,28 +275,28 @@ public class ExtensibleMatchFilter extends Filter
             // The matching rule
             if ( matchingRule != null )
             {
-                buffer.put( ( byte ) LdapConstants.SEARCH_MATCHING_RULE_TAG );
-                buffer.put( Length.getBytes( matchingRule.getNbBytes() ) );
-                buffer.put( matchingRule.getBytes() );
+                buffer.put( ( byte ) LdapConstants.MATCHING_RULE_ID_TAG );
+                buffer.put( TLV.getBytes( matchingRuleBytes.length ) );
+                buffer.put( matchingRuleBytes );
             }
 
             // The type
             if ( type != null )
             {
-                buffer.put( ( byte ) LdapConstants.MATCHING_RULE_ASSERTION_TYPE_TAG );
-                buffer.put( Length.getBytes( type.getNbBytes() ) );
-                buffer.put( type.getBytes() );
+                buffer.put( ( byte ) LdapConstants.MATCHING_RULE_TYPE_TAG );
+                buffer.put( TLV.getBytes( typeBytes.length ) );
+                buffer.put( typeBytes );
             }
 
             // The match value
             if ( matchValue != null )
             {
-                buffer.put( ( byte ) LdapConstants.SEARCH_MATCH_VALUE_TAG );
+                buffer.put( ( byte ) LdapConstants.MATCH_VALUE_TAG );
 
                 if ( matchValue instanceof String )
                 {
                     byte[] matchValueBytes = StringTools.getBytesUtf8( ( String ) matchValue );
-                    buffer.put( Length.getBytes( matchValueBytes.length ) );
+                    buffer.put( TLV.getBytes( matchValueBytes.length ) );
 
                     if ( matchValueBytes.length != 0 )
                     {
@@ -293,7 +305,7 @@ public class ExtensibleMatchFilter extends Filter
                 }
                 else
                 {
-                    buffer.put( Length.getBytes( ( ( byte[] ) matchValue ).length ) );
+                    buffer.put( TLV.getBytes( ( ( byte[] ) matchValue ).length ) );
 
                     if ( ( ( byte[] ) matchValue ).length != 0 )
                     {

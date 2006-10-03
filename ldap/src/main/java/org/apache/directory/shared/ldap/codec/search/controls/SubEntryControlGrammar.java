@@ -62,13 +62,9 @@ public class SubEntryControlGrammar extends AbstractGrammar implements IGrammar
         // Create the transitions table
         super.transitions = new GrammarTransition[SubEntryControlStatesEnum.LAST_SUB_ENTRY_STATE][256];
 
-        super.transitions[SubEntryControlStatesEnum.SUB_ENTRY_VISIBILITY_TAG][UniversalTag.BOOLEAN_TAG] = new GrammarTransition(
-            SubEntryControlStatesEnum.SUB_ENTRY_VISIBILITY_TAG, SubEntryControlStatesEnum.SUB_ENTRY_VISIBILITY_VALUE,
-            null );
-
-        super.transitions[SubEntryControlStatesEnum.SUB_ENTRY_VISIBILITY_VALUE][UniversalTag.BOOLEAN_TAG] = new GrammarTransition(
-            SubEntryControlStatesEnum.SUB_ENTRY_VISIBILITY_VALUE, SubEntryControlStatesEnum.GRAMMAR_END,
-            new GrammarAction( "SubEntryControl visibility" )
+        super.transitions[SubEntryControlStatesEnum.START_STATE][UniversalTag.BOOLEAN_TAG] = 
+            new GrammarTransition( SubEntryControlStatesEnum.START_STATE, SubEntryControlStatesEnum.SUB_ENTRY_VISIBILITY_STATE, UniversalTag.BOOLEAN_TAG, 
+                new GrammarAction( "SubEntryControl visibility" )
             {
                 public void action( IAsn1Container container ) throws DecoderException
                 {

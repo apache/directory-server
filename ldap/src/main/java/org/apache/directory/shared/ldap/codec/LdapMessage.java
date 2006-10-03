@@ -21,7 +21,7 @@ package org.apache.directory.shared.ldap.codec;
 
 
 import org.apache.directory.shared.asn1.Asn1Object;
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -104,8 +104,7 @@ public class LdapMessage extends Asn1Object
     /**
      * Get the Control Object at a specific index
      * 
-     * @param i
-     *            The index of the Control Object to get
+     * @param i The index of the Control Object to get
      * @return The selected Control Object
      */
     public Control getControls( int i )
@@ -139,8 +138,7 @@ public class LdapMessage extends Asn1Object
     /**
      * Add a control to the Controls array
      * 
-     * @param control
-     *            The Control to add
+     * @param control The Control to add
      */
     public void addControl( Control control )
     {
@@ -156,7 +154,7 @@ public class LdapMessage extends Asn1Object
     /**
      * Init the controls array
      */
-    public void initControl()
+    public void initControls()
     {
         controls = new ArrayList();
     }
@@ -176,8 +174,7 @@ public class LdapMessage extends Asn1Object
     /**
      * Set the message ID
      * 
-     * @param messageId
-     *            The message ID
+     * @param messageId The message ID
      */
     public void setMessageId( int messageId )
     {
@@ -505,8 +502,7 @@ public class LdapMessage extends Asn1Object
     /**
      * Set the ProtocolOP
      * 
-     * @param protocolOp
-     *            The protocolOp to set.
+     * @param protocolOp The protocolOp to set.
      */
     public void setProtocolOP( Asn1Object protocolOp )
     {
@@ -515,11 +511,16 @@ public class LdapMessage extends Asn1Object
 
 
     /**
-     * Compute the LdapMessage length LdapMessage : 0x30 L1 | +--> 0x02 0x0(1-4)
-     * [0..2^31-1] (MessageId) +--> protocolOp [+--> Controls] MessageId length =
-     * Length(0x02) + length(MessageId) + MessageId.length L1 =
-     * length(ProtocolOp) LdapMessage length = Length(0x30) + Length(L1) +
-     * MessageId length + L1
+     * Compute the LdapMessage length LdapMessage : 
+     * 0x30 L1 
+     *   | 
+     *   +--> 0x02 0x0(1-4) [0..2^31-1] (MessageId) 
+     *   +--> protocolOp 
+     *   [+--> Controls] 
+     *   
+     * MessageId length = Length(0x02) + length(MessageId) + MessageId.length 
+     * L1 = length(ProtocolOp) 
+     * LdapMessage length = Length(0x30) + Length(L1) + MessageId length + L1
      */
     public int computeLength()
     {
@@ -540,13 +541,13 @@ public class LdapMessage extends Asn1Object
         {
             // Controls :
             // 0xA0 L3
-            // |
-            // +--> 0x30 L4
-            // +--> 0x30 L5
-            // +--> ...
-            // +--> 0x30 Li
-            // +--> ...
-            // +--> 0x30 Ln
+            //   |
+            //   +--> 0x30 L4
+            //   +--> 0x30 L5
+            //   +--> ...
+            //   +--> 0x30 Li
+            //   +--> ...
+            //   +--> 0x30 Ln
             //
             // L3 = Length(0x30) + Length(L5) + L5
             // + Length(0x30) + Length(L6) + L6
@@ -568,36 +569,42 @@ public class LdapMessage extends Asn1Object
             }
 
             // Computes the controls length
-            controlsLength = controlsSequenceLength; // 1 +
-                                                        // Length.getNbBytes(
-                                                        // controlsSequenceLength
-                                                        // ) +
-                                                        // controlsSequenceLength;
+            controlsLength = controlsSequenceLength; // 1 + Length.getNbBytes(
+                                                     // controlsSequenceLength
+                                                     // ) + controlsSequenceLength;
 
             // Now, add the tag and the length of the controls length
-            ldapMessageLength += 1 + Length.getNbBytes( controlsSequenceLength ) + controlsSequenceLength;
+            ldapMessageLength += 1 + TLV.getNbBytes( controlsSequenceLength ) + controlsSequenceLength;
         }
 
         // finally, calculate the global message size :
         // length(Tag) + Length(length) + length
 
-        return 1 + ldapMessageLength + Length.getNbBytes( ldapMessageLength );
+        return 1 + ldapMessageLength + TLV.getNbBytes( ldapMessageLength );
     }
 
 
     /**
-     * Generate the PDU which contains the encoded object. The generation is
-     * done in two phases : - first, we compute the length of each part and the
-     * global PDU length - second, we produce the PDU. 0x30 L1 | +--> 0x02 L2
-     * MessageId (L2 = Length(MessageId) +--> ProtocolOp +--> Controls L1 =
-     * Length(0x02) + Length(L2) + L2 + Length(ProtocolOp) + Length(Controls)
+     * Generate the PDU which contains the encoded object. 
+     * 
+     * The generation is done in two phases : 
+     * - first, we compute the length of each part and the
+     * global PDU length 
+     * - second, we produce the PDU. 
+     * 
+     * 0x30 L1 
+     *   | 
+     *   +--> 0x02 L2 MessageId  
+     *   +--> ProtocolOp 
+     *   +--> Controls 
+     *   
+     * L2 = Length(MessageId)
+     * L1 = Length(0x02) + Length(L2) + L2 + Length(ProtocolOp) + Length(Controls)
      * LdapMessageLength = Length(0x30) + Length(L1) + L1
      * 
-     * @param buffer
-     *            The encoded PDU
+     * @param buffer The encoded PDU
      * @return A ByteBuffer that contaons the PDU
-     * @throws EncoderException
-     *             If anything goes wrong.
+     * @throws EncoderException If anything goes wrong.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
@@ -610,7 +617,7 @@ public class LdapMessage extends Asn1Object
             bb.put( UniversalTag.SEQUENCE_TAG );
 
             // The length has been calculated by the computeLength method
-            bb.put( Length.getBytes( ldapMessageLength ) );
+            bb.put( TLV.getBytes( ldapMessageLength ) );
         }
         catch ( BufferOverflowException boe )
         {
@@ -628,11 +635,7 @@ public class LdapMessage extends Asn1Object
         {
             // Encode the controls
             bb.put( ( byte ) LdapConstants.CONTROLS_TAG );
-            bb.put( Length.getBytes( controlsLength ) );
-
-            // Encode the control's sequence
-            // bb.put( UniversalTag.SEQUENCE_TAG );
-            // bb.put( Length.getBytes( controlsSequenceLength ) );
+            bb.put( TLV.getBytes( controlsLength ) );
 
             // Encode each control
             Iterator controlIterator = controls.iterator();

@@ -23,7 +23,7 @@ package org.apache.directory.shared.ldap.codec.bind;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.slf4j.Logger;
@@ -67,8 +67,7 @@ public class SimpleAuthentication extends LdapAuthentication
     /**
      * Set the simple password
      * 
-     * @param simple
-     *            The simple password
+     * @param simple The simple password
      */
     public void setSimple( byte[] simple )
     {
@@ -77,15 +76,18 @@ public class SimpleAuthentication extends LdapAuthentication
 
 
     /**
-     * Compute the Simple authentication length Simple authentication : 0x80 L1
-     * simple L1 = Length(simple) Length(Simple authentication) = Length(0x80) +
-     * Length(L1) + Length(simple)
+     * Compute the Simple authentication length 
+     * 
+     * Simple authentication : 0x80 L1 simple 
+     * 
+     * L1 = Length(simple) 
+     * Length(Simple authentication) = Length(0x80) + Length(L1) + Length(simple)
      */
     public int computeLength()
     {
         int length = 1;
 
-        length += Length.getNbBytes( simple.length ) + simple.length;
+        length += TLV.getNbBytes( simple.length ) + simple.length;
 
         if ( IS_DEBUG )
         {
@@ -97,11 +99,11 @@ public class SimpleAuthentication extends LdapAuthentication
 
 
     /**
-     * Encode the simple authentication to a PDU. SimpleAuthentication : 0x80 LL
-     * simple
+     * Encode the simple authentication to a PDU. 
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * SimpleAuthentication : 0x80 LL simple
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -116,7 +118,7 @@ public class SimpleAuthentication extends LdapAuthentication
         {
             // The simpleAuthentication Tag
             buffer.put( ( byte ) LdapConstants.BIND_REQUEST_SIMPLE_TAG );
-            buffer.put( Length.getBytes( simple.length ) );
+            buffer.put( TLV.getBytes( simple.length ) );
 
             if ( simple.length != 0 )
             {

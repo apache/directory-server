@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 
 
 /**
@@ -41,14 +40,8 @@ public class EntryChangeControlContainer extends AbstractContainer implements IA
     public EntryChangeControlContainer()
     {
         super();
-        currentGrammar = 0;
-        grammars = new IGrammar[EntryChangeControlStatesEnum.NB_GRAMMARS];
-        grammarStack = new IGrammar[1];
         stateStack = new int[1];
-        nbGrammars = 0;
-
-        grammars[EntryChangeControlStatesEnum.EC_GRAMMAR] = EntryChangeControlGrammar.getInstance();
-        grammarStack[currentGrammar] = grammars[EntryChangeControlStatesEnum.EC_GRAMMAR];
+        grammar = EntryChangeControlGrammar.getInstance();
         states = EntryChangeControlStatesEnum.getInstance();
     }
 
@@ -66,15 +59,16 @@ public class EntryChangeControlContainer extends AbstractContainer implements IA
      * Set a EntryChangeControl Object into the container. It will be completed
      * by the ldapDecoder.
      * 
-     * @param control
-     *            the EntryChangeControl to set.
+     * @param control the EntryChangeControl to set.
      */
     public void setEntryChangeControl( EntryChangeControl control )
     {
         this.control = control;
     }
 
-
+    /**
+     * Clean the container
+     */
     public void clean()
     {
         super.clean();

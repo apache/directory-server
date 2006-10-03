@@ -23,7 +23,7 @@ package org.apache.directory.shared.ldap.codec.del;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
@@ -31,7 +31,11 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * A DelRequest Message. Its syntax is : DelRequest ::= [APPLICATION 10] LDAPDN
+ * A DelRequest Message. 
+ * 
+ * Its syntax is : 
+ * 
+ * DelRequest ::= [APPLICATION 10] LDAPDN
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -84,8 +88,7 @@ public class DelRequest extends LdapMessage
     /**
      * Set the entry to be deleted
      * 
-     * @param entry
-     *            The entry to set.
+     * @param entry The entry to set.
      */
     public void setEntry( LdapDN entry )
     {
@@ -94,21 +97,28 @@ public class DelRequest extends LdapMessage
 
 
     /**
-     * Compute the DelRequest length DelRequest : 0x4A L1 entry L1 =
-     * Length(entry) Length(DelRequest) = Length(0x4A) + Length(L1) + L1
+     * Compute the DelRequest length 
+     * 
+     * DelRequest : 
+     * 0x4A L1 entry 
+     * 
+     * L1 = Length(entry) 
+     * Length(DelRequest) = Length(0x4A) + Length(L1) + L1
      */
     public int computeLength()
     {
         // The entry
-        return 1 + Length.getNbBytes( LdapDN.getNbBytes( entry ) ) + LdapDN.getNbBytes( entry );
+        return 1 + TLV.getNbBytes( LdapDN.getNbBytes( entry ) ) + LdapDN.getNbBytes( entry );
     }
 
 
     /**
-     * Encode the DelRequest message to a PDU. DelRequest : 0x4A LL entry
+     * Encode the DelRequest message to a PDU. 
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * DelRequest : 
+     * 0x4A LL entry
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -124,7 +134,7 @@ public class DelRequest extends LdapMessage
             buffer.put( LdapConstants.DEL_REQUEST_TAG );
 
             // The entry
-            buffer.put( Length.getBytes( LdapDN.getNbBytes( entry ) ) );
+            buffer.put( TLV.getBytes( LdapDN.getNbBytes( entry ) ) );
             buffer.put( LdapDN.getBytes( entry ) );
         }
         catch ( BufferOverflowException boe )

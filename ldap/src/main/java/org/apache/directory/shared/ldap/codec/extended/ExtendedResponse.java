@@ -23,7 +23,7 @@ package org.apache.directory.shared.ldap.codec.extended;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
@@ -32,9 +32,11 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A ExtendedResponse Message. Its syntax is : ExtendedResponse ::= [APPLICATION
- * 24] SEQUENCE { COMPONENTS OF LDAPResult, responseName [10] LDAPOID OPTIONAL,
- * response [11] OCTET STRING OPTIONAL }
+ * A ExtendedResponse Message. Its syntax is :
+ *   ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
+ *              COMPONENTS OF LDAPResult,
+ *              responseName     [10] LDAPOID OPTIONAL,
+ *              response         [11] OCTET STRING OPTIONAL }
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -96,8 +98,7 @@ public class ExtendedResponse extends LdapResponse
     /**
      * Set the extended response name
      * 
-     * @param responseName
-     *            The name to set.
+     * @param responseName The name to set.
      */
     public void setResponseName( OID responseName )
     {
@@ -119,8 +120,7 @@ public class ExtendedResponse extends LdapResponse
     /**
      * Set the extended response
      * 
-     * @param response
-     *            The response to set.
+     * @param response The response to set.
      */
     public void setResponse( Object response )
     {
@@ -129,17 +129,19 @@ public class ExtendedResponse extends LdapResponse
 
 
     /**
-     * Compute the ExtendedResponse length 
-     * ExtendedResponse : 
-     * 0x78 L1 
-     *   | 
-     *   +--> LdapResult 
-     *  [+--> 0x8A L2 name 
-     *  [+--> 0x8B L3 response]] 
-     *  
-     * L1 = Length(LdapResult) 
-     *   [ + Length(0x8A) + Length(L2) + L2 
-     *   [ + Length(0x8B) + Length(L3) + L3]] 
+     * Compute the ExtendedResponse length
+     * 
+     * ExtendedResponse :
+     * 
+     * 0x78 L1
+     *  |
+     *  +--> LdapResult
+     * [+--> 0x8A L2 name
+     * [+--> 0x8B L3 response]]
+     * 
+     * L1 = Length(LdapResult)
+     *      [ + Length(0x8A) + Length(L2) + L2
+     *       [ + Length(0x8B) + Length(L3) + L3]]
      * 
      * Length(ExtendedResponse) = Length(0x78) + Length(L1) + L1
      * 
@@ -152,30 +154,33 @@ public class ExtendedResponse extends LdapResponse
         if ( responseName != null )
         {
             responseNameLength = responseName.toString().length();
-            extendedResponseLength += 1 + Length.getNbBytes( responseNameLength ) + responseNameLength;
+            extendedResponseLength += 1 + TLV.getNbBytes( responseNameLength ) + responseNameLength;
+
+            if ( response != null )
+            {
+                if ( response instanceof String )
+                {
+                    int responseLength = StringTools.getBytesUtf8( ( String ) response ).length;
+                    extendedResponseLength += 1 + TLV.getNbBytes( responseLength ) + responseLength;
+                }
+                else
+                {
+                    extendedResponseLength += 1 + TLV.getNbBytes( ( ( byte[] ) response ).length )
+                        + ( ( byte[] ) response ).length;
+                }
+            }
         }
 
-        if ( response != null )
-        {
-            if ( response instanceof String )
-            {
-                int responseLength = StringTools.getBytesUtf8( ( String ) response ).length;
-                extendedResponseLength += 1 + Length.getNbBytes( responseLength ) + responseLength;
-            }
-            else
-            {
-                extendedResponseLength += 1 + Length.getNbBytes( ( ( byte[] ) response ).length )
-                    + ( ( byte[] ) response ).length;
-            }
-        }
-
-        return 1 + Length.getNbBytes( extendedResponseLength ) + extendedResponseLength;
+        return 1 + TLV.getNbBytes( extendedResponseLength ) + extendedResponseLength;
     }
 
 
     /**
-     * Encode the ExtendedResponse message to a PDU. ExtendedResponse :
-     * LdapResult.encode() [0x8A LL response name] [0x8B LL response]
+     * Encode the ExtendedResponse message to a PDU. 
+     * ExtendedResponse :
+     * LdapResult.encode()
+     * [0x8A LL response name]
+     * [0x8B LL response]
      * 
      * @param buffer
      *            The buffer where to put the PDU
@@ -192,7 +197,7 @@ public class ExtendedResponse extends LdapResponse
         {
             // The BindResponse Tag
             buffer.put( LdapConstants.EXTENDED_RESPONSE_TAG );
-            buffer.put( Length.getBytes( extendedResponseLength ) );
+            buffer.put( TLV.getBytes( extendedResponseLength ) );
 
             // The LdapResult
             super.encode( buffer );
@@ -201,7 +206,7 @@ public class ExtendedResponse extends LdapResponse
             if ( responseName != null )
             {
                 buffer.put( ( byte ) LdapConstants.EXTENDED_RESPONSE_RESPONSE_NAME_TAG );
-                buffer.put( Length.getBytes( responseNameLength ) );
+                buffer.put( TLV.getBytes( responseNameLength ) );
 
                 if ( responseName.getOIDLength() != 0 )
                 {
@@ -217,7 +222,7 @@ public class ExtendedResponse extends LdapResponse
                 if ( response instanceof String )
                 {
                     byte[] responseBytes = StringTools.getBytesUtf8( ( String ) response );
-                    buffer.put( Length.getBytes( responseBytes.length ) );
+                    buffer.put( TLV.getBytes( responseBytes.length ) );
 
                     if ( responseBytes.length != 0 )
                     {
@@ -226,7 +231,7 @@ public class ExtendedResponse extends LdapResponse
                 }
                 else
                 {
-                    buffer.put( Length.getBytes( ( ( byte[] ) response ).length ) );
+                    buffer.put( TLV.getBytes( ( ( byte[] ) response ).length ) );
 
                     if ( ( ( byte[] ) response ).length != 0 )
                     {

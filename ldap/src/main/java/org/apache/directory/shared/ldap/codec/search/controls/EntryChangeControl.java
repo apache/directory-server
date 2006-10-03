@@ -23,7 +23,7 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.Asn1Object;
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -77,7 +77,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class EntryChangeControl extends Asn1Object
 {
@@ -87,17 +86,24 @@ public class EntryChangeControl extends Asn1Object
 
     private int changeNumber = UNDEFINED_CHANGE_NUMBER;
 
+    /** The previous DN */
     private LdapDN previousDn = null;
     
-    private byte[] previousDnBytes = null;
+    /** A temporary storage for the previous DN */
+    private transient byte[] previousDnBytes = null;
 
+    /** The entry change global length */
     private transient int eccSeqLength;
 
 
     /**
-     * Compute the EnryChangeControl length 0x30 L1 | +--> 0x0A 0x0(1-4)
-     * [1|2|4|8] (changeType) +--> 0x04 L2 previousDN +--> 0x02 0x0(1-4)
-     * [0..2^31-1] (changeNumber)
+     * Compute the EntryChangeControl length 
+     * 
+     * 0x30 L1 
+     *   | 
+     *   +--> 0x0A 0x0(1-4) [1|2|4|8] (changeType) 
+     *  [+--> 0x04 L2 previousDN] 
+     *  [+--> 0x02 0x0(1-4) [0..2^31-1] (changeNumber)]
      */
     public int computeLength()
     {
@@ -109,7 +115,7 @@ public class EntryChangeControl extends Asn1Object
         if ( previousDn != null )
         {
             previousDnBytes = StringTools.getBytesUtf8( previousDn.getUpName() );
-            previousDnLength = 1 + Length.getNbBytes( previousDnBytes.length ) + previousDnBytes.length;
+            previousDnLength = 1 + TLV.getNbBytes( previousDnBytes.length ) + previousDnBytes.length;
         }
 
         if ( changeNumber != UNDEFINED_CHANGE_NUMBER )
@@ -119,25 +125,23 @@ public class EntryChangeControl extends Asn1Object
 
         eccSeqLength = changeTypesLength + previousDnLength + changeNumberLength;
 
-        return 1 + Length.getNbBytes( eccSeqLength ) + eccSeqLength;
+        return 1 + TLV.getNbBytes( eccSeqLength ) + eccSeqLength;
     }
 
 
     /**
      * Encodes the entry change control.
      * 
-     * @param buffer
-     *            The encoded sink
+     * @param buffer The encoded sink
      * @return A ByteBuffer that contains the encoded PDU
-     * @throws EncoderException
-     *             If anything goes wrong.
+     * @throws EncoderException If anything goes wrong.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
         // Allocate the bytes buffer.
         ByteBuffer bb = ByteBuffer.allocate( computeLength() );
         bb.put( UniversalTag.SEQUENCE_TAG );
-        bb.put( Length.getBytes( eccSeqLength ) );
+        bb.put( TLV.getBytes( eccSeqLength ) );
 
         bb.put( UniversalTag.ENUMERATED_TAG );
         bb.put( ( byte ) 1 );

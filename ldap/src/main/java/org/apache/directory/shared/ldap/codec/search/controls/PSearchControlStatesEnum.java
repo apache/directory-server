@@ -38,60 +38,36 @@ public class PSearchControlStatesEnum implements IStates
     // =========================================================================
     // Persistent search control grammar states
     // =========================================================================
-
-    /** Sequence Tag */
-    public static int PSEARCH_SEQUENCE_TAG = 0;
+    /** Initial state */
+    public static final int START_STATE = 0;
 
     /** Sequence Value */
-    public static int PSEARCH_SEQUENCE_VALUE = 1;
-
-    /** changeTypes Tag */
-    public static int CHANGE_TYPES_TAG = 2;
+    public static int PSEARCH_SEQUENCE_STATE = 1;
 
     /** changeTypes Value */
-    public static int CHANGE_TYPES_VALUE = 3;
-
-    /** changesOnly Tag */
-    public static int CHANGES_ONLY_TAG = 4;
-
+    public static int CHANGE_TYPES_STATE = 3;
+    
     /** changesOnly Value */
-    public static int CHANGES_ONLY_VALUE = 5;
-
-    /** returnECs Tag */
-    public static int RETURN_ECS_TAG = 6;
+    public static int CHANGES_ONLY_STATE = 5;
 
     /** returnECs Value */
-    public static int RETURN_ECS_VALUE = 7;
+    public static int RETURN_ECS_STATE = 7;
 
     /** terminal state */
     public static int LAST_PSEARCH_STATE = 8;
-
-    // =========================================================================
-    // Grammars declaration.
-    // =========================================================================
-    /** PSsearch grammar */
-    public static final int PSEARCH_GRAMMAR_SWITCH = 0x0100;
-
-    /** PSearch grammar number */
-    public static final int PSEARCH_GRAMMAR = 0;
-
-    /** The total number of grammars used */
-    public static final int NB_GRAMMARS = 1;
-
-    // =========================================================================
-    // Grammar switches debug strings
-    // =========================================================================
-    /** A string representation of grammars */
-    private static String[] GrammarSwitchString = new String[]
-        { "PSEARCH_GRAMMAR_SWITCH" };
 
     // =========================================================================
     // States debug strings
     // =========================================================================
     /** A string representation of all the states */
     private static String[] PSearchString = new String[]
-        { "PSEARCH_SEQUENCE_TAG", "PSEARCH_SEQUENCE_VALUE", "CHANGE_TYPES_TAG", "CHANGE_TYPES_VALUE",
-            "CHANGES_ONLY_TAG", "CHANGES_ONLY_VALUE", "RETURN_ECS_TAG", "RETURN_ECS_VALUE" };
+        { 
+        "START_STATE", 
+        "PSEARCH_SEQUENCE_VALUE", 
+        "CHANGE_TYPES_STATE",
+        "CHANGES_ONLY_STATE", 
+        "RETURN_ECS_STATE" 
+        };
 
     /** The instance */
     private static PSearchControlStatesEnum instance = new PSearchControlStatesEnum();
@@ -125,27 +101,19 @@ public class PSearchControlStatesEnum implements IStates
     /**
      * Get the grammar name
      * 
-     * @param grammar
-     *            The grammar code
+     * @param grammar The grammar code
      * @return The grammar name
      */
     public String getGrammarName( int grammar )
     {
-        switch ( grammar )
-        {
-            case PSEARCH_GRAMMAR:
-                return "PSEARCH_GRAMMAR";
-            default:
-                return "UNKNOWN";
-        }
+        return "PSEARCH_GRAMMAR";
     }
 
 
     /**
      * Get the grammar name
      * 
-     * @param grammar
-     *            The grammar class
+     * @param grammar The grammar class
      * @return The grammar name
      */
     public String getGrammarName( IGrammar grammar )
@@ -162,32 +130,11 @@ public class PSearchControlStatesEnum implements IStates
     /**
      * Get the string representing the state
      * 
-     * @param grammar
-     *            The current grammar being used
-     * @param state
-     *            The state number
+     * @param state The state number
      * @return The String representing the state
      */
-    public String getState( int grammar, int state )
+    public String getState( int state )
     {
-
-        if ( ( state & GRAMMAR_SWITCH_MASK ) != 0 )
-        {
-            return ( state == END_STATE ) ? "END_STATE"
-                : GrammarSwitchString[( ( state & GRAMMAR_SWITCH_MASK ) >> 8 ) - 1];
-        }
-        else
-        {
-
-            switch ( grammar )
-            {
-
-                case PSEARCH_GRAMMAR:
-                    return ( ( state == GRAMMAR_END ) ? "PSEARCH_END_STATE" : PSearchString[state] );
-
-                default:
-                    return "UNKNOWN";
-            }
-        }
+        return ( ( state == GRAMMAR_END ) ? "PSEARCH_END_STATE" : PSearchString[state] );
     }
 }

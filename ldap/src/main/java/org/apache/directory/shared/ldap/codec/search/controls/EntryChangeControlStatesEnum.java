@@ -40,58 +40,35 @@ public class EntryChangeControlStatesEnum implements IStates
     // =========================================================================
 
     /** Sequence Tag */
-    public static int EC_SEQUENCE_TAG = 0;
+    public static int START_STATE = 0;
 
-    /** Sequence Value */
-    public static int EC_SEQUENCE_VALUE = 1;
+    /** Sequence */
+    public static int EC_SEQUENCE_STATE = 1;
 
-    /** changeType Tag */
-    public static int CHANGE_TYPE_TAG = 2;
+    /** changeType */
+    public static int CHANGE_TYPE_STATE = 2;
 
-    /** changeType Value */
-    public static int CHANGE_TYPE_VALUE = 3;
+    /** previousDN */
+    public static int PREVIOUS_DN_STATE = 3;
 
-    /** previousDN Tag */
-    public static int CHANGE_NUMBER_OR_PREVIOUS_DN_TAG = 4;
-
-    /** previousDN Value */
-    public static int PREVIOUS_DN_VALUE = 5;
-
-    /** changeNumber Tag */
-    public static int CHANGE_NUMBER_TAG = 6;
-
-    /** changeNumber Value */
-    public static int CHANGE_NUMBER_VALUE = 7;
+    /** changeNumber */
+    public static int CHANGE_NUMBER_STATE = 4;
 
     /** terminal state */
-    public static int LAST_EC_STATE = 8;
-
-    // =========================================================================
-    // Grammars declaration.
-    // =========================================================================
-    /** Entry change grammar */
-    public static final int EC_GRAMMAR_SWITCH = 0x0100;
-
-    /** Entry change grammar number */
-    public static final int EC_GRAMMAR = 0;
-
-    /** The total number of grammars used */
-    public static final int NB_GRAMMARS = 1;
-
-    // =========================================================================
-    // Grammar switches debug strings
-    // =========================================================================
-    /** A string representation of grammars */
-    private static String[] GrammarSwitchString = new String[]
-        { "EC_GRAMMAR_SWITCH" };
+    public static int LAST_EC_STATE = 5;
 
     // =========================================================================
     // States debug strings
     // =========================================================================
     /** A string representation of all the states */
     private static String[] EcString = new String[]
-        { "EC_SEQUENCE_TAG", "EC_SEQUENCE_VALUE", "CHANGE_TYPE_TAG", "CHANGE_TYPE_VALUE",
-            "CHANGE_NUMBER_OR_PREVIOUS_DN_TAG", "PREVIOUS_DN_VALUE", "CHANGE_NUMBER_TAG", "CHANGE_NUMBER_VALUE" };
+        { 
+        "START_STATE",
+        "EC_SEQUENCE_STATE", 
+        "CHANGE_TYPE_STATE",
+        "PREVIOUS_DN_STATE", 
+        "CHANGE_NUMBER_STATE" 
+        };
 
     /** The instance */
     private static EntryChangeControlStatesEnum instance = new EntryChangeControlStatesEnum();
@@ -125,27 +102,19 @@ public class EntryChangeControlStatesEnum implements IStates
     /**
      * Get the grammar name
      * 
-     * @param grammar
-     *            The grammar code
+     * @param grammar The grammar code
      * @return The grammar name
      */
     public String getGrammarName( int grammar )
     {
-        switch ( grammar )
-        {
-            case EC_GRAMMAR:
-                return "EC_GRAMMAR";
-            default:
-                return "UNKNOWN";
-        }
+        return "EC_GRAMMAR";
     }
 
 
     /**
      * Get the grammar name
      * 
-     * @param grammar
-     *            The grammar class
+     * @param grammar The grammar class
      * @return The grammar name
      */
     public String getGrammarName( IGrammar grammar )
@@ -162,32 +131,11 @@ public class EntryChangeControlStatesEnum implements IStates
     /**
      * Get the string representing the state
      * 
-     * @param grammar
-     *            The current grammar being used
-     * @param state
-     *            The state number
+     * @param state The state number
      * @return The String representing the state
      */
-    public String getState( int grammar, int state )
+    public String getState( int state )
     {
-
-        if ( ( state & GRAMMAR_SWITCH_MASK ) != 0 )
-        {
-            return ( state == END_STATE ) ? "END_STATE"
-                : GrammarSwitchString[( ( state & GRAMMAR_SWITCH_MASK ) >> 8 ) - 1];
-        }
-        else
-        {
-
-            switch ( grammar )
-            {
-
-                case EC_GRAMMAR:
-                    return ( ( state == GRAMMAR_END ) ? "EC_END_STATE" : EcString[state] );
-
-                default:
-                    return "UNKNOWN";
-            }
-        }
+        return ( ( state == GRAMMAR_END ) ? "EC_END_STATE" : EcString[state] );
     }
 }

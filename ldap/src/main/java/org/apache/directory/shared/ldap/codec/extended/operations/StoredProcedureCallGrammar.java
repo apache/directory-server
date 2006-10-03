@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
-import org.apache.log4j.Logger;
 
 
 /**
@@ -34,9 +33,6 @@ import org.apache.log4j.Logger;
 public class StoredProcedureCallGrammar extends AbstractGrammar implements IGrammar
 {
     // ~ Static fields/initializers -------------------------------------------
-
-    /** The logger */
-    private static final Logger log = Logger.getLogger( StoredProcedureCallGrammar.class );
 
     /** The instance of grammar. StoredProcedureGrammar is a singleton. */
     private static IGrammar instance = new StoredProcedureCallGrammar();

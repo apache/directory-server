@@ -63,8 +63,7 @@ public abstract class ConnectorFilter extends Filter
     /**
      * Add a new Filter to the list.
      * 
-     * @param filter
-     *            The filter to add
+     * @param filter The filter to add
      */
     public void addFilter( Filter filter ) throws DecoderException
     {
@@ -114,11 +113,12 @@ public abstract class ConnectorFilter extends Filter
 
 
     /**
-     * Encode the ConnectorFilter message to a PDU. ConnectorFilter :
+     * Encode the ConnectorFilter message to a PDU. 
+     * 
+     * ConnectorFilter :
      * filter.encode() ... filter.encode()
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException

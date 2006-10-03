@@ -39,40 +39,24 @@ public class SubEntryControlStatesEnum implements IStates
     // Sub entry control grammar states
     // =========================================================================
 
-    /** Visibility Tag */
-    public static int SUB_ENTRY_VISIBILITY_TAG = 0;
+    /** Starting state */
+    public static int START_STATE = 0;
 
     /** Visibility Value */
-    public static int SUB_ENTRY_VISIBILITY_VALUE = 1;
+    public static int SUB_ENTRY_VISIBILITY_STATE = 1;
 
     /** terminal state */
     public static int LAST_SUB_ENTRY_STATE = 2;
-
-    // =========================================================================
-    // Grammars declaration.
-    // =========================================================================
-    /** PSsearch grammar */
-    public static final int SUB_ENTRY_GRAMMAR_SWITCH = 0x0100;
-
-    /** PSearch grammar number */
-    public static final int SUB_ENTRY_GRAMMAR = 0;
-
-    /** The total number of grammars used */
-    public static final int NB_GRAMMARS = 1;
-
-    // =========================================================================
-    // Grammar switches debug strings
-    // =========================================================================
-    /** A string representation of grammars */
-    private static String[] GrammarSwitchString = new String[]
-        { "SUB_ENTRY_GRAMMAR_SWITCH" };
 
     // =========================================================================
     // States debug strings
     // =========================================================================
     /** A string representation of all the states */
     private static String[] SubEntryString = new String[]
-        { "SUB_ENTRY_VISIBILITY_TAG", "SUB_ENTRY_VISIBILITY_VALUE", };
+        { 
+        "START_STATE", 
+        "SUB_ENTRY_VISIBILITY_STATE" 
+        };
 
     /** The instance */
     private static SubEntryControlStatesEnum instance = new SubEntryControlStatesEnum();
@@ -106,27 +90,19 @@ public class SubEntryControlStatesEnum implements IStates
     /**
      * Get the grammar name
      * 
-     * @param grammar
-     *            The grammar code
+     * @param grammar The grammar code
      * @return The grammar name
      */
     public String getGrammarName( int grammar )
     {
-        switch ( grammar )
-        {
-            case SUB_ENTRY_GRAMMAR:
-                return "SUB_ENTRY_GRAMMAR";
-            default:
-                return "UNKNOWN";
-        }
+        return "SUB_ENTRY_GRAMMAR";
     }
 
 
     /**
      * Get the grammar name
      * 
-     * @param grammar
-     *            The grammar class
+     * @param grammar The grammar class
      * @return The grammar name
      */
     public String getGrammarName( IGrammar grammar )
@@ -143,32 +119,11 @@ public class SubEntryControlStatesEnum implements IStates
     /**
      * Get the string representing the state
      * 
-     * @param grammar
-     *            The current grammar being used
-     * @param state
-     *            The state number
+     * @param state The state number
      * @return The String representing the state
      */
-    public String getState( int grammar, int state )
+    public String getState( int state )
     {
-
-        if ( ( state & GRAMMAR_SWITCH_MASK ) != 0 )
-        {
-            return ( state == END_STATE ) ? "END_STATE"
-                : GrammarSwitchString[( ( state & GRAMMAR_SWITCH_MASK ) >> 8 ) - 1];
-        }
-        else
-        {
-
-            switch ( grammar )
-            {
-
-                case SUB_ENTRY_GRAMMAR:
-                    return ( ( state == GRAMMAR_END ) ? "SUB_ENTRY_END_STATE" : SubEntryString[state] );
-
-                default:
-                    return "UNKNOWN";
-            }
-        }
+        return ( ( state == GRAMMAR_END ) ? "SUB_ENTRY_END_STATE" : SubEntryString[state] );
     }
 }

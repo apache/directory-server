@@ -619,19 +619,25 @@ public class SearchResultEntryTest extends TestCase
         ByteBuffer stream = ByteBuffer.allocate( 0x45 );
 
         stream.put( new byte[]
-            { 0x30, 0x43, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x64, 0x21, // CHOICE { ..., searchResEntry SearchResultEntry,
-                            // ...
-                // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
-                // objectName LDAPDN,
-                0x04, 0x1B, 'o', 'u', '=', 'c', 'o', 'n', 't', 'a', 'c', 't', 's', ',', 'd', 'c', '=', 'i', 'k', 't',
-                'e', 'k', ',', 'd', 'c', '=', 'c', 'o', 'm',
-                // attributes PartialAttributeList }
-                // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
-                0x30, 0x02, 0x30, 0x00, ( byte ) 0xA0, 0x1B, // A control
-                0x30, 0x19, 0x04, 0x17, 0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31,
-                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 } );
+            { 
+            0x30, 0x43,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x64, 0x21,               // CHOICE { ..., searchResEntry SearchResultEntry,
+                                        // ...
+                                        // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
+                                        // objectName LDAPDN,
+                0x04, 0x1B, 
+                  'o', 'u', '=', 'c', 'o', 'n', 't', 'a', 'c', 't', 's', ',', 'd', 'c', '=', 
+                  'i', 'k', 't', 'e', 'k', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                                        // attributes PartialAttributeList }
+                                        // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
+                0x30, 0x02, 
+                  0x30, 0x00, 
+              ( byte ) 0xA0, 0x1B,      // A control
+                0x30, 0x19, 
+                  0x04, 0x17,
+                    '2', '.', '1', '6', '.', '8', '4', '0', '.', '1', '.', '1', 
+                    '1', '3', '7', '3', '0', '.', '3', '.', '4', '.', '2' } );
 
         stream.flip();
 

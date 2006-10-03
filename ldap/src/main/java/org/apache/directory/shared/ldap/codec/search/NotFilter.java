@@ -23,7 +23,7 @@ package org.apache.directory.shared.ldap.codec.search;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
@@ -51,8 +51,7 @@ public class NotFilter extends ConnectorFilter
      * Subclass the addFilterMethod, as this is specific for a NotFilter (we
      * cannot have more than one elements).
      * 
-     * @param filter
-     *            The Filter to add
+     * @param filter The Filter to add
      */
     public void addFilter( Filter filter ) throws DecoderException
     {
@@ -79,8 +78,7 @@ public class NotFilter extends ConnectorFilter
     /**
      * Set the NotFilter
      * 
-     * @param notFilter
-     *            The notFilter to set.
+     * @param notFilter The notFilter to set.
      */
     public void setNotFilter( Filter notFilter ) throws DecoderException
     {
@@ -94,24 +92,27 @@ public class NotFilter extends ConnectorFilter
 
 
     /**
-     * Compute the NotFilter length NotFilter : 0xA2 L1 super.computeLength()
+     * Compute the NotFilter length 
+     * NotFilter : 
+     * 0xA2 L1 super.computeLength()
+     * 
      * Length(NotFilter) = Length(0xA2) + Length(super.computeLength()) +
-     * super.computeLength()
+     *      super.computeLength()
      */
     public int computeLength()
     {
         filtersLength = super.computeLength();
 
-        return 1 + Length.getNbBytes( filtersLength ) + filtersLength;
+        return 1 + TLV.getNbBytes( filtersLength ) + filtersLength;
     }
 
 
     /**
-     * Encode the NotFilter message to a PDU. NotFilter : 0xA2 LL
-     * filter.encode()
+     * Encode the NotFilter message to a PDU. 
+     * NotFilter : 
+     * 0xA2 LL filter.encode()
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -125,7 +126,7 @@ public class NotFilter extends ConnectorFilter
         {
             // The NotFilter Tag
             buffer.put( ( byte ) LdapConstants.NOT_FILTER_TAG );
-            buffer.put( Length.getBytes( filtersLength ) );
+            buffer.put( TLV.getBytes( filtersLength ) );
         }
         catch ( BufferOverflowException boe )
         {

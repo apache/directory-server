@@ -372,7 +372,7 @@ public class ModifyRequestTest extends TestCase
                     0x30, 0x0F,                     // type : description
                       0x04, 0x0B, 
                         0x64, 0x65, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x69, 0x6F, 0x6E, 
-                      0x31, 0x00,                   // Vals = null
+                    0x31, 0x00,                     // Vals = null
                   0x30, 0x25,                       // Modification
                     0x0A, 0x01, 0x00,               // Operation : Add
                     0x30, 0x20,                     // type : telephoneNumber

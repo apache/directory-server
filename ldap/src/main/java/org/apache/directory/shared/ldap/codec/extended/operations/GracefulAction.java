@@ -58,10 +58,8 @@ public abstract class GracefulAction extends Asn1Object
     /**
      * Create a GracefulAction object, with a timeOffline and a delay
      * 
-     * @param timeOffline
-     *            The time the server will be offline
-     * @param delay
-     *            The delay before the disconnection
+     * @param timeOffline The time the server will be offline
+     * @param delay The delay before the disconnection
      */
     public GracefulAction(int timeOffline, int delay)
     {

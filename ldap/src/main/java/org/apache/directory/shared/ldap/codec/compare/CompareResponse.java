@@ -23,15 +23,16 @@ package org.apache.directory.shared.ldap.codec.compare;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapResponse;
 
 
 /**
- * An CompareResponse Message. Its syntax is : CompareResponse ::= [APPLICATION
- * 15] LDAPResult
+ * An CompareResponse Message. Its syntax is : 
+ * 
+ * CompareResponse ::= [APPLICATION 15] LDAPResult
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -64,23 +65,30 @@ public class CompareResponse extends LdapResponse
 
 
     /**
-     * Compute the CompareResponse length CompareResponse : 0x6F L1 | +-->
-     * LdapResult L1 = Length(LdapResult) Length(CompareResponse) = Length(0x6F) +
-     * Length(L1) + L1
+     * Compute the CompareResponse length 
+     * 
+     * CompareResponse :
+     * 
+     * 0x6F L1
+     *  |
+     *  +--> LdapResult
+     * 
+     * L1 = Length(LdapResult)
+     * 
+     * Length(CompareResponse) = Length(0x6F) + Length(L1) + L1
      */
     public int computeLength()
     {
         int ldapResponseLength = super.computeLength();
 
-        return 1 + Length.getNbBytes( ldapResponseLength ) + ldapResponseLength;
+        return 1 + TLV.getNbBytes( ldapResponseLength ) + ldapResponseLength;
     }
 
 
     /**
      * Encode the CompareResponse message to a PDU.
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -94,7 +102,7 @@ public class CompareResponse extends LdapResponse
         {
             // The tag
             buffer.put( LdapConstants.COMPARE_RESPONSE_TAG );
-            buffer.put( Length.getBytes( getLdapResponseLength() ) );
+            buffer.put( TLV.getBytes( getLdapResponseLength() ) );
         }
         catch ( BufferOverflowException boe )
         {

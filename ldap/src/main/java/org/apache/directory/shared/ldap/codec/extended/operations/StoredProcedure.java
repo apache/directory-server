@@ -29,7 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.directory.shared.asn1.Asn1Object;
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -179,11 +179,11 @@ public class StoredProcedure extends Asn1Object
         // The language
     	byte[] languageBytes = StringTools.getBytesUtf8( language );
     	
-        int languageLength = 1 + Length.getNbBytes( languageBytes.length )
+        int languageLength = 1 + TLV.getNbBytes( languageBytes.length )
             + languageBytes.length;
     	
         // The procedure
-        int procedureLength = 1 + Length.getNbBytes( procedure.length )
+        int procedureLength = 1 + TLV.getNbBytes( procedure.length )
             + procedure.length;
     	
     	// Compute parameters length value
@@ -203,12 +203,12 @@ public class StoredProcedure extends Asn1Object
     			
     			StoredProcedureParameter spParam = (StoredProcedureParameter)params.next();
     			
-    			localParamTypeLength = 1 + Length.getNbBytes( spParam.type.length ) + spParam.type.length;
-    			localParamValueLength = 1 + Length.getNbBytes( spParam.value.length ) + spParam.value.length;
+    			localParamTypeLength = 1 + TLV.getNbBytes( spParam.type.length ) + spParam.type.length;
+    			localParamValueLength = 1 + TLV.getNbBytes( spParam.value.length ) + spParam.value.length;
     			
     			localParameterLength = localParamTypeLength + localParamValueLength;
     			
-    			parametersLength += 1 + Length.getNbBytes( localParameterLength ) + localParameterLength;
+    			parametersLength += 1 + TLV.getNbBytes( localParameterLength ) + localParameterLength;
     			
     			parameterLength.add( new Integer( localParameterLength ) );
     			paramTypeLength.add( new Integer( localParamTypeLength ) );
@@ -216,10 +216,10 @@ public class StoredProcedure extends Asn1Object
     		}
     	}
     	
-    	int localParametersLength = 1 + Length.getNbBytes( parametersLength ) + parametersLength; 
+    	int localParametersLength = 1 + TLV.getNbBytes( parametersLength ) + parametersLength; 
     	storedProcedureLength = languageLength + procedureLength + localParametersLength;
 
-    	return 1 + Length.getNbBytes( storedProcedureLength ) + storedProcedureLength; 
+    	return 1 + TLV.getNbBytes( storedProcedureLength ) + storedProcedureLength; 
     }
 
     /**
@@ -237,7 +237,7 @@ public class StoredProcedure extends Asn1Object
         {
             // The StoredProcedure Tag
             bb.put( UniversalTag.SEQUENCE_TAG );
-            bb.put( Length.getBytes( storedProcedureLength ) );
+            bb.put( TLV.getBytes( storedProcedureLength ) );
 
             // The language
             Value.encode( bb, language );
@@ -247,7 +247,7 @@ public class StoredProcedure extends Asn1Object
             
             // The parameters sequence
             bb.put( UniversalTag.SEQUENCE_TAG );
-            bb.put( Length.getBytes( parametersLength ) );
+            bb.put( TLV.getBytes( parametersLength ) );
 
             // The parameters list
             if ( ( parameters != null ) && ( parameters.size() != 0 ) )
@@ -262,7 +262,7 @@ public class StoredProcedure extends Asn1Object
                     // The parameter sequence
                     bb.put( UniversalTag.SEQUENCE_TAG );
                     int localParameterLength = ( ( Integer ) parameterLength.get( parameterNumber ) ).intValue();
-                    bb.put( Length.getBytes( localParameterLength ) );
+                    bb.put( TLV.getBytes( localParameterLength ) );
 
                     // The parameter type
                     Value.encode( bb, spParam.type );

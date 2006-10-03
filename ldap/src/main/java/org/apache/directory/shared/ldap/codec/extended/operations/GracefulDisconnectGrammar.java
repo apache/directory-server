@@ -44,10 +44,10 @@ import org.slf4j.LoggerFactory;
  * 
  * <pre>
  *  GracefulDisconnect ::= SEQUENCE {
- *                         timeOffline INTEGER (0..720) DEFAULT 0,
- *                         delay [0] INTEGER (0..86400) DEFAULT 0,
- *                         replicatedContexts Referral OPTIONAL
- *              }
+ *      timeOffline INTEGER (0..720) DEFAULT 0,
+ *      delay [0] INTEGER (0..86400) DEFAULT 0,
+ *      replicatedContexts Referral OPTIONAL
+ * }
  *  
  *  Referral ::= SEQUENCE OF LDAPURL
  *  
@@ -71,6 +71,100 @@ public class GracefulDisconnectGrammar extends AbstractGrammar implements IGramm
 
 
     /**
+     * The action used to store a Time Offline.
+     */
+    GrammarAction storeDelay = new GrammarAction( "Set Graceful Disconnect Delay" )
+    {
+        public void action( IAsn1Container container ) throws DecoderException
+        {
+            GracefulDisconnectContainer gracefulDisconnectContainer = ( GracefulDisconnectContainer ) container;
+            Value value = gracefulDisconnectContainer.getCurrentTLV().getValue();
+    
+            try
+            {
+                int delay = IntegerDecoder.parse( value, 0, 86400 );
+    
+                if ( IS_DEBUG )
+                {
+                    log.debug( "Delay = " + delay );
+                }
+    
+                gracefulDisconnectContainer.getGracefulDisconnect().setDelay( delay );
+                gracefulDisconnectContainer.grammarEndAllowed( true );
+            }
+            catch ( IntegerDecoderException e )
+            {
+                String msg = "failed to decode the delay, the value should be between 0 and 86400 seconds, it is '"
+                    + StringTools.dumpBytes( value.getData() ) + "'";
+                log.error( msg );
+                throw new DecoderException( msg );
+            }
+        }
+    };
+    
+    /**
+     * The action used to store a referral.
+     */
+    GrammarAction storeReferral = new GrammarAction( "Stores a referral" )
+    {
+        public void action( IAsn1Container container ) throws DecoderException
+        {
+            GracefulDisconnectContainer gracefulDisconnectContainer = ( GracefulDisconnectContainer ) container;
+            Value value = gracefulDisconnectContainer.getCurrentTLV().getValue();
+
+            try
+            {
+                LdapURL url = new LdapURL( value.getData() );
+                gracefulDisconnectContainer.getGracefulDisconnect().addReplicatedContexts( url );
+                gracefulDisconnectContainer.grammarEndAllowed( true );
+                
+                if ( IS_DEBUG )
+                {
+                    log.debug( "Stores a referral : {}", url );
+                }
+            }
+            catch ( LdapURLEncodingException e )
+            {
+                String msg = "failed to decode the URL '" + StringTools.dumpBytes( value.getData() ) + "'";
+                log.error( msg );
+                throw new DecoderException( msg );
+            }
+        }
+    };
+    
+    /**
+     * The action used to store a Time Offline.
+     */
+    GrammarAction storeTimeOffline = new GrammarAction( "Set Graceful Disconnect time offline" )
+    {
+        public void action( IAsn1Container container ) throws DecoderException
+        {
+            GracefulDisconnectContainer gracefulDisconnectContainer = ( GracefulDisconnectContainer ) container;
+            Value value = gracefulDisconnectContainer.getCurrentTLV().getValue();
+
+            try
+            {
+                int timeOffline = IntegerDecoder.parse( value, 0, 720 );
+
+                if ( IS_DEBUG )
+                {
+                    log.debug( "Time Offline = " + timeOffline );
+                }
+
+                gracefulDisconnectContainer.getGracefulDisconnect().setTimeOffline( timeOffline );
+                gracefulDisconnectContainer.grammarEndAllowed( true );
+            }
+            catch ( IntegerDecoderException e )
+            {
+                String msg = "failed to decode the timeOffline, the value should be between 0 and 720 minutes, it is '"
+                    + StringTools.dumpBytes( value.getData() ) + "'";
+                log.error( msg );
+                throw new DecoderException( msg );
+            }
+        }
+    };
+
+    /**
      * Creates a new GracefulDisconnectGrammar object.
      */
     private GracefulDisconnectGrammar()
@@ -82,19 +176,17 @@ public class GracefulDisconnectGrammar extends AbstractGrammar implements IGramm
         super.transitions = new GrammarTransition[GracefulDisconnectStatesEnum.LAST_GRACEFUL_DISCONNECT_STATE][256];
 
         /**
-         * GracefulDisconnect ::= SEQUENCE { (Tag) ... Nothing to do...
+         * Transition from init state to graceful disconnect
+         * GracefulDisconnect ::= SEQUENCE { 
+         *     ... 
+         * 
+         * Creates the GracefulDisconnect object
          */
-        super.transitions[GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_TAG,
-            GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_VALUE, null );
-
-        /**
-         * GracefulDisconnect ::= SEQUENCE { (Value) ... Creates the
-         * GracefulDisconnect object
-         */
-        super.transitions[GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_VALUE,
-            GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG, new GrammarAction(
+        super.transitions[GracefulDisconnectStatesEnum.INIT_GRAMMAR_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( GracefulDisconnectStatesEnum.INIT_GRAMMAR_STATE,
+                                    GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_STATE, 
+                                    UniversalTag.SEQUENCE_TAG,
+                new GrammarAction(
                 "Init Graceful Disconnect" )
             {
                 public void action( IAsn1Container container )
@@ -107,167 +199,134 @@ public class GracefulDisconnectGrammar extends AbstractGrammar implements IGramm
             } );
 
         /**
-         * GracefulDisconnect ::= SEQUENCE { timeOffline INTEGER (0..720)
-         * DEFAULT 0, (Tag) ... Nothing to do
+         * Transition from graceful disconnect to time offline
+         * 
+         * GracefulDisconnect ::= SEQUENCE { 
+         *     timeOffline INTEGER (0..720) DEFAULT 0, 
+         *     ... 
+         *     
+         * Set the time offline value into the GracefulDisconnect object.    
          */
-        super.transitions[GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG][UniversalTag.INTEGER_TAG] = new GrammarTransition(
-            GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG,
-            GracefulDisconnectStatesEnum.TIME_OFFLINE_VALUE, null );
+        super.transitions[GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_STATE][UniversalTag.INTEGER_TAG] = 
+            new GrammarTransition( GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_STATE,
+                                    GracefulDisconnectStatesEnum.TIME_OFFLINE_STATE, 
+                                    UniversalTag.INTEGER_TAG, 
+                storeTimeOffline );
+        
+        /**
+         * Transition from graceful disconnect to delay
+         * 
+         * GracefulDisconnect ::= SEQUENCE { 
+         *     ... 
+         *     delay [0] INTEGER (0..86400) DEFAULT 0,
+         *     ... 
+         *     
+         * Set the delay value into the GracefulDisconnect object.    
+         */
+        super.transitions[GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_STATE][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] = 
+            new GrammarTransition( GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_STATE,
+                                    GracefulDisconnectStatesEnum.DELAY_STATE, 
+                                    GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG, 
+                storeDelay );
+        
+        /**
+         * Transition from graceful disconnect to replicated Contexts
+         * 
+         * GracefulDisconnect ::= SEQUENCE { 
+         *     ... 
+         *     replicatedContexts Referral OPTIONAL } 
+         *     
+         * Referral ::= SEQUENCE OF LDAPURL
+         *     
+         * Get some replicated contexts. Nothing to do    
+         */
+        super.transitions[GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_STATE,
+                                    GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_STATE,
+                                    UniversalTag.SEQUENCE_TAG, null );
+        
+        /**
+         * Transition from time offline to delay
+         * 
+         * GracefulDisconnect ::= SEQUENCE { 
+         *     ... 
+         *     delay [0] INTEGER (0..86400) DEFAULT 0,
+         *     ... 
+         *     
+         * Set the delay value into the GracefulDisconnect object.    
+         */
+        super.transitions[GracefulDisconnectStatesEnum.TIME_OFFLINE_STATE][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] = 
+            new GrammarTransition( GracefulDisconnectStatesEnum.TIME_OFFLINE_STATE,
+                                    GracefulDisconnectStatesEnum.DELAY_STATE, 
+                                    GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG,
+                storeDelay );
 
         /**
-         * GracefulDisconnect ::= SEQUENCE { ... delay [0] INTEGER (0..86400)
-         * DEFAULT 0, (Tag) ... We have no TimeOffline. Nothing to do.
+         * Transition from time offline to replicated Contexts
+         * 
+         * GracefulDisconnect ::= SEQUENCE { 
+         *     ... 
+         *     replicatedContexts Referral OPTIONAL } 
+         *     
+         * Referral ::= SEQUENCE OF LDAPURL
+         *     
+         * Get some replicated contexts. Nothing to do    
          */
-        super.transitions[GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] = new GrammarTransition(
-            GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG,
-            GracefulDisconnectStatesEnum.DELAY_VALUE, null );
+        super.transitions[GracefulDisconnectStatesEnum.TIME_OFFLINE_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( GracefulDisconnectStatesEnum.TIME_OFFLINE_STATE,
+                                    GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_STATE,
+                                    UniversalTag.SEQUENCE_TAG, null );
+        
+        /**
+         * Transition from delay to replicated contexts
+         * 
+         * GracefulDisconnect ::= SEQUENCE { 
+         *     ... 
+         *     replicatedContexts Referral OPTIONAL } 
+         *     
+         * Referral ::= SEQUENCE OF LDAPURL
+         *     
+         * Get some replicated contexts. Nothing to do    
+         */
+        super.transitions[GracefulDisconnectStatesEnum.DELAY_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( GracefulDisconnectStatesEnum.DELAY_STATE,
+                                    GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_STATE, 
+                                    UniversalTag.SEQUENCE_TAG, null );
+        
+        /**
+         * Transition from replicated contexts to referral
+         * 
+         * GracefulDisconnect ::= SEQUENCE { 
+         *     ... 
+         *     replicatedContexts Referral OPTIONAL } 
+         *     
+         * Referral ::= SEQUENCE OF LDAPURL
+         *     
+         * Stores the referral
+         */
+        super.transitions[GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_STATE][UniversalTag.OCTET_STRING_TAG] = 
+            new GrammarTransition( GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_STATE,
+                                    GracefulDisconnectStatesEnum.REFERRAL_STATE, 
+                                    UniversalTag.OCTET_STRING_TAG,
+                storeReferral );
 
         /**
-         * GracefulDisconnect ::= SEQUENCE { ... replicatedContexts Referral
-         * OPTIONAL } Referral ::= SEQUENCE OF LDAPURL (Tag) We have no
-         * TimeOffline nor delay, just a replicatedContexts. Nothing to do.
+         * Transition from referral to referral
+         * 
+         * GracefulDisconnect ::= SEQUENCE { 
+         *     ... 
+         *     replicatedContexts Referral OPTIONAL } 
+         *     
+         * Referral ::= SEQUENCE OF LDAPURL
+         *     
+         * Stores the referral
          */
-        super.transitions[GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG,
-            GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_VALUE, null );
+        super.transitions[GracefulDisconnectStatesEnum.REFERRAL_STATE][UniversalTag.OCTET_STRING_TAG] = 
+            new GrammarTransition( GracefulDisconnectStatesEnum.REFERRAL_STATE,
+                                    GracefulDisconnectStatesEnum.REFERRAL_STATE, 
+                                    UniversalTag.OCTET_STRING_TAG,
+                storeReferral );
 
-        /**
-         * GracefulDisconnect ::= SEQUENCE { timeOffline INTEGER (0..720)
-         * DEFAULT 0, (Value) ... Set the time offline value into the
-         * GracefulDisconnect object.
-         */
-        super.transitions[GracefulDisconnectStatesEnum.TIME_OFFLINE_VALUE][UniversalTag.INTEGER_TAG] = new GrammarTransition(
-            GracefulDisconnectStatesEnum.TIME_OFFLINE_VALUE,
-            GracefulDisconnectStatesEnum.DELAY_OR_REPLICATED_OR_END_TAG, new GrammarAction(
-                "Set Graceful Disconnect time offline" )
-            {
-                public void action( IAsn1Container container ) throws DecoderException
-                {
-                    GracefulDisconnectContainer gracefulDisconnectContainer = ( GracefulDisconnectContainer ) container;
-                    Value value = gracefulDisconnectContainer.getCurrentTLV().getValue();
-
-                    try
-                    {
-                        int timeOffline = IntegerDecoder.parse( value, 0, 720 );
-
-                        if ( IS_DEBUG )
-                        {
-                            log.debug( "Time Offline = " + timeOffline );
-                        }
-
-                        gracefulDisconnectContainer.getGracefulDisconnect().setTimeOffline( timeOffline );
-                        gracefulDisconnectContainer.grammarEndAllowed( true );
-                    }
-                    catch ( IntegerDecoderException e )
-                    {
-                        String msg = "failed to decode the timeOffline, the value should be between 0 and 720 minutes, it is '"
-                            + StringTools.dumpBytes( value.getData() ) + "'";
-                        log.error( msg );
-                        throw new DecoderException( msg );
-                    }
-                }
-            } );
-
-        /**
-         * GracefulDisconnect ::= SEQUENCE { ... delay [0] INTEGER (0..86400)
-         * DEFAULT 0, (Tag) ... We have had a TimeOffline, and now we are
-         * reading the delay. Nothing to do.
-         */
-        super.transitions[GracefulDisconnectStatesEnum.DELAY_OR_REPLICATED_OR_END_TAG][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] = new GrammarTransition(
-            GracefulDisconnectStatesEnum.DELAY_OR_REPLICATED_OR_END_TAG, GracefulDisconnectStatesEnum.DELAY_VALUE, null );
-
-        /**
-         * GracefulDisconnect ::= SEQUENCE { ... delay [0] INTEGER (0..86400)
-         * DEFAULT 0, (Value) ... Set the delay value into the
-         * GracefulDisconnect object.
-         */
-        super.transitions[GracefulDisconnectStatesEnum.DELAY_VALUE][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] = new GrammarTransition(
-            GracefulDisconnectStatesEnum.DELAY_VALUE, GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_OR_END_TAG,
-            new GrammarAction( "Set Graceful Disconnect Delay" )
-            {
-                public void action( IAsn1Container container ) throws DecoderException
-                {
-                    GracefulDisconnectContainer gracefulDisconnectContainer = ( GracefulDisconnectContainer ) container;
-                    Value value = gracefulDisconnectContainer.getCurrentTLV().getValue();
-
-                    try
-                    {
-                        int delay = IntegerDecoder.parse( value, 0, 86400 );
-
-                        if ( IS_DEBUG )
-                        {
-                            log.debug( "Delay = " + delay );
-                        }
-
-                        gracefulDisconnectContainer.getGracefulDisconnect().setDelay( delay );
-                        gracefulDisconnectContainer.grammarEndAllowed( true );
-                    }
-                    catch ( IntegerDecoderException e )
-                    {
-                        String msg = "failed to decode the delay, the value should be between 0 and 86400 seconds, it is '"
-                            + StringTools.dumpBytes( value.getData() ) + "'";
-                        log.error( msg );
-                        throw new DecoderException( msg );
-                    }
-                }
-            } );
-
-        /**
-         * GracefulDisconnect ::= SEQUENCE { ... replicatedContexts Referral
-         * OPTIONAL } Referral ::= SEQUENCE OF LDAPURL (Tag) We have a referral
-         * sequence. Nothing to do.
-         */
-        super.transitions[GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_OR_END_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_OR_END_TAG,
-            GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_VALUE, null );
-
-        /**
-         * GracefulDisconnect ::= SEQUENCE { ... replicatedContexts Referral
-         * OPTIONAL } Referral ::= SEQUENCE OF LDAPURL (Value) We have a
-         * sequence, so we will have Octet String following. Nothing to do.
-         */
-        super.transitions[GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_VALUE,
-            GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_OR_END_TAG, null );
-
-        /**
-         * GracefulDisconnect ::= SEQUENCE { ... replicatedContexts Referral
-         * OPTIONAL } Referral ::= SEQUENCE OF LDAPURL LDAPURL ::= LDAPString
-         * (Tag) We have a referral. It can be the first one, or one of the
-         * following. Nothing to do
-         */
-        super.transitions[GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_OR_END_TAG][UniversalTag.OCTET_STRING] = new GrammarTransition(
-            GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_OR_END_TAG,
-            GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_VALUE, null );
-
-        /**
-         * GracefulDisconnect ::= SEQUENCE { ... replicatedContexts Referral
-         * OPTIONAL } Referral ::= SEQUENCE OF LDAPURL (Tag) LDAPURL ::=
-         * LDAPString (Tag) Read and store a referral url.
-         */
-        super.transitions[GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_VALUE][UniversalTag.OCTET_STRING] = new GrammarTransition(
-            GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_VALUE,
-            GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_OR_END_TAG, new GrammarAction( "Replicated context URL" )
-            {
-                public void action( IAsn1Container container ) throws DecoderException
-                {
-                    GracefulDisconnectContainer gracefulDisconnectContainer = ( GracefulDisconnectContainer ) container;
-                    Value value = gracefulDisconnectContainer.getCurrentTLV().getValue();
-
-                    try
-                    {
-                        LdapURL url = new LdapURL( value.getData() );
-                        gracefulDisconnectContainer.getGracefulDisconnect().addReplicatedContexts( url );
-                        gracefulDisconnectContainer.grammarEndAllowed( true );
-                    }
-                    catch ( LdapURLEncodingException e )
-                    {
-                        String msg = "failed to decode the URL '" + StringTools.dumpBytes( value.getData() ) + "'";
-                        log.error( msg );
-                        throw new DecoderException( msg );
-                    }
-                }
-            } );
     }
 
 

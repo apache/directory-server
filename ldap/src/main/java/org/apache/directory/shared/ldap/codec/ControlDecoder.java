@@ -44,11 +44,9 @@ public interface ControlDecoder
     /**
      * Decodes raw ASN.1 encoded bytes into an Asn1Object for the control.
      * 
-     * @param controlBytes
-     *            the encoded control bytes
+     * @param controlBytes the encoded control bytes
      * @return the decoded Asn1Object for the control
-     * @throws DecoderException
-     *             if anything goes wrong
+     * @throws DecoderException if anything goes wrong
      */
     Asn1Object decode( byte[] controlBytes ) throws DecoderException, NamingException;
 }

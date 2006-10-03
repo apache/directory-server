@@ -23,10 +23,10 @@ package org.apache.directory.shared.ldap.codec.search;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -40,7 +40,10 @@ public class PresentFilter extends Filter
     // ----------------------------------------------------------------------------
 
     /** The attribute description. */
-    private LdapString attributeDescription;
+    private String attributeDescription;
+    
+    /** Temporary storage for attribute description bytes */
+    private transient byte[] attributeDescriptionBytes; 
 
 
     // ~ Constructors
@@ -62,7 +65,7 @@ public class PresentFilter extends Filter
      * 
      * @return Returns the attributeDescription.
      */
-    public LdapString getAttributeDescription()
+    public String getAttributeDescription()
     {
         return attributeDescription;
     }
@@ -71,23 +74,26 @@ public class PresentFilter extends Filter
     /**
      * Set the attributeDescription
      * 
-     * @param attributeDescription
-     *            The attributeDescription to set.
+     * @param attributeDescription The attributeDescription to set.
      */
-    public void setAttributeDescription( LdapString attributeDescription )
+    public void setAttributeDescription( String attributeDescription )
     {
         this.attributeDescription = attributeDescription;
     }
 
 
     /**
-     * Compute the PresentFilter length PresentFilter : 0x87 L1 present
+     * Compute the PresentFilter length 
+     * PresentFilter : 
+     * 0x87 L1 present
+     * 
      * Length(PresentFilter) = Length(0x87) + Length(super.computeLength()) +
-     * super.computeLength()
+     *      super.computeLength()
      */
     public int computeLength()
     {
-        return 1 + Length.getNbBytes( attributeDescription.getNbBytes() ) + attributeDescription.getNbBytes();
+        attributeDescriptionBytes = StringTools.getBytesUtf8( attributeDescription );
+        return 1 + TLV.getNbBytes( attributeDescriptionBytes.length ) + attributeDescriptionBytes.length;
     }
 
 
@@ -95,8 +101,7 @@ public class PresentFilter extends Filter
      * Encode the PresentFilter message to a PDU. PresentFilter : 0x87 LL
      * attributeDescription
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -110,8 +115,8 @@ public class PresentFilter extends Filter
         {
             // The PresentFilter Tag
             buffer.put( ( byte ) LdapConstants.PRESENT_FILTER_TAG );
-            buffer.put( Length.getBytes( attributeDescription.getNbBytes() ) );
-            buffer.put( attributeDescription.getBytes() );
+            buffer.put( TLV.getBytes( attributeDescriptionBytes.length ) );
+            buffer.put( attributeDescriptionBytes );
         }
         catch ( BufferOverflowException boe )
         {

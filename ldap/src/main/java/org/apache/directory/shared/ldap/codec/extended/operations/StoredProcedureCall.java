@@ -49,15 +49,6 @@ public class StoredProcedureCall extends Asn1Object
 
     private transient StoredProcedureParameter currentParameter;
 
-    private transient int storedProcedureCallRequestLength;
-
-    private transient int languageSchemeLength;
-
-    private transient int searchContextLength;
-
-    private transient int parametersLength;
-
-
     /**
      * TODO: Add more length variables.
      */

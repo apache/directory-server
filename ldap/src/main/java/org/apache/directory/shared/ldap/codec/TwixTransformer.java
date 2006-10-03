@@ -66,8 +66,6 @@ import org.apache.directory.shared.ldap.codec.search.SearchResultReference;
 import org.apache.directory.shared.ldap.codec.search.SubstringFilter;
 import org.apache.directory.shared.ldap.codec.search.controls.PSearchControl;
 import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControl;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
-import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.filter.AbstractExprNode;
@@ -109,7 +107,6 @@ import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest;
-import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
 import org.slf4j.Logger;
@@ -137,8 +134,7 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Creates a passthrough transformer that really does nothing at all.
      * 
-     * @param provider
-     *            the povider for this transformer
+     * @param provider the provider for this transformer
      */
     public TwixTransformer(Provider provider)
     {
@@ -161,10 +157,8 @@ public class TwixTransformer implements TransformerSpi
      * Transform an AbandonRequest message from a TwixMessage to a
      * SnickersMessage
      * 
-     * @param twixMessage
-     *            The message to transform
-     * @param messageId
-     *            The message Id
+     * @param twixMessage The message to transform
+     * @param messageId The message Id
      * @return A Snickers AbandonRequestImpl
      */
     private Message transformAbandonRequest( LdapMessage twixMessage, int messageId )
@@ -182,10 +176,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform an AddRequest message from a TwixMessage to a SnickersMessage
      * 
-     * @param twixMessage
-     *            The message to transform
-     * @param messageId
-     *            The message Id
+     * @param twixMessage The message to transform
+     * @param messageId The message Id
      * @return A Snickers AddRequestImpl
      */
     private Message transformAddRequest( LdapMessage twixMessage, int messageId )
@@ -206,10 +198,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a BindRequest message from a TwixMessage to a SnickersMessage
      * 
-     * @param twixMessage
-     *            The message to transform
-     * @param messageId
-     *            The message Id
+     * @param twixMessage The message to transform
+     * @param messageId The message Id
      * @return A Snickers BindRequestImpl
      */
     private Message transformBindRequest( LdapMessage twixMessage, int messageId )
@@ -249,10 +239,8 @@ public class TwixTransformer implements TransformerSpi
      * Transform a CompareRequest message from a TwixMessage to a
      * SnickersMessage
      * 
-     * @param twixMessage
-     *            The message to transform
-     * @param messageId
-     *            The message Id
+     * @param twixMessage The message to transform
+     * @param messageId The message Id
      * @return A Snickers CompareRequestImpl
      */
     private Message transformCompareRequest( LdapMessage twixMessage, int messageId )
@@ -283,10 +271,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a DelRequest message from a TwixMessage to a SnickersMessage
      * 
-     * @param twixMessage
-     *            The message to transform
-     * @param messageId
-     *            The message Id
+     * @param twixMessage The message to transform
+     * @param messageId The message Id
      * @return A Snickers DeleteRequestImpl
      */
     private Message transformDelRequest( LdapMessage twixMessage, int messageId )
@@ -305,10 +291,8 @@ public class TwixTransformer implements TransformerSpi
      * Transform an ExtendedRequest message from a TwixMessage to a
      * SnickersMessage
      * 
-     * @param twixMessage
-     *            The message to transform
-     * @param messageId
-     *            The message Id
+     * @param twixMessage The message to transform
+     * @param messageId The message Id
      * @return A Snickers ExtendedRequestImpl
      */
     private Message transformExtendedRequest( LdapMessage twixMessage, int messageId )
@@ -319,10 +303,6 @@ public class TwixTransformer implements TransformerSpi
         if ( extendedRequest.getRequestName().equals( GracefulShutdownRequest.EXTENSION_OID ) )
         {
             snickersMessage = new GracefulShutdownRequest( messageId );
-        }
-        else if ( extendedRequest.getRequestName().equals( StoredProcedureRequest.EXTENSION_OID ) )
-        {
-            snickersMessage = new StoredProcedureRequest( messageId );
         }
         else
         {
@@ -343,10 +323,8 @@ public class TwixTransformer implements TransformerSpi
      * Transform a ModifyDNRequest message from a TwixMessage to a
      * SnickersMessage
      * 
-     * @param twixMessage
-     *            The message to transform
-     * @param messageId
-     *            The message Id
+     * @param twixMessage The message to transform
+     * @param messageId The message Id
      * @return A Snickers ModifyDNRequestImpl
      */
     private Message transformModifyDNRequest( LdapMessage twixMessage, int messageId )
@@ -373,10 +351,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a ModifyRequest message from a TwixMessage to a SnickersMessage
      * 
-     * @param twixMessage
-     *            The message to transform
-     * @param messageId
-     *            The message Id
+     * @param twixMessage The message to transform
+     * @param messageId The message Id
      * @return A Snickers ModifyRequestImpl
      */
     private Message transformModifyRequest( LdapMessage twixMessage, int messageId )
@@ -406,8 +382,7 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform the Filter part of a SearchRequest to en ExprNode
      * 
-     * @param twixFilter
-     *            The filter to be transformed
+     * @param twixFilter The filter to be transformed
      * @return An ExprNode
      */
     private ExprNode transformFilter( Filter twixFilter )
@@ -476,7 +451,7 @@ public class TwixTransformer implements TransformerSpi
                                     (byte[])ava.getAssertionValue(), 
                                     AbstractExprNode.EQUALITY );
                             }
-
+                            
                             break;
 
                         case LdapConstants.GREATER_OR_EQUAL_FILTER:
@@ -610,10 +585,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a SearchRequest message from a TwixMessage to a SnickersMessage
      * 
-     * @param twixMessage
-     *            The message to transform
-     * @param messageId
-     *            The message Id
+     * @param twixMessage The message to transform
+     * @param messageId The message Id
      * @return A Snickers SearchRequestImpl
      */
     private Message transformSearchRequest( LdapMessage twixMessage, int messageId )
@@ -701,10 +674,8 @@ public class TwixTransformer implements TransformerSpi
      * Transform an UnBindRequest message from a TwixMessage to a
      * SnickersMessage
      * 
-     * @param twixMessage
-     *            The message to transform
-     * @param messageId
-     *            The message Id
+     * @param twixMessage The message to transform
+     * @param messageId The message Id
      * @return A Snickers UnBindRequestImpl
      */
     private Message transformUnBindRequest( LdapMessage twixMessage, int messageId )
@@ -716,8 +687,7 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform the Twix message to a codec neutral message.
      * 
-     * @param obj
-     *            the object to transform
+     * @param obj the object to transform
      * @return the object transformed
      */
     public Message transform( Object obj )
@@ -890,8 +860,7 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a Ldapresult part of a Snickers Response to a Twix LdapResult
      * 
-     * @param snickersLdapResult
-     *            The Snickers LdapResult to transform
+     * @param snickersLdapResult The Snickers LdapResult to transform
      * @return A Twix LdapResult
      */
     private LdapResult transformLdapResult( LdapResultImpl snickersLdapResult )
@@ -902,24 +871,15 @@ public class TwixTransformer implements TransformerSpi
         twixLdapResult.setResultCode( snickersLdapResult.getResultCode().getValue() );
 
         // Snickers : String errorMessage -> Twix : LdapString errorMessage
-        try
-        {
-            String errorMessage = snickersLdapResult.getErrorMessage();
+        String errorMessage = snickersLdapResult.getErrorMessage();
 
-            if ( ( errorMessage == null ) || ( errorMessage.length() == 0 ) )
-            {
-                twixLdapResult.setErrorMessage( LdapString.EMPTY_STRING );
-            }
-            else
-            {
-                twixLdapResult.setErrorMessage( new LdapString( snickersLdapResult.getErrorMessage().getBytes() ) );
-            }
-        }
-        catch ( LdapStringEncodingException lsee )
+        if ( ( errorMessage == null ) || ( errorMessage.length() == 0 ) )
         {
-            log.warn( "The error message " + snickersLdapResult.getErrorMessage() + " is invalid : "
-                + lsee.getMessage() );
-            twixLdapResult.setErrorMessage( LdapString.EMPTY_STRING );
+            twixLdapResult.setErrorMessage( "" );
+        }
+        else
+        {
+            twixLdapResult.setErrorMessage( new String( snickersLdapResult.getErrorMessage().getBytes() ) );
         }
 
         // Snickers : String matchedDn -> Twix : LdapDN matchedDN
@@ -931,6 +891,7 @@ public class TwixTransformer implements TransformerSpi
         if ( snisckersReferrals != null )
         {
             Iterator referrals = snisckersReferrals.getLdapUrls().iterator();
+            twixLdapResult.initReferrals();
 
             while ( referrals.hasNext() )
             {
@@ -956,10 +917,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a Snickers AddResponse to a Twix AddResponse
      * 
-     * @param twixMessage
-     *            The Twix AddResponse to produce
-     * @param snickersMessage
-     *            The incoming Snickers AddResponse
+     * @param twixMessage The Twix AddResponse to produce
+     * @param snickersMessage The incoming Snickers AddResponse
      */
     private void transformAddResponse( LdapMessage twixMessage, Message snickersMessage )
     {
@@ -978,10 +937,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a Snickers BindResponse to a Twix BindResponse
      * 
-     * @param twixMessage
-     *            The Twix BindResponse to produce
-     * @param snickersMessage
-     *            The incoming Snickers BindResponse
+     * @param twixMessage The Twix BindResponse to produce
+     * @param snickersMessage The incoming Snickers BindResponse
      */
     private void transformBindResponse( LdapMessage twixMessage, Message snickersMessage )
     {
@@ -1009,10 +966,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a Snickers CompareResponse to a Twix CompareResponse
      * 
-     * @param twixMessage
-     *            The Twix CompareResponse to produce
-     * @param snickersMessage
-     *            The incoming Snickers CompareResponse
+     * @param twixMessage The Twix CompareResponse to produce
+     * @param snickersMessage The incoming Snickers CompareResponse
      */
     private void transformCompareResponse( LdapMessage twixMessage, Message snickersMessage )
     {
@@ -1032,10 +987,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a Snickers DelResponse to a Twix DelResponse
      * 
-     * @param twixMessage
-     *            The Twix DelResponse to produce
-     * @param snickersMessage
-     *            The incoming Snickers DelResponse
+     * @param twixMessage The Twix DelResponse to produce
+     * @param snickersMessage The incoming Snickers DelResponse
      */
     private void transformDelResponse( LdapMessage twixMessage, Message snickersMessage )
     {
@@ -1054,10 +1007,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a Snickers ExtendedResponse to a Twix ExtendedResponse
      * 
-     * @param twixMessage
-     *            The Twix ExtendedResponse to produce
-     * @param snickersMessage
-     *            The incoming Snickers ExtendedResponse
+     * @param twixMessage The Twix ExtendedResponse to produce
+     * @param snickersMessage The incoming Snickers ExtendedResponse
      */
     private void transformExtendedResponse( LdapMessage twixMessage, Message snickersMessage )
     {
@@ -1090,10 +1041,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a Snickers ModifyResponse to a Twix ModifyResponse
      * 
-     * @param twixMessage
-     *            The Twix ModifyResponse to produce
-     * @param snickersMessage
-     *            The incoming Snickers ModifyResponse
+     * @param twixMessage The Twix ModifyResponse to produce
+     * @param snickersMessage The incoming Snickers ModifyResponse
      */
     private void transformModifyResponse( LdapMessage twixMessage, Message snickersMessage )
     {
@@ -1112,10 +1061,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a Snickers ModifyDNResponse to a Twix ModifyDNResponse
      * 
-     * @param twixMessage
-     *            The Twix ModifyDNResponse to produce
-     * @param snickersMessage
-     *            The incoming Snickers ModifyDNResponse
+     * @param twixMessage The Twix ModifyDNResponse to produce
+     * @param snickersMessage The incoming Snickers ModifyDNResponse
      */
     private void transformModifyDNResponse( LdapMessage twixMessage, Message snickersMessage )
     {
@@ -1135,10 +1082,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a Snickers SearchResponseDone to a Twix SearchResultDone
      * 
-     * @param twixMessage
-     *            The Twix SearchResultDone to produce
-     * @param snickersMessage
-     *            The incoming Snickers SearchResponseDone
+     * @param twixMessage The Twix SearchResultDone to produce
+     * @param snickersMessage The incoming Snickers SearchResponseDone
      */
     private void transformSearchResultDone( LdapMessage twixMessage, Message snickersMessage )
     {
@@ -1157,10 +1102,8 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a Snickers SearchResponseEntry to a Twix SearchResultEntry
      * 
-     * @param twixMessage
-     *            The Twix SearchResultEntry to produce
-     * @param snickersMessage
-     *            The incoming Snickers SearchResponseEntry
+     * @param twixMessage The Twix SearchResultEntry to produce
+     * @param snickersMessage The incoming Snickers SearchResponseEntry
      */
     private void transformSearchResultEntry( LdapMessage twixMessage, Message snickersMessage )
     {
@@ -1183,10 +1126,8 @@ public class TwixTransformer implements TransformerSpi
      * Transform a Snickers SearchResponseReference to a Twix
      * SearchResultReference
      * 
-     * @param twixMessage
-     *            The Twix SearchResultReference to produce
-     * @param snickersMessage
-     *            The incoming Snickers SearchResponseReference
+     * @param twixMessage The Twix SearchResultReference to produce
+     * @param snickersMessage The incoming Snickers SearchResponseReference
      */
     private void transformSearchResultReference( LdapMessage twixMessage, Message snickersMessage )
     {
@@ -1230,8 +1171,7 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform the Snickers message to a Twix message.
      * 
-     * @param msg
-     *            the message to transform
+     * @param msg the message to transform
      * @return the msg transformed
      */
     public Object transform( Message msg )
@@ -1300,8 +1240,12 @@ public class TwixTransformer implements TransformerSpi
         return twixMessage;
     }
 
-
-    private void transformControls( org.apache.directory.shared.ldap.codec.LdapMessage twixMessage, Message msg )
+    /**
+     * Transforms the controls
+     * @param twixMessage The Twix SearchResultReference to produce
+     * @param msg The incoming Snickers SearchResponseReference
+     */
+    private void transformControls( LdapMessage twixMessage, Message msg )
     {
         Iterator list = msg.getControls().values().iterator();
         while ( list.hasNext() )
@@ -1312,14 +1256,7 @@ public class TwixTransformer implements TransformerSpi
             twixControl.setCriticality( control.isCritical() );
             twixControl.setControlValue( control.getEncodedValue() );
             twixControl.setEncodedValue( control.getEncodedValue() );
-            try
-            {
-                twixControl.setControlType( new LdapString( Asn1StringUtils.getBytesUtf8( control.getID() ) ) );
-            }
-            catch ( LdapStringEncodingException e )
-            {
-                log.error( "failed to encode string for control id", e );
-            }
+            twixControl.setControlType( new String( Asn1StringUtils.getBytesUtf8( control.getID() ) ) );
             twixControl.setParent( twixMessage );
         }
     }

@@ -32,16 +32,10 @@ import org.apache.directory.shared.asn1.Asn1Object;
  */
 public abstract class Filter extends Asn1Object
 {
-    // ~ Constructors
-    // -------------------------------------------------------------------------------
-
     /**
      * The constructor.
      */
     public Filter()
     {
     }
-
-    // ~ Methods
-    // ------------------------------------------------------------------------------------
 }

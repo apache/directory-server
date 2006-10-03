@@ -23,7 +23,7 @@ package org.apache.directory.shared.ldap.codec.search;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.AttributeValueAssertion;
@@ -57,10 +57,9 @@ public class AttributeValueAssertionFilter extends Filter
     /**
      * The constructor.
      * 
-     * @param filterType
-     *            DOCUMENT ME!
+     * @param filterType The filter type
      */
-    public AttributeValueAssertionFilter(int filterType)
+    public AttributeValueAssertionFilter( int filterType )
     {
         this.filterType = filterType;
     }
@@ -83,8 +82,7 @@ public class AttributeValueAssertionFilter extends Filter
     /**
      * Set the assertion
      * 
-     * @param assertion
-     *            The assertion to set.
+     * @param assertion The assertion to set.
      */
     public void setAssertion( AttributeValueAssertion assertion )
     {
@@ -106,8 +104,7 @@ public class AttributeValueAssertionFilter extends Filter
     /**
      * Set the filter type
      * 
-     * @param filterType
-     *            The filterType to set.
+     * @param filterType The filterType to set.
      */
     public void setFilterType( int filterType )
     {
@@ -116,18 +113,31 @@ public class AttributeValueAssertionFilter extends Filter
 
 
     /**
-     * Compute the AttributeValueFilter length AttributeValueFilter : 0xA(3, 5,
-     * 6, 8) L1 | +--> 0x04 L2 attributeDesc +--> 0x04 L3 assertionValue L2 =
-     * Length(attributeDesc) L3 = Length(assertionValue) L1 = 1 + Length(L2) +
-     * L2 + 1 + Length(L3) + L3 Length(AttributeValueFilter) = Length(0xA?) +
-     * Length(L1) + 1 + Length(L2) + L2 + 1 + Length(L3) + L3
+     * Compute the AttributeValueFilter length
+     * 
+     * AttributeValueFilter :
+     * 
+     * 0xA(3, 5, 6, 8) L1
+     *  |
+     *  +--> 0x04 L2 attributeDesc
+     *  +--> 0x04 L3 assertionValue
+     *  
+     * 
+     * L2 = Length(attributeDesc)
+     * L3 = Length(assertionValue)
+     * L1 = 1 + Length(L2) + L2 
+     *      + 1 + Length(L3) + L3
+     * 
+     * Length(AttributeValueFilter) = Length(0xA?) + Length(L1)
+     *                                + 1 + Length(L2) + L2 
+     *                                + 1 + Length(L3) + L3 
      */
     public int computeLength()
     {
         avaLength = 0;
         int attributeDescLength = assertion.getAttributeDesc().length();
 
-        avaLength = 1 + Length.getNbBytes( attributeDescLength ) + attributeDescLength;
+        avaLength = 1 + TLV.getNbBytes( attributeDescLength ) + attributeDescLength;
 
         Object assertionValue = assertion.getAssertionValue();
 
@@ -142,20 +152,27 @@ public class AttributeValueAssertionFilter extends Filter
             assertionValueLength = ( ( byte[] ) assertionValue ).length;
         }
 
-        avaLength += 1 + Length.getNbBytes( assertionValueLength ) + assertionValueLength;
+        avaLength += 1 + TLV.getNbBytes( assertionValueLength ) + assertionValueLength;
 
-        return 1 + Length.getNbBytes( avaLength ) + avaLength;
+        return 1 + TLV.getNbBytes( avaLength ) + avaLength;
     }
 
 
     /**
-     * Encode the AttributeValueAssertion Filters to a PDU. The following
-     * filters are to be encoded : - equality match - greater or equal - less or
-     * equal - approx match AttributeValueAssertion filters : 0xA[3, 5, 6, 8] LL
-     * 0x04 LL attributeDesc 0x04 LL assertionValue
+     * Encode the AttributeValueAssertion Filters to a PDU. The 
+     * following filters are to be encoded :
+     *  - equality match 
+     *  - greater or equal
+     *  - less or equal
+     *  - approx match 
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * AttributeValueAssertion filters :
+     * 
+     * 0xA[3, 5, 6, 8] LL 
+     * 0x04 LL attributeDesc
+     * 0x04 LL assertionValue
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -187,7 +204,7 @@ public class AttributeValueAssertionFilter extends Filter
                     break;
             }
 
-            buffer.put( Length.getBytes( avaLength ) );
+            buffer.put( TLV.getBytes( avaLength ) );
         }
         catch ( BufferOverflowException boe )
         {

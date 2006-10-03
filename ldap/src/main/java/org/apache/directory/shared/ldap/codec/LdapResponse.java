@@ -71,8 +71,7 @@ public class LdapResponse extends LdapMessage
     /**
      * Set the ldap result
      * 
-     * @param ldapResult
-     *            The ldapResult to set.
+     * @param ldapResult The ldapResult to set.
      */
     public void setLdapResult( LdapResult ldapResult )
     {
@@ -103,8 +102,7 @@ public class LdapResponse extends LdapMessage
     /**
      * Encode the AddResponse message to a PDU.
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException

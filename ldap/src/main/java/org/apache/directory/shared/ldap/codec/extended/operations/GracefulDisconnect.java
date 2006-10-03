@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -62,10 +62,8 @@ public class GracefulDisconnect extends GracefulAction
     /**
      * Create a GracefulDisconnect object, with a timeOffline and a delay
      * 
-     * @param timeOffline
-     *            The time the server will be offline
-     * @param delay
-     *            The delay before the disconnection
+     * @param timeOffline The time the server will be offline
+     * @param delay The delay before the disconnection
      */
     public GracefulDisconnect(int timeOffline, int delay)
     {
@@ -102,8 +100,7 @@ public class GracefulDisconnect extends GracefulAction
     /**
      * Add a new URL of a replicated server
      * 
-     * @param replicatedContext
-     *            The replictaed server to add.
+     * @param replicatedContext The replictaed server to add.
      */
     public void addReplicatedContexts( LdapURL replicatedContext )
     {
@@ -112,9 +109,15 @@ public class GracefulDisconnect extends GracefulAction
 
 
     /**
-     * Compute the GracefulDisconnect length 0x30 L1 | +--> [ 0x02 0x0(1-4)
-     * [0..720] ] +--> [ 0x80 0x0(1-3) [0..86400] ] +--> [ 0x30 L2 | +--> (0x04
-     * L3 value) +
+     * Compute the GracefulDisconnect length 
+     * 
+     * 0x30 L1 
+     *   | 
+     *   +--> [ 0x02 0x0(1-4) [0..720] ] 
+     *   +--> [ 0x80 0x0(1-3) [0..86400] ] 
+     *   +--> [ 0x30 L2 
+     *           | 
+     *           +--> (0x04 L3 value) + ]
      */
     public int computeLength()
     {
@@ -140,25 +143,23 @@ public class GracefulDisconnect extends GracefulAction
             while ( replicatedContextIterator.hasNext() )
             {
                 int ldapUrlLength = ( ( LdapURL ) replicatedContextIterator.next() ).getNbBytes();
-                replicatedContextsLength += 1 + Length.getNbBytes( ldapUrlLength ) + ldapUrlLength;
+                replicatedContextsLength += 1 + TLV.getNbBytes( ldapUrlLength ) + ldapUrlLength;
             }
 
-            gracefulDisconnectSequenceLength += 1 + Length.getNbBytes( replicatedContextsLength )
+            gracefulDisconnectSequenceLength += 1 + TLV.getNbBytes( replicatedContextsLength )
                 + replicatedContextsLength;
         }
 
-        return 1 + Length.getNbBytes( gracefulDisconnectSequenceLength ) + gracefulDisconnectSequenceLength;
+        return 1 + TLV.getNbBytes( gracefulDisconnectSequenceLength ) + gracefulDisconnectSequenceLength;
     }
 
 
     /**
      * Encodes the gracefulDisconnect extended operation.
      * 
-     * @param buffer
-     *            The encoded sink
+     * @param buffer The encoded sink
      * @return A ByteBuffer that contains the encoded PDU
-     * @throws EncoderException
-     *             If anything goes wrong.
+     * @throws EncoderException If anything goes wrong.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
@@ -166,7 +167,7 @@ public class GracefulDisconnect extends GracefulAction
         ByteBuffer bb = ByteBuffer.allocate( computeLength() );
 
         bb.put( UniversalTag.SEQUENCE_TAG );
-        bb.put( Length.getBytes( gracefulDisconnectSequenceLength ) );
+        bb.put( TLV.getBytes( gracefulDisconnectSequenceLength ) );
 
         if ( timeOffline != 0 )
         {
@@ -176,14 +177,14 @@ public class GracefulDisconnect extends GracefulAction
         if ( delay != 0 )
         {
             bb.put( ( byte ) GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG );
-            bb.put( ( byte ) Length.getNbBytes( delay ) );
+            bb.put( ( byte ) TLV.getNbBytes( delay ) );
             bb.put( Value.getBytes( delay ) );
         }
 
         if ( replicatedContexts.size() != 0 )
         {
             bb.put( UniversalTag.SEQUENCE_TAG );
-            bb.put( Length.getBytes( replicatedContextsLength ) );
+            bb.put( TLV.getBytes( replicatedContextsLength ) );
 
             Iterator replicatedContextIterator = replicatedContexts.iterator();
 

@@ -42,9 +42,9 @@ import org.slf4j.LoggerFactory;
  * 
  * <pre>
  *  GracefulShutdwon ::= SEQUENCE {
- *                         timeOffline INTEGER (0..720) DEFAULT 0,
- *                         delay [0] INTEGER (0..86400) DEFAULT 0
- *              }
+ *      timeOffline INTEGER (0..720) DEFAULT 0,
+ *      delay [0] INTEGER (0..86400) DEFAULT 0
+ *  }
  * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -73,19 +73,16 @@ public class GracefulShutdownGrammar extends AbstractGrammar implements IGrammar
         super.transitions = new GrammarTransition[GracefulShutdownStatesEnum.LAST_GRACEFUL_SHUTDOWN_STATE][256];
 
         /**
-         * GracefulShutdown ::= SEQUENCE { (Tag) ... Nothing to do...
+         * Transition from init state to graceful shutdown
+         * 
+         * GracefulShutdown ::= SEQUENCE {
+         *     ...
+         *     
+         * Creates the GracefulShutdown object
          */
-        super.transitions[GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_TAG,
-            GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_VALUE, null );
-
-        /**
-         * GracefulShutdown ::= SEQUENCE { (Tag) ... Creates the
-         * GracefulShutdown object
-         */
-        super.transitions[GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_VALUE,
-            GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG, new GrammarAction( "Init GracefulShutdown" )
+        super.transitions[GracefulShutdownStatesEnum.INIT_GRAMMAR_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( GracefulShutdownStatesEnum.INIT_GRAMMAR_STATE, GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_STATE, UniversalTag.SEQUENCE_TAG,
+                new GrammarAction( "Init GracefulShutdown" )
             {
                 public void action( IAsn1Container container )
                 {
@@ -97,28 +94,20 @@ public class GracefulShutdownGrammar extends AbstractGrammar implements IGrammar
             } );
 
         /**
-         * GracefulShutdown ::= SEQUENCE { timeOffline INTEGER (0..720) DEFAULT
-         * 0, (Tag) ... Nothing to do
-         */
-        super.transitions[GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG][UniversalTag.INTEGER_TAG] = new GrammarTransition(
-            GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG, GracefulShutdownStatesEnum.TIME_OFFLINE_VALUE,
-            null );
-
-        /**
-         * GracefulShutdown ::= SEQUENCE { ... delay [0] INTEGER (0..86400)
-         * DEFAULT 0, (Tag) ... We have no TimeOffline. Nothing to do.
-         */
-        super.transitions[GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] = new GrammarTransition(
-            GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG, GracefulShutdownStatesEnum.DELAY_VALUE, null );
-
-        /**
-         * GracefulShutdown ::= SEQUENCE { timeOffline INTEGER (0..720) DEFAULT
-         * 0, (Value) ... Set the time offline value into the GracefulShutdown
+         * Transition from graceful shutdown to time offline
+         *
+         * GracefulShutdown ::= SEQUENCE { 
+         *     timeOffline INTEGER (0..720) DEFAULT 0,
+         *     ...
+         *     
+         * Set the time offline value into the GracefulShutdown
          * object.
          */
-        super.transitions[GracefulShutdownStatesEnum.TIME_OFFLINE_VALUE][UniversalTag.INTEGER_TAG] = new GrammarTransition(
-            GracefulShutdownStatesEnum.TIME_OFFLINE_VALUE, GracefulShutdownStatesEnum.DELAY_OR_END_TAG,
-            new GrammarAction( "Set Graceful Shutdown time offline" )
+        super.transitions[GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_STATE][UniversalTag.INTEGER_TAG] = 
+            new GrammarTransition( GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_STATE, 
+                                    GracefulShutdownStatesEnum.TIME_OFFLINE_STATE, 
+                                    UniversalTag.INTEGER_TAG, 
+                new GrammarAction( "Set Graceful Shutdown time offline" )
             {
                 public void action( IAsn1Container container ) throws DecoderException
                 {
@@ -148,21 +137,65 @@ public class GracefulShutdownGrammar extends AbstractGrammar implements IGrammar
             } );
 
         /**
-         * GracefulShutdown ::= SEQUENCE { ... delay [0] INTEGER (0..86400)
-         * DEFAULT 0, (Tag) ... We have had a TimeOffline, and now we are
-         * reading the delay. Nothing to do.
-         */
-        super.transitions[GracefulShutdownStatesEnum.DELAY_OR_END_TAG][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] = new GrammarTransition(
-            GracefulShutdownStatesEnum.DELAY_OR_END_TAG, GracefulShutdownStatesEnum.DELAY_VALUE, null );
-
-        /**
-         * GracefulShutdown ::= SEQUENCE { ... delay [0] INTEGER (0..86400)
-         * DEFAULT 0, (Value) ... Set the delay value into the GracefulShutdown
+         * Transition from time offline to delay
+         * 
+         * GracefulShutdown ::= SEQUENCE { 
+         *     ... 
+         *     delay [0] INTEGER (0..86400) DEFAULT 0 }
+         * 
+         * Set the delay value into the GracefulShutdown
          * object.
          */
-        super.transitions[GracefulShutdownStatesEnum.DELAY_VALUE][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] = new GrammarTransition(
-            GracefulShutdownStatesEnum.DELAY_VALUE, GracefulShutdownStatesEnum.GRAMMAR_END, new GrammarAction(
-                "Set Graceful Shutdown Delay" )
+        super.transitions[GracefulShutdownStatesEnum.TIME_OFFLINE_STATE][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] = 
+            new GrammarTransition( GracefulShutdownStatesEnum.TIME_OFFLINE_STATE, 
+                                    GracefulShutdownStatesEnum.DELAY_STATE, 
+                                    GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG, 
+
+                new GrammarAction( "Set Graceful Shutdown Delay" )
+            {
+                public void action( IAsn1Container container ) throws DecoderException
+                {
+                    GracefulShutdownContainer gracefulShutdownContainer = ( GracefulShutdownContainer ) container;
+                    Value value = gracefulShutdownContainer.getCurrentTLV().getValue();
+
+                    try
+                    {
+                        int delay = IntegerDecoder.parse( value, 0, 86400 );
+
+                        if ( IS_DEBUG )
+                        {
+                            log.debug( "Delay = " + delay );
+                        }
+
+                        gracefulShutdownContainer.getGracefulShutdown().setDelay( delay );
+                        gracefulShutdownContainer.grammarEndAllowed( true );
+                    }
+                    catch ( IntegerDecoderException e )
+                    {
+                        String msg = "failed to decode the delay, the value should be between 0 and 86400 seconds, it is '"
+                            + StringTools.dumpBytes( value.getData() ) + "'";
+                        log.error( msg );
+                        throw new DecoderException( msg );
+                    }
+                }
+            } );
+        
+        /**
+         * Transition from graceful shutdown to delay
+         * 
+         * GracefulShutdown ::= SEQUENCE { 
+         *     ... 
+         *     delay [0] INTEGER (0..86400) DEFAULT 0 }
+         * 
+         * Set the delay value into the GracefulShutdown
+         * object.
+         */
+        super.transitions[GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_STATE][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] = 
+            new GrammarTransition( GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_STATE, 
+                                    GracefulShutdownStatesEnum.DELAY_STATE, 
+                                    GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG, 
+
+                new GrammarAction( "Set Graceful Shutdown Delay" )
             {
                 public void action( IAsn1Container container ) throws DecoderException
                 {

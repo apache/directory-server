@@ -110,15 +110,15 @@ public class LdapConstants
 
     public static final int EXTENDED_REQUEST_VALUE_TAG = 0x81;
 
-    public static final int SEARCH_MATCHING_RULE_TAG = 0x81;
+    public static final int MATCHING_RULE_ID_TAG = 0x81;
 
     public static final int SUBSTRINGS_FILTER_ANY_TAG = 0x81;
 
-    public static final int MATCHING_RULE_ASSERTION_TYPE_TAG = 0x82;
+    public static final int MATCHING_RULE_TYPE_TAG = 0x82;
 
     public static final int SUBSTRINGS_FILTER_FINAL_TAG = 0x82;
 
-    public static final int SEARCH_MATCH_VALUE_TAG = 0x83;
+    public static final int MATCH_VALUE_TAG = 0x83;
 
     public static final int DN_ATTRIBUTES_FILTER_TAG = 0x84;
 

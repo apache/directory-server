@@ -23,15 +23,18 @@ package org.apache.directory.shared.ldap.codec.search;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapResponse;
 
 
 /**
- * A SearchResultDone Message. Its syntax is : SearchResultDone ::= [APPLICATION
- * 5] LDAPResult It's a Response, so it inherites from LdapResponse.
+ * A SearchResultDone Message. Its syntax is : 
+ * 
+ * SearchResultDone ::= [APPLICATION 5] 
+ * 
+ * LDAPResult It's a Response, so it inherites from LdapResponse.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -61,23 +64,28 @@ public class SearchResultDone extends LdapResponse
 
 
     /**
-     * Compute the SearchResultDone length SearchResultDone : 0x65 L1 | +-->
-     * LdapResult L1 = Length(LdapResult) Length(SearchResultDone) =
-     * Length(0x65) + Length(L1) + L1
+     * Compute the SearchResultDone length 
+     * 
+     * SearchResultDone : 
+     * 0x65 L1 
+     *   | 
+     *   +--> LdapResult 
+     *   
+     * L1 = Length(LdapResult) 
+     * Length(SearchResultDone) = Length(0x65) + Length(L1) + L1
      */
     public int computeLength()
     {
         int ldapResponseLength = super.computeLength();
 
-        return 1 + Length.getNbBytes( ldapResponseLength ) + ldapResponseLength;
+        return 1 + TLV.getNbBytes( ldapResponseLength ) + ldapResponseLength;
     }
 
 
     /**
      * Encode the SearchResultDone message to a PDU.
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -91,7 +99,7 @@ public class SearchResultDone extends LdapResponse
         {
             // The tag
             buffer.put( LdapConstants.SEARCH_RESULT_DONE_TAG );
-            buffer.put( Length.getBytes( getLdapResponseLength() ) );
+            buffer.put( TLV.getBytes( getLdapResponseLength() ) );
         }
         catch ( BufferOverflowException boe )
         {

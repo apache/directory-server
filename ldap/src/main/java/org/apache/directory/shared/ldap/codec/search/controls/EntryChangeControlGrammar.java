@@ -68,23 +68,17 @@ public class EntryChangeControlGrammar extends AbstractGrammar implements IGramm
         super.transitions = new GrammarTransition[EntryChangeControlStatesEnum.LAST_EC_STATE][256];
 
         // ============================================================================================
-        // Entry Change Control
+        // Transition from start state to Entry Change sequence
         // ============================================================================================
-        // EntryChangeNotification ::= SEQUENCE { (Tag)
-        // ...
-        // Nothing to do
-        super.transitions[EntryChangeControlStatesEnum.EC_SEQUENCE_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            EntryChangeControlStatesEnum.EC_SEQUENCE_TAG, EntryChangeControlStatesEnum.EC_SEQUENCE_VALUE, null );
-
-        // ============================================================================================
-        // Entry Change Control
-        // ============================================================================================
-        // EntryChangeNotification ::= SEQUENCE { (Value)
-        // ...
+        // EntryChangeNotification ::= SEQUENCE {
+        //     ...
+        //
         // Initialization of the structure
-        super.transitions[EntryChangeControlStatesEnum.EC_SEQUENCE_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            EntryChangeControlStatesEnum.EC_SEQUENCE_VALUE, EntryChangeControlStatesEnum.CHANGE_TYPE_TAG,
-            new GrammarAction( "Init EntryChangeControl" )
+        super.transitions[EntryChangeControlStatesEnum.START_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( EntryChangeControlStatesEnum.START_STATE, 
+                                    EntryChangeControlStatesEnum.EC_SEQUENCE_STATE, 
+                                    UniversalTag.SEQUENCE_TAG,
+                new GrammarAction( "Init EntryChangeControl" )
             {
                 public void action( IAsn1Container container )
                 {
@@ -95,27 +89,18 @@ public class EntryChangeControlGrammar extends AbstractGrammar implements IGramm
             } );
 
         // ============================================================================================
-        // Change Type
+        // transition from Entry Change sequence to Change Type
         // ============================================================================================
         // EntryChangeNotification ::= SEQUENCE {
-        // changeType ENUMERATED { (Tag) },
-        // ...
-        //
-        // Nothing to do
-        super.transitions[EntryChangeControlStatesEnum.CHANGE_TYPE_TAG][UniversalTag.ENUMERATED_TAG] = new GrammarTransition(
-            EntryChangeControlStatesEnum.CHANGE_TYPE_TAG, EntryChangeControlStatesEnum.CHANGE_TYPE_VALUE, null );
-
-        // ============================================================================================
-        // Change Type
-        // ============================================================================================
-        // EntryChangeNotification ::= SEQUENCE {
-        // changeType ENUMERATED { (Value) },
-        // ...
+        //     changeType ENUMERATED {
+        //     ...
         //
         // Evaluates the changeType
-
-        // Action associated with the ChangeType transition
-        GrammarAction setChangeTypeAction = new GrammarAction( "Set EntryChangeControl changeType" )
+        super.transitions[EntryChangeControlStatesEnum.EC_SEQUENCE_STATE][UniversalTag.ENUMERATED_TAG] = 
+            new GrammarTransition( EntryChangeControlStatesEnum.EC_SEQUENCE_STATE,
+                                    EntryChangeControlStatesEnum.CHANGE_TYPE_STATE, 
+                                    UniversalTag.ENUMERATED_TAG,
+            new GrammarAction( "Set EntryChangeControl changeType" )
         {
             public void action( IAsn1Container container ) throws DecoderException
             {
@@ -158,39 +143,23 @@ public class EntryChangeControlGrammar extends AbstractGrammar implements IGramm
                     throw new DecoderException( msg );
                 }
             }
-        };
-
-        // ChangeType Transition
-        super.transitions[EntryChangeControlStatesEnum.CHANGE_TYPE_VALUE][UniversalTag.ENUMERATED_TAG] = new GrammarTransition(
-            EntryChangeControlStatesEnum.CHANGE_TYPE_VALUE,
-            EntryChangeControlStatesEnum.CHANGE_NUMBER_OR_PREVIOUS_DN_TAG, setChangeTypeAction );
+        } );
 
         // ============================================================================================
-        // Previous DN (We have a OCTET_STRING Tag)
+        // Transition from Change Type to Previous DN
         // ============================================================================================
         // EntryChangeNotification ::= SEQUENCE {
-        // ...
-        // previousDN LDAPDN OPTIONAL, (Tag)
-        // ...
-        //
-        // Nothing to do
-        super.transitions[EntryChangeControlStatesEnum.CHANGE_NUMBER_OR_PREVIOUS_DN_TAG][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-            EntryChangeControlStatesEnum.CHANGE_NUMBER_OR_PREVIOUS_DN_TAG,
-            EntryChangeControlStatesEnum.PREVIOUS_DN_VALUE, null );
-
-        // ============================================================================================
-        // Previous DN
-        // ============================================================================================
-        // EntryChangeNotification ::= SEQUENCE {
-        // ...
-        // previousDN LDAPDN OPTIONAL, (Value)
-        // ...
+        //     ...
+        //     previousDN LDAPDN OPTIONAL,
+        //     ...
         //
         // Set the previousDN into the structure. We first check that it's a
         // valid DN
-
-        // Action associated with the PreviousDN transition
-        GrammarAction setPreviousDnAction = new GrammarAction( "Set EntryChangeControl previousDN" )
+        super.transitions[EntryChangeControlStatesEnum.CHANGE_TYPE_STATE][UniversalTag.OCTET_STRING_TAG] = 
+            new GrammarTransition( EntryChangeControlStatesEnum.CHANGE_TYPE_STATE, 
+                                    EntryChangeControlStatesEnum.PREVIOUS_DN_STATE,
+                                    UniversalTag.OCTET_STRING_TAG,
+            new GrammarAction( "Set EntryChangeControl previousDN" )
         {
             public void action( IAsn1Container container ) throws DecoderException
             {
@@ -229,47 +198,7 @@ public class EntryChangeControlGrammar extends AbstractGrammar implements IGramm
                     entryChangeContainer.grammarEndAllowed( true );
                 }
             }
-        };
-
-        // PreviousDN transition
-        super.transitions[EntryChangeControlStatesEnum.PREVIOUS_DN_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-            EntryChangeControlStatesEnum.PREVIOUS_DN_VALUE, EntryChangeControlStatesEnum.CHANGE_NUMBER_TAG,
-            setPreviousDnAction );
-
-        // ============================================================================================
-        // Change Number from Change Type
-        // ============================================================================================
-        // EntryChangeNotification ::= SEQUENCE {
-        // ...
-        // changeNumber INTEGER OPTIONAL (Tag)
-        // }
-        //
-        // Nothing to do
-        super.transitions[EntryChangeControlStatesEnum.CHANGE_NUMBER_OR_PREVIOUS_DN_TAG][UniversalTag.INTEGER_TAG] = new GrammarTransition(
-            EntryChangeControlStatesEnum.CHANGE_NUMBER_OR_PREVIOUS_DN_TAG,
-            EntryChangeControlStatesEnum.CHANGE_NUMBER_VALUE, null );
-
-        // ============================================================================================
-        // Change Number from PreviousDN
-        // ============================================================================================
-        // EntryChangeNotification ::= SEQUENCE {
-        // ...
-        // changeNumber INTEGER OPTIONAL (Tag)
-        // }
-        //
-        // Nothing to do
-        super.transitions[EntryChangeControlStatesEnum.CHANGE_NUMBER_TAG][UniversalTag.INTEGER_TAG] = new GrammarTransition(
-            EntryChangeControlStatesEnum.CHANGE_NUMBER_TAG, EntryChangeControlStatesEnum.CHANGE_NUMBER_VALUE, null );
-
-        // ============================================================================================
-        // Change Number
-        // ============================================================================================
-        // EntryChangeNotification ::= SEQUENCE {
-        // ...
-        // changeNumber INTEGER OPTIONAL (Value)
-        // }
-        //
-        // Set the changeNumber into the structure
+        } );
 
         // Change Number action
         GrammarAction setChangeNumberAction = new GrammarAction( "Set EntryChangeControl changeNumber" )
@@ -302,10 +231,35 @@ public class EntryChangeControlGrammar extends AbstractGrammar implements IGramm
             }
         };
 
-        // Transition
-        super.transitions[EntryChangeControlStatesEnum.CHANGE_NUMBER_VALUE][UniversalTag.INTEGER_TAG] = new GrammarTransition(
-            EntryChangeControlStatesEnum.CHANGE_NUMBER_VALUE, EntryChangeControlStatesEnum.GRAMMAR_END,
-            setChangeNumberAction );
+        // ============================================================================================
+        // Transition from Previous DN to Change Number
+        // ============================================================================================
+        // EntryChangeNotification ::= SEQUENCE {
+        //     ...
+        //     changeNumber INTEGER OPTIONAL
+        // }
+        //
+        // Set the changeNumber into the structure
+        super.transitions[EntryChangeControlStatesEnum.PREVIOUS_DN_STATE][UniversalTag.INTEGER_TAG] = 
+            new GrammarTransition( EntryChangeControlStatesEnum.PREVIOUS_DN_STATE, 
+                                    EntryChangeControlStatesEnum.CHANGE_NUMBER_STATE, 
+                                    UniversalTag.INTEGER_TAG,
+                setChangeNumberAction );
+
+        // ============================================================================================
+        // Transition from Previous DN to Change Number
+        // ============================================================================================
+        // EntryChangeNotification ::= SEQUENCE {
+        //     ...
+        //     changeNumber INTEGER OPTIONAL
+        // }
+        //
+        // Set the changeNumber into the structure
+        super.transitions[EntryChangeControlStatesEnum.CHANGE_TYPE_STATE][UniversalTag.INTEGER_TAG] = 
+            new GrammarTransition( EntryChangeControlStatesEnum.CHANGE_TYPE_STATE, 
+                                    EntryChangeControlStatesEnum.CHANGE_NUMBER_STATE, 
+                                    UniversalTag.INTEGER_TAG,
+                setChangeNumberAction );
     }
 
 

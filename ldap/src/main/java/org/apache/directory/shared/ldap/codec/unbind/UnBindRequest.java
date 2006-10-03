@@ -29,8 +29,12 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 
 
 /**
- * A UnBindRequest ldapObject. Its syntax is : UnbindRequest ::= [APPLICATION 2]
- * NULL This ldapObject is empty.
+ * A UnBindRequest ldapObject. 
+ * 
+ * Its syntax is : 
+ * UnbindRequest ::= [APPLICATION 2] NULL 
+ * 
+ * This ldapObject is empty.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -66,7 +70,10 @@ public class UnBindRequest extends LdapMessage
 
 
     /**
-     * Compute the UnBindRequest length UnBindRequest : 0x42 00
+     * Compute the UnBindRequest length 
+     * 
+     * UnBindRequest : 
+     * 0x42 00
      */
     public int computeLength()
     {
@@ -77,8 +84,7 @@ public class UnBindRequest extends LdapMessage
     /**
      * Encode the UnbindRequest message to a PDU.
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException

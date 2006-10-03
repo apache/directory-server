@@ -67,30 +67,24 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
         //============================================================================================
         // StoredProcedure Message
         //============================================================================================
-        // StoredProcedure ::= SEQUENCE { (Tag)
+        // StoredProcedure ::= SEQUENCE {
         //   ...
         // Nothing to do.
-        super.transitions[StoredProcedureStatesEnum.STORED_PROCEDURE_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.STORED_PROCEDURE_TAG, StoredProcedureStatesEnum.STORED_PROCEDURE_VALUE, null );
-
-        // StoredProcedure ::= SEQUENCE { (Value)
-        //   ...
-        // Nothing to do.
-        super.transitions[StoredProcedureStatesEnum.STORED_PROCEDURE_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.STORED_PROCEDURE_VALUE, StoredProcedureStatesEnum.LANGUAGE_TAG, null );
+        super.transitions[StoredProcedureStatesEnum.START_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( StoredProcedureStatesEnum.START_STATE, 
+                                    StoredProcedureStatesEnum.STORED_PROCEDURE_STATE, 
+                                    UniversalTag.SEQUENCE_TAG, 
+                                    null );
 
         //    language OCTETSTRING, (Tag)
         //    ...
-        // Nothing to do
-        super.transitions[StoredProcedureStatesEnum.LANGUAGE_TAG][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.LANGUAGE_TAG, StoredProcedureStatesEnum.LANGUAGE_VALUE, null );
-
-        //    language OCTETSTRING, (Value)
-        //    ...
-        // Store the language.
-        super.transitions[StoredProcedureStatesEnum.LANGUAGE_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.LANGUAGE_VALUE, StoredProcedureStatesEnum.PROCEDURE_TAG, new GrammarAction(
-                "Stores the language" )
+        //
+        // Creates the storeProcedure and stores the language
+        super.transitions[StoredProcedureStatesEnum.STORED_PROCEDURE_STATE][UniversalTag.OCTET_STRING_TAG] = 
+            new GrammarTransition( StoredProcedureStatesEnum.STORED_PROCEDURE_STATE, 
+                                    StoredProcedureStatesEnum.LANGUAGE_STATE, 
+                                    UniversalTag.OCTET_STRING_TAG,
+                new GrammarAction( "Stores the language" )
             {
                 public void action( IAsn1Container container ) throws DecoderException
                 {
@@ -102,7 +96,7 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
                     StoredProcedure storedProcedure = null;
 
                     // Store the value.
-                    if ( tlv.getLength().getLength() == 0 )
+                    if ( tlv.getLength() == 0 )
                     {
                         // We can't have a void language !
                         log.error( "The stored procedure language is null" );
@@ -125,17 +119,14 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
                 }
             } );
 
-        //    procedure OCTETSTRING, (Tag)
-        //    ...
-        // Nothing to do
-        super.transitions[StoredProcedureStatesEnum.PROCEDURE_TAG][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.PROCEDURE_TAG, StoredProcedureStatesEnum.PROCEDURE_VALUE, null );
-
         //    procedure OCTETSTRING, (Value)
         //    ...
-        // Store the procedure.
-        super.transitions[StoredProcedureStatesEnum.PROCEDURE_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.PROCEDURE_VALUE, StoredProcedureStatesEnum.PARAMETERS_TAG, new GrammarAction(
+        // Stores the procedure.
+        super.transitions[StoredProcedureStatesEnum.LANGUAGE_STATE][UniversalTag.OCTET_STRING_TAG] = 
+            new GrammarTransition( StoredProcedureStatesEnum.LANGUAGE_STATE, 
+                                    StoredProcedureStatesEnum.PROCEDURE_STATE, 
+                                    UniversalTag.OCTET_STRING_TAG,
+                new GrammarAction(
                 "Stores the procedure" )
             {
                 public void action( IAsn1Container container ) throws DecoderException
@@ -148,7 +139,7 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
                     StoredProcedure storedProcedure = storedProcedureContainer.getStoredProcedure();
 
                     // Store the value.
-                    if ( tlv.getLength().getLength() == 0 )
+                    if ( tlv.getLength() == 0 )
                     {
                         // We can't have a void procedure !
                         log.error( "The procedure can't be null" );
@@ -168,17 +159,15 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
                 }
             } );
 
-        // parameters SEQUENCE OF Parameter { (Tag)
-        //    ...
-        // Nothing to do
-        super.transitions[StoredProcedureStatesEnum.PARAMETERS_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.PARAMETERS_TAG, StoredProcedureStatesEnum.PARAMETERS_VALUE, null );
-
         // parameters SEQUENCE OF Parameter { (Value)
         //    ...
-        // Nothing to do. The list of parameters will be created with the first parameter.
-        super.transitions[StoredProcedureStatesEnum.PARAMETERS_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.PARAMETERS_VALUE, StoredProcedureStatesEnum.PARAMETER_TAG, new GrammarAction(
+        // The list of parameters will be created with the first parameter.
+        // We can have an empty list of parameters, so the PDU can be empty
+        super.transitions[StoredProcedureStatesEnum.PROCEDURE_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( StoredProcedureStatesEnum.PROCEDURE_STATE, 
+                                    StoredProcedureStatesEnum.PARAMETERS_STATE, 
+                                    UniversalTag.SEQUENCE_TAG, 
+            new GrammarAction(
                 "Stores the parameters" )
             {
                 public void action( IAsn1Container container ) throws DecoderException
@@ -188,34 +177,25 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
                 }
             } );
         
-        
-
-        // parameter SEQUENCE OF  { (Tag)
-        //    ...
-        // Nothing to do
-        super.transitions[StoredProcedureStatesEnum.PARAMETER_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.PARAMETER_TAG, StoredProcedureStatesEnum.PARAMETER_VALUE, null );
-
         // parameter SEQUENCE OF { (Value)
         //    ...
         // Nothing to do. 
-        super.transitions[StoredProcedureStatesEnum.PARAMETER_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.PARAMETER_VALUE, StoredProcedureStatesEnum.PARAMETER_TYPE_TAG, null );
-
-        // Parameter ::= {
-        //    type OCTETSTRING, (Tag)
-        //    ...
-        // Nothing to do
-        super.transitions[StoredProcedureStatesEnum.PARAMETER_TYPE_TAG][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.PARAMETER_TYPE_TAG, StoredProcedureStatesEnum.PARAMETER_TYPE_VALUE, null );
+        super.transitions[StoredProcedureStatesEnum.PARAMETERS_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( StoredProcedureStatesEnum.PARAMETERS_STATE, 
+                                    StoredProcedureStatesEnum.PARAMETER_STATE, 
+                                    UniversalTag.SEQUENCE_TAG, 
+                                    null );
 
         // Parameter ::= {
         //    type OCTETSTRING, (Value)
         //    ...
+        //
         // We can create a parameter, and store its type
-        super.transitions[StoredProcedureStatesEnum.PARAMETER_TYPE_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.PARAMETER_TYPE_VALUE, StoredProcedureStatesEnum.PARAMETER_VALUE_TAG, new GrammarAction(
-                "Store parameter type" )
+        super.transitions[StoredProcedureStatesEnum.PARAMETER_STATE][UniversalTag.OCTET_STRING_TAG] = 
+            new GrammarTransition( StoredProcedureStatesEnum.PARAMETER_STATE, 
+                                    StoredProcedureStatesEnum.PARAMETER_TYPE_STATE, 
+                                    UniversalTag.OCTET_STRING_TAG,
+                new GrammarAction( "Store parameter type" )
             {
                 public void action( IAsn1Container container ) throws DecoderException
                 {
@@ -225,7 +205,7 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
                     StoredProcedure storedProcedure = storedProcedureContainer.getStoredProcedure();
 
                     // Store the value.
-                    if ( tlv.getLength().getLength() == 0 )
+                    if ( tlv.getLength() == 0 )
                     {
                         // We can't have a void parameter type !
                         log.error( "The parameter type can't be null" );
@@ -255,18 +235,12 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
         //    ...
         //    value OCTETSTRING (Tag)
         // }
-        // Nothing to do
-        super.transitions[StoredProcedureStatesEnum.PARAMETER_VALUE_TAG][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.PARAMETER_VALUE_TAG, StoredProcedureStatesEnum.PARAMETER_VALUE_VALUE, null );
-
-        // Parameter ::= {
-        //    ...
-        //    value OCTETSTRING (Tag)
-        // }
         // Store the parameter value
-        super.transitions[StoredProcedureStatesEnum.PARAMETER_VALUE_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-            StoredProcedureStatesEnum.PARAMETER_VALUE_VALUE, StoredProcedureStatesEnum.PARAMETER_TAG, new GrammarAction(
-                "Store parameter value" )
+        super.transitions[StoredProcedureStatesEnum.PARAMETER_TYPE_STATE][UniversalTag.OCTET_STRING_TAG] = 
+            new GrammarTransition( StoredProcedureStatesEnum.PARAMETER_TYPE_STATE, 
+                                    StoredProcedureStatesEnum.PARAMETER_VALUE_STATE, 
+                                    UniversalTag.OCTET_STRING_TAG,
+                new GrammarAction( "Store parameter value" )
             {
                 public void action( IAsn1Container container ) throws DecoderException
                 {
@@ -276,7 +250,7 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
                     StoredProcedure storedProcedure = storedProcedureContainer.getStoredProcedure();
 
                     // Store the value.
-                    if ( tlv.getLength().getLength() == 0 )
+                    if ( tlv.getLength() == 0 )
                     {
                         // We can't have a void parameter value !
                         log.error( "The parameter value can't be null" );
@@ -310,6 +284,15 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
                     container.grammarEndAllowed( true );
                 }
             } );
+        
+        // Parameters ::= SEQUENCE OF Parameter
+        // 
+        // Loop on next parameter
+        super.transitions[StoredProcedureStatesEnum.PARAMETER_VALUE_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( StoredProcedureStatesEnum.PARAMETER_VALUE_STATE, 
+                                    StoredProcedureStatesEnum.PARAMETER_STATE, 
+                                    UniversalTag.SEQUENCE_TAG,
+                                    null );
     }
 
 

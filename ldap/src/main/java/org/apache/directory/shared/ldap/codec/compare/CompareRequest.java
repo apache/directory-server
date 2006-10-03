@@ -23,22 +23,28 @@ package org.apache.directory.shared.ldap.codec.compare;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
-import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A CompareRequest Message. Its syntax is : CompareRequest ::= [APPLICATION 14]
- * SEQUENCE { entry LDAPDN, ava AttributeValueAssertion }
- * AttributeValueAssertion ::= SEQUENCE { attributeDesc AttributeDescription,
- * assertionValue AssertionValue } AttributeDescription ::= LDAPString
+ * A CompareRequest Message. Its syntax is :
+ * CompareRequest ::= [APPLICATION 14] SEQUENCE {
+ *              entry           LDAPDN,
+ *              ava             AttributeValueAssertion }
+ * 
+ * AttributeValueAssertion ::= SEQUENCE {
+ *              attributeDesc   AttributeDescription,
+ *              assertionValue  AssertionValue }
+ * 
+ * AttributeDescription ::= LDAPString
+ * 
  * AssertionValue ::= OCTET STRING
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -52,7 +58,7 @@ public class CompareRequest extends LdapMessage
     private LdapDN entry;
 
     /** The attribute to be compared */
-    private LdapString attributeDesc;
+    private String attributeDesc;
 
     /** The value to be compared */
     private Object assertionValue;
@@ -104,8 +110,7 @@ public class CompareRequest extends LdapMessage
     /**
      * Set the entry to be compared
      * 
-     * @param entry
-     *            The entry to set.
+     * @param entry The entry to set.
      */
     public void setEntry( LdapDN entry )
     {
@@ -127,8 +132,7 @@ public class CompareRequest extends LdapMessage
     /**
      * Set the assertion value
      * 
-     * @param assertionValue
-     *            The assertionValue to set.
+     * @param assertionValue The assertionValue to set.
      */
     public void setAssertionValue( Object assertionValue )
     {
@@ -143,64 +147,78 @@ public class CompareRequest extends LdapMessage
      */
     public String getAttributeDesc()
     {
-        return ( ( attributeDesc == null ) ? "" : attributeDesc.getString() );
+        return ( ( attributeDesc == null ) ? "" : attributeDesc );
     }
 
 
     /**
      * Set the attribute description
      * 
-     * @param attributeDesc
-     *            The attributeDesc to set.
+     * @param attributeDesc The attributeDesc to set.
      */
-    public void setAttributeDesc( LdapString attributeDesc )
+    public void setAttributeDesc( String attributeDesc )
     {
         this.attributeDesc = attributeDesc;
     }
 
 
     /**
-     * Compute the CompareRequest length CompareRequest : 0x6E L1 | +--> 0x04 L2
-     * entry +--> 0x30 L3 (ava) | +--> 0x04 L4 attributeDesc +--> 0x04 L5
-     * assertionValue L3 = Length(0x04) + Length(L4) + L4 + Length(0x04) +
-     * Length(L5) + L5 Length(CompareRequest) = Length(0x6E) + Length(L1) + L1 +
-     * Length(0x04) + Length(L2) + L2 + Length(0x30) + Length(L3) + L3
+     * Compute the CompareRequest length 
      * 
-     * @return DOCUMENT ME!
+     * CompareRequest : 
+     * 0x6E L1 
+     *   | 
+     *   +--> 0x04 L2 entry 
+     *   +--> 0x30 L3 (ava) 
+     *         | 
+     *         +--> 0x04 L4 attributeDesc 
+     *         +--> 0x04 L5 assertionValue 
+     *         
+     * L3 = Length(0x04) + Length(L4) + L4 + Length(0x04) +
+     *      Length(L5) + L5 
+     * Length(CompareRequest) = Length(0x6E) + Length(L1) + L1 +
+     *      Length(0x04) + Length(L2) + L2 + Length(0x30) + Length(L3) + L3
+     * 
+     * @return The CompareRequest PDU's length
      */
     public int computeLength()
     {
 
         // The entry
-        compareRequestLength = 1 + Length.getNbBytes( LdapDN.getNbBytes( entry ) ) + LdapDN.getNbBytes( entry );
+        compareRequestLength = 1 + TLV.getNbBytes( LdapDN.getNbBytes( entry ) ) + LdapDN.getNbBytes( entry );
 
         // The attribute value assertion
-        avaLength = 1 + Length.getNbBytes( attributeDesc.getNbBytes() ) + attributeDesc.getNbBytes();
+        int attributeDescLength = StringTools.getBytesUtf8( attributeDesc ).length;
+        avaLength = 1 + TLV.getNbBytes( attributeDescLength ) + attributeDescLength;
 
         if ( assertionValue instanceof String )
         {
             int assertionValueLength = StringTools.getBytesUtf8( ( String ) assertionValue ).length;
-            avaLength += 1 + Length.getNbBytes( assertionValueLength ) + assertionValueLength;
+            avaLength += 1 + TLV.getNbBytes( assertionValueLength ) + assertionValueLength;
         }
         else
         {
-            avaLength += 1 + Length.getNbBytes( ( ( byte[] ) assertionValue ).length )
+            avaLength += 1 + TLV.getNbBytes( ( ( byte[] ) assertionValue ).length )
                 + ( ( byte[] ) assertionValue ).length;
         }
 
-        compareRequestLength += 1 + Length.getNbBytes( avaLength ) + avaLength;
+        compareRequestLength += 1 + TLV.getNbBytes( avaLength ) + avaLength;
 
-        return 1 + Length.getNbBytes( compareRequestLength ) + compareRequestLength;
+        return 1 + TLV.getNbBytes( compareRequestLength ) + compareRequestLength;
     }
 
 
     /**
-     * Encode the CompareRequest message to a PDU. CompareRequest : 0x6E LL 0x04
-     * LL entry 0x30 LL attributeValueAssertion 0x04 LL attributeDesc 0x04 LL
-     * assertionValue
+     * Encode the CompareRequest message to a PDU. 
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * CompareRequest : 
+     *   0x6E LL 
+     *     0x04 LL entry 
+     *     0x30 LL attributeValueAssertion 
+     *       0x04 LL attributeDesc 
+     *       0x04 LL assertionValue
+     * 
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -214,14 +232,14 @@ public class CompareRequest extends LdapMessage
         {
             // The CompareRequest Tag
             buffer.put( LdapConstants.COMPARE_REQUEST_TAG );
-            buffer.put( Length.getBytes( compareRequestLength ) );
+            buffer.put( TLV.getBytes( compareRequestLength ) );
 
             // The entry
             Value.encode( buffer, LdapDN.getBytes( entry ) );
 
             // The attributeValueAssertion sequence Tag
             buffer.put( UniversalTag.SEQUENCE_TAG );
-            buffer.put( Length.getBytes( avaLength ) );
+            buffer.put( TLV.getBytes( avaLength ) );
         }
         catch ( BufferOverflowException boe )
         {
@@ -229,7 +247,7 @@ public class CompareRequest extends LdapMessage
         }
 
         // The attributeDesc
-        Value.encode( buffer, attributeDesc.getString() );
+        Value.encode( buffer, attributeDesc );
 
         // The assertionValue
         if ( assertionValue instanceof String )

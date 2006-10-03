@@ -20,13 +20,16 @@
 package org.apache.directory.shared.ldap.codec;
 
 
-import org.apache.directory.shared.ldap.codec.util.LdapString;
-
-
 /**
- * A class to store an attribute value assertion. Tha grammar is :
- * AttributeValueAssertion ::= SEQUENCE { attributeDesc AttributeDescription,
- * assertionValue AssertionValue } AttributeDescription ::= LDAPString
+ * A class to store an attribute value assertion. 
+ * The grammar is :
+ * 
+ * AttributeValueAssertion ::= SEQUENCE {
+ *           attributeDesc   AttributeDescription,
+ *           assertionValue  AssertionValue }
+ *
+ * AttributeDescription ::= LDAPString
+ * 
  * AssertionValue ::= OCTET STRING
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -37,7 +40,7 @@ public class AttributeValueAssertion
     // ----------------------------------------------------------------------------
 
     /** The attribute description */
-    private LdapString attributeDesc;
+    private String attributeDesc;
 
     /** The assertion value */
     private Object assertionValue;
@@ -60,8 +63,7 @@ public class AttributeValueAssertion
     /**
      * Set the assertion value
      * 
-     * @param assertionValue
-     *            The assertionValue to set.
+     * @param assertionValue The assertionValue to set.
      */
     public void setAssertionValue( Object assertionValue )
     {
@@ -76,17 +78,16 @@ public class AttributeValueAssertion
      */
     public String getAttributeDesc()
     {
-        return ( ( attributeDesc == null ) ? null : attributeDesc.getString() );
+        return attributeDesc;
     }
 
 
     /**
      * Set the attribute description
      * 
-     * @param attributeDesc
-     *            The attributeDesc to set.
+     * @param attributeDesc The attributeDesc to set.
      */
-    public void setAttributeDesc( LdapString attributeDesc )
+    public void setAttributeDesc( String attributeDesc )
     {
         this.attributeDesc = attributeDesc;
     }
@@ -95,8 +96,7 @@ public class AttributeValueAssertion
     /**
      * Get a String representation of an AttributeValueAssertion
      * 
-     * @param tabs
-     *            The spacing to be put before the string
+     * @param tabs The spacing to be put before the string
      * @return An AttributeValueAssertion String
      */
     public String toString( String tabs )
@@ -116,8 +116,7 @@ public class AttributeValueAssertion
      * Get a String representation of an AttributeValueAssertion, as of RFC
      * 2254.
      * 
-     * @param filterType
-     *            The filter type
+     * @param filterType The filter type
      * @return An AttributeValueAssertion String
      */
     public String toStringRFC2254( int filterType )
