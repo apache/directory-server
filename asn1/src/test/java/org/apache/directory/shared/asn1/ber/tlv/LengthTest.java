@@ -25,9 +25,6 @@ import java.util.Arrays;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
-
-
 /**
  * This class is used to test the Length class
  * 
@@ -41,17 +38,17 @@ public class LengthTest extends TestCase
      */
     public void testLengthGetNbBytes()
     {
-        Assert.assertEquals( 1, Length.getNbBytes( 0 ) );
-        Assert.assertEquals( 1, Length.getNbBytes( 1 ) );
-        Assert.assertEquals( 1, Length.getNbBytes( 127 ) );
-        Assert.assertEquals( 2, Length.getNbBytes( 128 ) );
-        Assert.assertEquals( 2, Length.getNbBytes( 255 ) );
-        Assert.assertEquals( 3, Length.getNbBytes( 256 ) );
-        Assert.assertEquals( 3, Length.getNbBytes( 65535 ) );
-        Assert.assertEquals( 4, Length.getNbBytes( 65536 ) );
-        Assert.assertEquals( 4, Length.getNbBytes( 16777215 ) );
-        Assert.assertEquals( 5, Length.getNbBytes( 16777216 ) );
-        Assert.assertEquals( 5, Length.getNbBytes( 0xFFFFFFFF ) );
+        Assert.assertEquals( 1, TLV.getNbBytes( 0 ) );
+        Assert.assertEquals( 1, TLV.getNbBytes( 1 ) );
+        Assert.assertEquals( 1, TLV.getNbBytes( 127 ) );
+        Assert.assertEquals( 2, TLV.getNbBytes( 128 ) );
+        Assert.assertEquals( 2, TLV.getNbBytes( 255 ) );
+        Assert.assertEquals( 3, TLV.getNbBytes( 256 ) );
+        Assert.assertEquals( 3, TLV.getNbBytes( 65535 ) );
+        Assert.assertEquals( 4, TLV.getNbBytes( 65536 ) );
+        Assert.assertEquals( 4, TLV.getNbBytes( 16777215 ) );
+        Assert.assertEquals( 5, TLV.getNbBytes( 16777216 ) );
+        Assert.assertEquals( 5, TLV.getNbBytes( 0xFFFFFFFF ) );
     }
 
 
@@ -61,26 +58,26 @@ public class LengthTest extends TestCase
     public void testLengthGetBytes()
     {
         assertTrue( Arrays.equals( new byte[]
-            { 0x01 }, Length.getBytes( 1 ) ) );
+            { 0x01 }, TLV.getBytes( 1 ) ) );
         assertTrue( Arrays.equals( new byte[]
-            { 0x7F }, Length.getBytes( 127 ) ) );
+            { 0x7F }, TLV.getBytes( 127 ) ) );
         assertTrue( Arrays.equals( new byte[]
-            { ( byte ) 0x81, ( byte ) 0x80 }, Length.getBytes( 128 ) ) );
+            { ( byte ) 0x81, ( byte ) 0x80 }, TLV.getBytes( 128 ) ) );
         assertTrue( Arrays.equals( new byte[]
-            { ( byte ) 0x81, ( byte ) 0xFF }, Length.getBytes( 255 ) ) );
+            { ( byte ) 0x81, ( byte ) 0xFF }, TLV.getBytes( 255 ) ) );
         assertTrue( Arrays.equals( new byte[]
-            { ( byte ) 0x82, 0x01, 0x00 }, Length.getBytes( 256 ) ) );
+            { ( byte ) 0x82, 0x01, 0x00 }, TLV.getBytes( 256 ) ) );
         assertTrue( Arrays.equals( new byte[]
-            { ( byte ) 0x82, ( byte ) 0xFF, ( byte ) 0xFF }, Length.getBytes( 65535 ) ) );
+            { ( byte ) 0x82, ( byte ) 0xFF, ( byte ) 0xFF }, TLV.getBytes( 65535 ) ) );
         assertTrue( Arrays.equals( new byte[]
-            { ( byte ) 0x83, 0x01, 0x00, 0x00 }, Length.getBytes( 65536 ) ) );
+            { ( byte ) 0x83, 0x01, 0x00, 0x00 }, TLV.getBytes( 65536 ) ) );
         assertTrue( Arrays.equals( new byte[]
-            { ( byte ) 0x83, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF }, Length.getBytes( 16777215 ) ) );
+            { ( byte ) 0x83, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF }, TLV.getBytes( 16777215 ) ) );
         assertTrue( Arrays.equals( new byte[]
-            { ( byte ) 0x84, 0x01, 0x00, 0x00, 0x00 }, Length.getBytes( 16777216 ) ) );
+            { ( byte ) 0x84, 0x01, 0x00, 0x00, 0x00 }, TLV.getBytes( 16777216 ) ) );
         assertTrue( Arrays
             .equals( new byte[]
-                { ( byte ) 0x84, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF }, Length
+                { ( byte ) 0x84, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF }, TLV
                 .getBytes( 0xFFFFFFFF ) ) );
     }
 }

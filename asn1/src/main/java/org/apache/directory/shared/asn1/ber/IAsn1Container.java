@@ -47,8 +47,7 @@ public interface IAsn1Container
     /**
      * Set the new current state
      * 
-     * @param state
-     *            The new state
+     * @param state The new state
      */
     void setState( int state );
 
@@ -56,8 +55,7 @@ public interface IAsn1Container
     /**
      * Set the current TLV
      * 
-     * @param tlv
-     *            The current TLV
+     * @param tlv The current TLV
      */
     public void setCurrentTLV( TLV tlv );
 
@@ -79,47 +77,6 @@ public interface IAsn1Container
 
 
     /**
-     * Add a new IGrammar to use
-     * 
-     * @param grammar
-     *            The grammar to add.
-     */
-    public void addGrammar( IGrammar grammar );
-
-
-    /**
-     * Switch to another grammar
-     * 
-     * @param grammar
-     *            The grammar to switch to.
-     */
-    public void switchGrammar( int currentState, int grammar );
-
-
-    /**
-     * restore the previous grammar (the one before a switch has occured)
-     * 
-     * @return Returns the previous state if any.
-     */
-    public int restoreGrammar();
-
-
-    /**
-     * @return Returns the currentGrammar.
-     */
-    public int getCurrentGrammar();
-
-
-    /**
-     * Set the first grammar to use
-     * 
-     * @param The
-     *            first grammar .
-     */
-    public void setInitGrammar( int grammar );
-
-
-    /**
      * Get the transition
      * 
      * @return Returns the transition from the previous state to the new state
@@ -130,17 +87,9 @@ public interface IAsn1Container
     /**
      * Update the transition from a state to another
      * 
-     * @param transition
-     *            The transition to set
+     * @param transition The transition to set
      */
     public void setTransition( int transition );
-
-
-    /**
-     * @return Returns the current Grammar type, or -1 if not found.
-     */
-    public int getCurrentGrammarType();
-
 
     /**
      * @return Returns the states.
@@ -157,8 +106,7 @@ public interface IAsn1Container
     /**
      * Set the parent TLV
      * 
-     * @param The
-     *            new parent TLV
+     * @param The new parent TLV
      */
     public void setParentTLV( TLV parentTLV );
 
@@ -174,27 +122,8 @@ public interface IAsn1Container
     /**
      * Set the flag to allow a end transition
      * 
-     * @param endAllowed
-     *            true or false, depending on the next transition being an end
-     *            or not.
+     * @param endAllowed true or false, depending on the next transition 
+     * being an end or not.
      */
     public void grammarEndAllowed( boolean grammarEndAllowed );
-
-
-    /**
-     * Check that we can have a pop state after this transition
-     * 
-     * @return true if we can pop the grammar
-     */
-    public boolean isGrammarPopAllowed();
-
-
-    /**
-     * Set the flag to allow a pop of the current grammar
-     * 
-     * @param popAllowed
-     *            true or false, depending on the next transition allows a pop
-     *            or not.
-     */
-    public void grammarPopAllowed( boolean grammarPopAllowed );
 }

@@ -34,17 +34,18 @@ public abstract class GrammarAction implements IAction
     /** The action's name */
     protected String name;
 
+    /** A default constructor */
+    public GrammarAction()
+    {
+    }
 
-    // ~ Constructors
-    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new GrammarAction object.
      * 
-     * @param name
-     *            The name of the create daction
+     * @param name The name of the create daction
      */
-    public GrammarAction(String name)
+    public GrammarAction( String name )
     {
         this.name = name;
     }

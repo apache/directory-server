@@ -20,7 +20,6 @@
 package org.apache.directory.shared.asn1.ber.tlv;
 
 
-import org.apache.directory.shared.asn1.ber.tlv.Length;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.primitives.OID;
@@ -108,8 +107,7 @@ public class Value implements Cloneable, Serializable
     /**
      * Initialize the Value
      * 
-     * @param size
-     *            The data size to allocate.
+     * @param size The data size to allocate.
      */
     public void init( int size )
     {
@@ -132,8 +130,7 @@ public class Value implements Cloneable, Serializable
      * Clone the Value
      * 
      * @return An object that is a copy of this Value
-     * @throws CloneNotSupportedException
-     *             Thrown when the cloning failed
+     * @throws CloneNotSupportedException Thrown when the cloning failed
      */
     public Object clone() throws CloneNotSupportedException
     {
@@ -156,8 +153,7 @@ public class Value implements Cloneable, Serializable
     /**
      * Set a block of bytes in the Value
      * 
-     * @param data
-     *            The data to set.
+     * @param data The data to set.
      */
     public void setData( ByteBuffer data )
     {
@@ -170,8 +166,7 @@ public class Value implements Cloneable, Serializable
     /**
      * Append some bytes to the data buffer.
      * 
-     * @param data
-     *            The data to append.
+     * @param data The data to append.
      */
     public void addData( ByteBuffer data )
     {
@@ -184,8 +179,7 @@ public class Value implements Cloneable, Serializable
     /**
      * Set a block of bytes in the Value
      * 
-     * @param data
-     *            The data to set.
+     * @param data The data to set.
      */
     public void setData( byte[] data )
     {
@@ -197,8 +191,7 @@ public class Value implements Cloneable, Serializable
     /**
      * Append some bytes to the data buffer.
      * 
-     * @param data
-     *            The data to append.
+     * @param data The data to append.
      */
     public void addData( byte[] data )
     {
@@ -221,10 +214,8 @@ public class Value implements Cloneable, Serializable
      * integer value. Note that this value must be in [Integer.MIN_VALUE,
      * Integer.MAX_VALUE].
      * 
-     * @param value
-     *            The value to store in a byte array
-     * @param sign
-     *            The integer value sign
+     * @param value The value to store in a byte array
+     * @param sign The integer value sign
      * @return The number of bytes necessary to store the value.
      */
     public static int getNbBytes( int value )
@@ -254,17 +245,20 @@ public class Value implements Cloneable, Serializable
 
     /**
      * Utility function that return a byte array representing the Value We must
-     * respect the ASN.1 BER encoding scheme : 1) positive integer - [0 - 0x7F] :
-     * 0xVV - [0x80 - 0xFF] : 0x00 0xVV - [0x0100 - 0x7FFF] : 0xVV 0xVV -
-     * [0x8000 - 0xFFFF] : 0x00 0xVV 0xVV - [0x010000 - 0x7FFFFF] : 0xVV 0xVV
-     * 0xVV - [0x800000 - 0xFFFFFF] : 0x00 0xVV 0xVV 0xVV - [0x01000000 -
-     * 0x7FFFFFFF] : 0xVV 0xVV 0xVV 0xVV - [0x80000000 - 0xFFFFFFFF] : 0x00 0xVV
-     * 0xVV 0xVV 0xVV 2) Negative number - (~value) + 1
+     * respect the ASN.1 BER encoding scheme : 
+     * 1) positive integer 
+     * - [0 - 0x7F] : 0xVV 
+     * - [0x80 - 0xFF] : 0x00 0xVV 
+     * - [0x0100 - 0x7FFF] : 0xVV 0xVV 
+     * - [0x8000 - 0xFFFF] : 0x00 0xVV 0xVV 
+     * - [0x010000 - 0x7FFFFF] : 0xVV 0xVV 0xVV 
+     * - [0x800000 - 0xFFFFFF] : 0x00 0xVV 0xVV 0xVV 
+     * - [0x01000000 - 0x7FFFFFFF] : 0xVV 0xVV 0xVV 0xVV 
+     * - [0x80000000 - 0xFFFFFFFF] : 0x00 0xVV 0xVV 0xVV 0xVV 
+     * 2) Negative number - (~value) + 1
      * 
-     * @param value
-     *            The value to store in a byte array
-     * @param sign
-     *            The value sign : positive or negative
+     * @param value The value to store in a byte array
+     * @param sign The value sign : positive or negative
      * @return The byte array representing the value.
      */
     public static byte[] getBytes( int value )
@@ -305,10 +299,8 @@ public class Value implements Cloneable, Serializable
     /**
      * Encode a String value
      * 
-     * @param buffer
-     *            The PDU in which the value will be put
-     * @param string
-     *            The String to be encoded. It is supposed to be UTF-8
+     * @param buffer The PDU in which the value will be put
+     * @param string The String to be encoded. It is supposed to be UTF-8
      */
     public static void encode( ByteBuffer buffer, String string ) throws EncoderException
     {
@@ -323,7 +315,7 @@ public class Value implements Cloneable, Serializable
 
             byte[] value = Asn1StringUtils.getBytesUtf8( string );
 
-            buffer.put( Length.getBytes( value.length ) );
+            buffer.put( TLV.getBytes( value.length ) );
 
             if ( value.length != 0 )
             {
@@ -342,10 +334,8 @@ public class Value implements Cloneable, Serializable
     /**
      * Encode an OctetString value
      * 
-     * @param buffer
-     *            The PDU in which the value will be put
-     * @param byte[]
-     *            The bytes to be encoded
+     * @param buffer The PDU in which the value will be put
+     * @param byte[] The bytes to be encoded
      */
     public static void encode( ByteBuffer buffer, byte[] bytes ) throws EncoderException
     {
@@ -364,7 +354,7 @@ public class Value implements Cloneable, Serializable
             }
             else
             {
-                buffer.put( Length.getBytes( bytes.length ) );
+                buffer.put( TLV.getBytes( bytes.length ) );
                 buffer.put( bytes );
             }
         }
@@ -380,10 +370,8 @@ public class Value implements Cloneable, Serializable
     /**
      * Encode an OID value
      * 
-     * @param buffer
-     *            The PDU in which the value will be put
-     * @param string
-     *            The OID to be encoded
+     * @param buffer The PDU in which the value will be put
+     * @param string The OID to be encoded
      */
     public static void encode( ByteBuffer buffer, OID oid ) throws EncoderException
     {
@@ -395,7 +383,7 @@ public class Value implements Cloneable, Serializable
         try
         {
             buffer.put( UniversalTag.OCTET_STRING_TAG );
-            buffer.put( Length.getBytes( oid.getOIDLength() ) );
+            buffer.put( TLV.getBytes( oid.getOIDLength() ) );
 
             if ( oid.getOIDLength() != 0 )
             {
@@ -414,10 +402,8 @@ public class Value implements Cloneable, Serializable
     /**
      * Encode an integer value
      * 
-     * @param buffer
-     *            The PDU in which the value will be put
-     * @param value
-     *            The integer to be encoded
+     * @param buffer The PDU in which the value will be put
+     * @param value The integer to be encoded
      */
     public static void encode( ByteBuffer buffer, int value ) throws EncoderException
     {
@@ -444,12 +430,9 @@ public class Value implements Cloneable, Serializable
     /**
      * Encode an integer value
      * 
-     * @param buffer
-     *            The PDU in which the value will be put
-     * @param tag
-     *            The tag if it's not an UNIVERSAL one
-     * @param value
-     *            The integer to be encoded
+     * @param buffer The PDU in which the value will be put
+     * @param tag The tag if it's not an UNIVERSAL one
+     * @param value The integer to be encoded
      */
     public static void encode( ByteBuffer buffer, byte tag, int value ) throws EncoderException
     {
@@ -476,10 +459,8 @@ public class Value implements Cloneable, Serializable
     /**
      * Encode an enumerated value
      * 
-     * @param buffer
-     *            The PDU in which the value will be put
-     * @param value
-     *            The integer to be encoded
+     * @param buffer The PDU in which the value will be put
+     * @param value The integer to be encoded
      */
     public static void encodeEnumerated( ByteBuffer buffer, int value ) throws EncoderException
     {
@@ -491,7 +472,7 @@ public class Value implements Cloneable, Serializable
         try
         {
             buffer.put( UniversalTag.ENUMERATED_TAG );
-            buffer.put( Length.getBytes( getNbBytes( value ) ) );
+            buffer.put( TLV.getBytes( getNbBytes( value ) ) );
             buffer.put( getBytes( value ) );
         }
         catch ( BufferOverflowException boe )
@@ -506,10 +487,8 @@ public class Value implements Cloneable, Serializable
     /**
      * Encode a boolean value
      * 
-     * @param buffer
-     *            The PDU in which the value will be put
-     * @param bool
-     *            The boolean to be encoded
+     * @param buffer The PDU in which the value will be put
+     * @param bool The boolean to be encoded
      */
     public static void encode( ByteBuffer buffer, boolean bool ) throws EncoderException
     {

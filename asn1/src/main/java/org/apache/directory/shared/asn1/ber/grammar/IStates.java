@@ -41,20 +41,11 @@ public interface IStates
     /** The END_STATE */
     static int END_STATE = -1;
 
-    /** The mask to filter grammar switch */
-    final static int GRAMMAR_SWITCH_MASK = 0xFF00;
-
-    /** The mask to filter states transition */
-    final static int STATES_SWITCH_MASK = 0x00FF;
-
-
-    /** Get the current state for a specified grammar */
-    String getState( int grammar, int state );
-
+    /** Get the current state */
+    String getState( int state );
 
     /** Return the grammar name from a grammar */
     String getGrammarName( IGrammar grammar );
-
 
     /** Return the grammar name from a grammar number */
     String getGrammarName( int grammar );

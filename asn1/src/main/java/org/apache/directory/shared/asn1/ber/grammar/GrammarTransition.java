@@ -20,7 +20,7 @@
 package org.apache.directory.shared.asn1.ber.grammar;
 
 
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
+import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 
 
 /**
@@ -31,18 +31,17 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
  */
 public class GrammarTransition
 {
-    // ~ Instance fields
-    // ----------------------------------------------------------------------------
-
-    /** The next state in the grammar */
-    private int nextState;
-
     /** The action associated to the transition */
-    private GrammarAction action;
+    private IAction action;
 
+    /** The previous state */
+    private int previousState;
+    
     /** The current state */
     private int currentState;
 
+    /** The current tag */
+    private int currentTag;
 
     // ~ Constructors
     // -------------------------------------------------------------------------------
@@ -50,32 +49,16 @@ public class GrammarTransition
     /**
      * Creates a new GrammarTransition object.
      * 
-     * @param currentState
-     *            The current transition
-     * @param nextState
-     *            The target state
-     * @param action
-     *            The action to execute. It could be null.
+     * @param currentState The current transition
+     * @param action The action to execute. It could be null.
      */
-    public GrammarTransition(int currentState, int nextState, GrammarAction action)
+    public GrammarTransition( int previousState, int currentState, int currentTag, IAction action )
     {
+        this.previousState = previousState;
         this.currentState = currentState;
-        this.nextState = nextState;
         this.action = action;
+        this.currentTag = currentTag;
     }
-
-
-    // ~ Methods
-    // ------------------------------------------------------------------------------------
-
-    /**
-     * @return Returns the target state.
-     */
-    public int getNextState()
-    {
-        return nextState;
-    }
-
 
     /**
      * Tells if the transition has an associated action.
@@ -88,30 +71,44 @@ public class GrammarTransition
         return action != null;
     }
 
-
     /**
      * @return Returns the action associated with the transition
      */
-    public GrammarAction getAction()
+    public IAction getAction()
     {
         return action;
     }
 
-
     /**
-     * @param grammar
-     *            The grammar which state we want a String from
+     * @param grammar The grammar which state we want a String from
      * @return A representation of the transition as a string.
      */
-    public String toString( int grammar, IStates statesEnum )
+    public String toString( IStates statesEnum )
     {
 
         StringBuffer sb = new StringBuffer();
 
-        sb.append( "Transition from <" ).append( statesEnum.getState( grammar, currentState ) ).append( "> to <" )
-            .append( statesEnum.getState( grammar, nextState ) ).append( ">, action : " ).append(
-                ( ( action == null ) ? "no action" : action.toString() ) ).append( ">" );
+        sb.append( "Transition from state <" ).append( statesEnum.getState( previousState ) ).append( "> " );
+        sb.append( "to state <" ).append( statesEnum.getState( currentState ) ).append( ">, " );
+        sb.append( "tag <" ).append(  Asn1StringUtils.dumpByte( (byte)currentTag ) ).append( ">, " );
+        sb.append( "action : " ).append( ( ( action == null ) ? "no action" : action.toString() ) ).append( ">" );
 
         return sb.toString();
+    }
+
+    /**
+     * @return The current state
+     */
+    public int getCurrentState()
+    {
+        return currentState;
+    }
+
+    /**
+     * @return The previous state
+     */
+    public int getPreviousState()
+    {
+        return previousState;
     }
 }

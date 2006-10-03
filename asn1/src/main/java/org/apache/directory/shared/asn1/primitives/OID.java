@@ -26,19 +26,31 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 
 
 /**
- * This class implement an OID (Object Identifier). An OID is encoded as a list
- * of bytes representing integers. An OID has a numeric representation where
- * number are separated with dots : SPNEGO Oid = 1.3.6.1.5.5.2 Translating from
- * a byte list to a dot separated list of number follows the rules : - the first
- * number is in [0..2] - the second number is in [0..39] if the first number is
- * 0 or 1 - the first byte has a value equal to : number 1 * 40 + number two -
- * the upper bit of a byte is set if the next byte is a part of the number For
- * instance, the SPNEGO Oid (1.3.6.1.5.5.2) will be encoded : 1.3 -> 0x2B (1*40 +
- * 3 = 43 = 0x2B) .6 -> 0x06 .1 -> 0x01 .5 -> 0x05 .5 -> 0x05 .2 -> 0x02 The
- * Kerberos V5 Oid (1.2.840.48018.1.2.2) will be encoded : 1.2 -> 0x2A (1*40 + 2 =
- * 42 = 0x2A) 840 -> 0x86 0x48 (840 = 6 * 128 + 72 = (0x06 | 0x80) 0x48 = 0x86
- * 0x48 48018 -> 0x82 0xF7 0x12 (2 * 128 * 128 + 119 * 128 + 18 = (0x02 | 0x80)
- * (0x77 | 0x80) 0x12
+ * This class implement an OID (Object Identifier). 
+ * 
+ * An OID is encoded as a list of bytes representing integers. 
+ * 
+ * An OID has a numeric representation where number are separated with dots :
+ * SPNEGO Oid = 1.3.6.1.5.5.2
+ * 
+ * Translating from a byte list to a dot separated list of number follows the rules :
+ * - the first number is in [0..2]
+ * - the second number is in [0..39] if the first number is 0 or 1
+ * - the first byte has a value equal to : number 1 * 40 + number two
+ * - the upper bit of a byte is set if the next byte is a part of the number
+ * 
+ * For instance, the SPNEGO Oid (1.3.6.1.5.5.2) will be encoded : 
+ * 1.3 -> 0x2B (1*40 + 3 = 43 = 0x2B) 
+ * .6  -> 0x06 
+ * .1  -> 0x01 
+ * .5  -> 0x05 
+ * .5  -> 0x05 
+ * .2  -> 0x02 
+ * 
+ * The Kerberos V5 Oid (1.2.840.48018.1.2.2)  will be encoded :
+ * 1.2   -> 0x2A (1*40 + 2 = 42 = 0x2A) 
+ * 840   -> 0x86 0x48 (840 = 6 * 128 + 72 = (0x06 | 0x80) 0x48 = 0x86 0x48
+ * 48018 -> 0x82 0xF7 0x12 (2 * 128 * 128 + 119 * 128 + 18 = (0x02 | 0x80) (0x77 | 0x80) 0x12
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -81,8 +93,7 @@ public class OID implements Serializable
     /**
      * Create a new OID object from a String
      * 
-     * @param oid
-     *            The String which is supposed to be an OID
+     * @param oid The String which is supposed to be an OID
      */
     public OID(String oid) throws DecoderException
     {
@@ -96,8 +107,7 @@ public class OID implements Serializable
      * Set the OID. It will be translated from a byte array to an internal
      * representation.
      * 
-     * @param oid
-     *            The bytes containing the OID
+     * @param oid The bytes containing the OID
      */
     public void setOID( byte[] oid ) throws DecoderException
     {
@@ -189,11 +199,12 @@ public class OID implements Serializable
 
     /**
      * Set the OID. It will be translated from a String to an internal
-     * representation. The syntax will be controled in respect with this rule :
+     * representation. 
+     * 
+     * The syntax will be controled in respect with this rule :
      * OID = ( [ '0' | '1' ] '.' [ 0 .. 39 ] | '2' '.' int) ( '.' int )*
      * 
-     * @param oid
-     *            The String containing the OID
+     * @param oid The String containing the OID
      */
     public void setOID( String oid ) throws DecoderException
     {
@@ -204,7 +215,7 @@ public class OID implements Serializable
         }
 
         int nbValues = 1;
-        byte[] bytes = oid.getBytes();
+        char[] bytes = oid.toCharArray();
         boolean dotSeen = false;
 
         // Count the number of int to allocate.
@@ -503,7 +514,11 @@ public class OID implements Serializable
         return sb.toString();
     }
 
-
+    /**
+     * Check that an OID is valid
+     * @param oid The oid to be checked
+     * @return <code>true</code> if the OID is valid
+     */
     public static boolean isOID( String oid )
     {
         if ( ( oid == null ) || ( oid.length() == 0 ) )

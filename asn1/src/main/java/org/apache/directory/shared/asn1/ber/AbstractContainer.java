@@ -38,25 +38,11 @@ public class AbstractContainer implements IAsn1Container
     // ~ Instance fields
     // ----------------------------------------------------------------------------
 
-    /**
-     * The grammars that are used. It's a stack as we can switch grammars
-     */
-    protected IGrammar[] grammarStack;
-
     /** All the possible grammars */
-    protected IGrammar[] grammars;
+    protected IGrammar grammar;
 
     /** Store a stack of the current states used when switching grammars */
     protected int[] stateStack;
-
-    /** Store a stack of allowed pop */
-    protected boolean[] popAllowedStack;
-
-    /** The number of stored grammars */
-    protected int nbGrammars;
-
-    /** The current grammar */
-    protected int currentGrammar;
 
     /** The current state of the decoding */
     protected int state;
@@ -76,10 +62,6 @@ public class AbstractContainer implements IAsn1Container
     /** The grammar end transition flag */
     protected boolean grammarEndAllowed;
 
-    /** The grammar pop transition flag */
-    protected boolean grammarPopAllowed;
-
-
     // ~ Methods
     // ------------------------------------------------------------------------------------
 
@@ -90,59 +72,7 @@ public class AbstractContainer implements IAsn1Container
      */
     public IGrammar getGrammar()
     {
-        return grammarStack[currentGrammar];
-    }
-
-
-    /**
-     * Add a IGrammar to use
-     * 
-     * @param grammar
-     *            The grammar to add.
-     */
-    public void addGrammar( IGrammar grammar )
-    {
-        grammars[nbGrammars++] = grammar;
-    }
-
-
-    /**
-     * Switch to another grammar
-     * 
-     * @param currentState
-     *            The current state in the current grammar
-     * @param grammar
-     *            The grammar to add.
-     */
-    public void switchGrammar( int currentState, int grammar )
-    {
-        stateStack[currentGrammar] = currentState;
-        currentGrammar++;
-        popAllowedStack[currentGrammar] = false;
-        grammarStack[currentGrammar] = grammars[( grammar >> 8 ) - 1];
-    }
-
-
-    /**
-     * restore the previous grammar (the one before a switch has occured)
-     * 
-     * @return The previous current state, if any.
-     */
-    public int restoreGrammar()
-    {
-        grammarStack[currentGrammar] = null;
-        popAllowedStack[currentGrammar] = false;
-        currentGrammar--;
-
-        if ( currentGrammar >= 0 )
-        {
-            return stateStack[currentGrammar];
-        }
-        else
-        {
-            return -1;
-        }
-
+        return grammar;
     }
 
 
@@ -160,8 +90,7 @@ public class AbstractContainer implements IAsn1Container
     /**
      * Set the new current state
      * 
-     * @param state
-     *            The new state
+     * @param state The new state
      */
     public void setState( int state )
     {
@@ -183,37 +112,12 @@ public class AbstractContainer implements IAsn1Container
     /**
      * Set the flag to allow a end transition
      * 
-     * @param endAllowed
-     *            true or false, depending on the next transition being an end
-     *            or not.
+     * @param endAllowed true or false, depending on the next transition 
+     * being an end or not.
      */
     public void grammarEndAllowed( boolean grammarEndAllowed )
     {
         this.grammarEndAllowed = grammarEndAllowed;
-    }
-
-
-    /**
-     * Check that we can have a pop after this transition
-     * 
-     * @return true if this can be the last transition before a pop
-     */
-    public boolean isGrammarPopAllowed()
-    {
-        return popAllowedStack[currentGrammar];
-    }
-
-
-    /**
-     * Set the flag to allow a pop transition
-     * 
-     * @param popAllowed
-     *            true or false, depending on the next transition allows a pop
-     *            or not.
-     */
-    public void grammarPopAllowed( boolean grammarPopAllowed )
-    {
-        popAllowedStack[currentGrammar] = grammarPopAllowed;
     }
 
 
@@ -231,8 +135,7 @@ public class AbstractContainer implements IAsn1Container
     /**
      * Update the transition from a state to another
      * 
-     * @param transition
-     *            The transition to set
+     * @param transition The transition to set
      */
     public void setTransition( int transition )
     {
@@ -241,56 +144,9 @@ public class AbstractContainer implements IAsn1Container
 
 
     /**
-     * Gert the current grammar number
-     * 
-     * @return Returns the currentGrammar.
-     */
-    public int getCurrentGrammar()
-    {
-        return currentGrammar;
-    }
-
-
-    /**
-     * Get the current grammar type.
-     * 
-     * @return Returns the current Grammar type, or -1 if not found.
-     */
-    public int getCurrentGrammarType()
-    {
-
-        for ( int i = 0; i < grammars.length; i++ )
-        {
-
-            if ( grammars[i] == grammarStack[currentGrammar] )
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-
-    /**
-     * Initialize the grammar stack
-     * 
-     * @param grammar
-     *            Set the initial grammar
-     */
-    public void setInitGrammar( int grammar )
-    {
-        currentGrammar++;
-        grammarStack[currentGrammar] = grammars[grammar];
-        stateStack[currentGrammar] = 0;
-    }
-
-
-    /**
      * Set the current TLV
      * 
-     * @param tlv
-     *            The current TLV
+     * @param tlv The current TLV
      */
     public void setCurrentTLV( TLV tlv )
     {
@@ -334,8 +190,7 @@ public class AbstractContainer implements IAsn1Container
     /**
      * Set the parent TLV.
      * 
-     * @param The
-     *            parent TLV to set.
+     * @param The parent TLV to set.
      */
     public void setParentTLV( TLV parentTLV )
     {
@@ -348,7 +203,6 @@ public class AbstractContainer implements IAsn1Container
      */
     public void clean()
     {
-        currentGrammar = 0;
         tlv = null;
         parentTLV = null;
         transition = 0;
