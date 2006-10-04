@@ -84,6 +84,19 @@ public class TLV
 
     /** A mask to get the long form value */
     public static final transient int LENGTH_SHORT_MASK = 0x007F;
+    
+    /** A speedup for single bytes length */
+    static byte[][] ONE_BYTE = new byte[256][];
+    
+    static
+    {
+        for ( int i = 0; i < 256; i++ )
+        {
+            ONE_BYTE[i] = new byte[1];
+            ONE_BYTE[i][0] = (byte)i;
+        }
+    }
+    
 
     /**
      * Creates a new TLV object.
@@ -260,53 +273,58 @@ public class TLV
      */
     public static byte[] getBytes( int length )
     {
-
-        byte[] bytes = new byte[getNbBytes( length )];
-
         if ( length >= 0 )
         {
-
             if ( length < 128 )
             {
-                bytes[0] = ( byte ) length;
+                return ONE_BYTE[length];
             }
-            else if ( length < 256 )
+            else 
             {
-                bytes[0] = ( byte ) 0x81;
-                bytes[1] = ( byte ) length;
-            }
-            else if ( length < 65536 )
-            {
-                bytes[0] = ( byte ) 0x82;
-                bytes[1] = ( byte ) ( length >> 8 );
-                bytes[2] = ( byte ) ( length & 0x00FF );
-            }
-            else if ( length < 16777216 )
-            {
-                bytes[0] = ( byte ) 0x83;
-                bytes[1] = ( byte ) ( length >> 16 );
-                bytes[2] = ( byte ) ( ( length >> 8 ) & 0x00FF );
-                bytes[3] = ( byte ) ( length & 0x00FF );
-            }
-            else
-            {
-                bytes[0] = ( byte ) 0x84;
-                bytes[1] = ( byte ) ( length >> 24 );
-                bytes[2] = ( byte ) ( ( length >> 16 ) & 0x00FF );
-                bytes[3] = ( byte ) ( ( length >> 8 ) & 0x00FF );
-                bytes[4] = ( byte ) ( length & 0x00FF );
+                byte[] bytes = new byte[getNbBytes( length )];
+                
+                if ( length < 256 )
+                {
+                    bytes[0] = ( byte ) 0x81;
+                    bytes[1] = ( byte ) length;
+                }
+                else if ( length < 65536 )
+                {
+                    bytes[0] = ( byte ) 0x82;
+                    bytes[1] = ( byte ) ( length >> 8 );
+                    bytes[2] = ( byte ) ( length & 0x00FF );
+                }
+                else if ( length < 16777216 )
+                {
+                    bytes[0] = ( byte ) 0x83;
+                    bytes[1] = ( byte ) ( length >> 16 );
+                    bytes[2] = ( byte ) ( ( length >> 8 ) & 0x00FF );
+                    bytes[3] = ( byte ) ( length & 0x00FF );
+                }
+                else
+                {
+                    bytes[0] = ( byte ) 0x84;
+                    bytes[1] = ( byte ) ( length >> 24 );
+                    bytes[2] = ( byte ) ( ( length >> 16 ) & 0x00FF );
+                    bytes[3] = ( byte ) ( ( length >> 8 ) & 0x00FF );
+                    bytes[4] = ( byte ) ( length & 0x00FF );
+                }
+                
+                return bytes;
             }
         }
         else
         {
+            byte[] bytes = new byte[getNbBytes( length )];
+
             bytes[0] = ( byte ) 0x84;
             bytes[1] = ( byte ) ( length >> 24 );
             bytes[2] = ( byte ) ( ( length >> 16 ) & 0x00FF );
             bytes[3] = ( byte ) ( ( length >> 8 ) & 0x00FF );
             bytes[4] = ( byte ) ( length & 0x00FF );
-        }
 
-        return bytes;
+            return bytes;
+        }
     }
     
 
