@@ -140,6 +140,7 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
            Attribute cn = sr.getAttributes().get("cn");
            assertNotNull(cn);
            assertTrue(cn.contains("Bush, Kate"));
+           assertEquals( "cn=Bush\\, Kate", sr.getName() );
        }
 
        ctx.destroySubcontext(rdn);
