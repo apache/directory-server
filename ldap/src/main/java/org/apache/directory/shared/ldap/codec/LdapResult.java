@@ -102,6 +102,9 @@ public class LdapResult extends Asn1Object
     /** The DN that is matched by the Bind */
     private LdapDN matchedDN;
 
+    /** Temporary storage of the byte[] representing the matchedDN */
+    private transient byte[] matchedDNBytes;
+
     /** The error message */
     private String errorMessage;
     
@@ -263,7 +266,8 @@ public class LdapResult extends Asn1Object
         }
         else
         {
-            ldapResultLength += 1 + TLV.getNbBytes( LdapDN.getNbBytes( matchedDN ) ) + LdapDN.getNbBytes( matchedDN );
+            matchedDNBytes = StringTools.getBytesUtf8( matchedDN.getUpName() );
+            ldapResultLength += 1 + TLV.getNbBytes( matchedDNBytes.length ) + matchedDNBytes.length;
         }
 
         // The errorMessage length
@@ -318,7 +322,7 @@ public class LdapResult extends Asn1Object
         }
 
         // The matchedDN
-        Value.encode( buffer, LdapDN.getBytes( matchedDN ) );
+        Value.encode( buffer, matchedDNBytes );
 
         // The error message
         Value.encode( buffer, errorMessageBytes );
