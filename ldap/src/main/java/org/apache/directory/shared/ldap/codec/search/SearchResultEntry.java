@@ -24,6 +24,7 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -70,6 +71,9 @@ public class SearchResultEntry extends LdapMessage
 
     /** The DN of the returned entry */
     private LdapDN objectName;
+    
+    /** A temporary storage for the byte[] representing the objectName */ 
+    private transient byte[] objectNameBytes;
 
     /** The attributes list. It contains javax.naming.directory.Attribute */
     private Attributes partialAttributeList;
@@ -225,9 +229,10 @@ public class SearchResultEntry extends LdapMessage
      */
     public int computeLength()
     {
+    	objectNameBytes = StringTools.getBytesUtf8( objectName.getUpName() );
+    	
         // The entry
-        searchResultEntryLength = 1 + TLV.getNbBytes( LdapDN.getNbBytes( objectName ) )
-            + LdapDN.getNbBytes( objectName );
+        searchResultEntryLength = 1 + TLV.getNbBytes( objectNameBytes.length ) + objectNameBytes.length;
 
         // The attributes sequence
         attributesLength = 0;
@@ -359,7 +364,7 @@ public class SearchResultEntry extends LdapMessage
             buffer.put( TLV.getBytes( searchResultEntryLength ) );
 
             // The objectName
-            Value.encode( buffer, LdapDN.getBytes( objectName ) );
+            Value.encode( buffer, objectNameBytes );
 
             // The attributes sequence
             buffer.put( UniversalTag.SEQUENCE_TAG );
@@ -382,7 +387,7 @@ public class SearchResultEntry extends LdapMessage
                     buffer.put( TLV.getBytes( localAttributeLength ) );
 
                     // The attribute type
-                    Value.encode( buffer, attribute.getID() );
+                    Value.encode( buffer, Asn1StringUtils.asciiStringToByte( attribute.getID() ) );
 
                     // The values
                     buffer.put( UniversalTag.SET_TAG );
