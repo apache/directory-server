@@ -37,6 +37,11 @@ public class Asn1StringUtils
     private static final byte[] HEX_CHAR = new byte[]
         { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
+    /**
+     * The empty byte[]
+     */
+    public static final byte[] EMPTY_BYTES = new byte[]
+        {};
 
     // ~ Methods
     // ------------------------------------------------------------------------------------
@@ -104,5 +109,29 @@ public class Asn1StringUtils
             return new byte[]
                 {};
         }
+    }
+
+    /**
+     * Thansform an array of ASCII bytes to a string. the byte array should contains
+     * only values in [0, 127].
+     * 
+     * @param bytes The byte array to transform
+     * @return The resulting string
+     */
+    public static byte[] asciiStringToByte( String string )
+    {
+        if ( ( string == null ) || ( string.length() == 0 ) )
+        {
+            return EMPTY_BYTES;
+        }
+        
+        byte[] result = new byte[string.length()];
+        
+        for ( int i = 0; i < result.length; i++ )
+        {
+            result[i] = (byte)string.charAt( i );
+        }
+        
+        return result;
     }
 }
