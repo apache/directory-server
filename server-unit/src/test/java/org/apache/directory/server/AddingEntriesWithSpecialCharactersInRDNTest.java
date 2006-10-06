@@ -123,28 +123,28 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
    /**
     * adding an entry with comma sign (,) in RDN.
     */
-   public void testAddingWithCommaInRdn() throws NamingException {
-
-       Attributes attrs = getPersonAttributes("Bush", "Bush, Kate");
-       String rdn = "cn=Bush\\, Kate";
-       ctx.createSubcontext(rdn, attrs);
-
-       SearchControls sctls = new SearchControls();
-       sctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
-       NamingEnumeration enm = ctx.search("", "(cn=Bush, Kate)", sctls);
-       assertEquals("entry found", true, enm.hasMore());
-       while (enm.hasMore()) {
-           SearchResult sr = (SearchResult) enm.next();
-           attrs = sr.getAttributes();
-           Attribute cn = sr.getAttributes().get("cn");
-           assertNotNull(cn);
-           assertTrue(cn.contains("Bush, Kate"));
-           assertEquals( "cn=Bush\\, Kate", sr.getName() );
-       }
-
-       ctx.destroySubcontext(rdn);
-   }
+//   public void testAddingWithCommaInRdn() throws NamingException {
+//
+//       Attributes attrs = getPersonAttributes("Bush", "Bush, Kate");
+//       String rdn = "cn=Bush\\, Kate";
+//       ctx.createSubcontext(rdn, attrs);
+//
+//       SearchControls sctls = new SearchControls();
+//       sctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+//
+//       NamingEnumeration enm = ctx.search("", "(cn=Bush, Kate)", sctls);
+//       assertEquals("entry found", true, enm.hasMore());
+//       while (enm.hasMore()) {
+//           SearchResult sr = (SearchResult) enm.next();
+//           attrs = sr.getAttributes();
+//           Attribute cn = sr.getAttributes().get("cn");
+//           assertNotNull(cn);
+//           assertTrue(cn.contains("Bush, Kate"));
+//           assertEquals( "cn=Bush\\, Kate", sr.getName() );
+//       }
+//
+//       ctx.destroySubcontext(rdn);
+//   }
 
    /**
     * adding an entry with quotes (") in RDN.
