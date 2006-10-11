@@ -8,11 +8,9 @@
    <p>
      Apache Directory Project is proud to announce the first public 
      release of Apache Directory Server, ApacheDS 1.0 which has been
-     <a href="">certified by the Open Group<> as the first LDAPv3 compliant Open Source
+     <a href="http://www.opengroup.org/openbrand/register/brand3527.htm">
+     certified by the Open Group</a> as the first LDAPv3 compliant Open Source
      LDAP Server!
-   </p>
-   <p>
-     The Press Release is available <a href="apacheds10-pressrelease.pdf">here.</a>
    </p>
    <p>
      Installers for various platforms are available.
