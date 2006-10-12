@@ -122,7 +122,7 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.directory.server</groupId>
-                  <artifactId>mina-filter-codec-asn1-osgi</artifactId>
+                  <artifactId>shared-asn1-codec-osgi</artifactId>
                   <version>${pom.version}</version>
                   <type>jar</type>
                   <outputDirectory>${basedir}/bundle</outputDirectory>

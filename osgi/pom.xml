@@ -17,7 +17,7 @@
     <module>shared-ldap-osgi</module>
     <module>core-osgi</module>
     <module>mina-core-osgi</module>
-    <module>mina-filter-codec-asn1-osgi</module>
+    <module>shared-asn1-codec-osgi</module>
     <module>protocol-changepw-osgi</module>
     <module>protocol-dns-osgi</module>
     <module>protocol-kerberos-osgi</module>
