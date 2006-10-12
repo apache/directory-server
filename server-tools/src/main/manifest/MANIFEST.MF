@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Main-Class: org.apache.directory.server.tools.ApachedsTools
 Class-Path: logger.jar daemon.jar bootstrapper.jar 
- ../lib/antlr-2.7.2.jar 
+ ../lib/antlr-2.7.4.jar 
  ../lib/apacheds-kerberos-shared-1.1.0-SNAPSHOT.jar 
  ../lib/apacheds-protocol-changepw-1.1.0-SNAPSHOT.jar 
  ../lib/apacheds-protocol-shared-1.1.0-SNAPSHOT.jar 
@@ -18,14 +18,14 @@ Class-Path: logger.jar daemon.jar bootstrapper.jar
  ../lib/commons-cli-1.0.jar 
  ../lib/jdbm-1.0.jar 
  ../lib/lcrypto-jdk14-131.jar 
- ../lib/mina-core-0.9.5-SNAPSHOT.jar 
- ../lib/mina-filter-codec-asn1-0.9.5-SNAPSHOT.jar 
- ../lib/mina-filter-ssl-0.9.5-SNAPSHOT.jar 
+ ../lib/mina-core-1.1.0-SNAPSHOT.jar 
+ ../lib/shared-asn1-codec-0.9.6-SNAPSHOT.jar 
+ ../lib/mina-filter-ssl-1.1.0-SNAPSHOT.jar 
  ../lib/oro-2.0.8.jar 
  ../lib/shared-asn1-0.9.6-SNAPSHOT.jar 
  ../lib/shared-ldap-0.9.6-SNAPSHOT.jar 
- ../lib/spring-beans-1.2.1.jar 
- ../lib/spring-context-1.2.1.jar 
- ../lib/spring-core-1.2.1.jar 
+ ../lib/spring-beans-1.2.8.jar 
+ ../lib/spring-context-1.2.8.jar 
+ ../lib/spring-core-1.2.8.jar 
 Specification-Title: apacheds-tools
 Specification-Version: 1.0

@@ -21,7 +21,7 @@
     <dependency>
       <groupId>org.apache.directory.daemon</groupId>
       <artifactId>daemon-bootstrappers</artifactId>
-      <version>1.0-RC3-SNAPSHOT</version>
+      <version>1.0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>  
     <dependency>
@@ -75,7 +75,7 @@
       <plugin>
         <groupId>org.apache.directory.daemon</groupId>
         <artifactId>daemon-plugin</artifactId>
-        <version>1.0-RC3-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
         <configuration>
           <excludes>
 
