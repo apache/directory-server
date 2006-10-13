@@ -155,19 +155,19 @@ public class ExtendedResponse extends LdapResponse
         {
             responseNameLength = responseName.toString().length();
             extendedResponseLength += 1 + TLV.getNbBytes( responseNameLength ) + responseNameLength;
+        }
 
-            if ( response != null )
+        if ( response != null )
+        {
+            if ( response instanceof String )
             {
-                if ( response instanceof String )
-                {
-                    int responseLength = StringTools.getBytesUtf8( ( String ) response ).length;
-                    extendedResponseLength += 1 + TLV.getNbBytes( responseLength ) + responseLength;
-                }
-                else
-                {
-                    extendedResponseLength += 1 + TLV.getNbBytes( ( ( byte[] ) response ).length )
-                        + ( ( byte[] ) response ).length;
-                }
+                int responseLength = StringTools.getBytesUtf8( ( String ) response ).length;
+                extendedResponseLength += 1 + TLV.getNbBytes( responseLength ) + responseLength;
+            }
+            else
+            {
+                extendedResponseLength += 1 + TLV.getNbBytes( ( ( byte[] ) response ).length )
+                    + ( ( byte[] ) response ).length;
             }
         }
 
