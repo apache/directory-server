@@ -605,7 +605,8 @@ public class LdapResult extends Asn1Object
         sb.append( "            Matched DN : '" ).append( matchedDN == null ? "": matchedDN.toString() ).append( "'\n" );
         sb.append( "            Error message : '" ).append( errorMessage == null ? "" : errorMessage.toString() ).append( "'\n" );
 
-        if ( referrals.size() != 0 )
+        
+        if ( ( referrals != null ) && ( referrals.size() != 0 ) )
         {
             sb.append( "            Referrals :\n" );
 
