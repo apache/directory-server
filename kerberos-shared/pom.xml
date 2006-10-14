@@ -16,12 +16,10 @@
     <dependency>
       <groupId>bouncycastle</groupId>
       <artifactId>lcrypto-jdk14</artifactId>
-      <version>131</version>
     </dependency>
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
