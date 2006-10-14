@@ -38,6 +38,7 @@ import javax.naming.ldap.LdapContext;
  */
 public class TriggerUtils
 {
+    public static String SUBTREE_SPECIFICATION_ATTR = "subtreeSpecification";
     public static String ADMINISTRATIVE_ROLE_ATTR = "administrativeRole";
     public static String TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE = "triggerExecutionSpecificArea";
     public static String TRIGGER_EXECUTION_SUBENTRY_OC = "triggerExecutionSubentry";
@@ -60,7 +61,8 @@ public class TriggerUtils
     public static void createTriggerExecutionSubentry(
         LdapContext apCtx,
         String subentryCN,
-        String subtreeSpec ) throws NamingException
+        String subtreeSpec,
+        String prescriptiveTriggerSpec ) throws NamingException
     {
         Attributes subentry = new BasicAttributes( "cn", subentryCN, true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
@@ -68,7 +70,8 @@ public class TriggerUtils
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( TRIGGER_EXECUTION_SUBENTRY_OC );
-        subentry.put( "subtreeSpecification", subtreeSpec );
+        subentry.put( SUBTREE_SPECIFICATION_ATTR, subtreeSpec );
+        subentry.put( PRESCRIPTIVE_TRIGGER_SPECIFICATION_ATTR, prescriptiveTriggerSpec );
         apCtx.createSubcontext( "cn=" + subentryCN, subentry );
     }
     
