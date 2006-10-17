@@ -60,6 +60,7 @@ public class LdapClassLoader extends ClassLoader
 
     public LdapClassLoader( ServerLdapContext RootDSE ) throws NamingException
     {
+        super( LdapClassLoader.class.getClassLoader() );
         this.RootDSE = ( ( ServerLdapContext ) RootDSE.lookup( "" ) );
     }
 
@@ -87,6 +88,7 @@ public class LdapClassLoader extends ClassLoader
                 javaClassEntries = currentSearchContext.search( LdapDN.EMPTY_LDAPDN, filter, controls );
                 if ( javaClassEntries.hasMore() ) // there should be only one!
                 {
+                    log.debug( "Class " + name + " found under " + currentSearchContextName + " search context." );
                     SearchResult javaClassEntry = ( SearchResult ) javaClassEntries.next();
                     Attribute byteCode = javaClassEntry.getAttributes().get( "javaClassByteCode" );
                     classBytes = ( byte[] ) byteCode.get();
@@ -153,13 +155,13 @@ public class LdapClassLoader extends ClassLoader
         catch ( NamingException e ) 
         {
             String msg = "Encountered JNDI failure while searching directory for class: " + name;
-            log.error( msg, e );
+            log.debug( msg + e );
             throw new ClassNotFoundException( msg );
         }
         catch ( ClassNotFoundException e )
         {
             String msg = "Class " + name + " not found in DIT.";
-            log.warn( msg );
+            log.debug( msg );
             throw new ClassNotFoundException( msg );
         }
         finally
@@ -167,7 +169,7 @@ public class LdapClassLoader extends ClassLoader
             if ( defaultSearchContexts != null ) { try { defaultSearchContexts.close(); } catch( Exception e ) {} };
             if ( namingContexts != null ) { try { namingContexts.close(); } catch( Exception e ) {} };
         }
-
+        
         return defineClass( name, classBytes, 0, classBytes.length );
     }
 }
