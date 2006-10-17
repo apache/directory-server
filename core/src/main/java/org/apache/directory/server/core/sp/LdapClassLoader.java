@@ -155,7 +155,7 @@ public class LdapClassLoader extends ClassLoader
         catch ( NamingException e ) 
         {
             String msg = "Encountered JNDI failure while searching directory for class: " + name;
-            log.debug( msg + e );
+            log.error( msg + e );
             throw new ClassNotFoundException( msg );
         }
         catch ( ClassNotFoundException e )
