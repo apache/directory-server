@@ -175,8 +175,10 @@
         <module>protocol-dns</module>
         <module>protocol-changepw</module>
         <module>server-tools</module>
+        <!--
         <module>sar-plugin</module>
         <module>server-sar</module>
+        -->
         <module>server-unit</module>
         <module>server-main</module>
         <module>server-jndi</module>
@@ -243,7 +245,11 @@
         <module>protocol-dns</module>
         <module>protocol-changepw</module>
         <module>server-tools</module>
+
+        <!--
         <module>sar-plugin</module>
+        -->
+
         <module>server-unit</module>
         <module>server-main</module>
         <module>server-jndi</module>
