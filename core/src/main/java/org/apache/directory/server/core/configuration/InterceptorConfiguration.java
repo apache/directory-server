@@ -98,4 +98,13 @@ public class InterceptorConfiguration
             throw new ConfigurationException( "Interceptor is not specified." );
         }
     }
+    
+    
+    /**
+     * Returns a String representing the current interceptor
+     */
+    public String toString()
+    {
+    	return "Interceptor name : '" + name + "'";
+    }
 }
