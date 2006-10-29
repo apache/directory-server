@@ -33,7 +33,7 @@ import javax.naming.directory.DirContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AdministratorsGroupTest extends AbstractAuthorizationITest
+public class AdministratorsGroupITest extends AbstractAuthorizationITest
 {
     public void setUp() throws Exception
     {

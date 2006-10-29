@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class SubentryServiceForTriggersTest extends AbstractAdminTestCase
+public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
 {
     public Attributes getTestEntry( String cn )
     {

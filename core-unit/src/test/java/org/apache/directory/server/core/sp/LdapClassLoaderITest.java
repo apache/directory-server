@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.util.Base64;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$ $Date$
  */
-public class LdapClassLoaderTest extends AbstractAdminTestCase
+public class LdapClassLoaderITest extends AbstractAdminTestCase
 {
     private static final String HELLOWORLD_CLASS_BASE64 = "yv66vgAAADEAHQoABgAPCQAQABEIABIKABMAFAcAFQcAFgEABjxpbml0PgEAAygpV"
         + "gEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAARtYWluAQAWKFtMamF2YS9sYW5nL1N0cmluZzsp"

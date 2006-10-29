@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.sp.JavaStoredProcedureUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class DefaulTriggerServiceTest extends AbstractTriggerServiceTest
+public class DefaulTriggerServiceITest extends AbstractTriggerServiceTest
 {
     
     public void testAfterDeleteBackupDeletedEntry() throws NamingException
