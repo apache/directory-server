@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.apache.directory</groupId>
     <artifactId>build</artifactId>
-    <version>1.0.6-SNAPSHOT</version>
+    <version>1.0.5</version>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>build</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.5.0-SNAPSHOT</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
@@ -48,12 +48,12 @@
       <dependency>
         <groupId>org.apache.mina</groupId>
         <artifactId>mina-core</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.mina</groupId>
         <artifactId>mina-filter-ssl</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
       </dependency>
 
       <dependency>
@@ -177,8 +177,12 @@
         <module>protocol-dns</module>
         <module>protocol-changepw</module>
         <module>server-tools</module>
-        <module>sar-plugin</module>
+
+        <!-- breaks the build on first try
+	<module>sar-plugin</module>
         <module>server-sar</module>
+        -->
+
         <module>server-unit</module>
         <module>server-main</module>
         <module>server-jndi</module>
@@ -211,8 +215,12 @@
         <module>protocol-dns</module>
         <module>protocol-changepw</module>
         <module>server-tools</module>
+
+        <!-- breaks the build on first try
         <module>sar-plugin</module>
         <module>server-sar</module>
+        -->
+
         <module>server-unit</module>
         <module>server-main</module>
         <module>server-jndi</module>
