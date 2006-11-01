@@ -25,7 +25,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
 /**
- * The response sent back from the server when a {@see GracefulShutdownRequest}
+ * The response sent back from the server when a {@link GracefulShutdownRequest}
  * extended operation is sent. Delivery of this response may block until all
  * connected clients are sent a GracefulDisconnect unsolicited notification.
  * 
