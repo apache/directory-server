@@ -349,8 +349,7 @@ public class SearchRequest extends LdapMessage
      * In any case, the previous current filter will always be a
      * ConnectorFilter when this method is called.
      * 
-     * @param currentFilter
-     *            The currentFilter to set.
+     * @param filter The filter to set.
      */
     public void addCurrentFilter( Filter filter ) throws DecoderException
     {
@@ -378,7 +377,7 @@ public class SearchRequest extends LdapMessage
     /**
      * Set the current dilter
      * 
-     * @param currentFilter The currentFilter to set.
+     * @param filter The filter to set.
      */
     public void setCurrentFilter( Filter filter ) throws DecoderException
     {
