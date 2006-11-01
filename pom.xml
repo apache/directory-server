@@ -225,7 +225,7 @@
         <module>server-jndi</module>
         <module>kerberos-shared</module>
 
-        <module>mitosis</module>
+        <!-- module>mitosis</module -->
 
         <!-- extra for jdk 1.5 -->
         <module>server-ssl</module>
@@ -234,7 +234,7 @@
       </modules>
     </profile>
 
-    <profile>
+    <!--profile>
       <id>jdk1.4</id>
       <activation>
         <jdk>1.4</jdk>
@@ -255,10 +255,10 @@
         <module>protocol-changepw</module>
         <module>server-tools</module>
 
-        <!-- breaks the build on first try
+        <!== breaks the build on first try
         <module>sar-plugin</module>
         <module>server-sar</module>
-        -->
+        ==>
 
         <module>server-unit</module>
         <module>server-main</module>
@@ -280,7 +280,7 @@
                     <echo>
 ====================================================================
                        W A R N I N G
-                       -------------
+                       =============
 
 Build with 1.4 jvm will not include modules:
 
@@ -299,7 +299,7 @@ Use JDK 1.5 to make sure these modules build.
           </plugin>
         </plugins>
       </build>
-    </profile>
+    </profile-->
   </profiles>
 
   <developers>
