@@ -21,9 +21,6 @@ package org.apache.directory.mitosis.service;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.SocketAddress;
-import java.nio.channels.ServerSocketChannel;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,6 +37,16 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.Constants;
+import org.apache.directory.mitosis.common.ReplicaId;
+import org.apache.directory.mitosis.common.SimpleCSN;
+import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
+import org.apache.directory.mitosis.operation.Operation;
+import org.apache.directory.mitosis.operation.OperationFactory;
+import org.apache.directory.mitosis.service.protocol.codec.ReplicationServerProtocolCodecFactory;
+import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerProtocolHandler;
+import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -54,19 +61,10 @@ import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoServiceConfig;
-import org.apache.mina.common.TransportType;
+import org.apache.mina.filter.LoggingFilter;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
-import org.apache.directory.mitosis.common.CSN;
-import org.apache.directory.mitosis.common.Constants;
-import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.SimpleCSN;
-import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
-import org.apache.directory.mitosis.operation.Operation;
-import org.apache.directory.mitosis.operation.OperationFactory;
-import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerProtocolHandler;
-import org.apache.directory.mitosis.store.ReplicationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,12 +137,19 @@ public class ReplicationService extends BaseInterceptor
         registry = new SocketAcceptor();
         IoServiceConfig config = new SocketAcceptorConfig();
 
-        config.getFilterChain().addLast( "protocol", new ProtocolCodecFilter( new ReplicationServerProtocolHandler( this ) ) );
+        config.getFilterChain().addLast(
+                "protocol",
+                new ProtocolCodecFilter( new ReplicationServerProtocolCodecFactory() ) );
         
+        config.getFilterChain().addLast(
+                "logger",
+                new LoggingFilter());
+
         // bind server protocol provider
-        registry.bind( new InetSocketAddress( 10101 ),
-               new ServerHandler( true, new RunnableFactory() ),
-               config );
+        registry.bind(
+                new InetSocketAddress( 10101 ),
+                new ReplicationServerProtocolHandler(this),
+                config );
         
         clientConnectionManager.start( configuration );
     }
@@ -413,4 +418,5 @@ public class ReplicationService extends BaseInterceptor
         Attribute deleted = entry.get( Constants.ENTRY_DELETED );
         return ( deleted != null && "true".equals( deleted.get().toString() ) );
     }
+
 }

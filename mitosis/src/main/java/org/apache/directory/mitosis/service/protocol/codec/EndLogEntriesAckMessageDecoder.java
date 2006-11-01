@@ -23,6 +23,8 @@ import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesAckMessage;
 import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 public class EndLogEntriesAckMessageDecoder extends ResponseMessageDecoder
 {
@@ -35,5 +37,9 @@ public class EndLogEntriesAckMessageDecoder extends ResponseMessageDecoder
             int responseCode, ByteBuffer in ) throws Exception
     {
         return new EndLogEntriesAckMessage( sequence, responseCode );
+    }
+    
+    public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
+    {
     }
 }

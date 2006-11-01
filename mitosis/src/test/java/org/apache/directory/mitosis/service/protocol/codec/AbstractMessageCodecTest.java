@@ -25,10 +25,11 @@ import junit.framework.TestCase;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.WriteFuture;
+import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.apache.mina.filter.codec.support.SimpleProtocolDecoderOutput;
 import org.apache.mina.filter.codec.support.SimpleProtocolEncoderOutput;
+import org.apache.mina.util.Queue;
 
 public abstract class AbstractMessageCodecTest extends TestCase
 {
@@ -75,15 +76,29 @@ public abstract class AbstractMessageCodecTest extends TestCase
         Assert.assertTrue( decoder.decodable( null, buf ) == MessageDecoder.OK );
         buf.reset();
         
-        SimpleProtocolDecoderOutput decoderOut = new SimpleProtocolDecoderOutput();
+        ProtocolDecoderOutputImpl decoderOut = new ProtocolDecoderOutputImpl();
         decoder.decode( null, buf, decoderOut );
         
         Assert.assertTrue( compare( message,
-                                    ( BaseMessage ) decoderOut.getMessageQueue().pop() ) );
+                                    ( BaseMessage ) decoderOut.messages.pop() ) );
     }
     
     protected boolean compare( BaseMessage expected, BaseMessage actual )
     {
         return expected.equals( actual );
+    }
+    
+    private class ProtocolDecoderOutputImpl implements ProtocolDecoderOutput
+    {
+        private final Queue messages = new Queue();
+
+        public void flush()
+        {
+        }
+
+        public void write(Object message)
+        {
+            messages.push(message);
+        }
     }
 }

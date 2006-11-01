@@ -24,6 +24,8 @@ import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
 import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 public class LogEntryMessageDecoder extends BaseMessageDecoder
 {
@@ -44,5 +46,8 @@ public class LogEntryMessageDecoder extends BaseMessageDecoder
                 sequence,
                 operationCodec.decode( src ) );
     }
-
+    
+    public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
+    {
+    }
 }

@@ -23,14 +23,16 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.SimpleCSN;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.filter.codec.ProtocolDecoderException;
+import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 public class BeginLogEntriesAckMessageDecoder extends ResponseMessageDecoder
 {
@@ -80,5 +82,9 @@ public class BeginLogEntriesAckMessageDecoder extends ResponseMessageDecoder
             
             updateVector.setCSN( new SimpleCSN( in.getLong(), replicaId, in.getInt() ) );
         }
+    }
+    
+    public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
+    {
     }
 }

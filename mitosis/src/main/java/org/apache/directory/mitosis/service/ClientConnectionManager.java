@@ -19,22 +19,29 @@
  */
 package org.apache.directory.mitosis.service;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.mina.common.ConnectFuture;
-import org.apache.mina.common.IoConnector;
-import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.LoggingFilter;
-import org.apache.mina.filter.thread.ThreadPoolFilter;
-import org.apache.mina.transport.socket.nio.SocketConnector;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientProtocolHandler;
+import org.apache.mina.common.ConnectFuture;
+import org.apache.mina.common.ExecutorThreadModel;
+import org.apache.mina.common.IoConnector;
+import org.apache.mina.common.IoConnectorConfig;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.common.RuntimeIOException;
+import org.apache.mina.filter.LoggingFilter;
+import org.apache.mina.transport.socket.nio.SocketConnector;
+import org.apache.mina.transport.socket.nio.SocketConnectorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
+import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
+import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 /**
  * Manages all outgoing connections to remote replicas.
@@ -48,6 +55,7 @@ class ClientConnectionManager
     
     private final ReplicationService service;
     private final IoConnector connector = new SocketConnector();
+    private final IoConnectorConfig connectorConfig = new SocketConnectorConfig();
     private final Map sessions = new HashMap();
     private ReplicationConfiguration configuration;
     private ConnectionMonitor monitor;
@@ -55,17 +63,18 @@ class ClientConnectionManager
     ClientConnectionManager( ReplicationService service )
     {
         this.service = service;
+        
+        ExecutorThreadModel threadModel = ExecutorThreadModel.getInstance("mitosis");
+        threadModel.setExecutor(
+                new ThreadPoolExecutor(16, 16, 60, TimeUnit.SECONDS, new LinkedBlockingQueue() ));
+        connectorConfig.setThreadModel(threadModel);
+
+        //// add logger
+        connectorConfig.getFilterChain().addLast( "logger", new LoggingFilter() );
     }
 
     public void start( ReplicationConfiguration cfg ) throws Exception
     {
-        // initialze client connection
-        //// initialize thread pool
-        ThreadPoolFilter threadPoolFilter = new ThreadPoolFilter();
-        connector.getFilterChain().addLast( "threadPool", threadPoolFilter );
-        //// add logger
-        connector.getFilterChain().addLast( "logger", new LoggingFilter() );
-        
         this.configuration = cfg;
         
         monitor = new ConnectionMonitor();
@@ -78,8 +87,10 @@ class ClientConnectionManager
         monitor.shutdown();
         
         // remove all filters
-        connector.getFilterChain().remove( "threadPool" );
-        connector.getFilterChain().remove( "logger" );
+        connector.getFilterChain().clear();
+        
+        ( ( ExecutorService ) ( ( ExecutorThreadModel ) connectorConfig.getThreadModel() ).
+                getExecutor() ).shutdown();
     }
     
     private class ConnectionMonitor extends Thread
@@ -264,10 +275,11 @@ class ClientConnectionManager
             IoSession session;
             try
             {
-                connector.setConnectTimeout( configuration.getResponseTimeout() );
+                connectorConfig.setConnectTimeout( configuration.getResponseTimeout() );
                 ConnectFuture future = connector.connect(
                         replica.getAddress(),
-                        new ReplicationClientProtocolHandler( service ) );
+                        new ReplicationClientProtocolHandler( service ),
+                        connectorConfig );
                 
                 future.join();
                 session = future.getSession();
@@ -279,7 +291,7 @@ class ClientConnectionManager
                     con.inProgress = false;
                 }
             }
-            catch( IOException e )
+            catch( RuntimeIOException e )
             {
                 log.warn("[" + replica + "] Failed to connect.", e );
             }
