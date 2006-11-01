@@ -336,10 +336,7 @@ public class LdapStatesEnum implements IStates
     /**
      * Get the string representing the state
      * 
-     * @param grammar
-     *            The current grammar being used
-     * @param state
-     *            The state number
+     * @param state The state number
      * @return The String representing the state
      */
     public String getState( int state )

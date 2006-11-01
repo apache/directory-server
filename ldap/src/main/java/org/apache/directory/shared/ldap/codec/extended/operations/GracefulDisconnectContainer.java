@@ -61,7 +61,7 @@ public class GracefulDisconnectContainer extends AbstractContainer implements IA
      * Set a GracefulDisconnect Object into the container. It will be completed
      * by the ldapDecoder.
      * 
-     * @param control the GracefulShutdown to set.
+     * @param gracefulDisconnect the GracefulShutdown to set.
      */
     public void setGracefulDisconnect( GracefulDisconnect gracefulDisconnect )
     {

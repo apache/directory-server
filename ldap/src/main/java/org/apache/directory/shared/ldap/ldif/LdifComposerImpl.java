@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.util.MultiMap;
 /**
  * An LDAP Data Interchange Format (LDIF) composer.
  * 
- * @task Get the RFC for LDIF syntax in this javadoc.
+ * TODO Get the RFC for LDIF syntax in this javadoc.
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
@@ -42,7 +42,7 @@ public class LdifComposerImpl implements LdifComposer
     /**
      * Generates an LDIF from a multi map.
      * 
-     * @param a_attrHash
+     * @param attrHash
      *            the multi map of single and multivalued attributes.
      * @return the LDIF as a String.
      */

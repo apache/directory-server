@@ -101,7 +101,7 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
     /**
      * Sets the distinguished name of the entry object returned.
      * 
-     * @param dn
+     * @param objectName
      *            the Dn of the entry returned.
      */
     public void setObjectName( LdapDN objectName )

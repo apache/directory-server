@@ -51,8 +51,7 @@ public interface CompareRequest extends SingleReplyRequest, AbandonableRequest
      * Sets the distinguished name of the entry to be compared using the
      * attribute value assertion.
      * 
-     * @param a_name
-     *            the DN of the compared entry.
+     * @param name the DN of the compared entry.
      */
     void setName( LdapDN name );
 
@@ -68,17 +67,15 @@ public interface CompareRequest extends SingleReplyRequest, AbandonableRequest
     /**
      * Sets the attribute value to use in the comparison.
      * 
-     * @param a_value
-     *            the attribute value used in comparison.
+     * @param value the attribute value used in comparison.
      */
-    void setAssertionValue( String a_value );
+    void setAssertionValue( String value );
 
 
     /**
      * Sets the attribute value to use in the comparison.
      * 
-     * @param a_value
-     *            the attribute value used in comparison.
+     * @param value the attribute value used in comparison.
      */
     void setAssertionValue( byte[] value );
 
@@ -94,8 +91,7 @@ public interface CompareRequest extends SingleReplyRequest, AbandonableRequest
     /**
      * Sets the attribute id used in the comparison.
      * 
-     * @param a_attrId
-     *            the attribute id used in comparison.
+     * @param attrId the attribute id used in comparison.
      */
-    void setAttributeId( String a_attrId );
+    void setAttributeId( String attrId );
 }

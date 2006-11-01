@@ -176,10 +176,9 @@ public class LdapDN /* extends LdapString */implements Name
     * &lt;spaces&gt; &lt;name-component&gt; &lt;name-components&gt; | e <br>
     * </p>
     *
-    * @param bytes
-    *            The byte buffer that contains the DN
-    * @exception A
-    *                InvalidNameException is thrown if the buffer does not
+    * @param upName
+    *            The String that contains the DN
+    * @exception InvalidNameException is thrown if the buffer does not
     *                contains a valid DN.
     */
    public LdapDN( String upName ) throws InvalidNameException
@@ -1019,13 +1018,13 @@ public class LdapDN /* extends LdapString */implements Name
    }
 
    /**
-    * Adds a single component to the end of this name.
+    * Adds a single RDN to the end of this name.
     *
-    * @param comp
-    *            the component to add
+    * @param newRdn
+    *            the RDN to add
     * @return the updated name (not a new one)
     * @throws InvalidNameException
-    *             if adding <tt>comp</tt> would violate the syntax rules of
+    *             if adding <tt>RDN</tt> would violate the syntax rules of
     *             this name
     */
    public Name add( Rdn newRdn ) throws InvalidNameException
@@ -1282,7 +1281,7 @@ public class LdapDN /* extends LdapString */implements Name
     *
     * @param rdn
     *            The RDN to modify
-    * @param oids
+    * @param oidsMap
     *            The map of all existing oids and normalizer
     * @throws InvalidNameException
     *             If
@@ -1369,7 +1368,7 @@ public class LdapDN /* extends LdapString */implements Name
     *
     * @param dn
     *            The DN to transform
-    * @param oids
+    * @param oidsMap
     *            The mapping between names and oids.
     * @return A normalized form of the DN
     * @throws InvalidNameException
@@ -1411,11 +1410,8 @@ public class LdapDN /* extends LdapString */implements Name
     * important do have such a representation, as 'cn' and 'commonname' share
     * the same OID.
     *
-    * @param dn
-    *            The DN to transform
-    * @param oids
+    * @param oidsMap
     *            The mapping between names and oids.
-    * @return A normalized form of the DN
     * @throws InvalidNameException
     *             If the DN is invalid
     */

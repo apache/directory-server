@@ -50,8 +50,7 @@ public interface SearchResponseEntry extends Response
     /**
      * Sets the distinguished name of the entry object returned.
      * 
-     * @param a_dn
-     *            the Dn of the entry returned.
+     * @param dn the Dn of the entry returned.
      */
     void setObjectName( LdapDN dn );
 
@@ -67,8 +66,8 @@ public interface SearchResponseEntry extends Response
     /**
      * Sets the set of attributes and all their values in a MultiMap.
      * 
-     * @param a_attributes
+     * @param attributes
      *            the set of attributes and all their values
      */
-    void setAttributes( Attributes a_attributes );
+    void setAttributes( Attributes attributes );
 }

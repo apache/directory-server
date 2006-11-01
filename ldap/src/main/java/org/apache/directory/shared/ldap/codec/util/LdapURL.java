@@ -295,8 +295,7 @@ public class LdapURL
      * Create a new LdapURL from a String after having parsed it.
      * 
      * @param string TheString that contains the LDAPURL
-     * @return A MutableString containing the LDAPURL
-     * @throws DecoderException If the String does not comply with RFC 2255
+     * @throws LdapURLEncodingException If the String does not comply with RFC 2255
      */
     public LdapURL( String string ) throws LdapURLEncodingException
     {
@@ -322,8 +321,7 @@ public class LdapURL
      * Create a new LdapURL after having parsed it.
      * 
      * @param bytes The byte buffer that contains the LDAPURL
-     * @return A MutableString containing the LDAPURL
-     * @throws DecoderException If the byte array does not comply with RFC 2255
+     * @throws LdapURLEncodingException If the byte array does not comply with RFC 2255
      */
     public LdapURL(byte[] bytes) throws LdapURLEncodingException
     {

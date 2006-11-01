@@ -174,8 +174,8 @@ public class LdapResultImpl implements LdapResult
 
 
     /**
-     * @param obj
-     * @return
+     * @param obj The object to compare with
+     * @return <code>true</code> if both objects are equals
      */
     public boolean equals( Object obj )
     {

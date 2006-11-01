@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
  * {@link ResultCodeEnum#SIZELIMITEXCEEDED} resultCode with the exception.
  * 
  * @see LdapException
- * @see SizeLimitExceededException
+ * @see LdapSizeLimitExceededException
  * @see <a
  *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
  *      LDAP ResultCode to JNDI Exception Mappings</a>

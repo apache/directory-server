@@ -55,7 +55,7 @@ public class ResponseCarryingMessageException extends RuntimeMultiException
     /**
      * Constructs an Exception with a detailed message.
      * 
-     * @param a_message
+     * @param message
      *            The message associated with the exception.
      */
     public ResponseCarryingMessageException(String message)

@@ -157,7 +157,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
     /**
      * Creates a subtree which may be a refinement filter where all aspects of
      * the specification can be set. If the refinement filter is null this
-     * defaults to {@link #BaseSubtreeSpecification(Name, int, int, Set, Set)}.
+     * defaults to {@link #BaseSubtreeSpecification(LdapDN, int, int, Set, Set)}.
      * 
      * @param base
      *            the base of the subtree relative to the administrative point

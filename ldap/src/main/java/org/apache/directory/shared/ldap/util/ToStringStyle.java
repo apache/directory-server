@@ -34,7 +34,7 @@ import java.util.Map;
  * <p>
  * These classes are intended to be used as <code>Singletons</code>. There is
  * no need to instantiate a new style each time. A program will generally use
- * one of the predefined constants on this class. Alternatively, the {@link }
+ * one of the predefined constants on this class. Alternatively, the
  * class can be used to set the individual settings. Thus most styles can be
  * achieved without subclassing.
  * </p>

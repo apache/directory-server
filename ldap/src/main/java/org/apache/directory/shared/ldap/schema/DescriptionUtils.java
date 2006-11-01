@@ -328,8 +328,9 @@ public class DescriptionUtils
      *      [extensions] describe extensions.
      * </pre>
      * 
-     * @param matchingRuleUse
-     * @return
+     * @param matchingRuleUse The matching rule from which we want to generate
+     *  a MatchingRuleUseDescription.
+     * @return The generated MatchingRuleUseDescription
      */
     public static String getDescription( MatchingRuleUse matchingRuleUse ) throws NamingException
     {

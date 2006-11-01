@@ -61,7 +61,7 @@ public class GracefulShutdownContainer extends AbstractContainer implements IAsn
      * Set a GracefulShutdown Object into the container. It will be completed by
      * the ldapDecoder.
      * 
-     * @param control the GracefulShutdown to set.
+     * @param gracefulShutdown the GracefulShutdown to set.
      */
     public void setGracefulShutdown( GracefulShutdown gracefulShutdown )
     {

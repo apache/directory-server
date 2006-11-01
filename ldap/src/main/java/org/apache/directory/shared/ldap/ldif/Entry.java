@@ -155,8 +155,7 @@ public class Entry implements Cloneable
     /**
      * Add a modification item (used by modify operations)
      * 
-     * @param ModificationItem
-     *            The modification to be added
+     * @param modification The modification to be added
      */
     public void addModificationItem( ModificationItem modification )
     {

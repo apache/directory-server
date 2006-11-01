@@ -45,7 +45,7 @@ public class ClassUtils
 
     /**
      * <p>
-     * The package separator character: <code>'&#x2e;' == {@}</code>.
+     * The package separator character: <code>'&#x2e;' == .</code>.
      * </p>
      */
     public static final char PACKAGE_SEPARATOR_CHAR = '.';
@@ -59,7 +59,7 @@ public class ClassUtils
 
     /**
      * <p>
-     * The inner class separator character: <code>'$' == {@}</code>.
+     * The inner class separator character: <code>'$' == $</code>.
      * </p>
      */
     public static final char INNER_CLASS_SEPARATOR_CHAR = '$';

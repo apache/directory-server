@@ -80,7 +80,7 @@ import java.util.Collection;
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
- * @todo This interface should be located in a url package under common to be
+ * TODO This interface should be located in a url package under common to be
  *       constructed from a LDAPv3 URL parser. The interface will eventually
  *       look very different once url support is added: for one it will add and
  *       remove LdapUrl objects instead of strings or provide both string and

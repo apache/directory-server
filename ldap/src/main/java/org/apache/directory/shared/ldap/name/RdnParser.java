@@ -564,10 +564,9 @@ public class RdnParser
      * &lt;spaces&gt; &lt;attributeValue&gt; &lt;nameComponents&gt;
      * </p>
      *
-     * @param bytes
-     *            The buffer to parse
-     * @param pos
-     *            The current position in the buffer
+     * @param dn The String to parse
+     * @param pos The current position in the buffer
+     * @param rdn The constructed RDN
      * @return The new position in the char array, or PARSING_ERROR if the rule
      *         does not apply to the char array
      */

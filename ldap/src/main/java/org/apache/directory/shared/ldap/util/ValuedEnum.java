@@ -124,7 +124,7 @@ import java.util.List;
  * <p>
  * The <code>getEnum</code> and <code>iterator</code> methods are
  * recommended. Unfortunately, Java restrictions require these to be coded as
- * shown in each subclass. An alternative choice is to use the {@link } class.
+ * shown in each subclass.
  * </p>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

@@ -51,8 +51,7 @@ public interface DeleteRequest extends SingleReplyRequest, AbandonableRequest
      * Sets the distinguished name of the leaf entry to be deleted by this
      * request.
      * 
-     * @param a_name
-     *            the DN of the leaf entry to delete.
+     * @param name the DN of the leaf entry to delete.
      */
     void setName( LdapDN name );
 }

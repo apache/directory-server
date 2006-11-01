@@ -31,7 +31,6 @@ import java.util.ArrayList;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
- * @testcase test.ldapdd.util.TestNamespaceTools
  */
 public class NamespaceTools
 {
@@ -137,7 +136,7 @@ public class NamespaceTools
      */
 
     /**
-     * @task What is this method for??? It does not make sense out of a Context
+     * TODO What is this method for??? It does not make sense out of a Context
      *       implementation.
      * @param a_name
      *            the potentially federated name to get this namespaces
@@ -158,7 +157,7 @@ public class NamespaceTools
     /**
      * Generates the string representation of a name.
      * 
-     * @task what the hell are these functions for if toString on a Name returns
+     * TODO what the hell are these functions for if toString on a Name returns
      *       the string representation for me?
      * @param a_name
      *            the Name object to convert to a string.
@@ -512,9 +511,9 @@ public class NamespaceTools
     /**
      * Checks to see if a name has name complex name components in it.
      * 
-     * @param name
-     * @return
-     * @throws NamingException
+     * @param name The name to check 
+     * @return <code>true</code> if the name has composite components
+     * @throws NamingException If the name is invalid
      */
     public static boolean hasCompositeComponents( String name ) throws NamingException
     {

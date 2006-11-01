@@ -186,7 +186,7 @@ public abstract class AbstractExprNode implements ExprNode
      * @param a_assertionType
      *            the assertion type value
      * @return the string representation
-     * @todo Refactor these classes to use an enumeration type
+     * TODO Refactor these classes to use an enumeration type
      */
     public static final String getOperationString( int a_assertionType )
     {

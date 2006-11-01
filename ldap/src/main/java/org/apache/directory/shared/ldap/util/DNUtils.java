@@ -54,7 +54,7 @@ public class DNUtils
     public static final int TWO_BYTES = 2;
 
     /**
-     * <safe-init-char> ::= [0x01-0x09] | 0x0B | 0x0C | [0x0E-0x1F] |
+     * &lt;safe-init-char&gt; ::= [0x01-0x09] | 0x0B | 0x0C | [0x0E-0x1F] |
      * [0x21-0x39] | 0x3B | [0x3D-0x7F]
      */
     private static final boolean[] SAFE_INIT_CHAR =
@@ -77,7 +77,7 @@ public class DNUtils
             true,  true,  true,  true,  true,  true,  true,  true 
         };
 
-    /** <safe-char> ::= [0x01-0x09] | 0x0B | 0x0C | [0x0E-0x7F] */
+    /** &lt;safe-char&gt; ::= [0x01-0x09] | 0x0B | 0x0C | [0x0E-0x7F] */
     private static final boolean[] SAFE_CHAR =
         { 
             false, true,  true,  true,  true,  true,  true,  true, 
@@ -99,7 +99,7 @@ public class DNUtils
         };
 
     /**
-     * <base64-char> ::= 0x2B | 0x2F | [0x30-0x39] | 0x3D | [0x41-0x5A] |
+     * &lt;base64-char&gt; ::= 0x2B | 0x2F | [0x30-0x39] | 0x3D | [0x41-0x5A] |
      * [0x61-0x7A]
      */
     private static final boolean[] BASE64_CHAR =
@@ -193,9 +193,9 @@ public class DNUtils
 
     /**
      * Walk the buffer while characters are Safe String characters :
-     * <safe-string> ::= <safe-init-char> <safe-chars> <safe-init-char> ::=
+     * &lt;safe-string&gt; ::= &lt;safe-init-char&gt; &lt;safe-chars&gt; &lt;safe-init-char&gt; ::=
      * [0x01-0x09] | 0x0B | 0x0C | [0x0E-0x1F] | [0x21-0x39] | 0x3B |
-     * [0x3D-0x7F] <safe-chars> ::= <safe-char> <safe-chars> | <safe-char> ::=
+     * [0x3D-0x7F] &lt;safe-chars&gt; ::= &lt;safe-char&gt; &lt;safe-chars&gt; | &lt;safe-char&gt; ::=
      * [0x01-0x09] | 0x0B | 0x0C | [0x0E-0x7F]
      * 
      * @param byteArray
@@ -239,7 +239,7 @@ public class DNUtils
 
 
     /**
-     * Walk the buffer while characters are Alpha characters : <alpha> ::=
+     * Walk the buffer while characters are Alpha characters : &lt;alpha&gt; ::=
      * [0x41-0x5A] | [0x61-0x7A]
      * 
      * @param byteArray
@@ -271,7 +271,7 @@ public class DNUtils
 
 
     /**
-     * Walk the buffer while characters are Alpha characters : <alpha> ::=
+     * Walk the buffer while characters are Alpha characters : &lt;alpha&gt; ::=
      * [0x41-0x5A] | [0x61-0x7A]
      * 
      * @param charArray
@@ -303,7 +303,7 @@ public class DNUtils
 
 
     /**
-     * Check if the current character is a Pair Char <pairchar> ::= ',' | '=' |
+     * Check if the current character is a Pair Char &lt;pairchar&gt; ::= ',' | '=' |
      * '+' | '<' | '>' | '#' | ';' | '\' | '"' | [0-9a-fA-F] [0-9a-fA-F]
      * 
      * @param byteArray
@@ -342,7 +342,7 @@ public class DNUtils
 
 
     /**
-     * Check if the current character is a Pair Char <pairchar> ::= ',' | '=' |
+     * Check if the current character is a Pair Char &lt;pairchar&gt; ::= ',' | '=' |
      * '+' | '<' | '>' | '#' | ';' | '\' | '"' | [0-9a-fA-F] [0-9a-fA-F]
      * 
      * @param charArray
@@ -382,7 +382,7 @@ public class DNUtils
     /**
      * Check if the current character is a Pair Char 
      * 
-     * <pairchar> ::= ' ' | ',' | '=' | '+' | '<' | '>' | '#' | ';' | 
+     * &lt;pairchar&gt; ::= ' ' | ',' | '=' | '+' | '<' | '>' | '#' | ';' | 
      *                  '\' | '"' | [0-9a-fA-F] [0-9a-fA-F]
      * 
      * @param string
@@ -424,7 +424,7 @@ public class DNUtils
 
     /**
      * Check if the current character is a String Char. Chars are Unicode, not
-     * ASCII. <stringchar> ::= [0x00-0xFFFF] - [,=+<>#;\"\n\r]
+     * ASCII. &lt;stringchar&gt; ::= [0x00-0xFFFF] - [,=+<>#;\"\n\r]
      * 
      * @param byteArray
      *            The buffer which contains the data
@@ -457,7 +457,7 @@ public class DNUtils
 
     /**
      * Check if the current character is a String Char. Chars are Unicode, not
-     * ASCII. <stringchar> ::= [0x00-0xFFFF] - [,=+<>#;\"\n\r]
+     * ASCII. &lt;stringchar&gt; ::= [0x00-0xFFFF] - [,=+<>#;\"\n\r]
      * 
      * @param charArray
      *            The buffer which contains the data
@@ -490,7 +490,7 @@ public class DNUtils
 
     /**
      * Check if the current character is a String Char. Chars are Unicode, not
-     * ASCII. <stringchar> ::= [0x00-0xFFFF] - [,=+<>#;\"\n\r]
+     * ASCII. &lt;stringchar&gt; ::= [0x00-0xFFFF] - [,=+<>#;\"\n\r]
      * 
      * @param string
      *            The string which contains the data
@@ -525,7 +525,7 @@ public class DNUtils
 
     /**
      * Check if the current character is a Quote Char We are testing Unicode
-     * chars <quotechar> ::= [0x00-0xFFFF] - [\"]
+     * chars &lt;quotechar&gt; ::= [0x00-0xFFFF] - [\"]
      * 
      * @param byteArray The buffer which contains the data
      * @param index Current position in the buffer
@@ -556,7 +556,7 @@ public class DNUtils
 
     /**
      * Check if the current character is a Quote Char We are testing Unicode
-     * chars <quotechar> ::= [0x00-0xFFFF] - [\"]
+     * chars &lt;quotechar&gt; ::= [0x00-0xFFFF] - [\"]
      * 
      * @param charArray The buffer which contains the data
      * @param index Current position in the buffer
@@ -586,7 +586,7 @@ public class DNUtils
 
     /**
      * Check if the current character is a Quote Char We are testing Unicode
-     * chars <quotechar> ::= [0x00-0xFFFF] - [\"]
+     * chars &lt;quotechar&gt; ::= [0x00-0xFFFF] - [\"]
      * 
      * @param string The string which contains the data
      * @param index Current position in the string
@@ -618,7 +618,7 @@ public class DNUtils
 
 
     /**
-     * Parse an hex pair <hexpair> ::= <hex> <hex>
+     * Parse an hex pair &lt;hexpair&gt; ::= &lt;hex&gt; &lt;hex&gt;
      * 
      * @param byteArray
      *            The buffer which contains the data
@@ -648,7 +648,7 @@ public class DNUtils
 
 
     /**
-     * Parse an hex pair <hexpair> ::= <hex> <hex>
+     * Parse an hex pair &lt;hexpair&gt; ::= &lt;hex&gt; &lt;hex&gt;
      * 
      * @param charArray
      *            The buffer which contains the data
@@ -677,7 +677,7 @@ public class DNUtils
     }
 
     /**
-     * Parse an hex pair <hexpair> ::= <hex> <hex>
+     * Parse an hex pair &lt;hexpair&gt; ::= &lt;hex&gt; &lt;hex&gt;
      * 
      * @param string
      *            The string which contains the data
@@ -706,7 +706,7 @@ public class DNUtils
     }
 
     /**
-     * Parse an hex pair <hexpair> ::= <hex> <hex>
+     * Parse an hex pair &lt;hexpair&gt; ::= &lt;hex&gt; &lt;hex&gt;
      * 
      * @param string
      *            The string which contains the data
@@ -722,8 +722,8 @@ public class DNUtils
     }
 
     /**
-     * Parse an hex string, which is a list of hex pairs <hexstring> ::=
-     * <hexpair> <hexpairs> <hexpairs> ::= <hexpair> <hexpairs> | e
+     * Parse an hex string, which is a list of hex pairs &lt;hexstring&gt; ::=
+     * &lt;hexpair&gt; &lt;hexpairs&gt; &lt;hexpairs&gt; ::= &lt;hexpair&gt; &lt;hexpairs&gt; | e
      * 
      * @param byteArray
      *            The buffer which contains the data
@@ -756,8 +756,8 @@ public class DNUtils
 
 
     /**
-     * Parse an hex string, which is a list of hex pairs <hexstring> ::=
-     * <hexpair> <hexpairs> <hexpairs> ::= <hexpair> <hexpairs> | e
+     * Parse an hex string, which is a list of hex pairs &lt;hexstring&gt; ::=
+     * &lt;hexpair&gt; &lt;hexpairs&gt; &lt;hexpairs&gt; ::= &lt;hexpair&gt; &lt;hexpairs&gt; | e
      * 
      * @param charArray
      *            The buffer which contains the data
@@ -789,12 +789,12 @@ public class DNUtils
     }
 
     /**
-     * Parse an hex string, which is a list of hex pairs <hexstring> ::=
-     * <hexpair> <hexpairs> <hexpairs> ::= <hexpair> <hexpairs> | e
+     * Parse an hex string, which is a list of hex pairs &lt;hexstring&gt; ::=
+     * &lt;hexpair&gt; &lt;hexpairs&gt; &lt;hexpairs&gt; ::= &lt;hexpair&gt; &lt;hexpairs&gt; | e
      * 
      * @param string
      *            The string which contains the data
-     * @param index
+     * @param pos
      *            Current position in the string
      * @return Return the first position which is not an hex pair, or -1 if
      *         there is no hexpair at the beginning or if an hexpair is invalid
@@ -823,12 +823,12 @@ public class DNUtils
     }
 
     /**
-     * Parse an hex string, which is a list of hex pairs <hexstring> ::=
-     * <hexpair> <hexpairs> <hexpairs> ::= <hexpair> <hexpairs> | e
+     * Parse an hex string, which is a list of hex pairs &lt;hexstring&gt; ::=
+     * &lt;hexpair&gt; &lt;hexpairs&gt; &lt;hexpairs&gt; ::= &lt;hexpair&gt; &lt;hexpairs&gt; | e
      * 
      * @param string The string which contains the data
      * @param hex The result as a byte array
-     * @param Position Current position in the string
+     * @param pos Current position in the string
      * @return Return the first position which is not an hex pair, or -1 if
      *         there is no hexpair at the beginning or if an hexpair is invalid
      *         (if we have only one hex instead of 2)
@@ -859,9 +859,9 @@ public class DNUtils
     }
 
     /**
-     * Walk the buffer while characters are Base64 characters : <base64-string>
-     * ::= <base64-char> <base64-chars> <base64-chars> ::= <base64-char>
-     * <base64-chars> | <base64-char> ::= 0x2B | 0x2F | [0x30-0x39] | 0x3D |
+     * Walk the buffer while characters are Base64 characters : &lt;base64-string&gt;
+     * ::= &lt;base64-char&gt; &lt;base64-chars&gt; &lt;base64-chars&gt; ::= &lt;base64-char&gt;
+     * &lt;base64-chars&gt; | &lt;base64-char&gt; ::= 0x2B | 0x2F | [0x30-0x39] | 0x3D |
      * [0x41-0x5A] | [0x61-0x7A]
      * 
      * @param byteArray

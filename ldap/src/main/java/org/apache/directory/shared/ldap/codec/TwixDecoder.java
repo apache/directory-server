@@ -68,8 +68,8 @@ public class TwixDecoder implements ProviderDecoder
     /**
      * Creates an instance of a Twix Decoder implementation.
      * 
-     * @param provider
-     *            the owning provider.
+     * @param provider the owning provider.
+     * @param binaries The binary attributes set
      */
     public TwixDecoder(Provider provider, Set binaries)
     {
@@ -82,7 +82,7 @@ public class TwixDecoder implements ProviderDecoder
     /**
      * Decodes a PDU
      * 
-     * @param encodedThe PDU containing the LdapMessage to decode
+     * @param encoded The PDU containing the LdapMessage to decode
      * @throws DecoderExceptionIf anything went wrong
      */
     public void decode( Object encoded ) throws DecoderException

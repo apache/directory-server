@@ -56,11 +56,11 @@ public class SubstringNode extends LeafNode
      * Creates a new SubstringNode object with only one wildcard and no internal
      * any fragments between wildcards.
      * 
-     * @param a_attribute
+     * @param attribute
      *            the name of the attribute to substring assert
-     * @param a_initial
+     * @param initialPattern
      *            the initial fragment
-     * @param a_final
+     * @param finalPattern
      *            the final fragment
      */
     public SubstringNode(String attribute, String initialPattern, String finalPattern)
@@ -77,13 +77,13 @@ public class SubstringNode extends LeafNode
      * Creates a new SubstringNode object more than one wildcard and an any
      * list.
      * 
-     * @param a_anyList
+     * @param anyPattern
      *            list of internal fragments between wildcards
-     * @param a_attribute
+     * @param attribute
      *            the name of the attribute to substring assert
-     * @param a_initial
+     * @param initialPattern
      *            the initial fragment
-     * @param a_final
+     * @param finalPattern
      *            the final fragment
      */
     public SubstringNode(ArrayList anyPattern, String attribute, String initialPattern, String finalPattern)

@@ -81,7 +81,7 @@ public class StringTools
 
     private static final int UTF8_SIX_BYTES = 0x00FC;
 
-    /** <alpha> ::= [0x41-0x5A] | [0x61-0x7A] */
+    /** &lt;alpha> ::= [0x41-0x5A] | [0x61-0x7A] */
     public static final boolean[] ALPHA =
         { 
             false, false, false, false, false, false, false, false, 
@@ -102,7 +102,7 @@ public class StringTools
             true,  true,  true,  false, false, false, false, false 
         };
 
-    /** <alpha> | <digit> | '-' */
+    /** &lt;alpha> | &lt;digit> | '-' */
     public static final boolean[] CHAR =
         { 
             false, false, false, false, false, false, false, false, 
@@ -144,7 +144,7 @@ public class StringTools
             false, false, false, false, false, false, false, false
         };
 
-    /** <hex> ::= [0x30-0x39] | [0x41-0x46] | [0x61-0x66] */
+    /** &lt;hex> ::= [0x30-0x39] | [0x41-0x46] | [0x61-0x66] */
     private static final boolean[] HEX =
         { 
             false, false, false, false, false, false, false, false, 
@@ -164,7 +164,7 @@ public class StringTools
             false, false, false, false, false, false, false, false, 
             false, false, false, false, false, false, false, false };
 
-    /** <hex> ::= [0x30-0x39] | [0x41-0x46] | [0x61-0x66] */
+    /** &lt;hex> ::= [0x30-0x39] | [0x41-0x46] | [0x61-0x66] */
     public static final byte[] HEX_VALUE =
         { 
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 00 -> 0F
@@ -323,7 +323,7 @@ public class StringTools
      * @return the deep trimmed string
      * @see StringTools#deepTrim( String )
      * 
-     * @TODO Replace the toCharArray() by substrig manipulations
+     * TODO Replace the toCharArray() by substring manipulations
      */
     public static final String deepTrim( String str, boolean toLowerCase )
     {
@@ -498,7 +498,7 @@ public class StringTools
      * @param source
      *            the HTML code to be processes
      * @param replaceNl
-     *            if true '\n' will be replaced by <br>
+     *            if true '\n' will be replaced by &lt;br>
      * @param replaceTag
      *            if true '<' will be replaced by &lt; and '>' will be replaced
      *            by &gt;
@@ -799,8 +799,7 @@ public class StringTools
     /**
      * Helper function that returns a char from an hex
      * 
-     * @param octet
-     *            The hex to dump
+     * @param hex The hex to dump
      * @return A char representation of the hex
      */
     public static final char dumpHex( byte hex )
@@ -1153,12 +1152,11 @@ public class StringTools
      * Return the Unicode char which is coded in the bytes at the given
      * position.
      * 
-     * @param bytes
-     *            The byte[] represntation of an Unicode string.
-     * @param pos
-     *            The current position to start decoding the char
-     * @return The decoded char, or -1 if no char can be decoded TODO : Should
-     *         stop after the third byte, as a char is only 2 bytes long.
+     * @param car The character to be transformed to an array of bytes
+     * 
+     * @return The byte array representing the char 
+     * 
+     * TODO : Should stop after the third byte, as a char is only 2 bytes long.
      */
     public static final byte[] charToBytes( char car )
     {
@@ -1317,7 +1315,7 @@ public class StringTools
      *            The string which contains the data
      * @param index
      *            Current position in the string
-     * @param test
+     * @param text
      *            The text we want to check
      * @return <code>true</code> if the string contains the text.
      */
@@ -1479,7 +1477,7 @@ public class StringTools
 
 
     /**
-     * Check if the current character is an Hex Char <hex> ::= [0x30-0x39] |
+     * Check if the current character is an Hex Char &lt;hex> ::= [0x30-0x39] |
      * [0x41-0x46] | [0x61-0x66]
      * 
      * @param byteArray
@@ -1511,7 +1509,7 @@ public class StringTools
 
 
     /**
-     * Check if the current character is an Hex Char <hex> ::= [0x30-0x39] |
+     * Check if the current character is an Hex Char &lt;hex> ::= [0x30-0x39] |
      * [0x41-0x46] | [0x61-0x66]
      * 
      * @param chars
@@ -1542,7 +1540,7 @@ public class StringTools
     }
 
     /**
-     * Check if the current character is an Hex Char <hex> ::= [0x30-0x39] |
+     * Check if the current character is an Hex Char &lt;hex> ::= [0x30-0x39] |
      * [0x41-0x46] | [0x61-0x66]
      * 
      * @param string
@@ -1576,7 +1574,7 @@ public class StringTools
     
 
     /**
-     * Test if the current character is a digit <digit> ::= '0' | '1' | '2' |
+     * Test if the current character is a digit &lt;digit> ::= '0' | '1' | '2' |
      * '3' | '4' | '5' | '6' | '7' | '8' | '9'
      * 
      * @param byteArray
@@ -1596,7 +1594,7 @@ public class StringTools
     }
 
     /**
-     * Test if the current character is a digit <digit> ::= '0' | '1' | '2' |
+     * Test if the current character is a digit &lt;digit> ::= '0' | '1' | '2' |
      * '3' | '4' | '5' | '6' | '7' | '8' | '9'
      * 
      * @param car the character to test
@@ -1610,7 +1608,7 @@ public class StringTools
 
 
     /**
-     * Test if the current character is an Alpha character : <alpha> ::=
+     * Test if the current character is an Alpha character : &lt;alpha> ::=
      * [0x41-0x5A] | [0x61-0x7A]
      * 
      * @param byteArray
@@ -1643,7 +1641,7 @@ public class StringTools
 
 
     /**
-     * Test if the current character is an Alpha character : <alpha> ::=
+     * Test if the current character is an Alpha character : &lt;alpha> ::=
      * [0x41-0x5A] | [0x61-0x7A]
      * 
      * @param chars
@@ -1675,7 +1673,7 @@ public class StringTools
     }
 
     /**
-     * Test if the current character is an Alpha character : <alpha> ::=
+     * Test if the current character is an Alpha character : &lt;alpha> ::=
      * [0x41-0x5A] | [0x61-0x7A]
      * 
      * @param string
@@ -1710,7 +1708,7 @@ public class StringTools
 
 
     /**
-     * Test if the current character is a digit <digit> ::= '0' | '1' | '2' |
+     * Test if the current character is a digit &lt;digit> ::= '0' | '1' | '2' |
      * '3' | '4' | '5' | '6' | '7' | '8' | '9'
      * 
      * @param byteArray
@@ -1733,7 +1731,7 @@ public class StringTools
 
 
     /**
-     * Test if the current character is a digit <digit> ::= '0' | '1' | '2' |
+     * Test if the current character is a digit &lt;digit> ::= '0' | '1' | '2' |
      * '3' | '4' | '5' | '6' | '7' | '8' | '9'
      * 
      * @param chars
@@ -1755,7 +1753,7 @@ public class StringTools
     }
 
     /**
-     * Test if the current character is a digit <digit> ::= '0' | '1' | '2' |
+     * Test if the current character is a digit &lt;digit> ::= '0' | '1' | '2' |
      * '3' | '4' | '5' | '6' | '7' | '8' | '9'
      * 
      * @param string
@@ -1780,7 +1778,7 @@ public class StringTools
     }
 
     /**
-     * Test if the current character is a digit <digit> ::= '0' | '1' | '2' |
+     * Test if the current character is a digit &lt;digit> ::= '0' | '1' | '2' |
      * '3' | '4' | '5' | '6' | '7' | '8' | '9'
      * 
      * @param chars
@@ -1802,7 +1800,7 @@ public class StringTools
 
     /**
      * Check if the current character is an 7 bits ASCII CHAR (between 0 and
-     * 127). <char> ::= <alpha> | <digit> | '-'
+     * 127). &lt;char> ::= &lt;alpha> | &lt;digit> | '-'
      * 
      * @param byteArray
      *            The buffer which contains the data
@@ -1834,7 +1832,7 @@ public class StringTools
 
     /**
      * Check if the current character is an 7 bits ASCII CHAR (between 0 and
-     * 127). <char> ::= <alpha> | <digit> | '-'
+     * 127). &lt;char> ::= &lt;alpha> | &lt;digit> | '-'
      * 
      * @param chars
      *            The buffer which contains the data
@@ -1865,7 +1863,7 @@ public class StringTools
 
     /**
      * Check if the current character is an 7 bits ASCII CHAR (between 0 and
-     * 127). <char> ::= <alpha> | <digit> | '-'
+     * 127). &lt;char> ::= &lt;alpha> | &lt;digit> | '-'
      * 
      * @param string
      *            The string which contains the data
@@ -2002,9 +2000,9 @@ public class StringTools
      *  StringUtils.trim(&quot;    abc    &quot;) = &quot;abc&quot;
      * </pre>
      * 
-     * @param str
-     *            the String to be trimmed, may be null
-     * @return the trimmed string, <code>null</code> if null String input
+     * @param bytes the byte array to be trimmed, may be null
+     * 
+     * @return the trimmed byte array
      */
     public static final byte[] trim( byte[] bytes )
     {
@@ -2108,23 +2106,21 @@ public class StringTools
 
     /**
      * <p>
-     * Removes spaces (char &lt;= 32) from start of this array, handling
+     * Removes spaces (char &lt;= 32) from a position in this array, handling
      * <code>null</code> by returning <code>null</code>.
      * </p>
      * Trim removes start characters &lt;= 32.
      * 
      * <pre>
      *  StringUtils.trimLeft(null)          = null
-     *  StringUtils.trimLeft(&quot;&quot;)            = &quot;&quot;
-     *  StringUtils.trimLeft(&quot;     &quot;)       = &quot;&quot;
-     *  StringUtils.trimLeft(&quot;abc&quot;)         = &quot;abc&quot;
-     *  StringUtils.trimLeft(&quot;    abc    &quot;) = &quot;abc    &quot;
+     *  StringUtils.trimLeft(&quot;&quot;,...)            = &quot;&quot;
+     *  StringUtils.trimLeft(&quot;     &quot;,...)       = &quot;&quot;
+     *  StringUtils.trimLeft(&quot;abc&quot;,...)         = &quot;abc&quot;
+     *  StringUtils.trimLeft(&quot;    abc    &quot;,...) = &quot;abc    &quot;
      * </pre>
      * 
-     * @param string
-     *            the string to be trimmed, may be null
-     * @return the position of the first char which is not a space, or the last
-     *         position of the array.
+     * @param string the string to be trimmed, may be null
+     * @param pos The starting position
      */
     public static final void trimLeft( String string, Position pos )
     {
@@ -2753,7 +2749,6 @@ public class StringTools
      * String is returned.
      * 
      * @param str the string containing hex escapes
-     * @param index the index at which we start decoding
      * @return decoded string
      */
     public static final String decodeEscapedHex( String str ) throws InvalidNameException

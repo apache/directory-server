@@ -100,9 +100,9 @@ public class ScopeNode extends AbstractExprNode
      * Gets the scope constant for this node.
      * 
      * @return the scope constant
-     * @see SearchControls.OBJECT_SCOPE
-     * @see SearchControls.ONELEVEL_SCOPE
-     * @see SearchControls.SUBTREE_SCOPE
+     * @see javax.naming.directory.SearchControls#OBJECT_SCOPE
+     * @see javax.naming.directory.SearchControls#ONELEVEL_SCOPE
+     * @see javax.naming.directory.SearchControls#SUBTREE_SCOPE
      */
     public int getScope()
     {

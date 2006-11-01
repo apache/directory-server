@@ -102,7 +102,7 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
     /**
      * Sets the attribute value pairs of the entry to add as a MultiMap.
      * 
-     * @param entry
+     * @param attributes
      *            the Attributes with attribute value pairs for the added entry.
      */
     public void setAttributes( Attributes attributes )

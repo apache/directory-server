@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 /**
  * A subclass of {@link AuthenticationException} which associates the
- * {@link ResultCodeEnum.INVALIDCREDENTIALS} value with the type.
+ * {@link ResultCodeEnum#INVALIDCREDENTIALS} value with the type.
  * 
  * @see <a
  *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">

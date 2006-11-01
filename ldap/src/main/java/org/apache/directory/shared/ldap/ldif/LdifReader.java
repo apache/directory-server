@@ -251,8 +251,7 @@ public class LdifReader implements Iterator
     /**
      * A constructor which takes a file name
      * 
-     * @param in
-     *            A file name containing ldif formated input
+     * @param ldifFileName A file name containing ldif formated input
      * @throws NamingException
      *             If the file cannot be processed or if the format is incorrect
      */
@@ -395,7 +394,7 @@ public class LdifReader implements Iterator
     /**
      * Parse a number following the rules :
      * 
-     * <number> ::= <digit> <digits> <digits> ::= <digit> <digits> | e <digit>
+     * &lt;number&gt; ::= &lt;digit&gt; &lt;digits&gt; &lt;digits&gt; ::= &lt;digit&gt; &lt;digits&gt; | e &lt;digit&gt;
      * ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
      * 
      * Check that the number is in the interval
@@ -674,15 +673,15 @@ public class LdifReader implements Iterator
     }
 
     /**
-     * Parse a control. The grammar is : <control> ::= "control:" <fill>
-     * <ldap-oid> <critical-e> <value-spec-e> <sep> <critical-e> ::= <spaces>
-     * <boolean> | e <boolean> ::= "true" | "false" <value-spec-e> ::=
-     * <value-spec> | e <value-spec> ::= ":" <fill> <SAFE-STRING-e> | "::"
-     * <fill> <BASE64-STRING> | ":<" <fill> <url>
+     * Parse a control. The grammar is : &lt;control&gt; ::= "control:" &lt;fill&gt;
+     * &lt;ldap-oid&gt; &lt;critical-e&gt; &lt;value-spec-e&gt; &lt;sep&gt; &lt;critical-e&gt; ::= &lt;spaces&gt;
+     * &lt;boolean&gt; | e &lt;boolean&gt; ::= "true" | "false" &lt;value-spec-e&gt; ::=
+     * &lt;value-spec&gt; | e &lt;value-spec&gt; ::= ":" &lt;fill&gt; &lt;SAFE-STRING-e&gt; | "::"
+     * &lt;fill&gt; &lt;BASE64-STRING&gt; | ":<" &lt;fill&gt; &lt;url&gt;
      * 
-     * It can be read as : "control:" <fill> <ldap-oid> [ " "+ ( "true" |
-     * "false") ] [ ":" <fill> <SAFE-STRING-e> | "::" <fill> <BASE64-STRING> | ":<"
-     * <fill> <url> ]
+     * It can be read as : "control:" &lt;fill&gt; &lt;ldap-oid&gt; [ " "+ ( "true" |
+     * "false") ] [ ":" &lt;fill&gt; &lt;SAFE-STRING-e&gt; | "::" &lt;fill&gt; &lt;BASE64-STRING&gt; | ":<"
+     * &lt;fill&gt; &lt;url&gt; ]
      * 
      * @param line
      *            The line containing the control
@@ -805,12 +804,7 @@ public class LdifReader implements Iterator
     /**
      * Parse an AttributeType/AttributeValue
      * 
-     * @param attribute
-     *            The create attribute
-     * @param line
-     *            The line to parse
-     * @param lowerLine
-     *            The same line, lowercased
+     * @param line The line to parse
      */
     public static Attribute parseAttributeValue( String line )
     {
@@ -929,13 +923,13 @@ public class LdifReader implements Iterator
     /**
      * Parse a modify change type.
      * 
-     * The grammar is : <changerecord> ::= "changetype:" FILL "modify" SEP
-     * <mod-spec> <mod-specs-e> <mod-spec> ::= "add:" <mod-val> | "delete:"
-     * <mod-val-del> | "replace:" <mod-val> <mod-specs-e> ::= <mod-spec>
-     * <mod-specs-e> | e <mod-val> ::= FILL ATTRIBUTE-DESCRIPTION SEP
-     * ATTRVAL-SPEC <attrval-specs-e> "-" SEP <mod-val-del> ::= FILL
-     * ATTRIBUTE-DESCRIPTION SEP <attrval-specs-e> "-" SEP <attrval-specs-e> ::=
-     * ATTRVAL-SPEC <attrval-specs> | e *
+     * The grammar is : &lt;changerecord&gt; ::= "changetype:" FILL "modify" SEP
+     * &lt;mod-spec&gt; &lt;mod-specs-e&gt; &lt;mod-spec&gt; ::= "add:" &lt;mod-val&gt; | "delete:"
+     * &lt;mod-val-del&gt; | "replace:" &lt;mod-val&gt; &lt;mod-specs-e&gt; ::= &lt;mod-spec&gt;
+     * &lt;mod-specs-e&gt; | e &lt;mod-val&gt; ::= FILL ATTRIBUTE-DESCRIPTION SEP
+     * ATTRVAL-SPEC &lt;attrval-specs-e&gt; "-" SEP &lt;mod-val-del&gt; ::= FILL
+     * ATTRIBUTE-DESCRIPTION SEP &lt;attrval-specs-e&gt; "-" SEP &lt;attrval-specs-e&gt; ::=
+     * ATTRVAL-SPEC &lt;attrval-specs&gt; | e *
      * 
      * @param entry
      *            The entry to feed
@@ -1060,18 +1054,18 @@ public class LdifReader implements Iterator
      * "newrdn:" and a "deleteoldrdn:" 4) ModRDN : the very same, but a
      * "newsuperior:" line is expected 5) Modify :
      * 
-     * The grammar is : <changerecord> ::= "changetype:" FILL "add" SEP
-     * <attrval-spec> <attrval-specs-e> | "changetype:" FILL "delete" |
-     * "changetype:" FILL "modrdn" SEP <newrdn> SEP <deleteoldrdn> SEP | // To
-     * be checked "changetype:" FILL "moddn" SEP <newrdn> SEP <deleteoldrdn> SEP
-     * <newsuperior> SEP | "changetype:" FILL "modify" SEP <mod-spec>
-     * <mod-specs-e> <newrdn> ::= "newrdn:" FILL RDN | "newrdn::" FILL
-     * BASE64-RDN <deleteoldrdn> ::= "deleteoldrdn:" FILL "0" | "deleteoldrdn:"
-     * FILL "1" <newsuperior> ::= "newsuperior:" FILL DN | "newsuperior::" FILL
-     * BASE64-DN <mod-specs-e> ::= <mod-spec> <mod-specs-e> | e <mod-spec> ::=
-     * "add:" <mod-val> | "delete:" <mod-val> | "replace:" <mod-val> <mod-val>
-     * ::= FILL ATTRIBUTE-DESCRIPTION SEP ATTRVAL-SPEC <attrval-specs-e> "-" SEP
-     * <attrval-specs-e> ::= ATTRVAL-SPEC <attrval-specs> | e
+     * The grammar is : &lt;changerecord&gt; ::= "changetype:" FILL "add" SEP
+     * &lt;attrval-spec&gt; &lt;attrval-specs-e&gt; | "changetype:" FILL "delete" |
+     * "changetype:" FILL "modrdn" SEP &lt;newrdn&gt; SEP &lt;deleteoldrdn&gt; SEP | // To
+     * be checked "changetype:" FILL "moddn" SEP &lt;newrdn&gt; SEP &lt;deleteoldrdn&gt; SEP
+     * &lt;newsuperior&gt; SEP | "changetype:" FILL "modify" SEP &lt;mod-spec&gt;
+     * &lt;mod-specs-e&gt; &lt;newrdn&gt; ::= "newrdn:" FILL RDN | "newrdn::" FILL
+     * BASE64-RDN &lt;deleteoldrdn&gt; ::= "deleteoldrdn:" FILL "0" | "deleteoldrdn:"
+     * FILL "1" &lt;newsuperior&gt; ::= "newsuperior:" FILL DN | "newsuperior::" FILL
+     * BASE64-DN &lt;mod-specs-e&gt; ::= &lt;mod-spec&gt; &lt;mod-specs-e&gt; | e &lt;mod-spec&gt; ::=
+     * "add:" &lt;mod-val&gt; | "delete:" &lt;mod-val&gt; | "replace:" &lt;mod-val&gt; &lt;mod-val&gt;
+     * ::= FILL ATTRIBUTE-DESCRIPTION SEP ATTRVAL-SPEC &lt;attrval-specs-e&gt; "-" SEP
+     * &lt;attrval-specs-e&gt; ::= ATTRVAL-SPEC &lt;attrval-specs&gt; | e
      * 
      * @param entry
      *            The entry to feed
@@ -1158,12 +1152,12 @@ public class LdifReader implements Iterator
     /**
      * Parse a ldif file. The following rules are processed :
      * 
-     * <ldif-file> ::= <ldif-attrval-record> <ldif-attrval-records> |
-     * <ldif-change-record> <ldif-change-records> <ldif-attrval-record> ::=
-     * <dn-spec> <sep> <attrval-spec> <attrval-specs> <ldif-change-record> ::=
-     * <dn-spec> <sep> <controls-e> <changerecord> <dn-spec> ::= "dn:" <fill>
-     * <distinguishedName> | "dn::" <fill> <base64-distinguishedName>
-     * <changerecord> ::= "changetype:" <fill> <change-op>
+     * &lt;ldif-file&gt; ::= &lt;ldif-attrval-record&gt; &lt;ldif-attrval-records&gt; |
+     * &lt;ldif-change-record&gt; &lt;ldif-change-records&gt; &lt;ldif-attrval-record&gt; ::=
+     * &lt;dn-spec&gt; &lt;sep&gt; &lt;attrval-spec&gt; &lt;attrval-specs&gt; &lt;ldif-change-record&gt; ::=
+     * &lt;dn-spec&gt; &lt;sep&gt; &lt;controls-e&gt; &lt;changerecord&gt; &lt;dn-spec&gt; ::= "dn:" &lt;fill&gt;
+     * &lt;distinguishedName&gt; | "dn::" &lt;fill&gt; &lt;base64-distinguishedName&gt;
+     * &lt;changerecord&gt; ::= "changetype:" &lt;fill&gt; &lt;change-op&gt;
      */
     private Entry parseEntry() throws NamingException
     {

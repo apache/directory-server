@@ -542,7 +542,7 @@ public class LockableAttributeImpl implements Attribute
      * with regard to case and value order is only considered if the Attribute
      * arguement is ordered itself.
      * 
-     * @todo start looking at comparing syntaxes to determine if attributes are
+     * TODO start looking at comparing syntaxes to determine if attributes are
      *       really equal
      * @param obj
      *            the Attribute to test for equality

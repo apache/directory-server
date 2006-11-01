@@ -2442,8 +2442,8 @@ public class ResultCodeEnum extends ValuedEnum
      * 
      * If we cannot find a mapping then null is returned.
      * 
-     * @param t
-     * @return
+     * @param t The exception for which we need a ResultCodeEnum
+     * @return The ResultCodeEnum associated wit the given exception 
      */
     public static ResultCodeEnum getResultCode( Throwable t )
     {
