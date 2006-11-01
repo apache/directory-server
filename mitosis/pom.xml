@@ -81,12 +81,5 @@
       <artifactId>apacheds-core-shared</artifactId>
     </dependency>
   </dependencies>
-
-  <!-- =======  Build specific declarations ======= -->
-
-  <build>
-    <plugins/>
-    <resources/>
-  </build>
 </project>
 
