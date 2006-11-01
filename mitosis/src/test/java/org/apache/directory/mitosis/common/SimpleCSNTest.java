@@ -48,6 +48,10 @@ public class SimpleCSNTest extends TestCase
             new SimpleCSN( "" );
             fail();
         }
+        catch ( AssertionError ae )
+        {
+            assertTrue( true );
+        }
         catch ( InvalidCSNException ice )
         {
             assertTrue( true );
@@ -60,6 +64,10 @@ public class SimpleCSNTest extends TestCase
         {
             new SimpleCSN( "123" );
             fail();
+        }
+        catch ( AssertionError ae )
+        {
+            assertTrue( true );
         }
         catch ( InvalidCSNException ice )
         {
@@ -74,6 +82,10 @@ public class SimpleCSNTest extends TestCase
             new SimpleCSN( "zzz:abc:1" );
             fail();
         }
+        catch ( AssertionError ae )
+        {
+            assertTrue( true );
+        }
         catch ( InvalidCSNException ice )
         {
             assertTrue( true );
@@ -86,6 +98,10 @@ public class SimpleCSNTest extends TestCase
         {
             new SimpleCSN( ":abc:1" );
             fail();
+        }
+        catch ( AssertionError ae )
+        {
+            assertTrue( true );
         }
         catch ( InvalidCSNException ice )
         {
@@ -100,6 +116,10 @@ public class SimpleCSNTest extends TestCase
             new SimpleCSN( "123:*:1" );
             fail();
         }
+        catch ( AssertionError ae )
+        {
+            assertTrue( true );
+        }
         catch ( InvalidCSNException ice )
         {
             assertTrue( true );
@@ -112,6 +132,10 @@ public class SimpleCSNTest extends TestCase
         {
             new SimpleCSN( "123::1" );
             fail();
+        }
+        catch ( AssertionError ae )
+        {
+            assertTrue( true );
         }
         catch ( InvalidCSNException ice )
         {
@@ -126,6 +150,10 @@ public class SimpleCSNTest extends TestCase
             new SimpleCSN( "123:abc:zzz" );
             fail();
         }
+        catch ( AssertionError ae )
+        {
+            assertTrue( true );
+        }
         catch ( InvalidCSNException ice )
         {
             assertTrue( true );
@@ -139,6 +167,10 @@ public class SimpleCSNTest extends TestCase
             new SimpleCSN( "123:abc:" );
             fail();
         }
+        catch ( AssertionError ae )
+        {
+            assertTrue( true );
+        }
         catch ( InvalidCSNException ice )
         {
             assertTrue( true );
@@ -151,6 +183,10 @@ public class SimpleCSNTest extends TestCase
         {
             new SimpleCSN( "123:abc" );
             fail();
+        }
+        catch ( AssertionError ae )
+        {
+            assertTrue( true );
         }
         catch ( InvalidCSNException ice )
         {
