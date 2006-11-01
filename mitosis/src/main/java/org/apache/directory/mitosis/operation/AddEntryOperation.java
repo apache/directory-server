@@ -26,12 +26,12 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
-import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 /**
  * An {@link Operation} that adds a new entry.
@@ -43,7 +43,6 @@ public class AddEntryOperation extends Operation
     private static final long serialVersionUID = 2294492811671880570L;
 
     private final Name normalizedName;
-    private final String userProvidedName;
     private final Attributes entry;
 
     /**
@@ -51,16 +50,14 @@ public class AddEntryOperation extends Operation
      * 
      * @param entry an entry
      */
-    public AddEntryOperation( CSN csn, Name normalizedName, String userProvidedName, Attributes entry )
+    public AddEntryOperation( CSN csn, Name normalizedName, Attributes entry )
     {
         super( csn );
 
         assert normalizedName != null;
-        assert userProvidedName != null;
         assert entry != null;
         
         this.normalizedName = normalizedName;
-        this.userProvidedName = userProvidedName;
         this.entry = ( Attributes ) entry.clone();
     }
     
@@ -71,11 +68,11 @@ public class AddEntryOperation extends Operation
 
     protected void execute0( PartitionNexus nexus, ReplicationStore store ) throws NamingException
     {
-        if( !EntryUtil.isEntryUpdatable( nexus, (LdapDN)normalizedName, getCSN() ) )
+        if( !EntryUtil.isEntryUpdatable( nexus, normalizedName, getCSN() ) )
         {
             return;
         }
-        EntryUtil.createGlueEntries( nexus, (LdapDN)normalizedName, false );
+        EntryUtil.createGlueEntries( nexus, normalizedName, false );
         
         // Replace the entry if an entry with the same name exists.
         Attributes oldEntry = nexus.lookup( (LdapDN)normalizedName );

@@ -343,7 +343,7 @@ public class ReplicationClientContextHandler implements
                 // Convert the entry into AddEntryOperation log.
                 Operation op = new AddEntryOperation(
                         csn,
-                        new LdapDN( sr.getName() ), sr.getName(), attrs );
+                        new LdapDN( sr.getName() ), attrs );
                 
                 // Send a LogEntry message for the entry.
                 ctx.getSession().write( new LogEntryMessage( ctx.getNextSequence(), op ) );

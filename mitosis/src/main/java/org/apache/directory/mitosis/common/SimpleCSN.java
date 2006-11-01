@@ -130,10 +130,10 @@ public class SimpleCSN implements CSN, Serializable, Comparable
                 ((long)(value[1] & 0x00FF) << 48) |
                 ((long)(value[2] & 0x00FF) << 40) |
                 ((long)(value[3] & 0x00FF) << 32) |
-                ((long)(value[4] << 24) & 0x00000000FF000000L) |
-                ((long)(value[5] << 16) & 0x0000000000FF0000L) |
-                ((long)(value[6] << 8) & 0x000000000000FF00L) |
-                ((long)value[7] & 0x00000000000000FFL);
+                ((value[4] << 24) & 0x00000000FF000000L) |
+                ((value[5] << 16) & 0x0000000000FF0000L) |
+                ((value[6] << 8) & 0x000000000000FF00L) |
+                (value[7] & 0x00000000000000FFL);
         
         operationSequence = ((value[8] & 0x00FF) << 24) +
             ((value[9] & 0x00FF) << 16) +

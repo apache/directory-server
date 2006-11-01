@@ -68,12 +68,12 @@ public class OperationFactory
         this.csnFactory = cfg.getCsnFactory();
     }
     
-    public Operation newAdd( String userProvidedName, Name normalizedName, Attributes entry ) throws NamingException
+    public Operation newAdd( Name normalizedName, Attributes entry ) throws NamingException
     {
-        return newAdd( newCSN(), userProvidedName, normalizedName, entry );
+        return newAdd( newCSN(), normalizedName, entry );
     }
 
-    private Operation newAdd( CSN csn, String userProvidedName, Name normalizedName, Attributes entry ) throws NamingException
+    private Operation newAdd( CSN csn, Name normalizedName, Attributes entry ) throws NamingException
     {
         // Check an entry already exists.
         checkBeforeAdd( normalizedName );
@@ -92,7 +92,7 @@ public class OperationFactory
         // MODIFY operation)
         entry.put( Constants.ENTRY_CSN, csn.toOctetString() );
 
-        result.add( new AddEntryOperation( csn, normalizedName, userProvidedName, entry ) );
+        result.add( new AddEntryOperation( csn, normalizedName, entry ) );
         return result;
     }
 
@@ -247,7 +247,7 @@ public class OperationFactory
             
             // Add the new entry
             //// FIXME Get UPDN somehow
-            result.add( newAdd( csn, newEntryName.toString(), newEntryName, entry ) );
+            result.add( newAdd( csn, newEntryName, entry ) );
             
             // Add default operations to the old entry.
             // Please note that newAdd() already added default operations

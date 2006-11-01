@@ -177,7 +177,7 @@ public class DerbyReplicationStoreTest extends TestCase
     {
         CSN csn = csnFactory.newInstance( REPLICA_ID );
         CompositeOperation op1 = new CompositeOperation( csn );
-        op1.add( new AddEntryOperation( csn, new LdapName( "ou=a" ), "ou=a", new BasicAttributes() ) );
+        op1.add( new AddEntryOperation( csn, new LdapName( "ou=a" ), new BasicAttributes() ) );
         op1.add( new AddAttributeOperation( csn, new LdapName( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
         op1.add( new ReplaceAttributeOperation( csn, new LdapName( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
         op1.add( new DeleteAttributeOperation( csn, new LdapName( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
@@ -187,7 +187,7 @@ public class DerbyReplicationStoreTest extends TestCase
 
         csn = csnFactory.newInstance( OTHER_REPLICA_ID );
         CompositeOperation op2 = new CompositeOperation( csn );
-        op2.add( new AddEntryOperation( csn, new LdapName( "ou=a" ), "ou=a", new BasicAttributes() ) );
+        op2.add( new AddEntryOperation( csn, new LdapName( "ou=a" ), new BasicAttributes() ) );
         op2.add( new AddAttributeOperation( csn, new LdapName( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
         op2.add( new ReplaceAttributeOperation( csn, new LdapName( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
         op2.add( new DeleteAttributeOperation( csn, new LdapName( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );

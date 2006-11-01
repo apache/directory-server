@@ -277,43 +277,43 @@ public class ReplicationService extends BaseInterceptor
         }
     }
     
-    public void add( NextInterceptor nextInterceptor, String userProvidedName, Name normalizedName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor nextInterceptor, LdapDN normalizedName, Attributes entry ) throws NamingException
     {
-        Operation op = operationFactory.newAdd( userProvidedName, normalizedName, entry );
+        Operation op = operationFactory.newAdd( normalizedName, entry );
         op.execute( nexus, store );
     }
 
-    public void delete( NextInterceptor nextInterceptor, Name name ) throws NamingException
+    public void delete( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
         Operation op = operationFactory.newDelete( name );
         op.execute( nexus, store );
     }
 
-    public void modify( NextInterceptor next, Name name, int modOp, Attributes attrs ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes attrs ) throws NamingException
     {
         Operation op = operationFactory.newModify( name, modOp, attrs );
         op.execute( nexus, store );
     }
 
-    public void modify( NextInterceptor next, Name name, ModificationItem[] items ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, ModificationItem[] items ) throws NamingException
     {
         Operation op = operationFactory.newModify( name, items );
         op.execute( nexus, store );
     }
 
-    public void modifyRn( NextInterceptor next, Name oldName, String newRDN, boolean deleteOldRDN ) throws NamingException
+    public void modifyRn( NextInterceptor next, LdapDN oldName, String newRDN, boolean deleteOldRDN ) throws NamingException
     {
         Operation op = operationFactory.newModifyRn( oldName, newRDN, deleteOldRDN );
         op.execute( nexus, store );
     }
 
-    public void move( NextInterceptor next, Name oldName, Name newParentName, String newRDN, boolean deleteOldRDN ) throws NamingException
+    public void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName, String newRDN, boolean deleteOldRDN ) throws NamingException
     {
         Operation op = operationFactory.newMove( oldName, newParentName, newRDN, deleteOldRDN );
         op.execute( nexus, store );
     }
 
-    public void move( NextInterceptor next, Name oldName, Name newParentName ) throws NamingException
+    public void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName ) throws NamingException
     {
         Operation op = operationFactory.newMove( oldName, newParentName );
         op.execute( nexus, store );
