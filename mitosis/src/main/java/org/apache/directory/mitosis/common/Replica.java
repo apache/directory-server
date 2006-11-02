@@ -71,7 +71,7 @@ public class Replica
             throw new IllegalArgumentException( "Replica ID not found: " + replica );
         }
         
-        int colonPos = replica.indexOf( atPos,  ':' );
+        int colonPos = replica.indexOf( ':', atPos );
         
         if ( colonPos < 0 )
         {

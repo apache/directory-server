@@ -269,7 +269,7 @@ public class ReplicationConfiguration
         {
             Replica replica = ( Replica ) peer.next();
             
-            if ( ids.contains( replica.getId() ) ) 
+            if ( ids.contains( replica.getId().getId() ) ) 
             {
                 log.error( "Peer replica ID '{}' has already been declared.", replica.getId() );
                 throw new ReplicationConfigurationException( "Peer replica ID '" + replica.getId() + "' has already been declared." );
