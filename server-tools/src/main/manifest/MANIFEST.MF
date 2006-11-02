@@ -2,25 +2,25 @@ Manifest-Version: 1.0
 Main-Class: org.apache.directory.server.tools.ApachedsTools
 Class-Path: logger.jar daemon.jar bootstrapper.jar 
  ../lib/antlr-2.7.4.jar 
- ../lib/apacheds-kerberos-shared-1.1.0-SNAPSHOT.jar 
- ../lib/apacheds-protocol-changepw-1.1.0-SNAPSHOT.jar 
- ../lib/apacheds-protocol-shared-1.1.0-SNAPSHOT.jar 
- ../lib/apacheds-protocol-kerberos-1.1.0-SNAPSHOT.jar 
- ../lib/apacheds-protocol-ldap-1.1.0-SNAPSHOT.jar 
- ../lib/apacheds-protocol-ntp-1.1.0-SNAPSHOT.jar 
- ../lib/apacheds-core-1.1.0-SNAPSHOT.jar 
- ../lib/apacheds-core-shared-1.1.0-SNAPSHOT.jar 
- ../lib/apacheds-server-jndi-1.1.0-SNAPSHOT.jar 
- ../lib/apacheds-server-main-1.1.0-SNAPSHOT.jar 
+ ../lib/apacheds-kerberos-shared-1.5.0-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-changepw-1.5.0-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-shared-1.5.0-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-kerberos-1.5.0-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-ldap-1.5.0-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-ntp-1.5.0-SNAPSHOT.jar 
+ ../lib/apacheds-core-1.5.0-SNAPSHOT.jar 
+ ../lib/apacheds-core-shared-1.5.0-SNAPSHOT.jar 
+ ../lib/apacheds-server-jndi-1.5.0-SNAPSHOT.jar 
+ ../lib/apacheds-server-main-1.5.0-SNAPSHOT.jar 
  ../lib/commons-collections-3.0.jar 
  ../lib/commons-lang-2.0.jar 
  ../lib/commons-logging-1.0.4.jar 
  ../lib/commons-cli-1.0.jar 
  ../lib/jdbm-1.0.jar 
  ../lib/lcrypto-jdk14-131.jar 
- ../lib/mina-core-1.1.0-SNAPSHOT.jar 
+ ../lib/mina-core-1.0.0.jar 
  ../lib/shared-asn1-codec-0.9.6-SNAPSHOT.jar 
- ../lib/mina-filter-ssl-1.1.0-SNAPSHOT.jar 
+ ../lib/mina-filter-ssl-1.0.0.jar 
  ../lib/oro-2.0.8.jar 
  ../lib/shared-asn1-0.9.6-SNAPSHOT.jar 
  ../lib/shared-ldap-0.9.6-SNAPSHOT.jar 
