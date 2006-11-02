@@ -465,7 +465,7 @@ public class AddITest extends AbstractServerTest
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ( SearchResult ) ne.next();
-        assertEquals( "ldap://localhost:1024/ou=favorite,ou=Fruits,ou=system", sr.getName() );
+        assertEquals( "ldap://localhost:"+super.port+"/ou=favorite,ou=Fruits,ou=system", sr.getName() );
         assertFalse( ne.hasMore() );
         
         // Remove alias and entry
