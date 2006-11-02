@@ -21,7 +21,6 @@ package org.apache.directory.server;
 
 
 import javax.naming.directory.*;
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
@@ -56,7 +55,7 @@ public class AddITest extends AbstractServerTest
     {
         super.setUp();
 
-        Hashtable env = new Hashtable();
+        Hashtable<String, String> env = new Hashtable<String,String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
