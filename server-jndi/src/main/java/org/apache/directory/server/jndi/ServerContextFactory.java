@@ -317,7 +317,7 @@ public class ServerContextFactory extends CoreContextFactory
         }
 
         // get an initial context to the rootDSE for creating the LDIF entries
-        Hashtable<String, Object> env = ( Hashtable<String, Object> ) service.getConfiguration().getEnvironment().clone();
+        Hashtable env = ( Hashtable ) service.getConfiguration().getEnvironment().clone();
         env.put( Context.PROVIDER_URL, "" );
         DirContext root = ( DirContext ) this.getInitialContext( env );
 
