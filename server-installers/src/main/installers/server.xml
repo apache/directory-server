@@ -192,6 +192,23 @@
             <bean class="org.apache.directory.server.core.event.EventService" />
           </property>
         </bean>
+
+        <!-- Uncomment to enable replication service
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>replicationService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.directory.mitosis.service.ReplicationService">
+              <property name="configuration">
+                <bean class="org.apache.directory.mitosis.configuration.ReplicationConfiguration">
+                  <property name="replicaId"><value>instance_a</value></property>
+                  <property name="serverPort"><value>10390</value></property>
+                  <property name="peerReplicas"><value>instance_b@localhost:10392</value></property>
+                </bean>
+              </property>
+            </bean>
+          </property>
+        </bean>
+        -->
       </list>
     </property>
   </bean>
