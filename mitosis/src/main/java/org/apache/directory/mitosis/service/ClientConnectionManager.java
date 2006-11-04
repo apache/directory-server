@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
+import org.apache.directory.mitosis.service.protocol.codec.ReplicationClientProtocolCodecFactory;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientProtocolHandler;
 import org.apache.mina.common.ConnectFuture;
 import org.apache.mina.common.ExecutorThreadModel;
@@ -33,6 +34,7 @@ import org.apache.mina.common.IoConnectorConfig;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.RuntimeIOException;
 import org.apache.mina.filter.LoggingFilter;
+import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.SocketConnector;
 import org.apache.mina.transport.socket.nio.SocketConnectorConfig;
 import org.slf4j.Logger;
@@ -68,6 +70,10 @@ class ClientConnectionManager
         threadModel.setExecutor(
                 new ThreadPoolExecutor(16, 16, 60, TimeUnit.SECONDS, new LinkedBlockingQueue() ));
         connectorConfig.setThreadModel(threadModel);
+
+        //// add codec
+        connectorConfig.getFilterChain().addLast( "protocol",
+                new ProtocolCodecFilter( new ReplicationClientProtocolCodecFactory() ) );
 
         //// add logger
         connectorConfig.getFilterChain().addLast( "logger", new LoggingFilter() );

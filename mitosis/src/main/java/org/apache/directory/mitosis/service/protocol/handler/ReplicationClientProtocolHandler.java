@@ -20,13 +20,12 @@
 package org.apache.directory.mitosis.service.protocol.handler;
 
 import org.apache.directory.mitosis.service.ReplicationService;
-import org.apache.directory.mitosis.service.protocol.codec.ReplicationClientProtocolCodecFactory;
 
 public class ReplicationClientProtocolHandler extends
         ReplicationProtocolHandler
 {
     public ReplicationClientProtocolHandler( ReplicationService service )
     {
-        super( service, new ReplicationClientContextHandler(), new ReplicationClientProtocolCodecFactory() );
+        super( service, new ReplicationClientContextHandler() );
     }
 }

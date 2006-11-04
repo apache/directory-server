@@ -21,8 +21,8 @@ package org.apache.directory.mitosis.service.protocol.handler;
 
 import java.net.InetSocketAddress;
 import java.util.Iterator;
+import java.util.Map;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -267,15 +267,12 @@ public class ReplicationClientContextHandler implements
     
     private void sendAllEntries( ReplicationContext ctx ) throws NamingException
     {
-        Attributes rootDSE =
-            ctx.getServiceConfiguration().getPartitionNexus().getRootDSE();
+        Attributes rootDSE = ctx.getServiceConfiguration().getPartitionNexus().getRootDSE();
         
         Attribute namingContextsAttr = rootDSE.get( "namingContexts" );
         if( namingContextsAttr == null || namingContextsAttr.size() == 0 )
         {
-            SessionLog.warn(
-                    ctx.getSession(),
-                    "No namingContexts attributes in rootDSE." );
+            SessionLog.warn( ctx.getSession(), "No namingContexts attributes in rootDSE." );
             return;
         }
         
@@ -284,31 +281,34 @@ public class ReplicationClientContextHandler implements
         while( e.hasMore() )
         {
             Object value = e.next();
+            
             // Convert attribute value to JNDI name.
-            Name contextName;
-            if( value instanceof Name )
+            LdapDN contextName;
+            if( value instanceof LdapDN )
             {
-                contextName = ( Name ) value;
+                contextName = ( LdapDN ) value;
             }
             else
             {
                 contextName = new LdapDN( String.valueOf( value ) );
             }
             
-            SessionLog.info(
-                    ctx.getSession(),
-                    "Sending entries under '" + contextName + '\'' );
+            SessionLog.info( ctx.getSession(), "Sending entries under '" + contextName + '\'' );
+
+            Map mapping = ctx.getServiceConfiguration().getGlobalRegistries()
+                .getAttributeTypeRegistry().getNormalizerMapping();
+            contextName.normalize( mapping );
             sendAllEntries( ctx, contextName );
         }
     }
 
-    private void sendAllEntries( ReplicationContext ctx, Name contextName ) throws NamingException
+    private void sendAllEntries( ReplicationContext ctx, LdapDN contextName ) throws NamingException
     {
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE ); 
         NamingEnumeration e = ctx.getServiceConfiguration().getPartitionNexus().search(
-                (LdapDN)contextName,
+                contextName,
                 ctx.getServiceConfiguration().getEnvironment(),
                 new PresenceNode( "objectClass" ), ctrl );
         
@@ -341,9 +341,7 @@ public class ReplicationClientContextHandler implements
                 }
                 
                 // Convert the entry into AddEntryOperation log.
-                Operation op = new AddEntryOperation(
-                        csn,
-                        new LdapDN( sr.getName() ), attrs );
+                Operation op = new AddEntryOperation( csn, new LdapDN( sr.getName() ), attrs );
                 
                 // Send a LogEntry message for the entry.
                 ctx.getSession().write( new LogEntryMessage( ctx.getNextSequence(), op ) );

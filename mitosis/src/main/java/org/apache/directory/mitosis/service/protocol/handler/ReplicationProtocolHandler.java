@@ -27,9 +27,6 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.LoggingFilter;
-import org.apache.mina.filter.codec.ProtocolCodecFactory;
-import org.apache.mina.filter.codec.ProtocolCodecFilter;
 
 public class ReplicationProtocolHandler implements IoHandler
 {
@@ -39,22 +36,19 @@ public class ReplicationProtocolHandler implements IoHandler
     private final ReplicationConfiguration configuration;
     private final DirectoryServiceConfiguration serviceCfg;
     private final ReplicationContextHandler contextHandler;
-    private final ProtocolCodecFactory codecFactory;
+
 
     public ReplicationProtocolHandler(
             ReplicationService service,
-            ReplicationContextHandler contextHandler,
-            ProtocolCodecFactory codecFactory )
+            ReplicationContextHandler contextHandler )
     {
         assert service != null;
         assert contextHandler != null;
-        assert codecFactory != null;
 
         this.service = service;
         this.configuration = service.getConfiguration();
         this.serviceCfg = service.getFactoryConfiguration();
         this.contextHandler = contextHandler;
-        this.codecFactory = codecFactory;
     }
     
     private ReplicationContext getContext( IoSession session )
@@ -65,10 +59,6 @@ public class ReplicationProtocolHandler implements IoHandler
     public void sessionCreated( IoSession session ) throws Exception
     {
         session.setAttribute( CONTEXT, new SimpleReplicationContext( service, serviceCfg, configuration, session ) );
-        session.getFilterChain().addLast(
-                "codec", new ProtocolCodecFilter( codecFactory ) );
-        session.getFilterChain().addLast(
-                "log", new LoggingFilter() );
     }
 
     public void exceptionCaught( IoSession session, Throwable cause ) throws Exception
