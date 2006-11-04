@@ -163,7 +163,7 @@ public class ReplicationService extends BaseInterceptor
 
         // bind server protocol provider
         registry.bind(
-                new InetSocketAddress( 10101 ),
+                new InetSocketAddress( configuration.getServerPort() ),
                 new ReplicationServerProtocolHandler(this),
                 config );
         
