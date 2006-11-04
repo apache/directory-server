@@ -252,3 +252,39 @@ objectclass ( 1.2.6.1.4.1.18060.1.1.1.3.28 NAME 'triggerExecutionSubentry'
 # End of Trigger related
 # ======================
 
+# ======================
+# Mitosis Related
+# ======================
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.29
+        NAME 'entryUUID'
+        DESC 'LCUP/LDUP: UUID of the entry'
+        EQUALITY octetStringMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.40{64}
+        SINGLE-VALUE 
+        NO-USER-MODIFICATION 
+        USAGE directoryOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.30
+        NAME 'entryCSN'
+        DESC 'LCUP/LDUP: change sequence number of the entry'
+        EQUALITY octetStringMatch
+        ORDERING octetStringOrderingMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.40{64}
+        SINGLE-VALUE 
+        NO-USER-MODIFICATION 
+        USAGE directoryOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.31
+        NAME 'entryDeleted'
+        DESC 'Whether or not an entry has been deleted.'
+        EQUALITY booleanMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+        SINGLE-VALUE 
+        NO-USER-MODIFICATION 
+        USAGE directoryOperation )
+
+# ======================
+# End of Mitosis Related
+# ======================
+
