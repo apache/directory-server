@@ -19,12 +19,14 @@
  */
 package org.apache.directory.mitosis.operation;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamConstants;
+
 
 /**
  * Encodes {@link Operation}s to <tt>byte[]</tt> and vice versa.
@@ -36,7 +38,8 @@ public class OperationCodec
     public OperationCodec()
     {
     }
-    
+
+
     public byte[] encode( Operation op )
     {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -48,27 +51,27 @@ public class OperationCodec
             out.flush();
             out.close();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
             throw ( InternalError ) new InternalError().initCause( e );
         }
         return bout.toByteArray();
     }
-    
+
+
     public Operation decode( byte[] data )
     {
         ObjectInputStream in;
         try
         {
-            in = new ObjectInputStream(
-                    new ByteArrayInputStream( data ) );
+            in = new ObjectInputStream( new ByteArrayInputStream( data ) );
             return ( Operation ) in.readObject();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
             throw ( InternalError ) new InternalError().initCause( e );
         }
-        catch( ClassNotFoundException e )
+        catch ( ClassNotFoundException e )
         {
             throw ( InternalError ) new InternalError().initCause( e );
         }

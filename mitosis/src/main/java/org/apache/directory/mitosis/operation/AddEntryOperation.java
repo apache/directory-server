@@ -19,7 +19,7 @@
  */
 package org.apache.directory.mitosis.operation;
 
-import javax.naming.Name;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -33,6 +33,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
+
 /**
  * An {@link Operation} that adds a new entry.
  *
@@ -42,69 +43,71 @@ public class AddEntryOperation extends Operation
 {
     private static final long serialVersionUID = 2294492811671880570L;
 
-    private final Name normalizedName;
+    private final LdapDN normalizedName;
     private final Attributes entry;
+
 
     /**
      * Creates a new instance.
      * 
      * @param entry an entry
      */
-    public AddEntryOperation( CSN csn, Name normalizedName, Attributes entry )
+    public AddEntryOperation( CSN csn, LdapDN normalizedName, Attributes entry )
     {
         super( csn );
 
         assert normalizedName != null;
         assert entry != null;
-        
+
         this.normalizedName = normalizedName;
         this.entry = ( Attributes ) entry.clone();
     }
-    
+
+
     public String toString()
     {
         return super.toString() + ": [" + normalizedName + "].new( " + entry + " )";
     }
 
+
     protected void execute0( PartitionNexus nexus, ReplicationStore store ) throws NamingException
     {
-        if( !EntryUtil.isEntryUpdatable( nexus, normalizedName, getCSN() ) )
+        if ( !EntryUtil.isEntryUpdatable( nexus, normalizedName, getCSN() ) )
         {
             return;
         }
         EntryUtil.createGlueEntries( nexus, normalizedName, false );
-        
+
         // Replace the entry if an entry with the same name exists.
-        Attributes oldEntry = nexus.lookup( (LdapDN)normalizedName );
-        if( oldEntry != null )
+        Attributes oldEntry = nexus.lookup( normalizedName );
+        if ( oldEntry != null )
         {
             // Find the attributes that new entry doesn't have.
             Attributes attrsToRemove = ( Attributes ) oldEntry.clone();
             NamingEnumeration e = oldEntry.getAll();
-            while( e.hasMore() )
+            while ( e.hasMore() )
             {
                 Attribute attr = ( Attribute ) e.next();
                 String attrID = attr.getID();
-                if( entry.get( attrID ) != null )
+                if ( entry.get( attrID ) != null )
                 {
                     attrsToRemove.remove( attrID );
                 }
             }
-            
+
             // Don't let RN attribute be removed
-            String rnAttrID = NamespaceTools.getRdnAttribute(
-                    normalizedName.get( normalizedName.size() - 1 ) );
+            String rnAttrID = NamespaceTools.getRdnAttribute( normalizedName.get( normalizedName.size() - 1 ) );
             attrsToRemove.remove( rnAttrID );
-            
+
             // Delete the attributes.
-            nexus.modify( (LdapDN)normalizedName, DirContext.REMOVE_ATTRIBUTE, entry );
+            nexus.modify( normalizedName, DirContext.REMOVE_ATTRIBUTE, entry );
 
             // Remove RN attribute from new entry because it should be the same
             // with the old one.
             entry.remove( rnAttrID );
 
             // Now replace old entries with the new attributes
-            nexus.modify( (LdapDN)normalizedName, DirContext.REPLACE_ATTRIBUTE, entry );
+            nexus.modify( normalizedName, DirContext.REPLACE_ATTRIBUTE, entry );
         }
         else
         {
@@ -113,10 +116,8 @@ public class AddEntryOperation extends Operation
             // LockableAttributesImpl which doesn't replace old attributes
             // when we put a new one.
             entry.remove( NamespaceTools.getRdnAttribute( rdn ) );
-            entry.put(
-                    NamespaceTools.getRdnAttribute( rdn ),
-                    NamespaceTools.getRdnValue( rdn ) );
-            nexus.add( (LdapDN)normalizedName, entry );
+            entry.put( NamespaceTools.getRdnAttribute( rdn ), NamespaceTools.getRdnValue( rdn ) );
+            nexus.add( normalizedName, entry );
         }
     }
 }

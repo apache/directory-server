@@ -45,6 +45,7 @@ import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.global.GlobalRegistries;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.CSNVector;
@@ -177,20 +178,20 @@ public class DerbyReplicationStoreTest extends TestCase
     {
         CSN csn = csnFactory.newInstance( REPLICA_ID );
         CompositeOperation op1 = new CompositeOperation( csn );
-        op1.add( new AddEntryOperation( csn, new LdapName( "ou=a" ), new BasicAttributes() ) );
-        op1.add( new AddAttributeOperation( csn, new LdapName( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
-        op1.add( new ReplaceAttributeOperation( csn, new LdapName( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
-        op1.add( new DeleteAttributeOperation( csn, new LdapName( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
+        op1.add( new AddEntryOperation( csn, new LdapDN( "ou=a" ), new BasicAttributes( true ) ) );
+        op1.add( new AddAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
+        op1.add( new ReplaceAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
+        op1.add( new DeleteAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
         
         store.putLog( op1 );
         testGetLogs( csn, op1 );
 
         csn = csnFactory.newInstance( OTHER_REPLICA_ID );
         CompositeOperation op2 = new CompositeOperation( csn );
-        op2.add( new AddEntryOperation( csn, new LdapName( "ou=a" ), new BasicAttributes() ) );
-        op2.add( new AddAttributeOperation( csn, new LdapName( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
-        op2.add( new ReplaceAttributeOperation( csn, new LdapName( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
-        op2.add( new DeleteAttributeOperation( csn, new LdapName( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
+        op2.add( new AddEntryOperation( csn, new LdapDN( "ou=a" ), new BasicAttributes( true ) ) );
+        op2.add( new AddAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
+        op2.add( new ReplaceAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
+        op2.add( new DeleteAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
         
         store.putLog( op2 );
         testGetLogs( csn, op2 );
@@ -200,7 +201,7 @@ public class DerbyReplicationStoreTest extends TestCase
         Assert.assertEquals( 1, store.getLogSize( OTHER_REPLICA_ID ) );
         
         // Test getLogs(CSNVector, true)
-        List expected = new ArrayList();
+        List<Operation> expected = new ArrayList<Operation>();
         expected.add( op1 );
         expected.add( op2 );
         CSNVector updateVector = new CSNVector();
@@ -217,22 +218,22 @@ public class DerbyReplicationStoreTest extends TestCase
         testGetLogs( updateVector, true, expected );
 
         // Test getLogs(CSNVector, false)
-        expected = new ArrayList();
+        expected = new ArrayList<Operation>();
         expected.add( op1 );
         expected.add( op2 );
         updateVector = new CSNVector();
         testGetLogs( updateVector, false, expected );
-        expected = new ArrayList();
+        expected = new ArrayList<Operation>();
         expected.add( op2 );
         updateVector = new CSNVector();
         updateVector.setCSN( op1.getCSN() );
         testGetLogs( updateVector, false, expected );
-        expected = new ArrayList();
+        expected = new ArrayList<Operation>();
         expected.add( op1 );
         updateVector = new CSNVector();
         updateVector.setCSN( op2.getCSN() );
         testGetLogs( updateVector, false, expected );
-        expected = new ArrayList();
+        expected = new ArrayList<Operation>();
         updateVector = new CSNVector();
         updateVector.setCSN( op1.getCSN() );
         updateVector.setCSN( op2.getCSN() );
@@ -276,7 +277,7 @@ public class DerbyReplicationStoreTest extends TestCase
         store.putLog( new Operation( csnC ) );
         store.putLog( new Operation( csnD ) );
         
-        Set expectedKnownReplicaIds = new HashSet();
+        Set<ReplicaId> expectedKnownReplicaIds = new HashSet<ReplicaId>();
         expectedKnownReplicaIds.add( REPLICA_ID );
         expectedKnownReplicaIds.add( OTHER_REPLICA_ID );
         expectedKnownReplicaIds.add( OTHER_REPLICA_ID_2 );
@@ -298,7 +299,7 @@ public class DerbyReplicationStoreTest extends TestCase
     
     private void testGetLogs( CSN csn, Operation operation )
     {
-        List operations = new ArrayList();
+        List<Operation> operations = new ArrayList<Operation>();
         operations.add( operation );
         testGetLogs( csn, operations );
     }

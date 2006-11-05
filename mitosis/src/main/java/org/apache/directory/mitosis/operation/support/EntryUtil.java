@@ -19,7 +19,7 @@
  */
 package org.apache.directory.mitosis.operation.support;
 
-import javax.naming.Name;
+
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -34,86 +34,94 @@ import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.Constants;
 import org.apache.directory.mitosis.common.SimpleCSN;
 
+
 public class EntryUtil
 {
-    public static boolean isEntryUpdatable( PartitionNexus nexus, Name name, CSN newCSN ) throws NamingException
+    @SuppressWarnings("unchecked")
+    public static boolean isEntryUpdatable( PartitionNexus nexus, LdapDN name, CSN newCSN ) throws NamingException
     {
-        Attributes entry = nexus.lookup( (LdapDN)name );
-        
-        if( entry == null )
+        Attributes entry = nexus.lookup( name );
+
+        if ( entry == null )
         {
             return true;
         }
-        
+
         Attribute entryCSNAttr = entry.get( Constants.ENTRY_CSN );
-        
-        if( entryCSNAttr == null )
+
+        if ( entryCSNAttr == null )
         {
             return true;
         }
         else
         {
             CSN oldCSN = null;
-            
+
             try
             {
                 oldCSN = new SimpleCSN( String.valueOf( entryCSNAttr.get() ) );
             }
-            catch( IllegalArgumentException e )
+            catch ( IllegalArgumentException e )
             {
                 return true;
             }
-            
+
             return oldCSN.compareTo( newCSN ) < 0;
         }
     }
 
-    public static void createGlueEntries( PartitionNexus nexus, Name name, boolean includeLeaf ) throws NamingException
+
+    public static void createGlueEntries( PartitionNexus nexus, LdapDN name, boolean includeLeaf )
+        throws NamingException
     {
         assert name.size() > 0;
 
-        for( int i = name.size() - 1; i > 0; i -- )
+        for ( int i = name.size() - 1; i > 0; i-- )
         {
-            createGlueEntry( nexus, name.getSuffix( i ) );
+            createGlueEntry( nexus, ( LdapDN ) name.getSuffix( i ) );
         }
-        
-        if( includeLeaf )
+
+        if ( includeLeaf )
         {
             createGlueEntry( nexus, name );
         }
     }
-    
-    private static void createGlueEntry( PartitionNexus nexus, Name name ) throws NamingException
+
+
+    private static void createGlueEntry( PartitionNexus nexus, LdapDN name ) throws NamingException
     {
         try
         {
-            if( nexus.hasEntry( (LdapDN)name ) )
+            if ( nexus.hasEntry( name ) )
             {
                 return;
             }
         }
-        catch( NameNotFoundException e )
+        catch ( NameNotFoundException e )
         {
             // Skip if there's no backend associated with the name.
             return;
         }
-        
+
         // Create a glue entry.
-        Attributes entry = new BasicAttributes();
+        Attributes entry = new BasicAttributes( true );
+        
         //// Add RDN attribute. 
         String rdn = name.get( name.size() - 1 );
         String rdnAttribute = NamespaceTools.getRdnAttribute( rdn );
         String rdnValue = NamespaceTools.getRdnValue( rdn );
         entry.put( rdnAttribute, rdnValue );
+        
         //// Add objectClass attribute. 
         Attribute objectClassAttr = new BasicAttribute( "objectClass" );
         objectClassAttr.add( "top" );
         objectClassAttr.add( "extensibleObject" );
         entry.put( objectClassAttr );
-        
+
         // And add it to the nexus.
-        nexus.add( (LdapDN)name, entry );
+        nexus.add( name, entry );
     }
+
 
     private EntryUtil()
     {

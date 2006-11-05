@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.operation;
 
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
 
+
 /**
  * An {@link Operation} that contains other {@link Operation}s.
  *
@@ -45,96 +47,131 @@ import org.apache.directory.mitosis.store.ReplicationStore;
 public class CompositeOperation extends Operation
 {
     private static final long serialVersionUID = 6252675003841951356L;
-    
-    private static final ReplicationStore DUMMY_STORE = new ReplicationStore() {
 
-        public void open( DirectoryServiceConfiguration serviceCfg, ReplicationConfiguration cfg) {
+    private static final ReplicationStore DUMMY_STORE = new ReplicationStore()
+    {
+
+        public void open( DirectoryServiceConfiguration serviceCfg, ReplicationConfiguration cfg )
+        {
         }
 
-        public void close() {
+
+        public void close()
+        {
         }
 
-        public ReplicaId getReplicaId() {
+
+        public ReplicaId getReplicaId()
+        {
             return null;
         }
 
-        public Set getKnownReplicaIds() {
+
+        public Set getKnownReplicaIds()
+        {
             return null;
         }
 
-        public Name getDN(UUID uuid) {
+
+        public Name getDN( UUID uuid )
+        {
             return null;
         }
 
-        public boolean putUUID(UUID uuid, Name dn) {
+
+        public boolean putUUID( UUID uuid, Name dn )
+        {
             return false;
         }
 
-        public boolean removeUUID(UUID uuid) {
+
+        public boolean removeUUID( UUID uuid )
+        {
             return false;
         }
 
-        public void putLog(Operation operation) {
+
+        public void putLog( Operation operation )
+        {
         }
 
-        public ReplicationLogIterator getLogs(CSN fromCSN, boolean inclusive) {
+
+        public ReplicationLogIterator getLogs( CSN fromCSN, boolean inclusive )
+        {
             return null;
         }
 
-        public ReplicationLogIterator getLogs(CSNVector updateVector, boolean inclusive) {
+
+        public ReplicationLogIterator getLogs( CSNVector updateVector, boolean inclusive )
+        {
             return null;
         }
 
-        public int removeLogs(CSN toCSN, boolean inclusive) {
+
+        public int removeLogs( CSN toCSN, boolean inclusive )
+        {
             return 0;
         }
 
-        public int getLogSize() {
+
+        public int getLogSize()
+        {
             return 0;
         }
 
-        public int getLogSize(ReplicaId replicaId) {
+
+        public int getLogSize( ReplicaId replicaId )
+        {
             return 0;
         }
 
-        public CSNVector getUpdateVector() {
+
+        public CSNVector getUpdateVector()
+        {
             return null;
         }
 
-        public CSNVector getPurgeVector() {
+
+        public CSNVector getPurgeVector()
+        {
             return null;
         }
     };
 
-    private final List children = new ArrayList();
+    private final List<Operation> children = new ArrayList<Operation>();
+
 
     public CompositeOperation( CSN csn )
     {
         super( csn );
     }
-    
+
+
     public void add( Operation op )
     {
         assert op != null;
         assert op.getCSN().equals( this.getCSN() );
         children.add( op );
     }
-    
+
+
     public void clear()
     {
         children.clear();
     }
-    
+
+
     protected void execute0( PartitionNexus nexus, ReplicationStore store ) throws NamingException
     {
-        Iterator i = children.iterator();
-        while( i.hasNext() )
+        Iterator<Operation> i = children.iterator();
+        while ( i.hasNext() )
         {
-            Operation op = ( Operation ) i.next();
+            Operation op = i.next();
             op.execute( nexus, DUMMY_STORE );
         }
     }
-    
+
+
     public String toString()
     {
         return children.toString();

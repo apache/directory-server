@@ -19,10 +19,12 @@
  */
 package org.apache.directory.mitosis.configuration;
 
+
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 
 import org.apache.directory.mitosis.common.Replica;
+
 
 /**
  * A {@link PropertyEditor} that converts strings into {@link Replica}s
@@ -38,26 +40,26 @@ public class ReplicaPropertyEditor extends PropertyEditorSupport
         super();
     }
 
+
     public ReplicaPropertyEditor( Object source )
     {
         super( source );
     }
 
+
     public String getAsText()
     {
         Object value = getValue();
-        if( value == null )
+        if ( value == null )
         {
             return "";
         }
-        
+
         Replica replica = ( Replica ) value;
-        return replica.getId().toString() +
-                '@' +
-                replica.getAddress().getAddress().getHostAddress() +
-                ':' +
-                replica.getAddress().getPort();
+        return replica.getId().toString() + '@' + replica.getAddress().getAddress().getHostAddress() + ':'
+            + replica.getAddress().getPort();
     }
+
 
     public void setAsText( String text ) throws IllegalArgumentException
     {

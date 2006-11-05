@@ -19,7 +19,7 @@
  */
 package org.apache.directory.mitosis.operation;
 
-import javax.naming.Name;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -30,6 +30,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 
+
 /**
  * An {@link Operation} that adds an attribute to an entry.
  *
@@ -39,25 +40,28 @@ public class AddAttributeOperation extends AttributeOperation
 {
     private static final long serialVersionUID = 7373124294791982297L;
 
+
     /**
      * Creates a new operation that adds the specified attribute.
      * 
      * @param attribute an attribute to add
      */
-    public AddAttributeOperation( CSN csn, Name name, Attribute attribute )
+    public AddAttributeOperation( CSN csn, LdapDN name, Attribute attribute )
     {
         super( csn, name, attribute );
     }
-    
+
+
     public String toString()
     {
         return super.toString() + ".add( " + getAttribute() + " )";
     }
 
+
     protected void execute1( PartitionNexus nexus ) throws NamingException
     {
-        Attributes attrs = new BasicAttributes();
+        Attributes attrs = new BasicAttributes( true );
         attrs.put( getAttribute() );
-        nexus.modify( (LdapDN)getName(), DirContext.ADD_ATTRIBUTE, attrs );
+        nexus.modify( getName(), DirContext.ADD_ATTRIBUTE, attrs );
     }
 }

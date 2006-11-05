@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.operation;
 
+
 import java.io.Serializable;
 
 import javax.naming.NamingException;
@@ -27,6 +28,7 @@ import javax.naming.OperationNotSupportedException;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.store.ReplicationStore;
+
 
 /**
  * Represents a small operation on an entry in replicated {@link DirectoryPartition}.
@@ -46,7 +48,8 @@ public class Operation implements Serializable
 
     /** The entry CSN */
     private CSN csn;
-    
+
+
     /**
      * Creates a new instance of Operation, for the entry which
      * csn is given as a parameter.
@@ -58,7 +61,8 @@ public class Operation implements Serializable
         assert csn != null;
         this.csn = csn;
     }
-    
+
+
     /**
      * @return Returns {@link CSN} for this operation.
      */
@@ -66,7 +70,8 @@ public class Operation implements Serializable
     {
         return csn;
     }
-    
+
+
     /**
      * @return the CSN for this operation
      */
@@ -74,19 +79,21 @@ public class Operation implements Serializable
     {
         return csn.toString();
     }
-    
+
+
     /**
      * Exeutes this operation on the specified nexus.
      */
     public final void execute( PartitionNexus nexus, ReplicationStore store ) throws NamingException
     {
-        synchronized( nexus )
+        synchronized ( nexus )
         {
             execute0( nexus, store );
             store.putLog( this );
         }
     }
-    
+
+
     protected void execute0( PartitionNexus nexus, ReplicationStore store ) throws NamingException
     {
         throw new OperationNotSupportedException( nexus.getSuffix().toString() );

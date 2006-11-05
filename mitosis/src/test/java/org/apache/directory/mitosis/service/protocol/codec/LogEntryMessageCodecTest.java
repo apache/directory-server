@@ -19,9 +19,9 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import javax.naming.InvalidNameException;
 import javax.naming.directory.BasicAttribute;
-import javax.naming.ldap.LdapName;
 
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.SimpleCSN;
@@ -30,28 +30,31 @@ import org.apache.directory.mitosis.service.protocol.codec.LogEntryMessageDecode
 import org.apache.directory.mitosis.service.protocol.codec.LogEntryMessageEncoder;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
-public class LogEntryMessageCodecTest extends AbstractMessageCodecTest {
 
-    public LogEntryMessageCodecTest() throws InvalidNameException {
+public class LogEntryMessageCodecTest extends AbstractMessageCodecTest
+{
+
+    public LogEntryMessageCodecTest() throws InvalidNameException
+    {
         super( new LogEntryMessage( 1234,
-                                    new AddAttributeOperation(
-                                            new SimpleCSN( System.currentTimeMillis(), new ReplicaId( "testReplica0" ), 1234 ),
-                                            new LdapName( "ou=system" ),
-                                            new BasicAttribute( "Hello", "Test" ) ) ),
-               new LogEntryMessageEncoder(),
-               new LogEntryMessageDecoder() );
+            new AddAttributeOperation(
+                new SimpleCSN( System.currentTimeMillis(), new ReplicaId( "testReplica0" ), 1234 ), new LdapDN(
+                    "ou=system" ), new BasicAttribute( "Hello", "Test" ) ) ), new LogEntryMessageEncoder(),
+            new LogEntryMessageDecoder() );
     }
 
-    protected boolean compare( BaseMessage expected0, BaseMessage actual0 ) {
+
+    protected boolean compare( BaseMessage expected0, BaseMessage actual0 )
+    {
         LogEntryMessage expected = ( LogEntryMessage ) expected0;
         LogEntryMessage actual = ( LogEntryMessage ) actual0;
-        
+
         // We don't compare operation here because it is {@link OperationCodec}'s
         // duty to serialize and deserialize Invocations.
-        return expected.getType() == actual.getType() &&
-               expected.getSequence() == actual.getSequence() &&
-               expected.getOperation().getCSN().equals( actual.getOperation().getCSN() ) &&
-               expected.getOperation().getClass() == actual.getOperation().getClass();
+        return expected.getType() == actual.getType() && expected.getSequence() == actual.getSequence()
+            && expected.getOperation().getCSN().equals( actual.getOperation().getCSN() )
+            && expected.getOperation().getClass() == actual.getOperation().getClass();
     }
 }

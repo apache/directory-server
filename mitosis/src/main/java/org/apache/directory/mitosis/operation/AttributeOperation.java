@@ -19,14 +19,16 @@
  */
 package org.apache.directory.mitosis.operation;
 
-import javax.naming.Name;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
+
 
 /**
  * An {@link Operation} that adds an attribute to an entry.
@@ -35,8 +37,9 @@ import org.apache.directory.mitosis.store.ReplicationStore;
  */
 public abstract class AttributeOperation extends Operation
 {
-    private final Name name;
+    private final LdapDN name;
     private final Attribute attribute;
+
 
     /**
      * Create a new operation that affects an entry with the specified name.
@@ -44,7 +47,7 @@ public abstract class AttributeOperation extends Operation
      * @param name the normalized name of an entry 
      * @param attribute an attribute to modify
      */
-    public AttributeOperation( CSN csn, Name name, Attribute attribute )
+    public AttributeOperation( CSN csn, LdapDN name, Attribute attribute )
     {
         super( csn );
 
@@ -54,7 +57,8 @@ public abstract class AttributeOperation extends Operation
         this.name = name;
         this.attribute = ( Attribute ) attribute.clone();
     }
-    
+
+
     /**
      * Returns the attribute to modify.
      */
@@ -63,24 +67,27 @@ public abstract class AttributeOperation extends Operation
         return ( Attribute ) attribute.clone();
     }
 
+
     /**
      * Returns the name of an entry this operation will affect.
      */
-    public Name getName()
+    public LdapDN getName()
     {
-        return ( Name ) name.clone();
+        return ( LdapDN ) name.clone();
     }
+
 
     protected final void execute0( PartitionNexus nexus, ReplicationStore store ) throws NamingException
     {
-        if( !EntryUtil.isEntryUpdatable( nexus, name, getCSN() ) )
+        if ( !EntryUtil.isEntryUpdatable( nexus, name, getCSN() ) )
         {
             return;
         }
         EntryUtil.createGlueEntries( nexus, name, true );
-        
+
         execute1( nexus );
     }
+
 
     protected abstract void execute1( PartitionNexus nexus ) throws NamingException;
 

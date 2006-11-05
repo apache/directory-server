@@ -19,7 +19,7 @@
  */
 package org.apache.directory.mitosis.operation;
 
-import javax.naming.Name;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -30,6 +30,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 
+
 /**
  * An {@link Operation} that deletes an attribute from an entry.
  *
@@ -39,25 +40,28 @@ public class DeleteAttributeOperation extends AttributeOperation
 {
     private static final long serialVersionUID = -131557844165710365L;
 
+
     /**
      * Creates a new operation that deletes the specified attribute.
      * 
      * @param attribute an attribute to delete
      */
-    public DeleteAttributeOperation( CSN csn, Name name, Attribute attribute )
+    public DeleteAttributeOperation( CSN csn, LdapDN name, Attribute attribute )
     {
         super( csn, name, attribute );
     }
-    
+
+
     public String toString()
     {
         return super.toString() + ".delete( " + getAttribute() + " )";
     }
 
+
     protected void execute1( PartitionNexus nexus ) throws NamingException
     {
-        Attributes attrs = new BasicAttributes();
+        Attributes attrs = new BasicAttributes( true );
         attrs.put( getAttribute() );
-        nexus.modify( (LdapDN)getName(), DirContext.REMOVE_ATTRIBUTE, attrs );
+        nexus.modify( getName(), DirContext.REMOVE_ATTRIBUTE, attrs );
     }
 }

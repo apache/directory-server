@@ -19,9 +19,9 @@
  */
 package org.apache.directory.mitosis.operation;
 
+
 import java.util.Map;
 
-import javax.naming.Name;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -46,6 +46,7 @@ import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 
+
 /**
  * Converts a complex JNDI operations into multiple simple operations. 
  *
@@ -58,7 +59,8 @@ public class OperationFactory
     private final PartitionNexus nexus;
     private final UUIDFactory uuidFactory;
     private final CSNFactory csnFactory;
-    
+
+
     public OperationFactory( DirectoryServiceConfiguration serviceCfg, ReplicationConfiguration cfg )
     {
         this.replicaId = cfg.getReplicaId();
@@ -67,19 +69,21 @@ public class OperationFactory
         this.uuidFactory = cfg.getUuidFactory();
         this.csnFactory = cfg.getCsnFactory();
     }
-    
-    public Operation newAdd( Name normalizedName, Attributes entry ) throws NamingException
+
+
+    public Operation newAdd( LdapDN normalizedName, Attributes entry ) throws NamingException
     {
         return newAdd( newCSN(), normalizedName, entry );
     }
 
-    private Operation newAdd( CSN csn, Name normalizedName, Attributes entry ) throws NamingException
+
+    private Operation newAdd( CSN csn, LdapDN normalizedName, Attributes entry ) throws NamingException
     {
         // Check an entry already exists.
         checkBeforeAdd( normalizedName );
 
         CompositeOperation result = new CompositeOperation( csn );
-        
+
         // Insert 'entryUUID' and 'entryDeleted'.
         entry = ( Attributes ) entry.clone();
         entry.remove( Constants.ENTRY_UUID );
@@ -96,191 +100,164 @@ public class OperationFactory
         return result;
     }
 
-    public Operation newDelete( Name normalizedName )
+
+    public Operation newDelete( LdapDN normalizedName )
     {
         CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
-        
+
         // Transform into replace operation.
-        result.add(
-                new ReplaceAttributeOperation(
-                        csn,
-                        normalizedName,
-                        new BasicAttribute( Constants.ENTRY_DELETED, "true" ) ) );
+        result.add( new ReplaceAttributeOperation( csn, normalizedName, new BasicAttribute( Constants.ENTRY_DELETED,
+            "true" ) ) );
 
         return addDefaultOperations( result, csn, normalizedName );
     }
-    
-    public Operation newModify( Name normalizedName, int modOp, Attributes attributes )
+
+
+    public Operation newModify( LdapDN normalizedName, int modOp, Attributes attributes )
     {
         CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
         NamingEnumeration e = attributes.getAll();
         // Transform into multiple {@link AttributeOperation}s.
-        while( e.hasMoreElements() )
+        while ( e.hasMoreElements() )
         {
             Attribute attr = ( Attribute ) e.nextElement();
             result.add( newModify( csn, normalizedName, modOp, attr ) );
         }
 
         // Resurrect the entry in case it is deleted.
-        result.add(
-                new ReplaceAttributeOperation(
-                        csn,
-                        normalizedName,
-                        new BasicAttribute( Constants.ENTRY_DELETED, "false" ) ) );
+        result.add( new ReplaceAttributeOperation( csn, normalizedName, new BasicAttribute( Constants.ENTRY_DELETED,
+            "false" ) ) );
 
         return addDefaultOperations( result, null, normalizedName );
     }
-    
-    public Operation newModify( Name normalizedName, ModificationItem[] items )
+
+
+    public Operation newModify( LdapDN normalizedName, ModificationItem[] items )
     {
         CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
         final int length = items.length;
         // Transform into multiple {@link AttributeOperation}s.
-        for( int i = 0; i < length; i ++ )
+        for ( int i = 0; i < length; i++ )
         {
-            ModificationItem item = items[ i ];
-            result.add(
-                    newModify(
-                            csn,
-                            normalizedName,
-                            item.getModificationOp(),
-                            item.getAttribute() ) );
+            ModificationItem item = items[i];
+            result.add( newModify( csn, normalizedName, item.getModificationOp(), item.getAttribute() ) );
         }
 
         // Resurrect the entry in case it is deleted.
-        result.add(
-                new ReplaceAttributeOperation(
-                        csn,
-                        normalizedName,
-                        new BasicAttribute( Constants.ENTRY_DELETED, "false" ) ) );
+        result.add( new ReplaceAttributeOperation( csn, normalizedName, new BasicAttribute( Constants.ENTRY_DELETED,
+            "false" ) ) );
 
         return addDefaultOperations( result, csn, normalizedName );
     }
-    
-    private Operation newModify( CSN csn, Name normalizedName, int modOp, Attribute attribute )
+
+
+    private Operation newModify( CSN csn, LdapDN normalizedName, int modOp, Attribute attribute )
     {
-        switch( modOp )
+        switch ( modOp )
         {
-        case DirContext.ADD_ATTRIBUTE:
-            return new AddAttributeOperation(
-                    csn,
-                    normalizedName,
-                    attribute );
-        case DirContext.REPLACE_ATTRIBUTE:
-            return new ReplaceAttributeOperation(
-                    csn,
-                    normalizedName,
-                    attribute );
-        case DirContext.REMOVE_ATTRIBUTE:
-            return new DeleteAttributeOperation(
-                    csn,
-                    normalizedName,
-                    attribute );
-        default:
-            throw new IllegalArgumentException( "Unknown modOp: " + modOp );
+            case DirContext.ADD_ATTRIBUTE:
+                return new AddAttributeOperation( csn, normalizedName, attribute );
+            case DirContext.REPLACE_ATTRIBUTE:
+                return new ReplaceAttributeOperation( csn, normalizedName, attribute );
+            case DirContext.REMOVE_ATTRIBUTE:
+                return new DeleteAttributeOperation( csn, normalizedName, attribute );
+            default:
+                throw new IllegalArgumentException( "Unknown modOp: " + modOp );
         }
     }
-    
-    public Operation newModifyRn( Name oldName, String newRdn, boolean deleteOldRn ) throws NamingException
+
+
+    public Operation newModifyRn( LdapDN oldName, String newRdn, boolean deleteOldRn ) throws NamingException
     {
-        return newMove( oldName, oldName.getSuffix( 1 ), newRdn, deleteOldRn );
+        return newMove( oldName, ( LdapDN ) oldName.getSuffix( 1 ), newRdn, deleteOldRn );
     }
-    
-    public Operation newMove( Name oldName, Name newParentName ) throws NamingException
+
+
+    public Operation newMove( LdapDN oldName, LdapDN newParentName ) throws NamingException
     {
         return newMove( oldName, newParentName, oldName.get( oldName.size() - 1 ), true );
     }
-    
-    public Operation newMove( Name oldName, Name newParentName, String newRdn, boolean deleteOldRn ) throws NamingException
+
+
+    public Operation newMove( LdapDN oldName, LdapDN newParentName, String newRdn, boolean deleteOldRn )
+        throws NamingException
     {
-        if( !deleteOldRn )
+        if ( !deleteOldRn )
         {
             throw new OperationNotSupportedException( "deleteOldRn must be true." );
         }
-        
+
         // Prepare to create composite operations
         CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
 
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
-        ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE ); 
-        NamingEnumeration e = nexus.search(
-            (LdapDN)oldName, environment, new PresenceNode( "objectClass" ), ctrl );
-        
-        while( e.hasMore() )
+        ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration e = nexus.search( oldName, environment, new PresenceNode( Constants.OBJECT_CLASS_OID ), ctrl );
+
+        while ( e.hasMore() )
         {
             SearchResult sr = ( SearchResult ) e.next();
-            
+
             // Get the name of the old entry
-            Name oldEntryName = new LdapDN( sr.getName() );
-            
+            LdapDN oldEntryName = new LdapDN( sr.getName() );
+
             // Delete the old entry
-            result.add(
-                    new ReplaceAttributeOperation(
-                            csn,
-                            oldEntryName,
-                            new BasicAttribute( Constants.ENTRY_DELETED, "true" ) ) );
+            result.add( new ReplaceAttributeOperation( csn, oldEntryName, new BasicAttribute( Constants.ENTRY_DELETED,
+                "true" ) ) );
 
             // Get the old entry attributes and replace RDN if required
             Attributes entry = sr.getAttributes();
-            if( oldEntryName.size() == oldName.size() )
+            if ( oldEntryName.size() == oldName.size() )
             {
-                entry.remove(
-                        NamespaceTools.getRdnAttribute(
-                                oldName.get( oldName.size() - 1 ) ) ); 
-                entry.put(
-                        NamespaceTools.getRdnAttribute( newRdn ),
-                        NamespaceTools.getRdnValue( newRdn ) );
+                entry.remove( NamespaceTools.getRdnAttribute( oldName.get( oldName.size() - 1 ) ) );
+                entry.put( NamespaceTools.getRdnAttribute( newRdn ), NamespaceTools.getRdnValue( newRdn ) );
             }
-            
+
             // Calculate new name from newParentName, oldEntryName, and newRdn.
-            Name newEntryName = ( Name ) newParentName.clone();
+            LdapDN newEntryName = ( LdapDN ) newParentName.clone();
             newEntryName.add( newRdn );
-            for( int i = oldEntryName.size() - newEntryName.size(); i > 0; i-- )
+            for ( int i = oldEntryName.size() - newEntryName.size(); i > 0; i-- )
             {
                 newEntryName.add( oldEntryName.get( oldEntryName.size() - i ) );
             }
-            
+
             // Add the new entry
-            //// FIXME Get UPDN somehow
-            result.add( newAdd( csn, newEntryName, entry ) );
-            
+            result.add( newAdd( csn, new LdapDN( newEntryName.getUpName() ), entry ) );
+
             // Add default operations to the old entry.
             // Please note that newAdd() already added default operations
             // to the new entry. 
             addDefaultOperations( result, csn, oldEntryName );
         }
-        
+
         return result;
     }
 
-    private void checkBeforeAdd( Name newEntryName ) throws NamingException
+
+    private void checkBeforeAdd( LdapDN newEntryName ) throws NamingException
     {
-        if( nexus.hasEntry( (LdapDN)newEntryName ) )
+        if ( nexus.hasEntry( newEntryName ) )
         {
             throw new NameAlreadyBoundException( newEntryName.toString() + " already exists." );
         }
     }
 
-    private CompositeOperation addDefaultOperations( CompositeOperation result, CSN csn, Name normalizedName )
+
+    private CompositeOperation addDefaultOperations( CompositeOperation result, CSN csn, LdapDN normalizedName )
     {
-        result.add(
-                new ReplaceAttributeOperation(
-                        csn,
-                        normalizedName,
-                        new BasicAttribute(
-                                Constants.ENTRY_CSN,
-                                csn.toOctetString()) ) );
+        result.add( new ReplaceAttributeOperation( csn, normalizedName, new BasicAttribute( Constants.ENTRY_CSN, csn
+            .toOctetString() ) ) );
         return result;
     }
+
 
     private CSN newCSN()
     {
         return csnFactory.newInstance( replicaId );
     }
-
 }

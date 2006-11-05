@@ -19,10 +19,12 @@
  */
 package org.apache.directory.mitosis.configuration;
 
+
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 
 import org.apache.directory.mitosis.common.ReplicaId;
+
 
 /**
  * A {@link PropertyEditor} that converts strings into {@link ReplicaId}s
@@ -38,15 +40,17 @@ public class ReplicaIdPropertyEditor extends PropertyEditorSupport
         super();
     }
 
+
     public ReplicaIdPropertyEditor( Object source )
     {
         super( source );
     }
 
+
     public String getAsText()
     {
         Object val = getValue();
-        if( val == null )
+        if ( val == null )
         {
             return "";
         }
@@ -56,10 +60,11 @@ public class ReplicaIdPropertyEditor extends PropertyEditorSupport
         }
     }
 
+
     public void setAsText( String text ) throws IllegalArgumentException
     {
         text = text.trim();
-        if( text.length() == 0 )
+        if ( text.length() == 0 )
         {
             setValue( null );
         }

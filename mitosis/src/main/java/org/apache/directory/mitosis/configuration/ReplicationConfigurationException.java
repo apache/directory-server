@@ -19,7 +19,9 @@
  */
 package org.apache.directory.mitosis.configuration;
 
+
 import org.apache.directory.mitosis.common.ReplicationException;
+
 
 public class ReplicationConfigurationException extends ReplicationException
 {
@@ -32,20 +34,24 @@ public class ReplicationConfigurationException extends ReplicationException
      */
     private static final long serialVersionUID = 1L;
 
+
     public ReplicationConfigurationException()
     {
         super();
     }
+
 
     public ReplicationConfigurationException( String message, Throwable cause )
     {
         super( message, cause );
     }
 
+
     public ReplicationConfigurationException( String message )
     {
         super( message );
     }
+
 
     public ReplicationConfigurationException( Throwable cause )
     {
