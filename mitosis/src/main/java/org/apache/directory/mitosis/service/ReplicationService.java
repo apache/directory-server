@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.Name;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -246,12 +245,11 @@ public class ReplicationService extends BaseInterceptor
     {
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        ctrl.setReturningAttributes( new String[]
-            { "entryCSN", "entryDeleted" } );
+        ctrl.setReturningAttributes( new String[] { "entryCSN", "entryDeleted" } );
 
         NamingEnumeration e = nexus.search( contextName, directoryServiceConfiguration.getEnvironment(), filter, ctrl );
 
-        List names = new ArrayList();
+        List<LdapDN> names = new ArrayList<LdapDN>();
         try
         {
             while ( e.hasMore() )
@@ -269,15 +267,15 @@ public class ReplicationService extends BaseInterceptor
             e.close();
         }
 
-        Iterator it = names.iterator();
+        Iterator<LdapDN> it = names.iterator();
         while ( it.hasNext() )
         {
-            LdapDN name = ( LdapDN ) it.next();
+            LdapDN name = it.next();
             try
             {
-                Attributes entry = nexus.lookup( ( LdapDN ) name );
+                Attributes entry = nexus.lookup( name );
                 log.info( "Purge: " + name + " (" + entry + ')' );
-                nexus.delete( ( LdapDN ) name );
+                nexus.delete( name );
             }
             catch ( NamingException ex )
             {
@@ -338,10 +336,10 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor nextInterceptor, Name name ) throws NamingException
+    public boolean hasEntry( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
         // Ask others first.
-        boolean hasEntry = nextInterceptor.hasEntry( ( LdapDN ) name );
+        boolean hasEntry = nextInterceptor.hasEntry( name );
 
         // If the entry exists,
         if ( hasEntry )
@@ -349,7 +347,7 @@ public class ReplicationService extends BaseInterceptor
             // Check DELETED attribute.
             try
             {
-                Attributes entry = nextInterceptor.lookup( ( LdapDN ) name );
+                Attributes entry = nextInterceptor.lookup( name );
                 hasEntry = !isDeleted( entry );
             }
             catch ( NameNotFoundException e )
@@ -363,15 +361,15 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( ( LdapDN ) name );
+        Attributes result = nextInterceptor.lookup( name );
         ensureNotDeleted( name, result );
         return result;
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
     {
         boolean found = false;
         // Look for 'entryDeleted' attribute is in attrIds.
@@ -393,24 +391,24 @@ public class ReplicationService extends BaseInterceptor
             attrIds = newAttrIds;
         }
 
-        Attributes result = nextInterceptor.lookup( ( LdapDN ) name, attrIds );
+        Attributes result = nextInterceptor.lookup( name, attrIds );
         ensureNotDeleted( name, result );
         return result;
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, Name baseName ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN baseName ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( ( LdapDN ) baseName );
+        NamingEnumeration e = nextInterceptor.list( baseName );
         return new SearchResultFilteringEnumeration( e, new SearchControls(), InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER );
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, Name baseName, Map environment, ExprNode filter,
+    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN baseName, Map environment, ExprNode filter,
         SearchControls searchControls ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.search( ( LdapDN ) baseName, environment, filter, searchControls );
+        NamingEnumeration e = nextInterceptor.search( baseName, environment, filter, searchControls );
         if ( searchControls.getReturningAttributes() != null )
         {
             return e;
@@ -421,12 +419,12 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    private void ensureNotDeleted( Name name, Attributes entry ) throws NamingException, LdapNameNotFoundException
+    private void ensureNotDeleted( LdapDN name, Attributes entry ) throws NamingException, LdapNameNotFoundException
     {
         if ( isDeleted( entry ) )
         {
             LdapNameNotFoundException e = new LdapNameNotFoundException( "Deleted entry: " + name );
-            e.setResolvedName( nexus.getMatchedName( ( LdapDN ) name ) );
+            e.setResolvedName( nexus.getMatchedName( name ) );
             throw e;
         }
     }
@@ -440,6 +438,6 @@ public class ReplicationService extends BaseInterceptor
         }
 
         Attribute deleted = entry.get( Constants.ENTRY_DELETED );
-        return ( deleted != null && "true".equals( deleted.get().toString() ) );
+        return ( deleted != null && "true".equalsIgnoreCase( deleted.get().toString() ) );
     }
 }

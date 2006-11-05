@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.directory.mitosis.common.Replica;
+import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.service.protocol.codec.ReplicationClientProtocolCodecFactory;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientProtocolHandler;
@@ -60,7 +61,7 @@ class ClientConnectionManager
     private final ReplicationService service;
     private final IoConnector connector = new SocketConnector();
     private final IoConnectorConfig connectorConfig = new SocketConnectorConfig();
-    private final Map sessions = new HashMap();
+    private final Map<ReplicaId,Connection> sessions = new HashMap<ReplicaId,Connection>();
     private ReplicationConfiguration configuration;
     private ConnectionMonitor monitor;
 

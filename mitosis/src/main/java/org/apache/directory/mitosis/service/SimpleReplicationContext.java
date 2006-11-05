@@ -42,7 +42,7 @@ public class SimpleReplicationContext implements ReplicationContext
     private final ReplicationConfiguration configuration;
     private final DirectoryServiceConfiguration serviceConfiguration;
     private final IoSession session;
-    private final Map expirableMessages = new HashMap();
+    private final Map<Integer,ExpirationTask> expirableMessages = new HashMap<Integer,ExpirationTask>();
     private int nextSequence;
     private Replica peer;
     private State state = State.INIT;
