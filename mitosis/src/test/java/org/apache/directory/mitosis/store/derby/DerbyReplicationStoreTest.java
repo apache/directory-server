@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.store.derby;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,6 +67,7 @@ import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStoreException;
 import org.apache.directory.mitosis.store.derby.DerbyReplicationStore;
 
+
 public class DerbyReplicationStoreTest extends TestCase
 {
     private static final ReplicaId REPLICA_ID = new ReplicaId( "TEST_REPLICA" );
@@ -79,6 +81,7 @@ public class DerbyReplicationStoreTest extends TestCase
     private int testCount;
     private long startTime;
 
+
     public void setUp() throws Exception
     {
         dropDatabase();
@@ -86,32 +89,37 @@ public class DerbyReplicationStoreTest extends TestCase
         initStopWatch();
     }
 
+
     private void startupDatabase( ReplicaId replicaId ) throws Exception
     {
         // Prepare configuration
         ReplicationConfiguration cfg = new ReplicationConfiguration();
         cfg.setReplicaId( replicaId );
-        
+
         // Open store
         store = new DerbyReplicationStore();
         store.setTablePrefix( "TEST_" );
         store.open( new DirectoryServiceConfigurationImpl(), cfg );
     }
-    
+
+
     public void tearDown() throws Exception
     {
         store.close();
         dropDatabase();
     }
 
-    private void dropDatabase() throws IOException {
+
+    private void dropDatabase() throws IOException
+    {
         FileUtils.deleteDirectory( DB_PATH );
         File logFile = new File( "derby.log" );
-        if( !logFile.delete() )
+        if ( !logFile.delete() )
         {
             logFile.deleteOnExit();
         }
     }
+
 
     public void testOperations() throws Exception
     {
@@ -128,7 +136,8 @@ public class DerbyReplicationStoreTest extends TestCase
         subTestVectors();
         printElapsedTime( "Vectors" );
     }
-    
+
+
     private void subTestReopen() throws Exception
     {
         store.close();
@@ -137,12 +146,13 @@ public class DerbyReplicationStoreTest extends TestCase
             startupDatabase( OTHER_REPLICA_ID );
             Assert.fail( "Store cannot start up with wrong replica ID." );
         }
-        catch( ReplicationStoreException e )
+        catch ( ReplicationStoreException e )
         {
         }
         startupDatabase( REPLICA_ID );
     }
-    
+
+
     private void subTestUUID() throws Exception
     {
         UUID uuid = uuidFactory.newInstance();
@@ -153,11 +163,12 @@ public class DerbyReplicationStoreTest extends TestCase
         Assert.assertFalse( store.removeUUID( uuid ) );
         Assert.assertNull( store.getDN( uuid ) );
     }
-    
+
+
     private void subTestEmptyLog() throws Exception
     {
         ReplicationLogIterator it;
-        
+
         it = store.getLogs( csnFactory.newInstance( REPLICA_ID ), true );
         Assert.assertFalse( it.next() );
         it.close();
@@ -170,9 +181,10 @@ public class DerbyReplicationStoreTest extends TestCase
         it = store.getLogs( csnFactory.newInstance( OTHER_REPLICA_ID ), false );
         Assert.assertFalse( it.next() );
         it.close();
-        
+
         Assert.assertEquals( 0, store.getLogSize() );
     }
+
 
     private void subTestWriteLog() throws Exception
     {
@@ -182,7 +194,7 @@ public class DerbyReplicationStoreTest extends TestCase
         op1.add( new AddAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
         op1.add( new ReplaceAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
         op1.add( new DeleteAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
-        
+
         store.putLog( op1 );
         testGetLogs( csn, op1 );
 
@@ -192,14 +204,14 @@ public class DerbyReplicationStoreTest extends TestCase
         op2.add( new AddAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
         op2.add( new ReplaceAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
         op2.add( new DeleteAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
-        
+
         store.putLog( op2 );
         testGetLogs( csn, op2 );
-        
+
         Assert.assertEquals( 2, store.getLogSize() );
         Assert.assertEquals( 1, store.getLogSize( REPLICA_ID ) );
         Assert.assertEquals( 1, store.getLogSize( OTHER_REPLICA_ID ) );
-        
+
         // Test getLogs(CSNVector, true)
         List<Operation> expected = new ArrayList<Operation>();
         expected.add( op1 );
@@ -239,17 +251,18 @@ public class DerbyReplicationStoreTest extends TestCase
         updateVector.setCSN( op2.getCSN() );
         testGetLogs( updateVector, false, expected );
     }
-    
+
+
     private void subTestRemoveLogs()
     {
         CSN csn;
         ReplicationLogIterator it;
-        
+
         it = store.getLogs( new SimpleCSN( 0, REPLICA_ID, 0 ), false );
         it.next();
         csn = it.getOperation().getCSN();
         it.close();
-        
+
         Assert.assertEquals( 0, store.removeLogs( csn, false ) );
         Assert.assertEquals( 1, store.removeLogs( csn, true ) );
         Assert.assertEquals( 0, store.getLogSize( REPLICA_ID ) );
@@ -258,14 +271,15 @@ public class DerbyReplicationStoreTest extends TestCase
         Assert.assertTrue( it.next() );
         csn = it.getOperation().getCSN();
         it.close();
-        
+
         Assert.assertEquals( 0, store.removeLogs( csn, false ) );
         Assert.assertEquals( 1, store.removeLogs( csn, true ) );
         Assert.assertEquals( 0, store.getLogSize( OTHER_REPLICA_ID ) );
-        
+
         Assert.assertEquals( 0, store.getLogSize() );
     }
-    
+
+
     private void subTestVectors() throws Exception
     {
         CSN csnA = new SimpleCSN( 0, REPLICA_ID, 0 );
@@ -276,27 +290,28 @@ public class DerbyReplicationStoreTest extends TestCase
         store.putLog( new Operation( csnB ) );
         store.putLog( new Operation( csnC ) );
         store.putLog( new Operation( csnD ) );
-        
+
         Set<ReplicaId> expectedKnownReplicaIds = new HashSet<ReplicaId>();
         expectedKnownReplicaIds.add( REPLICA_ID );
         expectedKnownReplicaIds.add( OTHER_REPLICA_ID );
         expectedKnownReplicaIds.add( OTHER_REPLICA_ID_2 );
-        
+
         Assert.assertEquals( expectedKnownReplicaIds, store.getKnownReplicaIds() );
-        
+
         CSNVector expectedUpdateVector = new CSNVector();
         expectedUpdateVector.setCSN( csnB );
         expectedUpdateVector.setCSN( csnD );
-        
+
         Assert.assertEquals( expectedUpdateVector, store.getUpdateVector() );
 
         CSNVector expectedPurgeVector = new CSNVector();
         expectedPurgeVector.setCSN( csnA );
         expectedPurgeVector.setCSN( csnC );
-        
+
         Assert.assertEquals( expectedPurgeVector, store.getPurgeVector() );
     }
-    
+
+
     private void testGetLogs( CSN csn, Operation operation )
     {
         List<Operation> operations = new ArrayList<Operation>();
@@ -304,31 +319,34 @@ public class DerbyReplicationStoreTest extends TestCase
         testGetLogs( csn, operations );
     }
 
+
     private void testGetLogs( CSN csn, List operations )
     {
         Iterator it = operations.iterator();
         ReplicationLogIterator rit;
-        
+
         rit = store.getLogs( csn, true );
         testGetLogs( it, rit );
-        
+
         rit = store.getLogs( csn, false );
         Assert.assertFalse( rit.next() );
         rit.close();
     }
 
+
     private void testGetLogs( CSNVector updateVector, boolean inclusive, List operations )
     {
         Iterator it = operations.iterator();
         ReplicationLogIterator rit;
-        
+
         rit = store.getLogs( updateVector, inclusive );
         testGetLogs( it, rit );
     }
 
+
     private void testGetLogs( Iterator expectedIt, ReplicationLogIterator actualIt )
     {
-        while( expectedIt.hasNext() )
+        while ( expectedIt.hasNext() )
         {
             Operation expected = ( Operation ) expectedIt.next();
             Assert.assertTrue( actualIt.next() );
@@ -341,23 +359,26 @@ public class DerbyReplicationStoreTest extends TestCase
         actualIt.close();
     }
 
+
     private void initStopWatch()
     {
         startTime = System.currentTimeMillis();
     }
-    
+
+
     private void printElapsedTime( String testName )
     {
         long endTime = System.currentTimeMillis();
         System.out.println( "Subtest #" + ( ++testCount ) + " [" + testName + "]: " + ( endTime - startTime ) + " ms" );
         startTime = System.currentTimeMillis();
     }
-    
+
+
     private static void assertEquals( Operation expected, Operation actual )
     {
         Assert.assertEquals( expected.toString(), actual.toString() );
     }
-    
+
     private static class DirectoryServiceConfigurationImpl implements DirectoryServiceConfiguration
     {
         public DirectoryService getService()
@@ -365,15 +386,18 @@ public class DerbyReplicationStoreTest extends TestCase
             return null;
         }
 
+
         public String getInstanceId()
         {
             return null;
         }
 
+
         public Hashtable getEnvironment()
         {
             return null;
         }
+
 
         public StartupConfiguration getStartupConfiguration()
         {
@@ -382,25 +406,30 @@ public class DerbyReplicationStoreTest extends TestCase
             return cfg;
         }
 
+
         public GlobalRegistries getGlobalRegistries()
         {
             return null;
         }
+
 
         public PartitionNexus getPartitionNexus()
         {
             return null;
         }
 
+
         public InterceptorChain getInterceptorChain()
         {
             return null;
         }
 
+
         public boolean isFirstStart()
         {
             return false;
         }
+
 
         public DirectoryServiceListener getServiceListener()
         {

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.SimpleCSN;
@@ -27,11 +28,13 @@ import org.apache.directory.mitosis.service.protocol.codec.BeginLogEntriesAckMes
 import org.apache.directory.mitosis.service.protocol.codec.BeginLogEntriesAckMessageEncoder;
 import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
 
-public class BeginLogEntriesAckMessageCodecTest extends AbstractMessageCodecTest {
+
+public class BeginLogEntriesAckMessageCodecTest extends AbstractMessageCodecTest
+{
 
     private static final CSNVector PURGE_VECTOR = new CSNVector();
     private static final CSNVector UPDATE_VECTOR = new CSNVector();
-    
+
     static
     {
         PURGE_VECTOR.setCSN( new SimpleCSN( System.currentTimeMillis() - 400, new ReplicaId( "replica0" ), 3456 ) );
@@ -44,10 +47,11 @@ public class BeginLogEntriesAckMessageCodecTest extends AbstractMessageCodecTest
         UPDATE_VECTOR.setCSN( new SimpleCSN( System.currentTimeMillis() + 200, new ReplicaId( "replica2" ), 9012 ) );
         UPDATE_VECTOR.setCSN( new SimpleCSN( System.currentTimeMillis() + 300, new ReplicaId( "replica3" ), 3456 ) );
     }
-    
-    public BeginLogEntriesAckMessageCodecTest() {
+
+
+    public BeginLogEntriesAckMessageCodecTest()
+    {
         super( new BeginLogEntriesAckMessage( 1234, Constants.OK, PURGE_VECTOR, UPDATE_VECTOR ),
-               new BeginLogEntriesAckMessageEncoder(),
-               new BeginLogEntriesAckMessageDecoder() );
+            new BeginLogEntriesAckMessageEncoder(), new BeginLogEntriesAckMessageDecoder() );
     }
 }

@@ -19,7 +19,9 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 import junit.framework.TestCase;
+
 
 /**
  * 
@@ -33,13 +35,14 @@ public class SimpleCSNTest extends TestCase
     public void testCSN()
     {
         long ts = System.currentTimeMillis();
-        
+
         CSN csn = new SimpleCSN( Long.toString( ts, 16 ) + ":abcdefghi0123:" + 1 );
-        
+
         assertEquals( ts, csn.getTimestamp() );
         assertEquals( 1, csn.getOperationSequence() );
         assertEquals( "abcdefghi0123", csn.getReplicaId().toString() );
     }
+
 
     public void testCSNEmpty()
     {
@@ -58,6 +61,7 @@ public class SimpleCSNTest extends TestCase
         }
     }
 
+
     public void testCSNTSOnly()
     {
         try
@@ -74,6 +78,7 @@ public class SimpleCSNTest extends TestCase
             assertTrue( true );
         }
     }
+
 
     public void testCSNInvalidTS()
     {
@@ -92,6 +97,7 @@ public class SimpleCSNTest extends TestCase
         }
     }
 
+
     public void testCSNNoTS()
     {
         try
@@ -108,6 +114,7 @@ public class SimpleCSNTest extends TestCase
             assertTrue( true );
         }
     }
+
 
     public void testCSNInavlidReplica()
     {
@@ -126,6 +133,7 @@ public class SimpleCSNTest extends TestCase
         }
     }
 
+
     public void testCSNNoReplica()
     {
         try
@@ -142,6 +150,7 @@ public class SimpleCSNTest extends TestCase
             assertTrue( true );
         }
     }
+
 
     public void testCSNInavlidOpSeq()
     {
@@ -160,6 +169,7 @@ public class SimpleCSNTest extends TestCase
         }
     }
 
+
     public void testCSNEmptyOpSeq()
     {
         try
@@ -177,6 +187,7 @@ public class SimpleCSNTest extends TestCase
         }
     }
 
+
     public void testCSNNoOpSeq()
     {
         try
@@ -193,28 +204,29 @@ public class SimpleCSNTest extends TestCase
             assertTrue( true );
         }
     }
-    
+
+
     public void testCSNToBytes()
     {
         CSN csn = new SimpleCSN( "0123456789abcdef:test:5678cdef" );
-        
+
         byte[] bytes = csn.toBytes();
-        
+
         assertEquals( 0x01, bytes[0] );
         assertEquals( 0x23, bytes[1] );
         assertEquals( 0x45, bytes[2] );
         assertEquals( 0x67, bytes[3] );
-        assertEquals( (byte)0x89, bytes[4] );
-        assertEquals( (byte)0xAB, bytes[5] );
-        assertEquals( (byte)0xCD, bytes[6] );
-        assertEquals( (byte)0xEF, bytes[7] );
+        assertEquals( ( byte ) 0x89, bytes[4] );
+        assertEquals( ( byte ) 0xAB, bytes[5] );
+        assertEquals( ( byte ) 0xCD, bytes[6] );
+        assertEquals( ( byte ) 0xEF, bytes[7] );
         assertEquals( 0x56, bytes[8] );
         assertEquals( 0x78, bytes[9] );
-        assertEquals( (byte)0xCD, bytes[10] );
-        assertEquals( (byte)0xEF, bytes[11] );
-        
+        assertEquals( ( byte ) 0xCD, bytes[10] );
+        assertEquals( ( byte ) 0xEF, bytes[11] );
+
         assertEquals( "test", new String( bytes, 12, bytes.length - 12 ) );
-        
+
         CSN deserializedCSN = new SimpleCSN( bytes );
         assertEquals( csn, deserializedCSN );
     }

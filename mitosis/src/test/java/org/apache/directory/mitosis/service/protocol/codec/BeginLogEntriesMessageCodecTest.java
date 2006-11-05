@@ -19,15 +19,18 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.directory.mitosis.service.protocol.codec.BeginLogEntriesMessageDecoder;
 import org.apache.directory.mitosis.service.protocol.codec.BeginLogEntriesMessageEncoder;
 import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesMessage;
 
-public class BeginLogEntriesMessageCodecTest extends AbstractMessageCodecTest {
 
-    public BeginLogEntriesMessageCodecTest() {
-        super( new BeginLogEntriesMessage( 1234 ),
-               new BeginLogEntriesMessageEncoder(),
-               new BeginLogEntriesMessageDecoder() );
+public class BeginLogEntriesMessageCodecTest extends AbstractMessageCodecTest
+{
+
+    public BeginLogEntriesMessageCodecTest()
+    {
+        super( new BeginLogEntriesMessage( 1234 ), new BeginLogEntriesMessageEncoder(),
+            new BeginLogEntriesMessageDecoder() );
     }
 }

@@ -19,16 +19,19 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.service.protocol.codec.LoginAckMessageDecoder;
 import org.apache.directory.mitosis.service.protocol.codec.LoginAckMessageEncoder;
 import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 
-public class LoginAckMessageCodecTest extends AbstractMessageCodecTest {
 
-    public LoginAckMessageCodecTest() {
-        super( new LoginAckMessage( 1234, 5678, new ReplicaId( "ReplicaABCD" ) ),
-               new LoginAckMessageEncoder(),
-               new LoginAckMessageDecoder() );
+public class LoginAckMessageCodecTest extends AbstractMessageCodecTest
+{
+
+    public LoginAckMessageCodecTest()
+    {
+        super( new LoginAckMessage( 1234, 5678, new ReplicaId( "ReplicaABCD" ) ), new LoginAckMessageEncoder(),
+            new LoginAckMessageDecoder() );
     }
 }

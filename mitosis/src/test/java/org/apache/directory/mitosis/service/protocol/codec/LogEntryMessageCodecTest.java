@@ -38,11 +38,10 @@ public class LogEntryMessageCodecTest extends AbstractMessageCodecTest
 
     public LogEntryMessageCodecTest() throws InvalidNameException
     {
-        super( new LogEntryMessage( 1234,
-            new AddAttributeOperation(
-                new SimpleCSN( System.currentTimeMillis(), new ReplicaId( "testReplica0" ), 1234 ), new LdapDN(
-                    "ou=system" ), new BasicAttribute( "Hello", "Test" ) ) ), new LogEntryMessageEncoder(),
-            new LogEntryMessageDecoder() );
+        super(
+            new LogEntryMessage( 1234, new AddAttributeOperation( new SimpleCSN( System.currentTimeMillis(),
+                new ReplicaId( "testReplica0" ), 1234 ), new LdapDN( "ou=system" ),
+                new BasicAttribute( "Hello", "Test" ) ) ), new LogEntryMessageEncoder(), new LogEntryMessageDecoder() );
     }
 
 

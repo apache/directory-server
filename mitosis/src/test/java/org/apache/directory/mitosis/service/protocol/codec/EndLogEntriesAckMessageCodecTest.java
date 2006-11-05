@@ -19,15 +19,18 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.directory.mitosis.service.protocol.codec.EndLogEntriesAckMessageDecoder;
 import org.apache.directory.mitosis.service.protocol.codec.EndLogEntriesAckMessageEncoder;
 import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesAckMessage;
 
-public class EndLogEntriesAckMessageCodecTest extends AbstractMessageCodecTest {
 
-    public EndLogEntriesAckMessageCodecTest() {
-        super( new EndLogEntriesAckMessage( 1234, 5678 ),
-               new EndLogEntriesAckMessageEncoder(),
-               new EndLogEntriesAckMessageDecoder() );
+public class EndLogEntriesAckMessageCodecTest extends AbstractMessageCodecTest
+{
+
+    public EndLogEntriesAckMessageCodecTest()
+    {
+        super( new EndLogEntriesAckMessage( 1234, 5678 ), new EndLogEntriesAckMessageEncoder(),
+            new EndLogEntriesAckMessageDecoder() );
     }
 }

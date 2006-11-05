@@ -19,15 +19,17 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.directory.mitosis.service.protocol.codec.LogEntryAckMessageDecoder;
 import org.apache.directory.mitosis.service.protocol.codec.LogEntryAckMessageEncoder;
 import org.apache.directory.mitosis.service.protocol.message.LogEntryAckMessage;
 
-public class LogEntryAckMessageCodecTest extends AbstractMessageCodecTest {
 
-    public LogEntryAckMessageCodecTest() {
-        super( new LogEntryAckMessage( 1234, 5678 ),
-               new LogEntryAckMessageEncoder(),
-               new LogEntryAckMessageDecoder() );
+public class LogEntryAckMessageCodecTest extends AbstractMessageCodecTest
+{
+
+    public LogEntryAckMessageCodecTest()
+    {
+        super( new LogEntryAckMessage( 1234, 5678 ), new LogEntryAckMessageEncoder(), new LogEntryAckMessageDecoder() );
     }
 }

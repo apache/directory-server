@@ -19,16 +19,19 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.codec.BeginLogEntriesAckMessageDecoder;
 import org.apache.directory.mitosis.service.protocol.codec.BeginLogEntriesAckMessageEncoder;
 import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
 
-public class BeginLogEntriesAckMessageCodecTest2 extends AbstractMessageCodecTest {
-    
-    public BeginLogEntriesAckMessageCodecTest2() {
+
+public class BeginLogEntriesAckMessageCodecTest2 extends AbstractMessageCodecTest
+{
+
+    public BeginLogEntriesAckMessageCodecTest2()
+    {
         super( new BeginLogEntriesAckMessage( 1234, Constants.NOT_OK, null, null ),
-               new BeginLogEntriesAckMessageEncoder(),
-               new BeginLogEntriesAckMessageDecoder() );
+            new BeginLogEntriesAckMessageEncoder(), new BeginLogEntriesAckMessageDecoder() );
     }
 }

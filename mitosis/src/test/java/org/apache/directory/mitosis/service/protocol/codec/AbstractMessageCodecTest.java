@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -31,25 +32,25 @@ import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.apache.mina.filter.codec.support.SimpleProtocolEncoderOutput;
 import org.apache.mina.util.Queue;
 
+
 public abstract class AbstractMessageCodecTest extends TestCase
 {
     private final BaseMessage message;
     private final MessageEncoder encoder;
     private final MessageDecoder decoder;
-    
-    protected AbstractMessageCodecTest( BaseMessage message,
-                                        MessageEncoder encoder,
-                                        MessageDecoder decoder )
+
+
+    protected AbstractMessageCodecTest( BaseMessage message, MessageEncoder encoder, MessageDecoder decoder )
     {
-        if( message == null )
+        if ( message == null )
         {
             throw new NullPointerException( "message" );
         }
-        if( encoder == null )
+        if ( encoder == null )
         {
             throw new NullPointerException( "encoder" );
         }
-        if( decoder == null )
+        if ( decoder == null )
         {
             throw new NullPointerException( "decoder" );
         }
@@ -58,7 +59,8 @@ public abstract class AbstractMessageCodecTest extends TestCase
         this.encoder = encoder;
         this.decoder = decoder;
     }
-    
+
+
     public void testMessageCodec() throws Exception
     {
         SimpleProtocolEncoderOutput encoderOut = new SimpleProtocolEncoderOutput()
@@ -67,7 +69,7 @@ public abstract class AbstractMessageCodecTest extends TestCase
             {
                 return null;
             }
-            
+
         };
         encoder.encode( null, message, encoderOut );
         ByteBuffer buf = ( ByteBuffer ) encoderOut.getBufferQueue().pop();
@@ -75,30 +77,32 @@ public abstract class AbstractMessageCodecTest extends TestCase
         buf.mark();
         Assert.assertTrue( decoder.decodable( null, buf ) == MessageDecoder.OK );
         buf.reset();
-        
+
         ProtocolDecoderOutputImpl decoderOut = new ProtocolDecoderOutputImpl();
         decoder.decode( null, buf, decoderOut );
-        
-        Assert.assertTrue( compare( message,
-                                    ( BaseMessage ) decoderOut.messages.pop() ) );
+
+        Assert.assertTrue( compare( message, ( BaseMessage ) decoderOut.messages.pop() ) );
     }
-    
+
+
     protected boolean compare( BaseMessage expected, BaseMessage actual )
     {
         return expected.equals( actual );
     }
-    
+
     private class ProtocolDecoderOutputImpl implements ProtocolDecoderOutput
     {
         private final Queue messages = new Queue();
+
 
         public void flush()
         {
         }
 
-        public void write(Object message)
+
+        public void write( Object message )
         {
-            messages.push(message);
+            messages.push( message );
         }
     }
 }
