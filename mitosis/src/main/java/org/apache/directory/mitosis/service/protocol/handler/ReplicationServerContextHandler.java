@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.handler;
 
+
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 
@@ -40,6 +41,7 @@ import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationStore;
 
+
 /**
  * {@link ReplicationContextHandler} that implements server-side replication logic
  * which retrieves any changes occurred in remote replicas.
@@ -47,45 +49,44 @@ import org.apache.directory.mitosis.store.ReplicationStore;
  * @author Trustin Lee
  * @version $Rev: 116 $, $Date: 2006-09-18 13:47:53Z $
  */
-public class ReplicationServerContextHandler implements
-        ReplicationContextHandler
+public class ReplicationServerContextHandler implements ReplicationContextHandler
 {
     private Replica replicaInTransaction = null;
-    
+
+
     public void contextBegin( ReplicationContext ctx ) throws Exception
     {
         // Set login timeout
-        ctx.getSession().setIdleTime(
-                IdleStatus.BOTH_IDLE,
-                ctx.getConfiguration().getResponseTimeout() );
-        
+        ctx.getSession().setIdleTime( IdleStatus.BOTH_IDLE, ctx.getConfiguration().getResponseTimeout() );
+
         // Set write timeout
         ctx.getSession().setWriteTimeout( ctx.getConfiguration().getResponseTimeout() );
     }
 
+
     public synchronized void contextEnd( ReplicationContext ctx ) throws Exception
     {
         // Reset the mark if the context has the unfinished transaction.
-        if( !ctx.getPeer().equals( replicaInTransaction ) )
+        if ( !ctx.getPeer().equals( replicaInTransaction ) )
         {
             replicaInTransaction = null;
         }
     }
 
-    public void messageReceived( ReplicationContext ctx, Object message )
-            throws Exception
+
+    public void messageReceived( ReplicationContext ctx, Object message ) throws Exception
     {
-        if( ctx.getState() == State.READY )
+        if ( ctx.getState() == State.READY )
         {
-            if( message instanceof LogEntryMessage )
+            if ( message instanceof LogEntryMessage )
             {
                 onLogEntry( ctx, ( LogEntryMessage ) message );
             }
-            else if( message instanceof BeginLogEntriesMessage )
+            else if ( message instanceof BeginLogEntriesMessage )
             {
                 onBeginLogEntries( ctx, ( BeginLogEntriesMessage ) message );
             }
-            else if( message instanceof EndLogEntriesMessage )
+            else if ( message instanceof EndLogEntriesMessage )
             {
                 onEndLogEntries( ctx, ( EndLogEntriesMessage ) message );
             }
@@ -96,7 +97,7 @@ public class ReplicationServerContextHandler implements
         }
         else
         {
-            if( message instanceof LoginMessage )
+            if ( message instanceof LoginMessage )
             {
                 onLogin( ctx, ( LoginMessage ) message );
             }
@@ -107,102 +108,90 @@ public class ReplicationServerContextHandler implements
         }
     }
 
-    public void messageSent( ReplicationContext ctx, Object message )
-            throws Exception
+
+    public void messageSent( ReplicationContext ctx, Object message ) throws Exception
     {
     }
 
-    public void exceptionCaught( ReplicationContext ctx, Throwable cause )
-            throws Exception
+
+    public void exceptionCaught( ReplicationContext ctx, Throwable cause ) throws Exception
     {
         SessionLog.warn( ctx.getSession(), "Unexpected exception.", cause );
         ctx.getSession().close();
     }
 
-    public void contextIdle( ReplicationContext ctx, IdleStatus status )
-            throws Exception
+
+    public void contextIdle( ReplicationContext ctx, IdleStatus status ) throws Exception
     {
-        if( ctx.getState() == State.INIT )
+        if ( ctx.getState() == State.INIT )
         {
-            SessionLog.warn(
-                    ctx.getSession(),
-                    "No login attempt in " +
-                    ctx.getConfiguration().getResponseTimeout() +
-                    " second(s)." );
+            SessionLog.warn( ctx.getSession(), "No login attempt in " + ctx.getConfiguration().getResponseTimeout()
+                + " second(s)." );
             ctx.getSession().close();
         }
     }
 
+
     private void onLogin( ReplicationContext ctx, LoginMessage message )
     {
         Iterator i = ctx.getConfiguration().getPeerReplicas().iterator();
-        while( i.hasNext() )
+        while ( i.hasNext() )
         {
             Replica replica = ( Replica ) i.next();
-            if( replica.getId().equals( message.getReplicaId() ) )
+            if ( replica.getId().equals( message.getReplicaId() ) )
             {
-                if( replica.getAddress().getAddress().equals(
-                        ( ( InetSocketAddress ) ctx.getSession().getRemoteAddress() ).getAddress() ) )
+                if ( replica.getAddress().getAddress().equals(
+                    ( ( InetSocketAddress ) ctx.getSession().getRemoteAddress() ).getAddress() ) )
                 {
-                    ctx.getSession().write(
-                            new LoginAckMessage(
-                                    message.getSequence(),
-                                    Constants.OK,
-                                    ctx.getConfiguration().getReplicaId() ) );
+                    ctx.getSession()
+                        .write(
+                            new LoginAckMessage( message.getSequence(), Constants.OK, ctx.getConfiguration()
+                                .getReplicaId() ) );
                     ctx.setPeer( replica );
                     ctx.setState( State.READY );
-                    
+
                     // Clear login timeout.
                     ctx.getSession().setIdleTime( IdleStatus.BOTH_IDLE, 0 );
                     return;
                 }
                 else
                 {
-                    SessionLog.warn(
-                            ctx.getSession(),
-                            "Peer address mismatches: " + 
-                            ctx.getSession().getRemoteAddress() + 
-                            " (expected: " + replica.getAddress() );
+                    SessionLog.warn( ctx.getSession(), "Peer address mismatches: "
+                        + ctx.getSession().getRemoteAddress() + " (expected: " + replica.getAddress() );
                     ctx.getSession().write(
-                            new LoginAckMessage(
-                                    message.getSequence(),
-                                    Constants.NOT_OK,
-                                    ctx.getConfiguration().getReplicaId() ) );
+                        new LoginAckMessage( message.getSequence(), Constants.NOT_OK, ctx.getConfiguration()
+                            .getReplicaId() ) );
                     ctx.getSession().close();
                     return;
                 }
             }
         }
-        
-        SessionLog.warn(
-                ctx.getSession(),
-                "Unknown peer replica ID: " + message.getReplicaId() );
+
+        SessionLog.warn( ctx.getSession(), "Unknown peer replica ID: " + message.getReplicaId() );
         ctx.getSession().write(
-                new LoginAckMessage(
-                        message.getSequence(),
-                        Constants.NOT_OK,
-                        ctx.getConfiguration().getReplicaId() ) );
+            new LoginAckMessage( message.getSequence(), Constants.NOT_OK, ctx.getConfiguration().getReplicaId() ) );
         ctx.getSession().close();
     }
+
 
     private synchronized void onLogEntry( ReplicationContext ctx, LogEntryMessage message ) throws Exception
     {
         // Return error if other replica than what is in progress sends
         // a log entry
-        if( !ctx.getPeer().equals( replicaInTransaction ) )
+        if ( !ctx.getPeer().equals( replicaInTransaction ) )
         {
             ctx.getSession().write( new LogEntryAckMessage( message.getSequence(), Constants.NOT_OK ) );
             return;
         }
-            
+
         Operation op = message.getOperation();
         LogEntryAckMessage ack = null;
         try
         {
             op.execute( ctx.getServiceConfiguration().getPartitionNexus(), ctx.getConfiguration().getStore() );
-            ack = new LogEntryAckMessage( message.getSequence(), Constants.OK ); 
+            ack = new LogEntryAckMessage( message.getSequence(), Constants.OK );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             ack = new LogEntryAckMessage( message.getSequence(), Constants.NOT_OK );
             throw e;
@@ -213,12 +202,14 @@ public class ReplicationServerContextHandler implements
         }
     }
 
+
     private synchronized void onBeginLogEntries( ReplicationContext ctx, BeginLogEntriesMessage message )
     {
         // Return error if the transaction is already in progress.
-        if( replicaInTransaction != null )
+        if ( replicaInTransaction != null )
         {
-            ctx.getSession().write( new BeginLogEntriesAckMessage( message.getSequence(), Constants.NOT_OK, null, null ) );
+            ctx.getSession()
+                .write( new BeginLogEntriesAckMessage( message.getSequence(), Constants.NOT_OK, null, null ) );
             return;
         }
 
@@ -228,39 +219,35 @@ public class ReplicationServerContextHandler implements
             CSNVector pv = store.getPurgeVector();
             CSNVector uv = store.getUpdateVector();
             replicaInTransaction = ctx.getPeer(); // Mark as replica in transaction
-            ctx.getSession().write( new BeginLogEntriesAckMessage(
-                    message.getSequence(), Constants.OK, pv, uv ) );
+            ctx.getSession().write( new BeginLogEntriesAckMessage( message.getSequence(), Constants.OK, pv, uv ) );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
-            SessionLog.warn(
-                    ctx.getSession(),
-                    "Failed to get update vector.", e );
-            ctx.getSession().write(
-                    new BeginLogEntriesAckMessage(
-                            message.getSequence(), Constants.NOT_OK, null, null ) );
+            SessionLog.warn( ctx.getSession(), "Failed to get update vector.", e );
+            ctx.getSession()
+                .write( new BeginLogEntriesAckMessage( message.getSequence(), Constants.NOT_OK, null, null ) );
         }
     }
+
 
     private synchronized void onEndLogEntries( ReplicationContext ctx, EndLogEntriesMessage message )
     {
         // Return error if other replica than what is in progress sends
         // a flow control message
-        if( !ctx.getPeer().equals( replicaInTransaction ) )
+        if ( !ctx.getPeer().equals( replicaInTransaction ) )
         {
             ctx.getSession().write( new EndLogEntriesAckMessage( message.getSequence(), Constants.NOT_OK ) );
             return;
         }
-        
+
         ctx.getSession().write( new EndLogEntriesAckMessage( message.getSequence(), Constants.OK ) );
         replicaInTransaction = null; // Reset the mark.
     }
 
+
     private void onUnexpectedMessage( ReplicationContext ctx, Object message )
     {
-        SessionLog.warn(
-                ctx.getSession(),
-                "Unexpected message: " + message );
+        SessionLog.warn( ctx.getSession(), "Unexpected message: " + message );
         ctx.getSession().close();
     }
 }

@@ -19,15 +19,27 @@
  */
 package org.apache.directory.mitosis.service.protocol.handler;
 
+
 import org.apache.directory.mitosis.service.ReplicationContext;
 import org.apache.mina.common.IdleStatus;
 
 
-public interface ReplicationContextHandler {
+public interface ReplicationContextHandler
+{
     void contextBegin( ReplicationContext ctx ) throws Exception;
+
+
     void contextEnd( ReplicationContext ctx ) throws Exception;
+
+
     void messageReceived( ReplicationContext ctx, Object message ) throws Exception;
+
+
     void messageSent( ReplicationContext ctx, Object message ) throws Exception;
+
+
     void exceptionCaught( ReplicationContext ctx, Throwable cause ) throws Exception;
+
+
     void contextIdle( ReplicationContext ctx, IdleStatus status ) throws Exception;
 }
