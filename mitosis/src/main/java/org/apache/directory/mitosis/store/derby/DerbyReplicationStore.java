@@ -68,7 +68,7 @@ public class DerbyReplicationStore implements ReplicationStore
     private String metadataTableName;
     private String uuidTableName;
     private String logTableName;
-    private Set knownReplicaIds;
+    private Set<ReplicaId> knownReplicaIds;
     private final Object knownReplicaIdsLock = new Object();
     private final OperationCodec operationCodec = new OperationCodec();
 
@@ -249,7 +249,7 @@ public class DerbyReplicationStore implements ReplicationStore
             // Get known replica IDs.
             ps = con.prepareStatement( "SELECT DISTINCT CSN_REPLICA_ID FROM " + logTableName );
             rs = ps.executeQuery();
-            knownReplicaIds = new HashSet();
+            knownReplicaIds = new HashSet<ReplicaId>();
             while ( rs.next() )
             {
                 knownReplicaIds.add( new ReplicaId( rs.getString( 1 ) ) );
@@ -300,9 +300,9 @@ public class DerbyReplicationStore implements ReplicationStore
     }
 
 
-    public Set getKnownReplicaIds()
+    public Set<ReplicaId> getKnownReplicaIds()
     {
-        return new HashSet( knownReplicaIds );
+        return new HashSet<ReplicaId>( knownReplicaIds );
     }
 
 
@@ -468,7 +468,7 @@ public class DerbyReplicationStore implements ReplicationStore
         {
             synchronized ( knownReplicaIdsLock )
             {
-                Set newKnownReplicaIds = new HashSet( knownReplicaIds );
+                Set<ReplicaId> newKnownReplicaIds = new HashSet<ReplicaId>( knownReplicaIds );
                 newKnownReplicaIds.add( csn.getReplicaId() );
                 knownReplicaIds = newKnownReplicaIds;
             }
@@ -547,10 +547,10 @@ public class DerbyReplicationStore implements ReplicationStore
         CSNVector newUV = new CSNVector();
         synchronized ( knownReplicaIds )
         {
-            Iterator i = knownReplicaIds.iterator();
+            Iterator<ReplicaId> i = knownReplicaIds.iterator();
             while ( i.hasNext() )
             {
-                newUV.setCSN( new SimpleCSN( 0, ( ReplicaId ) i.next(), 0 ) );
+                newUV.setCSN( new SimpleCSN( 0, i.next(), 0 ) );
             }
         }
 
@@ -710,10 +710,10 @@ public class DerbyReplicationStore implements ReplicationStore
             ps = con.prepareStatement( "SELECT CSN_TIMESTAMP, CSN_OP_SEQ FROM " + logTableName
                 + " WHERE CSN_REPLICA_ID=? ORDER BY CSN_TIMESTAMP " + ORDER + ", CSN_OP_SEQ " + ORDER );
 
-            Iterator it = knownReplicaIds.iterator();
+            Iterator<ReplicaId> it = knownReplicaIds.iterator();
             while ( it.hasNext() )
             {
-                ReplicaId replicaId = ( ReplicaId ) it.next();
+                ReplicaId replicaId = it.next();
                 ps.setString( 1, replicaId.getId() );
                 rs = ps.executeQuery();
                 if ( rs.next() )
