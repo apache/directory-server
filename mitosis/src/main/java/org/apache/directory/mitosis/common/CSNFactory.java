@@ -23,6 +23,7 @@ package org.apache.directory.mitosis.common;
 /**
  * Generates a new {@link CSN}.
  * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public interface CSNFactory
 {

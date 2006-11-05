@@ -24,7 +24,6 @@ import org.apache.directory.mitosis.util.OctetString;
 
 
 /**
- * 
  * TODO SimpleUUID.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

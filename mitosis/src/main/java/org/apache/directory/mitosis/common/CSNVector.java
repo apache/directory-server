@@ -61,23 +61,23 @@ public class CSNVector
 
     public void setAllCSN( CSNVector uv )
     {
-        Iterator i = uv.csns.values().iterator();
+        Iterator<CSN> i = uv.csns.values().iterator();
         while ( i.hasNext() )
         {
-            setCSN( ( CSN ) i.next() );
+            setCSN( i.next() );
         }
     }
 
 
     public CSN getCSN( ReplicaId replicaId )
     {
-        return ( CSN ) csns.get( replicaId );
+        return csns.get( replicaId );
     }
 
 
     public CSN removeCSN( ReplicaId replicaId )
     {
-        return ( CSN ) csns.remove( replicaId );
+        return csns.remove( replicaId );
     }
 
 
