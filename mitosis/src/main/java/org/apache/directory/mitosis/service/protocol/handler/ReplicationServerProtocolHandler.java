@@ -19,10 +19,11 @@
  */
 package org.apache.directory.mitosis.service.protocol.handler;
 
+
 import org.apache.directory.mitosis.service.ReplicationService;
 
-public class ReplicationServerProtocolHandler extends
-        ReplicationProtocolHandler
+
+public class ReplicationServerProtocolHandler extends ReplicationProtocolHandler
 {
     public ReplicationServerProtocolHandler( ReplicationService service )
     {

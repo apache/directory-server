@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.handler;
 
+
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.service.ReplicationContext;
 import org.apache.directory.mitosis.service.ReplicationService;
@@ -28,19 +29,18 @@ import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 
+
 public class ReplicationProtocolHandler implements IoHandler
 {
     private static final String CONTEXT = "context";
-    
+
     private final ReplicationService service;
     private final ReplicationConfiguration configuration;
     private final DirectoryServiceConfiguration serviceCfg;
     private final ReplicationContextHandler contextHandler;
 
 
-    public ReplicationProtocolHandler(
-            ReplicationService service,
-            ReplicationContextHandler contextHandler )
+    public ReplicationProtocolHandler( ReplicationService service, ReplicationContextHandler contextHandler )
     {
         assert service != null;
         assert contextHandler != null;
@@ -50,31 +50,37 @@ public class ReplicationProtocolHandler implements IoHandler
         this.serviceCfg = service.getFactoryConfiguration();
         this.contextHandler = contextHandler;
     }
-    
+
+
     private ReplicationContext getContext( IoSession session )
     {
         return ( ReplicationContext ) session.getAttribute( CONTEXT );
     }
-    
+
+
     public void sessionCreated( IoSession session ) throws Exception
     {
         session.setAttribute( CONTEXT, new SimpleReplicationContext( service, serviceCfg, configuration, session ) );
     }
+
 
     public void exceptionCaught( IoSession session, Throwable cause ) throws Exception
     {
         contextHandler.exceptionCaught( getContext( session ), cause );
     }
 
+
     public void messageReceived( IoSession session, Object message ) throws Exception
     {
         contextHandler.messageReceived( getContext( session ), message );
     }
 
+
     public void messageSent( IoSession session, Object message ) throws Exception
     {
         contextHandler.messageSent( getContext( session ), message );
     }
+
 
     public void sessionClosed( IoSession session ) throws Exception
     {
@@ -83,10 +89,12 @@ public class ReplicationProtocolHandler implements IoHandler
         ctx.cancelAllExpirations();
     }
 
+
     public void sessionIdle( IoSession session, IdleStatus status ) throws Exception
     {
         contextHandler.contextIdle( getContext( session ), status );
     }
+
 
     public void sessionOpened( IoSession session ) throws Exception
     {
