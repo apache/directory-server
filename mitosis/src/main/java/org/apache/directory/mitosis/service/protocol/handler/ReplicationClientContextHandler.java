@@ -328,7 +328,10 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 }
 
                 // Convert the entry into AddEntryOperation log.
-                Operation op = new AddEntryOperation( csn, new LdapDN( sr.getName() ), attrs );
+                LdapDN dn = new LdapDN( sr.getName() );
+                dn.normalize( ctx.getServiceConfiguration().getGlobalRegistries()
+                    .getAttributeTypeRegistry().getNormalizerMapping() );
+                Operation op = new AddEntryOperation( csn, dn, attrs );
 
                 // Send a LogEntry message for the entry.
                 ctx.getSession().write( new LogEntryMessage( ctx.getNextSequence(), op ) );
@@ -341,6 +344,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     }
 
 
+    @SuppressWarnings("unchecked")
     private void sendReplicationLogs( ReplicationContext ctx, CSNVector myPV, CSNVector yourUV )
     {
         Iterator i = myPV.getReplicaIds().iterator();
