@@ -19,26 +19,32 @@
  */
 package org.apache.directory.mitosis.service;
 
+
 import org.apache.directory.mitosis.common.ReplicationException;
+
 
 public class ReplicationServiceException extends ReplicationException
 {
     private static final long serialVersionUID = 3906090070204430386L;
+
 
     public ReplicationServiceException()
     {
         super();
     }
 
+
     public ReplicationServiceException( String message, Throwable cause )
     {
         super( message, cause );
     }
 
+
     public ReplicationServiceException( String message )
     {
         super( message );
     }
+
 
     public ReplicationServiceException( Throwable cause )
     {

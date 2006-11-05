@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service;
 
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -45,6 +46,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
 import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
+
 /**
  * Manages all outgoing connections to remote replicas.
  *
@@ -54,256 +56,262 @@ import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 class ClientConnectionManager
 {
     private static final Logger log = LoggerFactory.getLogger( ClientConnectionManager.class );
-    
+
     private final ReplicationService service;
     private final IoConnector connector = new SocketConnector();
     private final IoConnectorConfig connectorConfig = new SocketConnectorConfig();
     private final Map sessions = new HashMap();
     private ReplicationConfiguration configuration;
     private ConnectionMonitor monitor;
-    
+
+
     ClientConnectionManager( ReplicationService service )
     {
         this.service = service;
-        
-        ExecutorThreadModel threadModel = ExecutorThreadModel.getInstance("mitosis");
-        threadModel.setExecutor(
-                new ThreadPoolExecutor(16, 16, 60, TimeUnit.SECONDS, new LinkedBlockingQueue() ));
-        connectorConfig.setThreadModel(threadModel);
+
+        ExecutorThreadModel threadModel = ExecutorThreadModel.getInstance( "mitosis" );
+        threadModel.setExecutor( new ThreadPoolExecutor( 16, 16, 60, TimeUnit.SECONDS, new LinkedBlockingQueue() ) );
+        connectorConfig.setThreadModel( threadModel );
 
         //// add codec
         connectorConfig.getFilterChain().addLast( "protocol",
-                new ProtocolCodecFilter( new ReplicationClientProtocolCodecFactory() ) );
+            new ProtocolCodecFilter( new ReplicationClientProtocolCodecFactory() ) );
 
         //// add logger
         connectorConfig.getFilterChain().addLast( "logger", new LoggingFilter() );
     }
 
+
     public void start( ReplicationConfiguration cfg ) throws Exception
     {
         this.configuration = cfg;
-        
+
         monitor = new ConnectionMonitor();
         monitor.start();
     }
-    
+
+
     public void stop() throws Exception
     {
         // close all connections
         monitor.shutdown();
-        
+
         // remove all filters
         connector.getFilterChain().clear();
-        
-        ( ( ExecutorService ) ( ( ExecutorThreadModel ) connectorConfig.getThreadModel() ).
-                getExecutor() ).shutdown();
+
+        ( ( ExecutorService ) ( ( ExecutorThreadModel ) connectorConfig.getThreadModel() ).getExecutor() ).shutdown();
     }
-    
+
     private class ConnectionMonitor extends Thread
     {
         private boolean timeToShutdown = false;
+
 
         public ConnectionMonitor()
         {
             super( "ClientConnectionManager" );
         }
-        
+
+
         public void shutdown()
         {
             timeToShutdown = true;
-            while( isAlive() )
+            while ( isAlive() )
             {
                 try
                 {
                     join();
                 }
-                catch( InterruptedException e )
+                catch ( InterruptedException e )
                 {
                     log.warn( "Unexpected exception.", e );
                 }
             }
         }
-        
+
+
         public void run()
         {
-            while( !timeToShutdown )
+            while ( !timeToShutdown )
             {
                 connectUnconnected();
                 try
                 {
                     Thread.sleep( 1000 );
                 }
-                catch( InterruptedException e )
+                catch ( InterruptedException e )
                 {
                     log.warn( "Unexpected exception.", e );
                 }
             }
-            
+
             disconnectConnected();
         }
+
 
         private void connectUnconnected()
         {
             Iterator i = configuration.getPeerReplicas().iterator();
-            while( i.hasNext() )
+            while ( i.hasNext() )
             {
                 Replica replica = ( Replica ) i.next();
                 Connection con = ( Connection ) sessions.get( replica.getId() );
-                if( con == null )
+                if ( con == null )
                 {
                     con = new Connection();
                     sessions.put( replica.getId(), con );
                 }
-                
-                synchronized( con )
+
+                synchronized ( con )
                 {
-                    if( con.inProgress )
+                    if ( con.inProgress )
                     {
                         // connection is in progress
                         continue;
                     }
-                        
-                    if( con.session != null )
+
+                    if ( con.session != null )
                     {
-                        if( con.session.isConnected() )
+                        if ( con.session.isConnected() )
                         {
                             continue;
                         }
                         con.session = null;
                     }
-                    
+
                     // put to connectingSession with dummy value to mark
                     // that connection is in progress
                     con.inProgress = true;
 
-                    if( con.delay < 0 )
+                    if ( con.delay < 0 )
                     {
                         con.delay = 0;
                     }
-                    else if( con.delay == 0 )
+                    else if ( con.delay == 0 )
                     {
                         con.delay = 2;
                     }
                     else
                     {
                         con.delay *= 2;
-                        if( con.delay > 60 )
+                        if ( con.delay > 60 )
                         {
                             con.delay = 60;
                         }
                     }
                 }
-                
+
                 Connector connector = new Connector( replica, con );
-                synchronized( con ) 
+                synchronized ( con )
                 {
                     con.connector = connector;
                 }
                 connector.start();
             }
         }
-        
+
+
         private void disconnectConnected()
         {
             log.info( "Closing all connections..." );
-            for( ;; )
+            for ( ;; )
             {
                 Iterator i = sessions.values().iterator();
-                while( i.hasNext() )
+                while ( i.hasNext() )
                 {
                     Connection con = ( Connection ) i.next();
-                    synchronized( con )
+                    synchronized ( con )
                     {
-                        if( con.inProgress )
+                        if ( con.inProgress )
                         {
-                            if( con.connector != null )
+                            if ( con.connector != null )
                             {
                                 con.connector.interrupt();
                             }
                             continue;
                         }
-                        
+
                         i.remove();
 
-                        if( con.session != null )
+                        if ( con.session != null )
                         {
                             con.session.close();
                         }
                     }
                 }
-                
-                if( sessions.isEmpty() )
+
+                if ( sessions.isEmpty() )
                 {
                     break;
                 }
-                
+
                 // Sleep 1 second and try again waiting for Connector threads.
                 try
                 {
                     Thread.sleep( 1000 );
                 }
-                catch( InterruptedException e )
+                catch ( InterruptedException e )
                 {
                     log.warn( "Unexpected exception.", e );
                 }
             }
         }
     }
-    
+
     private class Connector extends Thread
     {
         private final Replica replica;
         private final Connection con;
-        
+
+
         public Connector( Replica replica, Connection con )
         {
             super( "ClientConnectionManager-" + replica );
             this.replica = replica;
             this.con = con;
         }
-        
+
+
         public void run()
         {
-            if( con.delay > 0 )
+            if ( con.delay > 0 )
             {
                 log.info( "[" + replica + "] Waiting for " + con.delay + " seconds to reconnect." );
                 try
                 {
                     Thread.sleep( con.delay * 1000L );
                 }
-                catch( InterruptedException e )
+                catch ( InterruptedException e )
                 {
                 }
             }
-            
+
             log.info( "[" + replica + "] Connecting..." );
 
             IoSession session;
             try
             {
                 connectorConfig.setConnectTimeout( configuration.getResponseTimeout() );
-                ConnectFuture future = connector.connect(
-                        replica.getAddress(),
-                        new ReplicationClientProtocolHandler( service ),
-                        connectorConfig );
-                
+                ConnectFuture future = connector.connect( replica.getAddress(), new ReplicationClientProtocolHandler(
+                    service ), connectorConfig );
+
                 future.join();
                 session = future.getSession();
 
-                synchronized( con )
+                synchronized ( con )
                 {
                     con.session = session;
                     con.delay = -1; // reset delay
                     con.inProgress = false;
                 }
             }
-            catch( RuntimeIOException e )
+            catch ( RuntimeIOException e )
             {
-                log.warn("[" + replica + "] Failed to connect.", e );
+                log.warn( "[" + replica + "] Failed to connect.", e );
             }
             finally
             {
-                synchronized( con )
+                synchronized ( con )
                 {
                     con.inProgress = false;
                     con.connector = null;
@@ -311,14 +319,15 @@ class ClientConnectionManager
             }
         }
     }
-    
+
     private static class Connection
     {
         private IoSession session;
         private int delay = -1;
         private boolean inProgress;
         private Connector connector;
-        
+
+
         public Connection()
         {
         }

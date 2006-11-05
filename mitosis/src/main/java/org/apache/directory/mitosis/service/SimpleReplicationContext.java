@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service;
 
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 
+
 public class SimpleReplicationContext implements ReplicationContext
 {
     private static final Timer expirationTimer = new Timer( "ReplicationMessageExpirer" );
@@ -44,8 +46,10 @@ public class SimpleReplicationContext implements ReplicationContext
     private int nextSequence;
     private Replica peer;
     private State state = State.INIT;
-    
-    public SimpleReplicationContext( ReplicationService service, DirectoryServiceConfiguration serviceCfg, ReplicationConfiguration configuration, IoSession session )
+
+
+    public SimpleReplicationContext( ReplicationService service, DirectoryServiceConfiguration serviceCfg,
+        ReplicationConfiguration configuration, IoSession session )
     {
         this.service = service;
         this.configuration = configuration;
@@ -53,70 +57,79 @@ public class SimpleReplicationContext implements ReplicationContext
         this.session = session;
     }
 
+
     public ReplicationService getService()
     {
         return service;
     }
-    
+
+
     public ReplicationConfiguration getConfiguration()
     {
         return configuration;
     }
-    
+
+
     public DirectoryServiceConfiguration getServiceConfiguration()
     {
         return serviceConfiguration;
     }
-    
+
+
     public IoSession getSession()
     {
         return session;
     }
 
+
     public int getNextSequence()
     {
-        return nextSequence ++;
+        return nextSequence++;
     }
+
 
     public Replica getPeer()
     {
         return peer;
     }
-    
+
+
     public void setPeer( Replica peer )
     {
         assert peer != null;
         this.peer = peer;
     }
-    
+
+
     public State getState()
     {
         return state;
     }
-    
+
+
     public void setState( State state )
     {
         this.state = state;
     }
-    
+
+
     public void scheduleExpiration( Object message )
     {
         BaseMessage bm = ( BaseMessage ) message;
         ExpirationTask task = new ExpirationTask( bm );
-        synchronized( expirableMessages )
+        synchronized ( expirableMessages )
         {
-            expirableMessages.put(
-                    new Integer( bm.getSequence() ),
-                    task );
+            expirableMessages.put( new Integer( bm.getSequence() ), task );
         }
-        
+
         expirationTimer.schedule( task, configuration.getResponseTimeout() * 1000L );
     }
-    
+
+
     public Object cancelExpiration( int sequence )
     {
         ExpirationTask task = removeTask( sequence );
-        if( task == null )
+        if ( task == null )
         {
             return null;
         }
@@ -124,31 +137,34 @@ public class SimpleReplicationContext implements ReplicationContext
         task.cancel();
         return task.message;
     }
-    
+
+
     public void cancelAllExpirations()
     {
-        synchronized( expirableMessages )
+        synchronized ( expirableMessages )
         {
             Iterator i = expirableMessages.values().iterator();
-            while( i.hasNext() )
+            while ( i.hasNext() )
             {
                 ( ( ExpirationTask ) i.next() ).cancel();
             }
         }
     }
-    
+
+
     public int getScheduledExpirations()
     {
-        synchronized( expirableMessages )
+        synchronized ( expirableMessages )
         {
             return expirableMessages.size();
         }
     }
 
+
     private ExpirationTask removeTask( int sequence )
     {
         ExpirationTask task;
-        synchronized( expirableMessages )
+        synchronized ( expirableMessages )
         {
             task = ( ExpirationTask ) expirableMessages.remove( new Integer( sequence ) );
         }
@@ -158,19 +174,20 @@ public class SimpleReplicationContext implements ReplicationContext
     private class ExpirationTask extends TimerTask
     {
         private final BaseMessage message;
-        
+
+
         private ExpirationTask( Object message )
         {
             this.message = ( BaseMessage ) message;
         }
 
+
         public void run()
         {
-            if( removeTask( message.getSequence() ) == this )
+            if ( removeTask( message.getSequence() ) == this )
             {
-                SessionLog.warn(
-                        getSession(),
-                        "No response within " + configuration.getResponseTimeout() + " second(s) for message #" + message.getSequence() );
+                SessionLog.warn( getSession(), "No response within " + configuration.getResponseTimeout()
+                    + " second(s) for message #" + message.getSequence() );
                 getSession().close();
             }
         }

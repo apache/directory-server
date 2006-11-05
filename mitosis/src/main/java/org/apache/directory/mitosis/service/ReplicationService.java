@@ -74,11 +74,11 @@ import org.slf4j.LoggerFactory;
 public class ReplicationService extends BaseInterceptor
 {
     private static final Logger log = LoggerFactory.getLogger( ReplicationService.class );
-    
+
     /** TODO these OID's need to be switched from safehaus to apache enterprise numbers */
     private static final String ENTRY_CSN_OID = "1.2.6.1.4.1.18060.1.1.1.3.30";
     private static final String ENTRY_DELETED_OID = "1.2.6.1.4.1.18060.1.1.1.3.31";
-    
+
     private DirectoryServiceConfiguration directoryServiceConfiguration;
     private ReplicationConfiguration configuration;
     private PartitionNexus nexus;
@@ -87,32 +87,32 @@ public class ReplicationService extends BaseInterceptor
     private IoAcceptor registry;
     private final ClientConnectionManager clientConnectionManager = new ClientConnectionManager( this );
     private AttributeTypeRegistry attrRegistry;
-    
-    
+
+
     public ReplicationService()
     {
     }
-    
-    
+
+
     public ReplicationConfiguration getConfiguration()
     {
         return configuration;
     }
-    
-    
+
+
     public void setConfiguration( ReplicationConfiguration cfg )
     {
         cfg.validate();
         this.configuration = cfg;
     }
-    
-    
+
+
     public DirectoryServiceConfiguration getFactoryConfiguration()
     {
         return directoryServiceConfiguration;
     }
 
-    
+
     public void init( DirectoryServiceConfiguration serviceCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         configuration.validate();
@@ -122,7 +122,7 @@ public class ReplicationService extends BaseInterceptor
         store = configuration.getStore();
         operationFactory = new OperationFactory( serviceCfg, configuration );
         attrRegistry = serviceCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        
+
         // Initialize store and service
         store.open( serviceCfg, configuration );
         boolean serviceStarted = false;
@@ -131,53 +131,48 @@ public class ReplicationService extends BaseInterceptor
             startNetworking();
             serviceStarted = true;
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             throw new ReplicationServiceException( "Failed to initialize MINA ServiceRegistry.", e );
         }
         finally
         {
-            if( !serviceStarted )
+            if ( !serviceStarted )
             {
                 // roll back
                 store.close();
             }
         }
-        
+
         purgeAgedData();
     }
 
-    
+
     private void startNetworking() throws Exception
     {
         registry = new SocketAcceptor();
         IoServiceConfig config = new SocketAcceptorConfig();
 
-        config.getFilterChain().addLast(
-                "protocol",
-                new ProtocolCodecFilter( new ReplicationServerProtocolCodecFactory() ) );
-        
-        config.getFilterChain().addLast(
-                "logger",
-                new LoggingFilter());
+        config.getFilterChain().addLast( "protocol",
+            new ProtocolCodecFilter( new ReplicationServerProtocolCodecFactory() ) );
+
+        config.getFilterChain().addLast( "logger", new LoggingFilter() );
 
         // bind server protocol provider
-        registry.bind(
-                new InetSocketAddress( configuration.getServerPort() ),
-                new ReplicationServerProtocolHandler(this),
-                config );
-        
+        registry.bind( new InetSocketAddress( configuration.getServerPort() ), new ReplicationServerProtocolHandler(
+            this ), config );
+
         clientConnectionManager.start( configuration );
     }
 
-    
+
     public void destroy()
     {
         stopNetworking();
         store.close();
     }
 
-    
+
     private void stopNetworking()
     {
         // close all open connections, deactivate all filters and service registry
@@ -185,53 +180,51 @@ public class ReplicationService extends BaseInterceptor
         {
             clientConnectionManager.stop();
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             log.warn( "Failed to stop the client connection manager.", e );
         }
         registry.unbindAll();
     }
-    
+
 
     public void purgeAgedData() throws NamingException
     {
         Attributes rootDSE = nexus.getRootDSE();
         Attribute namingContextsAttr = rootDSE.get( "namingContexts" );
-        if( namingContextsAttr == null || namingContextsAttr.size() == 0 )
+        if ( namingContextsAttr == null || namingContextsAttr.size() == 0 )
         {
             throw new NamingException( "No namingContexts attributes in rootDSE." );
         }
-        
-        CSN purgeCSN = new SimpleCSN(
-                System.currentTimeMillis() -
-                configuration.getLogMaxAge() * 1000L * 60L * 60L * 24L, // convert days to millis
-                new ReplicaId( "ZZZZZZZZZZZZZZZZ" ),
-                Integer.MAX_VALUE );
+
+        CSN purgeCSN = new SimpleCSN( System.currentTimeMillis() - configuration.getLogMaxAge() * 1000L * 60L * 60L
+            * 24L, // convert days to millis
+            new ReplicaId( "ZZZZZZZZZZZZZZZZ" ), Integer.MAX_VALUE );
         FilterParser parser = new FilterParserImpl();
         ExprNode filter;
-        
+
         try
         {
-            filter = parser.parse( "(& (" + ENTRY_CSN_OID +"=<" 
-                + purgeCSN.toOctetString() + ") (" + ENTRY_DELETED_OID + "=true))" );
+            filter = parser.parse( "(& (" + ENTRY_CSN_OID + "=<" + purgeCSN.toOctetString() + ") (" + ENTRY_DELETED_OID
+                + "=true))" );
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
             throw ( NamingException ) new NamingException().initCause( e );
         }
-        catch( ParseException e )
+        catch ( ParseException e )
         {
             throw ( NamingException ) new NamingException().initCause( e );
         }
-        
+
         // Iterate all context partitions to send all entries of them.
         NamingEnumeration e = namingContextsAttr.getAll();
-        while( e.hasMore() )
+        while ( e.hasMore() )
         {
             Object value = e.next();
             // Convert attribute value to JNDI name.
             LdapDN contextName;
-            if( value instanceof LdapDN )
+            if ( value instanceof LdapDN )
             {
                 contextName = ( LdapDN ) value;
             }
@@ -239,35 +232,33 @@ public class ReplicationService extends BaseInterceptor
             {
                 contextName = new LdapDN( String.valueOf( value ) );
             }
-            
+
             contextName.normalize( attrRegistry.getNormalizerMapping() );
-            log.info( "Purging aged data under '" + contextName + '"');
+            log.info( "Purging aged data under '" + contextName + '"' );
             purgeAgedData( contextName, filter );
         }
-        
+
         store.removeLogs( purgeCSN, false );
     }
-    
-    
+
+
     private void purgeAgedData( LdapDN contextName, ExprNode filter ) throws NamingException
     {
         SearchControls ctrl = new SearchControls();
-        ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE ); 
+        ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         ctrl.setReturningAttributes( new String[]
-        { "entryCSN", "entryDeleted" } );
+            { "entryCSN", "entryDeleted" } );
 
-        NamingEnumeration e = nexus.search( contextName,
-                directoryServiceConfiguration.getEnvironment(),
-                filter, ctrl );
+        NamingEnumeration e = nexus.search( contextName, directoryServiceConfiguration.getEnvironment(), filter, ctrl );
 
         List names = new ArrayList();
         try
         {
-            while( e.hasMore() )
+            while ( e.hasMore() )
             {
                 SearchResult sr = ( SearchResult ) e.next();
                 LdapDN name = new LdapDN( sr.getName() );
-                if( name.size() > contextName.size() )
+                if ( name.size() > contextName.size() )
                 {
                     names.add( new LdapDN( sr.getName() ) );
                 }
@@ -277,9 +268,9 @@ public class ReplicationService extends BaseInterceptor
         {
             e.close();
         }
-        
+
         Iterator it = names.iterator();
-        while( it.hasNext() )
+        while ( it.hasNext() )
         {
             LdapDN name = ( LdapDN ) it.next();
             try
@@ -288,19 +279,20 @@ public class ReplicationService extends BaseInterceptor
                 log.info( "Purge: " + name + " (" + entry + ')' );
                 nexus.delete( ( LdapDN ) name );
             }
-            catch( NamingException ex )
+            catch ( NamingException ex )
             {
                 log.warn( "Failed to fetch/delete: " + name, ex );
             }
         }
     }
-    
-    
+
+
     public void add( NextInterceptor nextInterceptor, LdapDN normalizedName, Attributes entry ) throws NamingException
     {
         Operation op = operationFactory.newAdd( normalizedName, entry );
         op.execute( nexus, store );
     }
+
 
     public void delete( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
@@ -308,11 +300,13 @@ public class ReplicationService extends BaseInterceptor
         op.execute( nexus, store );
     }
 
+
     public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes attrs ) throws NamingException
     {
         Operation op = operationFactory.newModify( name, modOp, attrs );
         op.execute( nexus, store );
     }
+
 
     public void modify( NextInterceptor next, LdapDN name, ModificationItem[] items ) throws NamingException
     {
@@ -320,17 +314,22 @@ public class ReplicationService extends BaseInterceptor
         op.execute( nexus, store );
     }
 
-    public void modifyRn( NextInterceptor next, LdapDN oldName, String newRDN, boolean deleteOldRDN ) throws NamingException
+
+    public void modifyRn( NextInterceptor next, LdapDN oldName, String newRDN, boolean deleteOldRDN )
+        throws NamingException
     {
         Operation op = operationFactory.newModifyRn( oldName, newRDN, deleteOldRDN );
         op.execute( nexus, store );
     }
 
-    public void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName, String newRDN, boolean deleteOldRDN ) throws NamingException
+
+    public void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName, String newRDN, boolean deleteOldRDN )
+        throws NamingException
     {
         Operation op = operationFactory.newMove( oldName, newParentName, newRDN, deleteOldRDN );
         op.execute( nexus, store );
     }
+
 
     public void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName ) throws NamingException
     {
@@ -338,33 +337,35 @@ public class ReplicationService extends BaseInterceptor
         op.execute( nexus, store );
     }
 
+
     public boolean hasEntry( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
         // Ask others first.
-        boolean hasEntry = nextInterceptor.hasEntry( (LdapDN)name );
-        
+        boolean hasEntry = nextInterceptor.hasEntry( ( LdapDN ) name );
+
         // If the entry exists,
-        if( hasEntry )
+        if ( hasEntry )
         {
             // Check DELETED attribute.
             try
             {
-                Attributes entry = nextInterceptor.lookup( (LdapDN)name );
+                Attributes entry = nextInterceptor.lookup( ( LdapDN ) name );
                 hasEntry = !isDeleted( entry );
             }
-            catch( NameNotFoundException e )
+            catch ( NameNotFoundException e )
             {
                 System.out.println( e.toString( true ) );
                 hasEntry = false;
             }
         }
-        
+
         return hasEntry;
     }
 
+
     public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( (LdapDN)name );
+        Attributes result = nextInterceptor.lookup( ( LdapDN ) name );
         ensureNotDeleted( name, result );
         return result;
     }
@@ -374,25 +375,25 @@ public class ReplicationService extends BaseInterceptor
     {
         boolean found = false;
         // Look for 'entryDeleted' attribute is in attrIds.
-        for( int i = 0; i < attrIds.length; i ++ )
+        for ( int i = 0; i < attrIds.length; i++ )
         {
-            if( Constants.ENTRY_DELETED.equals( attrIds[i] ) )
+            if ( Constants.ENTRY_DELETED.equals( attrIds[i] ) )
             {
                 found = true;
                 break;
             }
         }
-        
+
         // If not exists, add one.
-        if( !found )
+        if ( !found )
         {
-            String[] newAttrIds = new String[ attrIds.length + 1 ];
+            String[] newAttrIds = new String[attrIds.length + 1];
             System.arraycopy( attrIds, 0, newAttrIds, 0, attrIds.length );
-            newAttrIds[ attrIds.length ] = Constants.ENTRY_DELETED;
+            newAttrIds[attrIds.length] = Constants.ENTRY_DELETED;
             attrIds = newAttrIds;
         }
-        
-        Attributes result = nextInterceptor.lookup( (LdapDN)name, attrIds );
+
+        Attributes result = nextInterceptor.lookup( ( LdapDN ) name, attrIds );
         ensureNotDeleted( name, result );
         return result;
     }
@@ -400,38 +401,40 @@ public class ReplicationService extends BaseInterceptor
 
     public NamingEnumeration list( NextInterceptor nextInterceptor, Name baseName ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( (LdapDN)baseName );
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), InvocationStack.getInstance().peek(), Constants.DELETED_ENTRIES_FILTER );
+        NamingEnumeration e = nextInterceptor.list( ( LdapDN ) baseName );
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), InvocationStack.getInstance().peek(),
+            Constants.DELETED_ENTRIES_FILTER );
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, Name baseName, Map environment, ExprNode filter, SearchControls searchControls ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor, Name baseName, Map environment, ExprNode filter,
+        SearchControls searchControls ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.search( (LdapDN)baseName, environment, filter, searchControls );
+        NamingEnumeration e = nextInterceptor.search( ( LdapDN ) baseName, environment, filter, searchControls );
         if ( searchControls.getReturningAttributes() != null )
         {
             return e;
         }
 
-        return new SearchResultFilteringEnumeration( e, searchControls, InvocationStack.getInstance().peek(), Constants.DELETED_ENTRIES_FILTER );
+        return new SearchResultFilteringEnumeration( e, searchControls, InvocationStack.getInstance().peek(),
+            Constants.DELETED_ENTRIES_FILTER );
     }
 
-    
+
     private void ensureNotDeleted( Name name, Attributes entry ) throws NamingException, LdapNameNotFoundException
     {
-        if( isDeleted( entry ) )
+        if ( isDeleted( entry ) )
         {
-            LdapNameNotFoundException e = 
-                    new LdapNameNotFoundException( "Deleted entry: " + name );
-            e.setResolvedName( nexus.getMatchedName( (LdapDN)name ) );
+            LdapNameNotFoundException e = new LdapNameNotFoundException( "Deleted entry: " + name );
+            e.setResolvedName( nexus.getMatchedName( ( LdapDN ) name ) );
             throw e;
         }
-    }    
+    }
 
-    
+
     private boolean isDeleted( Attributes entry ) throws NamingException
     {
-        if( entry == null )
+        if ( entry == null )
         {
             return true;
         }

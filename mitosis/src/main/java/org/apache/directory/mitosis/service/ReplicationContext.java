@@ -19,48 +19,74 @@
  */
 package org.apache.directory.mitosis.service;
 
+
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.mina.common.IoSession;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 
-public interface ReplicationContext {
+
+public interface ReplicationContext
+{
     IoSession getSession();
+
+
     ReplicationConfiguration getConfiguration();
+
+
     ReplicationService getService();
+
+
     DirectoryServiceConfiguration getServiceConfiguration();
+
+
     int getNextSequence();
 
+
     Replica getPeer();
+
+
     void setPeer( Replica peer );
-    
+
+
     State getState();
+
+
     void setState( State state );
-    
+
+
     void scheduleExpiration( Object message );
+
+
     Object cancelExpiration( int sequence );
+
+
     void cancelAllExpirations();
+
+
     int getScheduledExpirations();
-    
+
     public static class State
     {
         /**
          * Connection is established.
          */
         public static final State INIT = new State( "INIT" );
-        
+
         /**
          * Client has logged in and is ready to exchange information.
          */
         public static final State READY = new State( "READY" );
-        
+
         private final String value;
-        
+
+
         private State( String value )
         {
             this.value = value;
         }
-        
+
+
         public String toString()
         {
             return value;
