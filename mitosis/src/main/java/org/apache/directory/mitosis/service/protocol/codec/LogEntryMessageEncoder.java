@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,19 +28,23 @@ import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
 import org.apache.mina.common.ByteBuffer;
 
+
 public class LogEntryMessageEncoder extends BaseMessageEncoder
 {
     private final OperationCodec operationCodec = new OperationCodec();
-    
+
+
     public LogEntryMessageEncoder()
     {
     }
+
 
     protected void encodeBody( BaseMessage in, ByteBuffer out )
     {
         LogEntryMessage m = ( LogEntryMessage ) in;
         out.put( operationCodec.encode( m.getOperation() ) );
     }
+
 
     public Set getMessageTypes()
     {

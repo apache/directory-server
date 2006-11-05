@@ -19,23 +19,33 @@
  */
 package org.apache.directory.mitosis.store;
 
-public class ReplicationStoreException extends RuntimeException {
+
+public class ReplicationStoreException extends RuntimeException
+{
 
     private static final long serialVersionUID = 3257289127798913336L;
 
-    public ReplicationStoreException() {
+
+    public ReplicationStoreException()
+    {
         super();
     }
 
-    public ReplicationStoreException(String message) {
-        super(message);
+
+    public ReplicationStoreException( String message )
+    {
+        super( message );
     }
 
-    public ReplicationStoreException(String message, Throwable cause) {
-        super(message, cause);
+
+    public ReplicationStoreException( String message, Throwable cause )
+    {
+        super( message, cause );
     }
 
-    public ReplicationStoreException(Throwable cause) {
-        super(cause);
+
+    public ReplicationStoreException( Throwable cause )
+    {
+        super( cause );
     }
 }

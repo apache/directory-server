@@ -19,44 +19,51 @@
  */
 package org.apache.directory.mitosis.service.protocol.message;
 
+
 import org.apache.directory.shared.ldap.util.EqualsBuilder;
 import org.apache.directory.shared.ldap.util.HashCodeBuilder;
 
-public abstract class BaseMessage {
+
+public abstract class BaseMessage
+{
 
     private final int sequence;
+
 
     protected BaseMessage( int sequence )
     {
         this.sequence = sequence;
     }
-    
+
+
     public abstract int getType();
+
 
     public int getSequence()
     {
         return sequence;
     }
 
-    public boolean equals(Object object) 
+
+    public boolean equals( Object object )
     {
-        if (!(object instanceof BaseMessage)) 
+        if ( !( object instanceof BaseMessage ) )
         {
             return false;
         }
-        
-        BaseMessage rhs = (BaseMessage) object;
-        
-        return new EqualsBuilder().append(
-                this.sequence, rhs.sequence).isEquals();
+
+        BaseMessage rhs = ( BaseMessage ) object;
+
+        return new EqualsBuilder().append( this.sequence, rhs.sequence ).isEquals();
     }
 
-    public int hashCode() 
+
+    public int hashCode()
     {
-        return new HashCodeBuilder(-1364566505, -1158072471).append(
-                this.sequence).toHashCode();
+        return new HashCodeBuilder( -1364566505, -1158072471 ).append( this.sequence ).toHashCode();
     }
-    
+
+
     public String toString()
     {
         return String.valueOf( sequence );

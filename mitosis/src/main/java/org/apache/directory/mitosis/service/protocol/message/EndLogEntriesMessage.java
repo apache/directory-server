@@ -19,9 +19,11 @@
  */
 package org.apache.directory.mitosis.service.protocol.message;
 
+
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.shared.ldap.util.EqualsBuilder;
 import org.apache.directory.shared.ldap.util.HashCodeBuilder;
+
 
 public class EndLogEntriesMessage extends BaseMessage
 {
@@ -31,26 +33,29 @@ public class EndLogEntriesMessage extends BaseMessage
         super( sequence );
     }
 
+
     public int getType()
     {
         return Constants.END_LOG_ENTRIES;
     }
 
+
     public boolean equals( final Object other )
     {
-        if( !( other instanceof EndLogEntriesMessage ) )
+        if ( !( other instanceof EndLogEntriesMessage ) )
         {
             return false;
         }
-        
+
         return new EqualsBuilder().isEquals();
     }
 
+
     public int hashCode()
     {
-        return new HashCodeBuilder( 1892305163, -1367551105 ).appendSuper(
-                super.hashCode() ).toHashCode();
+        return new HashCodeBuilder( 1892305163, -1367551105 ).appendSuper( super.hashCode() ).toHashCode();
     }
+
 
     public String toString()
     {

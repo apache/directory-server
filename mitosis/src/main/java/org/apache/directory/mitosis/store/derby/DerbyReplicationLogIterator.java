@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.store.derby;
 
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,15 +33,16 @@ import org.apache.directory.mitosis.operation.OperationCodec;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStoreException;
 
+
 class DerbyReplicationLogIterator implements ReplicationLogIterator
 {
     private final OperationCodec codec;
     private final Connection con;
     private final Statement stmt;
     private final ResultSet rs;
-    
-    DerbyReplicationLogIterator( OperationCodec codec,
-                                Connection con, Statement stmt, ResultSet rs )
+
+
+    DerbyReplicationLogIterator( OperationCodec codec, Connection con, Statement stmt, ResultSet rs )
     {
         this.codec = codec;
         this.con = con;
@@ -48,21 +50,26 @@ class DerbyReplicationLogIterator implements ReplicationLogIterator
         this.rs = rs;
     }
 
-    public boolean next() {
+
+    public boolean next()
+    {
         try
         {
             return rs.next();
         }
-        catch( SQLException e )
+        catch ( SQLException e )
         {
             throw new ReplicationStoreException( e );
         }
     }
 
-    public void close() {
+
+    public void close()
+    {
         SQLUtil.cleanup( con, stmt, rs );
     }
-    
+
+
     public CSN getCSN()
     {
         try
@@ -72,19 +79,20 @@ class DerbyReplicationLogIterator implements ReplicationLogIterator
             int operationSequence = rs.getInt( 3 );
             return new SimpleCSN( timestamp, replicaId, operationSequence );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             throw new ReplicationStoreException( e );
         }
     }
-    
+
+
     public Operation getOperation()
     {
         try
         {
             return codec.decode( rs.getBytes( 4 ) );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             throw new ReplicationStoreException( e );
         }

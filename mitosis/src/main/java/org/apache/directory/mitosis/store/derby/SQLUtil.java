@@ -19,42 +19,45 @@
  */
 package org.apache.directory.mitosis.store.derby;
 
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-class SQLUtil {
+
+class SQLUtil
+{
 
     static void cleanup( Connection con, Statement stmt, ResultSet rs )
     {
-        if( rs != null )
+        if ( rs != null )
         {
             try
             {
                 rs.close();
             }
-            catch( SQLException e )
+            catch ( SQLException e )
             {
             }
         }
-        if( stmt != null )
+        if ( stmt != null )
         {
             try
             {
                 stmt.close();
             }
-            catch( SQLException e )
+            catch ( SQLException e )
             {
             }
         }
-        if( con != null )
+        if ( con != null )
         {
             try
             {
                 con.close();
             }
-            catch( SQLException e )
+            catch ( SQLException e )
             {
             }
         }

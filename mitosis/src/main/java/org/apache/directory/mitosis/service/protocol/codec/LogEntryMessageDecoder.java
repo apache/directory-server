@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.directory.mitosis.operation.OperationCodec;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
@@ -27,26 +28,27 @@ import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
+
 public class LogEntryMessageDecoder extends BaseMessageDecoder
 {
     private final OperationCodec operationCodec = new OperationCodec();
-    
+
+
     public LogEntryMessageDecoder()
     {
         super( Constants.LOG_ENTRY, 1, Integer.MAX_VALUE );
     }
 
-    protected BaseMessage decodeBody( int sequence, int bodyLength,
-                                      ByteBuffer in ) throws Exception
+
+    protected BaseMessage decodeBody( int sequence, int bodyLength, ByteBuffer in ) throws Exception
     {
-        byte[] src = new byte[ in.remaining() ];
+        byte[] src = new byte[in.remaining()];
         in.get( src );
-        
-        return new LogEntryMessage(
-                sequence,
-                operationCodec.decode( src ) );
+
+        return new LogEntryMessage( sequence, operationCodec.decode( src ) );
     }
-    
+
+
     public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
     {
     }

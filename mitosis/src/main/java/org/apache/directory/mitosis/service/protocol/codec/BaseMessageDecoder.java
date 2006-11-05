@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
@@ -26,6 +27,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
+
 
 public abstract class BaseMessageDecoder implements MessageDecoder
 {
@@ -36,6 +38,7 @@ public abstract class BaseMessageDecoder implements MessageDecoder
     private int sequence;
     private int bodyLength;
 
+
     protected BaseMessageDecoder( int type, int minBodyLength, int maxBodyLength )
     {
         this.type = type;
@@ -43,42 +46,44 @@ public abstract class BaseMessageDecoder implements MessageDecoder
         this.maxBodyLength = maxBodyLength;
     }
 
+
     public final MessageDecoderResult decodable( IoSession session, ByteBuffer buf )
     {
-        return type == buf.get()? OK : NOT_OK;
+        return type == buf.get() ? OK : NOT_OK;
     }
 
-    public final MessageDecoderResult decode( IoSession session, ByteBuffer in,
-                                              ProtocolDecoderOutput out ) throws Exception
+
+    public final MessageDecoderResult decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out )
+        throws Exception
     {
-        if( !readHeader )
+        if ( !readHeader )
         {
-            if( in.remaining() < 9 )
+            if ( in.remaining() < 9 )
             {
                 return NEED_DATA;
             }
-            
+
             in.get(); // skip type field
             sequence = in.getInt();
             bodyLength = in.getInt();
-            
-            if( bodyLength < minBodyLength || bodyLength > maxBodyLength )
+
+            if ( bodyLength < minBodyLength || bodyLength > maxBodyLength )
             {
                 throw new ProtocolDecoderException( "Wrong bodyLength: " + bodyLength );
             }
-            
+
             readHeader = true;
         }
-        
-        if( readHeader )
+
+        if ( readHeader )
         {
-            if( in.remaining() < bodyLength )
+            if ( in.remaining() < bodyLength )
             {
                 return NEED_DATA;
             }
-            
+
             int oldLimit = in.limit();
-            
+
             try
             {
                 in.limit( in.position() + bodyLength );
@@ -91,9 +96,10 @@ public abstract class BaseMessageDecoder implements MessageDecoder
                 in.limit( oldLimit );
             }
         }
-        
+
         throw new InternalError();
     }
-    
+
+
     protected abstract BaseMessage decodeBody( int sequence, int bodyLength, ByteBuffer in ) throws Exception;
 }

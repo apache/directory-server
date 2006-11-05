@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol;
 
+
 public class Constants
 {
     public static final int LOGIN = 0x00;
@@ -31,10 +32,11 @@ public class Constants
     public static final int BEGIN_LOG_ENTRIES_ACK = 0x07;
     public static final int END_LOG_ENTRIES = 0x08;
     public static final int END_LOG_ENTRIES_ACK = 0x09;
-    
+
     public static final int OK = 0;
     public static final int NOT_OK = -1;
-    
+
+
     private Constants()
     {
     }

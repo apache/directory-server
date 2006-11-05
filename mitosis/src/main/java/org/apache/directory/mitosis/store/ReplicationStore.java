@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.store;
 
+
 import java.util.Set;
 
 import javax.naming.Name;
@@ -31,39 +32,55 @@ import org.apache.directory.mitosis.common.UUID;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 
-public interface ReplicationStore {
+
+public interface ReplicationStore
+{
 
     void open( DirectoryServiceConfiguration serviceCfg, ReplicationConfiguration cfg );
-    
+
+
     void close();
-    
+
+
     ReplicaId getReplicaId();
-    
+
+
     Set getKnownReplicaIds();
-    
+
+
     // UUID to DN table operations
-    
+
     Name getDN( UUID uuid );
-    
+
+
     boolean putUUID( UUID uuid, Name dn );
-    
+
+
     boolean removeUUID( UUID uuid );
-    
+
+
     // Log entry operations
-    
+
     void putLog( Operation operation );
-    
+
+
     ReplicationLogIterator getLogs( CSN fromCSN, boolean inclusive );
+
 
     ReplicationLogIterator getLogs( CSNVector updateVector, boolean inclusive );
 
+
     int removeLogs( CSN toCSN, boolean inclusive );
-    
+
+
     int getLogSize();
-    
+
+
     int getLogSize( ReplicaId replicaId );
-    
+
+
     CSNVector getUpdateVector();
-    
+
+
     CSNVector getPurgeVector();
 }

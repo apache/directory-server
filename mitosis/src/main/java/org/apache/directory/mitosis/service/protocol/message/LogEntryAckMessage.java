@@ -19,49 +19,54 @@
  */
 package org.apache.directory.mitosis.service.protocol.message;
 
+
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.shared.ldap.util.EqualsBuilder;
 import org.apache.directory.shared.ldap.util.HashCodeBuilder;
+
 
 public class LogEntryAckMessage extends ResponseMessage
 {
     public LogEntryAckMessage( int sequence, int responseCode )
     {
-        super(sequence, responseCode);
+        super( sequence, responseCode );
     }
+
 
     public int getType()
     {
         return Constants.LOG_ENTRY_ACK;
     }
 
+
     /**
      * @see java.lang.Object#equals(Object)
      */
-    public boolean equals(Object object) 
+    public boolean equals( Object object )
     {
-        if (object == this) 
+        if ( object == this )
         {
             return true;
         }
-        
-        if (!(object instanceof LogEntryAckMessage)) 
+
+        if ( !( object instanceof LogEntryAckMessage ) )
         {
             return false;
         }
-        
-        return new EqualsBuilder().appendSuper(super.equals(object)).isEquals();
+
+        return new EqualsBuilder().appendSuper( super.equals( object ) ).isEquals();
     }
+
 
     /**
      * @see java.lang.Object#hashCode()
      */
-    public int hashCode() 
+    public int hashCode()
     {
-        return new HashCodeBuilder(-873557437, -1464393829).appendSuper(
-                super.hashCode()).toHashCode();
+        return new HashCodeBuilder( -873557437, -1464393829 ).appendSuper( super.hashCode() ).toHashCode();
     }
-    
+
+
     public String toString()
     {
         return "[LogEntryAck] " + super.toString();

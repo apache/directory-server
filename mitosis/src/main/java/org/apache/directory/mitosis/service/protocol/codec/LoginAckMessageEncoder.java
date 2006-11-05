@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.HashSet;
@@ -28,13 +29,16 @@ import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 import org.apache.mina.common.ByteBuffer;
 
+
 public class LoginAckMessageEncoder extends ResponseMessageEncoder
 {
-    private final CharsetEncoder utf8encoder = Charset.forName("UTF-8").newEncoder();
+    private final CharsetEncoder utf8encoder = Charset.forName( "UTF-8" ).newEncoder();
+
 
     public LoginAckMessageEncoder()
     {
     }
+
 
     public Set getMessageTypes()
     {
@@ -42,6 +46,7 @@ public class LoginAckMessageEncoder extends ResponseMessageEncoder
         set.add( LoginAckMessage.class );
         return set;
     }
+
 
     protected void encodeBody( BaseMessage in, ByteBuffer out ) throws Exception
     {

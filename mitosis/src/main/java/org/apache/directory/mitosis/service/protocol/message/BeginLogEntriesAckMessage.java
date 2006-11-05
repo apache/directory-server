@@ -19,23 +19,24 @@
  */
 package org.apache.directory.mitosis.service.protocol.message;
 
+
 import org.apache.directory.shared.ldap.util.EqualsBuilder;
 import org.apache.directory.shared.ldap.util.HashCodeBuilder;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.service.protocol.Constants;
+
 
 public class BeginLogEntriesAckMessage extends ResponseMessage
 {
     private final CSNVector purgeVector;
     private final CSNVector updateVector;
 
-    public BeginLogEntriesAckMessage( int sequence, int responseCode,
-                                      CSNVector purgeVector,
-                                      CSNVector updateVector )
+
+    public BeginLogEntriesAckMessage( int sequence, int responseCode, CSNVector purgeVector, CSNVector updateVector )
     {
         super( sequence, responseCode );
-        
-        if( responseCode == Constants.OK )
+
+        if ( responseCode == Constants.OK )
         {
             assert purgeVector != null;
             assert updateVector != null;
@@ -50,51 +51,57 @@ public class BeginLogEntriesAckMessage extends ResponseMessage
         }
     }
 
+
     public int getType()
     {
         return Constants.GET_UPDATE_VECTOR_ACK;
     }
-    
+
+
     public CSNVector getPurgeVector()
     {
         return purgeVector;
     }
-    
+
+
     public CSNVector getUpdateVector()
     {
         return updateVector;
     }
 
+
     /**
      * @see java.lang.Object#equals(Object)
      */
-    public boolean equals(Object object) 
+    public boolean equals( Object object )
     {
-        if (object == this) {
+        if ( object == this )
+        {
             return true;
         }
-    
-        if (!(object instanceof BeginLogEntriesAckMessage)) 
+
+        if ( !( object instanceof BeginLogEntriesAckMessage ) )
         {
             return false;
         }
-        
-        BeginLogEntriesAckMessage rhs = (BeginLogEntriesAckMessage) object;
-        
-        return new EqualsBuilder().appendSuper(super.equals(object)).append(
-                this.purgeVector, rhs.purgeVector).append(
-                        this.updateVector, rhs.updateVector).isEquals();
+
+        BeginLogEntriesAckMessage rhs = ( BeginLogEntriesAckMessage ) object;
+
+        return new EqualsBuilder().appendSuper( super.equals( object ) ).append( this.purgeVector, rhs.purgeVector )
+            .append( this.updateVector, rhs.updateVector ).isEquals();
     }
+
 
     /**
      * @see java.lang.Object#hashCode()
      */
-    public int hashCode() 
+    public int hashCode()
     {
-        return new HashCodeBuilder(537917217, 1652875233).appendSuper(
-                super.hashCode()).append(this.purgeVector).append(this.updateVector).toHashCode();
+        return new HashCodeBuilder( 537917217, 1652875233 ).appendSuper( super.hashCode() ).append( this.purgeVector )
+            .append( this.updateVector ).toHashCode();
     }
-    
+
+
     public String toString()
     {
         return "[BeginLogEntriesAck] " + super.toString() + ", PV: " + purgeVector + ", UV: " + updateVector;

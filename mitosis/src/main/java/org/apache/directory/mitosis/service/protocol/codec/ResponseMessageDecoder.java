@@ -19,8 +19,10 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.mina.common.ByteBuffer;
+
 
 public abstract class ResponseMessageDecoder extends BaseMessageDecoder
 {
@@ -30,13 +32,14 @@ public abstract class ResponseMessageDecoder extends BaseMessageDecoder
         super( type, minBodyLength + 4, maxBodyLength + 4 );
     }
 
-    protected final BaseMessage decodeBody( int sequence, int bodyLength,
-                                      ByteBuffer in ) throws Exception
+
+    protected final BaseMessage decodeBody( int sequence, int bodyLength, ByteBuffer in ) throws Exception
     {
         return decodeBody( sequence, bodyLength, in.getInt(), in );
     }
 
-    protected abstract BaseMessage decodeBody( int sequence, int bodyLength,
-                                               int responseCode, ByteBuffer in ) throws Exception;
+
+    protected abstract BaseMessage decodeBody( int sequence, int bodyLength, int responseCode, ByteBuffer in )
+        throws Exception;
 
 }

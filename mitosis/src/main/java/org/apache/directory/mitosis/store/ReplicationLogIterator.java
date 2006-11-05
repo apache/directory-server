@@ -19,10 +19,17 @@
  */
 package org.apache.directory.mitosis.store;
 
+
 import org.apache.directory.mitosis.operation.Operation;
 
-public interface ReplicationLogIterator {
+
+public interface ReplicationLogIterator
+{
     boolean next();
+
+
     void close();
+
+
     Operation getOperation();
 }

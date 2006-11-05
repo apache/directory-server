@@ -19,56 +19,64 @@
  */
 package org.apache.directory.mitosis.service.protocol.message;
 
+
 import org.apache.directory.shared.ldap.util.EqualsBuilder;
 import org.apache.directory.shared.ldap.util.HashCodeBuilder;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.service.protocol.Constants;
 
+
 public class LoginMessage extends BaseMessage
 {
     private final ReplicaId replicaId;
 
+
     public LoginMessage( int sequence, ReplicaId replicaId )
     {
         super( sequence );
-        
+
         this.replicaId = replicaId;
     }
-    
+
+
     public int getType()
     {
         return Constants.LOGIN;
     }
-    
+
+
     public ReplicaId getReplicaId()
     {
         return replicaId;
     }
 
+
     /**
      * @see java.lang.Object#equals(Object)
      */
-    public boolean equals(Object object)
+    public boolean equals( Object object )
     {
-        if (!(object instanceof LoginMessage)) 
+        if ( !( object instanceof LoginMessage ) )
         {
             return false;
         }
-        
-        LoginMessage rhs = (LoginMessage) object;
-        
-        return new EqualsBuilder().appendSuper(super.equals(object)).append(
-                this.replicaId, rhs.replicaId).isEquals();
+
+        LoginMessage rhs = ( LoginMessage ) object;
+
+        return new EqualsBuilder().appendSuper( super.equals( object ) ).append( this.replicaId, rhs.replicaId )
+            .isEquals();
     }
+
 
     /**
      * @see java.lang.Object#hashCode()
      */
-    public int hashCode() 
+    public int hashCode()
     {
-        return new HashCodeBuilder(1520317245, 1630850531).appendSuper(
-                super.hashCode()).append(this.replicaId).toHashCode();
+        return new HashCodeBuilder( 1520317245, 1630850531 ).appendSuper( super.hashCode() ).append( this.replicaId )
+            .toHashCode();
     }
+
 
     public String toString()
     {

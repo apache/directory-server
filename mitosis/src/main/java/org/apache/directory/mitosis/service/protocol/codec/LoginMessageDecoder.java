@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
@@ -30,9 +31,11 @@ import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 
+
 public class LoginMessageDecoder extends BaseMessageDecoder
 {
-    private final CharsetDecoder utf8decoder; 
+    private final CharsetDecoder utf8decoder;
+
 
     public LoginMessageDecoder()
     {
@@ -40,12 +43,13 @@ public class LoginMessageDecoder extends BaseMessageDecoder
         utf8decoder = Charset.forName( "UTF-8" ).newDecoder();
     }
 
-    protected BaseMessage decodeBody( int sequence, int bodyLength,
-                                      ByteBuffer in ) throws Exception
+
+    protected BaseMessage decodeBody( int sequence, int bodyLength, ByteBuffer in ) throws Exception
     {
         return new LoginMessage( sequence, new ReplicaId( in.getString( utf8decoder ) ) );
     }
-    
+
+
     public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
     {
     }

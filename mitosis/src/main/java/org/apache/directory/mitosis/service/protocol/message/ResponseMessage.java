@@ -19,55 +19,62 @@
  */
 package org.apache.directory.mitosis.service.protocol.message;
 
+
 import org.apache.directory.shared.ldap.util.EqualsBuilder;
 import org.apache.directory.shared.ldap.util.HashCodeBuilder;
+
 
 public abstract class ResponseMessage extends BaseMessage
 {
     private final int responseCode;
-    
+
+
     public ResponseMessage( int sequence, int responseCode )
     {
-        super(sequence);
-        
+        super( sequence );
+
         this.responseCode = responseCode;
     }
+
 
     public int getResponseCode()
     {
         return responseCode;
     }
 
+
     /**
      * @see java.lang.Object#equals(Object)
      */
-    public boolean equals(Object object) 
+    public boolean equals( Object object )
     {
-        if (object == this) 
+        if ( object == this )
         {
             return true;
         }
-        
-        if (!(object instanceof ResponseMessage)) 
+
+        if ( !( object instanceof ResponseMessage ) )
         {
             return false;
         }
-        
-        ResponseMessage rhs = (ResponseMessage) object;
-        
-        return new EqualsBuilder().appendSuper(super.equals(object)).append(
-                this.responseCode, rhs.responseCode).isEquals();
+
+        ResponseMessage rhs = ( ResponseMessage ) object;
+
+        return new EqualsBuilder().appendSuper( super.equals( object ) ).append( this.responseCode, rhs.responseCode )
+            .isEquals();
     }
+
 
     /**
      * @see java.lang.Object#hashCode()
      */
-    public int hashCode() 
+    public int hashCode()
     {
-        return new HashCodeBuilder(-710373179, 1116475565).appendSuper(
-                super.hashCode()).append(this.responseCode).toHashCode();
+        return new HashCodeBuilder( -710373179, 1116475565 ).appendSuper( super.hashCode() ).append( this.responseCode )
+            .toHashCode();
     }
-    
+
+
     public String toString()
     {
         return super.toString() + ": " + responseCode;

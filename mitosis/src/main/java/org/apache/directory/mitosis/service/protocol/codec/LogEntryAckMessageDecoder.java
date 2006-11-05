@@ -19,12 +19,14 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LogEntryAckMessage;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
+
 
 public class LogEntryAckMessageDecoder extends ResponseMessageDecoder
 {
@@ -33,12 +35,13 @@ public class LogEntryAckMessageDecoder extends ResponseMessageDecoder
         super( Constants.LOG_ENTRY_ACK, 0, 0 );
     }
 
-    protected BaseMessage decodeBody( int sequence, int bodyLength,
-            int responseCode, ByteBuffer in ) throws Exception
+
+    protected BaseMessage decodeBody( int sequence, int bodyLength, int responseCode, ByteBuffer in ) throws Exception
     {
         return new LogEntryAckMessage( sequence, responseCode );
     }
-    
+
+
     public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
     {
     }

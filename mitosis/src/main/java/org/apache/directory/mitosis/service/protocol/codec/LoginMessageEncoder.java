@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
@@ -34,30 +35,33 @@ public class LoginMessageEncoder extends BaseMessageEncoder
 {
     private final CharsetEncoder utf8encoder;
 
+
     public LoginMessageEncoder()
     {
         utf8encoder = Charset.forName( "UTF-8" ).newEncoder();
     }
 
+
     protected void encodeBody( BaseMessage in, ByteBuffer out )
     {
         LoginMessage m = ( LoginMessage ) in;
-        
+
         try
         {
             out.putString( m.getReplicaId().getId(), utf8encoder );
         }
-        catch( CharacterCodingException e )
+        catch ( CharacterCodingException e )
         {
             throw new RuntimeException( e );
         }
     }
 
-    public Set getMessageTypes() 
+
+    public Set getMessageTypes()
     {
         Set set = new HashSet();
         set.add( LoginMessage.class );
-        
+
         return set;
     }
 }

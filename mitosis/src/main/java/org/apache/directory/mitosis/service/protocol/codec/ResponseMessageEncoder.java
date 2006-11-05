@@ -19,15 +19,18 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.ResponseMessage;
 import org.apache.mina.common.ByteBuffer;
+
 
 public abstract class ResponseMessageEncoder extends BaseMessageEncoder
 {
     public ResponseMessageEncoder()
     {
     }
+
 
     protected void encodeBody( BaseMessage in, ByteBuffer out ) throws Exception
     {

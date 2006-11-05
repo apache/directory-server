@@ -19,18 +19,24 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.mitosis.service.protocol.message.LogEntryAckMessage;
 
-public class LogEntryAckMessageEncoder extends ResponseMessageEncoder {
 
-    public LogEntryAckMessageEncoder() {
+public class LogEntryAckMessageEncoder extends ResponseMessageEncoder
+{
+
+    public LogEntryAckMessageEncoder()
+    {
         super();
     }
 
-    public Set getMessageTypes() {
+
+    public Set getMessageTypes()
+    {
         Set set = new HashSet();
         set.add( LogEntryAckMessage.class );
         return set;

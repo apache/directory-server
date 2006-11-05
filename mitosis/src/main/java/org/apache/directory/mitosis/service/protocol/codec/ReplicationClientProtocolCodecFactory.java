@@ -19,10 +19,12 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.mina.filter.codec.demux.DemuxingProtocolCodecFactory;
 
-public class ReplicationClientProtocolCodecFactory extends
-        DemuxingProtocolCodecFactory {
+
+public class ReplicationClientProtocolCodecFactory extends DemuxingProtocolCodecFactory
+{
 
     public ReplicationClientProtocolCodecFactory()
     {
@@ -30,7 +32,7 @@ public class ReplicationClientProtocolCodecFactory extends
         register( LoginMessageEncoder.class );
         register( BeginLogEntriesMessageEncoder.class );
         register( EndLogEntriesMessageEncoder.class );
-        
+
         register( LogEntryAckMessageDecoder.class );
         register( LoginAckMessageDecoder.class );
         register( BeginLogEntriesAckMessageDecoder.class );

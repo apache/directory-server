@@ -19,11 +19,13 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
+
 
 public abstract class BaseMessageEncoder implements MessageEncoder
 {
@@ -31,7 +33,8 @@ public abstract class BaseMessageEncoder implements MessageEncoder
     {
     }
 
-    public final void encode( IoSession session, Object in, ProtocolEncoderOutput out) throws Exception
+
+    public final void encode( IoSession session, Object in, ProtocolEncoderOutput out ) throws Exception
     {
         BaseMessage m = ( BaseMessage ) in;
         ByteBuffer buf = ByteBuffer.allocate( 16 );
@@ -44,15 +47,16 @@ public abstract class BaseMessageEncoder implements MessageEncoder
         encodeBody( m, buf );
         final int bodyEndPos = buf.position();
         final int bodyLength = bodyEndPos - bodyStartPos;
-        
+
         // fill bodyLength
         buf.position( bodyStartPos - 4 );
         buf.putInt( bodyLength );
         buf.position( bodyEndPos );
-        
+
         buf.flip();
         out.write( buf );
     }
-    
+
+
     protected abstract void encodeBody( BaseMessage in, ByteBuffer out ) throws Exception;
 }

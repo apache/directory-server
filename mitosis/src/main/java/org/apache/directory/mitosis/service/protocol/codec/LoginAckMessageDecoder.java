@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
@@ -30,21 +31,24 @@ import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 
+
 public class LoginAckMessageDecoder extends ResponseMessageDecoder
 {
-    private final CharsetDecoder utf8decoder = Charset.forName("UTF-8").newDecoder();
+    private final CharsetDecoder utf8decoder = Charset.forName( "UTF-8" ).newDecoder();
+
 
     public LoginAckMessageDecoder()
     {
         super( Constants.LOGIN_ACK, 1, 64 );
     }
 
-    protected BaseMessage decodeBody( int sequence, int bodyLength,
-                                      int responseCode, ByteBuffer in ) throws Exception
+
+    protected BaseMessage decodeBody( int sequence, int bodyLength, int responseCode, ByteBuffer in ) throws Exception
     {
         return new LoginAckMessage( sequence, responseCode, new ReplicaId( in.getString( utf8decoder ) ) );
     }
-    
+
+
     public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
     {
     }

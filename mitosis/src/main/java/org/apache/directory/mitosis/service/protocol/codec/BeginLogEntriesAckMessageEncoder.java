@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
@@ -34,41 +35,47 @@ import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
 
+
 public class BeginLogEntriesAckMessageEncoder extends ResponseMessageEncoder
 {
     private final CharsetEncoder utf8encoder;
+
 
     public BeginLogEntriesAckMessageEncoder()
     {
         utf8encoder = Charset.forName( "UTF-8" ).newEncoder();
     }
-    
-    protected void encodeBody(BaseMessage in, ByteBuffer out) throws Exception {
+
+
+    protected void encodeBody( BaseMessage in, ByteBuffer out ) throws Exception
+    {
         // write out response code
         super.encodeBody( in, out );
-        
+
         BeginLogEntriesAckMessage m = ( BeginLogEntriesAckMessage ) in;
-        if( m.getResponseCode() != Constants.OK )
+        if ( m.getResponseCode() != Constants.OK )
         {
             return;
         }
-        
+
         writeCSNVector( out, m.getPurgeVector() );
         writeCSNVector( out, m.getUpdateVector() );
     }
 
+
     private void writeCSNVector( ByteBuffer out, CSNVector csns )
     {
         Set replicaIds = csns.getReplicaIds();
-        
+
         int nReplicas = replicaIds.size();
         out.putInt( nReplicas );
         Iterator it = replicaIds.iterator();
-        while( it.hasNext() )
+        while ( it.hasNext() )
         {
             ReplicaId replicaId = ( ReplicaId ) it.next();
             CSN csn = csns.getCSN( replicaId );
-            try {
+            try
+            {
                 out.putString( replicaId.getId(), utf8encoder );
                 out.put( ( byte ) 0x00 );
                 out.putLong( csn.getTimestamp() );
@@ -80,6 +87,7 @@ public class BeginLogEntriesAckMessageEncoder extends ResponseMessageEncoder
             }
         }
     }
+
 
     public Set getMessageTypes()
     {

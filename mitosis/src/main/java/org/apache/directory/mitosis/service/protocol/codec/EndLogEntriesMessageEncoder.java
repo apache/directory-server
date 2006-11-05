@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.service.protocol.codec;
 
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,14 +27,21 @@ import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesMessage;
 import org.apache.mina.common.ByteBuffer;
 
-public class EndLogEntriesMessageEncoder extends BaseMessageEncoder {
-    public EndLogEntriesMessageEncoder() {
+
+public class EndLogEntriesMessageEncoder extends BaseMessageEncoder
+{
+    public EndLogEntriesMessageEncoder()
+    {
     }
 
-    protected void encodeBody( BaseMessage in, ByteBuffer out ) {
+
+    protected void encodeBody( BaseMessage in, ByteBuffer out )
+    {
     }
 
-    public Set getMessageTypes() {
+
+    public Set getMessageTypes()
+    {
         Set set = new HashSet();
         set.add( EndLogEntriesMessage.class );
         return set;

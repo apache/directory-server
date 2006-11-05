@@ -19,61 +19,69 @@
  */
 package org.apache.directory.mitosis.service.protocol.message;
 
+
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.shared.ldap.util.EqualsBuilder;
 import org.apache.directory.shared.ldap.util.HashCodeBuilder;
 
+
 public class LogEntryMessage extends BaseMessage
 {
     private final Operation operation;
 
+
     public LogEntryMessage( int sequence, Operation operation )
     {
-        super(sequence);
+        super( sequence );
         this.operation = operation;
     }
-    
+
+
     public int getType()
     {
         return Constants.LOG_ENTRY;
     }
-    
+
+
     public Operation getOperation()
     {
         return operation;
     }
 
+
     /**
      * @see java.lang.Object#equals(Object)
      */
-    public boolean equals(Object object) 
+    public boolean equals( Object object )
     {
-        if (object == this) {
+        if ( object == this )
+        {
             return true;
         }
-    
-        if (!(object instanceof LogEntryMessage)) 
+
+        if ( !( object instanceof LogEntryMessage ) )
         {
             return false;
         }
-        
-        LogEntryMessage rhs = (LogEntryMessage) object;
-        
-        return new EqualsBuilder().appendSuper(super.equals(object)).append(
-                this.operation, rhs.operation).isEquals();
+
+        LogEntryMessage rhs = ( LogEntryMessage ) object;
+
+        return new EqualsBuilder().appendSuper( super.equals( object ) ).append( this.operation, rhs.operation )
+            .isEquals();
     }
+
 
     /**
      * @see java.lang.Object#hashCode()
      */
-    public int hashCode() 
+    public int hashCode()
     {
-        return new HashCodeBuilder(633013569, -1063609843).appendSuper(
-                super.hashCode()).append(this.operation)
-                .toHashCode();
+        return new HashCodeBuilder( 633013569, -1063609843 ).appendSuper( super.hashCode() ).append( this.operation )
+            .toHashCode();
     }
-    
+
+
     public String toString()
     {
         return "[LogEntry] " + super.toString() + ", " + operation;
