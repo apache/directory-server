@@ -19,7 +19,9 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 import java.io.Serializable;
+
 
 /**
  * Represents UUID (Unversally Unique IDentifier).

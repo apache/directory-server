@@ -19,7 +19,9 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 import org.safehaus.uuid.UUIDGenerator;
+
 
 /**
  * Generates {@link UUID}.
@@ -30,9 +32,11 @@ public class SimpleUUIDFactory implements UUIDFactory
 {
     private static final UUIDGenerator generator = UUIDGenerator.getInstance();
 
+
     public SimpleUUIDFactory()
     {
     }
+
 
     /**
      * Generates a new type-1 (time-based) {@link UUID}.

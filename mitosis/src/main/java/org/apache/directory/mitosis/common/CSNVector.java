@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -27,8 +28,8 @@ import java.util.Set;
 import org.apache.directory.shared.ldap.util.EqualsBuilder;
 import org.apache.directory.shared.ldap.util.HashCodeBuilder;
 
+
 /**
- * 
  * TODO CSNVector.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -43,71 +44,84 @@ public class CSNVector
      *      Declare Serial Version Uid</a>
      */
     private static final long serialVersionUID = 1L;
-    
-    private final Map csns = new HashMap();
-    
+
+    private final Map<ReplicaId,CSN> csns = new HashMap<ReplicaId,CSN>();
+
+
     public CSNVector()
     {
     }
-    
+
+
     public void setCSN( CSN csn )
     {
         csns.put( csn.getReplicaId(), csn );
     }
-    
+
+
     public void setAllCSN( CSNVector uv )
     {
         Iterator i = uv.csns.values().iterator();
-        while( i.hasNext() )
+        while ( i.hasNext() )
         {
             setCSN( ( CSN ) i.next() );
         }
     }
-    
-    public CSN  getCSN( ReplicaId replicaId )
+
+
+    public CSN getCSN( ReplicaId replicaId )
     {
         return ( CSN ) csns.get( replicaId );
     }
-    
-    public CSN  removeCSN( ReplicaId replicaId )
+
+
+    public CSN removeCSN( ReplicaId replicaId )
     {
         return ( CSN ) csns.remove( replicaId );
     }
-    
-    public Set  getReplicaIds()
+
+
+    public Set getReplicaIds()
     {
         return csns.keySet();
     }
-    
+
+
     public int size()
     {
         return csns.size();
     }
 
-    public boolean equals(Object object) {
-        if (object == this) {
+
+    public boolean equals( Object object )
+    {
+        if ( object == this )
+        {
             return true;
         }
-        if (!(object instanceof CSNVector)) {
+        if ( !( object instanceof CSNVector ) )
+        {
             return false;
         }
-        CSNVector rhs = (CSNVector) object;
-        return new EqualsBuilder().append(
-                this.csns, rhs.csns).isEquals();
+        CSNVector rhs = ( CSNVector ) object;
+        return new EqualsBuilder().append( this.csns, rhs.csns ).isEquals();
     }
 
-    public int hashCode() {
-        return new HashCodeBuilder(-33446267, -459427867).append(
-                this.csns).toHashCode();
+
+    public int hashCode()
+    {
+        return new HashCodeBuilder( -33446267, -459427867 ).append( this.csns ).toHashCode();
     }
-    
+
+
     public Object clone()
     {
         CSNVector result = new CSNVector();
         result.csns.putAll( this.csns );
         return result;
     }
-    
+
+
     public String toString()
     {
         return csns.toString();

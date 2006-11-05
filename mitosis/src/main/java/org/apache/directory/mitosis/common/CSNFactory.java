@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 /**
  * Generates a new {@link CSN}.
  * 
@@ -34,7 +35,8 @@ public interface CSNFactory
      *        string.
      */
     CSN newInstance( String replicaId );
-    
+
+
     /**
      * Returns a new {@link CSN}.
      * Generated CSN can be duplicate if user generates CSNs more than 2G 

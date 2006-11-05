@@ -19,9 +19,11 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 import java.io.Serializable;
 
 import org.apache.directory.mitosis.util.OctetString;
+
 
 /**
  * Basic implementation of {@link CSN}.
@@ -38,21 +40,22 @@ public class SimpleCSN implements CSN, Serializable, Comparable
      *      Declare Serial Version Uid</a>
      */
     private static final long serialVersionUID = 1L;
-    
+
     /** The timeStamp of this operation */
     private final long timestamp;
 
     /** The server identification */
     private final ReplicaId replicaId;
-    
+
     /** The operation number in the same timestamp */
     private final int operationSequence;
-    
+
     /** Stores the String representation of the CSN */
     private transient String octetString;
 
     /** Stores the byte array representation of the CSN */
     private transient byte[] bytes;
+
 
     /**
      * Creates a new instance.
@@ -67,7 +70,8 @@ public class SimpleCSN implements CSN, Serializable, Comparable
         this.replicaId = replicaId;
         this.operationSequence = operationSequence;
     }
-    
+
+
     /**
      * Creates a new instance of SimpleCSN from a String.
      * 
@@ -79,18 +83,18 @@ public class SimpleCSN implements CSN, Serializable, Comparable
     public SimpleCSN( String value ) throws InvalidCSNException
     {
         assert value != null;
-        
+
         int sepTS = value.indexOf( ':' );
-        
+
         assert sepTS > 0;
-        
+
         int sepID = value.lastIndexOf( ':' );
-        
+
         if ( ( sepID == -1 ) || ( sepID == sepTS ) | ( sepID - sepTS < 2 ) )
         {
             throw new InvalidCSNException();
         }
-        
+
         try
         {
             timestamp = Long.parseLong( value.substring( 0, sepTS ), 16 );
@@ -99,10 +103,10 @@ public class SimpleCSN implements CSN, Serializable, Comparable
         {
             throw new InvalidCSNException();
         }
-        
+
         try
         {
-            replicaId = new ReplicaId( value.substring(  sepTS + 1, sepID ) );
+            replicaId = new ReplicaId( value.substring( sepTS + 1, sepID ) );
         }
         catch ( IllegalArgumentException iae )
         {
@@ -119,6 +123,7 @@ public class SimpleCSN implements CSN, Serializable, Comparable
         }
     }
 
+
     /**
      * Creates a new instance of SimpleCSN from the serialized data
      *
@@ -126,30 +131,25 @@ public class SimpleCSN implements CSN, Serializable, Comparable
      */
     public SimpleCSN( byte[] value )
     {
-        timestamp =  ((long)(value[0] & 0x00FF) << 56) |
-                ((long)(value[1] & 0x00FF) << 48) |
-                ((long)(value[2] & 0x00FF) << 40) |
-                ((long)(value[3] & 0x00FF) << 32) |
-                ((value[4] << 24) & 0x00000000FF000000L) |
-                ((value[5] << 16) & 0x0000000000FF0000L) |
-                ((value[6] << 8) & 0x000000000000FF00L) |
-                (value[7] & 0x00000000000000FFL);
-        
-        operationSequence = ((value[8] & 0x00FF) << 24) +
-            ((value[9] & 0x00FF) << 16) +
-            ((value[10] & 0x00FF) << 8) +
-            (value[11] & 0x00FF);
-        
+        timestamp = ( ( long ) ( value[0] & 0x00FF ) << 56 ) | ( ( long ) ( value[1] & 0x00FF ) << 48 )
+            | ( ( long ) ( value[2] & 0x00FF ) << 40 ) | ( ( long ) ( value[3] & 0x00FF ) << 32 )
+            | ( ( value[4] << 24 ) & 0x00000000FF000000L ) | ( ( value[5] << 16 ) & 0x0000000000FF0000L )
+            | ( ( value[6] << 8 ) & 0x000000000000FF00L ) | ( value[7] & 0x00000000000000FFL );
+
+        operationSequence = ( ( value[8] & 0x00FF ) << 24 ) + ( ( value[9] & 0x00FF ) << 16 )
+            + ( ( value[10] & 0x00FF ) << 8 ) + ( value[11] & 0x00FF );
+
         char[] chars = new char[value.length - 12];
-                                
+
         for ( int i = 12; i < value.length; i++ )
         {
-            chars[i - 12] = (char)(value[i] & 0x00FF);
+            chars[i - 12] = ( char ) ( value[i] & 0x00FF );
         }
-        
+
         replicaId = new ReplicaId( new String( chars ) );
         bytes = value;
     }
+
 
     /**
      * Return the CSN as a formated string. The used format is :
@@ -159,7 +159,7 @@ public class SimpleCSN implements CSN, Serializable, Comparable
      */
     public String toOctetString()
     {
-        if( octetString == null )
+        if ( octetString == null )
         {
             StringBuffer buf = new StringBuffer( 40 );
             OctetString.append( buf, timestamp );
@@ -172,7 +172,8 @@ public class SimpleCSN implements CSN, Serializable, Comparable
 
         return octetString;
     }
-    
+
+
     /**
      * Get the CSN as a byte array. The data are stored as :
      * bytes 1 to 8  : timestamp, big-endian
@@ -187,31 +188,32 @@ public class SimpleCSN implements CSN, Serializable, Comparable
         {
             String id = replicaId.getId();
             byte[] bb = new byte[8 + id.length() + 4];
-            
-            bb[0] = (byte)(timestamp >> 56 );
-            bb[1] = (byte)(timestamp >> 48 );
-            bb[2] = (byte)(timestamp >> 40 );
-            bb[3] = (byte)(timestamp >> 32 );
-            bb[4] = (byte)(timestamp >> 24 );
-            bb[5] = (byte)(timestamp >> 16 );
-            bb[6] = (byte)(timestamp >> 8 );
-            bb[7] = (byte)timestamp;
-            bb[8] = (byte)((operationSequence >> 24 ) );
-            bb[9] = (byte)((operationSequence >> 16 ) );
-            bb[10] = (byte)((operationSequence >> 8 ) );
-            bb[11] = (byte)(operationSequence );
-            
+
+            bb[0] = ( byte ) ( timestamp >> 56 );
+            bb[1] = ( byte ) ( timestamp >> 48 );
+            bb[2] = ( byte ) ( timestamp >> 40 );
+            bb[3] = ( byte ) ( timestamp >> 32 );
+            bb[4] = ( byte ) ( timestamp >> 24 );
+            bb[5] = ( byte ) ( timestamp >> 16 );
+            bb[6] = ( byte ) ( timestamp >> 8 );
+            bb[7] = ( byte ) timestamp;
+            bb[8] = ( byte ) ( ( operationSequence >> 24 ) );
+            bb[9] = ( byte ) ( ( operationSequence >> 16 ) );
+            bb[10] = ( byte ) ( ( operationSequence >> 8 ) );
+            bb[11] = ( byte ) ( operationSequence );
+
             for ( int i = 0; i < id.length(); i++ )
             {
-                bb[12+i] =(byte)id.charAt( i );
+                bb[12 + i] = ( byte ) id.charAt( i );
             }
-            
+
             bytes = bb;
         }
-        
+
         return bytes;
     }
-    
+
+
     /**
      * @return The timestamp
      */
@@ -219,7 +221,8 @@ public class SimpleCSN implements CSN, Serializable, Comparable
     {
         return timestamp;
     }
-    
+
+
     /**
      * @return The replicaId
      */
@@ -227,6 +230,7 @@ public class SimpleCSN implements CSN, Serializable, Comparable
     {
         return replicaId;
     }
+
 
     /**
      * @return The operation sequence
@@ -236,6 +240,7 @@ public class SimpleCSN implements CSN, Serializable, Comparable
         return operationSequence;
     }
 
+
     /**
      * @return The CSN as a String
      */
@@ -243,7 +248,8 @@ public class SimpleCSN implements CSN, Serializable, Comparable
     {
         return toOctetString();
     }
-    
+
+
     /**
      * Returns a hash code value for the object.
      * 
@@ -254,6 +260,7 @@ public class SimpleCSN implements CSN, Serializable, Comparable
         return replicaId.hashCode() ^ ( int ) timestamp ^ operationSequence;
     }
 
+
     /**
      * Indicates whether some other object is "equal to" this one
      * 
@@ -263,28 +270,28 @@ public class SimpleCSN implements CSN, Serializable, Comparable
      */
     public boolean equals( Object o )
     {
-        if( o == null )
+        if ( o == null )
         {
             return false;
         }
-        
-        if( this == o )
+
+        if ( this == o )
         {
             return true;
         }
-        
-        if( !( o instanceof CSN ) )
+
+        if ( !( o instanceof CSN ) )
         {
             return false;
         }
-        
+
         CSN that = ( CSN ) o;
-        
-        return timestamp == that.getTimestamp() &&
-               replicaId.equals( that.getReplicaId() ) &&
-               operationSequence == that.getOperationSequence();
+
+        return timestamp == that.getTimestamp() && replicaId.equals( that.getReplicaId() )
+            && operationSequence == that.getOperationSequence();
     }
-    
+
+
     /**
      * Compares this object with the specified object for order.  Returns a
      * negative integer, zero, or a positive integer as this object is less
@@ -299,29 +306,29 @@ public class SimpleCSN implements CSN, Serializable, Comparable
         CSN that = ( CSN ) o;
         long thatTimestamp = that.getTimestamp();
 
-        if( this.timestamp < thatTimestamp )
+        if ( this.timestamp < thatTimestamp )
         {
             return -1;
         }
-        else if( this.timestamp > thatTimestamp )
+        else if ( this.timestamp > thatTimestamp )
         {
             return 1;
         }
-        
+
         int replicaIdCompareResult = this.replicaId.compareTo( that.getReplicaId() );
-        
-        if( replicaIdCompareResult != 0 )
+
+        if ( replicaIdCompareResult != 0 )
         {
             return replicaIdCompareResult;
         }
-        
+
         int thatSequence = that.getOperationSequence();
 
-        if( this.operationSequence < thatSequence )
+        if ( this.operationSequence < thatSequence )
         {
             return -1;
         }
-        else if( this.operationSequence > thatSequence )
+        else if ( this.operationSequence > thatSequence )
         {
             return 1;
         }

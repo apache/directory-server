@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 /**
  * 
  * TODO ReplicationException.
@@ -29,20 +30,24 @@ public class ReplicationException extends RuntimeException
 {
     private static final long serialVersionUID = -347196060295426926L;
 
+
     public ReplicationException()
     {
         super();
     }
+
 
     public ReplicationException( String message, Throwable cause )
     {
         super( message, cause );
     }
 
+
     public ReplicationException( String message )
     {
         super( message );
     }
+
 
     public ReplicationException( Throwable cause )
     {

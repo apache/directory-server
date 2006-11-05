@@ -19,7 +19,9 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 import org.apache.directory.mitosis.util.OctetString;
+
 
 /**
  * 
@@ -30,63 +32,69 @@ import org.apache.directory.mitosis.util.OctetString;
 public class SimpleUUID implements UUID
 {
     private static final long serialVersionUID = 3256721788405953846L;
-    
+
     private final String uuid;
+
 
     public SimpleUUID( byte[] uuid )
     {
-        if( uuid.length != 16 )
+        if ( uuid.length != 16 )
         {
             throw new IllegalArgumentException( "UUID must be 128-bits long." );
         }
-        
+
         this.uuid = OctetString.toString( uuid );
     }
-    
+
+
     public SimpleUUID( String uuid )
     {
         String newUUID = uuid.replaceAll( "[^0-9A-Za-z]", "" );
-        
-        if( newUUID.length() != 32 )
+
+        if ( newUUID.length() != 32 )
         {
             throw new IllegalArgumentException( "UUID: " + uuid );
         }
-        
+
         this.uuid = newUUID;
     }
-    
+
+
     public int hashCode()
     {
         return uuid.hashCode();
     }
-    
+
+
     public boolean equals( Object o )
     {
-        if( o == null )
+        if ( o == null )
         {
             return false;
         }
-        
-        if( this == o )
+
+        if ( this == o )
         {
             return true;
         }
-        
-        if( !( o instanceof UUID ) )
+
+        if ( !( o instanceof UUID ) )
         {
             return false;
         }
-        
+
         return uuid.equals( ( ( UUID ) o ).toOctetString() );
     }
+
 
     public String toOctetString()
     {
         return uuid;
     }
 
+
     public int compareTo( Object o )
     {
-        return uuid.compareTo( ( ( UUID ) o ).toOctetString() ); 
+        return uuid.compareTo( ( ( UUID ) o ).toOctetString() );
     }
 }

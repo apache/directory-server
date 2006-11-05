@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 /**
  * Generates {@link UUID}.
  * 

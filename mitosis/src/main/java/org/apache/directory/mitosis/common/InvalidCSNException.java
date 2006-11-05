@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 /**
  * 
  * InvalidCSNException is thrown when trying to create an invalid CSN.
@@ -36,20 +37,24 @@ public class InvalidCSNException extends RuntimeException
      */
     private static final long serialVersionUID = 1L;
 
+
     public InvalidCSNException()
     {
         super();
     }
+
 
     public InvalidCSNException( String message, Throwable cause )
     {
         super( message, cause );
     }
 
+
     public InvalidCSNException( String message )
     {
         super( message );
     }
+
 
     public InvalidCSNException( Throwable cause )
     {

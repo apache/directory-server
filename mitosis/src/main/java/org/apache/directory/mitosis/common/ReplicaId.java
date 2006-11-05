@@ -19,10 +19,12 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
 import org.apache.directory.shared.ldap.util.StringTools;
+
 
 /**
  * Store a replica ID after having normalized it.
@@ -50,6 +52,7 @@ public class ReplicaId implements Comparable, Serializable
     /** The formated replicaId */
     private String id;
 
+
     /**
      * Creates a new instance of ReplicaId. The id must be a String 
      * which respect the pattern :
@@ -68,14 +71,15 @@ public class ReplicaId implements Comparable, Serializable
         }
 
         String tmpId = id.trim().toUpperCase();
-        
-        if( !REPLICA_ID_PATTERN.matcher( tmpId ).matches() )
+
+        if ( !REPLICA_ID_PATTERN.matcher( tmpId ).matches() )
         {
             throw new IllegalArgumentException( "Invalid replica ID: " + id );
         }
-        
+
         this.id = id;
     }
+
 
     /**
      * @return The replicaId
@@ -84,7 +88,8 @@ public class ReplicaId implements Comparable, Serializable
     {
         return id;
     }
-    
+
+
     /**
      * Returns a hash code value for the object.
      * 
@@ -94,7 +99,8 @@ public class ReplicaId implements Comparable, Serializable
     {
         return id.hashCode();
     }
-    
+
+
     /**
      * Indicates whether some other object is "equal to" this one
      * 
@@ -104,17 +110,17 @@ public class ReplicaId implements Comparable, Serializable
      */
     public boolean equals( Object o )
     {
-        if( o == null )
+        if ( o == null )
         {
             return false;
         }
-        
-        if( o == this )
+
+        if ( o == this )
         {
             return true;
         }
-        
-        if( o instanceof ReplicaId )
+
+        if ( o instanceof ReplicaId )
         {
             return this.id.equals( ( ( ReplicaId ) o ).id );
         }
@@ -123,7 +129,8 @@ public class ReplicaId implements Comparable, Serializable
             return false;
         }
     }
-    
+
+
     /**
      * Compares this object with the specified object for order.  Returns a
      * negative integer, zero, or a positive integer as this object is less
@@ -137,7 +144,8 @@ public class ReplicaId implements Comparable, Serializable
     {
         return this.id.compareTo( ( ( ReplicaId ) o ).id );
     }
-    
+
+
     /**
      * @return the Replica Id
      */

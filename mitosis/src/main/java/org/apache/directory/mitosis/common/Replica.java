@@ -19,11 +19,13 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 import java.net.InetSocketAddress;
 
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * The class stores a Replica, which is composed of an Id, a server and a port.
@@ -40,10 +42,11 @@ public class Replica
 
     /** The replicaId */
     private final ReplicaId id;
-    
+
     /** The server address */
     private final InetSocketAddress address;
-    
+
+
     /**
      * Creates a new instance of Replica, from a String.
      * 
@@ -60,55 +63,56 @@ public class Replica
             log.error( "Null or empty replica are not allowed" );
             throw new IllegalArgumentException( "Null or empty Replica " );
         }
-        
+
         replica = replica.trim();
-        
+
         int atPos = replica.indexOf( '@' );
-        
+
         if ( atPos <= 0 )
         {
             log.error( "The ReplicaId '@' element is missing in {}", replica );
             throw new IllegalArgumentException( "Replica ID not found: " + replica );
         }
-        
+
         int colonPos = replica.indexOf( ':', atPos );
-        
+
         if ( colonPos < 0 )
         {
             log.error( "Replica port not found in {}", replica );
             throw new IllegalArgumentException( "Port number not found in replica : " + replica );
         }
-        
+
         id = new ReplicaId( replica.substring( 0, atPos ) );
         String server = replica.substring( atPos + 1, colonPos );
         int port = -1;
-        
+
         try
         {
-            port = Integer.parseInt( replica.substring( colonPos + 1 ) ) ;
+            port = Integer.parseInt( replica.substring( colonPos + 1 ) );
         }
         catch ( NumberFormatException nfe )
         {
             log.error( "The port value should be a value between 1 and 65535, port  : {}", new Integer( port ) );
             throw new IllegalArgumentException( "Bad port number : " + port );
         }
-        
+
         try
         {
             address = new InetSocketAddress( server, port );
         }
         catch ( IllegalArgumentException iae )
         {
-            log.error(  "The server address/name is invalid ({}) in replica {}", server, replica );
-            throw new IllegalArgumentException( "The server address/name is invalid in replica " + replica 
+            log.error( "The server address/name is invalid ({}) in replica {}", server, replica );
+            throw new IllegalArgumentException( "The server address/name is invalid in replica " + replica
                 + ", error : " + iae.getMessage() );
         }
-        
+
         if ( IS_DEBUG )
         {
             log.debug( "Created a replica {} on server {}", id, server + ':' + port );
         }
     }
+
 
     /**
      * Creates a new instance of Replica, from a valid Id and a valid address.
@@ -125,6 +129,7 @@ public class Replica
         this.address = address;
     }
 
+
     /**
      * @return the replica address
      */
@@ -133,6 +138,7 @@ public class Replica
         return address;
     }
 
+
     /**
      * @return the replica Id
      */
@@ -140,25 +146,27 @@ public class Replica
     {
         return id;
     }
-    
+
+
     public int hashCode()
     {
         return id.hashCode();
     }
-    
+
+
     public boolean equals( Object o )
     {
-        if( o == null )
+        if ( o == null )
         {
             return false;
         }
-        
-        if( o == this )
+
+        if ( o == this )
         {
             return true;
         }
-        
-        if( o instanceof Replica )
+
+        if ( o instanceof Replica )
         {
             return this.id.equals( ( ( Replica ) o ).id );
         }
@@ -167,16 +175,13 @@ public class Replica
             return false;
         }
     }
-    
+
+
     /**
      * @return The replica. The format is &lt;replica id> '@' &lt;server> ':' &lt;port>
      */
     public String toString()
     {
-        return getId().toString() +
-                '@' +
-                getAddress().getAddress().getHostAddress() +
-                ':' +
-                getAddress().getPort();
+        return getId().toString() + '@' + getAddress().getAddress().getHostAddress() + ':' + getAddress().getPort();
     }
 }

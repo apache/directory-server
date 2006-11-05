@@ -19,7 +19,9 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 import java.io.Serializable;
+
 
 /**
  * Represents 'Change Sequence Number' in LDUP specification.
@@ -39,22 +41,26 @@ public interface CSN extends Serializable, Comparable
      * Returns GMT timestamp of modification.
      */
     long getTimestamp();
-    
+
+
     /**
      * Returns replica ID.
      */
     ReplicaId getReplicaId();
-    
+
+
     /**
      * Returns sequence number of modification.
      */
     int getOperationSequence();
-    
+
+
     /**
      * Returns octet-string representation of this CSN. 
      */
     String toOctetString();
-    
+
+
     /**
      * Returns a byte array representing the CSN
      */

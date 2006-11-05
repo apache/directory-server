@@ -19,6 +19,7 @@
  */
 package org.apache.directory.mitosis.common;
 
+
 /**
  * Generates a new {@link CSN}.
  * 
@@ -29,9 +30,11 @@ public class SimpleCSNFactory implements CSNFactory
     private static int operationSequence;
     private static long lastTimestamp = System.currentTimeMillis();
 
+
     public SimpleCSNFactory()
     {
     }
+
 
     /**
      * Returns a new {@link CSN}.
@@ -46,16 +49,16 @@ public class SimpleCSNFactory implements CSNFactory
         return newInstance( new ReplicaId( replicaId ) );
     }
 
+
     public synchronized CSN newInstance( ReplicaId replicaId )
     {
         long newTimestamp = System.currentTimeMillis();
-        if( lastTimestamp == newTimestamp )
+        if ( lastTimestamp == newTimestamp )
         {
             operationSequence = 0;
         }
-        
-        CSN newCSN = new SimpleCSN( newTimestamp, replicaId,
-                                    operationSequence ++ );
+
+        CSN newCSN = new SimpleCSN( newTimestamp, replicaId, operationSequence++ );
         lastTimestamp = newTimestamp;
         return newCSN;
     }
