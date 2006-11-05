@@ -89,9 +89,9 @@ public class BeginLogEntriesAckMessageEncoder extends ResponseMessageEncoder
     }
 
 
-    public Set getMessageTypes()
+    public Set<Class> getMessageTypes()
     {
-        Set set = new HashSet();
+        Set<Class> set = new HashSet<Class>();
         set.add( BeginLogEntriesAckMessage.class );
         return set;
     }
