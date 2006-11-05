@@ -38,6 +38,7 @@ import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -184,7 +185,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         }
         else if ( value instanceof String )
         {
-            credential = ( ( String ) value ).getBytes();
+            credential = StringTools.getBytesUtf8( (String)value );
         }
         else if ( value instanceof byte[] )
         {
