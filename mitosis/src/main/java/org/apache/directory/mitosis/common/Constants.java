@@ -56,6 +56,8 @@ public class Constants
             return true;
         }
     };
+    
+    public static final String OBJECT_CLASS_OID = "2.5.4.0";
 
     private Constants()
     {

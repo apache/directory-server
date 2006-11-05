@@ -69,8 +69,7 @@ public class ReplicationClientContextHandler implements
     public void contextBegin( ReplicationContext ctx ) throws Exception
     {
         // Send a login message.
-        LoginMessage m = new LoginMessage(
-                ctx.getNextSequence(),
+        LoginMessage m = new LoginMessage( ctx.getNextSequence(),
                 ctx.getService().getConfiguration().getReplicaId() );
         ctx.getSession().write( m );
         
@@ -158,8 +157,7 @@ public class ReplicationClientContextHandler implements
     {
         if( message.getResponseCode() != Constants.OK )
         {
-            SessionLog.warn(
-                    ctx.getSession(),
+            SessionLog.warn( ctx.getSession(),
                     "Login attempt failed: " + message.getResponseCode() );
             ctx.getSession().close();
             return;
@@ -310,7 +308,7 @@ public class ReplicationClientContextHandler implements
         NamingEnumeration e = ctx.getServiceConfiguration().getPartitionNexus().search(
                 contextName,
                 ctx.getServiceConfiguration().getEnvironment(),
-                new PresenceNode( "objectClass" ), ctrl );
+                new PresenceNode( org.apache.directory.mitosis.common.Constants.OBJECT_CLASS_OID ), ctrl );
         
         try
         {
@@ -334,8 +332,7 @@ public class ReplicationClientContextHandler implements
                 }
                 catch( IllegalArgumentException ex )
                 {
-                    SessionLog.warn(
-                            ctx.getSession(),
+                    SessionLog.warn( ctx.getSession(),
                             "An entry with improper entryCSN: " + sr.getName() );
                     continue;
                 }
