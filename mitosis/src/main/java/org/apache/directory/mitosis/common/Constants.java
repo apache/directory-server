@@ -49,15 +49,10 @@ public class Constants
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
             throws NamingException
         {
-            if ( controls.getReturningAttributes() == null )
-            {
-                Attributes entry = result.getAttributes();
-                Attribute deleted = entry.get( ENTRY_DELETED );
-                Object value = deleted == null ? null : deleted.get();
-                return ( value == null || !"true".equalsIgnoreCase( value.toString() ) );
-            }
-
-            return true;
+            Attributes entry = result.getAttributes();
+            Attribute deleted = entry.get( ENTRY_DELETED );
+            Object value = deleted == null ? null : deleted.get();
+            return ( value == null || !"true".equalsIgnoreCase( value.toString() ) );
         }
     };
 

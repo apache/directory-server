@@ -372,6 +372,7 @@ public class ReplicationService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
     {
         boolean found = false;
+        
         // Look for 'entryDeleted' attribute is in attrIds.
         for ( int i = 0; i < attrIds.length; i++ )
         {
@@ -408,12 +409,16 @@ public class ReplicationService extends BaseInterceptor
     public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN baseName, Map environment, ExprNode filter,
         SearchControls searchControls ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.search( baseName, environment, filter, searchControls );
         if ( searchControls.getReturningAttributes() != null )
         {
-            return e;
+            String[] oldAttrIds = searchControls.getReturningAttributes();
+            String[] newAttrIds = new String[oldAttrIds.length + 1];
+            System.arraycopy( oldAttrIds, 0, newAttrIds, 0, oldAttrIds.length );
+            newAttrIds[oldAttrIds.length] = Constants.ENTRY_DELETED.toLowerCase();
+            searchControls.setReturningAttributes( newAttrIds );
         }
-
+        
+        NamingEnumeration e = nextInterceptor.search( baseName, environment, filter, searchControls );
         return new SearchResultFilteringEnumeration( e, searchControls, InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER );
     }
