@@ -30,6 +30,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.ReplicaId;
@@ -161,13 +162,14 @@ public class CompositeOperation extends Operation
     }
 
 
-    protected void execute0( PartitionNexus nexus, ReplicationStore store ) throws NamingException
+    protected void execute0( PartitionNexus nexus, ReplicationStore store, AttributeTypeRegistry registry ) 
+        throws NamingException
     {
         Iterator<Operation> i = children.iterator();
         while ( i.hasNext() )
         {
             Operation op = i.next();
-            op.execute( nexus, DUMMY_STORE );
+            op.execute( nexus, DUMMY_STORE, registry );
         }
     }
 

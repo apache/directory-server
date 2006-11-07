@@ -386,10 +386,11 @@ public abstract class BTreePartition implements Partition
     public abstract void modify( LdapDN dn, ModificationItem[] mods ) throws NamingException;
 
 
+    private static final String[] ENTRY_DELETED_ATTRS = new String[] { "entrydeleted" };
     public NamingEnumeration list( LdapDN base ) throws NamingException
     {
         SearchResultEnumeration list;
-        list = new BTreeSearchResultEnumeration( ArrayUtils.EMPTY_STRING_ARRAY, list( getEntryId( base.toString() ) ),
+        list = new BTreeSearchResultEnumeration( ENTRY_DELETED_ATTRS, list( getEntryId( base.toString() ) ),
             this, attributeTypeRegistry );
         return list;
     }

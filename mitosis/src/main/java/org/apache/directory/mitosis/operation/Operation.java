@@ -26,6 +26,7 @@ import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
 
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.store.ReplicationStore;
 
@@ -84,17 +85,19 @@ public class Operation implements Serializable
     /**
      * Exeutes this operation on the specified nexus.
      */
-    public final void execute( PartitionNexus nexus, ReplicationStore store ) throws NamingException
+    public final void execute( PartitionNexus nexus, ReplicationStore store, AttributeTypeRegistry registry ) 
+        throws NamingException
     {
         synchronized ( nexus )
         {
-            execute0( nexus, store );
+            execute0( nexus, store, registry );
             store.putLog( this );
         }
     }
 
 
-    protected void execute0( PartitionNexus nexus, ReplicationStore store ) throws NamingException
+    protected void execute0( PartitionNexus nexus, ReplicationStore store, AttributeTypeRegistry registry ) 
+        throws NamingException
     {
         throw new OperationNotSupportedException( nexus.getSuffix().toString() );
     }

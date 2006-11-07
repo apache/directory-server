@@ -288,28 +288,28 @@ public class ReplicationService extends BaseInterceptor
     public void add( NextInterceptor nextInterceptor, LdapDN normalizedName, Attributes entry ) throws NamingException
     {
         Operation op = operationFactory.newAdd( normalizedName, entry );
-        op.execute( nexus, store );
+        op.execute( nexus, store, attrRegistry );
     }
 
 
     public void delete( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
         Operation op = operationFactory.newDelete( name );
-        op.execute( nexus, store );
+        op.execute( nexus, store, attrRegistry );
     }
 
 
     public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes attrs ) throws NamingException
     {
         Operation op = operationFactory.newModify( name, modOp, attrs );
-        op.execute( nexus, store );
+        op.execute( nexus, store, attrRegistry );
     }
 
 
     public void modify( NextInterceptor next, LdapDN name, ModificationItem[] items ) throws NamingException
     {
         Operation op = operationFactory.newModify( name, items );
-        op.execute( nexus, store );
+        op.execute( nexus, store, attrRegistry );
     }
 
 
@@ -317,7 +317,7 @@ public class ReplicationService extends BaseInterceptor
         throws NamingException
     {
         Operation op = operationFactory.newModifyRn( oldName, newRDN, deleteOldRDN );
-        op.execute( nexus, store );
+        op.execute( nexus, store, attrRegistry );
     }
 
 
@@ -325,14 +325,14 @@ public class ReplicationService extends BaseInterceptor
         throws NamingException
     {
         Operation op = operationFactory.newMove( oldName, newParentName, newRDN, deleteOldRDN );
-        op.execute( nexus, store );
+        op.execute( nexus, store, attrRegistry );
     }
 
 
     public void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName ) throws NamingException
     {
         Operation op = operationFactory.newMove( oldName, newParentName );
-        op.execute( nexus, store );
+        op.execute( nexus, store, attrRegistry );
     }
 
 
