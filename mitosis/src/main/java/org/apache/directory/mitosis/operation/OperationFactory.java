@@ -82,8 +82,6 @@ public class OperationFactory
         // Check an entry already exists.
         checkBeforeAdd( normalizedName );
 
-        CompositeOperation result = new CompositeOperation( csn );
-
         // Insert 'entryUUID' and 'entryDeleted'.
         entry = ( Attributes ) entry.clone();
         entry.remove( Constants.ENTRY_UUID );
@@ -96,8 +94,7 @@ public class OperationFactory
         // MODIFY operation)
         entry.put( Constants.ENTRY_CSN, csn.toOctetString() );
 
-        result.add( new AddEntryOperation( csn, normalizedName, entry ) );
-        return result;
+        return new AddEntryOperation( csn, normalizedName, entry );
     }
 
 
