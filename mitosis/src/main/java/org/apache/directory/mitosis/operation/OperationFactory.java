@@ -243,6 +243,20 @@ public class OperationFactory
     {
         if ( nexus.hasEntry( newEntryName ) )
         {
+            Attributes entry = nexus.lookup( newEntryName );
+            Attribute deleted = entry.get( Constants.ENTRY_DELETED );
+            Object value = deleted == null ? null : deleted.get();
+
+            /*
+             * Check first if the entry has been marked as deleted before
+             * throwing an exception and delete the entry if so and return
+             * without throwing an exception.
+             */
+            if ( value != null && "true".equalsIgnoreCase( value.toString() ) )
+            {
+                return;
+            }
+
             throw new NameAlreadyBoundException( newEntryName.toString() + " already exists." );
         }
     }

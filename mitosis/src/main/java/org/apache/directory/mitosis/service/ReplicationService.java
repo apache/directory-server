@@ -61,7 +61,6 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoAcceptor;
-import org.apache.mina.common.IoServiceConfig;
 import org.apache.mina.filter.LoggingFilter;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
@@ -150,7 +149,8 @@ public class ReplicationService extends BaseInterceptor
     private void startNetworking() throws Exception
     {
         registry = new SocketAcceptor();
-        IoServiceConfig config = new SocketAcceptorConfig();
+        SocketAcceptorConfig config = new SocketAcceptorConfig();
+        config.setReuseAddress( true );
 
         config.getFilterChain().addLast( "protocol",
             new ProtocolCodecFilter( new ReplicationServerProtocolCodecFactory() ) );
