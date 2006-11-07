@@ -172,7 +172,10 @@ public class OperationFactory
 
     public Operation newModifyRn( LdapDN oldName, String newRdn, boolean deleteOldRn ) throws NamingException
     {
-        return newMove( oldName, ( LdapDN ) oldName.getSuffix( 1 ), newRdn, deleteOldRn );
+        LdapDN newParentName = ( LdapDN ) oldName.clone();
+        newParentName.remove( oldName.size() - 1 );
+        
+        return newMove( oldName, newParentName, newRdn, deleteOldRn );
     }
 
 
