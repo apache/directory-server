@@ -30,9 +30,12 @@ import java.util.Random;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
@@ -45,6 +48,8 @@ import org.apache.directory.server.core.configuration.MutableStartupConfiguratio
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.mina.util.AvailablePortFinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A test case for {@link ReplicationServiceIntegrationTest}
@@ -54,6 +59,8 @@ import org.apache.mina.util.AvailablePortFinder;
  */
 public class ReplicationServiceIntegrationTest extends TestCase
 {
+	private final Logger log = LoggerFactory.getLogger( ReplicationServiceIntegrationTest.class );
+
 	private Map contexts = new HashMap();
 
 	protected void setUp() throws Exception
@@ -66,8 +73,22 @@ public class ReplicationServiceIntegrationTest extends TestCase
 		destroyAllReplicas();
 	}
 	
-	public void testModify() throws Exception
+	public void testOneWayBind() throws Exception
 	{
+		LdapContext ctxA = getReplicaContext( "A" );
+		
+		Attributes entry = new BasicAttributes( true );
+		entry.put( "cn", "test" );
+		entry.put( "objectClass", "top" );
+		ctxA.bind( "cn=test,ou=system", entry );
+		
+		Thread.sleep( 5000 );
+		
+		LdapContext ctxB = getReplicaContext( "B" );
+		Assert.assertNotNull( ctxB.lookup( "cn=test,ou=system" ) );
+		
+		LdapContext ctxC = getReplicaContext( "C" );
+		Assert.assertNotNull( ctxC.lookup( "cn=test,ou=system" ) );
 	}
 	
 	private void createReplicas(String[] names) throws Exception
