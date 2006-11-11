@@ -42,7 +42,11 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     {
         super();
     }
-
+    
+    public MutableServerStartupConfiguration( String instanceId )
+    {
+    	super( instanceId );
+    }
 
     public void setSystemPartitionConfiguration( PartitionConfiguration systemPartitionConfiguration )
     {
