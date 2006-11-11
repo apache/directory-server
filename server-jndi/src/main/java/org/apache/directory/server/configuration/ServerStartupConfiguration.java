@@ -65,6 +65,10 @@ public class ServerStartupConfiguration extends StartupConfiguration
     {
     }
 
+    protected ServerStartupConfiguration( String instanceId )
+    {
+    	super( instanceId );
+    }
 
     /**
      * Returns <tt>true</tt> if networking (LDAP, LDAPS, and Kerberos) is enabled.
