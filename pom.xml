@@ -46,6 +46,12 @@
       </dependency>
 
       <dependency>
+        <groupId>org.apache.directory.server</groupId>
+        <artifactId>apacheds-server-jndi</artifactId>
+        <version>${pom.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-asn1-codec</artifactId>
         <version>0.9.6-SNAPSHOT</version>
