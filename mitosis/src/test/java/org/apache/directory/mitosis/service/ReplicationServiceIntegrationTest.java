@@ -59,156 +59,162 @@ import org.slf4j.LoggerFactory;
  */
 public class ReplicationServiceIntegrationTest extends TestCase
 {
-	private final Logger log = LoggerFactory.getLogger( ReplicationServiceIntegrationTest.class );
+    private final Logger log = LoggerFactory.getLogger( ReplicationServiceIntegrationTest.class );
 
-	private Map contexts = new HashMap();
+    private Map contexts = new HashMap();
 
-	protected void setUp() throws Exception
-	{
-		createReplicas( new String[] { "A", "B", "C" } );
-	}
+    protected void setUp() throws Exception
+    {
+        createReplicas( new String[] { "A", "B", "C" } );
+    }
 
-	protected void tearDown() throws Exception
-	{
-		destroyAllReplicas();
-	}
-	
-	public void testOneWayBind() throws Exception
-	{
-		LdapContext ctxA = getReplicaContext( "A" );
-		
-		Attributes entry = new BasicAttributes( true );
-		entry.put( "cn", "test" );
-		entry.put( "objectClass", "top" );
-		ctxA.bind( "cn=test,ou=system", entry );
-		
-		Thread.sleep( 5000 );
-		
-		LdapContext ctxB = getReplicaContext( "B" );
-		Assert.assertNotNull( ctxB.lookup( "cn=test,ou=system" ) );
-		
-		LdapContext ctxC = getReplicaContext( "C" );
-		Assert.assertNotNull( ctxC.lookup( "cn=test,ou=system" ) );
-	}
-	
-	private void createReplicas(String[] names) throws Exception
-	{
-		int lastAvailablePort = 1024;
-		
-		Replica[] replicas = new Replica[ names.length ];
-		for( int i = 0; i < names.length; i ++ )
-		{
-			int replicationPort = AvailablePortFinder.getNextAvailable( lastAvailablePort );
-			lastAvailablePort = replicationPort + 1;
-			
-			replicas[ i ] = new Replica(
-					new ReplicaId( names[ i ] ),
-					new InetSocketAddress( "127.0.0.1", replicationPort ));
-		}
-		
-		Random random = new Random();
-		String homeDirectory =
-			System.getProperty( "java.io.tmpdir" ) + File.separator +
-			"mitosis-" + Long.toHexString( random.nextLong() );
-		
-		for( int i = 0; i < replicas.length; i ++ )
-		{
-			Replica replica = replicas[ i ];
-		    String replicaId = replicas[ i ].getId().getId();
-			MutableStartupConfiguration ldapCfg =
-		    	new MutableStartupConfiguration( replicaId );
-		    
-		    File workDir = new File( homeDirectory + File.separator + ldapCfg.getInstanceId() );
-		    
-			ldapCfg.setShutdownHookEnabled( false );
-			ldapCfg.setWorkingDirectory( workDir );
-			
-			List interceptorCfgs = ldapCfg.getInterceptorConfigurations();
-			
-			ReplicationConfiguration replicationCfg = new ReplicationConfiguration();
-			replicationCfg.setReplicaId( replica.getId() );
-			replicationCfg.setServerPort( replica.getAddress().getPort() );
-			for( int j = 0; j < replicas.length; j ++ )
-			{
-				if( replicas[ j ] != replica )
-				{
-					replicationCfg.addPeerReplica( replicas[ j ] );
-				}
-			}
-			
-			ReplicationService replicationService = new ReplicationService();
-			replicationService.setConfiguration( replicationCfg );
-			
-			MutableInterceptorConfiguration interceptorCfg = new MutableInterceptorConfiguration();
-			interceptorCfg.setName( "mitosis" );
-			interceptorCfg.setInterceptor( replicationService );
-					
-			interceptorCfgs.add( interceptorCfg );
-			
-			ldapCfg.setInterceptorConfigurations( interceptorCfgs );
+    protected void tearDown() throws Exception
+    {
+        destroyAllReplicas();
+    }
 
-			if( workDir.exists() )
-			{
-				FileUtils.deleteDirectory( workDir );
-			}
-			
-	        Hashtable env = new Hashtable( ldapCfg.toJndiEnvironment() );
-	        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-	        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-	        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-	        env.put( Context.PROVIDER_URL, "" );
-	        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-	        
-	        // Initialize the server instance.
-	        LdapContext context = new InitialLdapContext( env, null );
-	        contexts.put( replicaId, context );
-		}
-	}
-	
-	private LdapContext getReplicaContext( String name ) throws Exception
-	{
-		LdapContext context = ( LdapContext ) contexts.get( name );
-		if( context == null )
-		{
-			throw new IllegalArgumentException( "No such replica: " + name );
-		}
-		
-		return context;
-	}
-	
-	private void destroyAllReplicas() throws Exception
-	{
-		for( Iterator i = contexts.keySet().iterator(); i.hasNext(); )
-		{
-			String replicaId = ( String ) i.next();
-			File workDir = DirectoryService.getInstance( replicaId ).getConfiguration().getStartupConfiguration().getWorkingDirectory();
+    public void testOneWayBind() throws Exception
+    {
+        LdapContext ctxA = getReplicaContext( "A" );
 
-	        Hashtable env = new Hashtable();
-	        env.put( Context.PROVIDER_URL, "ou=system" );
-	        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-	        env.putAll( new ShutdownConfiguration( replicaId ).toJndiEnvironment() );
-	        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-	        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-	        try
-	        {
-	            new InitialContext( env );
-	        }
-	        catch( Exception e )
-	        {
-	        }
-	        
-	        try
-	        {
-	        	FileUtils.deleteDirectory( workDir );
-	        }
-	        catch( Exception e )
-	        {
-	        	e.printStackTrace();
-	        }
-	        
-	        workDir.getParentFile().delete();
+        Attributes entry = new BasicAttributes( true );
+        entry.put( "cn", "test" );
+        entry.put( "objectClass", "top" );
+        ctxA.bind( "cn=test,ou=system", entry );
 
-	        i.remove();
-		}
-	}
+        Thread.sleep( 5000 );
+
+        LdapContext ctxB = getReplicaContext( "B" );
+        Assert.assertNotNull( ctxB.lookup( "cn=test,ou=system" ) );
+
+        LdapContext ctxC = getReplicaContext( "C" );
+        Assert.assertNotNull( ctxC.lookup( "cn=test,ou=system" ) );
+    }
+
+    private void createReplicas( String[] names ) throws Exception
+    {
+        int lastAvailablePort = 1024;
+
+        Replica[] replicas = new Replica[ names.length ];
+        for( int i = 0; i < names.length; i++ )
+        {
+            int replicationPort = AvailablePortFinder
+                    .getNextAvailable( lastAvailablePort );
+            lastAvailablePort = replicationPort + 1;
+
+            replicas[ i ] = new Replica( new ReplicaId( names[ i ] ),
+                    new InetSocketAddress( "127.0.0.1", replicationPort ) );
+        }
+
+        Random random = new Random();
+        String homeDirectory = System.getProperty( "java.io.tmpdir" )
+                + File.separator + "mitosis-"
+                + Long.toHexString( random.nextLong() );
+
+        for( int i = 0; i < replicas.length; i++ )
+        {
+            Replica replica = replicas[ i ];
+            String replicaId = replicas[ i ].getId().getId();
+            MutableStartupConfiguration ldapCfg = new MutableStartupConfiguration(
+                    replicaId );
+
+            File workDir = new File( homeDirectory + File.separator
+                    + ldapCfg.getInstanceId() );
+
+            ldapCfg.setShutdownHookEnabled( false );
+            ldapCfg.setWorkingDirectory( workDir );
+
+            List interceptorCfgs = ldapCfg.getInterceptorConfigurations();
+
+            ReplicationConfiguration replicationCfg = new ReplicationConfiguration();
+            replicationCfg.setReplicaId( replica.getId() );
+            replicationCfg.setServerPort( replica.getAddress().getPort() );
+            for( int j = 0; j < replicas.length; j++ )
+            {
+                if( replicas[ j ] != replica )
+                {
+                    replicationCfg.addPeerReplica( replicas[ j ] );
+                }
+            }
+
+            ReplicationService replicationService = new ReplicationService();
+            replicationService.setConfiguration( replicationCfg );
+
+            MutableInterceptorConfiguration interceptorCfg = new MutableInterceptorConfiguration();
+            interceptorCfg.setName( "mitosis" );
+            interceptorCfg.setInterceptor( replicationService );
+
+            interceptorCfgs.add( interceptorCfg );
+
+            ldapCfg.setInterceptorConfigurations( interceptorCfgs );
+
+            if( workDir.exists() )
+            {
+                FileUtils.deleteDirectory( workDir );
+            }
+
+            Hashtable env = new Hashtable( ldapCfg.toJndiEnvironment() );
+            env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+            env.put( Context.SECURITY_CREDENTIALS, "secret" );
+            env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+            env.put( Context.PROVIDER_URL, "" );
+            env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class
+                    .getName() );
+
+            // Initialize the server instance.
+            LdapContext context = new InitialLdapContext( env, null );
+            contexts.put( replicaId, context );
+        }
+    }
+
+    private LdapContext getReplicaContext( String name ) throws Exception
+    {
+        LdapContext context = ( LdapContext ) contexts.get( name );
+        if( context == null )
+        {
+            throw new IllegalArgumentException( "No such replica: " + name );
+        }
+
+        return context;
+    }
+
+    private void destroyAllReplicas() throws Exception
+    {
+        for( Iterator i = contexts.keySet().iterator(); i.hasNext(); )
+        {
+            String replicaId = ( String ) i.next();
+            File workDir = DirectoryService.getInstance( replicaId )
+                    .getConfiguration().getStartupConfiguration()
+                    .getWorkingDirectory();
+
+            Hashtable env = new Hashtable();
+            env.put( Context.PROVIDER_URL, "ou=system" );
+            env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class
+                    .getName() );
+            env.putAll( new ShutdownConfiguration( replicaId )
+                    .toJndiEnvironment() );
+            env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+            env.put( Context.SECURITY_CREDENTIALS, "secret" );
+            try
+            {
+                new InitialContext( env );
+            }
+            catch( Exception e )
+            {
+            }
+
+            try
+            {
+                FileUtils.deleteDirectory( workDir );
+            }
+            catch( Exception e )
+            {
+                e.printStackTrace();
+            }
+
+            workDir.getParentFile().delete();
+
+            i.remove();
+        }
+    }
 }
