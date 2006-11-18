@@ -62,6 +62,7 @@ public class ReplicationServiceIntegrationTest extends TestCase
     private final Logger log = LoggerFactory.getLogger( ReplicationServiceIntegrationTest.class );
 
     private Map contexts = new HashMap();
+    private Map replicationServices = new HashMap();
 
     protected void setUp() throws Exception
     {
@@ -82,7 +83,7 @@ public class ReplicationServiceIntegrationTest extends TestCase
         entry.put( "objectClass", "top" );
         ctxA.bind( "cn=test,ou=system", entry );
 
-        Thread.sleep( 5000 );
+        replicate( "A" );
 
         LdapContext ctxB = getReplicaContext( "B" );
         Assert.assertNotNull( ctxB.lookup( "cn=test,ou=system" ) );
@@ -128,6 +129,8 @@ public class ReplicationServiceIntegrationTest extends TestCase
 
             ReplicationConfiguration replicationCfg = new ReplicationConfiguration();
             replicationCfg.setReplicaId( replica.getId() );
+            // Disable automatic replication to prevent unexpected behavior
+            replicationCfg.setReplicationInterval(0);
             replicationCfg.setServerPort( replica.getAddress().getPort() );
             for( int j = 0; j < replicas.length; j++ )
             {
@@ -164,6 +167,7 @@ public class ReplicationServiceIntegrationTest extends TestCase
             // Initialize the server instance.
             LdapContext context = new InitialLdapContext( env, null );
             contexts.put( replicaId, context );
+            replicationServices.put( replicaId, replicationService );
         }
     }
 
@@ -176,6 +180,14 @@ public class ReplicationServiceIntegrationTest extends TestCase
         }
 
         return context;
+    }
+    
+    private void replicate( String name ) throws Exception
+    {
+        Thread.sleep( 2000 );
+        ReplicationService service = ( ReplicationService ) replicationServices.get( name );
+        service.replicate();
+        Thread.sleep( 2000 );
     }
 
     private void destroyAllReplicas() throws Exception

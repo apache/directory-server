@@ -26,12 +26,16 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.directory.mitosis.common.Replica;
+import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
+import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientContextHandler;
+import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientProtocolHandler;
+import org.apache.directory.mitosis.service.protocol.handler.ReplicationContextHandler;
+import org.apache.directory.mitosis.service.protocol.handler.ReplicationProtocolHandler;
+import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.util.SessionLog;
-import org.apache.directory.mitosis.common.Replica;
-import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
-import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 
 
 public class SimpleReplicationContext implements ReplicationContext
@@ -136,6 +140,20 @@ public class SimpleReplicationContext implements ReplicationContext
 
         task.cancel();
         return task.message;
+    }
+    
+    public boolean replicate()
+    {
+        ReplicationProtocolHandler handler =
+            ( ReplicationProtocolHandler ) this.session.getHandler();
+        if( !( handler instanceof ReplicationClientProtocolHandler ) )
+        {
+            throw new UnsupportedOperationException(
+                    "Only clients can begin replication." );
+        }
+        
+        ReplicationContextHandler contextHandler = ( ( ReplicationProtocolHandler ) handler ).getContextHandler();
+        return ( ( ReplicationClientContextHandler ) contextHandler ).beginReplication( this );
     }
 
 

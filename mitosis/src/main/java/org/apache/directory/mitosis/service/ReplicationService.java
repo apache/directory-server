@@ -185,6 +185,16 @@ public class ReplicationService extends BaseInterceptor
         }
         registry.unbindAll();
     }
+    
+    
+    /**
+     * Forces this context to send replication data to the peer replica immediately.
+     */
+    public void replicate()
+    {
+        log.info( "Forcing replication..." );
+        this.clientConnectionManager.replicate();
+    }
 
 
     public void purgeAgedData() throws NamingException

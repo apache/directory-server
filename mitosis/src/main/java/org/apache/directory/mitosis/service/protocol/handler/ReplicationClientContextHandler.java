@@ -76,8 +76,10 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         // Set write timeout
         ctx.getSession().setWriteTimeout( ctx.getConfiguration().getResponseTimeout() );
 
-        // Check update vector of the remote peer every 5 seconds.
-        ctx.getSession().setIdleTime( IdleStatus.BOTH_IDLE, 5 );
+        // Check update vector of the remote peer periodically.
+        ctx.getSession().setIdleTime(
+        		IdleStatus.BOTH_IDLE,
+        		ctx.getConfiguration().getReplicationInterval());
     }
 
 
@@ -141,15 +143,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
     public void contextIdle( ReplicationContext ctx, IdleStatus status ) throws Exception
     {
-        // If this cilent is logged in, all responses for sent messages
-        // (LogEntryMessages) is received, and no write request is pending,
-        // it means previous replication process ended or this is the
-        // first replication attempt.
-        if ( ctx.getState() == State.READY && ctx.getScheduledExpirations() == 0
-            && ctx.getSession().getScheduledWriteRequests() == 0 )
-        {
-            beginReplication( ctx );
-        }
+        beginReplication( ctx );
     }
 
 
@@ -173,8 +167,6 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 {
                     ctx.setPeer( replica );
                     ctx.setState( State.READY );
-
-                    beginReplication( ctx );
                     return;
                 }
                 else
@@ -192,10 +184,23 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     }
 
 
-    private void beginReplication( ReplicationContext ctx )
+    public boolean beginReplication( ReplicationContext ctx )
     {
-        // Initiate replication process asking update vector.
-        ctx.getSession().write( new BeginLogEntriesMessage( ctx.getNextSequence() ) );
+        // If this cilent is logged in, all responses for sent messages
+        // (LogEntryMessages) is received, and no write request is pending,
+        // it means previous replication process ended or this is the
+        // first replication attempt.
+        if ( ctx.getState() == State.READY && ctx.getScheduledExpirations() == 0
+            && ctx.getSession().getScheduledWriteRequests() == 0 )
+        {
+        	// Initiate replication process asking update vector.
+        	ctx.getSession().write( new BeginLogEntriesMessage( ctx.getNextSequence() ) );
+        	return true;
+        }
+        else
+        {
+        	return false;
+        }
     }
 
 

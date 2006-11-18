@@ -29,6 +29,7 @@ import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.service.protocol.codec.ReplicationClientProtocolCodecFactory;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientProtocolHandler;
+import org.apache.directory.mitosis.service.protocol.handler.ReplicationProtocolHandler;
 import org.apache.mina.common.ConnectFuture;
 import org.apache.mina.common.ExecutorThreadModel;
 import org.apache.mina.common.IoConnector;
@@ -101,6 +102,26 @@ class ClientConnectionManager
         connector.getFilterChain().clear();
 
         ( ( ExecutorService ) ( ( ExecutorThreadModel ) connectorConfig.getThreadModel() ).getExecutor() ).shutdown();
+        
+        // Remove all status values.
+        sessions.clear();
+    }
+    
+    public void replicate()
+    {
+        // FIXME Can get ConcurrentModificationException.
+        for( Iterator i = sessions.values().iterator(); i.hasNext(); )
+        {
+            Connection con = ( Connection ) i.next();
+            synchronized( con )
+            {
+                // Begin replication for the connected replicas.
+                if ( con.session != null )
+                {
+                    ( ( ReplicationProtocolHandler ) con.session.getHandler() ).getContext( con.session ).replicate();
+                }
+            }
+        }
     }
 
     private class ConnectionMonitor extends Thread
@@ -111,6 +132,19 @@ class ClientConnectionManager
         public ConnectionMonitor()
         {
             super( "ClientConnectionManager" );
+            
+            // Initialize the status map.
+            Iterator i = configuration.getPeerReplicas().iterator();
+            while ( i.hasNext() )
+            {
+                Replica replica = ( Replica ) i.next();
+                Connection con = ( Connection ) sessions.get( replica.getId() );
+                if ( con == null )
+                {
+                    con = new Connection();
+                    sessions.put( replica.getId(), con );
+                }
+            }
         }
 
 
@@ -155,6 +189,8 @@ class ClientConnectionManager
             Iterator i = configuration.getPeerReplicas().iterator();
             while ( i.hasNext() )
             {
+                // Someone might have modified the configuration,
+                // and therefore we try to detect newly added replicas.
                 Replica replica = ( Replica ) i.next();
                 Connection con = ( Connection ) sessions.get( replica.getId() );
                 if ( con == null )

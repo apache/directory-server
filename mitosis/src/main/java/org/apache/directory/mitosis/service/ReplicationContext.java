@@ -65,6 +65,17 @@ public interface ReplicationContext
 
 
     int getScheduledExpirations();
+    
+    
+    /**
+     * Forces this context to send replication data to the peer replica immediately.
+     * 
+     * @return <tt>true</tt> if the replication has been started,
+     *         <tt>false</tt> if the replication didn't start because
+     *         the replication process is already in progress or
+     *         the client is currently logging in to the server yet.
+     */
+    boolean replicate();
 
     public static class State
     {

@@ -52,9 +52,13 @@ public class ReplicationProtocolHandler implements IoHandler
     }
 
 
-    private ReplicationContext getContext( IoSession session )
+    public ReplicationContext getContext( IoSession session )
     {
         return ( ReplicationContext ) session.getAttribute( CONTEXT );
+    }
+    
+    public ReplicationContextHandler getContextHandler() {
+    	return contextHandler;
     }
 
 

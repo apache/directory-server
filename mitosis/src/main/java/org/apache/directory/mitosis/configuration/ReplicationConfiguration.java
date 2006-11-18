@@ -51,6 +51,7 @@ public class ReplicationConfiguration
     private ReplicaId replicaId;
     private int serverPort = 7846;
     private int responseTimeout = 60;
+    private int replicationInterval = 5;
 
     private final Set<Replica> peerReplicas = new HashSet<Replica>();
     
@@ -88,8 +89,31 @@ public class ReplicationConfiguration
         this.responseTimeout = responseTimeout;
     }
 
+    /**
+     * Returns the replication data exchange interval between two replicas in seconds.
+     * The default value is <tt>5</tt> seconds.
+     * 
+     * @return <tt>0</tt> if automatic replication is disabled
+     */
+    public int getReplicationInterval() {
+		return replicationInterval;
+	}
 
-    public CSNFactory getCsnFactory()
+
+    /**
+     * Sets the replication data exchange interval between two replicas in seconds.
+     * 
+     * @param replicationInterval <tt>0</tt> or below to disable automatic replication.
+     */
+	public void setReplicationInterval(int replicationInterval) {
+		if( replicationInterval < 0 ) {
+			replicationInterval = 0;
+		}
+		this.replicationInterval = replicationInterval;
+	}
+
+
+	public CSNFactory getCsnFactory()
     {
         return csnFactory;
     }
