@@ -30,6 +30,7 @@ import java.util.Random;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.InitialLdapContext;
@@ -77,19 +78,49 @@ public class ReplicationServiceIntegrationTest extends TestCase
     public void testOneWayBind() throws Exception
     {
         LdapContext ctxA = getReplicaContext( "A" );
+        LdapContext ctxB = getReplicaContext( "B" );
+        LdapContext ctxC = getReplicaContext( "C" );
 
         Attributes entry = new BasicAttributes( true );
         entry.put( "cn", "test" );
         entry.put( "objectClass", "top" );
         ctxA.bind( "cn=test,ou=system", entry );
 
-        replicate( "A" );
+        Thread.sleep( 5000 );
 
-        LdapContext ctxB = getReplicaContext( "B" );
         Assert.assertNotNull( ctxB.lookup( "cn=test,ou=system" ) );
-
-        LdapContext ctxC = getReplicaContext( "C" );
         Assert.assertNotNull( ctxC.lookup( "cn=test,ou=system" ) );
+    }
+    
+    public void _testTwoWayBind() throws Exception
+    {
+        LdapContext ctxA = getReplicaContext( "A" );
+        LdapContext ctxB = getReplicaContext( "B" );
+        LdapContext ctxC = getReplicaContext( "C" );
+
+        Attributes entryA = new BasicAttributes( true );
+        entryA.put( "cn", "test" );
+        entryA.put( "ou", "A" );
+        entryA.put( "objectClass", "top" );
+        ctxA.bind( "cn=test,ou=system", entryA );
+
+        Attributes entryB = new BasicAttributes( true );
+        entryB.put( "cn", "test" );
+        entryB.put( "ou", "B" );
+        entryB.put( "objectClass", "top" );
+        ctxB.bind( "cn=test,ou=system", entryB );
+
+        Thread.sleep( 5000 );
+
+        Assert.assertEquals( "B", getAttributeValue( ctxA, "cn=test,ou=system", "ou" ) );
+        Assert.assertEquals( "B", getAttributeValue( ctxB, "cn=test,ou=system", "ou" ) );
+        Assert.assertEquals( "B", getAttributeValue( ctxC, "cn=test,ou=system", "ou" ) );
+    }
+    
+    private String getAttributeValue( LdapContext ctx, String name, String attrName ) throws Exception
+    {
+        Attribute attr = ( ( Attributes ) ctx.lookup( name ) ).get( attrName );
+        return ( String ) attr.get();
     }
 
     private void createReplicas( String[] names ) throws Exception
@@ -130,7 +161,7 @@ public class ReplicationServiceIntegrationTest extends TestCase
             ReplicationConfiguration replicationCfg = new ReplicationConfiguration();
             replicationCfg.setReplicaId( replica.getId() );
             // Disable automatic replication to prevent unexpected behavior
-            replicationCfg.setReplicationInterval(0);
+            replicationCfg.setReplicationInterval(1);
             replicationCfg.setServerPort( replica.getAddress().getPort() );
             for( int j = 0; j < replicas.length; j++ )
             {
@@ -184,10 +215,10 @@ public class ReplicationServiceIntegrationTest extends TestCase
     
     private void replicate( String name ) throws Exception
     {
-        Thread.sleep( 2000 );
+        Thread.sleep( 2500 );
         ReplicationService service = ( ReplicationService ) replicationServices.get( name );
         service.replicate();
-        Thread.sleep( 2000 );
+        Thread.sleep( 2500 );
     }
 
     private void destroyAllReplicas() throws Exception
