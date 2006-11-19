@@ -363,7 +363,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
             }
 
             AttributeType type = registry.lookup( attr.getID() );
-            boolean isOperational = type.getUsage() != UsageEnum.USERAPPLICATIONS;
+            boolean isOperational = type.getUsage() != UsageEnum.USER_APPLICATIONS;
             if ( exclusions.contains( attr.getID() ) || ( isOperational && ( !includeOperational ) ) )
             {
                 toRemove.add( attr.getID() );
