@@ -107,7 +107,7 @@ public class SearchResponseReferenceImplTest extends TestCase
 
             public MessageTypeEnum getType()
             {
-                return MessageTypeEnum.SEARCHRESREF;
+                return MessageTypeEnum.SEARCH_RES_REF;
             }
 
 
