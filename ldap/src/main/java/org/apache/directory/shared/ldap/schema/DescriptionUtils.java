@@ -515,7 +515,7 @@ public class DescriptionUtils
 
         if ( objectClass.getType() != null )
         {
-            buf.append( objectClass.getType().getName() );
+            buf.append( objectClass.getType() );
             buf.append( '\n' );
         }
 

@@ -273,7 +273,7 @@ public class SchemaUtils
 
         if ( oc.getType() != null )
         {
-            buf.append( " " ).append( oc.getType().getName() );
+            buf.append( " " ).append( oc.getType() );
         }
 
         if ( oc.getMustList() != null && oc.getMustList().length > 0 )
