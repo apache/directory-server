@@ -160,7 +160,7 @@ public class ExtendedResponseImplTest extends TestCase
 
             public MessageTypeEnum getType()
             {
-                return MessageTypeEnum.EXTENDEDRESP;
+                return MessageTypeEnum.EXTENDED_RESP;
             }
 
 

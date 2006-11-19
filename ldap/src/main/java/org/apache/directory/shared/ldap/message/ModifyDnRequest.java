@@ -68,7 +68,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 public interface ModifyDnRequest extends SingleReplyRequest, AbandonableRequest
 {
     /** Modify DN request message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.MODDNREQUEST;
+    MessageTypeEnum TYPE = MessageTypeEnum.MOD_DN_REQUEST;
 
     /** Modify DN response message type enumeration value */
     MessageTypeEnum RESP_TYPE = ModifyDnResponse.TYPE;

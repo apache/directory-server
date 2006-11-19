@@ -56,7 +56,7 @@ package org.apache.directory.shared.ldap.message;
 public interface ExtendedRequest extends SingleReplyRequest, javax.naming.ldap.ExtendedRequest
 {
     /** Extended request message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.EXTENDEDREQ;
+    MessageTypeEnum TYPE = MessageTypeEnum.EXTENDED_REQ;
 
     /** Extended response message type enumeration value */
     MessageTypeEnum RESP_TYPE = ExtendedResponse.TYPE;

@@ -30,7 +30,7 @@ package org.apache.directory.shared.ldap.message;
 public interface ExtendedResponse extends ResultResponse, javax.naming.ldap.ExtendedResponse
 {
     /** Extended response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.EXTENDEDRESP;
+    MessageTypeEnum TYPE = MessageTypeEnum.EXTENDED_RESP;
 
 
     /**

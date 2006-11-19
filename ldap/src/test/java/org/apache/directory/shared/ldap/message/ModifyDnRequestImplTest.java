@@ -264,7 +264,7 @@ public class ModifyDnRequestImplTest extends TestCase
 
             public MessageTypeEnum getResponseType()
             {
-                return MessageTypeEnum.MODDNRESPONSE;
+                return MessageTypeEnum.MOD_DN_RESPONSE;
             }
 
 
@@ -276,7 +276,7 @@ public class ModifyDnRequestImplTest extends TestCase
 
             public MessageTypeEnum getType()
             {
-                return MessageTypeEnum.MODDNREQUEST;
+                return MessageTypeEnum.MOD_DN_REQUEST;
             }
 
 

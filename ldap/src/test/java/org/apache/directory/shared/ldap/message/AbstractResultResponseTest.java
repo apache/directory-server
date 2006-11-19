@@ -48,7 +48,7 @@ public class AbstractResultResponseTest extends TestCase
     public void testEqualsSameObj()
     {
         AbstractResultResponse msg;
-        msg = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        msg = new AbstractResultResponse( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -61,11 +61,11 @@ public class AbstractResultResponseTest extends TestCase
      */
     public void testEqualsExactCopy() throws InvalidNameException
     {
-        AbstractResultResponse msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        AbstractResultResponse msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
-        AbstractResultResponse msg1 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        AbstractResultResponse msg1 = new AbstractResultResponse( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -99,11 +99,11 @@ public class AbstractResultResponseTest extends TestCase
      */
     public void testNotEqualsDiffResult() throws InvalidNameException
     {
-        AbstractResultResponse msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        AbstractResultResponse msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
-        AbstractResultResponse msg1 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        AbstractResultResponse msg1 = new AbstractResultResponse( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -139,11 +139,11 @@ public class AbstractResultResponseTest extends TestCase
     {
         AbstractResultResponse msg0;
         AbstractResultResponse msg1;
-        msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
-        msg1 = new AbstractResultResponse( 6, MessageTypeEnum.BINDREQUEST )
+        msg1 = new AbstractResultResponse( 6, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -159,11 +159,11 @@ public class AbstractResultResponseTest extends TestCase
     {
         AbstractResultResponse msg0;
         AbstractResultResponse msg1;
-        msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
-        msg1 = new AbstractResultResponse( 5, MessageTypeEnum.UNBINDREQUEST )
+        msg1 = new AbstractResultResponse( 5, MessageTypeEnum.UNBIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -179,7 +179,7 @@ public class AbstractResultResponseTest extends TestCase
     {
         AbstractResultResponse msg0;
         AbstractResultResponse msg1;
-        msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -232,7 +232,7 @@ public class AbstractResultResponseTest extends TestCase
                 return null;
             }
         } );
-        msg1 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        msg1 = new AbstractResultResponse( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };

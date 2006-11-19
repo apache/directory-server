@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface SearchResponseEntry extends Response
 {
     /** Search entry response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.SEARCHRESENTRY;
+    MessageTypeEnum TYPE = MessageTypeEnum.SEARCH_RES_ENTRY;
 
 
     /**

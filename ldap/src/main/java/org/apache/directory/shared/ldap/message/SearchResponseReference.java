@@ -31,7 +31,7 @@ package org.apache.directory.shared.ldap.message;
 public interface SearchResponseReference extends Response
 {
     /** Search reference response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.SEARCHRESREF;
+    MessageTypeEnum TYPE = MessageTypeEnum.SEARCH_RES_REF;
 
 
     /**

@@ -132,7 +132,7 @@ public class SearchResponseDoneImplTest extends TestCase
 
             public MessageTypeEnum getType()
             {
-                return MessageTypeEnum.SEARCHRESDONE;
+                return MessageTypeEnum.SEARCH_RES_DONE;
             }
 
 

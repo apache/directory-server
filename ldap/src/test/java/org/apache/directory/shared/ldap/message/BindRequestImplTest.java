@@ -245,7 +245,7 @@ public class BindRequestImplTest extends TestCase
 
             public MessageTypeEnum getResponseType()
             {
-                return MessageTypeEnum.BINDREQUEST;
+                return MessageTypeEnum.BIND_REQUEST;
             }
 
 
@@ -257,7 +257,7 @@ public class BindRequestImplTest extends TestCase
 
             public MessageTypeEnum getType()
             {
-                return MessageTypeEnum.BINDREQUEST;
+                return MessageTypeEnum.BIND_REQUEST;
             }
 
 

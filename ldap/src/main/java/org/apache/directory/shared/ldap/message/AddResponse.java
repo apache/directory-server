@@ -31,5 +31,5 @@ package org.apache.directory.shared.ldap.message;
 public interface AddResponse extends ResultResponse
 {
     /** Add response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.ADDRESPONSE;
+    MessageTypeEnum TYPE = MessageTypeEnum.ADD_RESPONSE;
 }

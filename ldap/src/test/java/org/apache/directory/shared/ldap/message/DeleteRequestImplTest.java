@@ -121,7 +121,7 @@ public class DeleteRequestImplTest extends TestCase
 
             public MessageTypeEnum getResponseType()
             {
-                return MessageTypeEnum.DELRESPONSE;
+                return MessageTypeEnum.DEL_RESPONSE;
             }
 
 
@@ -133,7 +133,7 @@ public class DeleteRequestImplTest extends TestCase
 
             public MessageTypeEnum getType()
             {
-                return MessageTypeEnum.DELREQUEST;
+                return MessageTypeEnum.DEL_REQUEST;
             }
 
 

@@ -30,5 +30,5 @@ package org.apache.directory.shared.ldap.message;
 public interface CompareResponse extends ResultResponse
 {
     /** Compare response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.COMPARERESPONSE;
+    MessageTypeEnum TYPE = MessageTypeEnum.COMPARE_RESPONSE;
 }

@@ -182,7 +182,7 @@ public class CompareRequestImplTest extends TestCase
 
             public MessageTypeEnum getResponseType()
             {
-                return MessageTypeEnum.COMPARERESPONSE;
+                return MessageTypeEnum.COMPARE_RESPONSE;
             }
 
 
@@ -194,7 +194,7 @@ public class CompareRequestImplTest extends TestCase
 
             public MessageTypeEnum getType()
             {
-                return MessageTypeEnum.COMPAREREQUEST;
+                return MessageTypeEnum.COMPARE_REQUEST;
             }
 
 

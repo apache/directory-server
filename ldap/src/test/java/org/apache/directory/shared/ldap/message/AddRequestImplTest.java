@@ -199,7 +199,7 @@ public class AddRequestImplTest extends TestCase
 
             public MessageTypeEnum getResponseType()
             {
-                return MessageTypeEnum.ADDRESPONSE;
+                return MessageTypeEnum.ADD_RESPONSE;
             }
 
 
@@ -211,7 +211,7 @@ public class AddRequestImplTest extends TestCase
 
             public MessageTypeEnum getType()
             {
-                return MessageTypeEnum.ADDREQUEST;
+                return MessageTypeEnum.ADD_REQUEST;
             }
 
 

@@ -306,7 +306,7 @@ public class ModifyRequestImplTest extends TestCase
 
             public MessageTypeEnum getResponseType()
             {
-                return MessageTypeEnum.MODIFYRESPONSE;
+                return MessageTypeEnum.MODIFY_RESPONSE;
             }
 
 
@@ -318,7 +318,7 @@ public class ModifyRequestImplTest extends TestCase
 
             public MessageTypeEnum getType()
             {
-                return MessageTypeEnum.MODIFYREQUEST;
+                return MessageTypeEnum.MODIFY_REQUEST;
             }
 
 

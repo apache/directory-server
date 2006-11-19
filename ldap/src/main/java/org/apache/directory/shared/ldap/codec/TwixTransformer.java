@@ -1172,45 +1172,48 @@ public class TwixTransformer implements TransformerSpi
 
         twixMessage.setMessageId( msg.getMessageId() );
 
-        if ( msg.getType() == MessageTypeEnum.SEARCHRESENTRY )
+        switch ( msg.getType() )
         {
-            transformSearchResultEntry( twixMessage, msg );
-        }
-        else if ( msg.getType() == MessageTypeEnum.SEARCHRESDONE )
-        {
-            transformSearchResultDone( twixMessage, msg );
-        }
-        else if ( msg.getType() == MessageTypeEnum.SEARCHRESREF )
-        {
-            transformSearchResultReference( twixMessage, msg );
-        }
-        else if ( msg.getType() == MessageTypeEnum.BINDRESPONSE )
-        {
-            transformBindResponse( twixMessage, msg );
-        }
-        else if ( msg.getType() == MessageTypeEnum.ADDRESPONSE )
-        {
-            transformAddResponse( twixMessage, msg );
-        }
-        else if ( msg.getType() == MessageTypeEnum.COMPARERESPONSE )
-        {
-            transformCompareResponse( twixMessage, msg );
-        }
-        else if ( msg.getType() == MessageTypeEnum.DELRESPONSE )
-        {
-            transformDelResponse( twixMessage, msg );
-        }
-        else if ( msg.getType() == MessageTypeEnum.MODIFYRESPONSE )
-        {
-            transformModifyResponse( twixMessage, msg );
-        }
-        else if ( msg.getType() == MessageTypeEnum.MODDNRESPONSE )
-        {
-            transformModifyDNResponse( twixMessage, msg );
-        }
-        else if ( msg.getType() == MessageTypeEnum.EXTENDEDRESP )
-        {
-            transformExtendedResponse( twixMessage, msg );
+            case SEARCH_RES_ENTRY :
+                transformSearchResultEntry( twixMessage, msg );
+                break;
+                
+            case SEARCH_RES_DONE :
+                transformSearchResultDone( twixMessage, msg );
+                break;
+                
+            case SEARCH_RES_REF :
+                transformSearchResultReference( twixMessage, msg );
+                break;
+                
+            case BIND_REQUEST :
+                transformBindResponse( twixMessage, msg );
+                break;
+                
+            case ADD_RESPONSE :
+                transformAddResponse( twixMessage, msg );
+                break;
+                
+            case COMPARE_RESPONSE :
+                transformCompareResponse( twixMessage, msg );
+                break;
+                
+            case DEL_RESPONSE :
+                transformDelResponse( twixMessage, msg );
+                break;
+         
+            case MODIFY_RESPONSE :
+                transformModifyResponse( twixMessage, msg );
+                break;
+
+            case MOD_DN_RESPONSE :
+                transformModifyDNResponse( twixMessage, msg );
+                break;
+                
+            case EXTENDED_RESP :
+                transformExtendedResponse( twixMessage, msg );
+                break;
+                
         }
 
         // We also have to transform the controls...

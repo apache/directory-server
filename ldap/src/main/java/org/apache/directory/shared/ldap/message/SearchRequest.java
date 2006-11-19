@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface SearchRequest extends ManyReplyRequest, AbandonableRequest
 {
     /** Search request protocol message type */
-    MessageTypeEnum TYPE = MessageTypeEnum.SEARCHREQUEST;
+    MessageTypeEnum TYPE = MessageTypeEnum.SEARCH_REQUEST;
 
     /**
      * Different response types that a search request may return. A search

@@ -30,7 +30,7 @@ package org.apache.directory.shared.ldap.message;
 public interface AbandonRequest extends Request
 {
     /** Ldap abandon request type code */
-    MessageTypeEnum TYPE = MessageTypeEnum.ABANDONREQUEST;
+    MessageTypeEnum TYPE = MessageTypeEnum.ABANDON_REQUEST;
 
 
     /**

@@ -156,7 +156,7 @@ public class ExtendedRequestImplTest extends TestCase
 
             public MessageTypeEnum getResponseType()
             {
-                return MessageTypeEnum.EXTENDEDRESP;
+                return MessageTypeEnum.EXTENDED_RESP;
             }
 
 
@@ -168,7 +168,7 @@ public class ExtendedRequestImplTest extends TestCase
 
             public MessageTypeEnum getType()
             {
-                return MessageTypeEnum.EXTENDEDREQ;
+                return MessageTypeEnum.EXTENDED_REQ;
             }
 
 

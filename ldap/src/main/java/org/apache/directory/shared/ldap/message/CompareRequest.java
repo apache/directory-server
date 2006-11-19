@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface CompareRequest extends SingleReplyRequest, AbandonableRequest
 {
     /** Compare request message type enum code */
-    MessageTypeEnum TYPE = MessageTypeEnum.COMPAREREQUEST;
+    MessageTypeEnum TYPE = MessageTypeEnum.COMPARE_REQUEST;
 
     /** Compare response message type enum code */
     MessageTypeEnum RESP_TYPE = CompareResponse.TYPE;

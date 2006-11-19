@@ -30,5 +30,5 @@ package org.apache.directory.shared.ldap.message;
 public interface ModifyDnResponse extends ResultResponse
 {
     /** Modify DN response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.MODDNRESPONSE;
+    MessageTypeEnum TYPE = MessageTypeEnum.MOD_DN_RESPONSE;
 }

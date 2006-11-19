@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface BindRequest extends SingleReplyRequest
 {
     /** Bind request message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.BINDREQUEST;
+    MessageTypeEnum TYPE = MessageTypeEnum.BIND_REQUEST;
 
     /** Bind response message type enumeration value */
     MessageTypeEnum RESP_TYPE = BindResponse.TYPE;

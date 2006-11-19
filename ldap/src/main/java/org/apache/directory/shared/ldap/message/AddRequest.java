@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface AddRequest extends SingleReplyRequest, AbandonableRequest
 {
     /** LDAPv3 add request type enum code */
-    MessageTypeEnum TYPE = MessageTypeEnum.ADDREQUEST;
+    MessageTypeEnum TYPE = MessageTypeEnum.ADD_REQUEST;
 
     /** LDAPv3 add response type enum code */
     MessageTypeEnum RESP_TYPE = AddResponse.TYPE;

@@ -30,5 +30,5 @@ package org.apache.directory.shared.ldap.message;
 public interface DeleteResponse extends ResultResponse
 {
     /** Delete response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.DELRESPONSE;
+    MessageTypeEnum TYPE = MessageTypeEnum.DEL_RESPONSE;
 }

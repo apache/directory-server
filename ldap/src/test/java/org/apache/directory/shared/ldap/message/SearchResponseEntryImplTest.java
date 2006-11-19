@@ -145,7 +145,7 @@ public class SearchResponseEntryImplTest extends TestCase
 
             public MessageTypeEnum getType()
             {
-                return MessageTypeEnum.SEARCHRESENTRY;
+                return MessageTypeEnum.SEARCH_RES_ENTRY;
             }
 
 

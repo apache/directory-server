@@ -2160,65 +2160,84 @@ public class ResultCodeEnum extends ValuedEnum
         }
 
         Set candidates = Collections.EMPTY_SET;
-        switch ( type.getValue() )
+        
+        switch ( type )
         {
-            case ( MessageTypeEnum.ABANDONREQUEST_VAL  ):
+            case ABANDON_REQUEST :
                 return ( ResultCodeEnum ) set.iterator().next();
-            case ( MessageTypeEnum.ADDREQUEST_VAL  ):
+                
+            case ADD_REQUEST :
                 candidates = intersection( set, ADD_CODES );
                 break;
-            case ( MessageTypeEnum.ADDRESPONSE_VAL  ):
+                
+            case ADD_RESPONSE :
                 candidates = intersection( set, ADD_CODES );
                 break;
-            case ( MessageTypeEnum.BINDREQUEST_VAL  ):
+                
+            case BIND_REQUEST :
                 candidates = intersection( set, BIND_CODES );
                 break;
-            case ( MessageTypeEnum.BINDRESPONSE_VAL  ):
+                
+            case BIND_RESPONSE :
                 candidates = intersection( set, BIND_CODES );
                 break;
-            case ( MessageTypeEnum.COMPAREREQUEST_VAL  ):
+                
+            case COMPARE_REQUEST :
                 candidates = intersection( set, COMPARE_CODES );
                 break;
-            case ( MessageTypeEnum.COMPARERESPONSE_VAL  ):
+                
+            case COMPARE_RESPONSE :
                 candidates = intersection( set, COMPARE_CODES );
                 break;
-            case ( MessageTypeEnum.DELREQUEST_VAL  ):
+                
+            case DEL_REQUEST :
                 candidates = intersection( set, DELETE_CODES );
                 break;
-            case ( MessageTypeEnum.DELRESPONSE_VAL  ):
+                
+            case DEL_RESPONSE :
                 candidates = intersection( set, DELETE_CODES );
                 break;
-            case ( MessageTypeEnum.EXTENDEDREQ_VAL  ):
+                
+            case EXTENDED_REQ :
                 candidates = intersection( set, EXTENDED_CODES );
                 break;
-            case ( MessageTypeEnum.EXTENDEDRESP_VAL  ):
+                
+            case EXTENDED_RESP :
                 candidates = intersection( set, EXTENDED_CODES );
                 break;
-            case ( MessageTypeEnum.MODDNREQUEST_VAL  ):
+                
+            case MOD_DN_REQUEST :
                 candidates = intersection( set, MODIFYDN_CODES );
                 break;
-            case ( MessageTypeEnum.MODDNRESPONSE_VAL  ):
+                
+            case MOD_DN_RESPONSE :
                 candidates = intersection( set, MODIFYDN_CODES );
                 break;
-            case ( MessageTypeEnum.MODIFYREQUEST_VAL  ):
+                
+            case MODIFY_REQUEST :
                 candidates = intersection( set, MODIFY_CODES );
                 break;
-            case ( MessageTypeEnum.MODIFYRESPONSE_VAL  ):
+                
+            case MODIFY_RESPONSE :
                 candidates = intersection( set, MODIFY_CODES );
                 break;
-            case ( MessageTypeEnum.SEARCHREQUEST_VAL  ):
+                
+            case SEARCH_REQUEST :
                 candidates = intersection( set, SEARCH_CODES );
                 break;
-            case ( MessageTypeEnum.SEARCHRESDONE_VAL  ):
+                
+            case SEARCH_RES_DONE :
                 candidates = intersection( set, SEARCH_CODES );
                 break;
-            case ( MessageTypeEnum.SEARCHRESENTRY_VAL  ):
+                
+            case SEARCH_RES_ENTRY :
                 candidates = intersection( set, SEARCH_CODES );
                 break;
-            case ( MessageTypeEnum.SEARCHRESREF_VAL  ):
+                
+            case SEARCH_RES_REF :
                 candidates = intersection( set, SEARCH_CODES );
                 break;
-            case ( MessageTypeEnum.UNBINDREQUEST_VAL  ):
+            case UNBIND_REQUEST :
                 return ( ResultCodeEnum ) set.iterator().next();
         }
 

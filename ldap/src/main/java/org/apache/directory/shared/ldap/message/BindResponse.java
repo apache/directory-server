@@ -31,7 +31,7 @@ package org.apache.directory.shared.ldap.message;
 public interface BindResponse extends ResultResponse
 {
     /** Bind response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.BINDRESPONSE;
+    MessageTypeEnum TYPE = MessageTypeEnum.BIND_RESPONSE;
 
 
     /**

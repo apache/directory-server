@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface DeleteRequest extends SingleReplyRequest, AbandonableRequest
 {
     /** Delete request message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.DELREQUEST;
+    MessageTypeEnum TYPE = MessageTypeEnum.DEL_REQUEST;
 
     /** Delete response message type enumeration value */
     MessageTypeEnum RESP_TYPE = DeleteResponse.TYPE;

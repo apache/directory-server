@@ -29,5 +29,5 @@ package org.apache.directory.shared.ldap.message;
 public interface UnbindRequest extends Request
 {
     /** Unbind request protocol message type */
-    MessageTypeEnum TYPE = MessageTypeEnum.UNBINDREQUEST;
+    MessageTypeEnum TYPE = MessageTypeEnum.UNBIND_REQUEST;
 }
