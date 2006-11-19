@@ -547,8 +547,8 @@ usage [AttributeTypeLiteral type]
     :
     "USAGE"
     (
-        "userApplications" { type.setUsage( UsageEnum.USERAPPLICATIONS ); } |
-        "directoryOperation" { type.setUsage( UsageEnum.DIRECTORYOPERATION ); } |
-        "distributedOperation" { type.setUsage( UsageEnum.DISTRIBUTEDOPERATION ); } |
-        "dSAOperation" { type.setUsage( UsageEnum.DSAOPERATION ); }
+        "userApplications" { type.setUsage( UsageEnum.USER_APPLICATIONS ); } |
+        "directoryOperation" { type.setUsage( UsageEnum.DIRECTORY_OPERATION ); } |
+        "distributedOperation" { type.setUsage( UsageEnum.DISTRIBUTED_OPERATION ); } |
+        "dSAOperation" { type.setUsage( UsageEnum.DSA_OPERATION ); }
     );

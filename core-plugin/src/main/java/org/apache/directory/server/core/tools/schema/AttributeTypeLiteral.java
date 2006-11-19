@@ -46,7 +46,7 @@ public class AttributeTypeLiteral
     private String substr;
     private String syntax;
 
-    private UsageEnum usage = UsageEnum.USERAPPLICATIONS;
+    private UsageEnum usage = UsageEnum.USER_APPLICATIONS;
 
     private String[] names = ArrayUtils.EMPTY_STRING_ARRAY;
 
