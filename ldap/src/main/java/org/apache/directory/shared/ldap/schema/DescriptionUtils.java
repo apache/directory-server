@@ -143,7 +143,7 @@ public class DescriptionUtils
         }
 
         buf.append( "USAGE " );
-        buf.append( attributeType.getUsage().getName() );
+        buf.append( attributeType.getUsage() );
         buf.append( " ) " );
 
         return buf.toString();

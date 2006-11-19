@@ -46,7 +46,7 @@ public abstract class AbstractAttributeType extends AbstractSchemaObject impleme
     private boolean canUserModify = true;
 
     /** the usage for this attributeType */
-    private UsageEnum usage = UsageEnum.USERAPPLICATIONS;
+    private UsageEnum usage = UsageEnum.USER_APPLICATIONS;
 
     /** the length of this attribute in bytes */
     private int length = -1;
