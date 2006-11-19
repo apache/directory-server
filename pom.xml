@@ -211,7 +211,7 @@
         <jdk>1.5</jdk>
       </activation>
       <modules>
-        <module>maven-osgi-plugin</module>
+        <!-- module>maven-osgi-plugin</module-->
 
         <module>core</module>
         <module>core-shared</module>
@@ -404,10 +404,10 @@ Use JDK 1.5 to make sure these modules build.
 
   <build>
     <plugins>
-      <!--plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-eclipse-plugin</artifactId>
-      </plugin-->
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
