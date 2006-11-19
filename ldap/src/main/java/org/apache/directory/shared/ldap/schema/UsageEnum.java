@@ -47,29 +47,33 @@ public enum UsageEnum
     /** value for attributes with dSAOperation usage */
     DSA_OPERATION( 3 );
 
+    /** Stores the integer value of each element of the enumeration */
     private int value;
 
     /**
      * Private construct so no other instances can be created other than the
      * public static constants in this class.
      * 
-     * @param name
-     *            a string name for the enumeration value.
-     * @param value
-     *            the integer value of the enumeration.
+     * @param value the integer value of the enumeration.
      */
     private UsageEnum( int value )
     {
         this.value = value;
     }
-
+    
+    /**
+     * @return The value associated with the current element.
+     */
+    public int getValue()
+    {
+        return value;
+    }
 
     /**
      * Gets the enumeration type for the attributeType usage string regardless
      * of case.
      * 
-     * @param usage
-     *            the usage string
+     * @param usage the usage string
      * @return the usage enumeration type
      */
     public static UsageEnum getUsage( String usage )
@@ -94,14 +98,5 @@ public enum UsageEnum
     	{
     		return null;
     	}
-    }
-    
-    /**
-     * 
-     * @return The value associated with the current element.
-     */
-    public int getValue()
-    {
-    	return value;
     }
 }
