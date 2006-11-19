@@ -8,7 +8,6 @@
   <inceptionYear>2004</inceptionYear>
   <packaging>pom</packaging>
   <modules>
-    <module>mina</module>
     <module>apacheds</module>
     <module>shared</module>
     <module>daemon</module>
