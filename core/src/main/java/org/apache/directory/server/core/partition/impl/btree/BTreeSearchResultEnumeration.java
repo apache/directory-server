@@ -144,7 +144,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             {
                 String attrId = ( String ) list.next();
                 AttributeType attrType = registry.lookup( attrId );
-                if ( attrType.getUsage() == UsageEnum.USERAPPLICATIONS )
+                if ( attrType.getUsage() == UsageEnum.USER_APPLICATIONS )
                 {
                     continue;
                 }
@@ -181,7 +181,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             {
                 String attrId = ( String ) list.next();
                 AttributeType attrType = registry.lookup( attrId );
-                if ( attrType.getUsage() == UsageEnum.USERAPPLICATIONS )
+                if ( attrType.getUsage() == UsageEnum.USER_APPLICATIONS )
                 {
                     Attribute attr = ( Attribute ) rec.getAttributes().get( attrId ).clone();
                     entry.put( attr );

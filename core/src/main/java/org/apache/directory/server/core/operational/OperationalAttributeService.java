@@ -321,7 +321,7 @@ public class OperationalAttributeService extends BaseInterceptor
                 type = registry.lookup( attrId );
             }
 
-            if ( type != null && type.getUsage() != UsageEnum.USERAPPLICATIONS )
+            if ( type != null && type.getUsage() != UsageEnum.USER_APPLICATIONS )
             {
                 attributes.remove( attrId );
             }

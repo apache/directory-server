@@ -809,7 +809,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                         // add all user attribute
                         Attribute attr = ( Attribute ) ii.next();
                         AttributeType type = attrRegistry.lookup( attr.getID() );
-                        if ( type.getUsage() == UsageEnum.USERAPPLICATIONS )
+                        if ( type.getUsage() == UsageEnum.USER_APPLICATIONS )
                         {
                             attrs.put( attr );
                         }
@@ -827,7 +827,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                         // add all operational attributes
                         Attribute attr = ( Attribute ) ii.next();
                         AttributeType type = attrRegistry.lookup( attr.getID() );
-                        if ( type.getUsage() != UsageEnum.USERAPPLICATIONS )
+                        if ( type.getUsage() != UsageEnum.USER_APPLICATIONS )
                         {
                             attrs.put( attr );
                         }
