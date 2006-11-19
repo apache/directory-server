@@ -130,7 +130,7 @@ public class SearchHandler implements LdapMessageHandler
     private static boolean isRootDSESearch( SearchRequest req )
     {
         boolean isBaseIsRoot = req.getBase().isEmpty();
-        boolean isBaseScope = req.getScope() == ScopeEnum.BASEOBJECT;
+        boolean isBaseScope = req.getScope() == ScopeEnum.BASE_OBJECT;
         boolean isRootDSEFilter = false;
         if ( req.getFilter() instanceof PresenceNode )
         {
