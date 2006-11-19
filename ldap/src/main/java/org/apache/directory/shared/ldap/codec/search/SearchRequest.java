@@ -30,6 +30,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
+import org.apache.directory.shared.ldap.message.ScopeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -59,7 +60,7 @@ public class SearchRequest extends LdapMessage
     private LdapDN baseObject;
 
     /** The scope. It could be baseObject, singleLevel or wholeSubtree. */
-    private int scope;
+    private ScopeEnum scope;
 
     /**
      * The deref alias could be neverDerefAliases, derefInSearching,
@@ -225,7 +226,7 @@ public class SearchRequest extends LdapMessage
      * 
      * @return Returns the scope.
      */
-    public int getScope()
+    public ScopeEnum getScope()
     {
         return scope;
     }
@@ -236,7 +237,7 @@ public class SearchRequest extends LdapMessage
      * 
      * @param scope The scope to set.
      */
-    public void setScope( int scope )
+    public void setScope( ScopeEnum scope )
     {
         this.scope = scope;
     }
@@ -554,7 +555,7 @@ public class SearchRequest extends LdapMessage
             Value.encode( buffer, LdapDN.getBytes( baseObject ) );
 
             // The scope
-            Value.encodeEnumerated( buffer, scope );
+            Value.encodeEnumerated( buffer, scope.getValue() );
 
             // The derefAliases
             Value.encodeEnumerated( buffer, derefAliases );
@@ -662,15 +663,15 @@ public class SearchRequest extends LdapMessage
 
         switch ( scope )
         {
-            case LdapConstants.SCOPE_BASE_OBJECT:
+            case BASE_OBJECT:
                 sb.append( "base object" );
                 break;
 
-            case LdapConstants.SCOPE_SINGLE_LEVEL:
+            case SINGLE_LEVEL:
                 sb.append( "single level" );
                 break;
 
-            case LdapConstants.SCOPE_WHOLE_SUBTREE:
+            case WHOLE_SUBTREE:
                 sb.append( "whole subtree" );
                 break;
         }

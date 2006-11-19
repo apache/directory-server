@@ -101,6 +101,7 @@ import org.apache.directory.shared.ldap.message.DeleteResponseImpl;
 import org.apache.directory.shared.ldap.message.ModifyDnResponseImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponseImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.ScopeEnum;
 import org.apache.directory.shared.ldap.message.SearchResponseDoneImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -3574,7 +3575,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                         throw new DecoderException( "The scope is not in [0..2] : " + value.toString() );
                     }
 
-                    searchRequest.setScope( scope );
+                    searchRequest.setScope( ScopeEnum.getScope( scope ) );
 
                     if ( IS_DEBUG )
                     {

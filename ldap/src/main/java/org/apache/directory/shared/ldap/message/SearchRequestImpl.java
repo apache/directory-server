@@ -472,17 +472,17 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
         
         sb.append( "        scope : " );
         
-        switch ( scope.getValue() )
+        switch ( scope )
         {
-            case LdapConstants.SCOPE_BASE_OBJECT:
+            case BASE_OBJECT:
                 sb.append( "base object" );
                 break;
 
-            case LdapConstants.SCOPE_SINGLE_LEVEL:
+            case SINGLE_LEVEL:
                 sb.append( "single level" );
                 break;
 
-            case LdapConstants.SCOPE_WHOLE_SUBTREE:
+            case WHOLE_SUBTREE:
                 sb.append( "whole subtree" );
                 break;
         }

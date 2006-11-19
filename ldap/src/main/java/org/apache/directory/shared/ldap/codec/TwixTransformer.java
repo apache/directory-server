@@ -598,20 +598,7 @@ public class TwixTransformer implements TransformerSpi
         snickersMessage.setBase( searchRequest.getBaseObject() );
 
         // Twix : int scope -> Snickers : ScopeEnum scope
-        switch ( searchRequest.getScope() )
-        {
-            case LdapConstants.SCOPE_BASE_OBJECT:
-                snickersMessage.setScope( ScopeEnum.BASEOBJECT );
-                break;
-
-            case LdapConstants.SCOPE_SINGLE_LEVEL:
-                snickersMessage.setScope( ScopeEnum.SINGLELEVEL );
-                break;
-
-            case LdapConstants.SCOPE_WHOLE_SUBTREE:
-                snickersMessage.setScope( ScopeEnum.WHOLESUBTREE );
-                break;
-        }
+        snickersMessage.setScope( searchRequest.getScope() );
 
         // Twix : int derefAliases -> Snickers : DerefAliasesEnum derefAliases
         switch ( searchRequest.getDerefAliases() )
