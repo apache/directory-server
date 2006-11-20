@@ -206,7 +206,9 @@ public class SearchHandler implements LdapMessageHandler
                 Control[] controls = ( Control[] ) req.getControls().values().toArray( new Control[0] );
                 ctx.setRequestControls( controls );
             }
-            ctx.addToEnvironment( DEREFALIASES_KEY, req.getDerefAliases().getName() );
+            
+            ctx.addToEnvironment( DEREFALIASES_KEY, req.getDerefAliases() );
+            
             if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
             {
                 ctx.addToEnvironment( Context.REFERRAL, "ignore" );
