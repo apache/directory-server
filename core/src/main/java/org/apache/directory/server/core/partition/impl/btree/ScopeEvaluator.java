@@ -97,7 +97,7 @@ public class ScopeEvaluator implements Evaluator
          * dereferencing is not enabled then we return the results of the 
          * descendant test.
          */
-        if ( !mode.derefInSearching() )
+        if ( !mode.isDerefInSearching() )
         {
             return isDescendant;
         }
@@ -162,7 +162,7 @@ public class ScopeEvaluator implements Evaluator
          * dereferencing is not enabled then we return the results of the child 
          * test. 
          */
-        if ( !mode.derefInSearching() )
+        if ( !mode.isDerefInSearching() )
         {
             return isChild;
         }

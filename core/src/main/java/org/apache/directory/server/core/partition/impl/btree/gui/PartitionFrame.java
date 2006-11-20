@@ -647,7 +647,7 @@ public class PartitionFrame extends JFrame
 
         Hashtable env = new Hashtable();
 
-        env.put( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.DEREFALWAYS_NAME );
+        env.put( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.DEREF_ALWAYS_NAME );
 
         NamingEnumeration cursor = eng.search( new LdapDN( base ), env, root, ctls );
         String[] cols = new String[2];

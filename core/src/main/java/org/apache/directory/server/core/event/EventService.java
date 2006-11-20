@@ -144,7 +144,7 @@ public class EventService extends BaseInterceptor
         }
         
         
-        ScopeNode scope = new ScopeNode( DerefAliasesEnum.NEVERDEREFALIASES, normalizedBaseDn.toNormName(), 
+        ScopeNode scope = new ScopeNode( DerefAliasesEnum.NEVER_DEREF_ALIASES, normalizedBaseDn.toNormName(), 
             searchControls.getSearchScope() );
         
         if ( filter != null )

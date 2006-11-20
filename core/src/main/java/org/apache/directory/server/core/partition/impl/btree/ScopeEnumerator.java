@@ -74,7 +74,7 @@ public class ScopeEnumerator implements Enumerator
                 record.setIndexKey( snode.getBaseDn() );
                 return new SingletonEnumeration( record );
             case ( SearchControls.ONELEVEL_SCOPE  ):
-                return enumerateChildren( snode.getBaseDn(), snode.getDerefAliases().derefInSearching() );
+                return enumerateChildren( snode.getBaseDn(), snode.getDerefAliases().isDerefInSearching() );
             case ( SearchControls.SUBTREE_SCOPE  ):
                 return enumerateDescendants( snode );
             default:
@@ -152,7 +152,7 @@ public class ScopeEnumerator implements Enumerator
          * If we do not dereference while searching then we simply return any
          * entry that is not a descendant of the base.
          */
-        if ( !node.getDerefAliases().derefInSearching() )
+        if ( !node.getDerefAliases().isDerefInSearching() )
         {
             // Gets a NamingEnumeration over all elements
             idx = db.getNdnIndex();

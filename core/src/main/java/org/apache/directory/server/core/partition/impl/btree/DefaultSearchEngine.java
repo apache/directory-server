@@ -104,7 +104,7 @@ public class DefaultSearchEngine implements SearchEngine
          * occur on finding the base then we set the effective base to the
          * given base.
          */
-        if ( null == aliasedBase || !mode.derefFindingBase() )
+        if ( ( null == aliasedBase ) || !mode.isDerefFindingBase() )
         {
             effectiveBase = base;
         }
