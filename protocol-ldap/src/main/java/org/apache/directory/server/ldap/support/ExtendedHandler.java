@@ -88,7 +88,7 @@ public class ExtendedHandler implements LdapMessageHandler
             // error back to the client.
             String msg = "Unrecognized extended operation EXTENSION_OID: " + req.getOid();
             LdapResult result = req.getResultResponse().getLdapResult();
-            result.setResultCode( ResultCodeEnum.PROTOCOLERROR );
+            result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setErrorMessage( msg );
             session.write( req.getResultResponse() );
         }

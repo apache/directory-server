@@ -430,8 +430,8 @@ class SearchResponseIterator implements Iterator
             NamingException ne = ( NamingException ) e;
             
             if ( ( ne.getResolvedName() != null )
-                && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
-                    || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
+                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
             {
                 resp.getLdapResult().setMatchedDn( (LdapDN)ne.getResolvedName() );
             }

@@ -393,7 +393,7 @@ public class LdapProtocolProvider
                     {
                         ResultResponse resp = req.getResultResponse();
                         resp.getLdapResult().setErrorMessage( "Unsupport critical control: " + control.getID() );
-                        resp.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLECRITICALEXTENSION );
+                        resp.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
                         session.write( resp );
                         return;
                     }

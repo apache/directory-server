@@ -90,7 +90,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         {
             log.error( "Encountered session context which was not a ServerLdapContext" );
             GracefulShutdownResponse msg = new GracefulShutdownResponse( req.getMessageId(),
-                ResultCodeEnum.OPERATIONSERROR );
+                ResultCodeEnum.OPERATIONS_ERROR );
             msg.getLdapResult().setErrorMessage( "The session context was not a ServerLdapContext" );
             requestor.write( msg );
             return;
@@ -107,7 +107,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
             }
 
             requestor
-                .write( new GracefulShutdownResponse( req.getMessageId(), ResultCodeEnum.INSUFFICIENTACCESSRIGHTS ) );
+                .write( new GracefulShutdownResponse( req.getMessageId(), ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS ) );
             return;
         }
 

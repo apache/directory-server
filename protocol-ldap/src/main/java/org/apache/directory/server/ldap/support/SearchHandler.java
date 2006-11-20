@@ -228,7 +228,7 @@ public class SearchHandler implements LdapMessageHandler
             if ( isAnonymousUser && !allowAnonymousBinds && !isRootDSESearch )
             {
                 LdapResult result = req.getResultResponse().getLdapResult();
-                result.setResultCode( ResultCodeEnum.INSUFFICIENTACCESSRIGHTS );
+                result.setResultCode( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
                 String msg = "Bind failure: Anonymous binds have been disabled!";
                 result.setErrorMessage( msg );
                 session.write( req.getResultResponse() );
@@ -286,7 +286,8 @@ public class SearchHandler implements LdapMessageHandler
                             {
                                 // ok if normal search beforehand failed somehow quickly abandon psearch
                                 ResultCodeEnum rcode = ( ( SearchResponseDone ) resp ).getLdapResult().getResultCode();
-                                if ( rcode.getValue() != LdapResultEnum.SUCCESS )
+                                
+                                if ( rcode != ResultCodeEnum.SUCCESS )
                                 {
                                     session.write( resp );
                                     return;
@@ -408,8 +409,8 @@ public class SearchHandler implements LdapMessageHandler
             result.setErrorMessage( msg );
 
             if ( ( e.getResolvedName() != null )
-                && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
-                    || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
+                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
             {
                 result.setMatchedDn( (LdapDN)e.getResolvedName() );
             }

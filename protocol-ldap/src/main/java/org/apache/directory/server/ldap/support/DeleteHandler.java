@@ -114,8 +114,8 @@ public class DeleteHandler implements LdapMessageHandler
             result.setResultCode( code );
             result.setErrorMessage( msg );
             if ( ( e.getResolvedName() != null )
-                && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
-                    || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
+                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
             {
                 result.setMatchedDn( (LdapDN)e.getResolvedName() );
             }

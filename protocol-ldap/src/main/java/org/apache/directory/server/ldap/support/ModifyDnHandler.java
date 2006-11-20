@@ -71,7 +71,7 @@ public class ModifyDnHandler implements LdapMessageHandler
         {
             // it is not allowed to modify the name of the Root DSE
             String msg = "Modify DN is not allowed on Root DSE.";
-            result.setResultCode( ResultCodeEnum.PROTOCOLERROR );
+            result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setErrorMessage( msg );
             session.write( req.getResultResponse() );
         }
@@ -177,8 +177,8 @@ public class ModifyDnHandler implements LdapMessageHandler
                 result.setErrorMessage( msg );
                 
                 if ( ( e.getResolvedName() != null )
-                    && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
-                        || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+                    && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
+                        || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
                 {
                     result.setMatchedDn( (LdapDN)e.getResolvedName() );
                 }

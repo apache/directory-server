@@ -80,11 +80,11 @@ public class CompareHandler implements LdapMessageHandler
 
             if ( newCtx.compare( req.getName(), req.getAttributeId(), req.getAssertionValue() ) )
             {
-                result.setResultCode( ResultCodeEnum.COMPARETRUE );
+                result.setResultCode( ResultCodeEnum.COMPARE_TRUE );
             }
             else
             {
-                result.setResultCode( ResultCodeEnum.COMPAREFALSE );
+                result.setResultCode( ResultCodeEnum.COMPARE_FALSE );
             }
         }
         catch ( ReferralException e )
@@ -133,8 +133,8 @@ public class CompareHandler implements LdapMessageHandler
                 NamingException ne = ( NamingException ) e;
 
                 if ( ( ne.getResolvedName() != null )
-                    && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
-                        || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+                    && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
+                        || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
                 {
                     result.setMatchedDn( (LdapDN)ne.getResolvedName() );
                 }

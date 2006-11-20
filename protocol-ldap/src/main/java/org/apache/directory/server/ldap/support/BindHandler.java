@@ -67,7 +67,7 @@ public class BindHandler implements LdapMessageHandler
         
         if ( !req.getVersion3() )
         {
-            result.setResultCode( ResultCodeEnum.PROTOCOLERROR );
+            result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setErrorMessage( "Only LDAP v3 is supported" );
             session.write( req.getResultResponse() );
             return;
@@ -76,7 +76,7 @@ public class BindHandler implements LdapMessageHandler
         // if the bind request is not simple then we freak: no strong auth yet
         if ( !req.isSimple() )
         {
-            result.setResultCode( ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
+            result.setResultCode( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
             result.setErrorMessage( "Only simple binds currently supported" );
             session.write( req.getResultResponse() );
             return;
@@ -143,8 +143,8 @@ public class BindHandler implements LdapMessageHandler
             }
 
             if ( ( e.getResolvedName() != null )
-                && ( ( code == ResultCodeEnum.NOSUCHOBJECT ) || ( code == ResultCodeEnum.ALIASPROBLEM )
-                    || ( code == ResultCodeEnum.INVALIDDNSYNTAX ) || ( code == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM ) ) )
+                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
+                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
             {
                 result.setMatchedDn( (LdapDN)e.getResolvedName() );
             }

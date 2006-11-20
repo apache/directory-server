@@ -85,7 +85,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             if ( !slc.getPrincipal().getName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
             {
                 requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId(),
-                    ResultCodeEnum.INSUFFICIENTACCESSRIGHTS ) );
+                    ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS ) );
                 return;
             }
 
@@ -124,7 +124,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             return;
         }
 
-        requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId(), ResultCodeEnum.OPERATIONSERROR ) );
+        requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId(), ResultCodeEnum.OPERATIONS_ERROR ) );
     }
 
 
