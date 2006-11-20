@@ -702,7 +702,7 @@ public class ReferralITest extends AbstractAdminTestCase
         }
         catch ( LdapNamingException e )
         {
-            assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+            assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
         }
     }
 
@@ -731,7 +731,7 @@ public class ReferralITest extends AbstractAdminTestCase
         }
         catch ( LdapNamingException e )
         {
-            assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+            assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
         }
     }
 
@@ -760,7 +760,7 @@ public class ReferralITest extends AbstractAdminTestCase
         }
         catch ( LdapNamingException e )
         {
-            assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+            assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
         }
     }
 
@@ -789,7 +789,7 @@ public class ReferralITest extends AbstractAdminTestCase
         }
         catch ( LdapNamingException e )
         {
-            assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+            assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
         }
     }
 

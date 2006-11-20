@@ -67,7 +67,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
     }
 
@@ -110,7 +110,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameAlreadyBoundException e )
         {
             assertEquals( "ou=users,ou=groups,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.ENTRYALREADYEXISTS, e.getResultCode() );
+            assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
         }
 
         try
@@ -124,7 +124,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameAlreadyBoundException e )
         {
             assertEquals( "ou=uzerz,ou=groups,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.ENTRYALREADYEXISTS, e.getResultCode() );
+            assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
         }
     }
 
@@ -142,7 +142,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
 
         try
@@ -155,7 +155,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
     }
 
@@ -199,7 +199,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameAlreadyBoundException e )
         {
             assertEquals( "ou=groups,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.ENTRYALREADYEXISTS, e.getResultCode() );
+            assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
         }
     }
 
@@ -217,7 +217,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
     }
 
@@ -267,7 +267,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
 
         ModificationItem[] mods = new ModificationItem[]
@@ -281,7 +281,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
     }
 
@@ -331,7 +331,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
     }
 
@@ -365,7 +365,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
     }
 
@@ -415,7 +415,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNamingException e )
         {
             assertEquals( "cn=toanother,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.ALIASPROBLEM, e.getResultCode() );
+            assertEquals( ResultCodeEnum.ALIAS_PROBLEM, e.getResultCode() );
         }
     }
 
@@ -434,7 +434,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
     }
 
@@ -454,7 +454,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameAlreadyBoundException e )
         {
             assertEquals( "ou=blah,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.ENTRYALREADYEXISTS, e.getResultCode() );
+            assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
         }
     }
 
@@ -491,7 +491,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapContextNotEmptyException e )
         {
             assertEquals( "ou=blah,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOTALLOWEDONNONLEAF, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, e.getResultCode() );
         }
     }
 
@@ -510,7 +510,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
     }
 
@@ -533,7 +533,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         catch ( LdapNameNotFoundException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
     }
 }
