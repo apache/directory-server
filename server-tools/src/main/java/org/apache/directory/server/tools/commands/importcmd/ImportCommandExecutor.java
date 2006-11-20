@@ -71,6 +71,7 @@ import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
 import org.apache.directory.shared.ldap.codec.util.LdapResultEnum;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -179,7 +180,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
                         BindResponse resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
                             .getBindResponse();
 
-                        if ( resp.getLdapResult().getResultCode() != 0 )
+                        if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
                         {
                             notifyOutputListener( "Error : " + resp.getLdapResult().getErrorMessage() );
                         }
@@ -189,7 +190,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
                         ExtendedResponse resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
                             .getExtendedResponse();
 
-                        if ( resp.getLdapResult().getResultCode() != 0 )
+                        if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
                         {
                             notifyOutputListener( "Error : " + resp.getLdapResult().getErrorMessage() );
                         }
@@ -267,7 +268,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         LdapResult result = response.getAddResponse().getLdapResult();
 
-        if ( result.getResultCode() == LdapResultEnum.SUCCESS )
+        if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
             if ( isDebugEnabled() )
             {
@@ -327,7 +328,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         LdapResult result = response.getDelResponse().getLdapResult();
 
-        if ( result.getResultCode() == LdapResultEnum.SUCCESS )
+        if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
             if ( isDebugEnabled() )
             {
@@ -393,7 +394,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         LdapResult result = response.getModifyDNResponse().getLdapResult();
 
-        if ( result.getResultCode() == LdapResultEnum.SUCCESS )
+        if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
             if ( isDebugEnabled() )
             {
@@ -486,7 +487,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         LdapResult result = response.getModifyResponse().getLdapResult();
 
-        if ( result.getResultCode() == LdapResultEnum.SUCCESS )
+        if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
             if ( isDebugEnabled() )
             {
@@ -578,7 +579,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         LdapResult result = response.getBindResponse().getLdapResult();
 
-        if ( result.getResultCode() == LdapResultEnum.SUCCESS )
+        if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
             if ( isDebugEnabled() )
             {
