@@ -907,7 +907,7 @@ public class SchemaService extends BaseInterceptor
                 case DirContext.REMOVE_ATTRIBUTE :
                     if ( tmpEntry.get( change.getID() ) == null )
                     {
-                        log.error( "Trying to remove an inexistant attribute" );
+                        log.error( "Trying to remove an inexistant attribute: " + change.getID() );
                         throw new LdapNoSuchAttributeException();
                     }
 
@@ -915,7 +915,7 @@ public class SchemaService extends BaseInterceptor
                     // if so then we have a schema violation that must be thrown
                     if ( isRequired( change.getID(), objectClass ) && isCompleteRemoval( change, entry ) )
                     {
-                        log.error( "Trying to remove a required attribute" );
+                        log.error( "Trying to remove a required attribute: " + change.getID() );
                         throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                     }
                     
