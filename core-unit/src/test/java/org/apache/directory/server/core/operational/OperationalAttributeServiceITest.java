@@ -78,7 +78,7 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
         ctls.setReturningAttributes( new String[]
             { "ou", "createTimestamp", "creatorsName" } );
 
-        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES_NAME );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES_NAME );
         NamingEnumeration list;
         list = sysRoot.search( "", "(ou=testing00)", ctls );
         SearchResult result = ( SearchResult ) list.next();
