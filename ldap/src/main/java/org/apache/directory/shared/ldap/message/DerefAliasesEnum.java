@@ -73,16 +73,16 @@ public enum DerefAliasesEnum
     public static final String JNDI_DEREF_ALIAS_PROP = "java.naming.ldap.derefAliases";
 
     /** Alias handling mode name that treats aliases like entries */
-    public static final String NEVER_DEREF_ALIASES_NAME = "never";
+    //public static final String NEVER_DEREF_ALIASES_NAME = "never";
 
     /** Alias handling mode name that dereferences only when searching */
-    public static final String DEREF_IN_SEARCHING_NAME = "searching";
+    //public static final String DEREF_IN_SEARCHING_NAME = "searching";
 
     /** Alias handling mode name that dereferences only in finding the base */
-    public static final String DEREF_FINDING_BASE_OBJ_NAME = "finding";
+    //public static final String DEREF_FINDING_BASE_OBJ_NAME = "finding";
 
     /** Alias handling mode name that dereferences always */
-    public static final String DEREF_ALWAYS_NAME = "always";
+    //public static final String DEREF_ALWAYS_NAME = "always";
 
     /**
      * Gets the enumeration from by extracting the value for the JNDI LDAP
@@ -94,17 +94,18 @@ public enum DerefAliasesEnum
      *            java.naming.ldap.derefAliases property
      * @return the enumeration for the environment
      */
-    public static DerefAliasesEnum getEnum( Map env )
+    public static DerefAliasesEnum getEnum( Map<String, DerefAliasesEnum> env )
     {
-        String property = ( String ) env.get( JNDI_DEREF_ALIAS_PROP );
+        DerefAliasesEnum property = env.get( JNDI_DEREF_ALIAS_PROP );
         
         if ( null == property )
         {
             return DEREF_ALWAYS;
         }
-        
-        DerefAliasesEnum result = valueOf( property );
-        return ( result == null ? DEREF_ALWAYS : result );
+        else
+        {
+            return property;
+        }
     }
     
     /**
