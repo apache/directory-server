@@ -829,7 +829,7 @@ public class JdbmPartition extends BTreePartition
         if ( objectClass == null )
         {
             String msg = "Entry " + normName.getUpName() + " contains no objectClass attribute: " + entry;
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECTCLASSVIOLATION );
+            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
 
         // Start adding the system indices
@@ -1689,7 +1689,7 @@ public class JdbmPartition extends BTreePartition
         throw new LdapAuthenticationNotSupportedException(
             "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n"
                 + "Check to see if you have correctly configured authenticators for the server.",
-            ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
+            ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
     }
 
 

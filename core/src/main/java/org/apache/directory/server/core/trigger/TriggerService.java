@@ -173,7 +173,7 @@ public class TriggerService extends BaseInterceptor
             {
                 String msg = "failed to parse entryTrigger: " + triggerString;
                 log.error( msg, e );
-                throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONSERROR );
+                throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONS_ERROR );
             }
 
             triggerSpecs.add( item );

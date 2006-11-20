@@ -591,7 +591,7 @@ public class SchemaService extends BaseInterceptor
         if ( !objectClassAttr.getID().equalsIgnoreCase( "objectClass" ) )
         {
             throw new LdapNamingException( "Expecting an objectClass attribute but got " + objectClassAttr.getID(),
-                ResultCodeEnum.OPERATIONSERROR );
+                ResultCodeEnum.OPERATIONS_ERROR );
         }
 
         Set objectClasses = new HashSet();
@@ -686,7 +686,7 @@ public class SchemaService extends BaseInterceptor
                 {
                     // not ok for add but ok for replace and delete
                     throw new LdapInvalidAttributeValueException( "No value is not a valid value for an attribute.", 
-                        ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
+                        ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 }
             }
 
@@ -700,7 +700,7 @@ public class SchemaService extends BaseInterceptor
             if ( modOp == DirContext.REMOVE_ATTRIBUTE && isRequired( change.getID(), objectClass )
                 && isCompleteRemoval( change, entry ) )
             {
-                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
+                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
             }
         }
 
@@ -814,7 +814,7 @@ public class SchemaService extends BaseInterceptor
                 if ( mods[ii].getModificationOp() == DirContext.ADD_ATTRIBUTE )
                 {
                     throw new LdapInvalidAttributeValueException( "No value is not a valid value for an attribute.", 
-                        ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
+                        ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 }
             }
 
@@ -916,7 +916,7 @@ public class SchemaService extends BaseInterceptor
                     if ( isRequired( change.getID(), objectClass ) && isCompleteRemoval( change, entry ) )
                     {
                         log.error( "Trying to remove a required attribute" );
-                        throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
+                        throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                     }
                     
                     tmpEntry.remove( change.getID() );
@@ -1170,7 +1170,7 @@ public class SchemaService extends BaseInterceptor
         if ( attribute.size() > 1 && registry.lookup( attribute.getID() ).isSingleValue() )
         {                
             throw new LdapInvalidAttributeValueException( "More than one value has been provided " +
-                "for the single-valued attribute: " + attribute.getID(), ResultCodeEnum.CONSTRAINTVIOLATION );
+                "for the single-valued attribute: " + attribute.getID(), ResultCodeEnum.CONSTRAINT_VIOLATION );
         }
     }
 
@@ -1199,7 +1199,7 @@ public class SchemaService extends BaseInterceptor
             {
                 throw new LdapSchemaViolationException( "Required attribute " + 
                     required[ii].getName() + " not found within entry.", 
-                    ResultCodeEnum.OBJECTCLASSVIOLATION );
+                    ResultCodeEnum.OBJECT_CLASS_VIOLATION );
             }
         }
     }

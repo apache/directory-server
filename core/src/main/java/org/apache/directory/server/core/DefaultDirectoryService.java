@@ -405,7 +405,7 @@ class DefaultDirectoryService extends DirectoryService
              * complain because SASL is not a supported auth method yet
              */
             throw new LdapAuthenticationNotSupportedException( "Unknown authentication type: '" + authentication + "'",
-                ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
+                ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
         }
     }
 

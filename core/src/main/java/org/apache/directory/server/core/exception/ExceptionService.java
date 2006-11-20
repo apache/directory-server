@@ -120,7 +120,7 @@ public class ExceptionService extends BaseInterceptor
         if ( objectClass.contains( "alias" ) )
         {
             String msg = "Attempt to add entry to alias '" + normName.getUpName() + "' not allowed.";
-            ResultCodeEnum rc = ResultCodeEnum.ALIASPROBLEM;
+            ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
             NamingException e = new LdapNamingException( msg, rc );
             e.setResolvedName( new LdapDN( parentDn.getUpName() ) );
             throw e;

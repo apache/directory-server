@@ -87,7 +87,7 @@ public class SchemaChecker
             {
                 log.info( msg + ".  Raising LdapSchemaViolationException." );
             }
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
 
         // check that there is at least one structural objectClass in the replacement set
@@ -107,7 +107,7 @@ public class SchemaChecker
         {
             log.info( msg + ".  Raising LdapSchemaViolationException." );
         }
-        throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+        throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
     }
 
 
@@ -147,7 +147,7 @@ public class SchemaChecker
             {
                 log.info( msg + ".  Raising LdapSchemaViolationException." );
             }
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
 
         // check that there is at least one structural objectClass in the replacement set
@@ -167,7 +167,7 @@ public class SchemaChecker
         {
             log.info( msg + ".  Raising LdapSchemaViolationException." );
         }
-        throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+        throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
     }
 
 
@@ -218,7 +218,7 @@ public class SchemaChecker
             {
                 log.info( msg + ".  Raising LdapSchemaViolationException." );
             }
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
 
         // remove all the objectClass attribute values from a cloned copy and then
@@ -248,7 +248,7 @@ public class SchemaChecker
         {
             log.info( msg + ".  Raising LdapSchemaViolationException." );
         }
-        throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+        throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
     }
 
 
@@ -300,7 +300,7 @@ public class SchemaChecker
             {
                 log.info( msg + ".  Raising LdapSchemaViolationException." );
             }
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
 
         // remove all the objectClass attribute values from a cloned copy and then
@@ -330,7 +330,7 @@ public class SchemaChecker
         {
             log.info( msg + ".  Raising LdapSchemaViolationException." );
         }
-        throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+        throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
     }
 
 
@@ -381,7 +381,7 @@ public class SchemaChecker
             {
                 log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
             }
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+            throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
         }
 
         // from here on the modify operation replaces specific values
@@ -401,7 +401,7 @@ public class SchemaChecker
                 {
                     log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                 }
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
         }
     }
@@ -454,7 +454,7 @@ public class SchemaChecker
                     {
                         log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                     }
-                    throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+                    throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
                 }
 
                 // from here on the modify operation replaces specific values
@@ -475,7 +475,7 @@ public class SchemaChecker
                         {
                             log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                         }
-                        throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+                        throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
                     }
                 }
             }
@@ -530,7 +530,7 @@ public class SchemaChecker
             {
                 log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
             }
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+            throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
         }
 
         // from here on the modify operation only deletes specific values
@@ -548,7 +548,7 @@ public class SchemaChecker
                 {
                     log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                 }
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
         }
     }
@@ -601,7 +601,7 @@ public class SchemaChecker
                     {
                         log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                     }
-                    throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+                    throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
                 }
 
                 // from here on the modify operation only deletes specific values
@@ -620,7 +620,7 @@ public class SchemaChecker
                         {
                             log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                         }
-                        throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+                        throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
                     }
                 }
             }

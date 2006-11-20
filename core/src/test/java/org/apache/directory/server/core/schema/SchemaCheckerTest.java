@@ -147,7 +147,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
 
         // this should fail since the modify operation tries to delete all
@@ -162,7 +162,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
     }
 
@@ -210,7 +210,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
 
         // this should fail since the modify operation tries to delete all
@@ -226,7 +226,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
     }
 
@@ -254,7 +254,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( ResultCodeEnum.NOTALLOWEDONRDN, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_RDN, e.getResultCode() );
         }
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
@@ -272,7 +272,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( ResultCodeEnum.NOTALLOWEDONRDN, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_RDN, e.getResultCode() );
         }
 
         // should succeed since the value being deleted from the rdn attribute is
@@ -291,7 +291,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( ResultCodeEnum.NOTALLOWEDONRDN, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_RDN, e.getResultCode() );
         }
     }
 
@@ -319,7 +319,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( ResultCodeEnum.NOTALLOWEDONRDN, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_RDN, e.getResultCode() );
         }
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
@@ -337,7 +337,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( ResultCodeEnum.NOTALLOWEDONRDN, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_RDN, e.getResultCode() );
         }
 
         // should succeed since the values being replaced from the rdn attribute is
@@ -357,7 +357,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( ResultCodeEnum.NOTALLOWEDONRDN, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_RDN, e.getResultCode() );
         }
     }
 
@@ -395,7 +395,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
 
         // this should fail since the modify operation tries to delete all
@@ -408,7 +408,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
     }
 
@@ -450,7 +450,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
 
         // this should fail since the modify operation tries to delete all
@@ -464,7 +464,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+            assertEquals( e.getResultCode(), ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
     }
 
@@ -491,7 +491,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( ResultCodeEnum.NOTALLOWEDONRDN, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_RDN, e.getResultCode() );
         }
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
@@ -507,7 +507,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( ResultCodeEnum.NOTALLOWEDONRDN, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_RDN, e.getResultCode() );
         }
 
         // should succeed since the value being deleted from the rdn attribute is
@@ -522,7 +522,7 @@ public class SchemaCheckerTest extends TestCase
         }
         catch ( LdapSchemaViolationException e )
         {
-            assertEquals( ResultCodeEnum.NOTALLOWEDONRDN, e.getResultCode() );
+            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_RDN, e.getResultCode() );
         }
     }
 
@@ -547,7 +547,7 @@ public class SchemaCheckerTest extends TestCase
 //        }
 //        catch ( LdapSchemaViolationException e )
 //        {
-//            assertEquals( ResultCodeEnum.NOTALLOWEDONRDN, e.getResultCode() );
+//            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_RDN, e.getResultCode() );
 //        }
 //
 //        // test success using more than one attribute for the Rdn but not modifying rdn attribute
@@ -562,7 +562,7 @@ public class SchemaCheckerTest extends TestCase
 //        }
 //        catch ( LdapSchemaViolationException e )
 //        {
-//            assertEquals( ResultCodeEnum.NOTALLOWEDONRDN, e.getResultCode() );
+//            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_RDN, e.getResultCode() );
 //        }
 //
 //        // should succeed since the values being replaced from the rdn attribute is
@@ -582,7 +582,7 @@ public class SchemaCheckerTest extends TestCase
 //        }
 //        catch ( LdapSchemaViolationException e )
 //        {
-//            assertEquals( ResultCodeEnum.NOTALLOWEDONRDN, e.getResultCode() );
+//            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_RDN, e.getResultCode() );
 //        }
 //    }
 

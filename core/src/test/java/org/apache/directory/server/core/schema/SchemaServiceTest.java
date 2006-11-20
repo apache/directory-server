@@ -101,7 +101,7 @@ public class SchemaServiceTest extends TestCase
         }
         catch ( LdapNamingException e )
         {
-            assertEquals( ResultCodeEnum.OPERATIONSERROR, e.getResultCode() );
+            assertEquals( ResultCodeEnum.OPERATIONS_ERROR, e.getResultCode() );
         }
 
         attr = new BasicAttribute( "objectClass" );

@@ -180,7 +180,7 @@ public class SubentryService extends BaseInterceptor
         if ( oc == null )
         {
             throw new LdapSchemaViolationException( "A subentry must have an objectClass attribute", 
-                ResultCodeEnum.OBJECTCLASSVIOLATION );
+                ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
         if ( oc.contains( "accessControlSubentry" ) )
@@ -411,7 +411,7 @@ public class SubentryService extends BaseInterceptor
             {
                 String msg = "Failed while parsing subtreeSpecification for " + normName.getUpName();
                 log.warn( msg );
-                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
+                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
             }
             subentryCache.setSubentry( normName.toString(), ss, getSubentryTypes( entry ) );
             next.add(normName, entry );
@@ -718,7 +718,7 @@ public class SubentryService extends BaseInterceptor
             {
                 String msg = "Will not allow rename operation on entries with administrative descendants.";
                 log.warn( msg );
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
             next.modifyRn( name, newRn, deleteOldRn );
 
@@ -791,7 +791,7 @@ public class SubentryService extends BaseInterceptor
             {
                 String msg = "Will not allow rename operation on entries with administrative descendants.";
                 log.warn( msg );
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
             next.move( oriChildName, newParentName, newRn, deleteOldRn );
 
@@ -859,7 +859,7 @@ public class SubentryService extends BaseInterceptor
             {
                 String msg = "Will not allow rename operation on entries with administrative descendants.";
                 log.warn( msg );
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
             next.move( oriChildName, newParentName );
 
@@ -971,7 +971,7 @@ public class SubentryService extends BaseInterceptor
             {
                 String msg = "failed to parse the new subtreeSpecification";
                 log.error( msg, e );
-                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
+                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
             }
 
             subentryCache.setSubentry( name.toNormName(), ssNew, getSubentryTypes( entry, modOp, mods ) );
@@ -1056,7 +1056,7 @@ public class SubentryService extends BaseInterceptor
             {
                 String msg = "failed to parse the new subtreeSpecification";
                 log.error( msg, e );
-                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
+                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
             }
 
             subentryCache.setSubentry( name.toNormName(), ssNew, getSubentryTypes( entry, mods ) );

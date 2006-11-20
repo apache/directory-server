@@ -274,7 +274,7 @@ public class AuthorizationService extends BaseInterceptor
             {
                 String msg = "failed to parse entryACI: " + aciString;
                 log.error( msg, e );
-                throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONSERROR );
+                throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONS_ERROR );
             }
 
             tuples.addAll( item.toTuples() );
@@ -326,7 +326,7 @@ public class AuthorizationService extends BaseInterceptor
             {
                 String msg = "failed to parse subentryACI: " + aciString;
                 log.error( msg, e );
-                throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONSERROR );
+                throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONS_ERROR );
             }
 
             tuples.addAll( item.toTuples() );

@@ -151,7 +151,7 @@ public class TupleCache
             // should not be necessary because of schema interceptor but schema checking
             // can be turned off and in this case we must protect against being able to
             // add access control information to anything other than an AC subentry
-            throw new LdapSchemaViolationException( "", ResultCodeEnum.OBJECTCLASSVIOLATION );
+            throw new LdapSchemaViolationException( "", ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         else if ( aci == null )
         {

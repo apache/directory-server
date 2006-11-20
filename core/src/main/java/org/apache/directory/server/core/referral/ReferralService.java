@@ -441,13 +441,13 @@ public class ReferralService extends BaseInterceptor
             else if ( farthestDst != null )
             {
                 throw new LdapNamingException( farthestDst + " ancestor is a referral for modifyDn on " + newName
-                    + " so it affects multiple DSAs", ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+                    + " so it affects multiple DSAs", ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
             }
             else if ( lut.isReferral( newName ) )
             {
                 throw new LdapNamingException( newName
                     + " exists and is a referral for modifyDn destination so it affects multiple DSAs",
-                    ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+                    ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
             }
 
             throw new IllegalStateException( "If you get this exception the server's logic was flawed in handling a "
@@ -508,13 +508,13 @@ public class ReferralService extends BaseInterceptor
             else if ( farthestDst != null )
             {
                 throw new LdapNamingException( farthestDst + " ancestor is a referral for modifyDn on " + newName
-                    + " so it affects multiple DSAs", ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+                    + " so it affects multiple DSAs", ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
             }
             else if ( lut.isReferral( newName ) )
             {
                 throw new LdapNamingException( newName
                     + " exists and is a referral for modifyDn destination so it affects multiple DSAs",
-                    ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+                    ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
             }
 
             throw new IllegalStateException( "If you get this exception the server's logic was flawed in handling a "
@@ -579,13 +579,13 @@ public class ReferralService extends BaseInterceptor
             else if ( farthestDst != null )
             {
                 throw new LdapNamingException( farthestDst + " ancestor is a referral for modifyDn on " + newName
-                    + " so it affects multiple DSAs", ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+                    + " so it affects multiple DSAs", ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
             }
             else if ( lut.isReferral( newName ) )
             {
                 throw new LdapNamingException( newName
                     + " exists and is a referral for modifyDn destination so it affects multiple DSAs",
-                    ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+                    ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
             }
 
             throw new IllegalStateException( "If you get this exception the server's logic was flawed in handling a "
