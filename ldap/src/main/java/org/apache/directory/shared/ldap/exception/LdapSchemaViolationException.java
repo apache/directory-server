@@ -58,23 +58,23 @@ public class LdapSchemaViolationException extends SchemaViolationException imple
     {
         super();
 
-        switch ( resultCode.getValue() )
+        switch ( resultCode )
         {
-            case ( ResultCodeEnum.OBJECTCLASSVIOLATION_VAL  ):
+            case OBJECT_CLASS_VIOLATION :
 
                 break;
 
-            case ( ResultCodeEnum.NOTALLOWEDONRDN_VAL  ):
+            case NOT_ALLOWED_ON_RDN :
 
                 break;
 
-            case ( ResultCodeEnum.OBJECTCLASSMODSPROHIBITED_VAL  ):
+            case OBJECT_CLASS_MODS_PROHIBITED :
 
                 break;
 
             default:
 
-                throw new IllegalArgumentException( resultCode.getName() + " is not an acceptable result code." );
+                throw new IllegalArgumentException( resultCode + " is not an acceptable result code." );
         }
 
         this.resultCode = resultCode;

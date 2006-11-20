@@ -270,7 +270,7 @@ public class BindRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof BindResponseImpl );
-            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((BindResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((BindResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
         catch ( NamingException ne )
@@ -966,7 +966,7 @@ public class BindRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof BindResponseImpl );
-            assertEquals( ResultCodeEnum.INVALIDCREDENTIALS, ((BindResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, ((BindResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
         catch ( NamingException ne )

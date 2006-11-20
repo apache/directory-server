@@ -68,6 +68,6 @@ public class LdapNoPermissionException extends NoPermissionException implements 
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.INSUFFICIENTACCESSRIGHTS;
+        return ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS;
     }
 }

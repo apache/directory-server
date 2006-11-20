@@ -280,7 +280,7 @@ public class CompareRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof CompareResponseImpl );
-            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((CompareResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((CompareResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
     }
@@ -326,7 +326,7 @@ public class CompareRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof CompareResponseImpl );
-            assertEquals( ResultCodeEnum.INVALIDATTRIBUTESYNTAX, ((CompareResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, ((CompareResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
     }

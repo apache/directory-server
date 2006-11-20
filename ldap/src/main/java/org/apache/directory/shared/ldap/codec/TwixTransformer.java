@@ -855,7 +855,7 @@ public class TwixTransformer implements TransformerSpi
         LdapResult twixLdapResult = new LdapResult();
 
         // Snickers : ResultCodeEnum resultCode -> Twix : int resultCode
-        twixLdapResult.setResultCode( snickersLdapResult.getResultCode().getValue() );
+        twixLdapResult.setResultCode( snickersLdapResult.getResultCode() );
 
         // Snickers : String errorMessage -> Twix : LdapString errorMessage
         String errorMessage = snickersLdapResult.getErrorMessage();

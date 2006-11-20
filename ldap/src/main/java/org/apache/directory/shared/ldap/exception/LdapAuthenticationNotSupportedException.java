@@ -113,17 +113,20 @@ public class LdapAuthenticationNotSupportedException extends AuthenticationNotSu
      */
     private void checkResultCode()
     {
-        switch ( resultCode.getValue() )
+        switch ( resultCode )
         {
-            case ( ResultCodeEnum.INAPPROPRIATEAUTHENTICATION_VAL  ):
+            case INAPPROPRIATE_AUTHENTICATION :
                 break;
-            case ( ResultCodeEnum.CONFIDENTIALITYREQUIRED_VAL  ):
+                
+            case CONFIDENTIALITY_REQUIRED :
                 break;
-            case ( ResultCodeEnum.AUTHMETHODNOTSUPPORTED_VAL  ):
+                
+            case AUTH_METHOD_NOT_SUPPORTED :
                 break;
+                
             default:
                 throw new IllegalArgumentException( "Unexceptable result code " + "for this exception type: "
-                    + resultCode.getName() );
+                    + resultCode );
         }
     }
 }

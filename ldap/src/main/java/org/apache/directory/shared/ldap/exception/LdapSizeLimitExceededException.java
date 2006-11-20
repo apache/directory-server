@@ -67,6 +67,6 @@ public class LdapSizeLimitExceededException extends SizeLimitExceededException i
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.SIZELIMITEXCEEDED;
+        return ResultCodeEnum.SIZE_LIMIT_EXCEEDED;
     }
 }

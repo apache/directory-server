@@ -61,6 +61,6 @@ public class LdapNameAlreadyBoundException extends NameAlreadyBoundException imp
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.ENTRYALREADYEXISTS;
+        return ResultCodeEnum.ENTRY_ALREADY_EXISTS;
     }
 }

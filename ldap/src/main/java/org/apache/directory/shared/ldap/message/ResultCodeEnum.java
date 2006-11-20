@@ -23,12 +23,30 @@ package org.apache.directory.shared.ldap.message;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Collections;
-import java.util.Iterator;
-import javax.naming.*;
-import javax.naming.directory.*;
+
+import javax.naming.AuthenticationException;
+import javax.naming.AuthenticationNotSupportedException;
+import javax.naming.CommunicationException;
+import javax.naming.ContextNotEmptyException;
+import javax.naming.InvalidNameException;
+import javax.naming.LimitExceededException;
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
+import javax.naming.OperationNotSupportedException;
+import javax.naming.PartialResultException;
+import javax.naming.ServiceUnavailableException;
+import javax.naming.SizeLimitExceededException;
+import javax.naming.TimeLimitExceededException;
+import javax.naming.directory.AttributeInUseException;
+import javax.naming.directory.InvalidAttributeIdentifierException;
+import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.InvalidSearchFilterException;
+import javax.naming.directory.NoSuchAttributeException;
+import javax.naming.directory.SchemaViolationException;
 
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.util.ValuedEnum;
 
 
 /**
@@ -67,7 +85,7 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
  *           attributeOrValueExists       (20),
  *           invalidAttributeSyntax       (21),
  *           -- 22-31 unused --
- *           noSuchObject                 (32),
+ *           NO_SUCH_OBJECT                 (32),
  *           aliasProblem                 (33),
  *           invalidDNSyntax              (34),
  *           -- 35 reserved for undefined isLeaf --
@@ -139,106 +157,8 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public class ResultCodeEnum extends ValuedEnum
+public enum ResultCodeEnum
 {
-    static final long serialVersionUID = -6813787847504596968L;
-
-    public static final int SUCCESS_VAL = 0;
-
-    public static final int OPERATIONSERROR_VAL = 1;
-
-    public static final int PROTOCOLERROR_VAL = 2;
-
-    public static final int TIMELIMITEXCEEDED_VAL = 3;
-
-    public static final int SIZELIMITEXCEEDED_VAL = 4;
-
-    public static final int COMPAREFALSE_VAL = 5;
-
-    public static final int COMPARETRUE_VAL = 6;
-
-    public static final int AUTHMETHODNOTSUPPORTED_VAL = 7;
-
-    public static final int STRONGAUTHREQUIRED_VAL = 8;
-
-    public static final int PARTIALRESULTS_VAL = 9;
-
-    public static final int REFERRAL_VAL = 10;
-
-    public static final int ADMINLIMITEXCEEDED_VAL = 11;
-
-    public static final int UNAVAILABLECRITICALEXTENSION_VAL = 12;
-
-    public static final int CONFIDENTIALITYREQUIRED_VAL = 13;
-
-    public static final int SASLBINDINPROGRESS_VAL = 14;
-
-    // -- 15 unused --
-
-    public static final int NOSUCHATTRIBUTE_VAL = 16;
-
-    public static final int UNDEFINEDATTRIBUTETYPE_VAL = 17;
-
-    public static final int INAPPROPRIATEMATCHING_VAL = 18;
-
-    public static final int CONSTRAINTVIOLATION_VAL = 19;
-
-    public static final int ATTRIBUTEORVALUEEXISTS_VAL = 20;
-
-    public static final int INVALIDATTRIBUTESYNTAX_VAL = 21;
-
-    // -- 22-31 unused --
-
-    public static final int NOSUCHOBJECT_VAL = 32;
-
-    public static final int ALIASPROBLEM_VAL = 33;
-
-    public static final int INVALIDDNSYNTAX_VAL = 34;
-
-    // -- 35 reserved for undefined isLeaf --
-
-    public static final int ALIASDEREFERENCINGPROBLEM_VAL = 36;
-
-    // -- 37-47 unused --
-
-    public static final int INAPPROPRIATEAUTHENTICATION_VAL = 48;
-
-    public static final int INVALIDCREDENTIALS_VAL = 49;
-
-    public static final int INSUFFICIENTACCESSRIGHTS_VAL = 50;
-
-    public static final int BUSY_VAL = 51;
-
-    public static final int UNAVAILABLE_VAL = 52;
-
-    public static final int UNWILLINGTOPERFORM_VAL = 53;
-
-    public static final int LOOPDETECT_VAL = 54;
-
-    // -- 55-63 unused --
-
-    public static final int NAMINGVIOLATION_VAL = 64;
-
-    public static final int NOTALLOWEDONNONLEAF_VAL = 66;
-
-    public static final int OBJECTCLASSVIOLATION_VAL = 65;
-
-    public static final int NOTALLOWEDONRDN_VAL = 67;
-
-    public static final int ENTRYALREADYEXISTS_VAL = 68;
-
-    public static final int OBJECTCLASSMODSPROHIBITED_VAL = 69;
-
-    // -- 70 reserved for CLDAP --
-
-    public static final int AFFECTSMULTIPLEDSAS_VAL = 71;
-
-    // -- 72-79 unused --
-
-    public static final int OTHER_VAL = 80;
-
-    // -- 81-90 reserved for APIs --
-
     // ------------------------------------------------------------------------
     // Public Static Constants: Enumeration values and names.
     // ------------------------------------------------------------------------
@@ -254,6 +174,14 @@ public class ResultCodeEnum extends ValuedEnum
     // ------------------------------------------------------------------------
 
     /**
+     * It is returned when the client operation completed successfully without
+     * errors. This code is one of 5 result codes that may be returned in the
+     * LDAPResult which are not used to indicate an error. Applicable
+     * operations: all except for Compare. Result code type: Non-Erroneous
+     */
+    SUCCESS( 0 ),
+
+    /**
      * Servers sends this result code to LDAP v2 clients to refer them to
      * another LDAP server. When sending this code to a client, the server
      * includes a newline-delimited list of LDAP URLs that identify another LDAP
@@ -261,15 +189,7 @@ public class ResultCodeEnum extends ValuedEnum
      * request, servers send an REFERRAL result code instead of this result
      * code.
      */
-    public static final ResultCodeEnum PARTIALRESULTS = new ResultCodeEnum( "PARTIALRESULTS", PARTIALRESULTS_VAL );
-
-    /**
-     * It is returned when the client operation completed successfully without
-     * errors. This code is one of 5 result codes that may be returned in the
-     * LDAPResult which are not used to indicate an error. Applicable
-     * operations: all except for Compare. Result code type: Non-Erroneous
-     */
-    public static final ResultCodeEnum SUCCESS = new ResultCodeEnum( "SUCCESS", SUCCESS_VAL );
+    PARTIAL_RESULTS( 9 ),
 
     /**
      * It is used to indicate that the result of a Compare operation is FALSE
@@ -277,7 +197,7 @@ public class ResultCodeEnum extends ValuedEnum
      * error condition. Applicable operations: Compare. Result code type:
      * Non-Erroneous
      */
-    public static final ResultCodeEnum COMPAREFALSE = new ResultCodeEnum( "COMPAREFALSE", COMPAREFALSE_VAL );
+    COMPARE_FALSE( 5 ),
 
     /**
      * It is used to indicate that the result of a Compare operation is TRUE and
@@ -285,7 +205,7 @@ public class ResultCodeEnum extends ValuedEnum
      * condition. Applicable operations: Compare. Result code type:
      * Non-Erroneous
      */
-    public static final ResultCodeEnum COMPARETRUE = new ResultCodeEnum( "COMPARETRUE", COMPARETRUE_VAL );
+    COMPARE_TRUE( 6 ),
 
     /**
      * Rather than indicating an error, this result code is used to indicate
@@ -297,7 +217,7 @@ public class ResultCodeEnum extends ValuedEnum
      * complete the request. This result code is new in LDAPv3. Applicable
      * operations: all. Result code type: Non-Erroneous
      */
-    public static final ResultCodeEnum REFERRAL = new ResultCodeEnum( "REFERRAL", REFERRAL_VAL );
+    REFERRAL( 10 ),
 
     /**
      * This result code is not an error response from the server, but rather, is
@@ -306,8 +226,7 @@ public class ResultCodeEnum extends ValuedEnum
      * authentication process [RFC2251, Section 4.2.3]. This result code is new
      * in LDAPv3. Applicable operations: Bind. Result code type: Non-Erroneous
      */
-    public static final ResultCodeEnum SASLBINDINPROGRESS = new ResultCodeEnum( "SASLBINDINPROGRESS",
-        SASLBINDINPROGRESS_VAL );
+    SASL_BIND_IN_PROGRESS( 14 ),
 
     // ------------------------------------------------------------------------
     // Problem Specific Error Codes:
@@ -329,8 +248,7 @@ public class ResultCodeEnum extends ValuedEnum
      * the server. Applicable operations: Bind. Result code type: Specific
      * (Security)
      */
-    public static final ResultCodeEnum AUTHMETHODNOTSUPPORTED = new ResultCodeEnum( "AUTHMETHODNOTSUPPORTED",
-        AUTHMETHODNOTSUPPORTED_VAL );
+    AUTH_METHOD_NOT_SUPPORTED( 7 ),
 
     /**
      * This error may be returned on a bind request if the server only accepts
@@ -343,8 +261,7 @@ public class ResultCodeEnum extends ValuedEnum
      * Section 4.4.1] Applicable operations: all. Result code type: Specific
      * (Security)
      */
-    public static final ResultCodeEnum STRONGAUTHREQUIRED = new ResultCodeEnum( "STRONGAUTHREQUIRED",
-        STRONGAUTHREQUIRED_VAL );
+    STRONG_AUTH_REQUIRED( 8 ),
 
     /**
      * This error code may be returned if the session is not protected by a
@@ -356,8 +273,7 @@ public class ResultCodeEnum extends ValuedEnum
      * This error code is new in LDAPv3. Applicable operations: all. Result code
      * type: Specific (Security)
      */
-    public static final ResultCodeEnum CONFIDENTIALITYREQUIRED = new ResultCodeEnum( "CONFIDENTIALITYREQUIRED",
-        CONFIDENTIALITYREQUIRED_VAL );
+    CONFIDENTIALITY_REQUIRED( 13 ),
 
     /**
      * An alias was encountered in a situation where it was not allowed or where
@@ -365,11 +281,10 @@ public class ResultCodeEnum extends ValuedEnum
      * not have read permission for the aliasedObjectName attribute and its
      * value then the error aliasDereferencingProblem should be returned. [X511,
      * Section 7.11.1.1] Notice that this error has similar meaning to
-     * INSUFFICIENTACCESSRIGHTS (50), but is specific to Searching on an alias.
+     * INSUFFICIENT_ACCESS_RIGHTS (50), but is specific to Searching on an alias.
      * Applicable operations: Search. Result code type: Specific (Security)
      */
-    public static final ResultCodeEnum ALIASDEREFERENCINGPROBLEM = new ResultCodeEnum( "ALIASDEREFERENCINGPROBLEM",
-        ALIASDEREFERENCINGPROBLEM_VAL );
+    ALIAS_DEREFERENCING_PROBLEM( 36 ),
 
     /**
      * This error should be returned by the server when the client has tried to
@@ -381,8 +296,7 @@ public class ResultCodeEnum extends ValuedEnum
      * Section 12.7]. Applicable operations: Bind. Result code type: Specific
      * (Security)
      */
-    public static final ResultCodeEnum INAPPROPRIATEAUTHENTICATION = new ResultCodeEnum( "INAPPROPRIATEAUTHENTICATION",
-        INAPPROPRIATEAUTHENTICATION_VAL );
+    INAPPROPRIATE_AUTHENTICATION( 48 ),
 
     /**
      * This error code is returned if the DN or password used in a simple bind
@@ -394,8 +308,7 @@ public class ResultCodeEnum extends ValuedEnum
      * insufficientAccessRights. Applicable operations: Bind. Result code type:
      * Specific (Security)
      */
-    public static final ResultCodeEnum INVALIDCREDENTIALS = new ResultCodeEnum( "INVALIDCREDENTIALS",
-        INVALIDCREDENTIALS_VAL );
+    INVALID_CREDENTIALS( 49 ),
 
     /**
      * The requestor does not have the right to carry out the requested
@@ -404,8 +317,7 @@ public class ResultCodeEnum extends ValuedEnum
      * where the requestor has insufficientAccessRights. Applicable operations:
      * all except for Bind. Result code type: Specific (Security)
      */
-    public static final ResultCodeEnum INSUFFICIENTACCESSRIGHTS = new ResultCodeEnum( "INSUFFICIENTACCESSRIGHTS",
-        INSUFFICIENTACCESSRIGHTS_VAL );
+    INSUFFICIENT_ACCESS_RIGHTS( 50 ),
 
     // ------------------------------------------------------------------------
     // Service Problem Specific Error Codes:
@@ -421,7 +333,7 @@ public class ResultCodeEnum extends ValuedEnum
      * [RFC2251, Section 4.2.1] Applicable operations: all except Bind. Result
      * code type: Specific (Service)
      */
-    public static final ResultCodeEnum OPERATIONSERROR = new ResultCodeEnum( "OPERATIONSERROR", OPERATIONSERROR_VAL );
+    OPERATIONS_ERROR( 1 ),
 
     /**
      * A protocol error should be returned by the server when an invalid or
@@ -437,7 +349,7 @@ public class ResultCodeEnum extends ValuedEnum
      * error in the error string. Applicable operations: all. Result code type:
      * Specific (Service)
      */
-    public static final ResultCodeEnum PROTOCOLERROR = new ResultCodeEnum( "PROTOCOLERROR", PROTOCOLERROR_VAL );
+    PROTOCOL_ERROR( 2 ),
 
     /**
      * This error should be returned when the time to perform an operation has
@@ -454,8 +366,7 @@ public class ResultCodeEnum extends ValuedEnum
      * exceed the defined timelimit. Applicable operations: all. Result code
      * type: Specific (Service)
      */
-    public static final ResultCodeEnum TIMELIMITEXCEEDED = new ResultCodeEnum( "TIMELIMITEXCEEDED",
-        TIMELIMITEXCEEDED_VAL );
+    TIME_LIMIT_EXCEEDED( 3 ),
 
     /**
      * This error should be returned when the number of results generated by a
@@ -465,8 +376,7 @@ public class ResultCodeEnum extends ValuedEnum
      * results, equal in number to the size limit [X511, Section 7.5].
      * Applicable operations: Search. Result code type: Specific (Service)
      */
-    public static final ResultCodeEnum SIZELIMITEXCEEDED = new ResultCodeEnum( "SIZELIMITEXCEEDED",
-        SIZELIMITEXCEEDED_VAL );
+    SIZE_LIMIT_EXCEEDED( 4 ),
 
     /**
      * The server has reached some limit set by an administrative authority, and
@@ -476,8 +386,7 @@ public class ResultCodeEnum extends ValuedEnum
      * candidates [Net]. This error code is new in LDAPv3. Applicable
      * operations: all. Result code type: Specific (Service)
      */
-    public static final ResultCodeEnum ADMINLIMITEXCEEDED = new ResultCodeEnum( "ADMINLIMITEXCEEDED",
-        ADMINLIMITEXCEEDED_VAL );
+    ADMIN_LIMIT_EXCEEDED( 11 ),
 
     /**
      * The server was unable to satisfy the request because one or more critical
@@ -488,8 +397,7 @@ public class ResultCodeEnum extends ValuedEnum
      * code is new in LDAPv3. Applicable operations: all. Result code type:
      * Specific (Service)
      */
-    public static final ResultCodeEnum UNAVAILABLECRITICALEXTENSION = new ResultCodeEnum(
-        "UNAVAILABLECRITICALEXTENSION", UNAVAILABLECRITICALEXTENSION_VAL );
+    UNAVAILABLE_CRITICAL_EXTENSION( 12 ),
 
     /**
      * This error code may be returned if the server is unable to process the
@@ -497,7 +405,7 @@ public class ResultCodeEnum extends ValuedEnum
      * the request shortly the server will be able to process it then.
      * Applicable operations: all. Result code type: Specific (Service)
      */
-    public static final ResultCodeEnum BUSY = new ResultCodeEnum( "BUSY", BUSY_VAL );
+    BUSY( 51 ),
 
     /**
      * This error code is returned when the server is unavailable to process the
@@ -505,7 +413,7 @@ public class ResultCodeEnum extends ValuedEnum
      * down [RFC2251, Section 4.2.3]. Applicable operations: all. Result code
      * type: Specific (Service)
      */
-    public static final ResultCodeEnum UNAVAILABLE = new ResultCodeEnum( "UNAVAILABLE", UNAVAILABLE_VAL );
+    UNAVAILABLE( 52 ),
 
     /**
      * This error code should be returned by the server when a client request is
@@ -521,15 +429,14 @@ public class ResultCodeEnum extends ValuedEnum
      * If appropriate, details of the error should be provided in the error
      * message. Applicable operations: all. Result code type: Specific (Service)
      */
-    public static final ResultCodeEnum UNWILLINGTOPERFORM = new ResultCodeEnum( "UNWILLINGTOPERFORM",
-        UNWILLINGTOPERFORM_VAL );
+    UNWILLING_TO_PERFORM( 53 ),
 
     /**
      * This error may be returned by the server if it detects an alias or
      * referral loop, and is unable to satisfy the client's request. Applicable
      * operations: all. Result code type: Specific (Service)
      */
-    public static final ResultCodeEnum LOOPDETECT = new ResultCodeEnum( "LOOPDETECT", LOOPDETECT_VAL );
+    LOOP_DETECT( 54 ),
 
     // ------------------------------------------------------------------------
     // Attribute Problem Specific Error Codes:
@@ -543,7 +450,7 @@ public class ResultCodeEnum extends ValuedEnum
      * the operation does not exist in the entry. Applicable operations: Modify,
      * Compare. Result code type: Specific (Attribute)
      */
-    public static final ResultCodeEnum NOSUCHATTRIBUTE = new ResultCodeEnum( "NOSUCHATTRIBUTE", NOSUCHATTRIBUTE_VAL );
+    NO_SUCH_ATTRIBUTE( 16 ),
 
     /**
      * This error may be returned if the specified attribute is unrecognized by
@@ -555,16 +462,14 @@ public class ResultCodeEnum extends ValuedEnum
      * Modify operations [X.511, Section 12.4]. Applicable operations: Modify,
      * Add. Result code type: Specific (Attribute)
      */
-    public static final ResultCodeEnum UNDEFINEDATTRIBUTETYPE = new ResultCodeEnum( "UNDEFINEDATTRIBUTETYPE",
-        UNDEFINEDATTRIBUTETYPE_VAL );
+    UNDEFINED_ATTRIBUTE_TYPE( 17 ),
 
     /**
      * An attempt was made, e.g., in a filter, to use a matching rule not
      * defined for the attribute type concerned [X511, Section 12.4]. Applicable
      * operations: Search. Result code type: Specific (Attribute)
      */
-    public static final ResultCodeEnum INAPPROPRIATEMATCHING = new ResultCodeEnum( "INAPPROPRIATEMATCHING",
-        INAPPROPRIATEMATCHING_VAL );
+    INAPPROPRIATE_MATCHING( 18 ),
 
     /**
      * This error should be returned by the server if an attribute value
@@ -573,16 +478,14 @@ public class ResultCodeEnum extends ValuedEnum
      * constraint on the content. Applicable operations: Modify, Add, ModifyDN.
      * Result code type: Specific (Attribute)
      */
-    public static final ResultCodeEnum CONSTRAINTVIOLATION = new ResultCodeEnum( "CONSTRAINTVIOLATION",
-        CONSTRAINTVIOLATION_VAL );
+    CONSTRAINT_VIOLATION( 19 ),
 
     /**
      * This error should be returned by the server if the value specified by the
      * client already exists within the attribute. Applicable operations:
      * Modify, Add. Result code type: Specific (Attribute)
      */
-    public static final ResultCodeEnum ATTRIBUTEORVALUEEXISTS = new ResultCodeEnum( "ATTRIBUTEORVALUEEXISTS",
-        ATTRIBUTEORVALUEEXISTS_VAL );
+    ATTRIBUTE_OR_VALUE_EXISTS( 20 ),
 
     /**
      * This error should be returned by the server if the attribute syntax for
@@ -590,8 +493,7 @@ public class ResultCodeEnum extends ValuedEnum
      * unrecognized or invalid. Applicable operations: Modify, Add. Result code
      * type: Specific (Attribute)
      */
-    public static final ResultCodeEnum INVALIDATTRIBUTESYNTAX = new ResultCodeEnum( "INVALIDATTRIBUTESYNTAX",
-        INVALIDATTRIBUTESYNTAX_VAL );
+    INVALID_ATTRIBUTE_SYNTAX( 21 ),
 
     // ------------------------------------------------------------------------
     // Name Problem Specific Error Codes:
@@ -599,7 +501,7 @@ public class ResultCodeEnum extends ValuedEnum
     // A name error reports a problem related to the distinguished name
     // provided as an argument to an operation [X511, Section 12.5].
     //
-    // For result codes of noSuchObject, aliasProblem, invalidDNSyntax and
+    // For result codes of NO_SUCH_OBJECT, aliasProblem, invalidDNSyntax and
     // aliasDereferencingProblem (see Section 5.2.2.3.7), the matchedDN
     // field is set to the name of the lowest entry (object or alias) in the
     // directory that was matched. If no aliases were dereferenced while
@@ -613,21 +515,21 @@ public class ResultCodeEnum extends ValuedEnum
     /**
      * This error should only be returned if the target object cannot be found.
      * For example, in a search operation if the search base can not be located
-     * in the DSA the server should return noSuchObject. If, however, the search
+     * in the DSA the server should return NO_SUCH_OBJECT. If, however, the search
      * base is found but does not match the search filter, success, with no
-     * resultant objects, should be returned instead of noSuchObject. If the
-     * LDAP server is a front end for an X.500 DSA then noSuchObject may also be
+     * resultant objects, should be returned instead of NO_SUCH_OBJECT. If the
+     * LDAP server is a front end for an X.500 DSA then NO_SUCH_OBJECT may also be
      * returned if discloseOnError is not granted for an entry and the client
      * does not have permission to view or modify the entry. Applicable
      * operations: all except for Bind. Result code type: Specific (Name)
      */
-    public static final ResultCodeEnum NOSUCHOBJECT = new ResultCodeEnum( "NOSUCHOBJECT", NOSUCHOBJECT_VAL );
+    NO_SUCH_OBJECT( 32 ),
 
     /**
      * An alias has been dereferenced which names no object [X511, Section 12.5]
      * Applicable operations: Search. Result code type: Specific (Name)
      */
-    public static final ResultCodeEnum ALIASPROBLEM = new ResultCodeEnum( "ALIASPROBLEM", ALIASPROBLEM_VAL );
+    ALIAS_PROBLEM( 33 ),
 
     /**
      * This error should be returned by the server if the DN syntax is
@@ -636,8 +538,8 @@ public class ResultCodeEnum extends ValuedEnum
      * DSA ; in this case namingViolation should be returned instead. Applicable
      * operations: all. Result code type: Specific (Name)
      */
-    public static final ResultCodeEnum INVALIDDNSYNTAX = new ResultCodeEnum( "INVALIDDNSYNTAX", INVALIDDNSYNTAX_VAL );
-
+    INVALID_DN_SYNTAX( 34 ),
+    
     // ------------------------------------------------------------------------
     // Update Problem Specific Error Codes:
     //
@@ -654,7 +556,7 @@ public class ResultCodeEnum extends ValuedEnum
      * 12.9]. Applicable operations: Add, ModifyDN. Result code type: Specific
      * (Update)
      */
-    public static final ResultCodeEnum NAMINGVIOLATION = new ResultCodeEnum( "NAMINGVIOLATION", NAMINGVIOLATION_VAL );
+    NAMING_VIOLATION( 64 ),
 
     /**
      * This error should be returned if the operation requested by the user
@@ -668,8 +570,7 @@ public class ResultCodeEnum extends ValuedEnum
      * permits are still present. Applicable operations: Add, Modify, ModifyDN.
      * Result code type: Specific (Update)
      */
-    public static final ResultCodeEnum OBJECTCLASSVIOLATION = new ResultCodeEnum( "OBJECTCLASSVIOLATION",
-        OBJECTCLASSVIOLATION_VAL );
+    OBJECT_CLASS_VIOLATION( 65 ),
 
     /**
      * This error should be returned if the client attempts to perform an
@@ -681,8 +582,7 @@ public class ResultCodeEnum extends ValuedEnum
      * [X.511, Section 11.4.1]). Applicable operations: Delete, ModifyDN. Result
      * code type: Specific (Update)
      */
-    public static final ResultCodeEnum NOTALLOWEDONNONLEAF = new ResultCodeEnum( "NOTALLOWEDONNONLEAF",
-        NOTALLOWEDONNONLEAF_VAL );
+    NOT_ALLOWED_ON_NON_LEAF( 66 ),
 
     /**
      * The attempted operation would affect the RDN (e.g., removal of an
@@ -692,7 +592,7 @@ public class ResultCodeEnum extends ValuedEnum
      * should return the error notAllowedOnRDN. [RFC2251, Section 4.6]
      * Applicable operations: Modify. Result code type: Specific (Update)
      */
-    public static final ResultCodeEnum NOTALLOWEDONRDN = new ResultCodeEnum( "NOTALLOWEDONRDN", NOTALLOWEDONRDN_VAL );
+    NOT_ALLOWED_ON_RDN( 67 ),
 
     /**
      * This error should be returned by the server when the client attempts to
@@ -700,8 +600,7 @@ public class ResultCodeEnum extends ValuedEnum
      * entry with the name of an entry which exists. Applicable operations: Add,
      * ModifyDN. Result code type: Specific (Update)
      */
-    public static final ResultCodeEnum ENTRYALREADYEXISTS = new ResultCodeEnum( "ENTRYALREADYEXISTS",
-        ENTRYALREADYEXISTS_VAL );
+    ENTRY_ALREADY_EXISTS( 68 ),
 
     /**
      * An operation attempted to modify an object class that should not be
@@ -711,8 +610,7 @@ public class ResultCodeEnum extends ValuedEnum
      * forms, structure rules etc. [X.511, Section 12.9]. Applicable operations:
      * Modify. Result code type: Specific (Update)
      */
-    public static final ResultCodeEnum OBJECTCLASSMODSPROHIBITED = new ResultCodeEnum( "OBJECTCLASSMODSPROHIBITE",
-        OBJECTCLASSMODSPROHIBITED_VAL );
+    OBJECT_CLASS_MODS_PROHIBITED( 69 ),
 
     /**
      * This error code should be returned to indicate that the operation could
@@ -725,8 +623,7 @@ public class ResultCodeEnum extends ValuedEnum
      * entries and subtrees between servers [RFC2251, Section 4.9]. Applicable
      * operations: ModifyDN. Result code type: Specific (Update)
      */
-    public static final ResultCodeEnum AFFECTSMULTIPLEDSAS = new ResultCodeEnum( "AFFECTSMULTIPLEDSAS",
-        AFFECTSMULTIPLEDSAS_VAL );
+    AFFECTS_MULTIPLE_DSAS( 71 ),
 
     // ------------------------------------------------------------------------
     // General Error Codes:
@@ -743,8 +640,46 @@ public class ResultCodeEnum extends ValuedEnum
      * of the error should be provided in the error message. Applicable
      * operations: all. Result code type: General
      */
-    public static final ResultCodeEnum OTHER = new ResultCodeEnum( "OTHER", OTHER_VAL );
+    OTHER( 80 ),
+    
+    /**
+     * A unknown result code to cover all the other cases
+     */
+    // -- 15 unused --
+    // -- 22-31 unused --
+    // -- 35 reserved for undefined isLeaf --
+    // -- 37-47 unused --
+    // -- 55-63 unused --
+    // -- 70 reserved for CLDAP --
+    // -- 72-79 unused --
+    // -- 81-90 reserved for APIs --
+    UNKNOWN( 99 );
+    
+    /** Stores the integer value of each element of the enumeration */
+    private int value;
 
+    /**
+     * Private construct so no other instances can be created other than the
+     * public static constants in this class.
+     * 
+     * @param value the integer value of the enumeration.
+     */
+    private ResultCodeEnum( int value )
+    {
+        this.value = value;
+    }
+    
+    /**
+     * @return The value associated with the current element.
+     */
+    public int getValue()
+    {
+        return value;
+    }
+    
+    public static final Set<ResultCodeEnum> EMPTY_RESULT_CODE_SET = new HashSet<ResultCodeEnum>();
+    
+    
     // ------------------------------------------------------------------------
     // Error Codes Grouped Into Categories & Static Accessors
     // ------------------------------------------------------------------------
@@ -763,7 +698,7 @@ public class ResultCodeEnum extends ValuedEnum
      * <li><a href="OTHER">OTHER</a></li>
      * </ul>
      */
-    public static final Set GENERAL_CODES = Collections.singleton( OTHER );
+    public static final Set<ResultCodeEnum> GENERAL_CODES = Collections.singleton( OTHER );
 
     /**
      * Five result codes that may be returned in LDAPResult are not used to
@@ -776,18 +711,19 @@ public class ResultCodeEnum extends ValuedEnum
      * <li><a href="#COMPARETRUE">COMPARETRUE</a></li>
      * <li><a href="#COMPAREFALSE">COMPAREFALSE</a></li>
      * <li><a href="#REFERRAL">REFERRAL</a></li>
-     * <li><a href="#SASLBINDINPROGRESS">SASLBINDINPROGRESS</a></li>
+     * <li><a href="#SASL_BIND_IN_PROGRESS">SASL_BIND_IN_PROGRESS</a></li>
      * </ul>
      */
-    public static final Set NON_ERRONEOUS_CODES;
+    public static final Set<ResultCodeEnum> NON_ERRONEOUS_CODES;
+    
     static
     {
-        HashSet set = new HashSet();
-        set.add( SUCCESS );
-        set.add( COMPARETRUE );
-        set.add( COMPAREFALSE );
-        set.add( REFERRAL );
-        set.add( SASLBINDINPROGRESS );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.SUCCESS );
+        set.add( ResultCodeEnum.COMPARE_TRUE );
+        set.add( ResultCodeEnum.COMPARE_FALSE );
+        set.add( ResultCodeEnum.REFERRAL );
+        set.add( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
         NON_ERRONEOUS_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -796,24 +732,25 @@ public class ResultCodeEnum extends ValuedEnum
      * attribute error reports a problem related to an attribute specified by
      * the client in their request message. The set contains:
      * <ul>
-     * <li><a href="#NOSUCHATTRIBUTE">NOSUCHATTRIBUTE</a></li>
-     * <li><a href="#UNDEFINEDATTRIBUTETYPE">UNDEFINEDATTRIBUTETYPE</a></li>
-     * <li><a href="#INAPPROPRIATEMATCHING">INAPPROPRIATEMATCHING</a></li>
-     * <li><a href="#CONSTRAINTVIOLATION">CONSTRAINTVIOLATION</a></li>
-     * <li><a href="#ATTRIBUTEORVALUEEXISTS">ATTRIBUTEORVALUEEXISTS</a></li>
-     * <li><a href="#INVALIDATTRIBUTESYNTAX">INVALIDATTRIBUTESYNTAX</a></li>
+     * <li><a href="#NO_SUCH_ATTRIBUTE">NO_SUCH_ATTRIBUTE</a></li>
+     * <li><a href="#UNDEFINED_ATTRIBUTE_TYPE">UNDEFINED_ATTRIBUTE_TYPE</a></li>
+     * <li><a href="#INAPPROPRIATE_MATCHING">INAPPROPRIATE_MATCHING</a></li>
+     * <li><a href="#CONSTRAINT_VIOLATION">CONSTRAINT_VIOLATION</a></li>
+     * <li><a href="#ATTRIBUTE_OR_VALUE_EXISTS">ATTRIBUTE_OR_VALUE_EXISTS</a></li>
+     * <li><a href="#INVALID_ATTRIBUTE_SYNTAX">INVALID_ATTRIBUTE_SYNTAX</a></li>
      * </ul>
      */
-    public static final Set ATTRIBUTE_CODES;
+    public static final Set<ResultCodeEnum> ATTRIBUTE_CODES;
+    
     static
     {
-        HashSet set = new HashSet();
-        set.add( NOSUCHATTRIBUTE );
-        set.add( UNDEFINEDATTRIBUTETYPE );
-        set.add( INAPPROPRIATEMATCHING );
-        set.add( CONSTRAINTVIOLATION );
-        set.add( ATTRIBUTEORVALUEEXISTS );
-        set.add( INVALIDATTRIBUTESYNTAX );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.NO_SUCH_ATTRIBUTE );
+        set.add( ResultCodeEnum.UNDEFINED_ATTRIBUTE_TYPE );
+        set.add( ResultCodeEnum.INAPPROPRIATE_MATCHING );
+        set.add( ResultCodeEnum.CONSTRAINT_VIOLATION );
+        set.add( ResultCodeEnum.ATTRIBUTE_OR_VALUE_EXISTS );
+        set.add( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
         ATTRIBUTE_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -821,7 +758,7 @@ public class ResultCodeEnum extends ValuedEnum
      * Stores the set of error codes associated with name problems. A name error
      * reports a problem related to the distinguished name provided as an
      * argument to an operation [X511, Section 12.5]. For result codes of
-     * noSuchObject, aliasProblem, invalidDNSyntax and
+     * NO_SUCH_OBJECT, aliasProblem, invalidDNSyntax and
      * aliasDereferencingProblem, the matchedDN field is set to the name of the
      * lowest entry (object or alias) in the directory that was matched. If no
      * aliases were dereferenced while attempting to locate the entry, this will
@@ -830,18 +767,19 @@ public class ResultCodeEnum extends ValuedEnum
      * matchedDN field is to be set to a zero length string with all other
      * result codes [RFC2251, Section 4.1.10]. The set contains:
      * <ul>
-     * <li><a href="#NOSUCHOBJECT">NOSUCHOBJECT</a></li>
-     * <li><a href="#ALIASPROBLEM">ALIASPROBLEM</a></li>
-     * <li><a href="#INVALIDDNSYNTAX">INVALIDDNSYNTAX</a></li>
+     * <li><a href="#NO_SUCH_OBJECT">NO_SUCH_OBJECT</a></li>
+     * <li><a href="#ALIAS_PROBLEM">ALIAS_PROBLEM</a></li>
+     * <li><a href="#INVALID_DN_SYNTAX">INVALID_DN_SYNTAX</a></li>
      * </ul>
      */
-    public static final Set NAME_CODES;
+    public static final Set<ResultCodeEnum> NAME_CODES;
+    
     static
     {
-        HashSet set = new HashSet();
-        set.add( NOSUCHOBJECT );
-        set.add( ALIASPROBLEM );
-        set.add( INVALIDDNSYNTAX );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.NO_SUCH_OBJECT );
+        set.add( ResultCodeEnum.ALIAS_PROBLEM );
+        set.add( ResultCodeEnum.INVALID_DN_SYNTAX );
         NAME_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -850,26 +788,27 @@ public class ResultCodeEnum extends ValuedEnum
      * security error reports a problem in carrying out an operation for
      * security reasons [X511, Section 12.7]. The set contains:
      * <ul>
-     * <li><a href="#INVALIDCREDENTIALS">INVALIDCREDENTIALS</a></li>
-     * <li><a href="#STRONGAUTHREQUIRED">STRONGAUTHREQUIRED</a></li>
-     * <li><a href="#AUTHMETHODNOTSUPPORTED">AUTHMETHODNOTSUPPORTED</a></li>
-     * <li><a href="#CONFIDENTIALITYREQUIRED">CONFIDENTIALITYREQUIRED</a></li>
-     * <li><a href="#INSUFFICIENTACCESSRIGHTS">INSUFFICIENTACCESSRIGHTS</a></li>
-     * <li><a href="#ALIASDEREFERENCINGPROBLEM">ALIASDEREFERENCINGPROBLEM</a></li>
-     * <li><a href="#INAPPROPRIATEAUTHENTICATION">INAPPROPRIATEAUTHENTICATION</a></li>
+     * <li><a href="#INVALID_CREDENTIALS">INVALID_CREDENTIALS</a></li>
+     * <li><a href="#STRONG_AUTH_REQUIRED">STRONG_AUTH_REQUIRED</a></li>
+     * <li><a href="#AUTH_METHOD_NOT_SUPPORTED">AUTH_METHOD_NOT_SUPPORTED</a></li>
+     * <li><a href="#CONFIDENTIALITY_REQUIRED">CONFIDENTIALITY_REQUIRED</a></li>
+     * <li><a href="#INSUFFICIENT_ACCESS_RIGHTS">INSUFFICIENT_ACCESS_RIGHTS</a></li>
+     * <li><a href="#ALIAS_DEREFERENCING_PROBLEM">ALIAS_DEREFERENCING_PROBLEM</a></li>
+     * <li><a href="#INAPPROPRIATE_AUTHENTICATION">INAPPROPRIATE_AUTHENTICATION</a></li>
      * </ul>
      */
-    public static final Set SECURITY_CODES;
+    public static final Set<ResultCodeEnum> SECURITY_CODES;
+    
     static
     {
-        HashSet set = new HashSet();
-        set.add( INVALIDCREDENTIALS );
-        set.add( STRONGAUTHREQUIRED );
-        set.add( AUTHMETHODNOTSUPPORTED );
-        set.add( CONFIDENTIALITYREQUIRED );
-        set.add( INSUFFICIENTACCESSRIGHTS );
-        set.add( ALIASDEREFERENCINGPROBLEM );
-        set.add( INAPPROPRIATEAUTHENTICATION );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.INVALID_CREDENTIALS );
+        set.add( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+        set.add( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+        set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+        set.add( ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM );
+        set.add( ResultCodeEnum.INAPPROPRIATE_AUTHENTICATION );
         SECURITY_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -879,31 +818,32 @@ public class ResultCodeEnum extends ValuedEnum
      * problems. The set contains:
      * <ul>
      * <li><a href="#BUSY">BUSY</a></li>
-     * <li><a href="#LOOPDETECT">LOOPDETECT</a></li>
+     * <li><a href="#LOOP_DETECT">LOOP_DETECT</a></li>
      * <li><a href="#UNAVAILABLE">UNAVAILABLE</a></li>
-     * <li><a href="#PROTOCOLERROR">PROTOCOLERROR</a></li>
+     * <li><a href="#PROTOCOL_ERROR">PROTOCOL_ERROR</a></li>
      * <li><a href="#OPERATIONSERROR">OPERATIONSERROR</a></li>
-     * <li><a href="#TIMELIMITEXCEEDED">TIMELIMITEXCEEDED</a></li>
-     * <li><a href="#SIZELIMITEXCEEDED">SIZELIMITEXCEEDED</a></li>
-     * <li><a href="#ADMINLIMITEXCEEDED">ADMINLIMITEXCEEDED</a></li>
-     * <li><a href="#UNWILLINGTOPERFORM">UNWILLINGTOPERFORM</a></li>
-     * <li><a href="#UNAVAILABLECRITICALEXTENSION">UNAVAILABLECRITICALEXTENSION</a></li>
+     * <li><a href="#TIME_LIMIT_EXCEEDED">TIME_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#SIZE_LIMIT_EXCEEDED">SIZE_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#ADMIN_LIMIT_EXCEEDED">ADMIN_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#UNWILLING_TO_PERFORM">UNWILLING_TO_PERFORM</a></li>
+     * <li><a href="#UNAVAILABLE_CRITICAL_EXTENSION">UNAVAILABLE_CRITICAL_EXTENSION</a></li>
      * </ul>
      */
-    public static final Set SERVICE_CODES;
+    public static final Set<ResultCodeEnum> SERVICE_CODES;
+    
     static
     {
-        HashSet set = new HashSet();
-        set.add( BUSY );
-        set.add( LOOPDETECT );
-        set.add( UNAVAILABLE );
-        set.add( PROTOCOLERROR );
-        set.add( OPERATIONSERROR );
-        set.add( TIMELIMITEXCEEDED );
-        set.add( SIZELIMITEXCEEDED );
-        set.add( ADMINLIMITEXCEEDED );
-        set.add( UNWILLINGTOPERFORM );
-        set.add( UNAVAILABLECRITICALEXTENSION );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.BUSY );
+        set.add( ResultCodeEnum.LOOP_DETECT );
+        set.add( ResultCodeEnum.UNAVAILABLE );
+        set.add( ResultCodeEnum.PROTOCOL_ERROR );
+        set.add( ResultCodeEnum.OPERATIONS_ERROR );
+        set.add( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
         SERVICE_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -912,26 +852,27 @@ public class ResultCodeEnum extends ValuedEnum
      * modify information in the DIB [X511, Section 12.9]. This set contains the
      * category of update errors.
      * <ul>
-     * <li><a href="#NAMINGVIOLATION">NAMINGVIOLATION</a></li>
-     * <li><a href="#OBJECTCLASSVIOLATION">OBJECTCLASSVIOLATION</a></li>
-     * <li><a href="#NOTALLOWEDONNONLEAF">NOTALLOWEDONNONLEAF</a></li>
-     * <li><a href="#NOTALLOWEDONRDN">NOTALLOWEDONRDN</a></li>
-     * <li><a href="#ENTRYALREADYEXISTS">ENTRYALREADYEXISTS</a></li>
-     * <li><a href="#OBJECTCLASSMODSPROHIBITED">OBJECTCLASSMODSPROHIBITED</a></li>
-     * <li><a href="#AFFECTSMULTIPLEDSAS">AFFECTSMULTIPLEDSAS</a></li>
+     * <li><a href="#NAMING_VIOLATION">NAMING_VIOLATION</a></li>
+     * <li><a href="#OBJECT_CLASS_VIOLATION">OBJECT_CLASS_VIOLATION</a></li>
+     * <li><a href="#NOT_ALLOWED_ON_NON_LEAF">NOT_ALLOWED_ON_NON_LEAF</a></li>
+     * <li><a href="#NOT_ALLOWED_ON_RDN">NOT_ALLOWED_ON_RDN</a></li>
+     * <li><a href="#ENTRY_ALREADY_EXISTS">ENTRY_ALREADY_EXISTS</a></li>
+     * <li><a href="#OBJECT_CLASS_MODS_PROHIBITED">OBJECT_CLASS_MODS_PROHIBITED</a></li>
+     * <li><a href="#AFFECTS_MULTIPLE_DSAS">AFFECTS_MULTIPLE_DSAS</a></li>
      * </ul>
      */
-    public static final Set UPDATE_CODES;
+    public static final Set<ResultCodeEnum> UPDATE_CODES;
+    
     static
     {
-        HashSet set = new HashSet();
-        set.add( NAMINGVIOLATION );
-        set.add( OBJECTCLASSVIOLATION );
-        set.add( NOTALLOWEDONNONLEAF );
-        set.add( NOTALLOWEDONRDN );
-        set.add( ENTRYALREADYEXISTS );
-        set.add( OBJECTCLASSMODSPROHIBITED );
-        set.add( AFFECTSMULTIPLEDSAS );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.NAMING_VIOLATION );
+        set.add( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+        set.add( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF );
+        set.add( ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+        set.add( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
+        set.add( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
+        set.add( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
         UPDATE_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -946,33 +887,33 @@ public class ResultCodeEnum extends ValuedEnum
      * <li><a href="#BUSY">BUSY</a></li>
      * <li><a href="#OTHER">OTHER</a></li>
      * <li><a href="#REFERRAL">REFERRAL</a></li>
-     * <li><a href="#LOOPDETECT">LOOPDETECT</a></li>
+     * <li><a href="#LOOP_DETECT">LOOP_DETECT</a></li>
      * <li><a href="#UNAVAILABLE">UNAVAILABLE</a></li>
-     * <li><a href="#PROTOCOLERROR">PROTOCOLERROR</a></li>
-     * <li><a href="#TIMELIMITEXCEEDED">TIMELIMITEXCEEDED</a></li>
-     * <li><a href="#ADMINLIMITEXCEEDED">ADMINLIMITEXCEEDED</a></li>
-     * <li><a href="#STRONGAUTHREQUIRED">STRONGAUTHREQUIRED</a></li>
-     * <li><a href="#UNWILLINGTOPERFORM">UNWILLINGTOPERFORM</a></li>
-     * <li><a href="#CONFIDENTIALITYREQUIRED">CONFIDENTIALITYREQUIRED</a></li>
-     * <li><a href="#UNAVAILABLECRITICALEXTENSION">UNAVAILABLECRITICALEXTENSION</a></li>
+     * <li><a href="#PROTOCOL_ERROR">PROTOCOL_ERROR</a></li>
+     * <li><a href="#TIME_LIMIT_EXCEEDED">TIME_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#ADMIN_LIMIT_EXCEEDED">ADMIN_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#STRONG_AUTH_REQUIRED">STRONG_AUTH_REQUIRED</a></li>
+     * <li><a href="#UNWILLING_TO_PERFORM">UNWILLING_TO_PERFORM</a></li>
+     * <li><a href="#CONFIDENTIALITY_REQUIRED">CONFIDENTIALITY_REQUIRED</a></li>
+     * <li><a href="#UNAVAILABLE_CRITICAL_EXTENSION">UNAVAILABLE_CRITICAL_EXTENSION</a></li>
      * </ul>
      */
-    public static final Set COMMON_CODES;
+    public static final Set<ResultCodeEnum> COMMON_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( BUSY );
-        set.add( OTHER );
-        set.add( REFERRAL );
-        set.add( LOOPDETECT );
-        set.add( UNAVAILABLE );
-        set.add( PROTOCOLERROR );
-        set.add( TIMELIMITEXCEEDED );
-        set.add( ADMINLIMITEXCEEDED );
-        set.add( STRONGAUTHREQUIRED );
-        set.add( UNWILLINGTOPERFORM );
-        set.add( CONFIDENTIALITYREQUIRED );
-        set.add( UNAVAILABLECRITICALEXTENSION );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.BUSY );
+        set.add( ResultCodeEnum.OTHER );
+        set.add( ResultCodeEnum.REFERRAL );
+        set.add( ResultCodeEnum.LOOP_DETECT );
+        set.add( ResultCodeEnum.UNAVAILABLE );
+        set.add( ResultCodeEnum.PROTOCOL_ERROR );
+        set.add( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+        set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
         COMMON_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -984,44 +925,44 @@ public class ResultCodeEnum extends ValuedEnum
      * <li><a href="#OTHER">OTHER</a></li>
      * <li><a href="#SUCCESS">SUCCESS</a></li>
      * <li><a href="#REFERRAL">REFERRAL</a></li>
-     * <li><a href="#LOOPDETECT">LOOPDETECT</a></li>
+     * <li><a href="#LOOP_DETECT">LOOP_DETECT</a></li>
      * <li><a href="#UNAVAILABLE">UNAVAILABLE</a></li>
-     * <li><a href="#PROTOCOLERROR">PROTOCOLERROR</a></li>
-     * <li><a href="#INVALIDDNSYNTAX">INVALIDDNSYNTAX</a></li>
-     * <li><a href="#TIMELIMITEXCEEDED">TIMELIMITEXCEEDED</a></li>
-     * <li><a href="#ADMINLIMITEXCEEDED">ADMINLIMITEXCEEDED</a></li>
-     * <li><a href="#UNWILLINGTOPERFORM">UNWILLINGTOPERFORM</a></li>
-     * <li><a href="#SASLBINDINPROGRESS">SASLBINDINPROGRESS</a></li>
-     * <li><a href="#STRONGAUTHREQUIRED">STRONGAUTHREQUIRED</a></li>
-     * <li><a href="#INVALIDCREDENTIALS">INVALIDCREDENTIALS</a></li>
-     * <li><a href="#AUTHMETHODNOTSUPPORTED">AUTHMETHODNOTSUPPORTED</a></li>
-     * <li><a href="#CONFIDENTIALITYREQUIRED">CONFIDENTIALITYREQUIRED</a></li>
-     * <li><a href="#INAPPROPRIATEAUTHENTICATION">INAPPROPRIATEAUTHENTICATION</a></li>
-     * <li><a href="#UNAVAILABLECRITICALEXTENSION">UNAVAILABLECRITICALEXTENSION</a></li>
+     * <li><a href="#PROTOCOL_ERROR">PROTOCOL_ERROR</a></li>
+     * <li><a href="#INVALID_DN_SYNTAX">INVALID_DN_SYNTAX</a></li>
+     * <li><a href="#TIME_LIMIT_EXCEEDED">TIME_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#ADMIN_LIMIT_EXCEEDED">ADMIN_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#UNWILLING_TO_PERFORM">UNWILLING_TO_PERFORM</a></li>
+     * <li><a href="#SASL_BIND_IN_PROGRESS">SASL_BIND_IN_PROGRESS</a></li>
+     * <li><a href="#STRONG_AUTH_REQUIRED">STRONG_AUTH_REQUIRED</a></li>
+     * <li><a href="#INVALID_CREDENTIALS">INVALID_CREDENTIALS</a></li>
+     * <li><a href="#AUTH_METHOD_NOT_SUPPORTED">AUTH_METHOD_NOT_SUPPORTED</a></li>
+     * <li><a href="#CONFIDENTIALITY_REQUIRED">CONFIDENTIALITY_REQUIRED</a></li>
+     * <li><a href="#INAPPROPRIATE_AUTHENTICATION">INAPPROPRIATE_AUTHENTICATION</a></li>
+     * <li><a href="#UNAVAILABLE_CRITICAL_EXTENSION">UNAVAILABLE_CRITICAL_EXTENSION</a></li>
      * </ul>
      */
-    public static final Set BIND_CODES;
+    public static final Set<ResultCodeEnum> BIND_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( BUSY );
-        set.add( OTHER );
-        set.add( SUCCESS );
-        set.add( REFERRAL );
-        set.add( LOOPDETECT );
-        set.add( UNAVAILABLE );
-        set.add( PROTOCOLERROR );
-        set.add( INVALIDDNSYNTAX );
-        set.add( TIMELIMITEXCEEDED );
-        set.add( ADMINLIMITEXCEEDED );
-        set.add( UNWILLINGTOPERFORM );
-        set.add( SASLBINDINPROGRESS );
-        set.add( STRONGAUTHREQUIRED );
-        set.add( INVALIDCREDENTIALS );
-        set.add( AUTHMETHODNOTSUPPORTED );
-        set.add( CONFIDENTIALITYREQUIRED );
-        set.add( INAPPROPRIATEAUTHENTICATION );
-        set.add( UNAVAILABLECRITICALEXTENSION );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.BUSY );
+        set.add( ResultCodeEnum.OTHER );
+        set.add( ResultCodeEnum.SUCCESS );
+        set.add( ResultCodeEnum.REFERRAL );
+        set.add( ResultCodeEnum.LOOP_DETECT );
+        set.add( ResultCodeEnum.UNAVAILABLE );
+        set.add( ResultCodeEnum.PROTOCOL_ERROR );
+        set.add( ResultCodeEnum.INVALID_DN_SYNTAX );
+        set.add( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        set.add( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
+        set.add( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+        set.add( ResultCodeEnum.INVALID_CREDENTIALS );
+        set.add( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+        set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        set.add( ResultCodeEnum.INAPPROPRIATE_AUTHENTICATION );
+        set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
         BIND_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1033,48 +974,48 @@ public class ResultCodeEnum extends ValuedEnum
      * <li><a href="#OTHER">OTHER</a></li>
      * <li><a href="#SUCCESS">SUCCESS</a></li>
      * <li><a href="#REFERRAL">REFERRAL</a></li>
-     * <li><a href="#LOOPDETECT">LOOPDETECT</a></li>
+     * <li><a href="#LOOP_DETECT">LOOP_DETECT</a></li>
      * <li><a href="#UNAVAILABLE">UNAVAILABLE</a></li>
-     * <li><a href="#NOSUCHOBJECT">NOSUCHOBJECT</a></li>
-     * <li><a href="#ALIASPROBLEM">ALIASPROBLEM</a></li>
-     * <li><a href="#PROTOCOLERROR">PROTOCOLERROR</a></li>
-     * <li><a href="#INVALIDDNSYNTAX">INVALIDDNSYNTAX</a></li>
-     * <li><a href="#SIZELIMITEXCEEDED">SIZELIMITEXCEEDED</a></li>
-     * <li><a href="#TIMELIMITEXCEEDED">TIMELIMITEXCEEDED</a></li>
-     * <li><a href="#ADMINLIMITEXCEEDED">ADMINLIMITEXCEEDED</a></li>
-     * <li><a href="#STRONGAUTHREQUIRED">STRONGAUTHREQUIRED</a></li>
-     * <li><a href="#UNWILLINGTOPERFORM">UNWILLINGTOPERFORM</a></li>
-     * <li><a href="#INAPPROPRIATEMATCHING">INAPPROPRIATEMATCHING</a></li>
-     * <li><a href="#CONFIDENTIALITYREQUIRED">CONFIDENTIALITYREQUIRED</a></li>
-     * <li><a href="#INSUFFICIENTACCESSRIGHTS">INSUFFICIENTACCESSRIGHTS</a></li>
-     * <li><a href="#ALIASDEREFERENCINGPROBLEM">ALIASDEREFERENCINGPROBLEM</a></li>
-     * <li><a href="#UNAVAILABLECRITICALEXTENSION">UNAVAILABLECRITICALEXTENSION</a></li>
+     * <li><a href="#NO_SUCH_OBJECT">NO_SUCH_OBJECT</a></li>
+     * <li><a href="#ALIAS_PROBLEM">ALIAS_PROBLEM</a></li>
+     * <li><a href="#PROTOCOL_ERROR">PROTOCOL_ERROR</a></li>
+     * <li><a href="#INVALID_DN_SYNTAX">INVALID_DN_SYNTAX</a></li>
+     * <li><a href="#SIZE_LIMIT_EXCEEDED">SIZE_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#TIME_LIMIT_EXCEEDED">TIME_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#ADMIN_LIMIT_EXCEEDED">ADMIN_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#STRONG_AUTH_REQUIRED">STRONG_AUTH_REQUIRED</a></li>
+     * <li><a href="#UNWILLING_TO_PERFORM">UNWILLING_TO_PERFORM</a></li>
+     * <li><a href="#INAPPROPRIATE_MATCHING">INAPPROPRIATE_MATCHING</a></li>
+     * <li><a href="#CONFIDENTIALITY_REQUIRED">CONFIDENTIALITY_REQUIRED</a></li>
+     * <li><a href="#INSUFFICIENT_ACCESS_RIGHTS">INSUFFICIENT_ACCESS_RIGHTS</a></li>
+     * <li><a href="#ALIAS_DEREFERENCING_PROBLEM">ALIAS_DEREFERENCING_PROBLEM</a></li>
+     * <li><a href="#UNAVAILABLE_CRITICAL_EXTENSION">UNAVAILABLE_CRITICAL_EXTENSION</a></li>
      * </ul>
      */
-    public static final Set SEARCH_CODES;
+    public static final Set<ResultCodeEnum> SEARCH_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( BUSY );
-        set.add( OTHER );
-        set.add( SUCCESS );
-        set.add( REFERRAL );
-        set.add( LOOPDETECT );
-        set.add( UNAVAILABLE );
-        set.add( NOSUCHOBJECT );
-        set.add( ALIASPROBLEM );
-        set.add( PROTOCOLERROR );
-        set.add( INVALIDDNSYNTAX );
-        set.add( SIZELIMITEXCEEDED );
-        set.add( TIMELIMITEXCEEDED );
-        set.add( ADMINLIMITEXCEEDED );
-        set.add( STRONGAUTHREQUIRED );
-        set.add( UNWILLINGTOPERFORM );
-        set.add( INAPPROPRIATEMATCHING );
-        set.add( CONFIDENTIALITYREQUIRED );
-        set.add( INSUFFICIENTACCESSRIGHTS );
-        set.add( ALIASDEREFERENCINGPROBLEM );
-        set.add( UNAVAILABLECRITICALEXTENSION );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.BUSY );
+        set.add( ResultCodeEnum.OTHER );
+        set.add( ResultCodeEnum.SUCCESS );
+        set.add( ResultCodeEnum.REFERRAL );
+        set.add( ResultCodeEnum.LOOP_DETECT );
+        set.add( ResultCodeEnum.UNAVAILABLE );
+        set.add( ResultCodeEnum.NO_SUCH_OBJECT );
+        set.add( ResultCodeEnum.ALIAS_PROBLEM );
+        set.add( ResultCodeEnum.PROTOCOL_ERROR );
+        set.add( ResultCodeEnum.INVALID_DN_SYNTAX );
+        set.add( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+        set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        set.add( ResultCodeEnum.INAPPROPRIATE_MATCHING );
+        set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+        set.add( ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM );
+        set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
         SEARCH_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1086,56 +1027,56 @@ public class ResultCodeEnum extends ValuedEnum
      * <li><a href="#OTHER">OTHER</a></li>
      * <li><a href="#SUCCESS">SUCCESS</a></li>
      * <li><a href="#REFERRAL">REFERRAL</a></li>
-     * <li><a href="#LOOPDETECT">LOOPDETECT</a></li>
+     * <li><a href="#LOOP_DETECT">LOOP_DETECT</a></li>
      * <li><a href="#UNAVAILABLE">UNAVAILABLE</a></li>
-     * <li><a href="#NOSUCHOBJECT">NOSUCHOBJECT</a></li>
-     * <li><a href="#PROTOCOLERROR">PROTOCOLERROR</a></li>
-     * <li><a href="#INVALIDDNSYNTAX">INVALIDDNSYNTAX</a></li>
-     * <li><a href="#NOTALLOWEDONRDN">NOTALLOWEDONRDN</a></li>
-     * <li><a href="#NOSUCHATTRIBUTE">NOSUCHATTRIBUTE</a></li>
-     * <li><a href="#TIMELIMITEXCEEDED">TIMELIMITEXCEEDED</a></li>
-     * <li><a href="#ADMINLIMITEXCEEDED">ADMINLIMITEXCEEDED</a></li>
-     * <li><a href="#STRONGAUTHREQUIRED">STRONGAUTHREQUIRED</a></li>
-     * <li><a href="#UNWILLINGTOPERFORM">UNWILLINGTOPERFORM</a></li>
-     * <li><a href="#CONSTRAINTVIOLATION">CONSTRAINTVIOLATION</a></li>
-     * <li><a href="#OBJECTCLASSVIOLATION">OBJECTCLASSVIOLATION</a></li>
-     * <li><a href="#INVALIDATTRIBUTESYNTAX">INVALIDATTRIBUTESYNTAX</a></li>
-     * <li><a href="#UNDEFINEDATTRIBUTETYPE">UNDEFINEDATTRIBUTETYPE</a></li>
-     * <li><a href="#ATTRIBUTEORVALUEEXISTS">ATTRIBUTEORVALUEEXISTS</a></li>
-     * <li><a href="#CONFIDENTIALITYREQUIRED">CONFIDENTIALITYREQUIRED</a></li>
-     * <li><a href="#INSUFFICIENTACCESSRIGHTS">INSUFFICIENTACCESSRIGHTS</a></li>
-     * <li><a href="#OBJECTCLASSMODSPROHIBITED">OBJECTCLASSMODSPROHIBITED</a></li>
-     * <li><a href="#UNAVAILABLECRITICALEXTENSION">UNAVAILABLECRITICALEXTENSION</a></li>
+     * <li><a href="#NO_SUCH_OBJECT">NO_SUCH_OBJECT</a></li>
+     * <li><a href="#PROTOCOL_ERROR">PROTOCOL_ERROR</a></li>
+     * <li><a href="#INVALID_DN_SYNTAX">INVALID_DN_SYNTAX</a></li>
+     * <li><a href="#NOT_ALLOWED_ON_RDN">NOT_ALLOWED_ON_RDN</a></li>
+     * <li><a href="#NO_SUCH_ATTRIBUTE">NO_SUCH_ATTRIBUTE</a></li>
+     * <li><a href="#TIME_LIMIT_EXCEEDED">TIME_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#ADMIN_LIMIT_EXCEEDED">ADMIN_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#STRONG_AUTH_REQUIRED">STRONG_AUTH_REQUIRED</a></li>
+     * <li><a href="#UNWILLING_TO_PERFORM">UNWILLING_TO_PERFORM</a></li>
+     * <li><a href="#CONSTRAINT_VIOLATION">CONSTRAINT_VIOLATION</a></li>
+     * <li><a href="#OBJECT_CLASS_VIOLATION">OBJECT_CLASS_VIOLATION</a></li>
+     * <li><a href="#INVALID_ATTRIBUTE_SYNTAX">INVALID_ATTRIBUTE_SYNTAX</a></li>
+     * <li><a href="#UNDEFINED_ATTRIBUTE_TYPE">UNDEFINED_ATTRIBUTE_TYPE</a></li>
+     * <li><a href="#ATTRIBUTE_OR_VALUE_EXISTS">ATTRIBUTE_OR_VALUE_EXISTS</a></li>
+     * <li><a href="#CONFIDENTIALITY_REQUIRED">CONFIDENTIALITY_REQUIRED</a></li>
+     * <li><a href="#INSUFFICIENT_ACCESS_RIGHTS">INSUFFICIENT_ACCESS_RIGHTS</a></li>
+     * <li><a href="#OBJECT_CLASS_MODS_PROHIBITED">OBJECT_CLASS_MODS_PROHIBITED</a></li>
+     * <li><a href="#UNAVAILABLE_CRITICAL_EXTENSION">UNAVAILABLE_CRITICAL_EXTENSION</a></li>
      * </ul>
      */
-    public static final Set MODIFY_CODES;
+    public static final Set<ResultCodeEnum> MODIFY_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( BUSY );
-        set.add( OTHER );
-        set.add( SUCCESS );
-        set.add( REFERRAL );
-        set.add( LOOPDETECT );
-        set.add( UNAVAILABLE );
-        set.add( NOSUCHOBJECT );
-        set.add( PROTOCOLERROR );
-        set.add( INVALIDDNSYNTAX );
-        set.add( NOTALLOWEDONRDN );
-        set.add( NOSUCHATTRIBUTE );
-        set.add( TIMELIMITEXCEEDED );
-        set.add( ADMINLIMITEXCEEDED );
-        set.add( STRONGAUTHREQUIRED );
-        set.add( UNWILLINGTOPERFORM );
-        set.add( CONSTRAINTVIOLATION );
-        set.add( OBJECTCLASSVIOLATION );
-        set.add( INVALIDATTRIBUTESYNTAX );
-        set.add( UNDEFINEDATTRIBUTETYPE );
-        set.add( ATTRIBUTEORVALUEEXISTS );
-        set.add( CONFIDENTIALITYREQUIRED );
-        set.add( INSUFFICIENTACCESSRIGHTS );
-        set.add( OBJECTCLASSMODSPROHIBITED );
-        set.add( UNAVAILABLECRITICALEXTENSION );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.BUSY );
+        set.add( ResultCodeEnum.OTHER );
+        set.add( ResultCodeEnum.SUCCESS );
+        set.add( ResultCodeEnum.REFERRAL );
+        set.add( ResultCodeEnum.LOOP_DETECT );
+        set.add( ResultCodeEnum.UNAVAILABLE );
+        set.add( ResultCodeEnum.NO_SUCH_OBJECT );
+        set.add( ResultCodeEnum.PROTOCOL_ERROR );
+        set.add( ResultCodeEnum.INVALID_DN_SYNTAX );
+        set.add( ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+        set.add( ResultCodeEnum.NO_SUCH_ATTRIBUTE );
+        set.add( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+        set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        set.add( ResultCodeEnum.CONSTRAINT_VIOLATION );
+        set.add( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+        set.add( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+        set.add( ResultCodeEnum.UNDEFINED_ATTRIBUTE_TYPE );
+        set.add( ResultCodeEnum.ATTRIBUTE_OR_VALUE_EXISTS );
+        set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+        set.add( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
+        set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
         MODIFY_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1147,54 +1088,54 @@ public class ResultCodeEnum extends ValuedEnum
      * <li><a href="#OTHER">OTHER</a></li>
      * <li><a href="#SUCCESS">SUCCESS</a></li>
      * <li><a href="#REFERRAL">REFERRAL</a></li>
-     * <li><a href="#LOOPDETECT">LOOPDETECT</a></li>
+     * <li><a href="#LOOP_DETECT">LOOP_DETECT</a></li>
      * <li><a href="#UNAVAILABLE">UNAVAILABLE</a></li>
-     * <li><a href="#NOSUCHOBJECT">NOSUCHOBJECT</a></li>
-     * <li><a href="#PROTOCOLERROR">PROTOCOLERROR</a></li>
-     * <li><a href="#NAMINGVIOLATION">NAMINGVIOLATION</a></li>
-     * <li><a href="#INVALIDDNSYNTAX">INVALIDDNSYNTAX</a></li>
-     * <li><a href="#TIMELIMITEXCEEDED">TIMELIMITEXCEEDED</a></li>
-     * <li><a href="#ADMINLIMITEXCEEDED">ADMINLIMITEXCEEDED</a></li>
-     * <li><a href="#STRONGAUTHREQUIRED">STRONGAUTHREQUIRED</a></li>
-     * <li><a href="#UNWILLINGTOPERFORM">UNWILLINGTOPERFORM</a></li>
-     * <li><a href="#ENTRYALREADYEXISTS">ENTRYALREADYEXISTS</a></li>
-     * <li><a href="#CONSTRAINTVIOLATION">CONSTRAINTVIOLATION</a></li>
-     * <li><a href="#OBJECTCLASSVIOLATION">OBJECTCLASSVIOLATION</a></li>
-     * <li><a href="#INVALIDATTRIBUTESYNTAX">INVALIDATTRIBUTESYNTAX</a></li>
-     * <li><a href="#ATTRIBUTEORVALUEEXISTS">ATTRIBUTEORVALUEEXISTS</a></li>
-     * <li><a href="#UNDEFINEDATTRIBUTETYPE">UNDEFINEDATTRIBUTETYPE</a></li>
-     * <li><a href="#CONFIDENTIALITYREQUIRED">CONFIDENTIALITYREQUIRED</a></li>
-     * <li><a href="#INSUFFICIENTACCESSRIGHTS">INSUFFICIENTACCESSRIGHTS</a></li>
-     * <li><a href="#UNAVAILABLECRITICALEXTENSION">UNAVAILABLECRITICALEXTENSION</a></li>
+     * <li><a href="#NO_SUCH_OBJECT">NO_SUCH_OBJECT</a></li>
+     * <li><a href="#PROTOCOL_ERROR">PROTOCOL_ERROR</a></li>
+     * <li><a href="#NAMING_VIOLATION">NAMING_VIOLATION</a></li>
+     * <li><a href="#INVALID_DN_SYNTAX">INVALID_DN_SYNTAX</a></li>
+     * <li><a href="#TIME_LIMIT_EXCEEDED">TIME_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#ADMIN_LIMIT_EXCEEDED">ADMIN_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#STRONG_AUTH_REQUIRED">STRONG_AUTH_REQUIRED</a></li>
+     * <li><a href="#UNWILLING_TO_PERFORM">UNWILLING_TO_PERFORM</a></li>
+     * <li><a href="#ENTRY_ALREADY_EXISTS">ENTRY_ALREADY_EXISTS</a></li>
+     * <li><a href="#CONSTRAINT_VIOLATION">CONSTRAINT_VIOLATION</a></li>
+     * <li><a href="#OBJECT_CLASS_VIOLATION">OBJECT_CLASS_VIOLATION</a></li>
+     * <li><a href="#INVALID_ATTRIBUTE_SYNTAX">INVALID_ATTRIBUTE_SYNTAX</a></li>
+     * <li><a href="#ATTRIBUTE_OR_VALUE_EXISTS">ATTRIBUTE_OR_VALUE_EXISTS</a></li>
+     * <li><a href="#UNDEFINED_ATTRIBUTE_TYPE">UNDEFINED_ATTRIBUTE_TYPE</a></li>
+     * <li><a href="#CONFIDENTIALITY_REQUIRED">CONFIDENTIALITY_REQUIRED</a></li>
+     * <li><a href="#INSUFFICIENT_ACCESS_RIGHTS">INSUFFICIENT_ACCESS_RIGHTS</a></li>
+     * <li><a href="#UNAVAILABLE_CRITICAL_EXTENSION">UNAVAILABLE_CRITICAL_EXTENSION</a></li>
      * </ul>
      */
-    public static final Set ADD_CODES;
+    public static final Set<ResultCodeEnum> ADD_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( BUSY );
-        set.add( OTHER );
-        set.add( SUCCESS );
-        set.add( REFERRAL );
-        set.add( LOOPDETECT );
-        set.add( UNAVAILABLE );
-        set.add( NOSUCHOBJECT );
-        set.add( PROTOCOLERROR );
-        set.add( NAMINGVIOLATION );
-        set.add( INVALIDDNSYNTAX );
-        set.add( TIMELIMITEXCEEDED );
-        set.add( ADMINLIMITEXCEEDED );
-        set.add( STRONGAUTHREQUIRED );
-        set.add( UNWILLINGTOPERFORM );
-        set.add( ENTRYALREADYEXISTS );
-        set.add( CONSTRAINTVIOLATION );
-        set.add( OBJECTCLASSVIOLATION );
-        set.add( INVALIDATTRIBUTESYNTAX );
-        set.add( ATTRIBUTEORVALUEEXISTS );
-        set.add( UNDEFINEDATTRIBUTETYPE );
-        set.add( CONFIDENTIALITYREQUIRED );
-        set.add( INSUFFICIENTACCESSRIGHTS );
-        set.add( UNAVAILABLECRITICALEXTENSION );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.BUSY );
+        set.add( ResultCodeEnum.OTHER );
+        set.add( ResultCodeEnum.SUCCESS );
+        set.add( ResultCodeEnum.REFERRAL );
+        set.add( ResultCodeEnum.LOOP_DETECT );
+        set.add( ResultCodeEnum.UNAVAILABLE );
+        set.add( ResultCodeEnum.NO_SUCH_OBJECT );
+        set.add( ResultCodeEnum.PROTOCOL_ERROR );
+        set.add( ResultCodeEnum.NAMING_VIOLATION );
+        set.add( ResultCodeEnum.INVALID_DN_SYNTAX );
+        set.add( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+        set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        set.add( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
+        set.add( ResultCodeEnum.CONSTRAINT_VIOLATION );
+        set.add( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+        set.add( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+        set.add( ResultCodeEnum.ATTRIBUTE_OR_VALUE_EXISTS );
+        set.add( ResultCodeEnum.UNDEFINED_ATTRIBUTE_TYPE );
+        set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+        set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
         ADD_CODES = Collections.unmodifiableSet( set );
     };
 
@@ -1206,42 +1147,42 @@ public class ResultCodeEnum extends ValuedEnum
      * <li><a href="#OTHER">OTHER</a></li>
      * <li><a href="#SUCCESS">SUCCESS</a></li>
      * <li><a href="#REFERRAL">REFERRAL</a></li>
-     * <li><a href="#LOOPDETECT">LOOPDETECT</a></li>
+     * <li><a href="#LOOP_DETECT">LOOP_DETECT</a></li>
      * <li><a href="#UNAVAILABLE">UNAVAILABLE</a></li>
-     * <li><a href="#NOSUCHOBJECT">NOSUCHOBJECT</a></li>
-     * <li><a href="#PROTOCOLERROR">PROTOCOLERROR</a></li>
-     * <li><a href="#INVALIDDNSYNTAX">INVALIDDNSYNTAX</a></li>
-     * <li><a href="#TIMELIMITEXCEEDED">TIMELIMITEXCEEDED</a></li>
-     * <li><a href="#ADMINLIMITEXCEEDED">ADMINLIMITEXCEEDED</a></li>
-     * <li><a href="#STRONGAUTHREQUIRED">STRONGAUTHREQUIRED</a></li>
-     * <li><a href="#UNWILLINGTOPERFORM">UNWILLINGTOPERFORM</a></li>
-     * <li><a href="#NOTALLOWEDONNONLEAF">NOTALLOWEDONNONLEAF</a></li>
-     * <li><a href="#CONFIDENTIALITYREQUIRED">CONFIDENTIALITYREQUIRED</a></li>
-     * <li><a href="#INSUFFICIENTACCESSRIGHTS">INSUFFICIENTACCESSRIGHTS</a></li>
-     * <li><a href="#UNAVAILABLECRITICALEXTENSION">UNAVAILABLECRITICALEXTENSION</a></li>
+     * <li><a href="#NO_SUCH_OBJECT">NO_SUCH_OBJECT</a></li>
+     * <li><a href="#PROTOCOL_ERROR">PROTOCOL_ERROR</a></li>
+     * <li><a href="#INVALID_DN_SYNTAX">INVALID_DN_SYNTAX</a></li>
+     * <li><a href="#TIME_LIMIT_EXCEEDED">TIME_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#ADMIN_LIMIT_EXCEEDED">ADMIN_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#STRONG_AUTH_REQUIRED">STRONG_AUTH_REQUIRED</a></li>
+     * <li><a href="#UNWILLING_TO_PERFORM">UNWILLING_TO_PERFORM</a></li>
+     * <li><a href="#NOT_ALLOWED_ON_NON_LEAF">NOT_ALLOWED_ON_NON_LEAF</a></li>
+     * <li><a href="#CONFIDENTIALITY_REQUIRED">CONFIDENTIALITY_REQUIRED</a></li>
+     * <li><a href="#INSUFFICIENT_ACCESS_RIGHTS">INSUFFICIENT_ACCESS_RIGHTS</a></li>
+     * <li><a href="#UNAVAILABLE_CRITICAL_EXTENSION">UNAVAILABLE_CRITICAL_EXTENSION</a></li>
      * </ul>
      */
-    public static final Set DELETE_CODES;
+    public static final Set<ResultCodeEnum> DELETE_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( BUSY );
-        set.add( OTHER );
-        set.add( SUCCESS );
-        set.add( REFERRAL );
-        set.add( LOOPDETECT );
-        set.add( UNAVAILABLE );
-        set.add( NOSUCHOBJECT );
-        set.add( PROTOCOLERROR );
-        set.add( INVALIDDNSYNTAX );
-        set.add( TIMELIMITEXCEEDED );
-        set.add( ADMINLIMITEXCEEDED );
-        set.add( STRONGAUTHREQUIRED );
-        set.add( UNWILLINGTOPERFORM );
-        set.add( NOTALLOWEDONNONLEAF );
-        set.add( CONFIDENTIALITYREQUIRED );
-        set.add( INSUFFICIENTACCESSRIGHTS );
-        set.add( UNAVAILABLECRITICALEXTENSION );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.BUSY );
+        set.add( ResultCodeEnum.OTHER );
+        set.add( ResultCodeEnum.SUCCESS );
+        set.add( ResultCodeEnum.REFERRAL );
+        set.add( ResultCodeEnum.LOOP_DETECT );
+        set.add( ResultCodeEnum.UNAVAILABLE );
+        set.add( ResultCodeEnum.NO_SUCH_OBJECT );
+        set.add( ResultCodeEnum.PROTOCOL_ERROR );
+        set.add( ResultCodeEnum.INVALID_DN_SYNTAX );
+        set.add( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+        set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        set.add( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF );
+        set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+        set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
         DELETE_CODES = Collections.unmodifiableSet( set );
     };
 
@@ -1253,52 +1194,52 @@ public class ResultCodeEnum extends ValuedEnum
      * <li><a href="#OTHER">OTHER</a></li>
      * <li><a href="#SUCCESS">SUCCESS</a></li>
      * <li><a href="#REFERRAL">REFERRAL</a></li>
-     * <li><a href="#LOOPDETECT">LOOPDETECT</a></li>
+     * <li><a href="#LOOP_DETECT">LOOP_DETECT</a></li>
      * <li><a href="#UNAVAILABLE">UNAVAILABLE</a></li>
-     * <li><a href="#NOSUCHOBJECT">NOSUCHOBJECT</a></li>
-     * <li><a href="#PROTOCOLERROR">PROTOCOLERROR</a></li>
-     * <li><a href="#INVALIDDNSYNTAX">INVALIDDNSYNTAX</a></li>
-     * <li><a href="#NAMINGVIOLATION">NAMINGVIOLATION</a></li>
-     * <li><a href="#TIMELIMITEXCEEDED">TIMELIMITEXCEEDED</a></li>
-     * <li><a href="#ENTRYALREADYEXISTS">ENTRYALREADYEXISTS</a></li>
-     * <li><a href="#ADMINLIMITEXCEEDED">ADMINLIMITEXCEEDED</a></li>
-     * <li><a href="#STRONGAUTHREQUIRED">STRONGAUTHREQUIRED</a></li>
-     * <li><a href="#UNWILLINGTOPERFORM">UNWILLINGTOPERFORM</a></li>
-     * <li><a href="#NOTALLOWEDONNONLEAF">NOTALLOWEDONNONLEAF</a></li>
-     * <li><a href="#AFFECTSMULTIPLEDSAS">AFFECTSMULTIPLEDSAS</a></li>
-     * <li><a href="#CONSTRAINTVIOLATION">CONSTRAINTVIOLATION</a></li>
-     * <li><a href="#OBJECTCLASSVIOLATION">OBJECTCLASSVIOLATION</a></li>
-     * <li><a href="#CONFIDENTIALITYREQUIRED">CONFIDENTIALITYREQUIRED</a></li>
-     * <li><a href="#INSUFFICIENTACCESSRIGHTS">INSUFFICIENTACCESSRIGHTS</a></li>
-     * <li><a href="#UNAVAILABLECRITICALEXTENSION">UNAVAILABLECRITICALEXTENSION</a></li>
+     * <li><a href="#NO_SUCH_OBJECT">NO_SUCH_OBJECT</a></li>
+     * <li><a href="#PROTOCOL_ERROR">PROTOCOL_ERROR</a></li>
+     * <li><a href="#INVALID_DN_SYNTAX">INVALID_DN_SYNTAX</a></li>
+     * <li><a href="#NAMING_VIOLATION">NAMING_VIOLATION</a></li>
+     * <li><a href="#TIME_LIMIT_EXCEEDED">TIME_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#ENTRY_ALREADY_EXISTS">ENTRY_ALREADY_EXISTS</a></li>
+     * <li><a href="#ADMIN_LIMIT_EXCEEDED">ADMIN_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#STRONG_AUTH_REQUIRED">STRONG_AUTH_REQUIRED</a></li>
+     * <li><a href="#UNWILLING_TO_PERFORM">UNWILLING_TO_PERFORM</a></li>
+     * <li><a href="#NOT_ALLOWED_ON_NON_LEAF">NOT_ALLOWED_ON_NON_LEAF</a></li>
+     * <li><a href="#AFFECTS_MULTIPLE_DSAS">AFFECTS_MULTIPLE_DSAS</a></li>
+     * <li><a href="#CONSTRAINT_VIOLATION">CONSTRAINT_VIOLATION</a></li>
+     * <li><a href="#OBJECT_CLASS_VIOLATION">OBJECT_CLASS_VIOLATION</a></li>
+     * <li><a href="#CONFIDENTIALITY_REQUIRED">CONFIDENTIALITY_REQUIRED</a></li>
+     * <li><a href="#INSUFFICIENT_ACCESS_RIGHTS">INSUFFICIENT_ACCESS_RIGHTS</a></li>
+     * <li><a href="#UNAVAILABLE_CRITICAL_EXTENSION">UNAVAILABLE_CRITICAL_EXTENSION</a></li>
      * </ul>
      */
-    public static final Set MODIFYDN_CODES;
+    public static final Set<ResultCodeEnum> MODIFYDN_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( BUSY );
-        set.add( OTHER );
-        set.add( SUCCESS );
-        set.add( REFERRAL );
-        set.add( LOOPDETECT );
-        set.add( UNAVAILABLE );
-        set.add( NOSUCHOBJECT );
-        set.add( PROTOCOLERROR );
-        set.add( INVALIDDNSYNTAX );
-        set.add( NAMINGVIOLATION );
-        set.add( TIMELIMITEXCEEDED );
-        set.add( ENTRYALREADYEXISTS );
-        set.add( ADMINLIMITEXCEEDED );
-        set.add( STRONGAUTHREQUIRED );
-        set.add( UNWILLINGTOPERFORM );
-        set.add( NOTALLOWEDONNONLEAF );
-        set.add( AFFECTSMULTIPLEDSAS );
-        set.add( CONSTRAINTVIOLATION );
-        set.add( OBJECTCLASSVIOLATION );
-        set.add( CONFIDENTIALITYREQUIRED );
-        set.add( INSUFFICIENTACCESSRIGHTS );
-        set.add( UNAVAILABLECRITICALEXTENSION );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.BUSY );
+        set.add( ResultCodeEnum.OTHER );
+        set.add( ResultCodeEnum.SUCCESS );
+        set.add( ResultCodeEnum.REFERRAL );
+        set.add( ResultCodeEnum.LOOP_DETECT );
+        set.add( ResultCodeEnum.UNAVAILABLE );
+        set.add( ResultCodeEnum.NO_SUCH_OBJECT );
+        set.add( ResultCodeEnum.PROTOCOL_ERROR );
+        set.add( ResultCodeEnum.INVALID_DN_SYNTAX );
+        set.add( ResultCodeEnum.NAMING_VIOLATION );
+        set.add( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
+        set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+        set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        set.add( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF );
+        set.add( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
+        set.add( ResultCodeEnum.CONSTRAINT_VIOLATION );
+        set.add( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+        set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+        set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
         MODIFYDN_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1307,51 +1248,51 @@ public class ResultCodeEnum extends ValuedEnum
      * operations. The set contains:
      * <ul>
      * <li><a href="#OPERATIONSERROR">OPERATIONSERROR</a></li>
-     * <li><a href="#PROTOCOLERROR">PROTOCOLERROR</a></li>
-     * <li><a href="#TIMELIMITEXCEEDED">TIMELIMITEXCEEDED</a></li>
+     * <li><a href="#PROTOCOL_ERROR">PROTOCOL_ERROR</a></li>
+     * <li><a href="#TIME_LIMIT_EXCEEDED">TIME_LIMIT_EXCEEDED</a></li>
      * <li><a href="#COMPAREFALSE">COMPAREFALSE</a></li>
      * <li><a href="#COMPARETRUE">COMPARETRUE</a></li>
-     * <li><a href="#STRONGAUTHREQUIRED">STRONGAUTHREQUIRED</a></li>
-     * <li><a href="#ADMINLIMITEXCEEDED">ADMINLIMITEXCEEDED</a></li>
-     * <li><a href="#UNAVAILABLECRITICALEXTENSION">UNAVAILABLECRITICALEXTENSION</a></li>
-     * <li><a href="#CONFIDENTIALITYREQUIRED">CONFIDENTIALITYREQUIRED</a></li>
-     * <li><a href="#NOSUCHATTRIBUTE">NOSUCHATTRIBUTE</a></li>
-     * <li><a href="#INVALIDATTRIBUTESYNTAX">INVALIDATTRIBUTESYNTAX</a></li>
-     * <li><a href="#NOSUCHOBJECT">NOSUCHOBJECT</a></li>
-     * <li><a href="#INVALIDDNSYNTAX">INVALIDDNSYNTAX</a></li>
-     * <li><a href="#INSUFFICIENTACCESSRIGHTS">INSUFFICIENTACCESSRIGHTS</a></li>
+     * <li><a href="#STRONG_AUTH_REQUIRED">STRONG_AUTH_REQUIRED</a></li>
+     * <li><a href="#ADMIN_LIMIT_EXCEEDED">ADMIN_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#UNAVAILABLE_CRITICAL_EXTENSION">UNAVAILABLE_CRITICAL_EXTENSION</a></li>
+     * <li><a href="#CONFIDENTIALITY_REQUIRED">CONFIDENTIALITY_REQUIRED</a></li>
+     * <li><a href="#NO_SUCH_ATTRIBUTE">NO_SUCH_ATTRIBUTE</a></li>
+     * <li><a href="#INVALID_ATTRIBUTE_SYNTAX">INVALID_ATTRIBUTE_SYNTAX</a></li>
+     * <li><a href="#NO_SUCH_OBJECT">NO_SUCH_OBJECT</a></li>
+     * <li><a href="#INVALID_DN_SYNTAX">INVALID_DN_SYNTAX</a></li>
+     * <li><a href="#INSUFFICIENT_ACCESS_RIGHTS">INSUFFICIENT_ACCESS_RIGHTS</a></li>
      * <li><a href="#BUSY">BUSY</a></li>
      * <li><a href="#UNAVAILABLE">UNAVAILABLE</a></li>
-     * <li><a href="#UNWILLINGTOPERFORM">UNWILLINGTOPERFORM</a></li>
-     * <li><a href="#LOOPDETECT">LOOPDETECT</a></li>
+     * <li><a href="#UNWILLING_TO_PERFORM">UNWILLING_TO_PERFORM</a></li>
+     * <li><a href="#LOOP_DETECT">LOOP_DETECT</a></li>
      * <li><a href="#REFERRAL">REFERRAL</a></li>
      * <li><a href="#OTHER">OTHER</a></li>
      * </ul>
      */
-    public static final Set COMPARE_CODES;
+    public static final Set<ResultCodeEnum> COMPARE_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( OPERATIONSERROR );
-        set.add( PROTOCOLERROR );
-        set.add( TIMELIMITEXCEEDED );
-        set.add( COMPAREFALSE );
-        set.add( COMPARETRUE );
-        set.add( STRONGAUTHREQUIRED );
-        set.add( ADMINLIMITEXCEEDED );
-        set.add( UNAVAILABLECRITICALEXTENSION );
-        set.add( CONFIDENTIALITYREQUIRED );
-        set.add( NOSUCHATTRIBUTE );
-        set.add( INVALIDATTRIBUTESYNTAX );
-        set.add( NOSUCHOBJECT );
-        set.add( INVALIDDNSYNTAX );
-        set.add( INSUFFICIENTACCESSRIGHTS );
-        set.add( BUSY );
-        set.add( UNAVAILABLE );
-        set.add( UNWILLINGTOPERFORM );
-        set.add( LOOPDETECT );
-        set.add( REFERRAL );
-        set.add( OTHER );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.OPERATIONS_ERROR );
+        set.add( ResultCodeEnum.PROTOCOL_ERROR );
+        set.add( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.COMPARE_FALSE );
+        set.add( ResultCodeEnum.COMPARE_TRUE );
+        set.add( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+        set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
+        set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        set.add( ResultCodeEnum.NO_SUCH_ATTRIBUTE );
+        set.add( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+        set.add( ResultCodeEnum.NO_SUCH_OBJECT );
+        set.add( ResultCodeEnum.INVALID_DN_SYNTAX );
+        set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+        set.add( ResultCodeEnum.BUSY );
+        set.add( ResultCodeEnum.UNAVAILABLE );
+        set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        set.add( ResultCodeEnum.LOOP_DETECT );
+        set.add( ResultCodeEnum.REFERRAL );
+        set.add( ResultCodeEnum.OTHER );
         COMPARE_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1362,88 +1303,88 @@ public class ResultCodeEnum extends ValuedEnum
      * <li></li>
      * <li><a href="#SUCCESS">SUCCESS</a></li>
      * <li><a href="#OPERATIONSERROR">OPERATIONSERROR</a></li>
-     * <li><a href="#PROTOCOLERROR">PROTOCOLERROR</a></li>
-     * <li><a href="#TIMELIMITEXCEEDED">TIMELIMITEXCEEDED</a></li>
-     * <li><a href="#SIZELIMITEXCEEDED">SIZELIMITEXCEEDED</a></li>
+     * <li><a href="#PROTOCOL_ERROR">PROTOCOL_ERROR</a></li>
+     * <li><a href="#TIME_LIMIT_EXCEEDED">TIME_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#SIZE_LIMIT_EXCEEDED">SIZE_LIMIT_EXCEEDED</a></li>
      * <li><a href="#COMPAREFALSE">COMPAREFALSE</a></li>
      * <li><a href="#COMPARETRUE">COMPARETRUE</a></li>
-     * <li><a href="#AUTHMETHODNOTSUPPORTED">AUTHMETHODNOTSUPPORTED</a></li>
-     * <li><a href="#STRONGAUTHREQUIRED">STRONGAUTHREQUIRED</a></li>
+     * <li><a href="#AUTH_METHOD_NOT_SUPPORTED">AUTH_METHOD_NOT_SUPPORTED</a></li>
+     * <li><a href="#STRONG_AUTH_REQUIRED">STRONG_AUTH_REQUIRED</a></li>
      * <li><a href="#REFERRAL">REFERRAL</a></li>
-     * <li><a href="#ADMINLIMITEXCEEDED">ADMINLIMITEXCEEDED</a></li>
-     * <li><a href="#UNAVAILABLECRITICALEXTENSION">UNAVAILABLECRITICALEXTENSION</a></li>
-     * <li><a href="#CONFIDENTIALITYREQUIRED">CONFIDENTIALITYREQUIRED</a></li>
-     * <li><a href="#SASLBINDINPROGRESS">SASLBINDINPROGRESS</a></li>
-     * <li><a href="#NOSUCHATTRIBUTE">NOSUCHATTRIBUTE</a></li>
-     * <li><a href="#UNDEFINEDATTRIBUTETYPE">UNDEFINEDATTRIBUTETYPE</a></li>
-     * <li><a href="#INAPPROPRIATEMATCHING">INAPPROPRIATEMATCHING</a></li>
-     * <li><a href="#CONSTRAINTVIOLATION">CONSTRAINTVIOLATION</a></li>
-     * <li><a href="#ATTRIBUTEORVALUEEXISTS">ATTRIBUTEORVALUEEXISTS</a></li>
-     * <li><a href="#INVALIDATTRIBUTESYNTAX">INVALIDATTRIBUTESYNTAX</a></li>
-     * <li><a href="#NOSUCHOBJECT">NOSUCHOBJECT</a></li>
-     * <li><a href="#ALIASPROBLEM">ALIASPROBLEM</a></li>
-     * <li><a href="#INVALIDDNSYNTAX">INVALIDDNSYNTAX</a></li>
-     * <li><a href="#ALIASDEREFERENCINGPROBLEM">ALIASDEREFERENCINGPROBLEM</a></li>
-     * <li><a href="#INAPPROPRIATEAUTHENTICATION">INAPPROPRIATEAUTHENTICATION</a></li>
-     * <li><a href="#INVALIDCREDENTIALS">INVALIDCREDENTIALS</a></li>
-     * <li><a href="#INSUFFICIENTACCESSRIGHTS">INSUFFICIENTACCESSRIGHTS</a></li>
+     * <li><a href="#ADMIN_LIMIT_EXCEEDED">ADMIN_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#UNAVAILABLE_CRITICAL_EXTENSION">UNAVAILABLE_CRITICAL_EXTENSION</a></li>
+     * <li><a href="#CONFIDENTIALITY_REQUIRED">CONFIDENTIALITY_REQUIRED</a></li>
+     * <li><a href="#SASL_BIND_IN_PROGRESS">SASL_BIND_IN_PROGRESS</a></li>
+     * <li><a href="#NO_SUCH_ATTRIBUTE">NO_SUCH_ATTRIBUTE</a></li>
+     * <li><a href="#UNDEFINED_ATTRIBUTE_TYPE">UNDEFINED_ATTRIBUTE_TYPE</a></li>
+     * <li><a href="#INAPPROPRIATE_MATCHING">INAPPROPRIATE_MATCHING</a></li>
+     * <li><a href="#CONSTRAINT_VIOLATION">CONSTRAINT_VIOLATION</a></li>
+     * <li><a href="#ATTRIBUTE_OR_VALUE_EXISTS">ATTRIBUTE_OR_VALUE_EXISTS</a></li>
+     * <li><a href="#INVALID_ATTRIBUTE_SYNTAX">INVALID_ATTRIBUTE_SYNTAX</a></li>
+     * <li><a href="#NO_SUCH_OBJECT">NO_SUCH_OBJECT</a></li>
+     * <li><a href="#ALIAS_PROBLEM">ALIAS_PROBLEM</a></li>
+     * <li><a href="#INVALID_DN_SYNTAX">INVALID_DN_SYNTAX</a></li>
+     * <li><a href="#ALIAS_DEREFERENCING_PROBLEM">ALIAS_DEREFERENCING_PROBLEM</a></li>
+     * <li><a href="#INAPPROPRIATE_AUTHENTICATION">INAPPROPRIATE_AUTHENTICATION</a></li>
+     * <li><a href="#INVALID_CREDENTIALS">INVALID_CREDENTIALS</a></li>
+     * <li><a href="#INSUFFICIENT_ACCESS_RIGHTS">INSUFFICIENT_ACCESS_RIGHTS</a></li>
      * <li><a href="#BUSY">BUSY</a></li>
      * <li><a href="#UNAVAILABLE">UNAVAILABLE</a></li>
-     * <li><a href="#UNWILLINGTOPERFORM">UNWILLINGTOPERFORM</a></li>
-     * <li><a href="#LOOPDETECT">LOOPDETECT</a></li>
-     * <li><a href="#NAMINGVIOLATION">NAMINGVIOLATION</a></li>
-     * <li><a href="#OBJECTCLASSVIOLATION">OBJECTCLASSVIOLATION</a></li>
-     * <li><a href="#NOTALLOWEDONNONLEAF">NOTALLOWEDONNONLEAF</a></li>
-     * <li><a href="#NOTALLOWEDONRDN">NOTALLOWEDONRDN</a></li>
-     * <li><a href="#ENTRYALREADYEXISTS">ENTRYALREADYEXISTS</a></li>
-     * <li><a href="#OBJECTCLASSMODSPROHIBITED">OBJECTCLASSMODSPROHIBITED</a></li>
-     * <li><a href="#AFFECTSMULTIPLEDSAS">AFFECTSMULTIPLEDSAS</a></li>
+     * <li><a href="#UNWILLING_TO_PERFORM">UNWILLING_TO_PERFORM</a></li>
+     * <li><a href="#LOOP_DETECT">LOOP_DETECT</a></li>
+     * <li><a href="#NAMING_VIOLATION">NAMING_VIOLATION</a></li>
+     * <li><a href="#OBJECT_CLASS_VIOLATION">OBJECT_CLASS_VIOLATION</a></li>
+     * <li><a href="#NOT_ALLOWED_ON_NON_LEAF">NOT_ALLOWED_ON_NON_LEAF</a></li>
+     * <li><a href="#NOT_ALLOWED_ON_RDN">NOT_ALLOWED_ON_RDN</a></li>
+     * <li><a href="#ENTRY_ALREADY_EXISTS">ENTRY_ALREADY_EXISTS</a></li>
+     * <li><a href="#OBJECT_CLASS_MODS_PROHIBITED">OBJECT_CLASS_MODS_PROHIBITED</a></li>
+     * <li><a href="#AFFECTS_MULTIPLE_DSAS">AFFECTS_MULTIPLE_DSAS</a></li>
      * <li><a href="#OTHER">OTHER</a></li>
      * </ul>
      */
-    public static final Set EXTENDED_CODES;
+    public static final Set<ResultCodeEnum> EXTENDED_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( SUCCESS );
-        set.add( OPERATIONSERROR );
-        set.add( PROTOCOLERROR );
-        set.add( TIMELIMITEXCEEDED );
-        set.add( SIZELIMITEXCEEDED );
-        set.add( COMPAREFALSE );
-        set.add( COMPARETRUE );
-        set.add( AUTHMETHODNOTSUPPORTED );
-        set.add( STRONGAUTHREQUIRED );
-        set.add( REFERRAL );
-        set.add( ADMINLIMITEXCEEDED );
-        set.add( UNAVAILABLECRITICALEXTENSION );
-        set.add( CONFIDENTIALITYREQUIRED );
-        set.add( SASLBINDINPROGRESS );
-        set.add( NOSUCHATTRIBUTE );
-        set.add( UNDEFINEDATTRIBUTETYPE );
-        set.add( INAPPROPRIATEMATCHING );
-        set.add( CONSTRAINTVIOLATION );
-        set.add( ATTRIBUTEORVALUEEXISTS );
-        set.add( INVALIDATTRIBUTESYNTAX );
-        set.add( NOSUCHOBJECT );
-        set.add( ALIASPROBLEM );
-        set.add( INVALIDDNSYNTAX );
-        set.add( ALIASDEREFERENCINGPROBLEM );
-        set.add( INAPPROPRIATEAUTHENTICATION );
-        set.add( INVALIDCREDENTIALS );
-        set.add( INSUFFICIENTACCESSRIGHTS );
-        set.add( BUSY );
-        set.add( UNAVAILABLE );
-        set.add( UNWILLINGTOPERFORM );
-        set.add( LOOPDETECT );
-        set.add( NAMINGVIOLATION );
-        set.add( OBJECTCLASSVIOLATION );
-        set.add( NOTALLOWEDONNONLEAF );
-        set.add( NOTALLOWEDONRDN );
-        set.add( ENTRYALREADYEXISTS );
-        set.add( OBJECTCLASSMODSPROHIBITED );
-        set.add( AFFECTSMULTIPLEDSAS );
-        set.add( OTHER );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.SUCCESS );
+        set.add( ResultCodeEnum.OPERATIONS_ERROR );
+        set.add( ResultCodeEnum.PROTOCOL_ERROR );
+        set.add( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.COMPARE_FALSE );
+        set.add( ResultCodeEnum.COMPARE_TRUE );
+        set.add( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+        set.add( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+        set.add( ResultCodeEnum.REFERRAL );
+        set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
+        set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        set.add( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
+        set.add( ResultCodeEnum.NO_SUCH_ATTRIBUTE );
+        set.add( ResultCodeEnum.UNDEFINED_ATTRIBUTE_TYPE );
+        set.add( ResultCodeEnum.INAPPROPRIATE_MATCHING );
+        set.add( ResultCodeEnum.CONSTRAINT_VIOLATION );
+        set.add( ResultCodeEnum.ATTRIBUTE_OR_VALUE_EXISTS );
+        set.add( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+        set.add( ResultCodeEnum.NO_SUCH_OBJECT );
+        set.add( ResultCodeEnum.ALIAS_PROBLEM );
+        set.add( ResultCodeEnum.INVALID_DN_SYNTAX );
+        set.add( ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM );
+        set.add( ResultCodeEnum.INAPPROPRIATE_AUTHENTICATION );
+        set.add( ResultCodeEnum.INVALID_CREDENTIALS );
+        set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+        set.add( ResultCodeEnum.BUSY );
+        set.add( ResultCodeEnum.UNAVAILABLE );
+        set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        set.add( ResultCodeEnum.LOOP_DETECT );
+        set.add( ResultCodeEnum.NAMING_VIOLATION );
+        set.add( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+        set.add( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF );
+        set.add( ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+        set.add( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
+        set.add( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
+        set.add( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
+        set.add( ResultCodeEnum.OTHER );
         EXTENDED_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1456,111 +1397,153 @@ public class ResultCodeEnum extends ValuedEnum
      * <ul>
      * <li><a href="#SUCCESS">SUCCESS</a></li>
      * <li><a href="#OPERATIONSERROR">OPERATIONSERROR</a></li>
-     * <li><a href="#PROTOCOLERROR">PROTOCOLERROR</a></li>
-     * <li><a href="#TIMELIMITEXCEEDED">TIMELIMITEXCEEDED</a></li>
-     * <li><a href="#SIZELIMITEXCEEDED">SIZELIMITEXCEEDED</a></li>
+     * <li><a href="#PROTOCOL_ERROR">PROTOCOL_ERROR</a></li>
+     * <li><a href="#TIME_LIMIT_EXCEEDED">TIME_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#SIZE_LIMIT_EXCEEDED">SIZE_LIMIT_EXCEEDED</a></li>
      * <li><a href="#COMPAREFALSE">COMPAREFALSE</a></li>
      * <li><a href="#COMPARETRUE">COMPARETRUE</a></li>
-     * <li><a href="#AUTHMETHODNOTSUPPORTED">AUTHMETHODNOTSUPPORTED</a></li>
-     * <li><a href="#STRONGAUTHREQUIRED">STRONGAUTHREQUIRED</a></li>
-     * <li><a href="#PARTIALRESULTS">PARTIALRESULTS</a></li>
+     * <li><a href="#AUTH_METHOD_NOT_SUPPORTED">AUTH_METHOD_NOT_SUPPORTED</a></li>
+     * <li><a href="#STRONG_AUTH_REQUIRED">STRONG_AUTH_REQUIRED</a></li>
+     * <li><a href="#PARTIAL_RESULTS">PARTIAL_RESULTS</a></li>
      * <li><a href="#REFERRAL">REFERRAL</a></li>
-     * <li><a href="#ADMINLIMITEXCEEDED">ADMINLIMITEXCEEDED</a></li>
-     * <li><a href="#UNAVAILABLECRITICALEXTENSION">UNAVAILABLECRITICALEXTENSION</a></li>
-     * <li><a href="#CONFIDENTIALITYREQUIRED">CONFIDENTIALITYREQUIRED</a></li>
-     * <li><a href="#SASLBINDINPROGRESS">SASLBINDINPROGRESS</a></li>
-     * <li><a href="#NOSUCHATTRIBUTE">NOSUCHATTRIBUTE</a></li>
-     * <li><a href="#UNDEFINEDATTRIBUTETYPE">UNDEFINEDATTRIBUTETYPE</a></li>
-     * <li><a href="#INAPPROPRIATEMATCHING">INAPPROPRIATEMATCHING</a></li>
-     * <li><a href="#CONSTRAINTVIOLATION">CONSTRAINTVIOLATION</a></li>
-     * <li><a href="#ATTRIBUTEORVALUEEXISTS">ATTRIBUTEORVALUEEXISTS</a></li>
-     * <li><a href="#INVALIDATTRIBUTESYNTAX">INVALIDATTRIBUTESYNTAX</a></li>
-     * <li><a href="#NOSUCHOBJECT">NOSUCHOBJECT</a></li>
-     * <li><a href="#ALIASPROBLEM">ALIASPROBLEM</a></li>
-     * <li><a href="#INVALIDDNSYNTAX">INVALIDDNSYNTAX</a></li>
-     * <li><a href="#ALIASDEREFERENCINGPROBLEM">ALIASDEREFERENCINGPROBLEM</a></li>
-     * <li><a href="#INAPPROPRIATEAUTHENTICATION">INAPPROPRIATEAUTHENTICATION</a></li>
-     * <li><a href="#INVALIDCREDENTIALS">INVALIDCREDENTIALS</a></li>
-     * <li><a href="#INSUFFICIENTACCESSRIGHTS">INSUFFICIENTACCESSRIGHTS</a></li>
+     * <li><a href="#ADMIN_LIMIT_EXCEEDED">ADMIN_LIMIT_EXCEEDED</a></li>
+     * <li><a href="#UNAVAILABLE_CRITICAL_EXTENSION">UNAVAILABLE_CRITICAL_EXTENSION</a></li>
+     * <li><a href="#CONFIDENTIALITY_REQUIRED">CONFIDENTIALITY_REQUIRED</a></li>
+     * <li><a href="#SASL_BIND_IN_PROGRESS">SASL_BIND_IN_PROGRESS</a></li>
+     * <li><a href="#NO_SUCH_ATTRIBUTE">NO_SUCH_ATTRIBUTE</a></li>
+     * <li><a href="#UNDEFINED_ATTRIBUTE_TYPE">UNDEFINED_ATTRIBUTE_TYPE</a></li>
+     * <li><a href="#INAPPROPRIATE_MATCHING">INAPPROPRIATE_MATCHING</a></li>
+     * <li><a href="#CONSTRAINT_VIOLATION">CONSTRAINT_VIOLATION</a></li>
+     * <li><a href="#ATTRIBUTE_OR_VALUE_EXISTS">ATTRIBUTE_OR_VALUE_EXISTS</a></li>
+     * <li><a href="#INVALID_ATTRIBUTE_SYNTAX">INVALID_ATTRIBUTE_SYNTAX</a></li>
+     * <li><a href="#NO_SUCH_OBJECT">NO_SUCH_OBJECT</a></li>
+     * <li><a href="#ALIAS_PROBLEM">ALIAS_PROBLEM</a></li>
+     * <li><a href="#INVALID_DN_SYNTAX">INVALID_DN_SYNTAX</a></li>
+     * <li><a href="#ALIAS_DEREFERENCING_PROBLEM">ALIAS_DEREFERENCING_PROBLEM</a></li>
+     * <li><a href="#INAPPROPRIATE_AUTHENTICATION">INAPPROPRIATE_AUTHENTICATION</a></li>
+     * <li><a href="#INVALID_CREDENTIALS">INVALID_CREDENTIALS</a></li>
+     * <li><a href="#INSUFFICIENT_ACCESS_RIGHTS">INSUFFICIENT_ACCESS_RIGHTS</a></li>
      * <li><a href="#BUSY">BUSY</a></li>
      * <li><a href="#UNAVAILABLE">UNAVAILABLE</a></li>
-     * <li><a href="#UNWILLINGTOPERFORM">UNWILLINGTOPERFORM</a></li>
-     * <li><a href="#LOOPDETECT">LOOPDETECT</a></li>
-     * <li><a href="#NAMINGVIOLATION">NAMINGVIOLATION</a></li>
-     * <li><a href="#OBJECTCLASSVIOLATION">OBJECTCLASSVIOLATION</a></li>
-     * <li><a href="#NOTALLOWEDONNONLEAF">NOTALLOWEDONNONLEAF</a></li>
-     * <li><a href="#NOTALLOWEDONRDN">NOTALLOWEDONRDN</a></li>
-     * <li><a href="#ENTRYALREADYEXISTS">ENTRYALREADYEXISTS</a></li>
-     * <li><a href="#OBJECTCLASSMODSPROHIBITED">OBJECTCLASSMODSPROHIBITED</a></li>
-     * <li><a href="#AFFECTSMULTIPLEDSAS">AFFECTSMULTIPLEDSAS</a></li>
+     * <li><a href="#UNWILLING_TO_PERFORM">UNWILLING_TO_PERFORM</a></li>
+     * <li><a href="#LOOP_DETECT">LOOP_DETECT</a></li>
+     * <li><a href="#NAMING_VIOLATION">NAMING_VIOLATION</a></li>
+     * <li><a href="#OBJECT_CLASS_VIOLATION">OBJECT_CLASS_VIOLATION</a></li>
+     * <li><a href="#NOT_ALLOWED_ON_NON_LEAF">NOT_ALLOWED_ON_NON_LEAF</a></li>
+     * <li><a href="#NOT_ALLOWED_ON_RDN">NOT_ALLOWED_ON_RDN</a></li>
+     * <li><a href="#ENTRY_ALREADY_EXISTS">ENTRY_ALREADY_EXISTS</a></li>
+     * <li><a href="#OBJECT_CLASS_MODS_PROHIBITED">OBJECT_CLASS_MODS_PROHIBITED</a></li>
+     * <li><a href="#AFFECTS_MULTIPLE_DSAS">AFFECTS_MULTIPLE_DSAS</a></li>
      * <li><a href="#OTHER">OTHER</a></li>
      * </ul>
      */
-    public static final Set ALL_CODES;
+    public static final Set<ResultCodeEnum> ALL_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( SUCCESS );
-        set.add( OPERATIONSERROR );
-        set.add( PROTOCOLERROR );
-        set.add( TIMELIMITEXCEEDED );
-        set.add( SIZELIMITEXCEEDED );
-        set.add( COMPAREFALSE );
-        set.add( COMPARETRUE );
-        set.add( AUTHMETHODNOTSUPPORTED );
-        set.add( STRONGAUTHREQUIRED );
-        set.add( PARTIALRESULTS );
-        set.add( REFERRAL );
-        set.add( ADMINLIMITEXCEEDED );
-        set.add( UNAVAILABLECRITICALEXTENSION );
-        set.add( CONFIDENTIALITYREQUIRED );
-        set.add( SASLBINDINPROGRESS );
-        set.add( NOSUCHATTRIBUTE );
-        set.add( UNDEFINEDATTRIBUTETYPE );
-        set.add( INAPPROPRIATEMATCHING );
-        set.add( CONSTRAINTVIOLATION );
-        set.add( ATTRIBUTEORVALUEEXISTS );
-        set.add( INVALIDATTRIBUTESYNTAX );
-        set.add( NOSUCHOBJECT );
-        set.add( ALIASPROBLEM );
-        set.add( INVALIDDNSYNTAX );
-        set.add( ALIASDEREFERENCINGPROBLEM );
-        set.add( INAPPROPRIATEAUTHENTICATION );
-        set.add( INVALIDCREDENTIALS );
-        set.add( INSUFFICIENTACCESSRIGHTS );
-        set.add( BUSY );
-        set.add( UNAVAILABLE );
-        set.add( UNWILLINGTOPERFORM );
-        set.add( LOOPDETECT );
-        set.add( NAMINGVIOLATION );
-        set.add( OBJECTCLASSVIOLATION );
-        set.add( NOTALLOWEDONNONLEAF );
-        set.add( NOTALLOWEDONRDN );
-        set.add( ENTRYALREADYEXISTS );
-        set.add( OBJECTCLASSMODSPROHIBITED );
-        set.add( AFFECTSMULTIPLEDSAS );
-        set.add( OTHER );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.SUCCESS );
+        set.add( ResultCodeEnum.OPERATIONS_ERROR );
+        set.add( ResultCodeEnum.PROTOCOL_ERROR );
+        set.add( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.COMPARE_FALSE );
+        set.add( ResultCodeEnum.COMPARE_TRUE );
+        set.add( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+        set.add( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+        set.add( ResultCodeEnum.PARTIAL_RESULTS );
+        set.add( ResultCodeEnum.REFERRAL );
+        set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
+        set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
+        set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        set.add( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
+        set.add( ResultCodeEnum.NO_SUCH_ATTRIBUTE );
+        set.add( ResultCodeEnum.UNDEFINED_ATTRIBUTE_TYPE );
+        set.add( ResultCodeEnum.INAPPROPRIATE_MATCHING );
+        set.add( ResultCodeEnum.CONSTRAINT_VIOLATION );
+        set.add( ResultCodeEnum.ATTRIBUTE_OR_VALUE_EXISTS );
+        set.add( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+        set.add( ResultCodeEnum.NO_SUCH_OBJECT );
+        set.add( ResultCodeEnum.ALIAS_PROBLEM );
+        set.add( ResultCodeEnum.INVALID_DN_SYNTAX );
+        set.add( ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM );
+        set.add( ResultCodeEnum.INAPPROPRIATE_AUTHENTICATION );
+        set.add( ResultCodeEnum.INVALID_CREDENTIALS );
+        set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+        set.add( ResultCodeEnum.BUSY );
+        set.add( ResultCodeEnum.UNAVAILABLE );
+        set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        set.add( ResultCodeEnum.LOOP_DETECT );
+        set.add( ResultCodeEnum.NAMING_VIOLATION );
+        set.add( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+        set.add( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF );
+        set.add( ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+        set.add( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
+        set.add( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
+        set.add( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
+        set.add( ResultCodeEnum.OTHER );
         ALL_CODES = Collections.unmodifiableSet( set );
     }
 
-
-    // ------------------------------------------------------------------------
-    // Constructors
-    // ------------------------------------------------------------------------
-
     /**
-     * Private construct so no other instances can be created other than the
-     * public static constants in this class.
-     * 
-     * @param a_name
-     *            a string name for the enumeration value.
-     * @param a_value
-     *            the integer value of the enumeration.
+     * @return The integer associated with the result code
      */
-    private ResultCodeEnum(final String a_name, final int a_value)
+    public int getResultCode()
     {
-        super( a_name, a_value );
+        return value;
     }
+    
+    /**
+     * @return The integer associated with the result code
+     */
+    public static ResultCodeEnum getResultCode( int value )
+    {
+        switch ( value )
+        {
+            case 0 : return SUCCESS;
+            case 1 : return OPERATIONS_ERROR;
+            case 2 : return PROTOCOL_ERROR;
+            case 3 : return TIME_LIMIT_EXCEEDED;
+            case 4 : return SIZE_LIMIT_EXCEEDED;
+            case 5 : return COMPARE_FALSE;
+            case 6 : return COMPARE_TRUE;
+            case 7 : return AUTH_METHOD_NOT_SUPPORTED;
+            case 8 : return STRONG_AUTH_REQUIRED;
+            case 9 : return PARTIAL_RESULTS;
+            case 10 : return REFERRAL;
+            case 11 : return ADMIN_LIMIT_EXCEEDED;
+            case 12 : return UNAVAILABLE_CRITICAL_EXTENSION;
+            case 13 : return CONFIDENTIALITY_REQUIRED;
+            case 14 : return SASL_BIND_IN_PROGRESS;
+            case 16 : return NO_SUCH_ATTRIBUTE;
+            case 17 : return UNDEFINED_ATTRIBUTE_TYPE;
+            case 18 : return INAPPROPRIATE_MATCHING;
+            case 19 : return CONSTRAINT_VIOLATION;
+            case 20 : return ATTRIBUTE_OR_VALUE_EXISTS;
+            case 21 : return INVALID_ATTRIBUTE_SYNTAX;
+            case 32 : return NO_SUCH_OBJECT;
+            case 33 : return ALIAS_PROBLEM;
+            case 34 : return INVALID_DN_SYNTAX;
+            case 35 : return UNKNOWN;
+            case 36 : return ALIAS_DEREFERENCING_PROBLEM;
+            case 48 : return INAPPROPRIATE_AUTHENTICATION; 
+            case 49 : return INVALID_CREDENTIALS;
+            case 50 : return INSUFFICIENT_ACCESS_RIGHTS;
+            case 51 : return BUSY;
+            case 52 : return UNAVAILABLE;
+            case 53 : return UNWILLING_TO_PERFORM;
+            case 54 : return LOOP_DETECT;
+            case 64 : return NAMING_VIOLATION;
+            case 65 : return OBJECT_CLASS_VIOLATION;
+            case 66 : return NOT_ALLOWED_ON_NON_LEAF;
+            case 67 : return NOT_ALLOWED_ON_RDN;
+            case 68 : return ENTRY_ALREADY_EXISTS;
+            case 69 : return OBJECT_CLASS_MODS_PROHIBITED;
+            case 71 : return AFFECTS_MULTIPLE_DSAS;
+            case 80 : return OTHER;
+            default : return UNKNOWN;
+        }
+    }
+    
 
 
     /**
@@ -1569,7 +1552,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return array of result codes enumerations
      * @see #GENERAL_CODES
      */
-    public static Set getGeneralCodes()
+    public static Set<ResultCodeEnum> getGeneralCodes()
     {
         // Must clone to prevent array content alterations
         return GENERAL_CODES;
@@ -1583,7 +1566,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return array of result codes enumerations
      * @see #NON_ERRONEOUS_CODES
      */
-    public static Set getNonErroneousCodes()
+    public static Set<ResultCodeEnum> getNonErroneousCodes()
     {
         // Must clone to prevent array content alterations
         return NON_ERRONEOUS_CODES;
@@ -1597,7 +1580,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return array of result codes enumerations
      * @see #ATTRIBUTE_CODES
      */
-    public static Set getAttributeCodes()
+    public static Set<ResultCodeEnum> getAttributeCodes()
     {
         // Must clone to prevent array content alterations
         return ATTRIBUTE_CODES;
@@ -1611,7 +1594,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return array of result codes enumerations
      * @see #NAME_CODES
      */
-    public static Set getNameCodes()
+    public static Set<ResultCodeEnum> getNameCodes()
     {
         // Must clone to prevent array content alterations
         return NAME_CODES;
@@ -1625,7 +1608,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return array of result codes enumerations
      * @see #SECURITY_CODES
      */
-    public static Set getSecurityCodes()
+    public static Set<ResultCodeEnum> getSecurityCodes()
     {
         // Must clone to prevent array content alterations
         return SECURITY_CODES;
@@ -1639,7 +1622,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return array of result codes enumerations
      * @see #SERVICE_CODES
      */
-    public static Set getServiceCodes()
+    public static Set<ResultCodeEnum> getServiceCodes()
     {
         // Must clone to prevent array content alterations
         return SERVICE_CODES;
@@ -1653,7 +1636,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return array of result codes enumerations
      * @see #UPDATE_CODES
      */
-    public static Set getUpdateCodes()
+    public static Set<ResultCodeEnum> getUpdateCodes()
     {
         // Must clone to prevent array content alterations
         return UPDATE_CODES;
@@ -1666,7 +1649,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return an array of common operation ResultCodeEnum's
      * @see #COMMON_CODES
      */
-    public static Set getCommonCodes()
+    public static Set<ResultCodeEnum> getCommonCodes()
     {
         return COMMON_CODES;
     }
@@ -1678,7 +1661,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return an array of bind operation ResultCodeEnum's
      * @see #BIND_CODES
      */
-    public static Set getBindCodes()
+    public static Set<ResultCodeEnum> getBindCodes()
     {
         return BIND_CODES;
     }
@@ -1691,7 +1674,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return an array of search operation ResultCodeEnum's
      * @see #SEARCH_CODES
      */
-    public static Set getSearchCodes()
+    public static Set<ResultCodeEnum> getSearchCodes()
     {
         return SEARCH_CODES;
     }
@@ -1704,7 +1687,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return an array of modify operation ResultCodeEnum's
      * @see #MODIFY_CODES
      */
-    public static Set getModifyCodes()
+    public static Set<ResultCodeEnum> getModifyCodes()
     {
         return MODIFY_CODES;
     }
@@ -1716,7 +1699,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return an array of add operation ResultCodeEnum's
      * @see #ADD_CODES
      */
-    public static Set getAddCodes()
+    public static Set<ResultCodeEnum> getAddCodes()
     {
         return ADD_CODES;
     }
@@ -1729,7 +1712,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return an array of delete operation ResultCodeEnum's
      * @see #DELETE_CODES
      */
-    public static Set getDeleteCodes()
+    public static Set<ResultCodeEnum> getDeleteCodes()
     {
         return DELETE_CODES;
     }
@@ -1742,7 +1725,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return an array of modifyDn operation ResultCodeEnum's
      * @see #MODIFYDN_CODES
      */
-    public static Set getModifyDnCodes()
+    public static Set<ResultCodeEnum> getModifyDnCodes()
     {
         return MODIFYDN_CODES;
     }
@@ -1755,7 +1738,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return an array of compare operation ResultCodeEnum's
      * @see #COMPARE_CODES
      */
-    public static Set getCompareCodes()
+    public static Set<ResultCodeEnum> getCompareCodes()
     {
         return COMPARE_CODES;
     }
@@ -1768,7 +1751,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return an array of extended operation ResultCodeEnum's
      * @see #EXTENDED_CODES
      */
-    public static Set getExtendedCodes()
+    public static Set<ResultCodeEnum> getExtendedCodes()
     {
         return EXTENDED_CODES;
     }
@@ -1780,7 +1763,7 @@ public class ResultCodeEnum extends ValuedEnum
      * @return an array of all defined result codes
      * @see #ALL_CODES
      */
-    public static Set getAllCodes()
+    public static Set<ResultCodeEnum> getAllCodes()
     {
         // Must clone to prevent array content tampering.
         return ALL_CODES;
@@ -1790,161 +1773,6 @@ public class ResultCodeEnum extends ValuedEnum
     // ------------------------------------------------------------------------
     // Getting Result Code Enumeration Object Using Integer Values
     // ------------------------------------------------------------------------
-
-    /**
-     * Gets the result code enumeration object associated with a result code
-     * value.
-     * 
-     * @param value
-     *            the result code constant.
-     * @return the result code with a_value, or null if no enumeration exists
-     *         for an (undefined) value.
-     */
-    public static ResultCodeEnum getResultCodeEnum( int value )
-    {
-        switch ( value )
-        {
-            case ( SUCCESS_VAL ):
-                return SUCCESS;
-
-            case ( OPERATIONSERROR_VAL ):
-                return OPERATIONSERROR;
-
-            case ( PROTOCOLERROR_VAL ):
-                return PROTOCOLERROR;
-
-            case ( TIMELIMITEXCEEDED_VAL ):
-                return TIMELIMITEXCEEDED;
-
-            case ( SIZELIMITEXCEEDED_VAL ):
-                return SIZELIMITEXCEEDED;
-
-            case ( COMPAREFALSE_VAL ):
-                return COMPAREFALSE;
-
-            case ( COMPARETRUE_VAL ):
-                return COMPARETRUE;
-
-            case ( AUTHMETHODNOTSUPPORTED_VAL ):
-                return AUTHMETHODNOTSUPPORTED;
-
-            case ( STRONGAUTHREQUIRED_VAL ):
-                return STRONGAUTHREQUIRED;
-
-            case ( PARTIALRESULTS_VAL ):
-                return PARTIALRESULTS;
-
-            case ( REFERRAL_VAL ):
-                return REFERRAL;
-
-            case ( ADMINLIMITEXCEEDED_VAL ):
-                return ADMINLIMITEXCEEDED;
-
-            case ( UNAVAILABLECRITICALEXTENSION_VAL ):
-                return UNAVAILABLECRITICALEXTENSION;
-
-            case ( CONFIDENTIALITYREQUIRED_VAL ):
-                return CONFIDENTIALITYREQUIRED;
-
-            case ( SASLBINDINPROGRESS_VAL ):
-                return SASLBINDINPROGRESS;
-
-            // -- 15 unused --
-
-            case ( NOSUCHATTRIBUTE_VAL ):
-                return NOSUCHATTRIBUTE;
-
-            case ( UNDEFINEDATTRIBUTETYPE_VAL ):
-                return UNDEFINEDATTRIBUTETYPE;
-
-            case ( INAPPROPRIATEMATCHING_VAL ):
-                return INAPPROPRIATEMATCHING;
-
-            case ( CONSTRAINTVIOLATION_VAL ):
-                return CONSTRAINTVIOLATION;
-
-            case ( ATTRIBUTEORVALUEEXISTS_VAL ):
-                return ATTRIBUTEORVALUEEXISTS;
-
-            case ( INVALIDATTRIBUTESYNTAX_VAL ):
-                return INVALIDATTRIBUTESYNTAX;
-
-            // -- 22-31 unused --
-
-            case ( NOSUCHOBJECT_VAL ):
-                return NOSUCHOBJECT;
-
-            case ( ALIASPROBLEM_VAL ):
-                return ALIASPROBLEM;
-
-            case ( INVALIDDNSYNTAX_VAL ):
-                return INVALIDDNSYNTAX;
-
-            // -- 35 reserved for undefined isLeaf --
-
-            case ( ALIASDEREFERENCINGPROBLEM_VAL ):
-                return ALIASDEREFERENCINGPROBLEM;
-
-            // -- 37-47 unused --
-
-            case ( INAPPROPRIATEAUTHENTICATION_VAL ):
-                return INAPPROPRIATEAUTHENTICATION;
-
-            case ( INVALIDCREDENTIALS_VAL ):
-                return INVALIDCREDENTIALS;
-
-            case ( INSUFFICIENTACCESSRIGHTS_VAL ):
-                return INSUFFICIENTACCESSRIGHTS;
-
-            case ( BUSY_VAL ):
-                return BUSY;
-
-            case ( UNAVAILABLE_VAL ):
-                return UNAVAILABLE;
-
-            case ( UNWILLINGTOPERFORM_VAL ):
-                return UNWILLINGTOPERFORM;
-
-            case ( LOOPDETECT_VAL ):
-                return LOOPDETECT;
-
-            // -- 55-63 unused --
-
-            case ( NAMINGVIOLATION_VAL ):
-                return NAMINGVIOLATION;
-
-            case ( OBJECTCLASSVIOLATION_VAL ):
-                return OBJECTCLASSVIOLATION;
-
-            case ( NOTALLOWEDONNONLEAF_VAL ):
-                return NOTALLOWEDONNONLEAF;
-
-            case ( NOTALLOWEDONRDN_VAL ):
-                return NOTALLOWEDONRDN;
-
-            case ( ENTRYALREADYEXISTS_VAL ):
-                return ENTRYALREADYEXISTS;
-
-            case ( OBJECTCLASSMODSPROHIBITED_VAL ):
-                return OBJECTCLASSMODSPROHIBITED;
-
-            // -- 70 reserved for CLDAP --
-
-            case ( AFFECTSMULTIPLEDSAS_VAL ):
-                return AFFECTSMULTIPLEDSAS;
-
-            // -- 72-79 unused --
-
-            case ( OTHER_VAL ):
-                return OTHER;
-
-            // -- 81-90 reserved for APIs --
-
-            default:
-                return null;
-        }
-    }
-
     // ------------------------------------------------------------------------
     // JNDI Exception to ResultCodeEnum Mappings
     // ------------------------------------------------------------------------
@@ -1954,22 +1782,22 @@ public class ResultCodeEnum extends ValuedEnum
      * {@link NamingException}.
      * <ul>
      * <li><a href="#OPERATIONSERROR">operationsError(1)</a></li>
-     * <li><a href="#ALIASPROBLEM">aliasProblem(33)</a></li>
-     * <li><a href="#ALIASDEREFERENCINGPROBLEM">aliasDereferencingProblem(36)</a></li>
-     * <li><a href="#LOOPDETECT">loopDetect(54)</a></li>
-     * <li><a href="#AFFECTSMULTIPLEDSAS">affectsMultipleDSAs(71)</a></li>
+     * <li><a href="#ALIAS_PROBLEM">aliasProblem(33)</a></li>
+     * <li><a href="#ALIAS_DEREFERENCING_PROBLEM">aliasDereferencingProblem(36)</a></li>
+     * <li><a href="#LOOP_DETECT">loopDetect(54)</a></li>
+     * <li><a href="#AFFECTS_MULTIPLE_DSAS">affectsMultipleDSAs(71)</a></li>
      * <li><a href="#OTHER">other(80)</a></li>
      * </ul>
      */
-    public static final Set NAMINGEXCEPTION_CODES;
+    public static final Set<ResultCodeEnum> NAMINGEXCEPTION_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( ResultCodeEnum.OPERATIONSERROR );
-        set.add( ResultCodeEnum.ALIASPROBLEM );
-        set.add( ResultCodeEnum.ALIASDEREFERENCINGPROBLEM );
-        set.add( ResultCodeEnum.LOOPDETECT );
-        set.add( ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.OPERATIONS_ERROR );
+        set.add( ResultCodeEnum.ALIAS_PROBLEM );
+        set.add( ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM );
+        set.add( ResultCodeEnum.LOOP_DETECT );
+        set.add( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
         set.add( ResultCodeEnum.OTHER );
         NAMINGEXCEPTION_CODES = Collections.unmodifiableSet( set );
     }
@@ -1978,21 +1806,21 @@ public class ResultCodeEnum extends ValuedEnum
      * A set of ResultCodes containing those that may correspond to a
      * {@link Exception}.
      * <ul>
-     * <li><a href="#AUTHMETHODNOTSUPPORTED">authMethodNotSupported(7)</a></li>
-     * <li><a href="#STRONGAUTHREQUIRED">strongAuthRequired(8)</a></li>
-     * <li><a href="#CONFIDENTIALITYREQUIRED">confidentialityRequired(13)</a></li>
+     * <li><a href="#AUTH_METHOD_NOT_SUPPORTED">authMethodNotSupported(7)</a></li>
+     * <li><a href="#STRONG_AUTH_REQUIRED">strongAuthRequired(8)</a></li>
+     * <li><a href="#CONFIDENTIALITY_REQUIRED">confidentialityRequired(13)</a></li>
      * <li><a
-     * href="#INAPPROPRIATEAUTHENTICATION">inappropriateAuthentication(48)</a></li>
+     * href="#INAPPROPRIATE_AUTHENTICATION">inappropriateAuthentication(48)</a></li>
      * </ul>
      */
-    public static final Set AUTHENTICATIONNOTSUPPOERTEDEXCEPTION_CODES;
+    public static final Set<ResultCodeEnum> AUTHENTICATIONNOTSUPPOERTEDEXCEPTION_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
-        set.add( ResultCodeEnum.STRONGAUTHREQUIRED );
-        set.add( ResultCodeEnum.CONFIDENTIALITYREQUIRED );
-        set.add( ResultCodeEnum.INAPPROPRIATEAUTHENTICATION );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+        set.add( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+        set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        set.add( ResultCodeEnum.INAPPROPRIATE_AUTHENTICATION );
         AUTHENTICATIONNOTSUPPOERTEDEXCEPTION_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -2004,10 +1832,10 @@ public class ResultCodeEnum extends ValuedEnum
      * <li><a href="#UNAVAILABLE">unavailable(52)</a></li>
      * </ul>
      */
-    public static final Set SERVICEUNAVAILABLE_CODES;
+    public static final Set<ResultCodeEnum> SERVICEUNAVAILABLE_CODES;
     static
     {
-        HashSet set = new HashSet();
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
         set.add( ResultCodeEnum.BUSY );
         set.add( ResultCodeEnum.UNAVAILABLE );
         SERVICEUNAVAILABLE_CODES = Collections.unmodifiableSet( set );
@@ -2017,16 +1845,16 @@ public class ResultCodeEnum extends ValuedEnum
      * A set of ResultCodes containing those that may correspond to a
      * {@link Exception}.
      * <ul>
-     * <li><a href="#CONSTRAINTVIOLATION">constraintViolation(19)</a></li>
-     * <li><a href="#INVALIDATTRIBUTESYNTAX">invalidAttributeSyntax(21)</a></li>
+     * <li><a href="#CONSTRAINT_VIOLATION">constraintViolation(19)</a></li>
+     * <li><a href="#INVALID_ATTRIBUTE_SYNTAX">invalidAttributeSyntax(21)</a></li>
      * </ul>
      */
-    public static final Set INVALIDATTRIBUTEVALUEEXCEPTION_CODES;
+    public static final Set<ResultCodeEnum> INVALIDATTRIBUTEVALUEEXCEPTION_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( ResultCodeEnum.CONSTRAINTVIOLATION );
-        set.add( ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.CONSTRAINT_VIOLATION );
+        set.add( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
         INVALIDATTRIBUTEVALUEEXCEPTION_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -2034,17 +1862,17 @@ public class ResultCodeEnum extends ValuedEnum
      * A set of ResultCodes containing those that may correspond to a
      * {@link Exception}.
      * <ul>
-     * <li><a href="#PARTIALRESULTS">partialResults(9)</a></li>
+     * <li><a href="#PARTIAL_RESULTS">partialResults(9)</a></li>
      * <li><a href="#REFERRAL">referral(10)</a></li>
      * </ul>
      */
-    public static final Set PARTIALRESULTSEXCEPTION_CODES;
+    public static final Set<ResultCodeEnum> PARTIAL_RESULTSEXCEPTION_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( ResultCodeEnum.PARTIALRESULTS );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.PARTIAL_RESULTS );
         set.add( ResultCodeEnum.REFERRAL );
-        PARTIALRESULTSEXCEPTION_CODES = Collections.unmodifiableSet( set );
+        PARTIAL_RESULTSEXCEPTION_CODES = Collections.unmodifiableSet( set );
     }
 
     /**
@@ -2052,15 +1880,15 @@ public class ResultCodeEnum extends ValuedEnum
      * {@link Exception}.
      * <ul>
      * <li><a href="#REFERRAL">referal(9)</a></li>
-     * <li><a href="#ADMINLIMITEXCEEDED">adminLimitExceeded(11)</a></li>
+     * <li><a href="#ADMIN_LIMIT_EXCEEDED">adminLimitExceeded(11)</a></li>
      * </ul>
      */
-    public static final Set LIMITEXCEEDEDEXCEPTION_CODES;
+    public static final Set<ResultCodeEnum> LIMITEXCEEDEDEXCEPTION_CODES;
     static
     {
-        HashSet set = new HashSet();
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
         set.add( ResultCodeEnum.REFERRAL );
-        set.add( ResultCodeEnum.ADMINLIMITEXCEEDED );
+        set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
         LIMITEXCEEDEDEXCEPTION_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -2070,15 +1898,15 @@ public class ResultCodeEnum extends ValuedEnum
      * <ul>
      * <li><a
      * href="#UNAVAILABLECRITICALEXTENTION">unavailableCriticalExtention(12)</a></li>
-     * <li><a href="#UNWILLINGTOPERFORM">unwillingToPerform(53)</a></li>
+     * <li><a href="#UNWILLING_TO_PERFORM">unwillingToPerform(53)</a></li>
      * </ul>
      */
-    public static final Set OPERATIONNOTSUPPOERTEXCEPTION_CODES;
+    public static final Set<ResultCodeEnum> OPERATIONNOTSUPPOERTEXCEPTION_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( ResultCodeEnum.UNAVAILABLECRITICALEXTENSION );
-        set.add( ResultCodeEnum.UNWILLINGTOPERFORM );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
+        set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
         OPERATIONNOTSUPPOERTEXCEPTION_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -2086,16 +1914,16 @@ public class ResultCodeEnum extends ValuedEnum
      * A set of ResultCodes containing those that may correspond to a
      * {@link Exception}.
      * <ul>
-     * <li><a href="#INVALIDDNSYNTAX">invalidDNSyntax(34)</a></li>
-     * <li><a href="#NAMINGVIOLATION">namingViolation(64)</a></li>
+     * <li><a href="#INVALID_DN_SYNTAX">invalidDNSyntax(34)</a></li>
+     * <li><a href="#NAMING_VIOLATION">namingViolation(64)</a></li>
      * </ul>
      */
-    public static final Set INVALIDNAMEEXCEPTION_CODES;
+    public static final Set<ResultCodeEnum> INVALIDNAMEEXCEPTION_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( ResultCodeEnum.INVALIDDNSYNTAX );
-        set.add( ResultCodeEnum.NAMINGVIOLATION );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.INVALID_DN_SYNTAX );
+        set.add( ResultCodeEnum.NAMING_VIOLATION );
         INVALIDNAMEEXCEPTION_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -2103,18 +1931,18 @@ public class ResultCodeEnum extends ValuedEnum
      * A set of ResultCodes containing those that may correspond to a
      * {@link javax.naming.directory.SchemaViolationException}.
      * <ul>
-     * <li><a href="#OBJECTCLASSVIOLATION">objectClassViolation(65)</a></li>
-     * <li><a href="#NOTALLOWEDONRDN">notAllowedOnRDN(67)</a></li>
-     * <li><a href="#OBJECTCLASSMODSPROHIBITED">objectClassModsProhibited(69)</a></li>
+     * <li><a href="#OBJECT_CLASS_VIOLATION">objectClassViolation(65)</a></li>
+     * <li><a href="#NOT_ALLOWED_ON_RDN">notAllowedOnRDN(67)</a></li>
+     * <li><a href="#OBJECT_CLASS_MODS_PROHIBITED">objectClassModsProhibited(69)</a></li>
      * </ul>
      */
-    public static final Set SCHEMAVIOLATIONEXCEPTION_CODES;
+    public static final Set<ResultCodeEnum> SCHEMAVIOLATIONEXCEPTION_CODES;
     static
     {
-        HashSet set = new HashSet();
-        set.add( ResultCodeEnum.OBJECTCLASSVIOLATION );
-        set.add( ResultCodeEnum.NOTALLOWEDONRDN );
-        set.add( ResultCodeEnum.OBJECTCLASSMODSPROHIBITED );
+        Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
+        set.add( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+        set.add( ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+        set.add( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         SCHEMAVIOLATIONEXCEPTION_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -2133,7 +1961,7 @@ public class ResultCodeEnum extends ValuedEnum
      */
     public static ResultCodeEnum getBestEstimate( Throwable t, MessageTypeEnum type )
     {
-        Set set = getResultCodes( t );
+        Set<ResultCodeEnum> set = getResultCodes( t );
 
         if ( set.isEmpty() )
         {
@@ -2147,7 +1975,7 @@ public class ResultCodeEnum extends ValuedEnum
 
         if ( type == null )
         {
-            HashSet tmp = new HashSet();
+            Set<ResultCodeEnum> tmp = new HashSet<ResultCodeEnum>();
             tmp.addAll( set );
             tmp.removeAll( NON_ERRONEOUS_CODES );
 
@@ -2156,10 +1984,10 @@ public class ResultCodeEnum extends ValuedEnum
                 return ResultCodeEnum.OTHER;
             }
 
-            return ( ResultCodeEnum ) tmp.iterator().next();
+            return tmp.iterator().next();
         }
 
-        Set candidates = Collections.EMPTY_SET;
+        Set<ResultCodeEnum> candidates = EMPTY_RESULT_CODE_SET;
         
         switch ( type )
         {
@@ -2237,6 +2065,7 @@ public class ResultCodeEnum extends ValuedEnum
             case SEARCH_RES_REF :
                 candidates = intersection( set, SEARCH_CODES );
                 break;
+                
             case UNBIND_REQUEST :
                 return ( ResultCodeEnum ) set.iterator().next();
         }
@@ -2253,20 +2082,19 @@ public class ResultCodeEnum extends ValuedEnum
     }
 
 
-    private static Set intersection( Set s1, Set s2 )
+    private static Set<ResultCodeEnum> intersection( Set<ResultCodeEnum> s1, Set<ResultCodeEnum> s2 )
     {
         if ( s1.isEmpty() || s2.isEmpty() )
         {
-            return Collections.EMPTY_SET;
+            return new HashSet<ResultCodeEnum>();
         }
 
-        Set intersection = new HashSet();
+        Set<ResultCodeEnum> intersection = new HashSet<ResultCodeEnum>();
+        
         if ( s1.size() <= s2.size() )
         {
-            Iterator items = s1.iterator();
-            while ( items.hasNext() )
+            for ( ResultCodeEnum item:s1 )
             {
-                Object item = items.next();
                 if ( s2.contains( item ) )
                 {
                     intersection.add( item );
@@ -2275,10 +2103,8 @@ public class ResultCodeEnum extends ValuedEnum
         }
         else
         {
-            Iterator items = s2.iterator();
-            while ( items.hasNext() )
+            for ( ResultCodeEnum item:s2 )
             {
-                Object item = items.next();
                 if ( s1.contains( item ) )
                 {
                     intersection.add( item );
@@ -2309,7 +2135,7 @@ public class ResultCodeEnum extends ValuedEnum
      *  InvalidAttributeIdentifierException ==&gt; undefinedAttributeType(17)
      *  InvalidSearchFilterException        ==&gt; inappropriateMatching(18)
      *  AttributeInUseException             ==&gt; attributeOrValueExists(20)
-     *  NameNotFoundException               ==&gt; noSuchObject(32)
+     *  NameNotFoundException               ==&gt; NO_SUCH_OBJECT(32)
      *  NameAlreadyBoundException           ==&gt; entryAlreadyExists(68)
      *  ContextNotEmptyException            ==&gt; notAllowedOnNonLeaf(66)
      * 
@@ -2375,9 +2201,10 @@ public class ResultCodeEnum extends ValuedEnum
      *            the Throwable to find the result code mappings for
      * @return the set of mapped result codes
      */
-    public static Set getResultCodes( Throwable t )
+    public static Set<ResultCodeEnum> getResultCodes( Throwable t )
     {
         ResultCodeEnum rc;
+        
         if ( ( rc = getResultCode( t ) ) != null )
         {
             return Collections.singleton( rc );
@@ -2405,7 +2232,7 @@ public class ResultCodeEnum extends ValuedEnum
 
         if ( t instanceof PartialResultException )
         {
-            return PARTIALRESULTSEXCEPTION_CODES;
+            return PARTIAL_RESULTSEXCEPTION_CODES;
         }
 
         if ( t instanceof InvalidAttributeValueException )
@@ -2430,7 +2257,7 @@ public class ResultCodeEnum extends ValuedEnum
             return NAMINGEXCEPTION_CODES;
         }
 
-        return Collections.EMPTY_SET;
+        return EMPTY_RESULT_CODE_SET;
     }
 
 
@@ -2454,7 +2281,7 @@ public class ResultCodeEnum extends ValuedEnum
      *  InvalidAttributeIdentifierException ==&gt; undefinedAttributeType(17)
      *  InvalidSearchFilterException        ==&gt; inappropriateMatching(18)
      *  AttributeInUseException             ==&gt; attributeOrValueExists(20)
-     *  NameNotFoundException               ==&gt; noSuchObject(32)
+     *  NameNotFoundException               ==&gt; NO_SUCH_OBJECT(32)
      *  NameAlreadyBoundException           ==&gt; entryAlreadyExists(68)
      *  ContextNotEmptyException            ==&gt; notAllowedOnNonLeaf(66)
      * </pre>
@@ -2473,62 +2300,62 @@ public class ResultCodeEnum extends ValuedEnum
 
         if ( t instanceof CommunicationException )
         {
-            return ResultCodeEnum.PROTOCOLERROR;
+            return ResultCodeEnum.PROTOCOL_ERROR;
         }
 
         if ( t instanceof TimeLimitExceededException )
         {
-            return ResultCodeEnum.TIMELIMITEXCEEDED;
+            return ResultCodeEnum.TIME_LIMIT_EXCEEDED;
         }
 
         if ( t instanceof SizeLimitExceededException )
         {
-            return ResultCodeEnum.SIZELIMITEXCEEDED;
+            return ResultCodeEnum.SIZE_LIMIT_EXCEEDED;
         }
 
         if ( t instanceof AuthenticationException )
         {
-            return ResultCodeEnum.INVALIDCREDENTIALS;
+            return ResultCodeEnum.INVALID_CREDENTIALS;
         }
 
         if ( t instanceof NoPermissionException )
         {
-            return ResultCodeEnum.INSUFFICIENTACCESSRIGHTS;
+            return ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS;
         }
 
         if ( t instanceof NoSuchAttributeException )
         {
-            return ResultCodeEnum.NOSUCHATTRIBUTE;
+            return ResultCodeEnum.NO_SUCH_ATTRIBUTE;
         }
 
         if ( t instanceof InvalidAttributeIdentifierException )
         {
-            return ResultCodeEnum.UNDEFINEDATTRIBUTETYPE;
+            return ResultCodeEnum.UNDEFINED_ATTRIBUTE_TYPE;
         }
 
         if ( t instanceof InvalidSearchFilterException )
         {
-            return ResultCodeEnum.INAPPROPRIATEMATCHING;
+            return ResultCodeEnum.INAPPROPRIATE_MATCHING;
         }
 
         if ( t instanceof AttributeInUseException )
         {
-            return ResultCodeEnum.ATTRIBUTEORVALUEEXISTS;
+            return ResultCodeEnum.ATTRIBUTE_OR_VALUE_EXISTS;
         }
 
         if ( t instanceof NameNotFoundException )
         {
-            return ResultCodeEnum.NOSUCHOBJECT;
+            return ResultCodeEnum.NO_SUCH_OBJECT;
         }
 
         if ( t instanceof NameAlreadyBoundException )
         {
-            return ResultCodeEnum.ENTRYALREADYEXISTS;
+            return ResultCodeEnum.ENTRY_ALREADY_EXISTS;
         }
 
         if ( t instanceof ContextNotEmptyException )
         {
-            return ResultCodeEnum.NOTALLOWEDONNONLEAF;
+            return ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF;
         }
 
         return null;

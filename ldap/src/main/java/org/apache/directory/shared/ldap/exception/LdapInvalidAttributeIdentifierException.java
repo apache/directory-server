@@ -64,6 +64,6 @@ public class LdapInvalidAttributeIdentifierException extends InvalidAttributeIde
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.UNDEFINEDATTRIBUTETYPE;
+        return ResultCodeEnum.UNDEFINED_ATTRIBUTE_TYPE;
     }
 }

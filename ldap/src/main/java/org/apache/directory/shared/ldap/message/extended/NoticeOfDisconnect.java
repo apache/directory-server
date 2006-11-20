@@ -111,27 +111,31 @@ public class NoticeOfDisconnect extends ExtendedResponseImpl
 
     public static NoticeOfDisconnect UNAVAILABLE = new NoticeOfDisconnect( ResultCodeEnum.UNAVAILABLE );
 
-    public static NoticeOfDisconnect PROTOCOLERROR = new NoticeOfDisconnect( ResultCodeEnum.PROTOCOLERROR );
+    public static NoticeOfDisconnect PROTOCOLERROR = new NoticeOfDisconnect( ResultCodeEnum.PROTOCOL_ERROR );
 
-    public static NoticeOfDisconnect STRONGAUTHREQUIRED = new NoticeOfDisconnect( ResultCodeEnum.STRONGAUTHREQUIRED );
+    public static NoticeOfDisconnect STRONGAUTHREQUIRED = new NoticeOfDisconnect( ResultCodeEnum.STRONG_AUTH_REQUIRED );
 
 
     private NoticeOfDisconnect(ResultCodeEnum rcode)
     {
         super( 0, EXTENSION_OID );
 
-        switch ( rcode.getValue() )
+        switch ( rcode )
         {
-            case ( ResultCodeEnum.UNAVAILABLE_VAL  ):
+            case UNAVAILABLE :
                 break;
-            case ( ResultCodeEnum.PROTOCOLERROR_VAL  ):
+                
+            case PROTOCOL_ERROR :
                 break;
-            case ( ResultCodeEnum.STRONGAUTHREQUIRED_VAL  ):
+                
+            case STRONG_AUTH_REQUIRED :
                 break;
+                
             default:
                 throw new IllegalArgumentException( "The result code can only be one of: " + ResultCodeEnum.UNAVAILABLE
-                    + ", " + ResultCodeEnum.PROTOCOLERROR + ", " + ResultCodeEnum.STRONGAUTHREQUIRED );
+                    + ", " + ResultCodeEnum.PROTOCOL_ERROR + ", " + ResultCodeEnum.STRONG_AUTH_REQUIRED );
         }
+        
         super.getLdapResult().setErrorMessage( "The server will disconnect!" );
         super.getLdapResult().setMatchedDn( null );
         super.getLdapResult().setResultCode( rcode );

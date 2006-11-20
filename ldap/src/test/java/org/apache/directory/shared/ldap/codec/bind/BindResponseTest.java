@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.bind.BindResponse;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
@@ -96,7 +97,7 @@ public class BindResponseTest extends TestCase
         BindResponse br = message.getBindResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, br.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, br.getLdapResult().getResultCode() );
         assertEquals( "", br.getLdapResult().getMatchedDN() );
         assertEquals( "", br.getLdapResult().getErrorMessage() );
 
@@ -178,7 +179,7 @@ public class BindResponseTest extends TestCase
         BindResponse br = message.getBindResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, br.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, br.getLdapResult().getResultCode() );
         assertEquals( "", br.getLdapResult().getMatchedDN() );
         assertEquals( "", br.getLdapResult().getErrorMessage() );
 
@@ -265,7 +266,7 @@ public class BindResponseTest extends TestCase
         BindResponse br = message.getBindResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, br.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, br.getLdapResult().getResultCode() );
         assertEquals( "", br.getLdapResult().getMatchedDN() );
         assertEquals( "", br.getLdapResult().getErrorMessage() );
         assertEquals( "", StringTools.utf8ToString( br.getServerSaslCreds() ) );
@@ -346,7 +347,7 @@ public class BindResponseTest extends TestCase
         BindResponse br = message.getBindResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, br.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, br.getLdapResult().getResultCode() );
         assertEquals( "", br.getLdapResult().getMatchedDN() );
         assertEquals( "", br.getLdapResult().getErrorMessage() );
         assertEquals( "", StringTools.utf8ToString( br.getServerSaslCreds() ) );
@@ -433,7 +434,7 @@ public class BindResponseTest extends TestCase
         BindResponse br = message.getBindResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, br.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, br.getLdapResult().getResultCode() );
         assertEquals( "", br.getLdapResult().getMatchedDN() );
         assertEquals( "", br.getLdapResult().getErrorMessage() );
         assertEquals( "AB", StringTools.utf8ToString( br.getServerSaslCreds() ) );

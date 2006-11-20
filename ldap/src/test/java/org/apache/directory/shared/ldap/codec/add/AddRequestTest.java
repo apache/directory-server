@@ -277,7 +277,7 @@ public class AddRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof AddResponseImpl );
-            assertEquals( ResultCodeEnum.NAMINGVIOLATION, ((AddResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.NAMING_VIOLATION, ((AddResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
 
@@ -337,7 +337,7 @@ public class AddRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof AddResponseImpl );
-            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((AddResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((AddResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
 
@@ -471,7 +471,7 @@ public class AddRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof AddResponseImpl );
-            assertEquals( ResultCodeEnum.INVALIDATTRIBUTESYNTAX, ((AddResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, ((AddResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
 

@@ -148,7 +148,7 @@ public class DelRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof DeleteResponseImpl );
-            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((DeleteResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((DeleteResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
 

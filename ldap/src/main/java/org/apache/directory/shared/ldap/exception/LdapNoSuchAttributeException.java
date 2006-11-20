@@ -63,6 +63,6 @@ public class LdapNoSuchAttributeException extends NoSuchAttributeException imple
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.NOSUCHATTRIBUTE;
+        return ResultCodeEnum.NO_SUCH_ATTRIBUTE;
     }
 }

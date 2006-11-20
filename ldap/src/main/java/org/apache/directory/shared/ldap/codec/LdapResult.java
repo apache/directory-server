@@ -25,8 +25,8 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.util.LdapResultEnum;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -97,7 +97,7 @@ public class LdapResult extends Asn1Object
      * other                                    (80) 
      * }                                        -- 81-90 reserved for APIs --
      */
-    private int resultCode;
+    private ResultCodeEnum resultCode;
 
     /** The DN that is matched by the Bind */
     private LdapDN matchedDN;
@@ -211,7 +211,7 @@ public class LdapResult extends Asn1Object
      * 
      * @return Returns the resultCode.
      */
-    public int getResultCode()
+    public ResultCodeEnum getResultCode()
     {
         return resultCode;
     }
@@ -222,7 +222,7 @@ public class LdapResult extends Asn1Object
      * 
      * @param resultCode The resultCode to set.
      */
-    public void setResultCode( int resultCode )
+    public void setResultCode( ResultCodeEnum resultCode )
     {
         this.resultCode = resultCode;
     }
@@ -314,7 +314,7 @@ public class LdapResult extends Asn1Object
             // The result code
             buffer.put( UniversalTag.ENUMERATED_TAG );
             buffer.put( ( byte ) 1 );
-            buffer.put( ( byte ) resultCode );
+            buffer.put( ( byte ) resultCode.getValue() );
         }
         catch ( BufferOverflowException boe )
         {
@@ -367,239 +367,244 @@ public class LdapResult extends Asn1Object
         switch ( resultCode )
         {
 
-            case LdapResultEnum.SUCCESS:
+            case SUCCESS:
                 sb.append( " success\n" );
                 break;
 
-            case LdapResultEnum.OPERATIONS_ERROR:
+            case OPERATIONS_ERROR:
                 sb.append( " operationsError\n" );
                 break;
 
-            case LdapResultEnum.PROTOCOL_ERROR:
+            case PROTOCOL_ERROR:
                 sb.append( " protocolError\n" );
                 break;
 
-            case LdapResultEnum.TIME_LIMIT_EXCEEDED:
+            case TIME_LIMIT_EXCEEDED:
                 sb.append( " timeLimitExceeded\n" );
                 break;
 
-            case LdapResultEnum.SIZE_LIMIT_EXCEEDED:
+            case SIZE_LIMIT_EXCEEDED:
                 sb.append( " sizeLimitExceeded\n" );
                 break;
 
-            case LdapResultEnum.COMPARE_FALSE:
+            case COMPARE_FALSE:
                 sb.append( " compareFalse\n" );
                 break;
 
-            case LdapResultEnum.COMPARE_TRUE:
+            case COMPARE_TRUE:
                 sb.append( " compareTrue\n" );
                 break;
 
-            case LdapResultEnum.AUTH_METHOD_NOT_SUPPORTED:
+            case AUTH_METHOD_NOT_SUPPORTED:
                 sb.append( " authMethodNotSupported\n" );
                 break;
 
-            case LdapResultEnum.STRONG_AUTH_REQUIRED:
+            case STRONG_AUTH_REQUIRED:
                 sb.append( " strongAuthRequired\n" );
                 break;
 
-            case LdapResultEnum.RESERVED_9:
-                sb.append( " -- 9 reserved --\n" );
-                break;
-
-            case LdapResultEnum.REFERRAL:
+            case REFERRAL:
                 sb.append( " referral -- new\n" );
                 break;
 
-            case LdapResultEnum.ADMIN_LIMIT_EXCEEDED:
+            case ADMIN_LIMIT_EXCEEDED:
                 sb.append( " adminLimitExceeded -- new\n" );
                 break;
 
-            case LdapResultEnum.UNAVAILABLE_CRITICAL_EXTENSION:
+            case UNAVAILABLE_CRITICAL_EXTENSION:
                 sb.append( " unavailableCriticalExtension -- new\n" );
                 break;
 
-            case LdapResultEnum.CONFIDENTIALITY_REQUIRED:
+            case CONFIDENTIALITY_REQUIRED:
                 sb.append( " confidentialityRequired -- new\n" );
                 break;
 
-            case LdapResultEnum.SASL_BIND_IN_PROGRESS:
+            case SASL_BIND_IN_PROGRESS:
                 sb.append( " saslBindInProgress -- new\n" );
                 break;
 
-            case LdapResultEnum.NO_SUCH_ATTRIBUTE:
+            case NO_SUCH_ATTRIBUTE:
                 sb.append( " noSuchAttribute\n" );
                 break;
 
-            case LdapResultEnum.UNDEFINED_ATTRIBUTE_TYPE:
+            case UNDEFINED_ATTRIBUTE_TYPE:
                 sb.append( " undefinedAttributeType\n" );
                 break;
 
-            case LdapResultEnum.INAPPROPRIATE_MATCHING:
+            case INAPPROPRIATE_MATCHING:
                 sb.append( " inappropriateMatching\n" );
                 break;
 
-            case LdapResultEnum.CONSTRAINT_VIOLATION:
+            case CONSTRAINT_VIOLATION:
                 sb.append( " constraintViolation\n" );
                 break;
 
-            case LdapResultEnum.ATTRIBUTE_OR_VALUE_EXISTS:
+            case ATTRIBUTE_OR_VALUE_EXISTS:
                 sb.append( " attributeOrValueExists\n" );
                 break;
 
-            case LdapResultEnum.INVALID_ATTRIBUTE_SYNTAX:
+            case INVALID_ATTRIBUTE_SYNTAX:
                 sb.append( " invalidAttributeSyntax\n" );
                 break;
 
-            case LdapResultEnum.UNUSED_22:
-            case LdapResultEnum.UNUSED_23:
-            case LdapResultEnum.UNUSED_24:
-            case LdapResultEnum.UNUSED_25:
-            case LdapResultEnum.UNUSED_26:
-            case LdapResultEnum.UNUSED_27:
-            case LdapResultEnum.UNUSED_28:
-            case LdapResultEnum.UNUSED_29:
-            case LdapResultEnum.UNUSED_30:
-            case LdapResultEnum.UNUSED_31:
-                sb.append( " -- 22-31 unused --\n" );
-                break;
-
-            case LdapResultEnum.NO_SUCH_OBJECT:
+            case NO_SUCH_OBJECT:
                 sb.append( " noSuchObject\n" );
                 break;
 
-            case LdapResultEnum.ALIAS_PROBLEM:
+            case ALIAS_PROBLEM:
                 sb.append( " aliasProblem\n" );
                 break;
 
-            case LdapResultEnum.INVALID_DN_SYNTAX:
+            case INVALID_DN_SYNTAX:
                 sb.append( " invalidDNSyntax\n" );
                 break;
 
-            case LdapResultEnum.RESERVED_FOR_UNDEFINED_IS_LEAF:
-                sb.append( " -- 35 reserved for undefined isLeaf --\n" );
-                break;
-
-            case LdapResultEnum.ALIAS_DEREFERENCING_PROBLEM:
+            case ALIAS_DEREFERENCING_PROBLEM:
                 sb.append( " aliasDereferencingProblem\n" );
                 break;
 
-            case LdapResultEnum.UNUSED_37:
-            case LdapResultEnum.UNUSED_38:
-            case LdapResultEnum.UNUSED_39:
-            case LdapResultEnum.UNUSED_40:
-            case LdapResultEnum.UNUSED_41:
-            case LdapResultEnum.UNUSED_42:
-            case LdapResultEnum.UNUSED_43:
-            case LdapResultEnum.UNUSED_44:
-            case LdapResultEnum.UNUSED_45:
-            case LdapResultEnum.UNUSED_46:
-            case LdapResultEnum.UNUSED_47:
-                sb.append( " -- 37-47 unused --\n" );
-                break;
-
-            case LdapResultEnum.INAPPROPRIATE_AUTHENTICATION:
+            case INAPPROPRIATE_AUTHENTICATION:
                 sb.append( " inappropriateAuthentication\n" );
                 break;
 
-            case LdapResultEnum.INVALID_CREDENTIALS:
+            case INVALID_CREDENTIALS:
                 sb.append( " invalidCredentials\n" );
                 break;
 
-            case LdapResultEnum.INSUFFICIENT_ACCESS_RIGHTS:
+            case INSUFFICIENT_ACCESS_RIGHTS:
                 sb.append( " insufficientAccessRights\n" );
                 break;
 
-            case LdapResultEnum.BUSY:
+            case BUSY:
                 sb.append( " busy\n" );
                 break;
 
-            case LdapResultEnum.UNAVAILABLE:
+            case UNAVAILABLE:
                 sb.append( " unavailable\n" );
                 break;
 
-            case LdapResultEnum.UNWILLING_TO_PERFORM:
+            case UNWILLING_TO_PERFORM:
                 sb.append( " unwillingToPerform\n" );
                 break;
 
-            case LdapResultEnum.LOOP_DETECT:
+            case LOOP_DETECT:
                 sb.append( " loopDetect\n" );
                 break;
 
-            case LdapResultEnum.UNUSED_55:
-            case LdapResultEnum.UNUSED_56:
-            case LdapResultEnum.UNUSED_57:
-            case LdapResultEnum.UNUSED_58:
-            case LdapResultEnum.UNUSED_59:
-            case LdapResultEnum.UNUSED_60:
-            case LdapResultEnum.UNUSED_61:
-            case LdapResultEnum.UNUSED_62:
-            case LdapResultEnum.UNUSED_63:
-                sb.append( " -- 55-63 unused --\n" );
-                break;
-
-            case LdapResultEnum.NAMING_VIOLATION:
+            case NAMING_VIOLATION:
                 sb.append( " namingViolation\n" );
                 break;
 
-            case LdapResultEnum.OBJECT_CLASS_VIOLATION:
+            case OBJECT_CLASS_VIOLATION:
                 sb.append( " objectClassViolation\n" );
                 break;
 
-            case LdapResultEnum.NOT_ALLOWED_ON_NON_LEAF:
+            case NOT_ALLOWED_ON_NON_LEAF:
                 sb.append( " notAllowedOnNonLeaf\n" );
                 break;
 
-            case LdapResultEnum.NOT_ALLOWED_ON_RDN:
+            case NOT_ALLOWED_ON_RDN:
                 sb.append( " notAllowedOnRDN\n" );
                 break;
 
-            case LdapResultEnum.ENTRY_ALREADY_EXISTS:
+            case ENTRY_ALREADY_EXISTS:
                 sb.append( " entryAlreadyExists\n" );
                 break;
 
-            case LdapResultEnum.OBJECT_CLASS_MODS_PROHIBITED:
+            case OBJECT_CLASS_MODS_PROHIBITED:
                 sb.append( " objectClassModsProhibited\n" );
                 break;
 
-            case LdapResultEnum.RESERVED_FOR_CLDAP:
-                sb.append( " -- 70 reserved for CLDAP --\n" );
-                break;
-
-            case LdapResultEnum.AFFECTS_MULTIPLE_DSAS:
+            case AFFECTS_MULTIPLE_DSAS:
                 sb.append( " affectsMultipleDSAs -- new\n" );
                 break;
 
-            case LdapResultEnum.UNUSED_72:
-            case LdapResultEnum.UNUSED_73:
-            case LdapResultEnum.UNUSED_74:
-            case LdapResultEnum.UNUSED_75:
-            case LdapResultEnum.UNUSED_76:
-            case LdapResultEnum.UNUSED_77:
-            case LdapResultEnum.UNUSED_78:
-            case LdapResultEnum.UNUSED_79:
-                sb.append( " -- 72-79 unused --\n" );
-                break;
-
-            case LdapResultEnum.OTHER:
+            case OTHER:
                 sb.append( " other\n" );
                 break;
 
-            case LdapResultEnum.RESERVED_FOR_APIS_81:
-            case LdapResultEnum.RESERVED_FOR_APIS_82:
-            case LdapResultEnum.RESERVED_FOR_APIS_83:
-            case LdapResultEnum.RESERVED_FOR_APIS_84:
-            case LdapResultEnum.RESERVED_FOR_APIS_85:
-            case LdapResultEnum.RESERVED_FOR_APIS_86:
-            case LdapResultEnum.RESERVED_FOR_APIS_87:
-            case LdapResultEnum.RESERVED_FOR_APIS_88:
-            case LdapResultEnum.RESERVED_FOR_APIS_89:
-            case LdapResultEnum.RESERVED_FOR_APIS_90:
-                sb.append( " -- 81-90 reserved for APIs --" );
-                break;
-
             default:
-                sb.append( "Unknown error code : " ).append( resultCode );
+                switch ( resultCode.getResultCode() )
+                {
+                    case 9:
+                        sb.append( " -- 9 reserved --\n" );
+                        break;
+    
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                        sb.append( " -- 22-31 unused --\n" );
+                        break;
+                        
+                    case 35 :
+                        sb.append( " -- 35 reserved for undefined isLeaf --\n" );
+                        break;
+                        
+                    case 37:
+                    case 38:
+                    case 39:
+                    case 40:
+                    case 41:
+                    case 42:
+                    case 43:
+                    case 44:
+                    case 45:
+                    case 46:
+                    case 47:
+                        sb.append( " -- 37-47 unused --\n" );
+                        break;
+    
+                    case 55:
+                    case 56:
+                    case 57:
+                    case 58:
+                    case 59:
+                    case 60:
+                    case 61:
+                    case 62:
+                    case 63:
+                        sb.append( " -- 55-63 unused --\n" );
+                        break;
+    
+                    case 70:
+                        sb.append( " -- 70 reserved for CLDAP --\n" );
+                        break;
+                        
+                    case 72:
+                    case 73:
+                    case 74:
+                    case 75:
+                    case 76:
+                    case 77:
+                    case 78:
+                    case 79:
+                        sb.append( " -- 72-79 unused --\n" );
+                        break;
+    
+                    case 81:
+                    case 82:
+                    case 83:
+                    case 84:
+                    case 85:
+                    case 86:
+                    case 87:
+                    case 88:
+                    case 89:
+                    case 90:
+                        sb.append( " -- 81-90 reserved for APIs --" );
+                        break;
+                        
+                    default :
+                        sb.append( "Unknown error code : " ).append( resultCode );
+                        break;
+                }
         }
 
         sb.append( "            Matched DN : '" ).append( matchedDN == null ? "": matchedDN.toString() ).append( "'\n" );

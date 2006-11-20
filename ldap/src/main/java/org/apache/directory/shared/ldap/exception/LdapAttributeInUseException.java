@@ -63,6 +63,6 @@ public class LdapAttributeInUseException extends AttributeInUseException impleme
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.ATTRIBUTEORVALUEEXISTS;
+        return ResultCodeEnum.ATTRIBUTE_OR_VALUE_EXISTS;
     }
 }

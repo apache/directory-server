@@ -57,15 +57,17 @@ public class LdapInvalidAttributeValueException extends InvalidAttributeValueExc
     {
         super();
 
-        switch ( resultCode.getValue() )
+        switch ( resultCode )
         {
-            case ( ResultCodeEnum.CONSTRAINTVIOLATION_VAL  ):
+            case CONSTRAINT_VIOLATION :
                 break;
-            case ( ResultCodeEnum.INVALIDATTRIBUTESYNTAX_VAL  ):
+                
+            case INVALID_ATTRIBUTE_SYNTAX :
                 break;
+                
             default:
 
-                throw new IllegalArgumentException( resultCode.getName() + " is not an acceptable result code." );
+                throw new IllegalArgumentException( resultCode + " is not an acceptable result code." );
         }
 
         this.resultCode = resultCode;

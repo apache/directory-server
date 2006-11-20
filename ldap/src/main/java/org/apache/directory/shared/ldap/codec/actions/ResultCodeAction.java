@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapResponse;
 import org.apache.directory.shared.ldap.codec.LdapResult;
-import org.apache.directory.shared.ldap.codec.util.LdapResultEnum;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
@@ -74,11 +74,11 @@ public class ResultCodeAction extends GrammarAction
         TLV tlv = ldapMessageContainer.getCurrentTLV();
 
         Value value = tlv.getValue();
-        int resultCode = 0;
+        ResultCodeEnum resultCode = ResultCodeEnum.SUCCESS;
 
         try
         {
-            resultCode = IntegerDecoder.parse( value, 0, 90 );
+            resultCode = ResultCodeEnum.getResultCode( IntegerDecoder.parse( value, 0, 90 ) );
         }
         catch ( IntegerDecoderException ide )
         {
@@ -91,54 +91,54 @@ public class ResultCodeAction extends GrammarAction
         // Treat the 'normal' cases !
         switch ( resultCode )
         {
-            case LdapResultEnum.SUCCESS:
-            case LdapResultEnum.OPERATIONS_ERROR:
-            case LdapResultEnum.PROTOCOL_ERROR:
-            case LdapResultEnum.TIME_LIMIT_EXCEEDED:
-            case LdapResultEnum.SIZE_LIMIT_EXCEEDED:
-            case LdapResultEnum.COMPARE_FALSE:
-            case LdapResultEnum.COMPARE_TRUE:
-            case LdapResultEnum.AUTH_METHOD_NOT_SUPPORTED:
-            case LdapResultEnum.STRONG_AUTH_REQUIRED:
-            case LdapResultEnum.REFERRAL:
-            case LdapResultEnum.ADMIN_LIMIT_EXCEEDED:
-            case LdapResultEnum.UNAVAILABLE_CRITICAL_EXTENSION:
-            case LdapResultEnum.CONFIDENTIALITY_REQUIRED:
-            case LdapResultEnum.SASL_BIND_IN_PROGRESS:
-            case LdapResultEnum.NO_SUCH_ATTRIBUTE:
-            case LdapResultEnum.UNDEFINED_ATTRIBUTE_TYPE:
-            case LdapResultEnum.INAPPROPRIATE_MATCHING:
-            case LdapResultEnum.CONSTRAINT_VIOLATION:
-            case LdapResultEnum.ATTRIBUTE_OR_VALUE_EXISTS:
-            case LdapResultEnum.INVALID_ATTRIBUTE_SYNTAX:
-            case LdapResultEnum.NO_SUCH_OBJECT:
-            case LdapResultEnum.ALIAS_PROBLEM:
-            case LdapResultEnum.INVALID_DN_SYNTAX:
-            case LdapResultEnum.ALIAS_DEREFERENCING_PROBLEM:
-            case LdapResultEnum.INAPPROPRIATE_AUTHENTICATION:
-            case LdapResultEnum.INVALID_CREDENTIALS:
-            case LdapResultEnum.INSUFFICIENT_ACCESS_RIGHTS:
-            case LdapResultEnum.BUSY:
-            case LdapResultEnum.UNAVAILABLE:
-            case LdapResultEnum.UNWILLING_TO_PERFORM:
-            case LdapResultEnum.LOOP_DETECT:
-            case LdapResultEnum.NAMING_VIOLATION:
-            case LdapResultEnum.OBJECT_CLASS_VIOLATION:
-            case LdapResultEnum.NOT_ALLOWED_ON_NON_LEAF:
-            case LdapResultEnum.NOT_ALLOWED_ON_RDN:
-            case LdapResultEnum.ENTRY_ALREADY_EXISTS:
-            case LdapResultEnum.AFFECTS_MULTIPLE_DSAS:
+            case SUCCESS:
+            case OPERATIONS_ERROR:
+            case PROTOCOL_ERROR:
+            case TIME_LIMIT_EXCEEDED:
+            case SIZE_LIMIT_EXCEEDED:
+            case COMPARE_FALSE:
+            case COMPARE_TRUE:
+            case AUTH_METHOD_NOT_SUPPORTED:
+            case STRONG_AUTH_REQUIRED:
+            case REFERRAL:
+            case ADMIN_LIMIT_EXCEEDED:
+            case UNAVAILABLE_CRITICAL_EXTENSION:
+            case CONFIDENTIALITY_REQUIRED:
+            case SASL_BIND_IN_PROGRESS:
+            case NO_SUCH_ATTRIBUTE:
+            case UNDEFINED_ATTRIBUTE_TYPE:
+            case INAPPROPRIATE_MATCHING:
+            case CONSTRAINT_VIOLATION:
+            case ATTRIBUTE_OR_VALUE_EXISTS:
+            case INVALID_ATTRIBUTE_SYNTAX:
+            case NO_SUCH_OBJECT:
+            case ALIAS_PROBLEM:
+            case INVALID_DN_SYNTAX:
+            case ALIAS_DEREFERENCING_PROBLEM:
+            case INAPPROPRIATE_AUTHENTICATION:
+            case INVALID_CREDENTIALS:
+            case INSUFFICIENT_ACCESS_RIGHTS:
+            case BUSY:
+            case UNAVAILABLE:
+            case UNWILLING_TO_PERFORM:
+            case LOOP_DETECT:
+            case NAMING_VIOLATION:
+            case OBJECT_CLASS_VIOLATION:
+            case NOT_ALLOWED_ON_NON_LEAF:
+            case NOT_ALLOWED_ON_RDN:
+            case ENTRY_ALREADY_EXISTS:
+            case AFFECTS_MULTIPLE_DSAS:
                 ldapResult.setResultCode( resultCode );
                 break;
 
             default:
                 log.warn( "The resultCode " + resultCode + " is unknown." );
-                ldapResult.setResultCode( LdapResultEnum.OTHER );
+                ldapResult.setResultCode( ResultCodeEnum.OTHER );
         }
 
         if ( IS_DEBUG )
         {
-            log.debug( "The result code is set to " + LdapResultEnum.errorCode( resultCode ) );
+            log.debug( "The result code is set to " + resultCode );
         }
     }
 }

@@ -55,6 +55,6 @@ public class LdapContextNotEmptyException extends ContextNotEmptyException imple
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.NOTALLOWEDONNONLEAF;
+        return ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF;
     }
 }

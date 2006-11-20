@@ -166,7 +166,7 @@ public class ModifyDNRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof ModifyDnResponseImpl );
-            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((ModifyDnResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((ModifyDnResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
         catch ( NamingException ne )
@@ -221,7 +221,7 @@ public class ModifyDNRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof ModifyDnResponseImpl );
-            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((ModifyDnResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((ModifyDnResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
         catch ( NamingException ne )
@@ -276,7 +276,7 @@ public class ModifyDNRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof ModifyDnResponseImpl );
-            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((ModifyDnResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((ModifyDnResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
         catch ( NamingException ne )

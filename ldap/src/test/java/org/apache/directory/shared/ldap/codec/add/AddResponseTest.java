@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.add.AddResponse;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
@@ -95,7 +96,7 @@ public class AddResponseTest extends TestCase
         AddResponse addResponse = message.getAddResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, addResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, addResponse.getLdapResult().getResultCode() );
         assertEquals( "", addResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", addResponse.getLdapResult().getErrorMessage() );
 
@@ -211,7 +212,7 @@ public class AddResponseTest extends TestCase
         AddResponse addResponse = message.getAddResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, addResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, addResponse.getLdapResult().getResultCode() );
         assertEquals( "", addResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", addResponse.getLdapResult().getErrorMessage() );
 

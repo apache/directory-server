@@ -1527,7 +1527,7 @@ public class SearchRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof SearchResponseDoneImpl );
-            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((SearchResponseDoneImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((SearchResponseDoneImpl)response).getLdapResult().getResultCode() );
             return;
         }
 

@@ -44,18 +44,22 @@ public class LaunchDiagnosticUiResponse extends ExtendedResponseImpl
     {
         super( messageId, EXTENSION_OID );
 
-        switch ( rcode.getValue() )
+        switch ( rcode )
         {
-            case ( ResultCodeEnum.SUCCESS_VAL  ):
+            case SUCCESS :
                 break;
-            case ( ResultCodeEnum.OPERATIONSERROR_VAL  ):
+            
+            case OPERATIONS_ERROR :
                 break;
-            case ( ResultCodeEnum.INSUFFICIENTACCESSRIGHTS_VAL  ):
+            
+            case INSUFFICIENT_ACCESS_RIGHTS :
                 break;
+            
             default:
                 throw new IllegalArgumentException( "The result code can only be one of: " + ResultCodeEnum.SUCCESS
-                    + ", " + ResultCodeEnum.OPERATIONSERROR + ", " + ResultCodeEnum.INSUFFICIENTACCESSRIGHTS );
+                    + ", " + ResultCodeEnum.OPERATIONS_ERROR + ", " + ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
         }
+        
         super.getLdapResult().setMatchedDn( null );
         super.getLdapResult().setResultCode( rcode );
     }

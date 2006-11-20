@@ -59,6 +59,6 @@ public class LdapAuthenticationException extends AuthenticationException impleme
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.INVALIDCREDENTIALS;
+        return ResultCodeEnum.INVALID_CREDENTIALS;
     }
 }

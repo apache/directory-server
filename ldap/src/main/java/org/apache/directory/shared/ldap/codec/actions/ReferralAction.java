@@ -30,9 +30,9 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapResponse;
 import org.apache.directory.shared.ldap.codec.LdapResult;
-import org.apache.directory.shared.ldap.codec.util.LdapResultEnum;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +74,7 @@ public class ReferralAction extends GrammarAction
         }
         else
         {
-            if ( ldapResult.getResultCode() == LdapResultEnum.REFERRAL )
+            if ( ldapResult.getResultCode() == ResultCodeEnum.REFERRAL )
             {
                 try
                 {

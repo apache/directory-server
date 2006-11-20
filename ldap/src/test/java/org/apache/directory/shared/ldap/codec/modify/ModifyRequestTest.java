@@ -219,7 +219,7 @@ public class ModifyRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof ModifyResponseImpl );
-            assertEquals( ResultCodeEnum.INVALIDDNSYNTAX, ((ModifyResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((ModifyResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
         catch ( NamingException ne )
@@ -980,7 +980,7 @@ public class ModifyRequestTest extends TestCase
             assertTrue( de instanceof ResponseCarryingException );
             Message response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof ModifyResponseImpl );
-            assertEquals( ResultCodeEnum.INVALIDATTRIBUTESYNTAX, ((ModifyResponseImpl)response).getLdapResult().getResultCode() );
+            assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, ((ModifyResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
         catch ( NamingException ne )

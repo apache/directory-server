@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNResponse;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
@@ -98,7 +99,7 @@ public class ModifyDNResponseTest extends TestCase
         ModifyDNResponse modifyDNResponse = message.getModifyDNResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, modifyDNResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, modifyDNResponse.getLdapResult().getResultCode() );
         assertEquals( "", modifyDNResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", modifyDNResponse.getLdapResult().getErrorMessage() );
 
@@ -176,7 +177,7 @@ public class ModifyDNResponseTest extends TestCase
         ModifyDNResponse modifyDNResponse = message.getModifyDNResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, modifyDNResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, modifyDNResponse.getLdapResult().getResultCode() );
         assertEquals( "", modifyDNResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", modifyDNResponse.getLdapResult().getErrorMessage() );
 

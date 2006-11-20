@@ -67,6 +67,6 @@ public class LdapTimeLimitExceededException extends TimeLimitExceededException i
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.TIMELIMITEXCEEDED;
+        return ResultCodeEnum.TIME_LIMIT_EXCEEDED;
     }
 }

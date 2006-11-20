@@ -265,201 +265,247 @@ public class LdapResultImpl implements LdapResult
         sb.append( "        Ldap Result\n" );
         sb.append( "            Result code : (" ).append( resultCode ).append( ')' );
 
-        if ( resultCode != null )
+        switch ( resultCode )
         {
 
-            if ( resultCode.getValue() == ResultCodeEnum.SUCCESS_VAL )
-            {
+            case SUCCESS :
                 sb.append( " success\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.OPERATIONSERROR_VAL )
-            {
+                break;
+
+            case OPERATIONS_ERROR :
                 sb.append( " operationsError\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.PROTOCOLERROR_VAL )
-            {
+                break;
+
+            case PROTOCOL_ERROR :
                 sb.append( " protocolError\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.TIMELIMITEXCEEDED_VAL )
-            {
+                break;
+
+            case TIME_LIMIT_EXCEEDED :
                 sb.append( " timeLimitExceeded\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.SIZELIMITEXCEEDED_VAL )
-            {
+                break;
+
+            case SIZE_LIMIT_EXCEEDED :
                 sb.append( " sizeLimitExceeded\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.COMPAREFALSE_VAL )
-            {
+                break;
+
+            case COMPARE_FALSE :
                 sb.append( " compareFalse\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.COMPARETRUE_VAL )
-            {
+                break;
+
+            case COMPARE_TRUE :
                 sb.append( " compareTrue\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.AUTHMETHODNOTSUPPORTED_VAL )
-            {
+                break;
+
+            case AUTH_METHOD_NOT_SUPPORTED :
                 sb.append( " authMethodNotSupported\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.STRONGAUTHREQUIRED_VAL )
-            {
+                break;
+
+            case STRONG_AUTH_REQUIRED :
                 sb.append( " strongAuthRequired\n" );
-            }
-            else if ( resultCode.getValue() == 9 )
-            {
-                sb.append( " -- 9 reserved --\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.REFERRAL_VAL )
-            {
+                break;
+
+            case REFERRAL :
                 sb.append( " referral -- new\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.ADMINLIMITEXCEEDED_VAL )
-            {
+                break;
+
+            case ADMIN_LIMIT_EXCEEDED :
                 sb.append( " adminLimitExceeded -- new\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.UNAVAILABLECRITICALEXTENSION_VAL )
-            {
+                break;
+
+            case UNAVAILABLE_CRITICAL_EXTENSION :
                 sb.append( " unavailableCriticalExtension -- new\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.CONFIDENTIALITYREQUIRED_VAL )
-            {
+                break;
+
+            case CONFIDENTIALITY_REQUIRED :
                 sb.append( " confidentialityRequired -- new\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.SASLBINDINPROGRESS_VAL )
-            {
+                break;
+
+            case SASL_BIND_IN_PROGRESS :
                 sb.append( " saslBindInProgress -- new\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.NOSUCHATTRIBUTE_VAL )
-            {
+                break;
+
+            case NO_SUCH_ATTRIBUTE :
                 sb.append( " noSuchAttribute\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.UNDEFINEDATTRIBUTETYPE_VAL )
-            {
+                break;
+
+            case UNDEFINED_ATTRIBUTE_TYPE :
                 sb.append( " undefinedAttributeType\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.INAPPROPRIATEMATCHING_VAL )
-            {
+                break;
+
+            case INAPPROPRIATE_MATCHING :
                 sb.append( " inappropriateMatching\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.CONSTRAINTVIOLATION_VAL )
-            {
+                break;
+
+            case CONSTRAINT_VIOLATION :
                 sb.append( " constraintViolation\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.ATTRIBUTEORVALUEEXISTS_VAL )
-            {
+                break;
+
+            case ATTRIBUTE_OR_VALUE_EXISTS :
                 sb.append( " attributeOrValueExists\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.INVALIDATTRIBUTESYNTAX_VAL )
-            {
+                break;
+
+            case INVALID_ATTRIBUTE_SYNTAX :
                 sb.append( " invalidAttributeSyntax\n" );
-            }
-            else if ( ( resultCode.getValue() >= 22 ) && ( resultCode.getValue() <= 31 ) )
-            {
-                sb.append( " -- 22-31 unused --\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.NOSUCHOBJECT_VAL )
-            {
+                break;
+
+            case NO_SUCH_OBJECT :
                 sb.append( " noSuchObject\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.ALIASPROBLEM_VAL )
-            {
+                break;
+
+            case ALIAS_PROBLEM :
                 sb.append( " aliasProblem\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.INVALIDDNSYNTAX_VAL )
-            {
+                break;
+
+            case INVALID_DN_SYNTAX :
                 sb.append( " invalidDNSyntax\n" );
-            }
-            else if ( resultCode.getValue() == 35 )
-            {
-                sb.append( " -- 35 reserved for undefined isLeaf --\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.ALIASDEREFERENCINGPROBLEM_VAL )
-            {
+                break;
+
+            case ALIAS_DEREFERENCING_PROBLEM :
                 sb.append( " aliasDereferencingProblem\n" );
-            }
-            else if ( ( resultCode.getValue() >= 37 ) && ( resultCode.getValue() <= 47 ) )
-            {
-                sb.append( " -- 37-47 unused --\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.INAPPROPRIATEAUTHENTICATION_VAL )
-            {
+                break;
+
+            case INAPPROPRIATE_AUTHENTICATION :
                 sb.append( " inappropriateAuthentication\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.INVALIDCREDENTIALS_VAL )
-            {
+                break;
+
+            case INVALID_CREDENTIALS :
                 sb.append( " invalidCredentials\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.INSUFFICIENTACCESSRIGHTS_VAL )
-            {
+                break;
+
+            case INSUFFICIENT_ACCESS_RIGHTS :
                 sb.append( " insufficientAccessRights\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.BUSY_VAL )
-            {
+                break;
+
+            case BUSY :
                 sb.append( " busy\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.UNAVAILABLE_VAL )
-            {
+                break;
+
+            case UNAVAILABLE :
                 sb.append( " unavailable\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.UNWILLINGTOPERFORM_VAL )
-            {
+                break;
+
+            case UNWILLING_TO_PERFORM :
                 sb.append( " unwillingToPerform\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.LOOPDETECT_VAL )
-            {
+                break;
+
+            case LOOP_DETECT :
                 sb.append( " loopDetect\n" );
-            }
-            else if ( ( resultCode.getValue() >= 55 ) && ( resultCode.getValue() <= 63 ) )
-            {
-                sb.append( " -- 55-63 unused --\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.NAMINGVIOLATION_VAL )
-            {
+                break;
+
+            case NAMING_VIOLATION :
                 sb.append( " namingViolation\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.OBJECTCLASSVIOLATION_VAL )
-            {
+                break;
+
+            case OBJECT_CLASS_VIOLATION :
                 sb.append( " objectClassViolation\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.NOTALLOWEDONNONLEAF_VAL )
-            {
+                break;
+
+            case NOT_ALLOWED_ON_NON_LEAF :
                 sb.append( " notAllowedOnNonLeaf\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.NOTALLOWEDONRDN_VAL )
-            {
+                break;
+
+            case NOT_ALLOWED_ON_RDN :
                 sb.append( " notAllowedOnRDN\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.ENTRYALREADYEXISTS_VAL )
-            {
+                break;
+
+            case ENTRY_ALREADY_EXISTS :
                 sb.append( " entryAlreadyExists\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.OBJECTCLASSMODSPROHIBITED_VAL )
-            {
+                break;
+
+            case OBJECT_CLASS_MODS_PROHIBITED :
                 sb.append( " objectClassModsProhibited\n" );
-            }
-            else if ( resultCode.getValue() == 70 )
-            {
-                sb.append( " -- 70 reserved for CLDAP --\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.AFFECTSMULTIPLEDSAS_VAL )
-            {
+                break;
+
+            case AFFECTS_MULTIPLE_DSAS :
                 sb.append( " affectsMultipleDSAs -- new\n" );
-            }
-            else if ( ( resultCode.getValue() >= 72 ) && ( resultCode.getValue() <= 79 ) )
-            {
-                sb.append( " -- 72-79 unused --\n" );
-            }
-            else if ( resultCode.getValue() == ResultCodeEnum.OTHER_VAL )
-            {
+                break;
+
+            case OTHER :
                 sb.append( " other\n" );
-            }
-            else if ( ( resultCode.getValue() >= 81 ) && ( resultCode.getValue() <= 90 ) )
-            {
-                sb.append( " -- 81-90 reserved for APIs --" );
-            }
-            else
-            {
-                sb.append( "Unknown error code : " ).append( resultCode );
-            }
+                break;
+                
+            default :
+                switch ( resultCode.getResultCode() )
+                {
+                    case 9 :
+                        sb.append( " -- 9 reserved --\n" );
+                        break;
+                        
+                    case 22 :
+                    case 23:
+                    case 24 :
+                    case 25 :
+                    case 26 :
+                    case 27 :
+                    case 28 :
+                    case 29 :
+                    case 30 :
+                    case 31 :
+                        sb.append( " -- 22-31 unused --\n" );
+                        break;
+
+                    case 35 :
+                        sb.append( " -- 35 reserved for undefined isLeaf --\n" );
+                        break;
+                                
+                    case 37 :
+                    case 38 :
+                    case 39 :
+                    case 40 :
+                    case 41 :
+                    case 42 :
+                    case 43 :
+                    case 44 :
+                    case 45 :
+                    case 46 :
+                    case 47 :
+                        sb.append( " -- 37-47 unused --\n" );
+                        break;
+
+                    case 55 :
+                    case 56 :
+                    case 57 :
+                    case 58 :
+                    case 59 :
+                    case 60 :
+                    case 61 :
+                    case 62 :
+                    case 63 :
+                        sb.append( " -- 55-63 unused --\n" );
+                        break;
+
+                    case 70 :
+                        sb.append( " -- 70 reserved for CLDAP --\n" );
+                        break;
+
+                    case 72 :
+                    case 73 :
+                    case 74 :
+                    case 75 :
+                    case 76 :
+                    case 77 :
+                    case 78 :
+                    case 79 :
+                        sb.append( " -- 72-79 unused --\n" );
+                        break;
+
+                    case 81 :
+                    case 82 :
+                    case 83 :
+                    case 84 :
+                    case 85 :
+                    case 86 :
+                    case 87 :
+                    case 88 :
+                    case 89 :
+                    case 90 :
+                        sb.append( " -- 81-90 reserved for APIs --" );
+                        break;
+                        
+                    default :
+                        sb.append( "Unknown error code : " ).append( resultCode );
+                        break;
+                }
         }
 
         sb.append( "            Matched DN : '" ).append( matchedDn ).append( "'\n" );

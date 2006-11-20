@@ -380,7 +380,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                             log.error( "{} : {}", msg, ine.getMessage() );
                             
                             DeleteResponseImpl response = new DeleteResponseImpl( ldapMessage.getMessageId() );
-                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, LdapDN.EMPTY_LDAPDN, ine );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_DN_SYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
 
                         delRequest.setEntry( entry );
@@ -609,7 +609,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                         
                             BindResponseImpl response = new BindResponseImpl( ldapMessage.getMessageId() );
                         
-                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, LdapDN.EMPTY_LDAPDN, ine );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_DN_SYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
 
                         bindRequestMessage.setName( name );
@@ -719,7 +719,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                         
                         BindResponseImpl response = new BindResponseImpl( ldapMessage.getMessageId() );
                     
-                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDCREDENTIALS, 
+                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_CREDENTIALS, 
                             bindRequestMessage.getName(), null );
                     }
 
@@ -1492,7 +1492,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                             log.error( "{} : {}", msg, ine.getMessage() );
                     
                             ModifyResponseImpl response = new ModifyResponseImpl( ldapMessage.getMessageId() );
-                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, LdapDN.EMPTY_LDAPDN, ine );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_DN_SYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
 
                         modifyRequest.setObject( object );
@@ -1657,7 +1657,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                         log.error( msg );
                         
                         ModifyResponseImpl response = new ModifyResponseImpl( ldapMessage.getMessageId() );
-                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDATTRIBUTESYNTAX, modifyRequest.getObject(), null );
+                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, modifyRequest.getObject(), null );
                     }
                     else
                     {
@@ -1916,7 +1916,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                 
                         // I guess that trying to add an entry which DN is empty is a naming violation...
                         // Not 100% sure though ...
-                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.NAMINGVIOLATION, LdapDN.EMPTY_LDAPDN, null );
+                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.NAMING_VIOLATION, LdapDN.EMPTY_LDAPDN, null );
                     }
                     else
                     {
@@ -1935,7 +1935,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                             log.error( "{} : {}", msg, ine.getMessage() );
                 
                             AddResponseImpl response = new AddResponseImpl( ldapMessage.getMessageId() );
-                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, LdapDN.EMPTY_LDAPDN, ine );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_DN_SYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
 
                         addRequest.setEntry( entry );
@@ -2011,7 +2011,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
 
                         AddResponseImpl response = new AddResponseImpl( ldapMessage.getMessageId() );
                         
-                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDATTRIBUTESYNTAX, addRequest.getEntry(), null );
+                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, addRequest.getEntry(), null );
                     }
 
                     String type = new String( tlv.getValue().getData() );
@@ -2255,7 +2255,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                             log.error( "{} : {}", msg, ine.getMessage() );
         
                             ModifyDnResponseImpl response = new ModifyDnResponseImpl( ldapMessage.getMessageId() );
-                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, LdapDN.EMPTY_LDAPDN, ine );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_DN_SYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
 
                         modifyDNRequest.setEntry( entry );
@@ -2306,7 +2306,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                         log.error(  msg  );
                         
                         ModifyDnResponseImpl response = new ModifyDnResponseImpl( ldapMessage.getMessageId() );
-                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, modifyDNRequest.getEntry(), null );
+                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_DN_SYNTAX, modifyDNRequest.getEntry(), null );
                     }
                     else
                     {
@@ -2325,7 +2325,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                             log.error( "{} : {}", msg, ine.getMessage() );
     
                             ModifyDnResponseImpl response = new ModifyDnResponseImpl( ldapMessage.getMessageId() );
-                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, modifyDNRequest.getEntry(), ine );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_DN_SYNTAX, modifyDNRequest.getEntry(), ine );
                         }
 
                         modifyDNRequest.setNewRDN( newRdn );
@@ -2459,7 +2459,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                             log.error( "{} : {}", msg, ine.getMessage() );
     
                             ModifyDnResponseImpl response = new ModifyDnResponseImpl( ldapMessage.getMessageId() );
-                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, modifyDNRequest.getEntry(), ine );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_DN_SYNTAX, modifyDNRequest.getEntry(), ine );
                         }
 
                         modifyDNRequest.setNewSuperior( newSuperior );
@@ -2614,7 +2614,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                             log.error( "{} : {}", msg, ine.getMessage() );
             
                             CompareResponseImpl response = new CompareResponseImpl( ldapMessage.getMessageId() );
-                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, LdapDN.EMPTY_LDAPDN, ine );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_DN_SYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
 
                         compareRequest.setEntry( entry );
@@ -2674,7 +2674,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                         log.error( msg );
                         CompareResponseImpl response = new CompareResponseImpl( ldapMessage.getMessageId() );
                         
-                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDATTRIBUTESYNTAX, compareRequest.getEntry(), null );
+                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, compareRequest.getEntry(), null );
                     }
 
                     String type = new String( tlv.getValue().getData() );
@@ -3523,7 +3523,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                             log.error( "{} : {}", msg, ine.getMessage() );
                     
                             SearchResponseDoneImpl response = new SearchResponseDoneImpl( ldapMessage.getMessageId() );
-                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALIDDNSYNTAX, LdapDN.EMPTY_LDAPDN, ine );
+                            throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_DN_SYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
                     }
 

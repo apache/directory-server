@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapResponse;
 import org.apache.directory.shared.ldap.codec.LdapResult;
-import org.apache.directory.shared.ldap.codec.util.LdapResultEnum;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -80,14 +80,14 @@ public class MatchedDNAction extends GrammarAction
             // A not null matchedDN is valid for resultCodes
             // NoSuchObject, AliasProblem, InvalidDNSyntax and
             // AliasDreferencingProblem.
-            int resultCode = ldapResult.getResultCode();
+            ResultCodeEnum resultCode = ldapResult.getResultCode();
 
             switch ( resultCode )
             {
-                case LdapResultEnum.NO_SUCH_OBJECT :
-                case LdapResultEnum.ALIAS_PROBLEM :
-                case LdapResultEnum.INVALID_DN_SYNTAX :
-                case LdapResultEnum.ALIAS_DEREFERENCING_PROBLEM :
+                case NO_SUCH_OBJECT :
+                case ALIAS_PROBLEM :
+                case INVALID_DN_SYNTAX :
+                case ALIAS_DEREFERENCING_PROBLEM :
                     byte[] dnBytes = tlv.getValue().getData();
                     
                     try

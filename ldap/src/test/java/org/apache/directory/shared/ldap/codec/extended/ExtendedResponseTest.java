@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.extended.ExtendedResponse;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
@@ -95,7 +96,7 @@ public class ExtendedResponseTest extends TestCase
         ExtendedResponse extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, extendedResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
         assertEquals( "", extendedResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", extendedResponse.getLdapResult().getErrorMessage() );
         assertEquals( "1.3.6.1.5.5.2", extendedResponse.getResponseName() );
@@ -180,7 +181,7 @@ public class ExtendedResponseTest extends TestCase
         ExtendedResponse extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, extendedResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
         assertEquals( "", extendedResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", extendedResponse.getLdapResult().getErrorMessage() );
         assertEquals( "1.3.6.1.5.5.2", extendedResponse.getResponseName() );
@@ -262,7 +263,7 @@ public class ExtendedResponseTest extends TestCase
         ExtendedResponse extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, extendedResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
         assertEquals( "", extendedResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", extendedResponse.getLdapResult().getErrorMessage() );
 
@@ -335,7 +336,7 @@ public class ExtendedResponseTest extends TestCase
         ExtendedResponse extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, extendedResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
         assertEquals( "", extendedResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", extendedResponse.getLdapResult().getErrorMessage() );
 
@@ -535,7 +536,7 @@ public class ExtendedResponseTest extends TestCase
         ExtendedResponse extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, extendedResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
         assertEquals( "", extendedResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", extendedResponse.getLdapResult().getErrorMessage() );
         assertEquals( "1.3.6.1.5.5.2", extendedResponse.getResponseName() );
@@ -611,7 +612,7 @@ public class ExtendedResponseTest extends TestCase
         ExtendedResponse extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, extendedResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
         assertEquals( "", extendedResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", extendedResponse.getLdapResult().getErrorMessage() );
         assertEquals( "1.3.6.1.5.5.2", extendedResponse.getResponseName() );
@@ -694,7 +695,7 @@ public class ExtendedResponseTest extends TestCase
         ExtendedResponse extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, extendedResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
         assertEquals( "", extendedResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", extendedResponse.getLdapResult().getErrorMessage() );
         assertEquals( "1.3.6.1.5.5.2", extendedResponse.getResponseName() );
@@ -771,7 +772,7 @@ public class ExtendedResponseTest extends TestCase
         ExtendedResponse extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, extendedResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
         assertEquals( "", extendedResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", extendedResponse.getLdapResult().getErrorMessage() );
         assertEquals( "1.3.6.1.5.5.2", extendedResponse.getResponseName() );

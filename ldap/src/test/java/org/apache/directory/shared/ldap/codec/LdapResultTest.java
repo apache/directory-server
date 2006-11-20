@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.add.AddResponse;
 import org.apache.directory.shared.ldap.codec.util.LdapResultEnum;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import java.nio.ByteBuffer;
@@ -309,7 +310,7 @@ public class LdapResultTest extends TestCase
         AddResponse addResponse = message.getAddResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, addResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, addResponse.getLdapResult().getResultCode() );
         assertEquals( "", addResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", addResponse.getLdapResult().getErrorMessage() );
 
@@ -377,7 +378,7 @@ public class LdapResultTest extends TestCase
         AddResponse addResponse = message.getAddResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( LdapResultEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
         assertEquals( "", addResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", addResponse.getLdapResult().getErrorMessage() );
 
@@ -452,7 +453,7 @@ public class LdapResultTest extends TestCase
         AddResponse addResponse = message.getAddResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( LdapResultEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
         assertEquals( "", addResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", addResponse.getLdapResult().getErrorMessage() );
 
@@ -531,7 +532,7 @@ public class LdapResultTest extends TestCase
         AddResponse addResponse = message.getAddResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( LdapResultEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
         assertEquals( "", addResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", addResponse.getLdapResult().getErrorMessage() );
 

@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.compare.CompareResponse;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
@@ -98,7 +99,7 @@ public class CompareResponseTest extends TestCase
         CompareResponse compareResponse = message.getCompareResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, compareResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, compareResponse.getLdapResult().getResultCode() );
         assertEquals( "", compareResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", compareResponse.getLdapResult().getErrorMessage() );
 
@@ -176,7 +177,7 @@ public class CompareResponseTest extends TestCase
         CompareResponse compareResponse = message.getCompareResponse();
 
         assertEquals( 1, message.getMessageId() );
-        assertEquals( 0, compareResponse.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.SUCCESS, compareResponse.getLdapResult().getResultCode() );
         assertEquals( "", compareResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", compareResponse.getLdapResult().getErrorMessage() );
 

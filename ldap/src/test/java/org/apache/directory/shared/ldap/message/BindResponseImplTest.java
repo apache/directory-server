@@ -105,8 +105,8 @@ public class BindResponseImplTest extends TestCase
         r0.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
         r1.setMatchedDn( new LdapDN( "dc=example,dc=com" ) );
 
-        r0.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
-        r1.setResultCode( ResultCodeEnum.TIMELIMITEXCEEDED );
+        r0.setResultCode( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
+        r1.setResultCode( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
 
         Referral refs0 = new ReferralImpl();
         refs0.addLdapUrl( "ldap://someserver.com" );

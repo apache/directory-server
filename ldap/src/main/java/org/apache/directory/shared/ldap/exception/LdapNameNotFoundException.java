@@ -60,6 +60,6 @@ public class LdapNameNotFoundException extends NameNotFoundException implements 
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.NOSUCHOBJECT;
+        return ResultCodeEnum.NO_SUCH_OBJECT;
     }
 }
