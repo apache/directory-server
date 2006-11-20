@@ -1186,7 +1186,7 @@ public class TwixTransformer implements TransformerSpi
                 transformSearchResultReference( twixMessage, msg );
                 break;
                 
-            case BIND_REQUEST :
+            case BIND_RESPONSE :
                 transformBindResponse( twixMessage, msg );
                 break;
                 
