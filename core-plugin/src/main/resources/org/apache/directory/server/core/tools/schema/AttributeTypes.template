@@ -75,7 +75,7 @@ public class $classname extends AbstractBootstrapProducer
         attributeType.setCollective( $attrType.isCollective() );
         attributeType.setObsolete( $attrType.isObsolete() );
         attributeType.setLength( $attrType.getLength() );
-        attributeType.setUsage( UsageEnum.getUsage( "$attrType.getUsage().getName()" ) );
+        attributeType.setUsage( UsageEnum.getUsage( "$attrType.getUsage()" ) );
 #if ( $attrType.getSuperior() )        attributeType.setSuperiorId( "$attrType.getSuperior()" ); #end
 #if ( $attrType.getEquality() )        attributeType.setEqualityId( "$attrType.getEquality()" );
 #end

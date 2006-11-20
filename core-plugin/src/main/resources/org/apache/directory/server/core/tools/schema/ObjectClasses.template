@@ -73,11 +73,11 @@ public class $classname extends AbstractBootstrapProducer
 objectClass.setDescription( "$objectClass.getDescription()" );
         #end
 // set the objectclass type
-        #if ( $objectClass.getClassType().getName() == "ABSTRACT" )
+        #if ( $objectClass.getClassType().getValue() == 0 )
 objectClass.setType( ObjectClassTypeEnum.ABSTRACT );
-        #elseif ( $objectClass.getClassType().getName() == "AUXILIARY" )
+        #elseif ( $objectClass.getClassType().getValue() == 1 )
 objectClass.setType( ObjectClassTypeEnum.AUXILIARY );
-        #elseif ( $objectClass.getClassType().getName() == "STRUCTURAL" )
+        #elseif ( $objectClass.getClassType().getValue() == 2 )
 objectClass.setType( ObjectClassTypeEnum.STRUCTURAL );
         #end
 
