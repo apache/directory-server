@@ -22,8 +22,6 @@ package org.apache.directory.shared.ldap.message;
 
 import java.util.Map;
 
-import org.apache.directory.shared.ldap.util.ValuedEnum;
-
 
 /**
  * Type-safe derefAliases search parameter enumeration which determines the mode
@@ -33,169 +31,58 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public class DerefAliasesEnum extends ValuedEnum
+public enum DerefAliasesEnum
 {
-    static final long serialVersionUID = 1501231261415745531L;
-
-    /** java.naming.ldap.derefAliases JNDI property */
-    public static final String JNDI_PROP = "java.naming.ldap.derefAliases";
-
-    /** Alias handling mode name that treats aliases like entries */
-    public static final String NEVERDEREFALIASES_NAME = "never";
-
-    /** Alias handling mode name that dereferences only when searching */
-    public static final String DEREFINSEARCHING_NAME = "searching";
-
-    /** Alias handling mode name that dereferences only in finding the base */
-    public static final String DEREFFINDINGBASEOBJ_NAME = "finding";
-
-    /** Alias handling mode name that dereferences always */
-    public static final String DEREFALWAYS_NAME = "always";
-
     /** Alias handling mode value that treats aliases like entries */
-    public static final int NEVERDEREFALIASES_VAL = 0;
+    NEVER_DEREF_ALIASES(0),
 
     /** Alias handling mode value that dereferences only when searching */
-    public static final int DEREFINSEARCHING_VAL = 1;
+    DEREF_IN_SEARCHING(1),
 
     /** Alias handling mode value that dereferences only in finding the base */
-    public static final int DEREFFINDINGBASEOBJ_VAL = 2;
+    DEREF_FINDING_BASE_OBJ(2),
 
     /** Alias handling mode value that dereferences always */
-    public static final int DEREFALWAYS_VAL = 3;
-
-    /** Alias handling mode that treats aliases like entries */
-    public static final DerefAliasesEnum NEVERDEREFALIASES = new DerefAliasesEnum( NEVERDEREFALIASES_NAME,
-        NEVERDEREFALIASES_VAL );
-
-    /** Alias handling mode that dereferences only when searching */
-    public static final DerefAliasesEnum DEREFINSEARCHING = new DerefAliasesEnum( DEREFINSEARCHING_NAME,
-        DEREFINSEARCHING_VAL );
-
-    /** Alias handling mode that dereferences only in finding the base */
-    public static final DerefAliasesEnum DEREFFINDINGBASEOBJ = new DerefAliasesEnum( DEREFFINDINGBASEOBJ_NAME,
-        DEREFFINDINGBASEOBJ_VAL );
-
-    /** Alias handling mode that dereferences always */
-    public static final DerefAliasesEnum DEREFALWAYS = new DerefAliasesEnum( DEREFALWAYS_NAME, DEREFALWAYS_VAL );
+    DEREF_ALWAYS(3);
 
 
+    /** Stores the integer value of each element of the enumeration */
+    private int value;
+    
     /**
-     * Private construct so no other instances can be created other than the
+     * Private constructor so no other instances can be created other than the
      * public static constants in this class.
      * 
-     * @param a_name
-     *            a string name for the enumeration value.
-     * @param a_value
-     *            the integer value of the enumeration.
+     * @param value the integer value of the enumeration.
      */
-    private DerefAliasesEnum(final String a_name, final int a_value)
+    private DerefAliasesEnum( int value )
     {
-        super( a_name, a_value );
+       this.value = value;
     }
 
-
+    
     /**
-     * Checks to see if we dereference while searching and finding the base.
-     * 
-     * @return true if value is DEREFALWAYS_VAL, false otherwise
+     * @return The value associated with the current element.
      */
-    public boolean derefAlways()
+    public int getValue()
     {
-        return getValue() == DEREFALWAYS_VAL;
+        return value;
     }
 
+    /** java.naming.ldap.derefAliases JNDI property */
+    public static final String JNDI_DEREF_ALIAS_PROP = "java.naming.ldap.derefAliases";
 
-    /**
-     * Checks to see if we never dereference aliases.
-     * 
-     * @return true if value is NEVERDEREFALIASES_VAL, false otherwise
-     */
-    public boolean neverDeref()
-    {
-        return getValue() == NEVERDEREFALIASES_VAL;
-    }
+    /** Alias handling mode name that treats aliases like entries */
+    public static final String NEVER_DEREF_ALIASES_NAME = "never";
 
+    /** Alias handling mode name that dereferences only when searching */
+    public static final String DEREF_IN_SEARCHING_NAME = "searching";
 
-    /**
-     * Checks to see if we dereference while searching.
-     * 
-     * @return true if value is DEREFALWAYS_VAL, or DEREFINSEARCHING_VAL, and
-     *         false otherwise.
-     */
-    public boolean derefInSearching()
-    {
-        switch ( getValue() )
-        {
-            case ( DEREFALWAYS_VAL ):
-                return true;
-            case ( DEREFFINDINGBASEOBJ_VAL ):
-                return false;
-            case ( DEREFINSEARCHING_VAL ):
-                return true;
-            case ( NEVERDEREFALIASES_VAL ):
-                return false;
-            default:
-                throw new IllegalArgumentException( "Class has bug: check for valid enumeration values" );
-        }
-    }
+    /** Alias handling mode name that dereferences only in finding the base */
+    public static final String DEREF_FINDING_BASE_OBJ_NAME = "finding";
 
-
-    /**
-     * Checks to see if we dereference while finding the base.
-     * 
-     * @return true if value is DEREFALWAYS_VAL, or DEREFFINDINGBASEOBJ_VAL, and
-     *         false otherwise.
-     */
-    public boolean derefFindingBase()
-    {
-        switch ( getValue() )
-        {
-            case ( DEREFALWAYS_VAL ):
-                return true;
-            case ( DEREFFINDINGBASEOBJ_VAL ):
-                return true;
-            case ( DEREFINSEARCHING_VAL ):
-                return false;
-            case ( NEVERDEREFALIASES_VAL ):
-                return false;
-            default:
-                throw new IllegalArgumentException( "Class has bug: check for valid enumeration values" );
-        }
-    }
-
-
-    /**
-     * Gets the enumeration for a enumeration name which also happens to be the
-     * value of the java.naming.ldap.derefAliases LDAP proovider property.
-     * 
-     * @param a_name
-     *            the value for the java.naming.ldap.derefAliases or a name of
-     *            an enum value.
-     * @return the enumeration for a name
-     */
-    public static DerefAliasesEnum getEnum( String a_name )
-    {
-        if ( null == a_name || a_name.equalsIgnoreCase( DEREFALWAYS_NAME ) )
-        {
-            return DEREFALWAYS;
-        }
-        else if ( a_name.equalsIgnoreCase( DEREFFINDINGBASEOBJ_NAME ) )
-        {
-            return DEREFFINDINGBASEOBJ;
-        }
-        else if ( a_name.equalsIgnoreCase( DEREFINSEARCHING_NAME ) )
-        {
-            return DEREFINSEARCHING;
-        }
-        else if ( a_name.equalsIgnoreCase( NEVERDEREFALIASES_NAME ) )
-        {
-            return NEVERDEREFALIASES;
-        }
-
-        throw new IllegalArgumentException( "Unrecognized JNDI environment property " + JNDI_PROP + " value: " + a_name );
-    }
-
+    /** Alias handling mode name that dereferences always */
+    public static final String DEREF_ALWAYS_NAME = "always";
 
     /**
      * Gets the enumeration from by extracting the value for the JNDI LDAP
@@ -209,6 +96,91 @@ public class DerefAliasesEnum extends ValuedEnum
      */
     public static DerefAliasesEnum getEnum( Map env )
     {
-        return getEnum( ( String ) env.get( JNDI_PROP ) );
+        String property = ( String ) env.get( JNDI_DEREF_ALIAS_PROP );
+        
+        if ( null == property )
+        {
+            return DEREF_ALWAYS;
+        }
+        
+        DerefAliasesEnum result = valueOf( property );
+        return ( result == null ? DEREF_ALWAYS : result );
+    }
+    
+    /**
+     * Checks to see if we dereference while searching and finding the base.
+     * 
+     * @return true if value is DEREF_ALWAYS, false otherwise
+     */
+    public boolean isDerefAlways()
+    {
+        return this == DEREF_ALWAYS;
+    }
+
+
+    /**
+     * Checks to see if we never dereference aliases.
+     * 
+     * @return true if value is NEVER_DEREF_ALIASES, false otherwise
+     */
+    public boolean isNeverDeref()
+    {
+        return this == NEVER_DEREF_ALIASES;
+    }
+
+
+    /**
+     * Checks to see if we dereference while searching.
+     * 
+     * @return true if value is DEREF_ALWAYS_VAL, or DEREF_IN_SEARCHING, and
+     *         false otherwise.
+     */
+    public boolean isDerefInSearching()
+    {
+        switch ( this )
+        {
+            case DEREF_ALWAYS :
+                return true;
+            
+            case DEREF_FINDING_BASE_OBJ :
+                return false;
+            
+            case DEREF_IN_SEARCHING :
+                return true;
+            
+            case NEVER_DEREF_ALIASES :
+                return false;
+            
+            default:
+                throw new IllegalArgumentException( "Class has bug: check for valid enumeration values" );
+        }
+    }
+
+
+    /**
+     * Checks to see if we dereference while finding the base.
+     * 
+     * @return true if value is DEREF_ALWAYS, or DEREF_FINDING_BASE_OBJ, and
+     *         false otherwise.
+     */
+    public boolean isDerefFindingBase()
+    {
+        switch ( this )
+        {
+            case DEREF_ALWAYS :
+                return true;
+            
+            case DEREF_FINDING_BASE_OBJ :
+                return true;
+            
+            case DEREF_IN_SEARCHING :
+                return false;
+            
+            case NEVER_DEREF_ALIASES :
+                return false;
+            
+            default:
+                throw new IllegalArgumentException( "Class has bug: check for valid enumeration values" );
+        }
     }
 }

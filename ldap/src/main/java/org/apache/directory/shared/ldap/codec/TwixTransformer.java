@@ -604,19 +604,19 @@ public class TwixTransformer implements TransformerSpi
         switch ( searchRequest.getDerefAliases() )
         {
             case LdapConstants.DEREF_ALWAYS:
-                snickersMessage.setDerefAliases( DerefAliasesEnum.DEREFALWAYS );
+                snickersMessage.setDerefAliases( DerefAliasesEnum.DEREF_ALWAYS );
                 break;
 
             case LdapConstants.DEREF_FINDING_BASE_OBJ:
-                snickersMessage.setDerefAliases( DerefAliasesEnum.DEREFFINDINGBASEOBJ );
+                snickersMessage.setDerefAliases( DerefAliasesEnum.DEREF_FINDING_BASE_OBJ );
                 break;
 
             case LdapConstants.DEREF_IN_SEARCHING:
-                snickersMessage.setDerefAliases( DerefAliasesEnum.DEREFINSEARCHING );
+                snickersMessage.setDerefAliases( DerefAliasesEnum.DEREF_IN_SEARCHING );
                 break;
 
             case LdapConstants.NEVER_DEREF_ALIASES:
-                snickersMessage.setDerefAliases( DerefAliasesEnum.NEVERDEREFALIASES );
+                snickersMessage.setDerefAliases( DerefAliasesEnum.NEVER_DEREF_ALIASES );
                 break;
         }
 

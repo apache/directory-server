@@ -42,6 +42,15 @@ public enum ObjectClassTypeEnum
     /** The enumeration constant value for the structural objectClasses */
     STRUCTURAL( 2 );
 
+    /** The int constant value for the abstract objectClasses */
+    public static final int ABSTRACT_VAL = 0;
+
+    /** The int constant value for the auxillary objectClasses */
+    public static final int AUXILIARY_VAL = 1;
+
+    /** The int constant value for the structural objectClasses */
+    public static final int STRUCTURAL_VAL=2;
+    
     /** Stores the integer value of each element of the enumeration */
     private int value;
     

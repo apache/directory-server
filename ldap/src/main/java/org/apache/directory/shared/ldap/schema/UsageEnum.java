@@ -78,6 +78,13 @@ public enum UsageEnum
      */
     public static UsageEnum getUsage( String usage )
     {
+        UsageEnum result = valueOf( usage );
+        
+        if ( result != null )
+        {
+            return result;
+        }
+        
     	if ( "directoryOperation".equals( usage ) )
     	{
     		return DIRECTORY_OPERATION;
