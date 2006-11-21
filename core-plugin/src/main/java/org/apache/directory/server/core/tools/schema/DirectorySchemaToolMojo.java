@@ -143,8 +143,8 @@ public class DirectorySchemaToolMojo extends AbstractMojo
 
     protected void generateRest( BootstrapSchema schema ) throws Exception
     {
-        List types = new ArrayList();
-        types.addAll( ProducerTypeEnum.list() );
+        List<ProducerTypeEnum> types = new ArrayList<ProducerTypeEnum>();
+        types.addAll( ProducerTypeEnum.getList() );
         types.remove( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER );
         types.remove( ProducerTypeEnum.OBJECT_CLASS_PRODUCER );
 
@@ -166,41 +166,53 @@ public class DirectorySchemaToolMojo extends AbstractMojo
             context.put( "type", type.getName().substring( 0, type.getName().length() - 8 ) );
 
             String typeName = null;
-            switch ( type.getValue() )
+            
+            switch ( type )
             {
-                case ( ProducerTypeEnum.COMPARATOR_PRODUCER_VAL  ):
+                case COMPARATOR_PRODUCER :
                     typeName = "ProducerTypeEnum.COMPARATOR_PRODUCER";
                     break;
-                case ( ProducerTypeEnum.DIT_CONTENT_RULE_PRODUCER_VAL  ):
+                    
+                case DIT_CONTENT_RULE_PRODUCER :
                     typeName = "ProducerTypeEnum.DIT_CONTENT_RULE_PRODUCER";
                     break;
-                case ( ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER_VAL  ):
+                    
+                case DIT_STRUCTURE_RULE_PRODUCER :
                     typeName = "ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER";
                     break;
-                case ( ProducerTypeEnum.MATCHING_RULE_PRODUCER_VAL  ):
+                    
+                case MATCHING_RULE_PRODUCER :
                     typeName = "ProducerTypeEnum.MATCHING_RULE_PRODUCER";
                     break;
-                case ( ProducerTypeEnum.MATCHING_RULE_USE_PRODUCER_VAL  ):
+                    
+                case MATCHING_RULE_USE_PRODUCER :
                     typeName = "ProducerTypeEnum.MATCHING_RULE_USE_PRODUCER";
                     break;
-                case ( ProducerTypeEnum.NAME_FORM_PRODUCER_VAL  ):
+                    
+                case NAME_FORM_PRODUCER :
                     typeName = "ProducerTypeEnum.NAME_FORM_PRODUCER";
                     break;
-                case ( ProducerTypeEnum.NORMALIZER_PRODUCER_VAL  ):
+                    
+                case NORMALIZER_PRODUCER :
                     typeName = "ProducerTypeEnum.NORMALIZER_PRODUCER";
                     break;
-                case ( ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER_VAL  ):
+                    
+                case SYNTAX_CHECKER_PRODUCER :
                     typeName = "ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER";
                     break;
-                case ( ProducerTypeEnum.SYNTAX_PRODUCER_VAL  ):
+                    
+                case SYNTAX_PRODUCER :
                     typeName = "ProducerTypeEnum.SYNTAX_PRODUCER";
                     break;
-                case ( ProducerTypeEnum.STATE_FACTORY_PRODUCER_VAL  ):
+                    
+                case STATE_FACTORY_PRODUCER :
                     typeName = "ProducerTypeEnum.STATE_FACTORY_PRODUCER";
                     break;
-                case ( ProducerTypeEnum.OBJECT_FACTORY_PRODUCER_VAL  ):
+                    
+                case OBJECT_FACTORY_PRODUCER :
                     typeName = "ProducerTypeEnum.OBJECT_FACTORY_PRODUCER";
                     break;
+                    
                 default:
                     throw new IllegalStateException( "Unexpected producer: " + type.getName() );
             }
