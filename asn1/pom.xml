@@ -10,10 +10,6 @@
   <name>Apache Directory ASN.1 Shared</name>
   <packaging>jar</packaging>  
   <distributionManagement>
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared/asn1</connection>
-    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared/asn1</developerConnection>
-  </scm>
     <site>
       <id>apacheds.websites</id>
       <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/asn1/</url>
@@ -43,6 +39,11 @@
     </plugins>
   </build>
 
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared/asn1</connection>
+    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared/asn1</developerConnection>
+  </scm>
+  
   <ciManagement>
     <system>continuum</system>
     <url>http://localhost:8080/continuum</url>
