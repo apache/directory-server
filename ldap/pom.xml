@@ -23,9 +23,8 @@
   </distributionManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/trunk/ldap-common</connection>
-    <url>http://svn.apache.org/viewcvs.cgi/directory/trunk/ldap-common/?root=Apache-SVN</url>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/trunk/ldap-common</developerConnection>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared/ldap</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/trunks/shared/ldap</developerConnection>
   </scm>
 
   <ciManagement>
