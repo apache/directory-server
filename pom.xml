@@ -16,5 +16,11 @@
     <module>ldap</module>
     <module>asn1-codec</module>
   </modules>
+
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared</connection>
+    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared</developerConnection>
+  </scm>
+
 </project>
 
