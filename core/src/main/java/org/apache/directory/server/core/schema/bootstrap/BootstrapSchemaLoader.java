@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
 
 import javax.naming.NamingException;
@@ -205,10 +204,8 @@ public class BootstrapSchemaLoader
         this.registries.set( registries );
         this.schemas.set( schema );
 
-        List producers = ProducerTypeEnum.list();
-        for ( int ii = 0; ii < producers.size(); ii++ )
+        for ( ProducerTypeEnum producerType:ProducerTypeEnum.getList() )
         {
-            ProducerTypeEnum producerType = ( ProducerTypeEnum ) producers.get( ii );
             BootstrapProducer producer = getProducer( schema, producerType.getName() );
             producer.produce( registries, cb );
         }
@@ -233,85 +230,98 @@ public class BootstrapSchemaLoader
         BootstrapSchema schema = ( BootstrapSchema ) this.schemas.get();
         BootstrapRegistries registries = ( BootstrapRegistries ) this.registries.get();
 
-        switch ( type.getValue() )
+        switch ( type )
         {
-            case ( ProducerTypeEnum.NORMALIZER_PRODUCER_VAL  ):
+            case NORMALIZER_PRODUCER :
                 Normalizer normalizer = ( Normalizer ) schemaObject;
                 NormalizerRegistry normalizerRegistry;
                 normalizerRegistry = registries.getNormalizerRegistry();
                 normalizerRegistry.register( schema.getSchemaName(), id, normalizer );
                 break;
-            case ( ProducerTypeEnum.COMPARATOR_PRODUCER_VAL  ):
+                
+            case COMPARATOR_PRODUCER :
                 Comparator comparator = ( Comparator ) schemaObject;
                 ComparatorRegistry comparatorRegistry;
                 comparatorRegistry = registries.getComparatorRegistry();
                 comparatorRegistry.register( schema.getSchemaName(), id, comparator );
                 break;
-            case ( ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER_VAL  ):
+                
+            case SYNTAX_CHECKER_PRODUCER :
                 SyntaxChecker syntaxChecker = ( SyntaxChecker ) schemaObject;
                 SyntaxCheckerRegistry syntaxCheckerRegistry;
                 syntaxCheckerRegistry = registries.getSyntaxCheckerRegistry();
                 syntaxCheckerRegistry.register( schema.getSchemaName(), id, syntaxChecker );
                 break;
-            case ( ProducerTypeEnum.SYNTAX_PRODUCER_VAL  ):
+                
+            case SYNTAX_PRODUCER :
                 Syntax syntax = ( Syntax ) schemaObject;
                 SyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();
                 syntaxRegistry.register( schema.getSchemaName(), syntax );
                 break;
-            case ( ProducerTypeEnum.MATCHING_RULE_PRODUCER_VAL  ):
+                
+            case MATCHING_RULE_PRODUCER :
                 MatchingRule matchingRule = ( MatchingRule ) schemaObject;
                 MatchingRuleRegistry matchingRuleRegistry;
                 matchingRuleRegistry = registries.getMatchingRuleRegistry();
                 matchingRuleRegistry.register( schema.getSchemaName(), matchingRule );
                 break;
-            case ( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER_VAL  ):
+                
+            case ATTRIBUTE_TYPE_PRODUCER :
                 AttributeType attributeType = ( AttributeType ) schemaObject;
                 AttributeTypeRegistry attributeTypeRegistry;
                 attributeTypeRegistry = registries.getAttributeTypeRegistry();
                 attributeTypeRegistry.register( schema.getSchemaName(), attributeType );
                 break;
-            case ( ProducerTypeEnum.OBJECT_CLASS_PRODUCER_VAL  ):
+                
+            case OBJECT_CLASS_PRODUCER :
                 ObjectClass objectClass = ( ObjectClass ) schemaObject;
                 ObjectClassRegistry objectClassRegistry;
                 objectClassRegistry = registries.getObjectClassRegistry();
                 objectClassRegistry.register( schema.getSchemaName(), objectClass );
                 break;
-            case ( ProducerTypeEnum.MATCHING_RULE_USE_PRODUCER_VAL  ):
+                
+            case MATCHING_RULE_USE_PRODUCER :
                 MatchingRuleUse matchingRuleUse = ( MatchingRuleUse ) schemaObject;
                 MatchingRuleUseRegistry matchingRuleUseRegistry;
                 matchingRuleUseRegistry = registries.getMatchingRuleUseRegistry();
                 matchingRuleUseRegistry.register( schema.getSchemaName(), matchingRuleUse );
                 break;
-            case ( ProducerTypeEnum.DIT_CONTENT_RULE_PRODUCER_VAL  ):
+                
+            case DIT_CONTENT_RULE_PRODUCER :
                 DITContentRule ditContentRule = ( DITContentRule ) schemaObject;
                 DITContentRuleRegistry ditContentRuleRegistry;
                 ditContentRuleRegistry = registries.getDitContentRuleRegistry();
                 ditContentRuleRegistry.register( schema.getSchemaName(), ditContentRule );
                 break;
-            case ( ProducerTypeEnum.NAME_FORM_PRODUCER_VAL  ):
+                
+            case NAME_FORM_PRODUCER :
                 NameForm nameForm = ( NameForm ) schemaObject;
                 NameFormRegistry nameFormRegistry;
                 nameFormRegistry = registries.getNameFormRegistry();
                 nameFormRegistry.register( schema.getSchemaName(), nameForm );
                 break;
-            case ( ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER_VAL  ):
+                
+            case DIT_STRUCTURE_RULE_PRODUCER :
                 DITStructureRule ditStructureRule = ( DITStructureRule ) schemaObject;
                 DITStructureRuleRegistry ditStructureRuleRegistry;
                 ditStructureRuleRegistry = registries.getDitStructureRuleRegistry();
                 ditStructureRuleRegistry.register( schema.getSchemaName(), ditStructureRule );
                 break;
-            case ( ProducerTypeEnum.STATE_FACTORY_PRODUCER_VAL  ):
+                
+            case STATE_FACTORY_PRODUCER :
                 ServerDirStateFactory stateFactory = ( ServerDirStateFactory ) schemaObject;
                 StateFactoryRegistry stateFactoryRegistry;
                 stateFactoryRegistry = registries.getStateFactoryRegistry();
                 stateFactoryRegistry.register( stateFactory );
                 break;
-            case ( ProducerTypeEnum.OBJECT_FACTORY_PRODUCER_VAL  ):
+                
+            case OBJECT_FACTORY_PRODUCER :
                 ServerDirObjectFactory objectFactory = ( ServerDirObjectFactory ) schemaObject;
                 ObjectFactoryRegistry objectFactoryRegistry;
                 objectFactoryRegistry = registries.getObjectFactoryRegistry();
                 objectFactoryRegistry.register( objectFactory );
                 break;
+                
             default:
                 throw new IllegalStateException( "ProducerTypeEnum is broke!" );
         }
