@@ -115,6 +115,15 @@ public class SubentryServiceObjectClassChangeHandlingITest extends AbstractAdmin
 
 
     /*
+     * Remove this test when you fix DIRSERVER-784 and activate the following test.
+     */
+    public void testEmpty()
+    {
+        assertTrue( true );
+    }
+
+
+    /*
      * FIXME: The following test fails.
      */
 
