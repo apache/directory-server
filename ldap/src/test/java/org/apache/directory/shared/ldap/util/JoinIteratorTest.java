@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.util;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.directory.shared.ldap.util.JoinIterator;
 
@@ -84,7 +85,7 @@ public class JoinIteratorTest extends TestCase
 
     public void testSeveralArguments()
     {
-        ArrayList multivalued = new ArrayList();
+        List<String> multivalued = new ArrayList<String>();
         multivalued.add( "foo1" );
         multivalued.add( "foo2" );
 

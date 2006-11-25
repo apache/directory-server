@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -252,7 +253,7 @@ public class ModifyRequestImplTest extends TestCase
         {
             public Collection getModificationItems()
             {
-                ArrayList list = new ArrayList();
+                List<ModificationItem> list = new ArrayList<ModificationItem>();
                 LockableAttributeImpl attr = new LockableAttributeImpl( "attr0" );
                 attr.add( "val0" );
                 attr.add( "val1" );

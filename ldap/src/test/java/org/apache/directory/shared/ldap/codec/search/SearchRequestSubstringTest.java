@@ -54,7 +54,7 @@ import junit.framework.TestCase;
  */
 public class SearchRequestSubstringTest extends TestCase
 {
-    static Map oids = new HashMap();
+    static Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
 
     protected void setUp() throws Exception
     {

@@ -52,7 +52,7 @@ import junit.framework.TestCase;
  */
 public class SearchRequestMatchingRuleAssertionTest extends TestCase
 {
-    static Map oids = new HashMap();
+    static Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
 
     protected void setUp() throws Exception
     {

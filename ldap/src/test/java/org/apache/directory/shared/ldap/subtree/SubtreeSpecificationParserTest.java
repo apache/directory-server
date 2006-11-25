@@ -343,7 +343,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     public void testMultiThreaded() throws Exception
     {
         // start up and track all threads (40 threads)
-        List threads = new ArrayList();
+        List<Thread> threads = new ArrayList<Thread>();
         for ( int ii = 0; ii < 10; ii++ )
         {
             Thread t0 = new Thread( new ParseSpecification( EMPTY_SPEC ) );

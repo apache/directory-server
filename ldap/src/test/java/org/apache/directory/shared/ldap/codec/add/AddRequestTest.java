@@ -24,6 +24,8 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -121,18 +123,18 @@ public class AddRequestTest extends TestCase
 
         assertEquals( 2, attributes.size() );
 
-        HashSet expectedTypes = new HashSet();
+        Set<String> expectedTypes = new HashSet<String>();
 
         expectedTypes.add( "l" );
         expectedTypes.add( "attrs" );
 
-        HashMap typesVals = new HashMap();
+        Map<String, Set<String>> typesVals = new HashMap<String, Set<String>>();
 
-        HashSet lVal1 = new HashSet();
+        Set<String> lVal1 = new HashSet<String>();
         lVal1.add( "Paris" );
         typesVals.put( "l", lVal1 );
 
-        HashSet lVal2 = new HashSet();
+        Set<String> lVal2 = new HashSet<String>();
         lVal2.add( "test1" );
         lVal2.add( "test2" );
         lVal2.add( "test3" );

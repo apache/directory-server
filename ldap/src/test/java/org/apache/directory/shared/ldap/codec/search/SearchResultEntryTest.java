@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.codec.search;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -116,7 +117,7 @@ public class SearchResultEntryTest extends TestCase
 
             NamingEnumeration values = attributeValue.getAll();
 
-            HashSet expectedValues = new HashSet();
+            Set<String> expectedValues = new HashSet<String>();
 
             expectedValues.add( "top" );
             expectedValues.add( "organizationalUnit" );
@@ -226,7 +227,7 @@ public class SearchResultEntryTest extends TestCase
 
             NamingEnumeration values = attributeValue.getAll();
 
-            HashSet expectedValues = new HashSet();
+            Set<String> expectedValues = new HashSet<String>();
 
             expectedValues.add( "top" );
             expectedValues.add( "organizationalUnit" );
@@ -335,7 +336,7 @@ public class SearchResultEntryTest extends TestCase
 
             NamingEnumeration values = attributeValue.getAll();
 
-            HashSet expectedValues = new HashSet();
+            Set<String> expectedValues = new HashSet<String>();
 
             expectedValues.add( "top" );
             expectedValues.add( "person" );

@@ -1340,7 +1340,7 @@ public class LdapDNTest extends TestCase
     */
    public void testLdapNameList() throws InvalidNameException
    {
-       ArrayList list = new ArrayList();
+       List<String> list = new ArrayList<String>();
        list.add( "ou=People" );
        list.add( "dc=example" );
        list.add( "dc=com" );
@@ -1354,7 +1354,7 @@ public class LdapDNTest extends TestCase
     */
    public void testLdapNameIterator() throws InvalidNameException
    {
-       ArrayList list = new ArrayList();
+       List<String> list = new ArrayList<String>();
        list.add( "ou=People" );
        list.add( "dc=example" );
        list.add( "dc=com" );
@@ -1406,14 +1406,14 @@ public class LdapDNTest extends TestCase
        assertTrue( name4.compareTo( name5 ) > 0 );
        assertTrue( name2.compareTo( name5 ) < 0 );
 
-       List list = new ArrayList();
+       List<Name> list = new ArrayList<Name>();
 
-       Comparator comparator = new Comparator()
+       Comparator<Name> comparator = new Comparator<Name>()
        {
-           public int compare( Object obj1, Object obj2 )
+           public int compare( Name obj1, Name obj2 )
            {
-               Name name1 = ( LdapDN ) obj1;
-               Name name2 = ( LdapDN ) obj2;
+               Name name1 = obj1;
+               Name name2 = obj2;
                return name1.compareTo( name2 );
            }
 
@@ -2140,13 +2140,13 @@ public class LdapDNTest extends TestCase
     */
    public void testLdapNameToName() throws Exception
    {
-       ArrayList list = new ArrayList();
+       List<String> list = new ArrayList<String>();
        list.add( "ou= Some   People   " );
        list.add( "dc = eXample" );
        list.add( "dc= cOm" );
        LdapDN name = new LdapDN( list.iterator() );
 
-       Map oids = new HashMap();
+       Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
 
        oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
        oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
@@ -2170,7 +2170,7 @@ public class LdapDNTest extends TestCase
    {
        LdapDN name = new LdapDN();
 
-       Map oids = new HashMap();
+       Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
 
        oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
        oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
@@ -2192,7 +2192,7 @@ public class LdapDNTest extends TestCase
        LdapDN name = new LdapDN(
            "2.5.4.11= Some   People   + 0.9.2342.19200300.100.1.25=  And   Some anImAls,0.9.2342.19200300.100.1.25 = eXample,dc= cOm" );
 
-       Map oids = new HashMap();
+       Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
 
        oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
        oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
@@ -2219,7 +2219,7 @@ public class LdapDNTest extends TestCase
        LdapDN name = new LdapDN(
            "2.5.4.11= Some   People   + domainComponent=  And   Some anImAls,DomainComponent = eXample,0.9.2342.19200300.100.1.25= cOm" );
 
-       Map oids = new HashMap();
+       Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
 
        oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
        oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );

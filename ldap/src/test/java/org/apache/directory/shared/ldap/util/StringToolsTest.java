@@ -167,7 +167,7 @@ public class StringToolsTest extends TestCase
 
     public void testListToString()
     {
-        List list = new ArrayList();
+        List<String> list = new ArrayList<String>();
 
         list.add( "elem1" );
         list.add( "elem2" );
@@ -199,7 +199,7 @@ public class StringToolsTest extends TestCase
             }
         }
 
-        Map map = new HashMap();
+        Map<String, Value> map = new HashMap<String, Value>();
 
         map.put( "elem1", new Value( "name1", 1 ) );
         map.put( "elem2", new Value( "name2", 2 ) );

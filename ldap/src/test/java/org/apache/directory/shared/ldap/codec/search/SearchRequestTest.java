@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.codec.search;
 
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +64,7 @@ import junit.framework.TestCase;
  */
 public class SearchRequestTest extends TestCase
 {
-    static Map oids = new HashMap(); 
+    static Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>(); 
 
     protected void setUp() throws Exception
     {

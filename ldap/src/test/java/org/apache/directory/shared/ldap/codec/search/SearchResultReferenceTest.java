@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.NamingException;
 
@@ -121,7 +122,7 @@ public class SearchResultReferenceTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
 
-        HashSet ldapUrlsSet = new HashSet();
+        Set<String> ldapUrlsSet = new HashSet<String>();
 
         try
         {
@@ -254,7 +255,7 @@ public class SearchResultReferenceTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
 
-        HashSet ldapUrlsSet = new HashSet();
+        Set<String> ldapUrlsSet = new HashSet<String>();
 
         try
         {
