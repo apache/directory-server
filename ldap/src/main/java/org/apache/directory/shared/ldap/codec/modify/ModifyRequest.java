@@ -87,7 +87,7 @@ public class ModifyRequest extends LdapMessage
     private LdapDN object;
 
     /** The modifications list. This is an array of ModificationItem. */
-    private ArrayList modifications;
+    private List<ModificationItem> modifications;
 
     /** The current attribute being decoded */
     private transient Attribute currentAttribute;
@@ -102,13 +102,13 @@ public class ModifyRequest extends LdapMessage
     private transient int modificationsLength;
 
     /** The modification sequence length */
-    private transient List modificationSequenceLength;
+    private transient List<Integer> modificationSequenceLength;
 
     /** The list of all modification length */
-    private transient List modificationLength;
+    private transient List<Integer> modificationLength;
 
     /** The list of all vals length */
-    private transient List valuesLength;
+    private transient List<Integer> valuesLength;
 
 
     // ~ Constructors
@@ -142,7 +142,7 @@ public class ModifyRequest extends LdapMessage
      */
     public void initModifications()
     {
-        modifications = new ArrayList();
+        modifications = new ArrayList<ModificationItem>();
     }
 
 
@@ -151,7 +151,7 @@ public class ModifyRequest extends LdapMessage
      * 
      * @return Returns the modifications.
      */
-    public ArrayList getModifications()
+    public List<ModificationItem> getModifications()
     {
         return modifications;
     }
@@ -168,7 +168,7 @@ public class ModifyRequest extends LdapMessage
 
         if ( currentAttribute == null )
         {
-            modifications = new ArrayList();
+            modifications = new ArrayList<ModificationItem>();
         }
     }
 
@@ -320,9 +320,9 @@ public class ModifyRequest extends LdapMessage
         if ( ( modifications != null ) && ( modifications.size() != 0 ) )
         {
             Iterator modificationsIterator = modifications.iterator();
-            modificationSequenceLength = new LinkedList();
-            modificationLength = new LinkedList();
-            valuesLength = new LinkedList();
+            modificationSequenceLength = new LinkedList<Integer>();
+            modificationLength = new LinkedList<Integer>();
+            valuesLength = new LinkedList<Integer>();
 
             while ( modificationsIterator.hasNext() )
             {
@@ -377,9 +377,9 @@ public class ModifyRequest extends LdapMessage
                     + localModificationSequenceLength;
 
                 // Store the arrays of values
-                valuesLength.add( new Integer( localValuesLength ) );
-                modificationLength.add( new Integer( localModificationLength ) );
-                modificationSequenceLength.add( new Integer( localModificationSequenceLength ) );
+                valuesLength.add( localValuesLength );
+                modificationLength.add( localModificationLength );
+                modificationSequenceLength.add( localModificationSequenceLength );
             }
 
             // Add the modifications length to the modificationRequestLength

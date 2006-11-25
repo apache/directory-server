@@ -58,7 +58,7 @@ public class ControlValueAction extends GrammarAction
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
 
-    private static Map controlDecoders = new HashMap();
+    private static Map<String, ControlDecoder> controlDecoders = new HashMap<String, ControlDecoder>();
 
 
     public ControlValueAction()

@@ -34,6 +34,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -112,7 +113,7 @@ public class LdapResult extends Asn1Object
     private transient byte[] errorMessageBytes;
 
     /** The referrals, if any. This is an optional element */
-    private ArrayList referrals;
+    private List<LdapURL> referrals;
 
     /** The inner size of the referrals sequence */
     private transient int referralsLength;
@@ -137,7 +138,7 @@ public class LdapResult extends Asn1Object
      */
     public void initReferrals()
     {
-        referrals = new ArrayList();
+        referrals = new ArrayList<LdapURL>();
     }
     
     /**
@@ -189,7 +190,7 @@ public class LdapResult extends Asn1Object
      * 
      * @return Returns the referrals.
      */
-    public ArrayList getReferrals()
+    public List<LdapURL> getReferrals()
     {
         return referrals;
     }

@@ -47,7 +47,7 @@ public class StoredProcedure extends Asn1Object
 
     private byte[] procedure;
 
-    private ArrayList parameters = new ArrayList();
+    private List<StoredProcedureParameter> parameters = new ArrayList<StoredProcedureParameter>();
 
     private transient StoredProcedureParameter currentParameter;
     
@@ -58,13 +58,13 @@ public class StoredProcedure extends Asn1Object
     private transient int parametersLength;
 
     /** The list of all parameter lengths */
-    private transient List parameterLength;
+    private transient List<Integer> parameterLength;
 
     /** The list of all parameter type lengths */
-    private transient List paramTypeLength;
+    private transient List<Integer> paramTypeLength;
 
     /** The list of all parameter value lengths */
-    private transient List paramValueLength;
+    private transient List<Integer> paramValueLength;
 
     public String getLanguage()
     {
@@ -90,7 +90,7 @@ public class StoredProcedure extends Asn1Object
     }
 
 
-    public List getParameters()
+    public List<StoredProcedureParameter> getParameters()
     {
         return parameters;
     }
@@ -189,9 +189,9 @@ public class StoredProcedure extends Asn1Object
     	// Compute parameters length value
     	if ( parameters != null )
     	{
-            parameterLength = new LinkedList();
-            paramTypeLength = new LinkedList();
-            paramValueLength = new LinkedList();
+            parameterLength = new LinkedList<Integer>();
+            paramTypeLength = new LinkedList<Integer>();
+            paramValueLength = new LinkedList<Integer>();
             
     		Iterator params = parameters.iterator();
     		
@@ -210,9 +210,9 @@ public class StoredProcedure extends Asn1Object
     			
     			parametersLength += 1 + TLV.getNbBytes( localParameterLength ) + localParameterLength;
     			
-    			parameterLength.add( new Integer( localParameterLength ) );
-    			paramTypeLength.add( new Integer( localParamTypeLength ) );
-    			paramValueLength.add( new Integer( localParamValueLength ) );
+    			parameterLength.add( localParameterLength );
+    			paramTypeLength.add( localParamTypeLength );
+    			paramValueLength.add( localParamValueLength );
     		}
     	}
     	

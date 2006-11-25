@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.codec;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
@@ -91,7 +92,6 @@ import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.LdapResultImpl;
 import org.apache.directory.shared.ldap.message.Message;
-import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyDnResponseImpl;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
@@ -99,7 +99,6 @@ import org.apache.directory.shared.ldap.message.ModifyResponseImpl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
-import org.apache.directory.shared.ldap.message.ScopeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseDoneImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
@@ -407,7 +406,7 @@ public class TwixTransformer implements TransformerSpi
                     branch = new BranchNode( BranchNode.NOT );
                 }
 
-                ArrayList filtersSet = ( ( ConnectorFilter ) twixFilter ).getFilterSet();
+                List<Filter> filtersSet = ( ( ConnectorFilter ) twixFilter ).getFilterSet();
 
                 // Loop on all AND/OR children
                 if ( filtersSet != null )
@@ -510,7 +509,7 @@ public class TwixTransformer implements TransformerSpi
                     SubstringFilter filter = ( SubstringFilter ) twixFilter;
                     String initialString = null;
                     String finalString = null;
-                    ArrayList anyString = null;
+                    List<String> anyString = null;
 
                     if ( filter.getInitialSubstrings() != null )
                     {
@@ -525,7 +524,7 @@ public class TwixTransformer implements TransformerSpi
                     if ( filter.getAnySubstrings() != null )
                     {
                         Iterator iter = filter.getAnySubstrings().iterator();
-                        anyString = new ArrayList();
+                        anyString = new ArrayList<String>();
 
                         while ( iter.hasNext() )
                         {

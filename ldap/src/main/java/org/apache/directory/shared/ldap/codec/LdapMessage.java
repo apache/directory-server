@@ -71,7 +71,7 @@ public class LdapMessage extends Asn1Object
     private Asn1Object protocolOp;
 
     /** The controls */
-    private ArrayList controls;
+    private ArrayList<Control> controls;
 
     /** The current control */
     private transient Control currentControl;
@@ -143,11 +143,13 @@ public class LdapMessage extends Asn1Object
     public void addControl( Control control )
     {
         currentControl = control;
-        if ( this.controls == null )
+        
+        if ( controls == null )
         {
-            this.controls = new ArrayList();
+            controls = new ArrayList<Control>();
         }
-        this.controls.add( control );
+        
+        controls.add( control );
     }
 
 
@@ -156,7 +158,7 @@ public class LdapMessage extends Asn1Object
      */
     public void initControls()
     {
-        controls = new ArrayList();
+        controls = new ArrayList<Control>();
     }
 
 

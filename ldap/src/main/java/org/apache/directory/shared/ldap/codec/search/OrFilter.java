@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.codec.search;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -56,7 +56,7 @@ public class OrFilter extends ConnectorFilter
      * 
      * @return Returns the orFilter.
      */
-    public ArrayList getOrFilter()
+    public List<Filter> getOrFilter()
     {
         return filterSet;
     }

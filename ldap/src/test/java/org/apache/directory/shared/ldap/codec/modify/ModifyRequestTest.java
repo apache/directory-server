@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.codec.modify;
 
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -121,7 +120,7 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        ArrayList modifications = modifyRequest.getModifications();
+        List<ModificationItem> modifications = modifyRequest.getModifications();
 
         assertEquals( 2, modifications.size() );
 
@@ -294,7 +293,7 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 21, message.getMessageId() );
         assertEquals( "cn=Tori Amos,ou=playground,dc=apache,dc=org", modifyRequest.getObject().toString() );
 
-        ArrayList modifications = modifyRequest.getModifications();
+        List<ModificationItem> modifications = modifyRequest.getModifications();
 
         assertEquals( 2, modifications.size() );
 
@@ -417,7 +416,7 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=Tori Amos,ou=playground,dc=apache,dc=org", modifyRequest.getObject().toString() );
 
-        ArrayList modifications = modifyRequest.getModifications();
+        List<ModificationItem> modifications = modifyRequest.getModifications();
 
         assertEquals( 3, modifications.size() );
 
@@ -548,7 +547,7 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        ArrayList modifications = modifyRequest.getModifications();
+        List<ModificationItem> modifications = modifyRequest.getModifications();
 
         assertEquals( 2, modifications.size() );
 
@@ -1084,7 +1083,7 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        ArrayList modifications = modifyRequest.getModifications();
+        List<ModificationItem> modifications = modifyRequest.getModifications();
 
         assertEquals( 1, modifications.size() );
 
@@ -1167,7 +1166,7 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        ArrayList modifications = modifyRequest.getModifications();
+        List<ModificationItem> modifications = modifyRequest.getModifications();
 
         assertEquals( 1, modifications.size() );
 
@@ -1258,7 +1257,7 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        ArrayList modifications = modifyRequest.getModifications();
+        List<ModificationItem> modifications = modifyRequest.getModifications();
 
         assertEquals( 1, modifications.size() );
 

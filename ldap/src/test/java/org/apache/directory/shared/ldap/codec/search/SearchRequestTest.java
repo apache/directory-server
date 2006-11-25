@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.codec.search;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
@@ -179,7 +180,7 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
 
         // (& (| (...
         assertEquals( 2, andFilters.size() );
@@ -187,7 +188,7 @@ public class SearchRequestTest extends TestCase
         assertNotNull( orFilter );
 
         // (& (| (obectclass=top) (...
-        ArrayList orFilters = orFilter.getOrFilter();
+        List<Filter> orFilters = orFilter.getOrFilter();
         assertEquals( 2, orFilters.size() );
         AttributeValueAssertionFilter equalityMatch = ( AttributeValueAssertionFilter ) orFilters.get( 0 );
         assertNotNull( equalityMatch );
@@ -346,7 +347,7 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
 
         // (& (| (...
         assertEquals( 2, andFilters.size() );
@@ -354,7 +355,7 @@ public class SearchRequestTest extends TestCase
         assertNotNull( orFilter );
 
         // (& (| (objectclass~=top) (...
-        ArrayList orFilters = orFilter.getOrFilter();
+        List<Filter> orFilters = orFilter.getOrFilter();
         assertEquals( 2, orFilters.size() );
         AttributeValueAssertionFilter approxMatch = ( AttributeValueAssertionFilter ) orFilters.get( 0 );
         assertNotNull( approxMatch );
@@ -523,7 +524,7 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
 
         // (& (| (...
         assertEquals( 2, andFilters.size() );
@@ -531,7 +532,7 @@ public class SearchRequestTest extends TestCase
         assertNotNull( orFilter );
 
         // (& (| (objectclass=*) (...
-        ArrayList orFilters = orFilter.getOrFilter();
+        List<Filter> orFilters = orFilter.getOrFilter();
         assertEquals( 2, orFilters.size() );
 
         PresentFilter presentFilter = ( PresentFilter ) orFilters.get( 0 );
@@ -1061,7 +1062,7 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
 
         // (& (| (...
         assertEquals( 2, andFilters.size() );
@@ -1069,7 +1070,7 @@ public class SearchRequestTest extends TestCase
         assertNotNull( orFilter );
 
         // (& (| (obectclass=top) (...
-        ArrayList orFilters = orFilter.getOrFilter();
+        List<Filter> orFilters = orFilter.getOrFilter();
         assertEquals( 2, orFilters.size() );
         AttributeValueAssertionFilter equalityMatch = ( AttributeValueAssertionFilter ) orFilters.get( 0 );
         assertNotNull( equalityMatch );
@@ -1384,7 +1385,7 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
 
         // (& (| (...
         assertEquals( 2, andFilters.size() );
@@ -1392,7 +1393,7 @@ public class SearchRequestTest extends TestCase
         assertNotNull( orFilter );
 
         // (& (| (obectclass=top) (...
-        ArrayList orFilters = orFilter.getOrFilter();
+        List<Filter> orFilters = orFilter.getOrFilter();
         assertEquals( 2, orFilters.size() );
         AttributeValueAssertionFilter equalityMatch = ( AttributeValueAssertionFilter ) orFilters.get( 0 );
         assertNotNull( equalityMatch );
@@ -2884,7 +2885,7 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
         assertEquals( 2, andFilters.size() );
         
         SubstringFilter substringFilter = ( SubstringFilter ) andFilters.get( 0 );
@@ -3102,7 +3103,7 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
         assertEquals( 1, andFilters.size() );
         
         // (&(a=b))
@@ -3218,7 +3219,7 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
         assertEquals( 2, andFilters.size() );
         
         // (&(a=b)...
@@ -3338,14 +3339,14 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
         assertEquals( 1, andFilters.size() );
         
         // (&(&(..
         AndFilter andFilter2 = ( AndFilter ) andFilters.get( 0 );
         assertNotNull( andFilter2 );
 
-        ArrayList andFilters2 = andFilter2.getAndFilter();
+        List<Filter> andFilters2 = andFilter2.getAndFilter();
         assertEquals( 1, andFilters2.size() );
 
         // (&(&(a=b)))
@@ -3461,14 +3462,14 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
         assertEquals( 1, andFilters.size() );
         
         // (&(&(..
         AndFilter andFilter2 = ( AndFilter ) andFilters.get( 0 );
         assertNotNull( andFilter2 );
 
-        ArrayList andFilters2 = andFilter2.getAndFilter();
+        List<Filter> andFilters2 = andFilter2.getAndFilter();
         assertEquals( 2, andFilters2.size() );
 
         // (&(&(a=b)...
@@ -3593,14 +3594,14 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
         assertEquals( 2, andFilters.size() );
         
         // (&(&(..
         AndFilter andFilter2 = ( AndFilter ) andFilters.get( 0 );
         assertNotNull( andFilter2 );
 
-        ArrayList andFilters2 = andFilter2.getAndFilter();
+        List<Filter> andFilters2 = andFilter2.getAndFilter();
         assertEquals( 1, andFilters2.size() );
 
         // (&(&(a=b))...
@@ -3729,14 +3730,14 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
         assertEquals( 2, andFilters.size() );
         
         // (&(&(..
         AndFilter andFilter2 = ( AndFilter ) andFilters.get( 0 );
         assertNotNull( andFilter2 );
 
-        ArrayList andFilters2 = andFilter2.getAndFilter();
+        List<Filter> andFilters2 = andFilter2.getAndFilter();
         assertEquals( 2, andFilters2.size() );
 
         // (&(&(a=b)...
@@ -3872,14 +3873,14 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
         assertEquals( 2, andFilters.size() );
         
         // (&(&(..
         AndFilter andFilter2 = ( AndFilter ) andFilters.get( 0 );
         assertNotNull( andFilter2 );
 
-        ArrayList andFilters2 = andFilter2.getAndFilter();
+        List<Filter> andFilters2 = andFilter2.getAndFilter();
         assertEquals( 1, andFilters2.size() );
 
         // (&(&(a=b)...
@@ -4016,14 +4017,14 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
         assertEquals( 2, andFilters.size() );
         
         // (&(&(..
         AndFilter andFilter2 = ( AndFilter ) andFilters.get( 0 );
         assertNotNull( andFilter2 );
 
-        ArrayList andFilters2 = andFilter2.getAndFilter();
+        List<Filter> andFilters2 = andFilter2.getAndFilter();
         assertEquals( 2, andFilters2.size() );
 
         // (&(&(a=b)...
@@ -4167,14 +4168,14 @@ public class SearchRequestTest extends TestCase
         AndFilter andFilter = ( AndFilter ) sr.getFilter();
         assertNotNull( andFilter );
 
-        ArrayList andFilters = andFilter.getAndFilter();
+        List<Filter> andFilters = andFilter.getAndFilter();
         assertEquals( 2, andFilters.size() );
         
         // (&(|(..
         OrFilter orFilter = ( OrFilter ) andFilters.get( 0 );
         assertNotNull( orFilter );
 
-        ArrayList orFilters = orFilter.getOrFilter();
+        List<Filter> orFilters = orFilter.getOrFilter();
         assertEquals( 2, orFilters.size() );
 
         // (&(&(abcdef=*)...

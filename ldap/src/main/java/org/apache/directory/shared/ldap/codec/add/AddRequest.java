@@ -90,10 +90,10 @@ public class AddRequest extends LdapMessage
     private transient int attributesLength;
 
     /** The list of all attributes length */
-    private transient List attributeLength;
+    private transient List<Integer> attributeLength;
 
     /** The list of all vals length */
-    private transient List valuesLength;
+    private transient List<Integer> valuesLength;
 
 
     // ~ Constructors
@@ -244,8 +244,8 @@ public class AddRequest extends LdapMessage
         if ( ( attributes != null ) && ( attributes.size() != 0 ) )
         {
             NamingEnumeration attributeIterator = attributes.getAll();
-            attributeLength = new LinkedList();
-            valuesLength = new LinkedList();
+            attributeLength = new LinkedList<Integer>();
+            valuesLength = new LinkedList<Integer>();
 
             // Compute the attributes length
             while ( attributeIterator.hasMoreElements() )
@@ -295,8 +295,8 @@ public class AddRequest extends LdapMessage
                 // add the attribute length to the attributes length
                 attributesLength += 1 + TLV.getNbBytes( localAttributeLength ) + localAttributeLength;
 
-                attributeLength.add( new Integer( localAttributeLength ) );
-                valuesLength.add( new Integer( localValuesLength ) );
+                attributeLength.add(localAttributeLength );
+                valuesLength.add( localValuesLength );
             }
         }
 

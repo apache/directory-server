@@ -86,7 +86,7 @@ public class SubstringNode extends LeafNode
      * @param finalPattern
      *            the final fragment
      */
-    public SubstringNode(ArrayList anyPattern, String attribute, String initialPattern, String finalPattern)
+    public SubstringNode( List<String> anyPattern, String attribute, String initialPattern, String finalPattern )
     {
         super( attribute, SUBSTRING );
 

@@ -26,6 +26,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -40,7 +41,7 @@ public abstract class ConnectorFilter extends Filter
     // ----------------------------------------------------------------------------
 
     /** The set of filters used by And/Or filters */
-    protected ArrayList filterSet;
+    protected List<Filter> filterSet;
 
     /** The filters length */
     protected transient int filtersLength;
@@ -70,7 +71,7 @@ public abstract class ConnectorFilter extends Filter
 
         if ( filterSet == null )
         {
-            filterSet = new ArrayList();
+            filterSet = new ArrayList<Filter>();
         }
 
         filterSet.add( filter );
@@ -82,7 +83,7 @@ public abstract class ConnectorFilter extends Filter
      * 
      * @return And array of filters
      */
-    public ArrayList getFilterSet()
+    public List<Filter> getFilterSet()
     {
         return filterSet;
     }
