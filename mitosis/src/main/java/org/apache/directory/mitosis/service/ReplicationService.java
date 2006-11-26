@@ -51,6 +51,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -68,7 +69,56 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * An {@link Interceptor} that intercepts LDAP operations and propagates the
+ * changes occurred by the operations into other {@link Replica}s so the DIT
+ * of each {@link Replica} in the cluster has the same content without any
+ * conflict.
+ * <p>
+ * Once an operation is invoked, this interceptor transforms it into more than
+ * one sub-operations that makes the operation more proper for replication.
+ * The transformation process is actually just creating an instance of
+ * {@link Operation}, which abstracts the transformation.
+ * <p>
+ * Calling
+ * {@link Operation#execute(PartitionNexus, ReplicationStore, AttributeTypeRegistry)}
+ * will <b>1)</b> execute the sub-operations on the specified
+ * {@link PartitionNexus} and <b>2)</b> store itself to the specified.  The
+ * first step affects the DIT this interceptor is attached to, and the second
+ * step is to retrieve the change log of the DIT so they are propagated to
+ * the other {@link Replica}s.  Please refer to each {@link Operation}
+ * implementations to see how each JNDI operation is transformed into multiple
+ * operations, and refer to {@link ReplicationClientContextHandler} to see how
+ * the change logs are propagated to the other {@link Replica}s.
+ * {@link ClientConnectionManager} is also a good starting point for
+ * understanding the propagation process in that it's the place that initiates
+ * the connections between {@link Replica}s.
+ * <p>
+ * There are two special attributes in the entried to be replicated:
+ * <ul>
+ * <li><tt>entryCSN</tt> - stores {@link CSN} of the entry.  This attribute is
+ *     used to compare the incoming operation from other replica is still
+ *     valid.  If the local <tt>entryCSN</tt> value is bigger then that of the
+ *     incoming operation, it means conflict, and therefore an appropriate
+ *     conflict resolution mechanism should get engaged.</li>
+ * <li><tt>entryDeleted</tt> - is <tt>true</tt> if and only if the entry is
+ *     deleted.  The entry is not deleted immediately by a delete operation
+ *     because <tt>entryCSN</tt> attribute should be retained for certain
+ *     amount of time to determine whether the incoming change log, which
+ *     affects an entry with the same DN, is a conflict (modification on a
+ *     deleted entry) or not (creation of a new entry). You can purge old
+ *     deleted entries and related change logs in {@link ReplicationStore} by
+ *     calling {@link #purgeAgedData()}, or they will be purged automatically
+ *     by periodic manner as you configured with {@link ReplicationConfiguration}.
+ *     by calling {@link ReplicationConfiguration#setLogMaxAge(int)}.
+ *     Because of this attribute, <tt>lookup</tt> and <tt>search</tt>
+ *     operations are overrided to ignore entries with <tt>entryDeleted</tt>
+ *     set to <tt>true</tt>.</li>
+ * </ul>
+ * 
+ * @author The Apache Directory Project (dev@directory.apache.org)
+ * @version $Rev$, $Date$
+ */
 public class ReplicationService extends BaseInterceptor
 {
     private static final Logger log = LoggerFactory.getLogger( ReplicationService.class );
