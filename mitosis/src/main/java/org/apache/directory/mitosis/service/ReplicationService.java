@@ -92,9 +92,9 @@ import org.slf4j.LoggerFactory;
  * the change logs are propagated to the other {@link Replica}s.
  * {@link ClientConnectionManager} is also a good starting point for
  * understanding the propagation process in that it's the place that initiates
- * the connections between {@link Replica}s.
+ * the connections to the other {@link Replica}s.
  * <p>
- * There are two special attributes in the entried to be replicated:
+ * There are two special attributes in the entries to be replicated:
  * <ul>
  * <li><tt>entryCSN</tt> - stores {@link CSN} of the entry.  This attribute is
  *     used to compare the incoming operation from other replica is still
