@@ -237,6 +237,7 @@
         <module>kerberos-shared</module>
 
         <module>mitosis</module>
+        <module>server-replication</module>
 
         <!-- extra for jdk 1.5 -->
         <module>server-ssl</module>
@@ -277,6 +278,7 @@
         <module>kerberos-shared</module>
 
         <module>mitosis</module>
+        <module>server-replication</module>
       </modules>
       <build>
         <plugins>
