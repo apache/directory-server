@@ -539,7 +539,6 @@ public class ModifyRequest extends LdapMessage
      */
     public String toString()
     {
-
         StringBuffer sb = new StringBuffer();
 
         sb.append( "    Modify Request\n" );
@@ -547,60 +546,76 @@ public class ModifyRequest extends LdapMessage
 
         if ( modifications != null )
         {
-
-            for ( int i = 0; i < modifications.size(); i++ )
+            int i = 0;
+            
+            for ( ModificationItem modification:modifications )
             {
-
-                ModificationItem modification = ( ModificationItem ) modifications.get( i );
-
                 sb.append( "            Modification[" ).append( i ).append( "]\n" );
                 sb.append( "                Operation : " );
 
-                switch ( modification.getModificationOp() )
+                if ( modification != null )
                 {
-
-                    case DirContext.ADD_ATTRIBUTE:
-                        sb.append( " add\n" );
-                        break;
-
-                    case DirContext.REPLACE_ATTRIBUTE:
-                        sb.append( " replace\n" );
-                        break;
-
-                    case DirContext.REMOVE_ATTRIBUTE:
-                        sb.append( " delete\n" );
-                        break;
-                }
-
-                sb.append( "                Modification\n" );
-
-                Attribute attribute = modification.getAttribute();
-
-                try
-                {
-                    sb.append( "                    Type : '" ).append( attribute.getID() ).append( "'\n" );
-                    sb.append( "                    Vals\n" );
-
-                    for ( int j = 0; j < attribute.size(); j++ )
+                    switch ( modification.getModificationOp() )
                     {
+    
+                        case DirContext.ADD_ATTRIBUTE:
+                            sb.append( " add\n" );
+                            break;
+    
+                        case DirContext.REPLACE_ATTRIBUTE:
+                            sb.append( " replace\n" );
+                            break;
+    
+                        case DirContext.REMOVE_ATTRIBUTE:
+                            sb.append( " delete\n" );
+                            break;
+                    }
 
-                        Object attributeValue = attribute.get( j );
-                        sb.append( "                        Val[" ).append( j ).append( "] : '" );
-
-                        if ( attributeValue instanceof String )
+                    sb.append( "                Modification\n" );
+    
+                    Attribute attribute = modification.getAttribute();
+    
+                    if ( attribute != null )
+                    {
+                        try
                         {
-                            sb.append( attributeValue ).append( "' \n" );
+                            sb.append( "                    Type : '" ).append( attribute.getID() ).append( "'\n" );
+                            sb.append( "                    Vals\n" );
+        
+                            for ( int j = 0; j < attribute.size(); j++ )
+                            {
+        
+                                Object attributeValue = attribute.get( j );
+                                sb.append( "                        Val[" ).append( j ).append( "] : '" );
+        
+                                if ( attributeValue != null )
+                                {
+                                    if ( attributeValue instanceof String )
+                                    {
+                                        sb.append( attributeValue ).append( "' \n" );
+                                    }
+                                    else
+                                    {
+                                        sb.append( StringTools.utf8ToString( ( byte[] ) attributeValue ) ).append( "' \n" );
+                                    }
+                                }
+                                else
+                                {
+                                    sb.append( "<null>'\n" );
+                                }
+                            }
                         }
-                        else
+                        catch ( NamingException ne )
                         {
-                            sb.append( StringTools.utf8ToString( ( byte[] ) attributeValue ) ).append( "' \n" );
+                            log.error( "Naming exception while printing the '{}'", attribute.getID() );
                         }
                     }
                 }
-                catch ( NamingException ne )
+                else
                 {
-                    log.error( "Naming exception while printing the '{}'", attribute.getID() );
+                    sb.append( " unknown modification operation\n" );
                 }
+
             }
         }
 

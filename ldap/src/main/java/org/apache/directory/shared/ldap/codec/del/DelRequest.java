@@ -157,7 +157,7 @@ public class DelRequest extends LdapMessage
         StringBuffer sb = new StringBuffer();
 
         sb.append( "    Del request\n" );
-        sb.append( "        Entry : '" ).append( entry.toString() ).append( "'\n" );
+        sb.append( "        Entry : '" ).append( entry ).append( "'\n" );
 
         return sb.toString();
     }

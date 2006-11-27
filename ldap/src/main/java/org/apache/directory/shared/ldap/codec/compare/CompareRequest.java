@@ -274,9 +274,9 @@ public class CompareRequest extends LdapMessage
         StringBuffer sb = new StringBuffer();
 
         sb.append( "    Compare request\n" );
-        sb.append( "        Entry : '" ).append( entry.toString() ).append( "'\n" );
-        sb.append( "        Attribute description : '" ).append( attributeDesc.toString() ).append( "'\n" );
-        sb.append( "        Attribute value : '" ).append( assertionValue.toString() ).append( "'\n" );
+        sb.append( "        Entry : '" ).append( entry ).append( "'\n" );
+        sb.append( "        Attribute description : '" ).append( attributeDesc ).append( "'\n" );
+        sb.append( "        Attribute value : '" ).append( StringTools.dumpObject( assertionValue )  ).append( "'\n" );
 
         return sb.toString();
     }

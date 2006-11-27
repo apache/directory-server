@@ -448,7 +448,7 @@ public class SearchResultEntry extends LdapMessage
         StringBuffer sb = new StringBuffer();
 
         sb.append( "    Search Result Entry\n" );
-        sb.append( "        Object Name : '" ).append( objectName.toString() ).append( "'\n" );
+        sb.append( "        Object Name : '" ).append( objectName ).append( "'\n" );
         sb.append( "        Attributes\n" );
 
         if ( ( partialAttributeList == null ) || ( partialAttributeList.size() == 0 ) )

@@ -208,11 +208,13 @@ public class SaslCredentials extends LdapAuthentication
         StringBuffer sb = new StringBuffer();
 
         sb.append( "        Sasl credentials\n" );
-        sb.append( "            Mechanism :'" ).append( mechanism.toString() ).append( "'\n" );
+        sb.append( "            Mechanism :'" ).append( mechanism ).append( "'\n" );
 
         if ( credentials != null )
         {
-            sb.append( "            Credentials :'" ).append( credentials.toString() ).append( "'\n" );
+            sb.append( "            Credentials :'" ).
+                append( StringTools.dumpBytes(  credentials ) ).
+                append( "'\n" );
         }
 
         return sb.toString();

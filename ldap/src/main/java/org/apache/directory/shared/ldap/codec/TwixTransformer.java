@@ -29,7 +29,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.ModificationItem;
-import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -751,7 +750,7 @@ public class TwixTransformer implements TransformerSpi
         }
 
         // Transform the controls, too
-        ArrayList twixControls = twixMessage.getControls();
+        List twixControls = twixMessage.getControls();
 
         if ( twixControls != null )
         {
@@ -1237,9 +1236,10 @@ public class TwixTransformer implements TransformerSpi
     private void transformControls( LdapMessage twixMessage, Message msg )
     {
         Iterator list = msg.getControls().values().iterator();
+        
         while ( list.hasNext() )
         {
-            Control control = ( Control ) list.next();
+            javax.naming.ldap.Control control = ( javax.naming.ldap.Control ) list.next();
             org.apache.directory.shared.ldap.codec.Control twixControl = new org.apache.directory.shared.ldap.codec.Control();
             twixMessage.addControl( twixControl );
             twixControl.setCriticality( control.isCritical() );

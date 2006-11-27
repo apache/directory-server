@@ -227,11 +227,13 @@ public class ExtendedRequest extends LdapMessage
         StringBuffer sb = new StringBuffer();
 
         sb.append( "    Extended request\n" );
-        sb.append( "        Request name : '" ).append( requestName.toString() ).append( "'\n" );
+        sb.append( "        Request name : '" ).append( requestName ).append( "'\n" );
 
         if ( requestValue != null )
         {
-            sb.append( "        Request value : '" ).append( requestValue.toString() ).append( "'\n" );
+            sb.append( "        Request value : '" ).
+                append( StringTools.dumpBytes( requestValue ) ).
+                append( "'\n" );
         }
 
         return sb.toString();

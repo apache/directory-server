@@ -235,6 +235,6 @@ public class AttributeValueAssertionFilter extends Filter
      */
     public String toString()
     {
-        return assertion.toStringRFC2254( filterType );
+        return assertion != null ? assertion.toStringRFC2254( filterType ) : "";
     }
 }

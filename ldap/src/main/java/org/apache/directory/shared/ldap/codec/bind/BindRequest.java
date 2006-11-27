@@ -262,22 +262,21 @@ public class BindRequest extends LdapMessage
         sb.append( "    BindRequest\n" );
         sb.append( "        Version : '" ).append( version ).append( "'\n" );
 
-        if ( StringTools.isEmpty( name.toString() ) )
+        if ( ( null == name ) || StringTools.isEmpty( name.toString() ) )
         {
             sb.append( "        Name : anonymous\n" );
         }
         else
         {
-            sb.append( "        Name : '" ).append( name.toString() ).append( "'\n" );
+            sb.append( "        Name : '" ).append( name ).append( "'\n" );
 
             if ( authentication instanceof SimpleAuthentication )
             {
-                sb.append( "        Simple authentication : '" ).append(
-                    ( ( SimpleAuthentication ) authentication ).toString() ).append( "'\n" );
+                sb.append( "        Simple authentication : '" ).append( authentication ).append( "'\n" );
             }
             else
             {
-                sb.append( ( ( SaslCredentials ) authentication ).toString() );
+                sb.append( authentication );
             }
         }
 

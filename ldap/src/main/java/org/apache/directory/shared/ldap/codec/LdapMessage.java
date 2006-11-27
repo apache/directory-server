@@ -50,7 +50,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -71,7 +71,7 @@ public class LdapMessage extends Asn1Object
     private Asn1Object protocolOp;
 
     /** The controls */
-    private ArrayList<Control> controls;
+    private List<Control> controls;
 
     /** The current control */
     private transient Control currentControl;
@@ -118,7 +118,7 @@ public class LdapMessage extends Asn1Object
      * 
      * @return The Control Objects
      */
-    public ArrayList getControls()
+    public List<Control> getControls()
     {
         return controls;
     }
@@ -562,12 +562,10 @@ public class LdapMessage extends Asn1Object
             // + Length(L3) + L3
             controlsSequenceLength = 0;
 
-            Iterator controlIterator = controls.iterator();
-
             // We may have more than one control. ControlsLength is L4.
-            while ( controlIterator.hasNext() )
+            for ( Control control:controls )
             {
-                controlsSequenceLength += ( ( Control ) controlIterator.next() ).computeLength();
+                controlsSequenceLength += control.computeLength();
             }
 
             // Computes the controls length
@@ -640,11 +638,9 @@ public class LdapMessage extends Asn1Object
             bb.put( TLV.getBytes( controlsLength ) );
 
             // Encode each control
-            Iterator controlIterator = controls.iterator();
-
-            while ( controlIterator.hasNext() )
+            for ( Control control:controls )
             {
-                ( ( Control ) controlIterator.next() ).encode( bb );
+                control.encode( bb );
             }
         }
 
@@ -663,13 +659,13 @@ public class LdapMessage extends Asn1Object
 
         sb.append( "LdapMessage\n" );
         sb.append( "    message Id : " ).append( messageId ).append( '\n' );
-        sb.append( protocolOp.toString() );
+        sb.append( protocolOp );
 
         if ( controls != null )
         {
-            for ( int i = 0; i < controls.size(); i++ )
+            for ( Control control:controls )
             {
-                sb.append( ( ( Control ) controls.get( i ) ).toString() );
+                sb.append( control );
             }
         }
 

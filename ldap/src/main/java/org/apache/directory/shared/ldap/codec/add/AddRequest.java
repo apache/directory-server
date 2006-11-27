@@ -441,7 +441,7 @@ public class AddRequest extends LdapMessage
         StringBuffer sb = new StringBuffer();
 
         sb.append( "    Add Request\n" );
-        sb.append( "        Entry : '" ).append( entry.toString() ).append( "'\n" );
+        sb.append( "        Entry : '" ).append( entry ).append( "'\n" );
         sb.append( "        Attributes\n" );
 
         if ( ( attributes == null ) || ( attributes.size() == 0 ) )

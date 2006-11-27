@@ -344,7 +344,7 @@ public class ExtensibleMatchFilter extends Filter
 
         if ( type != null )
         {
-            sb.append( type.toString() );
+            sb.append( type );
         }
 
         if ( dnAttributes )
@@ -362,10 +362,10 @@ public class ExtensibleMatchFilter extends Filter
         }
         else
         {
-            sb.append( ':' ).append( matchingRule.toString() );
+            sb.append( ':' ).append( matchingRule );
         }
 
-        sb.append( ":=" ).append( matchValue.toString() );
+        sb.append( ":=" ).append( matchValue );
 
         return sb.toString();
     }

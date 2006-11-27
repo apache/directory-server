@@ -31,6 +31,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -46,7 +47,7 @@ public class SearchResultReference extends LdapMessage
     // ----------------------------------------------------------------------------
 
     /** The set of LdapURLs */
-    private ArrayList searchResultReferences;
+    private List<LdapURL> searchResultReferences;
 
     /** The search result reference length */
     private transient int searchResultReferenceLength;
@@ -61,7 +62,7 @@ public class SearchResultReference extends LdapMessage
     public SearchResultReference()
     {
         super();
-        searchResultReferences = new ArrayList();
+        searchResultReferences = new ArrayList<LdapURL>();
     }
 
 
@@ -95,7 +96,7 @@ public class SearchResultReference extends LdapMessage
      * 
      * @return An ArrayList of SearchResultReferences
      */
-    public ArrayList getSearchResultReferences()
+    public List<LdapURL> getSearchResultReferences()
     {
         return searchResultReferences;
     }
@@ -202,11 +203,9 @@ public class SearchResultReference extends LdapMessage
         {
             sb.append( "        References\n" );
 
-            Iterator referencesIterator = searchResultReferences.iterator();
-
-            while ( referencesIterator.hasNext() )
+            for ( LdapURL url:searchResultReferences )
             {
-                sb.append( "            '" ).append( ( ( LdapURL ) referencesIterator.next() ).toString() ).append(
+                sb.append( "            '" ).append( url ).append(
                     "'\n" );
             }
         }

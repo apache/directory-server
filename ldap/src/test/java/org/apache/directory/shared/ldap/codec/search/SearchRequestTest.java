@@ -4223,4 +4223,69 @@ public class SearchRequestTest extends TestCase
             fail( ee.getMessage() );
         }
     }
+    
+    /**
+     * Test the decoding of a SearchRequest
+     * for rootDSE
+     */
+    public void testDecodeSearchRequestRootDSE()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x33 );
+        stream.put( new byte[]
+            { 
+                0x30, (byte)0x84, 0x00, 0x00, 0x00, 0x2D, 
+                  0x02, 0x01, 0x01, 
+                  0x63, (byte)0x84, 0x00, 0x00, 0x00, 0x24, 
+                    0x04, 0x00, 
+                    0x0A, 0x01, 0x00, 
+                    0x0A, 0x01, 0x00, 
+                    0x02, 0x01, 0x00, 
+                    0x02, 0x01, 0x00, 
+                    0x01, 0x01, 0x00, 
+                    (byte)0x87, 0x0B, 
+                      0x6F, 0x62, 0x6A, 0x65, 0x63, 0x74, 0x43, 0x6C, 0x61, 0x73, 0x73, 
+                    0x30, (byte)0x84, 0x00, 0x00, 0x00, 0x00
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        catch ( NamingException ne )
+        {
+            ne.printStackTrace();
+            fail( ne.getMessage() );
+        }
+
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequest sr = message.getSearchRequest();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "", sr.getBaseObject().toString() );
+        assertEquals( ScopeEnum.BASE_OBJECT, sr.getScope() );
+        assertEquals( LdapConstants.SCOPE_BASE_OBJECT, sr.getDerefAliases() );
+        assertEquals( 0, sr.getSizeLimit() );
+        assertEquals( 0, sr.getTimeLimit() );
+        assertEquals( false, sr.isTypesOnly() );
+        
+        PresentFilter presentFilter = ( PresentFilter ) sr.getFilter();
+        assertNotNull( presentFilter );
+        assertEquals( "objectClass", presentFilter.getAttributeDescription().toString() );
+        
+        Attributes attributes = sr.getAttributes();
+        assertEquals( 0, attributes.size() );
+    }
 }

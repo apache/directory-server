@@ -113,7 +113,7 @@ public class GracefulShutdown extends GracefulAction
     {
         StringBuffer sb = new StringBuffer();
 
-        sb.append( "Graceful Shiutdown extended operation" );
+        sb.append( "Graceful Shutdown extended operation" );
         sb.append( "    TimeOffline : " ).append( timeOffline ).append( '\n' );
         sb.append( "    Delay : " ).append( delay ).append( '\n' );
 

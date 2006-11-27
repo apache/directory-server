@@ -169,6 +169,7 @@ public class EntryChangeControl extends Asn1Object
         sb.append( "    Entry Change Control\n" );
         sb.append( "        changeType   : '" ).append( changeType ).append( "'\n" );
         sb.append( "        previousDN   : '" ).append( previousDn ).append( "'\n" );
+        
         if ( changeNumber == UNDEFINED_CHANGE_NUMBER )
         {
             sb.append( "        changeNumber : '" ).append( "UNDEFINED" ).append( "'\n" );
@@ -177,6 +178,7 @@ public class EntryChangeControl extends Asn1Object
         {
             sb.append( "        changeNumber : '" ).append( changeNumber ).append( "'\n" );
         }
+        
         return sb.toString();
     }
 

@@ -127,6 +127,6 @@ public class LdapResponse extends LdapMessage
      */
     public String toString()
     {
-        return ldapResult.toString();
+        return ( ldapResult != null ? ldapResult.toString() : "" );
     }
 }

@@ -347,48 +347,57 @@ public class AttributeUtils
 
         sb.append( tabs ).append( "Attributes\n" );
 
-        NamingEnumeration attributesIterator = attributes.getAll();
-
-        while ( attributesIterator.hasMoreElements() )
+        if ( attributes != null )
         {
-            Attribute attribute = ( Attribute ) attributesIterator.nextElement();
-
-            sb.append( tabs ).append( "    Type : '" ).append( attribute.getID() ).append( "'\n" );
-
-            for ( int j = 0; j < attribute.size(); j++ )
+            NamingEnumeration attributesIterator = attributes.getAll();
+    
+            while ( attributesIterator.hasMoreElements() )
             {
-
-                try
+                Attribute attribute = ( Attribute ) attributesIterator.nextElement();
+    
+                if ( attribute != null )
                 {
-                    Object attr = attribute.get( j );
-
-                    if ( attr instanceof String )
+                    sb.append( tabs ).append( "    Type : '" ).append( attribute.getID() ).append( "'\n" );
+        
+                    for ( int j = 0; j < attribute.size(); j++ )
                     {
-                        sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr ).append(
-                            " \n" );
+        
+                        try
+                        {
+                            Object attr = attribute.get( j );
+        
+                            if ( attr != null )
+                            {
+                                if ( attr instanceof String )
+                                {
+                                    sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr ).append(
+                                        " \n" );
+                                }
+                                else if ( attr instanceof byte[] )
+                                {
+                                    String string = StringTools.utf8ToString( ( byte[] ) attr );
+            
+                                    sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " );
+                                    sb.append( string ).append( '/' );
+                                    sb.append( StringTools.dumpBytes( ( byte[] ) attr ) );
+                                    sb.append( " \n" );
+                                }
+                                else
+                                {
+                                    sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr ).append(
+                                        " \n" );
+                                }
+                            }
+                        }
+                        catch ( NamingException ne )
+                        {
+                            sb.append( "Bad attribute : " ).append( ne.getMessage() );
+                        }
                     }
-                    else if ( attr instanceof byte[] )
-                    {
-                        String string = StringTools.utf8ToString( ( byte[] ) attr );
-
-                        sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " );
-                        sb.append( string ).append( '/' );
-                        sb.append( StringTools.dumpBytes( ( byte[] ) attr ) );
-                        sb.append( " \n" );
-                    }
-                    else
-                    {
-                        sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr ).append(
-                            " \n" );
-                    }
-                }
-                catch ( NamingException ne )
-                {
-                    sb.append( "Bad attribute : " ).append( ne.getMessage() );
                 }
             }
         }
-
+        
         return sb.toString();
     }
 

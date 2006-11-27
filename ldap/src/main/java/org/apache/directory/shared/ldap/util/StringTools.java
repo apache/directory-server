@@ -834,6 +834,35 @@ public class StringTools
     }
 
     /**
+     * 
+     * Helper method to render an object which can be a String or a byte[]
+     *
+     * @return A string representing the object
+     */
+    public static String dumpObject( Object object )
+    {
+        if ( object != null )
+        {
+            if ( object instanceof String )
+            {
+                return (String)object;
+            }
+            else if ( object instanceof byte[] )
+            {
+                return dumpBytes( (byte[])object );
+            }
+            else
+            {
+                return "<unknown type>";
+            }
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    /**
      * Helper function that dump an array of bytes in hex pair form, 
      * without '0x' and space chars
      * 

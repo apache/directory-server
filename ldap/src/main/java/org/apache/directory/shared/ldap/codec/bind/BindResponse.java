@@ -27,6 +27,7 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapResponse;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -186,7 +187,9 @@ public class BindResponse extends LdapResponse
 
         if ( serverSaslCreds != null )
         {
-            sb.append( "        Server sasl credentials : '" ).append( serverSaslCreds.toString() ).append( "'\n" );
+            sb.append( "        Server sasl credentials : '" ).
+                append( StringTools.dumpBytes( serverSaslCreds ) ).
+                append( "'\n" );
         }
 
         return sb.toString();

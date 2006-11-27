@@ -24,6 +24,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
@@ -70,7 +71,7 @@ public class SubstringFilter extends Filter
     private String initialSubstrings;
 
     /** The any filter. It's a list of LdapString */
-    private ArrayList anySubstrings;
+    private List<String> anySubstrings;
 
     /** The final filter */
     private String finalSubstrings;
@@ -91,7 +92,7 @@ public class SubstringFilter extends Filter
      */
     public SubstringFilter()
     {
-        anySubstrings = new ArrayList( 1 );
+        anySubstrings = new ArrayList<String>( 1 );
     }
 
 
@@ -100,7 +101,7 @@ public class SubstringFilter extends Filter
      * 
      * @return Returns the anySubstrings.
      */
-    public ArrayList getAnySubstrings()
+    public List<String> getAnySubstrings()
     {
         return anySubstrings;
     }
@@ -360,24 +361,22 @@ public class SubstringFilter extends Filter
 
         if ( initialSubstrings != null )
         {
-            sb.append( initialSubstrings.toString() );
+            sb.append( initialSubstrings );
         }
 
         sb.append( '*' );
 
         if ( anySubstrings != null )
         {
-            Iterator anyIterator = anySubstrings.iterator();
-
-            while ( anyIterator.hasNext() )
+            for ( String any:anySubstrings )
             {
-                sb.append( ( String ) anyIterator.next() ).append( '*' );
+                sb.append( any ).append( '*' );
             }
         }
 
         if ( finalSubstrings != null )
         {
-            sb.append( finalSubstrings.toString() );
+            sb.append( finalSubstrings );
         }
 
         return sb.toString();

@@ -289,12 +289,12 @@ public class ModifyDNRequest extends LdapMessage
 
         sb.append( "    ModifyDN Response\n" );
         sb.append( "        Entry : '" ).append( entry ).append( "'\n" );
-        sb.append( "        New RDN : '" ).append( newRDN.toString() ).append( "'\n" );
+        sb.append( "        New RDN : '" ).append( newRDN ).append( "'\n" );
         sb.append( "        Delete old RDN : " ).append( deleteOldRDN ).append( "\n" );
 
         if ( newSuperior != null )
         {
-            sb.append( "        New superior : '" ).append( newSuperior.toString() ).append( "'\n" );
+            sb.append( "        New superior : '" ).append( newSuperior ).append( "'\n" );
         }
 
         return sb.toString();

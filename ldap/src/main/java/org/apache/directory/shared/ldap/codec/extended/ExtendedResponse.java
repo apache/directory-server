@@ -264,12 +264,12 @@ public class ExtendedResponse extends LdapResponse
 
         if ( responseName != null )
         {
-            sb.append( "        Response name :'" ).append( responseName.toString() ).append( "'\n" );
+            sb.append( "        Response name :'" ).append( responseName ).append( "'\n" );
         }
 
         if ( response != null )
         {
-            sb.append( "        Response :'" ).append( response.toString() ).append( "'\n" );
+            sb.append( "        Response :'" ).append( response ).append( "'\n" );
         }
 
         return sb.toString();

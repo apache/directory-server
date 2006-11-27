@@ -154,20 +154,13 @@ public abstract class ConnectorFilter extends Filter
      */
     public String toString()
     {
-
         StringBuffer sb = new StringBuffer();
 
         if ( ( filterSet != null ) && ( filterSet.size() != 0 ) )
         {
-
-            Iterator filterIterator = filterSet.iterator();
-
-            while ( filterIterator.hasNext() )
+            for ( Filter filter:filterSet )
             {
-
-                Filter filter = ( Filter ) filterIterator.next();
-
-                sb.append( '(' ).append( filter.toString() ).append( ')' );
+                sb.append( '(' ).append( filter ).append( ')' );
             }
         }
 

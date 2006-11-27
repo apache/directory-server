@@ -211,16 +211,14 @@ public class GracefulDisconnect extends GracefulAction
         sb.append( "    TimeOffline : " ).append( timeOffline ).append( '\n' );
         sb.append( "    Delay : " ).append( delay ).append( '\n' );
 
-        if ( replicatedContexts.size() != 0 )
+        if ( ( replicatedContexts != null) && ( replicatedContexts.size() != 0 ) )
         {
-            Iterator replicatedContextIterator = replicatedContexts.iterator();
             sb.append( "    Replicated contexts :" );
 
             // We may have more than one reference.
-            while ( replicatedContextIterator.hasNext() )
+            for ( LdapURL url:replicatedContexts )
             {
-                LdapURL url = ( LdapURL ) replicatedContextIterator.next();
-                sb.append( "\n        " ).append( url.toString() );
+                sb.append( "\n        " ).append( url );
             }
         }
 

@@ -610,11 +610,7 @@ public class SearchRequest extends LdapMessage
 
         StringBuffer sb = new StringBuffer();
 
-        sb.append( "(" );
-
-        sb.append( filter.toString() );
-
-        sb.append( ")" );
+        sb.append( "(" ).append( filter ).append( ")" );
 
         return sb.toString();
     }
@@ -627,23 +623,29 @@ public class SearchRequest extends LdapMessage
     {
         StringBuffer sb = new StringBuffer();
 
-        NamingEnumeration attrs = attributes.getAll();
-        boolean isFirst = true;
-
-        while ( attrs.hasMoreElements() )
+        if ( attributes != null )
         {
-            Attribute attr = ( BasicAttribute ) attrs.nextElement();
-
-            if ( isFirst )
+            NamingEnumeration attrs = attributes.getAll();
+            boolean isFirst = true;
+    
+            if ( attrs != null )
             {
-                isFirst = false;
+                while ( attrs.hasMoreElements() )
+                {
+                    Attribute attr = ( BasicAttribute ) attrs.nextElement();
+        
+                    if ( isFirst )
+                    {
+                        isFirst = false;
+                    }
+                    else
+                    {
+                        sb.append( ", " );
+                    }
+        
+                    sb.append( attr != null ? attr.getID() : "<no ID>" );
+                }
             }
-            else
-            {
-                sb.append( ", " );
-            }
-
-            sb.append( attr.getID() );
         }
 
         return sb.toString();
