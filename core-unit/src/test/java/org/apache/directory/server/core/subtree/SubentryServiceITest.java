@@ -861,4 +861,22 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         assertFalse( list.hasMore() );
         assertEquals( "cn=testsubentry,ou=system", result.getName() );
     }
+    
+    public void testBaseScopeSearchSubentryVisibilityWithoutTheControl() throws Exception
+    {
+        addAdministrativeRole( "collectiveArributeSpecificArea" );
+        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.OBJECT_SCOPE );
+
+        Map entries = new HashMap();
+        NamingEnumeration list = super.sysRoot.search( "cn=testsubentry", "(objectClass=subentry)", searchControls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            entries.put( result.getName(), result );
+        }
+        assertEquals( 1, entries.size() );
+        assertNotNull( entries.get( "cn=testsubentry,ou=system" ) );
+    }
 }
