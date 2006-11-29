@@ -49,7 +49,7 @@ public class LdapReferralException extends ReferralException implements LdapExce
 {
     static final long serialVersionUID = -8611970137960601723L;
 
-    private final List refs;
+    private final List<String> refs;
 
     private int index = 0;
 
@@ -57,19 +57,19 @@ public class LdapReferralException extends ReferralException implements LdapExce
     /**
      * @see ReferralException#ReferralException()
      */
-    public LdapReferralException(Collection refs)
+    public LdapReferralException( Collection<String> refs )
     {
-        this.refs = new ArrayList( refs );
+        this.refs = new ArrayList<String>( refs );
     }
 
 
     /**
      * @see ReferralException#ReferralException(java.lang.String)
      */
-    public LdapReferralException(Collection refs, String explanation)
+    public LdapReferralException( Collection<String> refs, String explanation )
     {
         super( explanation );
-        this.refs = new ArrayList( refs );
+        this.refs = new ArrayList<String>( refs );
     }
 
 
@@ -84,7 +84,7 @@ public class LdapReferralException extends ReferralException implements LdapExce
     }
 
 
-    public Object getReferralInfo()
+    public String getReferralInfo()
     {
         return refs.get( index );
     }

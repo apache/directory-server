@@ -34,7 +34,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.SearchControls;
@@ -89,7 +91,7 @@ public class LdapURL
     private LdapDN dn;
 
     /** The attributes */
-    private ArrayList attributes;
+    private List<String> attributes;
 
     /** The scope */
     private int scope;
@@ -98,10 +100,10 @@ public class LdapURL
     private String filter;
 
     /** The extensions */
-    private HashMap extensions;
+    private Map<String, String> extensions;
 
     /** The criticals extensions */
-    private HashMap criticalExtensions;
+    private Map<String, String> criticalExtensions;
 
     /** Stores the LdapURL as a String */
     private String string;
@@ -121,11 +123,11 @@ public class LdapURL
         host = null;
         port = -1;
         dn = null;
-        attributes = new ArrayList();
+        attributes = new ArrayList<String>();
         scope = SearchControls.OBJECT_SCOPE;
         filter = null;
-        extensions = new HashMap();
-        criticalExtensions = new HashMap();
+        extensions = new HashMap<String, String>();
+        criticalExtensions = new HashMap<String, String>();
     }
 
     /**
@@ -138,11 +140,11 @@ public class LdapURL
         host = null;
         port = -1;
         dn = null;
-        attributes = new ArrayList();
+        attributes = new ArrayList<String>();
         scope = SearchControls.OBJECT_SCOPE;
         filter = null;
-        extensions = new HashMap();
-        criticalExtensions = new HashMap();
+        extensions = new HashMap<String, String>();
+        criticalExtensions = new HashMap<String, String>();
 
         if ( ( chars == null ) || ( chars.length == 0 ) )
         {
@@ -791,7 +793,7 @@ public class LdapURL
 
         int start = pos;
         int end = pos;
-        HashSet hAttributes = new HashSet();
+        Set<String> hAttributes = new HashSet<String>();
         boolean hadComma = false;
 
         try
@@ -1220,15 +1222,21 @@ public class LdapURL
             {
                 sb.append( '?' );
 
-                for ( int i = 0; i < attributes.size(); i++ )
+                boolean isFirst = true;
+                
+                for ( String attribute:attributes )
                 {
 
-                    if ( i > 0 )
+                    if ( isFirst )
+                    {
+                        isFirst = false;
+                    }
+                    else
                     {
                         sb.append( ',' );
                     }
 
-                    sb.append( urlEncode( ( String ) attributes.get( i ), false ) );
+                    sb.append( urlEncode( attribute, false ) );
                 }
             }
 
@@ -1271,10 +1279,7 @@ public class LdapURL
 
                         if ( extensions.size() != 0 )
                         {
-
-                            Iterator keys = extensions.keySet().iterator();
-
-                            while ( keys.hasNext() )
+                            for ( String key:extensions.keySet() )
                             {
 
                                 if ( isFirst == false )
@@ -1286,10 +1291,8 @@ public class LdapURL
                                     isFirst = false;
                                 }
 
-                                String key = ( String ) keys.next();
-
                                 sb.append( urlEncode( key, false ) ).append( '=' ).append(
-                                    urlEncode( ( String ) extensions.get( key ), true ) );
+                                    urlEncode( extensions.get( key ), true ) );
                             }
                         }
 
@@ -1297,10 +1300,7 @@ public class LdapURL
 
                         if ( criticalExtensions.size() != 0 )
                         {
-
-                            Iterator keys = criticalExtensions.keySet().iterator();
-
-                            while ( keys.hasNext() )
+                            for ( String key:criticalExtensions.keySet() )
                             {
 
                                 if ( isFirst == false )
@@ -1313,10 +1313,8 @@ public class LdapURL
                                     isFirst = false;
                                 }
 
-                                String key = ( String ) keys.next();
-
                                 sb.append( urlEncode( key, false ) ).append( '=' ).append(
-                                    urlEncode( ( String ) criticalExtensions.get( key ), true ) );
+                                    urlEncode( criticalExtensions.get( key ), true ) );
                             }
                         }
                     }
@@ -1335,7 +1333,7 @@ public class LdapURL
     /**
      * @return Returns the attributes.
      */
-    public ArrayList getAttributes()
+    public List<String> getAttributes()
     {
         return attributes;
     }
@@ -1344,7 +1342,7 @@ public class LdapURL
     /**
      * @return Returns the criticalExtensions.
      */
-    public HashMap getCriticalExtensions()
+    public Map<String, String> getCriticalExtensions()
     {
         return criticalExtensions;
     }
@@ -1362,7 +1360,7 @@ public class LdapURL
     /**
      * @return Returns the extensions.
      */
-    public HashMap getExtensions()
+    public Map<String, String> getExtensions()
     {
         return extensions;
     }
