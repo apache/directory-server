@@ -48,6 +48,7 @@ import javax.naming.ldap.Control;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.name.LdapDnParser;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -175,7 +176,7 @@ public class LdifReader implements Iterator
     }
 
     /** A list of read lines */
-    private List lines;
+    private List<String> lines;
 
     /** The current position */
     private Position position;
@@ -229,7 +230,7 @@ public class LdifReader implements Iterator
      */
     public LdifReader()
     {
-        lines = new ArrayList();
+        lines = new ArrayList<String>();
         position = new Position();
         version = DEFAULT_VERSION;
     }
@@ -237,7 +238,7 @@ public class LdifReader implements Iterator
     private void init( BufferedReader in ) throws NamingException
     {
         this.in = in;
-        lines = new ArrayList();
+        lines = new ArrayList<String>();
         position = new Position();
         version = DEFAULT_VERSION;
         containsChanges = false;
@@ -527,7 +528,7 @@ public class LdifReader implements Iterator
         // Check that the DN is valid. If not, an exception will be thrown
         try
         {
-            LdapDnParser.parseInternal( dn, new ArrayList() );
+            LdapDnParser.parseInternal( dn, new ArrayList<Rdn>() );
         }
         catch (InvalidNameException ine)
         {
@@ -1168,7 +1169,7 @@ public class LdifReader implements Iterator
         }
 
         // The entry must start with a dn: or a dn::
-        String line = ( (String) lines.get( 0 ) );
+        String line = lines.get( 0 );
 
         String dn = parseDn( line );
 
@@ -1325,7 +1326,7 @@ public class LdifReader implements Iterator
         }
 
         // get the first line
-        String line = (String) lines.get( 0 );
+        String line = lines.get( 0 );
 
         // <ldif-file> ::= "version:" <fill> <number>
         char[] document = line.toCharArray();
@@ -1655,10 +1656,10 @@ public class LdifReader implements Iterator
      * @throws NamingException
      *             If something went wrong
      */
-    public List parseLdif( BufferedReader in ) throws NamingException
+    public List<Entry> parseLdif( BufferedReader in ) throws NamingException
     {
         // Create a list that will contain the read entries
-        List entries = new ArrayList();
+        List<Entry> entries = new ArrayList<Entry>();
 
         this.in = in;
 

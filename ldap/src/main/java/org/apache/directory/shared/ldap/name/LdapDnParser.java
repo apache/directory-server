@@ -102,7 +102,7 @@ public class LdapDnParser implements NameParser
     * @throws InvalidNameException
     *             If the DN is invalid
     */
-   public static void parseInternal( String dn, List rdns ) throws InvalidNameException
+   public static void parseInternal( String dn, List<Rdn> rdns ) throws InvalidNameException
    {
        if ( dn.length() == 0 )
        {

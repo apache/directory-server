@@ -81,7 +81,7 @@ public class LdapDN /* extends LdapString */implements Name
    // ~ Static fields/initializers
    // -----------------------------------------------------------------
    /** The RDNs that are elements of the DN */
-   private List rdns = new ArrayList( 5 );
+   private List<Rdn> rdns = new ArrayList<Rdn>( 5 );
 
    /** The user provided name */
    private String upName;
@@ -255,7 +255,7 @@ public class LdapDN /* extends LdapString */implements Name
            StringBuffer sb = new StringBuffer();
            boolean isFirst = true;
 
-           for ( int i = 0; i < rdns.size(); i++ )
+           for ( Rdn rdn:rdns )
            {
                if ( isFirst )
                {
@@ -266,7 +266,7 @@ public class LdapDN /* extends LdapString */implements Name
                    sb.append( ',' );
                }
 
-               sb.append( ( ( Rdn ) rdns.get( i ) ) );
+               sb.append( rdn );
            }
 
            String newNormName = sb.toString();
@@ -310,7 +310,7 @@ public class LdapDN /* extends LdapString */implements Name
            StringBuffer sb = new StringBuffer();
            boolean isFirst = true;
 
-           for ( int i = 0; i < rdns.size(); i++ )
+           for ( Rdn rdn:rdns )
            {
                if ( isFirst )
                {
@@ -321,7 +321,7 @@ public class LdapDN /* extends LdapString */implements Name
                    sb.append( ',' );
                }
 
-               sb.append( ( ( Rdn ) rdns.get( i ) ).getUpName() );
+               sb.append( rdn.getUpName() );
            }
 
            upName = sb.toString();
@@ -379,7 +379,7 @@ public class LdapDN /* extends LdapString */implements Name
                sb.append( ',' );
            }
 
-           sb.append( ( ( Rdn ) rdns.get( i ) ).getUpName() );
+           sb.append( rdns.get( i ).getUpName() );
        }
 
        return sb.toString();
@@ -425,7 +425,7 @@ public class LdapDN /* extends LdapString */implements Name
                sb.append( ',' );
            }
 
-           sb.append( ( ( Rdn ) rdns.get( i ) ).getUpName() );
+           sb.append( rdns.get( i ).getUpName() );
        }
 
        return sb.toString();
@@ -443,10 +443,10 @@ public class LdapDN /* extends LdapString */implements Name
 
        if ( ( rdns != null ) || ( rdns.size() == 0 ) )
        {
-               for ( Iterator rdnsIter = rdns.iterator(); rdnsIter.hasNext(); )
-               {
-                       result = result * 37 + rdnsIter.next().hashCode();
-               }
+           for ( Rdn rdn:rdns )
+           {
+               result = result * 37 + rdn.hashCode();
+           }
        }
 
        return result;
@@ -544,8 +544,8 @@ public class LdapDN /* extends LdapString */implements Name
 
            for ( int i = nameDN.size() - 1; i >= 0; i-- )
            {
-               Rdn nameRdn = ( Rdn ) ( nameDN.rdns.get( nameDN.rdns.size() - i - 1 ) );
-               Rdn ldapRdn = ( Rdn ) rdns.get( rdns.size() - i - 1 );
+               Rdn nameRdn = nameDN.rdns.get( nameDN.rdns.size() - i - 1 );
+               Rdn ldapRdn = rdns.get( rdns.size() - i - 1 );
 
                if ( nameRdn.compareTo( ldapRdn ) != 0 )
                {
@@ -573,8 +573,9 @@ public class LdapDN /* extends LdapString */implements Name
 
            for ( int i = name.size() - 1; i >= 0; i-- )
            {
-               Rdn ldapRdn = ( Rdn ) rdns.get( rdns.size() - i - 1 );
+               Rdn ldapRdn = rdns.get( rdns.size() - i - 1 );
                Rdn nameRdn = null;
+               
                try
                {
                    nameRdn = new Rdn( ( String ) name.get( name.size() - i - 1 ) );
@@ -634,8 +635,8 @@ public class LdapDN /* extends LdapString */implements Name
            // Ok, iterate through all the RDN of the name
            for ( int i = 0; i < nameDN.size(); i++ )
            {
-               Rdn nameRdn = ( Rdn ) ( nameDN.rdns.get( i ) );
-               Rdn ldapRdn = ( Rdn ) rdns.get( i );
+               Rdn nameRdn = nameDN.rdns.get( i );
+               Rdn ldapRdn = rdns.get( i );
 
                if ( nameRdn.compareTo( ldapRdn ) != 0 )
                {
@@ -683,7 +684,7 @@ public class LdapDN /* extends LdapString */implements Name
        }
        else
        {
-           Rdn rdn = ( Rdn ) rdns.get( rdns.size() - posn - 1 );
+           Rdn rdn = rdns.get( rdns.size() - posn - 1 );
 
            return rdn.toString();
        }
@@ -708,7 +709,7 @@ public class LdapDN /* extends LdapString */implements Name
        }
        else
        {
-           Rdn rdn = ( Rdn ) rdns.get( rdns.size() - posn - 1 );
+           Rdn rdn = rdns.get( rdns.size() - posn - 1 );
 
            return rdn;
        }
@@ -727,9 +728,7 @@ public class LdapDN /* extends LdapString */implements Name
        }
        else
        {
-           Rdn rdn = ( Rdn ) rdns.get( 0 );
-
-           return rdn;
+           return rdns.get( 0 );
        }
    }
 
@@ -741,12 +740,12 @@ public class LdapDN /* extends LdapString */implements Name
     */
    public List getRdns()
    {
-       List newRdns = new ArrayList();
+       List<Rdn> newRdns = new ArrayList<Rdn>();
 
        // We will clone the list, to avoid user modifications
-       for ( int i = 0; i < rdns.size(); i++ )
+       for ( Rdn rdn:rdns )
        {
-           newRdns.add( i, ( ( Rdn ) rdns.get( i ) ).clone() );
+           newRdns.add( (Rdn)rdn.clone() );
        }
 
        return newRdns;
@@ -760,7 +759,7 @@ public class LdapDN /* extends LdapString */implements Name
     *
     * @return an enumeration of the components of this name, each as string
     */
-   public Enumeration getAll()
+   public Enumeration<String> getAll()
    {
        /*
         * Note that by accessing the name component using the get() method on
@@ -768,7 +767,7 @@ public class LdapDN /* extends LdapString */implements Name
         * right to left with increasing index values. LdapName.get() does the
         * index translation on m_list for us.
         */
-       return new Enumeration()
+       return new Enumeration<String>()
        {
            private int pos;
 
@@ -779,7 +778,7 @@ public class LdapDN /* extends LdapString */implements Name
            }
 
 
-           public Object nextElement()
+           public String nextElement()
            {
                if ( pos >= rdns.size() )
                {
@@ -787,9 +786,9 @@ public class LdapDN /* extends LdapString */implements Name
                    throw new NoSuchElementException();
                }
 
-               Object obj = rdns.get( rdns.size() - pos - 1 );
+               Rdn rdn = rdns.get( rdns.size() - pos - 1 );
                pos++;
-               return obj.toString();
+               return rdn.toString();
            }
        };
    }
@@ -802,7 +801,7 @@ public class LdapDN /* extends LdapString */implements Name
     *
     * @return an enumeration of the components of this name, as Rdn
     */
-   public Enumeration getAllRdn()
+   public Enumeration<Rdn> getAllRdn()
    {
        /*
         * Note that by accessing the name component using the get() method on
@@ -810,7 +809,7 @@ public class LdapDN /* extends LdapString */implements Name
         * right to left with increasing index values. LdapName.get() does the
         * index translation on m_list for us.
         */
-       return new Enumeration()
+       return new Enumeration<Rdn>()
        {
            private int pos;
 
@@ -821,7 +820,7 @@ public class LdapDN /* extends LdapString */implements Name
            }
 
 
-           public Object nextElement()
+           public Rdn nextElement()
            {
                if ( pos >= rdns.size() )
                {
@@ -829,9 +828,9 @@ public class LdapDN /* extends LdapString */implements Name
                    throw new NoSuchElementException();
                }
 
-               Object obj = rdns.get( rdns.size() - pos - 1 );
+               Rdn rdn = rdns.get( rdns.size() - pos - 1 );
                pos++;
-               return obj;
+               return rdn;
            }
        };
    }
@@ -869,7 +868,7 @@ public class LdapDN /* extends LdapString */implements Name
        for ( int i = rdns.size() - posn; i < rdns.size(); i++ )
        {
            // Don't forget to clone the rdns !
-           newLdapDN.rdns.add( ( ( Rdn ) rdns.get( i ) ).clone() );
+           newLdapDN.rdns.add( ( Rdn ) rdns.get( i ).clone() );
        }
 
        newLdapDN.normName = newLdapDN.toNormName();
@@ -912,7 +911,7 @@ public class LdapDN /* extends LdapString */implements Name
        for ( int i = 0; i < size() - posn; i++ )
        {
            // Don't forget to clone the rdns !
-           newLdapDN.rdns.add( ( ( Rdn ) rdns.get( i ) ).clone() );
+           newLdapDN.rdns.add( ( Rdn ) rdns.get( i ).clone() );
        }
 
        newLdapDN.normName = newLdapDN.toNormName();
@@ -983,14 +982,16 @@ public class LdapDN /* extends LdapString */implements Name
                return this;
            }
 
-           for ( int ii = name.size() - 1; ii >= 0; ii-- )
+           for ( int i = name.size() - 1; i >= 0; i-- )
            {
-               Rdn rdn = new Rdn( name.get( ii ) );
+               Rdn rdn = new Rdn( name.get( i ) );
                rdns.add( size() - posn, rdn );
            }
+           
            normalizeInternal();
            toUpName();
        }
+       
        return this;
    }
 
@@ -1105,7 +1106,7 @@ public class LdapDN /* extends LdapString */implements Name
        }
 
        int realPos = size() - posn - 1;
-       Rdn rdn = ( Rdn ) rdns.remove( realPos );
+       Rdn rdn = rdns.remove( realPos );
 
        normalizeInternal();
        toUpName();
@@ -1126,11 +1127,11 @@ public class LdapDN /* extends LdapString */implements Name
        try
        {
            LdapDN dn = ( LdapDN ) super.clone();
-           dn.rdns = new ArrayList();
+           dn.rdns = new ArrayList<Rdn>();
 
-           for ( int i = 0; i < rdns.size(); i++ )
+           for ( Rdn rdn:rdns )
            {
-               dn.rdns.add( i, ( ( Rdn ) rdns.get( i ) ).clone() );
+               dn.rdns.add( ( Rdn ) rdn.clone() );
            }
 
            return dn;
@@ -1161,9 +1162,9 @@ public class LdapDN /* extends LdapString */implements Name
                return false;
            }
 
-           for ( int i = 0; i < size(); i++ )
+           for ( int i = 0; i < this.size(); i++ )
            {
-               if ( ( ( Rdn ) name.rdns.get( i ) ).compareTo( rdns.get( i ) ) != 0 )
+               if ( name.rdns.get( i ).compareTo( rdns.get( i ) ) != 0 )
                {
                    return false;
                }
@@ -1213,8 +1214,8 @@ public class LdapDN /* extends LdapString */implements Name
 
            for ( int i = rdns.size(); i > 0; i-- )
            {
-               Rdn rdn1 = ( Rdn ) rdns.get( i - 1 );
-               Rdn rdn2 = ( Rdn ) ldapDN.rdns.get( i - 1 );
+               Rdn rdn1 = rdns.get( i - 1 );
+               Rdn rdn2 = ldapDN.rdns.get( i - 1 );
                int res = rdn1.compareTo( rdn2 );
 
                if ( res != 0 )
@@ -1383,12 +1384,12 @@ public class LdapDN /* extends LdapString */implements Name
 
        LdapDN newDn = ( LdapDN ) dn.clone();
 
-       Enumeration rdns = newDn.getAllRdn();
+       Enumeration<Rdn> rdns = newDn.getAllRdn();
 
        // Loop on all RDNs
        while ( rdns.hasMoreElements() )
        {
-           Rdn rdn = ( Rdn ) rdns.nextElement();
+           Rdn rdn = rdns.nextElement();
            String upName = rdn.getUpName();
            rdnOidToName( rdn, oidsMap );
            rdn.normalizeString();
@@ -1422,12 +1423,12 @@ public class LdapDN /* extends LdapString */implements Name
            return;
        }
 
-       Enumeration rdns = getAllRdn();
+       Enumeration<Rdn> rdns = getAllRdn();
 
        // Loop on all RDNs
        while ( rdns.hasMoreElements() )
        {
-           Rdn rdn = ( Rdn ) rdns.nextElement();
+           Rdn rdn = rdns.nextElement();
            String upName = rdn.getUpName();
            rdnOidToName( rdn, oidsMap );
            rdn.normalizeString();

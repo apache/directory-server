@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.naming.InvalidNameException;
@@ -130,13 +131,15 @@ public class Rdn implements Cloneable, Comparable, Serializable
     * because we want the ATAVs to be sorted. An atav may contain more than one
     * value. In this case, the values are String stored in a List.
     */
-   private TreeSet atavs = null;
+   private Set<AttributeTypeAndValue> atavs = null;
 
    /**
     * We also keep a set of types, in order to use manipulations. A type is
     * connected with the atav it represents.
+    * 
+    * Note : there is no Generic available classes in commons-collection...
     */
-   private Map atavTypes = new MultiHashMap();
+   private Map<String, AttributeTypeAndValue> atavTypes = new MultiHashMap();
 
    /**
     * We keep the type for a single valued RDN, to avoid the creation of an HashMap
@@ -265,15 +268,15 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
            default:
                // We must duplicate the treeSet and the hashMap
-               Iterator iter = rdn.atavs.iterator();
+               Iterator<AttributeTypeAndValue> iter = rdn.atavs.iterator();
 
-               atavs = new TreeSet();
+               atavs = new TreeSet<AttributeTypeAndValue>();
                atavTypes = new MultiHashMap();
 
                while ( iter.hasNext() )
                {
                    AttributeTypeAndValue currentAtav = ( AttributeTypeAndValue ) iter.next();
-                   atavs.add( currentAtav.clone() );
+                   atavs.add( (AttributeTypeAndValue)currentAtav.clone() );
                    atavTypes.put( currentAtav.getType(), currentAtav );
                }
        }
@@ -315,13 +318,10 @@ public class Rdn implements Cloneable, Comparable, Serializable
                // We have more than one AttributeTypeAndValue
                StringBuffer sb = new StringBuffer();
 
-               Iterator elems = atavs.iterator();
                boolean isFirst = true;
 
-               while ( elems.hasNext() )
+               for ( AttributeTypeAndValue ata:atavs )
                {
-                   AttributeTypeAndValue ata = ( AttributeTypeAndValue ) elems.next();
-
                    if ( isFirst )
                    {
                        isFirst = false;
@@ -372,7 +372,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                // We already have an atav. We have to put it in the HashMap
                // before adding a new one.
                // First, create the HashMap,
-               atavs = new TreeSet();
+               atavs = new TreeSet<AttributeTypeAndValue>();
 
                // and store the existing AttributeTypeAndValue into it.
                atavs.add( atav );
@@ -536,11 +536,11 @@ public class Rdn implements Cloneable, Comparable, Serializable
     *
     * @return an enumeration of the components of this name, each a string
     */
-   public Iterator iterator()
+   public Iterator<AttributeTypeAndValue> iterator()
    {
        if ( nbAtavs == 1 )
        {
-           return new Iterator()
+           return new Iterator<AttributeTypeAndValue>()
            {
                private boolean hasMoreElement = true;
 
@@ -551,9 +551,9 @@ public class Rdn implements Cloneable, Comparable, Serializable
                }
 
 
-               public Object next()
+               public AttributeTypeAndValue next()
                {
-                   Object obj = atav;
+                   AttributeTypeAndValue obj = atav;
                    hasMoreElement = false;
                    return obj;
                }
@@ -596,14 +596,11 @@ public class Rdn implements Cloneable, Comparable, Serializable
                default:
                    // We must duplicate the treeSet and the hashMap
                    rdn.atavTypes = new MultiHashMap();
-                   rdn.atavs = new TreeSet();
+                   rdn.atavs = new TreeSet<AttributeTypeAndValue>();
 
-                   Iterator iter = this.atavs.iterator();
-
-                   while ( iter.hasNext() )
+                   for ( AttributeTypeAndValue currentAtav:this.atavs )
                    {
-                       AttributeTypeAndValue currentAtav = ( AttributeTypeAndValue ) iter.next();
-                       rdn.atavs.add( currentAtav.clone() );
+                       rdn.atavs.add( (AttributeTypeAndValue)currentAtav.clone() );
                        rdn.atavTypes.put( currentAtav.getType(), currentAtav );
                    }
 
@@ -660,11 +657,9 @@ public class Rdn implements Cloneable, Comparable, Serializable
                default:
                    // We have more than one value. We will
                    // go through all of them.
-                   Iterator keys = atavs.iterator();
 
-                   while ( keys.hasNext() )
+                   for ( AttributeTypeAndValue current:atavs )
                    {
-                       AttributeTypeAndValue current = ( AttributeTypeAndValue ) keys.next();
                        String type = current.getType();
 
                        if ( rdn.atavTypes.containsKey( type ) )
@@ -787,7 +782,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                return atav;
 
            default:
-               return ( AttributeTypeAndValue ) atavs.first();
+               return (AttributeTypeAndValue)((TreeSet)atavs).first();
        }
    }
 
@@ -808,7 +803,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                return atav.getType();
 
            default:
-               return ( ( AttributeTypeAndValue ) atavs.first() ).getType();
+               return ( ( AttributeTypeAndValue )((TreeSet)atavs).first() ).getType();
        }
    }
 
@@ -829,7 +824,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                return atav.getValue();
 
            default:
-               return ( ( AttributeTypeAndValue ) atavs.first() ).getValue();
+               return ( ( AttributeTypeAndValue )((TreeSet)atavs).first() ).getValue();
        }
    }
 
@@ -1183,9 +1178,8 @@ public class Rdn implements Cloneable, Comparable, Serializable
            default:
                // We have more than one AttributeTypeAndValue
 
-               for ( Iterator elems = atavs.iterator();elems.hasNext(); )
+               for ( AttributeTypeAndValue ata:atavs )
                {
-                   AttributeTypeAndValue ata = ( AttributeTypeAndValue ) elems.next();
                    result = result * 37 + ata.hashCode();
                }
        }

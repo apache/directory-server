@@ -4249,7 +4249,6 @@ public class SearchRequestTest extends TestCase
                     0x30, (byte)0x84, 0x00, 0x00, 0x00, 0x00
             } );
 
-        String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
         // Allocate a BindRequest Container

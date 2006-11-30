@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.ldif;
 
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,9 +52,9 @@ public class Entry implements Cloneable
     private int changeType;
 
     /** the modification item list */
-    private List modificationList;
+    private List<ModificationItem> modificationList;
 
-    private Map modificationItems;
+    private Map<String, ModificationItem> modificationItems;
 
     /** the dn of the ldif entry */
     private String dn;
@@ -92,8 +91,8 @@ public class Entry implements Cloneable
     public Entry()
     {
         changeType = ADD; // Default LDIF content
-        modificationList = new LinkedList();
-        modificationItems = new HashMap();
+        modificationList = new LinkedList<ModificationItem>();
+        modificationItems = new HashMap<String, ModificationItem>();
         dn = null;
         attributeList = new BasicAttributes( true );
         control = null;
@@ -182,7 +181,7 @@ public class Entry implements Cloneable
         {
             if ( modificationItems.containsKey( attr.getID() ) )
             {
-                ModificationItem item = (ModificationItem) modificationItems.get( attr.getID() );
+                ModificationItem item = modificationItems.get( attr.getID() );
                 Attribute attribute = item.getAttribute();
 
                 Enumeration attrs = attr.getAll();
@@ -221,7 +220,7 @@ public class Entry implements Cloneable
 
             if ( modificationItems.containsKey( id ) )
             {
-                ModificationItem item = (ModificationItem) modificationItems.get( id );
+                ModificationItem item = modificationItems.get( id );
                 
                 if ( item.getModificationOp() != modOp )
                 {
@@ -317,7 +316,7 @@ public class Entry implements Cloneable
     /**
      * @return The list of modification items
      */
-    public List getModificationItems()
+    public List<ModificationItem> getModificationItems()
     {
         return modificationList;
     }
@@ -502,9 +501,8 @@ public class Entry implements Cloneable
 
         if ( modificationList != null )
         {
-            for ( Iterator iter = modificationList.iterator(); iter.hasNext(); )
+            for ( ModificationItem modif:modificationList )
             {
-                ModificationItem modif = (ModificationItem) ( iter.next() );
                 ModificationItem modifClone = new ModificationItem( modif.getModificationOp(), (Attribute) modif.getAttribute()
                         .clone() );
                 clone.modificationList.add( modifClone );
@@ -513,10 +511,9 @@ public class Entry implements Cloneable
 
         if ( modificationItems != null )
         {
-            for ( Iterator iter = modificationItems.entrySet().iterator(); iter.hasNext(); )
+            for ( String key:modificationItems.keySet() )
             {
-                Object key = iter.next();
-                ModificationItem modif = (ModificationItem) ( modificationItems.get( key ) );
+                ModificationItem modif = modificationItems.get( key );
                 ModificationItem modifClone = new ModificationItem( modif.getModificationOp(), (Attribute) modif.getAttribute()
                         .clone() );
                 clone.modificationItems.put( key, modifClone );
@@ -609,10 +606,8 @@ public class Entry implements Cloneable
     {
         StringBuffer sb = new StringBuffer();
         
-        for ( Iterator iter = modificationList.iterator(); iter.hasNext(); )
+        for ( ModificationItem modif:modificationList )
         {
-            ModificationItem modif = (ModificationItem) ( iter.next() );
-            
             sb.append( "            Operation: " );
             
             switch ( modif.getModificationOp() )

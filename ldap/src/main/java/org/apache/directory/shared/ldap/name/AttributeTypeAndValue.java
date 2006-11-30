@@ -129,35 +129,6 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
    }
 
    /**
-    * Construct an AttributeTypeAndValue. The type and value are normalized :
-    * - the type is trimmed and lowercased
-    * - the value is trimmed
-    *
-    * @param type
-    *            The type
-    * @param value
-    *            the value
-    */
-   /*public AttributeTypeAndValue(String dn, int start, int length ) throws InvalidNameException
-   {
-       if ( StringTools.isEmpty( dn ) || StringTools.isEmpty( dn.trim() ) )
-       {
-           log.error( "The atav cannot be empty or null" );
-           throw new InvalidNameException( "Null or empty atav is not allowed" );
-       }
-
-       String atav = dn.substring( start, start + length );
-       String type = atav.substring( 0, atav.indexOf( '=' ) );
-       String value = dn.substring( start + type.length() + 1, start + length );
-
-       this.type = type.trim().toLowerCase();
-       this.value = StringTools.isEmpty( value ) ? "" : value.trim();
-       upName = atav;
-       this.start = start;
-       this.length = length;
-   }*/
-
-   /**
     * Get the type of a AttributeTypeAndValue
     *
     * @return The type

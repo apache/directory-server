@@ -88,10 +88,10 @@ public class SearchResultEntry extends LdapMessage
     private transient int attributesLength;
 
     /** The list of all attributes length */
-    private transient List attributeLength;
+    private transient List<Integer> attributeLength;
 
     /** The list of all vals length */
-    private transient List valsLength;
+    private transient List<Integer> valsLength;
 
 
     // ~ Constructors
@@ -240,8 +240,8 @@ public class SearchResultEntry extends LdapMessage
         if ( ( partialAttributeList != null ) && ( partialAttributeList.size() != 0 ) )
         {
             NamingEnumeration attributes = partialAttributeList.getAll();
-            attributeLength = new LinkedList();
-            valsLength = new LinkedList();
+            attributeLength = new LinkedList<Integer>();
+            valsLength = new LinkedList<Integer>();
 
             // Compute the attributes length
             while ( attributes.hasMoreElements() )
@@ -313,8 +313,8 @@ public class SearchResultEntry extends LdapMessage
                 // add the attribute length to the attributes length
                 attributesLength += 1 + TLV.getNbBytes( localAttributeLength ) + localAttributeLength;
 
-                attributeLength.add( new Integer( localAttributeLength ) );
-                valsLength.add( new Integer( localValuesLength ) );
+                attributeLength.add( localAttributeLength );
+                valsLength.add( localValuesLength );
             }
         }
 
@@ -383,7 +383,7 @@ public class SearchResultEntry extends LdapMessage
 
                     // The partial attribute list sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
-                    int localAttributeLength = ( ( Integer ) attributeLength.get( attributeNumber ) ).intValue();
+                    int localAttributeLength = attributeLength.get( attributeNumber );
                     buffer.put( TLV.getBytes( localAttributeLength ) );
 
                     // The attribute type
@@ -391,7 +391,7 @@ public class SearchResultEntry extends LdapMessage
 
                     // The values
                     buffer.put( UniversalTag.SET_TAG );
-                    int localValuesLength = ( ( Integer ) valsLength.get( attributeNumber ) ).intValue();
+                    int localValuesLength = valsLength.get( attributeNumber );
                     buffer.put( TLV.getBytes( localValuesLength ) );
 
                     if ( attribute.size() != 0 )
