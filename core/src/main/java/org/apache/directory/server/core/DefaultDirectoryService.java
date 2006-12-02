@@ -79,7 +79,7 @@ class DefaultDirectoryService extends DirectoryService
     private DirectoryServiceListener serviceListener;
 
     /** the initial context environment that fired up the backend subsystem */
-    private Hashtable environment;
+    private Hashtable<String, Object> environment;
 
     /** the configuration */
     private StartupConfiguration startupConfiguration;
@@ -137,7 +137,7 @@ class DefaultDirectoryService extends DirectoryService
             return new DeadContext();
         }
 
-        Hashtable environment = getEnvironment();
+        Hashtable<String, Object> environment = getEnvironment();
         environment.remove( Context.SECURITY_PRINCIPAL );
         environment.remove( Context.SECURITY_CREDENTIALS );
         environment.remove( Context.SECURITY_AUTHENTICATION );
@@ -171,6 +171,7 @@ class DefaultDirectoryService extends DirectoryService
     }
 
 
+    @SuppressWarnings("unchecked")
     public synchronized void startup( DirectoryServiceListener listener, Hashtable env ) throws NamingException
     {
         if ( started )
@@ -178,7 +179,7 @@ class DefaultDirectoryService extends DirectoryService
             return;
         }
 
-        Hashtable envCopy = ( Hashtable ) env.clone();
+        Hashtable<String,Object> envCopy = ( Hashtable ) env.clone();
 
         StartupConfiguration cfg = ( StartupConfiguration ) Configuration.toConfiguration( env );
 
@@ -295,7 +296,8 @@ class DefaultDirectoryService extends DirectoryService
     }
 
 
-    public Hashtable getEnvironment()
+    @SuppressWarnings("unchecked")
+    public Hashtable<String, Object> getEnvironment()
     {
         return ( Hashtable ) environment.clone();
     }
@@ -752,7 +754,7 @@ class DefaultDirectoryService extends DirectoryService
         }
 
         globalRegistries = new GlobalRegistries( bootstrapRegistries );
-        Set binaries = new HashSet();
+        Set<String> binaries = new HashSet<String>();
         if ( this.environment.containsKey( BINARY_KEY ) )
         {
             if ( log.isInfoEnabled() )

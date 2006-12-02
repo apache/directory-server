@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public abstract class DirectoryService
 {
-    private static final Map instances = new HashMap();
+    private static final Map<String, DirectoryService> instances = new HashMap<String, DirectoryService>();
 
 
     /**
@@ -77,9 +77,9 @@ public abstract class DirectoryService
     /**
      * Returns all instances of instantiated {@link DirectoryService}.
      */
-    public synchronized static Set getAllInstances()
+    public synchronized static Set<DirectoryService> getAllInstances()
     {
-        return new HashSet( instances.values() );
+        return new HashSet<DirectoryService>( instances.values() );
     }
 
 
