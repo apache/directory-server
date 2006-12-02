@@ -92,9 +92,9 @@ public class JdbmPartition extends BTreePartition
     /** the master table storing entries by primary key */
     private JdbmMasterTable master;
     /** a map of attribute names to user indices */
-    private Map indices;
+    private Map<String, Index> indices;
     /** a map of index names to system indices */
-    private Map sysIndices;
+    private Map<String, Index> sysIndices;
 
     /** true if open */
     private boolean initialized;
@@ -183,8 +183,8 @@ public class JdbmPartition extends BTreePartition
         }
 
         master = new JdbmMasterTable( recMan );
-        indices = new HashMap();
-        sysIndices = new HashMap();
+        indices = new HashMap<String,Index>();
+        sysIndices = new HashMap<String,Index>();
 
         super.init( factoryCfg, cfg );
         initialized = true;
@@ -198,7 +198,7 @@ public class JdbmPartition extends BTreePartition
             return;
         }
 
-        ArrayList array = new ArrayList();
+        List<Index> array = new ArrayList<Index>();
         array.addAll( indices.values() );
 
         if ( null != ndnIdx )
@@ -287,7 +287,7 @@ public class JdbmPartition extends BTreePartition
             return;
         }
 
-        ArrayList array = new ArrayList();
+        List<Index> array = new ArrayList<Index>();
         array.addAll( indices.values() );
         array.add( ndnIdx );
         array.add( updnIdx );

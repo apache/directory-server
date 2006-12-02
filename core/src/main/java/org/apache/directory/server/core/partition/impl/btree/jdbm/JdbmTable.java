@@ -83,7 +83,7 @@ public class JdbmTable implements Table
 
     private int numDupLimit = IndexConfiguration.DEFAULT_DUPLICATE_LIMIT;
 
-    private Map duplicateBtrees = new HashMap();
+    private Map<Long, BTree> duplicateBtrees = new HashMap<Long, BTree>();
     
     
     // ------------------------------------------------------------------------
@@ -356,6 +356,7 @@ public class JdbmTable implements Table
      * @see Table#has(java.lang.Object,
      * java.lang.Object, boolean)
      */
+    @SuppressWarnings("unchecked")
     public boolean has( Object key, Object val, boolean isGreaterThan ) throws NamingException
     {
         if ( !allowsDuplicates )
@@ -582,6 +583,7 @@ public class JdbmTable implements Table
      * @see org.apache.directory.server.core.partition.impl.btree.Table#put(java.lang.Object,
      * java.lang.Object)
      */
+    @SuppressWarnings("unchecked")
     public Object put( Object key, Object value ) throws NamingException
     {
         Object replaced = null;
@@ -654,6 +656,7 @@ public class JdbmTable implements Table
      * @see Table#put(java.lang.Object,
      * javax.naming.NamingEnumeration)
      */
+    @SuppressWarnings("unchecked")
     public Object put( Object key, NamingEnumeration values ) throws NamingException
     {
         /*
@@ -1063,6 +1066,7 @@ public class JdbmTable implements Table
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.Table#listTuples(java.lang.Object)
      */
+    @SuppressWarnings("unchecked")
     public NamingEnumeration listTuples( Object key ) throws NamingException
     {
         // Handle single and zero value returns without duplicates enabled
@@ -1171,6 +1175,7 @@ public class JdbmTable implements Table
      * @see org.apache.directory.server.core.partition.impl.btree.Table#listTuples(java.lang.Object,
      * java.lang.Object, boolean)
      */
+    @SuppressWarnings("unchecked")
     public NamingEnumeration listTuples( Object key, Object val, boolean isGreaterThan ) throws NamingException
     {
         if ( !allowsDuplicates )

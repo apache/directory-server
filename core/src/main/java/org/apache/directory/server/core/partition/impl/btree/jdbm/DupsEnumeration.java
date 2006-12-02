@@ -23,6 +23,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.TreeSet;
 
@@ -186,6 +187,7 @@ public class DupsEnumeration implements NamingEnumeration
      * The values pulled off of this iterator are put into prefetched. 
      * </p>
      */
+    @SuppressWarnings("unchecked")
     private void prefetch() throws NamingException
     {
         /*
@@ -222,7 +224,7 @@ public class DupsEnumeration implements NamingEnumeration
                          * over the array list.  I don't think there is a way to 
                          * do this on the TreeSet.
                          */
-                        ArrayList list = new ArrayList( set.size() );
+                        List list = new ArrayList( set.size() );
                         list.addAll( set );
                         Collections.reverse( list );
                         dupIterator = list.iterator();

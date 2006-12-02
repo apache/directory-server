@@ -61,7 +61,8 @@ public class BTreeTupleEnumeration implements NamingEnumeration
     private boolean success = false;
     
     
-    BTreeTupleEnumeration( BTree tree, Comparator comparator, Object key, Object val, boolean isGreaterThan ) throws LdapNamingException 
+    BTreeTupleEnumeration( BTree tree, Comparator<Object> comparator, Object key, Object val, boolean isGreaterThan ) 
+        throws LdapNamingException 
     {
         this.key = key;
         stepForward = isGreaterThan;
