@@ -19,6 +19,10 @@
  */
 package org.apache.directory.server.replication.configuration;
 
+
+import java.net.InetSocketAddress;
+
+
 /**
  * Document me!
  *
@@ -27,5 +31,30 @@ package org.apache.directory.server.replication.configuration;
  */
 public class Replica
 {
+    private ReplicaId id;
+    private InetSocketAddress address;
+    
+    
+    public void setId( ReplicaId id )
+    {
+        this.id = id;
+    }
+    
+    
+    public ReplicaId getId()
+    {
+        return id;
+    }
 
+
+    public void setAddress( InetSocketAddress address )
+    {
+        this.address = address;
+    }
+
+
+    public InetSocketAddress getAddress()
+    {
+        return address;
+    }
 }

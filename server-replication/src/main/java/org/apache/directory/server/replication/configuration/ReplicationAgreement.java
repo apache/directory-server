@@ -20,6 +20,7 @@
 package org.apache.directory.server.replication.configuration;
 
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -67,9 +68,9 @@ public class ReplicationAgreement
     Set<String> inclusions;
     
     /**
-     * The replication group composing this agreement. 
+     * The replication group (list of replicas) composing this agreement. 
      */
-    ReplicationGroup replicationGroup;
+    List<Replica> replicationGroup;
     
     /**
      * The replicatin area defined as a subtreeSpecification.
@@ -82,7 +83,8 @@ public class ReplicationAgreement
     LdapDN replicationBase;
     
     /**
-     * The schedule to use for initiating replication cycles.  This may be:
+     * The schedule to use for initiating replication cycles.  You can have more than
+     * one trigger assigned to initiate replication.  This may be:
      * <ul>
      *   <li>periodic</li>
      *   <li>manual</li>
@@ -92,5 +94,10 @@ public class ReplicationAgreement
      *   <li>minimum time after the last replication cycle</li>
      * </ul> 
      */
-    ReplicationSchedule replicationSchedule;
+    Set<ReplicationTrigger> replicationSchedule;
+    
+    /**
+     * Who to notify, why and how.
+     */
+    NotificationScheme notificationScheme;
 }
