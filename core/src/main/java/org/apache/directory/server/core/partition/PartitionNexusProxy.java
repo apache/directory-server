@@ -86,7 +86,7 @@ public class PartitionNexusProxy extends PartitionNexus
 
     static
     {
-        Collection c = new HashSet();
+        Collection<String> c = new HashSet<String>();
         c.add( "normalizationService" );
         c.add( "authenticationService" );
         c.add( "authorizationService" );
@@ -98,7 +98,7 @@ public class PartitionNexusProxy extends PartitionNexus
         c.add( "eventService" );
         LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
 
-        c = new HashSet();
+        c = new HashSet<String>();
         c.add( "authenticationService" );
         c.add( "authorizationService" );
         c.add( "defaultAuthorizationService" );
@@ -109,17 +109,17 @@ public class PartitionNexusProxy extends PartitionNexus
         c.add( "eventService" );
         GETMATCHEDDN_BYPASS = Collections.unmodifiableCollection( c );
 
-	c = new HashSet();
-	c.add( "normalizationService" );
-	c.add( "authenticationService" );
-	c.add( "authorizationService" );
-	c.add( "defaultAuthorizationService" );
-	c.add( "schemaService" );
-	c.add( "subentryService" );
-	c.add( "referralService" );
-	c.add( "eventService" );
-	c.add( "triggerService" );
-	LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS = Collections.unmodifiableCollection( c );
+    	c = new HashSet<String>();
+    	c.add( "normalizationService" );
+    	c.add( "authenticationService" );
+    	c.add( "authorizationService" );
+    	c.add( "defaultAuthorizationService" );
+    	c.add( "schemaService" );
+    	c.add( "subentryService" );
+    	c.add( "referralService" );
+    	c.add( "eventService" );
+    	c.add( "triggerService" );
+    	LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS = Collections.unmodifiableCollection( c );
     }
 
 

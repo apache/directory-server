@@ -111,7 +111,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     private Partition system;
 
     /** the backends keyed by normalized suffix strings */
-    private HashMap partitions = new HashMap();
+    private Map<String, Partition> partitions = new HashMap<String, Partition>();
 
     /** the read only rootDSE attributes */
     private final Attributes rootDSE;
@@ -196,7 +196,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         this.attrRegistry = this.factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         this.oidRegistry = this.factoryCfg.getGlobalRegistries().getOidRegistry();
         
-        List initializedPartitionCfgs = new ArrayList();
+        List<PartitionConfiguration> initializedPartitionCfgs = new ArrayList<PartitionConfiguration>();
         initializedPartitionCfgs.add( initializeSystemPartition() );
 
         Iterator i = factoryCfg.getStartupConfiguration().getContextPartitionConfigurations().iterator();
@@ -278,8 +278,8 @@ public class DefaultPartitionNexus extends PartitionNexus
             }
             
             // add all attribute oids of index configs to a hashset
-            Set indices = systemCfg.getIndexedAttributes();
-            Set indexOids = new HashSet();
+            Set<String> indices = systemCfg.getIndexedAttributes();
+            Set<String> indexOids = new HashSet<String>();
             OidRegistry registry = factoryCfg.getGlobalRegistries().getOidRegistry();
             for ( Iterator ii = indices.iterator(); ii.hasNext(); /**/ )
             {
@@ -334,7 +334,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             systemCfg.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
     
             // Add indexed attributes for system partition
-            Set indexedSystemAttrs = new HashSet();
+            Set<String> indexedSystemAttrs = new HashSet<String>();
             indexedSystemAttrs.add( Oid.ALIAS );
             indexedSystemAttrs.add( Oid.EXISTANCE );
             indexedSystemAttrs.add( Oid.HIERARCHY );
@@ -389,13 +389,13 @@ public class DefaultPartitionNexus extends PartitionNexus
             return;
         }
 
-        Iterator suffixes = new HashSet( this.partitions.keySet() ).iterator();
+        Iterator<String> suffixes = new HashSet<String>( this.partitions.keySet() ).iterator();
 
         // make sure this loop is not fail fast so all backing stores can
         // have an attempt at closing down and synching their cached entries
         while ( suffixes.hasNext() )
         {
-            String suffix = ( String ) suffixes.next();
+            String suffix = suffixes.next();
             try
             {
                 removeContextPartition( new LdapDN( suffix ) );
@@ -755,7 +755,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // note if we've seen these special attributes as well.
                 // -----------------------------------------------------------
 
-                Set realIds = new HashSet();
+                Set<String> realIds = new HashSet<String>();
                 boolean containsAsterisk = false;
                 boolean containsPlus = false;
                 boolean containsOneDotOne = false;

@@ -98,7 +98,7 @@ public abstract class PartitionNexus implements Partition
         
         try
         {
-        	Map oidsMap = new HashMap();
+        	Map<String, OidNormalizer> oidsMap = new HashMap<String, OidNormalizer>();
         	
         	oidsMap.put( UID_ATTRIBUTE, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );
         	oidsMap.put( UID_ATTRIBUTE_ALIAS, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );

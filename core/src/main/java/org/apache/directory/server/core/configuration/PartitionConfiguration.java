@@ -89,7 +89,8 @@ public class PartitionConfiguration
     /**
      * Returns the set of attribute type strings to create an index on.
      */
-    public Set getIndexedAttributes()
+    @SuppressWarnings("unchecked")
+    public Set<String> getIndexedAttributes()
     {
         return ConfigurationUtil.getClonedSet( indexedAttributes );
     }

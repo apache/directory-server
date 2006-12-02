@@ -24,6 +24,7 @@ import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -45,7 +46,6 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import org.slf4j.Logger;
@@ -61,43 +61,6 @@ import org.slf4j.LoggerFactory;
 public abstract class BTreePartition implements Partition
 {
     private static final Logger log = LoggerFactory.getLogger( BTreePartition.class );
-
-    /** ===================================================================
-
-     The following OID branch is reserved for the directory TLP once it
-     graduates the incubator:
-
-     1.2.6.1.4.1.18060.1.1
-
-     The following branch is reserved for the apache directory server:
-
-     1.2.6.1.4.1.18060.1.1.1
-
-     The following branch is reserved for use by apache directory server Syntaxes:
-
-     1.2.6.1.4.1.18060.1.1.1.1
-
-     The following branch is reserved for use by apache directory server MatchingRules:
-
-     1.2.6.1.4.1.18060.1.1.1.2
-
-     The following branch is reserved for use by apache directory server AttributeTypes:
-
-     1.2.6.1.4.1.18060.1.1.1.3
-
-     * 1.2.6.1.4.1.18060.1.1.1.3.1 - apacheNdn
-     * 1.2.6.1.4.1.18060.1.1.1.3.2 - apacheUpdn
-     * 1.2.6.1.4.1.18060.1.1.1.3.3 - apacheExistance
-     * 1.2.6.1.4.1.18060.1.1.1.3.4 - apacheHierarchy
-     * 1.2.6.1.4.1.18060.1.1.1.3.5 - apacheOneAlias
-     * 1.2.6.1.4.1.18060.1.1.1.3.6 - apacheSubAlias
-     * 1.2.6.1.4.1.18060.1.1.1.3.7 - apacheAlias
-
-     The following branch is reserved for use by apache directory server ObjectClasses:
-
-     1.2.6.1.4.1.18060.1.1.1.4
-
-     ==================================================================== */
 
     /**
      * the search engine used to search the database
@@ -140,7 +103,7 @@ public abstract class BTreePartition implements Partition
         
         this.searchEngine = new DefaultSearchEngine( this, evaluator, enumerator, optimizer );
 
-        HashSet sysOidSet = new HashSet();
+        Set<String> sysOidSet = new HashSet<String>();
         sysOidSet.add( Oid.EXISTANCE );
         sysOidSet.add( Oid.HIERARCHY );
         sysOidSet.add( Oid.UPDN );
@@ -150,7 +113,7 @@ public abstract class BTreePartition implements Partition
         sysOidSet.add( Oid.ALIAS );
 
         // Used to calculate the system indices we must automatically add
-        HashSet customAddedSystemIndices = new HashSet();
+        Set<String> customAddedSystemIndices = new HashSet<String>();
         
         for ( Iterator ii = cfg.getIndexedAttributes().iterator(); ii.hasNext(); /**/ )
         {

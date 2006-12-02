@@ -229,7 +229,7 @@ public abstract class AbstractPartition implements Partition
      */
     public void modify( LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
-        List items = new ArrayList( mods.size() );
+        List<ModificationItem> items = new ArrayList<ModificationItem>( mods.size() );
         NamingEnumeration e = mods.getAll();
         while ( e.hasMore() )
         {
@@ -237,7 +237,7 @@ public abstract class AbstractPartition implements Partition
         }
 
         ModificationItem[] itemsArray = new ModificationItem[items.size()];
-        itemsArray = ( ModificationItem[] ) items.toArray( itemsArray );
+        itemsArray = items.toArray( itemsArray );
         modify( name, itemsArray );
     }
 
