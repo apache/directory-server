@@ -96,22 +96,22 @@ public class AuthorizationService extends BaseInterceptor
 
     static
     {
-        HashSet set = new HashSet( 2 );
+        Set<MicroOperation> set = new HashSet<MicroOperation>( 2 );
         set.add( MicroOperation.BROWSE );
         set.add( MicroOperation.RETURN_DN );
         SEARCH_ENTRY_PERMS = Collections.unmodifiableCollection( set );
 
-        set = new HashSet( 2 );
+        set = new HashSet<MicroOperation>( 2 );
         set.add( MicroOperation.READ );
         set.add( MicroOperation.BROWSE );
         LOOKUP_PERMS = Collections.unmodifiableCollection( set );
 
-        set = new HashSet( 2 );
+        set = new HashSet<MicroOperation>( 2 );
         set.add( MicroOperation.ADD );
         set.add( MicroOperation.REMOVE );
         REPLACE_PERMS = Collections.unmodifiableCollection( set );
 
-        set = new HashSet( 2 );
+        set = new HashSet<MicroOperation>( 2 );
         set.add( MicroOperation.EXPORT );
         set.add( MicroOperation.RENAME );
         MOVERENAME_PERMS = Collections.unmodifiableCollection( set );

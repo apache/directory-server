@@ -170,7 +170,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#bind(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,byte[],java.util.List,String)
      */
-    void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException;
+    void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException;
 
 
     /**

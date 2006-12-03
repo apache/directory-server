@@ -221,7 +221,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+    public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
         throws NamingException
     {
         next.bind( bindDn, credentials, mechanisms, saslAuthId );

@@ -66,7 +66,7 @@ public class AuthenticationService extends BaseInterceptor
     private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /** authenticators **/
-    public Map authenticators = new HashMap();
+    public Map<String, Collection<Authenticator>> authenticators = new HashMap<String, Collection<Authenticator>>();
 
     private DirectoryServiceConfiguration factoryCfg;
 
@@ -107,13 +107,11 @@ public class AuthenticationService extends BaseInterceptor
      */
     public void destroy()
     {
-        Iterator i = new ArrayList( authenticators.values() ).iterator();
-        while ( i.hasNext() )
+        for ( Collection<Authenticator> collection:authenticators.values() )
         {
-            Iterator j = new ArrayList( ( Collection ) i.next() ).iterator();
-            while ( j.hasNext() )
+            for ( Authenticator authenticator:collection )
             {
-                unregister( ( Authenticator ) j.next() );
+                unregister( authenticator );
             }
         }
 
@@ -129,10 +127,10 @@ public class AuthenticationService extends BaseInterceptor
     {
         cfg.getAuthenticator().init( factoryCfg, cfg );
 
-        Collection authenticatorList = getAuthenticators( cfg.getAuthenticator().getAuthenticatorType() );
+        Collection<Authenticator> authenticatorList = getAuthenticators( cfg.getAuthenticator().getAuthenticatorType() );
         if ( authenticatorList == null )
         {
-            authenticatorList = new ArrayList();
+            authenticatorList = new ArrayList<Authenticator>();
             authenticators.put( cfg.getAuthenticator().getAuthenticatorType(), authenticatorList );
         }
 
@@ -171,10 +169,11 @@ public class AuthenticationService extends BaseInterceptor
      * 
      * @return <tt>null</tt> if no authenticator is found.
      */
-    private Collection getAuthenticators( String type )
+    private Collection<Authenticator> getAuthenticators( String type )
     {
-        Collection result = ( Collection ) authenticators.get( type );
-        if ( result != null && result.size() > 0 )
+        Collection<Authenticator> result = authenticators.get( type );
+        
+        if ( ( result != null ) && ( result.size() > 0 ) )
         {
             return result;
         }
@@ -321,16 +320,13 @@ public class AuthenticationService extends BaseInterceptor
 
     private void invalidateAuthenticatorCaches( LdapDN principalDn )
     {
-        for ( Iterator jj = this.authenticators.keySet().iterator(); jj.hasNext(); /**/ )
+        for ( String authMech:authenticators.keySet() )
         {
-            String authMech = ( String ) jj.next();
-            
-            Collection authenticators = getAuthenticators( authMech );
+            Collection<Authenticator> authenticators = getAuthenticators( authMech );
             
             // try each authenticator
-            for ( Iterator ii = authenticators.iterator(); ii.hasNext(); /**/ )
+            for ( Authenticator authenticator:authenticators )
             {
-                Authenticator authenticator = ( Authenticator ) ii.next();
                 authenticator.invalidateCache( getPrincipal().getJndiName() );
             }
         }
@@ -435,7 +431,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+    public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
         throws NamingException
     {
         
@@ -457,10 +453,11 @@ public class AuthenticationService extends BaseInterceptor
         }
 
         // pick the first matching authenticator type
-        Collection authenticators = null;
-        for ( int ii = 0; ii < mechanisms.size(); ii++ )
+        Collection<Authenticator> authenticators = null;
+        
+        for ( String mechanism:mechanisms )
         {
-            authenticators = getAuthenticators( ( String ) mechanisms.get( ii ) );
+            authenticators = getAuthenticators( mechanism );
 
             if ( authenticators != null )
             {
@@ -484,9 +481,8 @@ public class AuthenticationService extends BaseInterceptor
 
         // TODO : we should refactor that.
         // try each authenticators
-        for ( Iterator i = authenticators.iterator(); i.hasNext(); )
+        for ( Authenticator authenticator:authenticators )
         {
-            Authenticator authenticator = ( Authenticator ) i.next();
             try
             {
                 // perform the authentication

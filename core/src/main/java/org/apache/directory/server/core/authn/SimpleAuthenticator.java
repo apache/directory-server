@@ -62,11 +62,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     private static final Logger log = LoggerFactory.getLogger( SimpleAuthenticator.class );
     private static final Collection USERLOOKUP_BYPASS;
 
-    private WeakHashMap credentialCache = new WeakHashMap( 1000 );
+    private WeakHashMap<String, byte[]> credentialCache = new WeakHashMap<String, byte[]>( 1000 );
     
     static
     {
-        Set c = new HashSet();
+        Set<String> c = new HashSet<String>();
         c.add( "normalizationService" );
         c.add( "collectiveAttributeService" );
         c.add( "authenticationService" );

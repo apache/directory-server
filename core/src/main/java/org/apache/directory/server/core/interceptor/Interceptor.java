@@ -243,7 +243,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#bind(org.apache.directory.shared.ldap.name.LdapDN,byte[],java.util.List,String)} call.
      */
-    void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+    void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
         throws NamingException;
 
 

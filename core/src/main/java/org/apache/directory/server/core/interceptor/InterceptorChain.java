@@ -210,7 +210,7 @@ public class InterceptorChain
         }
     };
 
-    private final Map name2entry = new HashMap();
+    private final Map<String, Entry> name2entry = new HashMap<String, Entry>();
 
     private final Entry tail;
 
@@ -282,8 +282,9 @@ public class InterceptorChain
      */
     public synchronized void destroy()
     {
-        List entries = new ArrayList();
+        List<Entry> entries = new ArrayList<Entry>();
         Entry e = tail;
+        
         do
         {
             entries.add( e );
@@ -291,19 +292,17 @@ public class InterceptorChain
         }
         while ( e != null );
 
-        Iterator i = entries.iterator();
-        while ( i.hasNext() )
+        for ( Entry entry:entries )
         {
-            e = ( Entry ) i.next();
-            if ( e != tail )
+            if ( entry != tail )
             {
                 try
                 {
-                    deregister( e.configuration.getName() );
+                    deregister( entry.configuration.getName() );
                 }
                 catch ( Throwable t )
                 {
-                    log.warn( "Failed to deregister an interceptor: " + e.configuration.getName(), t );
+                    log.warn( "Failed to deregister an interceptor: " + entry.configuration.getName(), t );
                 }
             }
         }
@@ -316,7 +315,7 @@ public class InterceptorChain
      */
     public Interceptor get( String interceptorName )
     {
-        Entry e = ( Entry ) name2entry.get( interceptorName );
+        Entry e = name2entry.get( interceptorName );
         if ( e == null )
         {
             return null;
@@ -331,8 +330,9 @@ public class InterceptorChain
      */
     public synchronized List getAll()
     {
-        List result = new ArrayList();
+        List<Interceptor> result = new ArrayList<Interceptor>();
         Entry e = head;
+        
         do
         {
             result.add( e.configuration.getInterceptor() );
@@ -359,7 +359,7 @@ public class InterceptorChain
     public synchronized void addBefore( String nextInterceptorName, InterceptorConfiguration cfg )
         throws NamingException
     {
-        Entry e = ( Entry ) name2entry.get( nextInterceptorName );
+        Entry e = name2entry.get( nextInterceptorName );
         if ( e == null )
         {
             throw new ConfigurationException( "Interceptor not found: " + nextInterceptorName );
@@ -377,7 +377,7 @@ public class InterceptorChain
     public synchronized void addAfter( String prevInterceptorName, InterceptorConfiguration cfg )
         throws NamingException
     {
-        Entry e = ( Entry ) name2entry.get( prevInterceptorName );
+        Entry e = name2entry.get( prevInterceptorName );
         if ( e == null )
         {
             throw new ConfigurationException( "Interceptor not found: " + prevInterceptorName );
@@ -466,7 +466,7 @@ public class InterceptorChain
      */
     private Entry checkOldName( String baseName ) throws ConfigurationException
     {
-        Entry e = ( Entry ) name2entry.get( baseName );
+        Entry e = name2entry.get( baseName );
 
         if ( e == null )
         {
@@ -716,7 +716,7 @@ public class InterceptorChain
     }
 
 
-    public void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+    public void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException
     {
         Entry node = getStartingEntry();
         Interceptor head = node.configuration.getInterceptor();
@@ -1419,7 +1419,7 @@ public class InterceptorChain
                 }
 
 
-                public void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+                public void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
                     throws NamingException
                 {
                     Entry next = getNextEntry();
