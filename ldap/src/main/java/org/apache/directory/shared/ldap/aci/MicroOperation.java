@@ -27,39 +27,39 @@ package org.apache.directory.shared.ldap.aci;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MicroOperation
+public enum MicroOperation
 {
     // Permissions that may be used in conjunction with any component of
     // <tt>ProtectedItem</tt>s.
-    public static final MicroOperation ADD = new MicroOperation( "Add" );
+    ADD( "Add" ),
 
-    public static final MicroOperation DISCLOSE_ON_ERROR = new MicroOperation( "DiscloseOnError" );
+    DISCLOSE_ON_ERROR( "DiscloseOnError" ),
 
-    public static final MicroOperation READ = new MicroOperation( "Read" );
+    READ( "Read" ),
 
-    public static final MicroOperation REMOVE = new MicroOperation( "Remove" );
+    REMOVE( "Remove" ),
 
     // Permissions that may be used only in conjunction with the entry
     // component.
-    public static final MicroOperation BROWSE = new MicroOperation( "Browse" );
+    BROWSE( "Browse" ),
 
-    public static final MicroOperation EXPORT = new MicroOperation( "Export" );
+    EXPORT( "Export" ),
 
-    public static final MicroOperation IMPORT = new MicroOperation( "Import" );
+    IMPORT( "Import" ),
 
-    public static final MicroOperation MODIFY = new MicroOperation( "Modify" );
+    MODIFY( "Modify" ),
 
-    public static final MicroOperation RENAME = new MicroOperation( "Rename" );
+    RENAME ( "Rename" ),
 
-    public static final MicroOperation RETURN_DN = new MicroOperation( "ReturnDN" );
+    RETURN_DN( "ReturnDN" ),
 
     // Permissions that may be used in conjunction with any component,
     // except entry, of <tt>ProtectedItem</tt>s.
-    public static final MicroOperation COMPARE = new MicroOperation( "Compare" );
+    COMPARE( "Compare" ),
 
-    public static final MicroOperation FILTER_MATCH = new MicroOperation( "FilterMatch" );
+    FILTER_MATCH( "FilterMatch" ),
 
-    public static final MicroOperation INVOKE = new MicroOperation( "Invoke" );
+    INVOKE( "Invoke" );
 
     private final String name;
 
