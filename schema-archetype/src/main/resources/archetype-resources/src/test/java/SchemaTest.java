@@ -108,17 +108,17 @@ public class SchemaTest extends AbstractServerTest
         {
             String id = ( String ) ii.next();
 
-            if ( id.indexOf( "1.2.6.1.4.1.18060.1.1.1.3.1001" ) != -1 )
+            if ( id.indexOf( "1.3.6.1.4.1.18060.0.4.1.2.1001" ) != -1 )
             {
                 isCarMakeFound = true;
             }
             
-            if ( id.indexOf( "1.2.6.1.4.1.18060.1.1.1.3.1002" ) != -1 )
+            if ( id.indexOf( "1.3.6.1.4.1.18060.0.4.1.2.1002" ) != -1 )
             {
                 isCarModelFound = true;
             }
             
-            if ( id.indexOf( "1.2.6.1.4.1.18060.1.1.1.3.1003" ) != -1 )
+            if ( id.indexOf( "1.3.6.1.4.1.18060.0.4.1.2.1003" ) != -1 )
             {
                 isCarYearFound = true;
             }
@@ -137,7 +137,7 @@ public class SchemaTest extends AbstractServerTest
         {
             String id = ( String ) ii.next();
 
-            if ( id.indexOf( "1.2.6.1.4.1.18060.1.1.1.4.1001" ) != -1 )
+            if ( id.indexOf( "1.3.6.1.4.1.18060.0.4.1.3.1001" ) != -1 )
             {
                 isCarFound = true;
             }

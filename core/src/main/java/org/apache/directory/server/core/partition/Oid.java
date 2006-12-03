@@ -28,20 +28,20 @@ package org.apache.directory.server.core.partition;
  */
 public class Oid
 {
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.1) for _ndn op attrib */
-    public static final String NDN = "1.2.6.1.4.1.18060.1.1.1.3.1";
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.2) for _updn op attrib */
-    public static final String UPDN = "1.2.6.1.4.1.18060.1.1.1.3.2";
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.3) for _existance op attrib */
-    public static final String EXISTANCE = "1.2.6.1.4.1.18060.1.1.1.3.3";
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.4) for _hierarchy op attrib */
-    public static final String HIERARCHY = "1.2.6.1.4.1.18060.1.1.1.3.4";
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.5) for _oneAlias index */
-    public static final String ONEALIAS = "1.2.6.1.4.1.18060.1.1.1.3.5";
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.6) for _subAlias index */
-    public static final String SUBALIAS = "1.2.6.1.4.1.18060.1.1.1.3.6";
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.7) for _alias index */
-    public static final String ALIAS = "1.2.6.1.4.1.18060.1.1.1.3.7";
+    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.1) for _ndn op attrib */
+    public static final String NDN = "1.3.6.1.4.1.18060.0.4.1.2.1";
+    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.2) for _updn op attrib */
+    public static final String UPDN = "1.3.6.1.4.1.18060.0.4.1.2.2";
+    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.3) for _existance op attrib */
+    public static final String EXISTANCE = "1.3.6.1.4.1.18060.0.4.1.2.3";
+    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.4) for _hierarchy op attrib */
+    public static final String HIERARCHY = "1.3.6.1.4.1.18060.0.4.1.2.4";
+    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.5) for _oneAlias index */
+    public static final String ONEALIAS = "1.3.6.1.4.1.18060.0.4.1.2.5";
+    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.6) for _subAlias index */
+    public static final String SUBALIAS = "1.3.6.1.4.1.18060.0.4.1.2.6";
+    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.7) for _alias index */
+    public static final String ALIAS = "1.3.6.1.4.1.18060.0.4.1.2.7";
 
 
     private Oid()

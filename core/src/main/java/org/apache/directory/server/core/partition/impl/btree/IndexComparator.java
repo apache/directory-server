@@ -35,7 +35,7 @@ public class IndexComparator implements TupleComparator
     private static final long serialVersionUID = 3257283621751633459L;
 
     private static final SerializableComparator BIG_INTEGER_COMPARATOR = new SerializableComparator(
-        "1.2.6.1.4.1.18060.1.1.1.2.2" )
+        "1.3.6.1.4.1.18060.0.4.1.1.2" )
     {
         private static final long serialVersionUID = 3690478030414165816L;
 

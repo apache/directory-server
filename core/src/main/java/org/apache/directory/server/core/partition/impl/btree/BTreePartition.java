@@ -62,43 +62,6 @@ public abstract class BTreePartition implements Partition
 {
     private static final Logger log = LoggerFactory.getLogger( BTreePartition.class );
 
-    /** ===================================================================
-
-     The following OID branch is reserved for the directory TLP once it
-     graduates the incubator:
-
-     1.2.6.1.4.1.18060.1.1
-
-     The following branch is reserved for the apache directory server:
-
-     1.2.6.1.4.1.18060.1.1.1
-
-     The following branch is reserved for use by apache directory server Syntaxes:
-
-     1.2.6.1.4.1.18060.1.1.1.1
-
-     The following branch is reserved for use by apache directory server MatchingRules:
-
-     1.2.6.1.4.1.18060.1.1.1.2
-
-     The following branch is reserved for use by apache directory server AttributeTypes:
-
-     1.2.6.1.4.1.18060.1.1.1.3
-
-     * 1.2.6.1.4.1.18060.1.1.1.3.1 - apacheNdn
-     * 1.2.6.1.4.1.18060.1.1.1.3.2 - apacheUpdn
-     * 1.2.6.1.4.1.18060.1.1.1.3.3 - apacheExistance
-     * 1.2.6.1.4.1.18060.1.1.1.3.4 - apacheHierarchy
-     * 1.2.6.1.4.1.18060.1.1.1.3.5 - apacheOneAlias
-     * 1.2.6.1.4.1.18060.1.1.1.3.6 - apacheSubAlias
-     * 1.2.6.1.4.1.18060.1.1.1.3.7 - apacheAlias
-
-     The following branch is reserved for use by apache directory server ObjectClasses:
-
-     1.2.6.1.4.1.18060.1.1.1.4
-
-     ==================================================================== */
-
     /**
      * the search engine used to search the database
      */

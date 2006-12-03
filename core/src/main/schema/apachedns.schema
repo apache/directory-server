@@ -4,92 +4,88 @@
 #               +---------------------------+-----------------+
 #               |         Apache OID        |   description   |
 #               +---------------------------+-----------------+
-#               | 1.2.6.1.4.1.18060.1.1.2.1 | syntaxes        |
-#               | 1.2.6.1.4.1.18060.1.1.2.2 | matchingRules   |
-#               | 1.2.6.1.4.1.18060.1.1.2.3 | attributeTypes  |
-#               | 1.2.6.1.4.1.18060.1.1.2.4 | objectClasses   |
 #               +---------------------------+-----------------+
 # =============================================================================
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.1 NAME 'apacheDnsClass'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.1 NAME 'apacheDnsClass'
 	DESC 'The class of a resource record'
 	EQUALITY caseIgnoreIA5Match
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.2 NAME 'apacheDnsTtl'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.2 NAME 'apacheDnsTtl'
 	DESC 'An integer denoting time to live'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.3 NAME 'apacheDnsDomainName'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.3 NAME 'apacheDnsDomainName'
 	DESC 'A domain name represented as a sequence of labels'
 	EQUALITY caseIgnoreIA5Match
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.4 NAME 'apacheDnsCharacterString'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.4 NAME 'apacheDnsCharacterString'
 	DESC 'A string up to 256 characters in length'
 	EQUALITY caseIgnoreIA5Match
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.5 NAME 'apacheDnsIpAddress'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.5 NAME 'apacheDnsIpAddress'
 	DESC 'A 4 octet IP address'
 	EQUALITY caseIgnoreIA5Match
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{128} SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.6 NAME 'apacheDnsSoaMName'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.6 NAME 'apacheDnsSoaMName'
 	DESC 'The domain name of the name server that was the primary source of data for this zone'
 	SUP apacheDnsDomainName SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.7 NAME 'apacheDnsSoaRName'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.7 NAME 'apacheDnsSoaRName'
 	DESC 'The domain name which specifies the mailbox of the person responsible for this zone'
 	SUP apacheDnsDomainName SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.8 NAME 'apacheDnsSoaSerial'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.8 NAME 'apacheDnsSoaSerial'
 	DESC 'The unsigned 32 bit version number of the original copy of the zone'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.9 NAME 'apacheDnsSoaRefresh'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.9 NAME 'apacheDnsSoaRefresh'
 	DESC 'A 32 bit time interval before the zone should be refreshed'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.10 NAME 'apacheDnsSoaRetry'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.10 NAME 'apacheDnsSoaRetry'
 	DESC 'A 32 bit time interval that should elapse before a failed refresh should be retired'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.11 NAME 'apacheDnsSoaExpire'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.11 NAME 'apacheDnsSoaExpire'
 	DESC 'A 32 bit time value that specifies the upper limit on the time interval that can elapse before the zone is no longer authoritative'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.12 NAME 'apacheDnsSoaMinimum'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.12 NAME 'apacheDnsSoaMinimum'
 	DESC 'The unsigned 32 bit minimum TTL field that should be exported with any RR from this zone.'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.13 NAME 'apacheDnsMxPreference'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.13 NAME 'apacheDnsMxPreference'
 	DESC 'An integer denoting the mail exchange preference'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.14 NAME 'apacheDnsServicePriority'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.14 NAME 'apacheDnsServicePriority'
 	DESC 'The unsigned 16 bit priority of this target host'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.15 NAME 'apacheDnsServiceWeight'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.15 NAME 'apacheDnsServiceWeight'
 	DESC 'The unsigned 16 bit weight specifying a relative weight for entries with the same priority'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.2.3.16 NAME 'apacheDnsServicePort'
+attributetype ( 1.3.6.1.4.1.18060.0.4.2.2.16 NAME 'apacheDnsServicePort'
 	DESC 'The unsigned 16 bit port on this target host of this service'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.2.4.1
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.1
 	NAME 'apacheDnsAbstractRecord'
 	DESC 'An abstract DNS record objectClass used to build other specific structural objectclasses for different record types'
 	SUP top
@@ -97,62 +93,62 @@ objectclass ( 1.2.6.1.4.1.18060.1.1.2.4.1
 	MUST cn
 	MAY ( apacheDnsTtl $ description ) )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.2.4.2 
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.2 
 	NAME 'apacheDnsAddressRecord'
 	DESC 'An address A record'
 	SUP apacheDnsAbstractRecord 
 	MUST apacheDnsIpAddress )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.2.4.3 
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.3 
 	NAME 'apacheDnsPointerRecord'
 	DESC 'A pointer PTR record'
 	SUP apacheDnsAbstractRecord 
 	MUST apacheDnsDomainName )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.2.4.4
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.4
 	NAME 'apacheDnsNameServerRecord'
 	DESC 'A name server NS record'
 	SUP apacheDnsAbstractRecord 
 	MUST apacheDnsDomainName )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.2.4.5
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.5
 	NAME 'apacheDnsStartOfAuthorityRecord'
 	DESC 'A start of authority SOA record'
 	SUP apacheDnsAbstractRecord
 	MUST ( apacheDnsSoaMName $ apacheDnsSoaRName $ apacheDnsSoaMinimum )
 	MAY ( apacheDnsClass $ apacheDnsSoaSerial $ apacheDnsSoaRefresh $ apacheDnsSoaRetry $ apacheDnsSoaExpire ) )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.2.4.6
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.6
 	NAME 'apacheDnsCanonicalNameRecord'
 	DESC 'A canonical name CNAME record'
 	SUP apacheDnsAbstractRecord 
 	MUST apacheDnsDomainName )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.2.4.7
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.7
 	NAME 'apacheDnsMailExchangeRecord'
 	DESC 'A mail exchange MX record'
 	SUP apacheDnsAbstractRecord 
 	MUST ( apacheDnsMxPreference $ apacheDnsDomainName ) )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.2.4.8
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.8
 	NAME 'apacheDnsTextRecord'
 	DESC 'A text TXT record'
 	SUP apacheDnsAbstractRecord 
 	MUST apacheDnsCharacterString )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.2.4.9
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.9
 	NAME 'apacheDnsServiceRecord'
 	DESC 'A service SRV record'
 	SUP apacheDnsAbstractRecord 
 	MUST ( apacheDnsServicePriority $ apacheDnsServiceWeight $ apacheDnsServicePort $ apacheDnsDomainName ) )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.2.4.10
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.10
 	NAME 'apacheDnsReferralNameServer'
 	DESC 'A non-authoritative referral or delegation name server'
 	SUP apacheDnsAbstractRecord 
 	MUST apacheDnsDomainName )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.2.4.11
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.11
 	NAME 'apacheDnsReferralAddress'
 	DESC 'A non-authoritative referral or glue address record'
 	SUP apacheDnsAbstractRecord 

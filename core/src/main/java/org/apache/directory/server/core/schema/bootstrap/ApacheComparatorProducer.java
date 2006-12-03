@@ -56,17 +56,17 @@ public class ApacheComparatorProducer extends AbstractBootstrapProducer
     {
         Comparator comparator;
 
-        // For exactDnAsStringMatch -> 1.2.6.1.4.1.18060.1.1.1.2.1
+        // For exactDnAsStringMatch -> 1.3.6.1.4.1.18060.0.4.1.1.1
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.1", comparator );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.1.1.1", comparator );
 
-        // For bigIntegerMatch -> 1.2.6.1.4.1.18060.1.1.1.2.2
+        // For bigIntegerMatch -> 1.3.6.1.4.1.18060.0.4.1.1.2
         comparator = new BigIntegerComparator();
-        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.2", comparator );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.1.1.2", comparator );
 
-        // For jdbmStringMatch -> 1.2.6.1.4.1.18060.1.1.1.2.3
+        // For jdbmStringMatch -> 1.3.6.1.4.1.18060.0.4.1.1.3
         comparator = new StringComparator();
-        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.3", comparator );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.1.1.3", comparator );
 
     }
 }
