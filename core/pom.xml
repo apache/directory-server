@@ -50,6 +50,12 @@
               </dependencies>
             </schema>
             <schema>
+              <name>apachemeta</name>
+              <dependencies>
+                <dependency>system</dependency>
+              </dependencies>
+            </schema>
+            <schema>
               <name>apachedns</name>
               <dependencies>
                 <dependency>system</dependency>
