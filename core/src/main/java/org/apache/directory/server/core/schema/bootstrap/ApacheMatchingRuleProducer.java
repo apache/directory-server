@@ -49,20 +49,20 @@ public class ApacheMatchingRuleProducer extends AbstractBootstrapProducer
     public void produce( BootstrapRegistries registries, ProducerCallback cb ) throws NamingException
     {
         BootstrapMatchingRule mrule = null;
-
-        mrule = new BootstrapMatchingRule( "1.2.6.1.4.1.18060.1.1.1.2.1", registries );
+        
+        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.18060.0.4.1.1.1", registries );
         mrule.setNames( new String[]
             { "exactDnAsStringMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.12" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( "1.2.6.1.4.1.18060.1.1.1.2.2", registries );
+        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.18060.0.4.1.1.2", registries );
         mrule.setNames( new String[]
             { "bigIntegerMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( "1.2.6.1.4.1.18060.1.1.1.2.3", registries );
+        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.18060.0.4.1.1.3", registries );
         mrule.setNames( new String[]
             { "jdbmStringMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.15" );

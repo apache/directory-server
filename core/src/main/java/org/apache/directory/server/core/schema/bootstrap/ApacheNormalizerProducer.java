@@ -52,17 +52,17 @@ public class ApacheNormalizerProducer extends AbstractBootstrapProducer
     {
         Normalizer normalizer;
 
-        // For exactDnAsStringMatch -> 1.2.6.1.4.1.18060.1.1.1.2.1
+        // For exactDnAsStringMatch -> 1.3.6.1.4.1.18060.0.4.1.1.1
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.1", normalizer );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.1.1.1", normalizer );
 
-        // For bigIntegerMatch -> 1.2.6.1.4.1.18060.1.1.1.2.2
+        // For bigIntegerMatch -> 1.3.6.1.4.1.18060.0.4.1.1.2
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.2", normalizer );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.1.1.2", normalizer );
 
-        // For jdbmStringMatch -> 1.2.6.1.4.1.18060.1.1.1.2.3
+        // For jdbmStringMatch -> 1.3.6.1.4.1.18060.0.4.1.1.3
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.3", normalizer );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.1.1.3", normalizer );
 
     }
 }

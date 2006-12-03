@@ -424,7 +424,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         String filter = "(|(2.5.4.11.1=testing*)(2.5.4.54=testing*)(2.5.4.10=testing*)" +
             "(2.5.4.6=testing*)(2.5.4.43=testing*)(2.5.4.7.1=testing*)(2.5.4.10.1=testing*)" +
             "(2.5.4.44=testing*)(2.5.4.11=testing*)(2.5.4.4=testing*)(2.5.4.8.1=testing*)" +
-            "(2.5.4.12=testing*)(1.2.6.1.4.1.18060.1.1.1.3.3=testing*)" +
+            "(2.5.4.12=testing*)(1.3.6.1.4.1.18060.0.4.1.2.3=testing*)" +
             "(2.5.4.7=testing*)(2.5.4.3=testing*)(2.5.4.8=testing*)(2.5.4.42=testing*))";
         NamingEnumeration list = sysRoot.search( "", filter, controls );
         while ( list.hasMore() )
