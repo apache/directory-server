@@ -28,18 +28,18 @@ import java.util.List;
 
 public class QuestionRecords
 {
-    private List questionRecords;
+    private List<QuestionRecord> questionRecords;
 
 
     public QuestionRecords()
     {
-        this.questionRecords = new ArrayList();
+        this.questionRecords = new ArrayList<QuestionRecord>();
     }
 
 
-    public QuestionRecords(int initialCapacity)
+    public QuestionRecords( int initialCapacity )
     {
-        this.questionRecords = new ArrayList( initialCapacity );
+        this.questionRecords = new ArrayList<QuestionRecord>( initialCapacity );
     }
 
 
@@ -55,7 +55,7 @@ public class QuestionRecords
     }
 
 
-    public Iterator iterator()
+    public Iterator<QuestionRecord> iterator()
     {
         return questionRecords.iterator();
     }
@@ -65,11 +65,8 @@ public class QuestionRecords
     {
         StringBuffer sb = new StringBuffer();
 
-        Iterator it = iterator();
-
-        while ( it.hasNext() )
+        for ( QuestionRecord question:questionRecords )
         {
-            QuestionRecord question = ( QuestionRecord ) it.next();
             sb.append( "\n\t" + "dnsName                    " + question.getDomainName() );
             sb.append( "\n\t" + "dnsType                    " + question.getRecordType() );
             sb.append( "\n\t" + "dnsClass                   " + question.getRecordClass() );

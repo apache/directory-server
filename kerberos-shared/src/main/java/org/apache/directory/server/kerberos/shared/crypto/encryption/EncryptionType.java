@@ -69,7 +69,7 @@ public final class EncryptionType implements Comparable
             AES256_CTS_HMAC_SHA1_96, RC4_HMAC, RC4_HMAC_EXP, SUBKEY_KEYMATERIAL, RC4_MD4, RC4_HMAC_OLD,
             RC4_HMAC_OLD_EXP };
 
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<EncryptionType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     private final String name;
     private final int ordinal;

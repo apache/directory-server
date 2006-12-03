@@ -29,8 +29,6 @@ import java.nio.ByteBuffer;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
-import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
-import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.service.ChangePasswordChain;

@@ -67,13 +67,13 @@ public class DnsConfiguration extends ServiceConfiguration
     }
 
 
-    public DnsConfiguration(Map properties)
+    public DnsConfiguration( Map<String, String> properties )
     {
         this( properties, LoadStrategy.LDAP );
     }
 
 
-    public DnsConfiguration(Map properties, int strategy)
+    public DnsConfiguration( Map<String, String> properties, int strategy )
     {
         if ( properties == null )
         {
@@ -93,9 +93,9 @@ public class DnsConfiguration extends ServiceConfiguration
     }
 
 
-    public static Map getDefaultConfig()
+    public static Map<String, String> getDefaultConfig()
     {
-        Map defaults = new HashMap();
+        Map<String, String> defaults = new HashMap<String, String>();
 
         defaults.put( SERVICE_PID, DEFAULT_PID );
         defaults.put( IP_PORT_KEY, DEFAULT_IP_PORT );

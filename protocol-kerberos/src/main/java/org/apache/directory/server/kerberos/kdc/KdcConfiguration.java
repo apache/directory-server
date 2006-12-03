@@ -24,7 +24,6 @@ package org.apache.directory.server.kerberos.kdc;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -147,13 +146,13 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
-    public KdcConfiguration(Map properties)
+    public KdcConfiguration( Map<String, String> properties )
     {
         this( properties, LoadStrategy.LDAP );
     }
 
 
-    public KdcConfiguration(Map properties, int strategy)
+    public KdcConfiguration( Map<String, String> properties, int strategy )
     {
         if ( properties == null )
         {
@@ -175,9 +174,9 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
-    public static Map getDefaultConfig()
+    public static Map<String, String> getDefaultConfig()
     {
-        Map defaults = new HashMap();
+        Map<String, String> defaults = new HashMap<String, String>();
 
         defaults.put( SERVICE_PID, DEFAULT_PID );
         defaults.put( IP_PORT_KEY, DEFAULT_IP_PORT );
@@ -250,7 +249,7 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
-    public Map getProperties()
+    public Map<String, String> getProperties()
     {
         // Request that the krb5key value be returned as binary
         configuration.put( "java.naming.ldap.attributes.binary", "krb5Key" );
@@ -417,18 +416,12 @@ public class KdcConfiguration extends ServiceConfiguration
             encryptionTypeStrings = DEFAULT_ENCRYPTION_TYPES;
         }
 
-        List encTypes = new ArrayList();
+        List<EncryptionType> encTypes = new ArrayList<EncryptionType>();
 
-        for ( int i = 0; i < encryptionTypeStrings.length; i++ )
+        for ( String enc:encryptionTypeStrings )
         {
-            String enc = encryptionTypeStrings[i];
-
-            Iterator it = EncryptionType.VALUES.iterator();
-
-            while ( it.hasNext() )
+            for ( EncryptionType type:EncryptionType.VALUES )
             {
-                EncryptionType type = ( EncryptionType ) it.next();
-
                 if ( type.toString().equalsIgnoreCase( enc ) )
                 {
                     encTypes.add( type );

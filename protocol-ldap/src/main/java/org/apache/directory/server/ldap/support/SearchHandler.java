@@ -37,7 +37,6 @@ import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.SessionRegistry;
-import org.apache.directory.shared.ldap.codec.util.LdapResultEnum;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.PresenceNode;

@@ -21,7 +21,6 @@ package org.apache.directory.server.changepw.service;
 
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -183,7 +182,7 @@ public class CheckPasswordPolicy implements IoHandlerCommand
     private String buildErrorMessage( String username, String password, int passwordLength, int categoryCount,
         int tokenSize )
     {
-        List violations = new ArrayList();
+        List<String> violations = new ArrayList<String>();
 
         if ( !isValidPasswordLength( password, passwordLength ) )
         {
@@ -202,16 +201,20 @@ public class CheckPasswordPolicy implements IoHandlerCommand
 
         StringBuffer sb = new StringBuffer( "Password violates policy:  " );
 
-        Iterator it = violations.iterator();
-
-        while ( it.hasNext() )
+        boolean isFirst = true;
+        
+        for ( String violation:violations )
         {
-            sb.append( ( String ) it.next() );
-
-            if ( it.hasNext() )
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
             {
                 sb.append( ", " );
             }
+            
+            sb.append( violation );
         }
 
         return sb.toString();

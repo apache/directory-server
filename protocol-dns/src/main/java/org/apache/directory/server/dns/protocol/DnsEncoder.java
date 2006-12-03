@@ -66,7 +66,7 @@ public class DnsEncoder implements ProtocolEncoder
 
     static
     {
-        Map map = new HashMap();
+        Map<RecordType, RecordEncoder> map = new HashMap<RecordType, RecordEncoder>();
 
         map.put( RecordType.SOA, new StartOfAuthorityRecordEncoder() );
         map.put( RecordType.A, new AddressRecordEncoder() );

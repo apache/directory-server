@@ -60,7 +60,7 @@ public class DnsContext
     /**
      * @param resourceRecords The resourceRecords to add.
      */
-    public void addResourceRecords( Collection resourceRecords )
+    public void addResourceRecords( Collection<ResourceRecord> resourceRecords )
     {
         this.records.addAll( resourceRecords );
     }

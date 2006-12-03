@@ -29,18 +29,18 @@ import java.util.List;
 
 public class ResourceRecords
 {
-    private List resourceRecords;
+    private List<ResourceRecord> resourceRecords;
 
 
     public ResourceRecords()
     {
-        this.resourceRecords = new ArrayList();
+        this.resourceRecords = new ArrayList<ResourceRecord>();
     }
 
 
-    public ResourceRecords(int initialCapacity)
+    public ResourceRecords( int initialCapacity )
     {
-        this.resourceRecords = new ArrayList( initialCapacity );
+        this.resourceRecords = new ArrayList<ResourceRecord>( initialCapacity );
     }
 
 
@@ -50,7 +50,7 @@ public class ResourceRecords
     }
 
 
-    public void addAll( Collection records )
+    public void addAll( Collection<ResourceRecord> records )
     {
         resourceRecords.addAll( records );
     }
@@ -62,7 +62,7 @@ public class ResourceRecords
     }
 
 
-    public Iterator iterator()
+    public Iterator<ResourceRecord> iterator()
     {
         return resourceRecords.iterator();
     }
@@ -72,11 +72,8 @@ public class ResourceRecords
     {
         StringBuffer sb = new StringBuffer();
 
-        Iterator it = iterator();
-
-        while ( it.hasNext() )
+        for ( ResourceRecord record: resourceRecords )
         {
-            ResourceRecord record = ( ResourceRecord ) it.next();
             sb.append( "\n\t" + "dnsName                    " + record.getDomainName() );
             sb.append( "\n\t" + "dnsType                    " + record.getRecordType() );
             sb.append( "\n\t" + "dnsClass                   " + record.getRecordClass() );

@@ -34,7 +34,7 @@ import java.util.Set;
  */
 public class OptionsField
 {
-    private Set options = new HashSet();
+    private Set<DhcpOption> options = new HashSet<DhcpOption>();
 
 
     public void add( DhcpOption option )

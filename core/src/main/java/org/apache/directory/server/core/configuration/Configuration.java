@@ -55,7 +55,7 @@ public abstract class Configuration implements Cloneable, Serializable
      * @throws ConfigurationException if the specified environment doesn't
      *                                contain the proper configuration instance.
      */
-    public static Configuration toConfiguration( Hashtable jndiEnvironment )
+    public static Configuration toConfiguration( Hashtable<String, Object> jndiEnvironment )
     {
         Object value = jndiEnvironment.get( JNDI_KEY );
         
@@ -118,9 +118,9 @@ public abstract class Configuration implements Cloneable, Serializable
      * This method simple returns a {@link Hashtable} that contains an entry
      * whose key is {@link #JNDI_KEY} and whose value is <tt>this</tt>.
      */
-    public Hashtable toJndiEnvironment()
+    public Hashtable<String, Object> toJndiEnvironment()
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( JNDI_KEY, this );
         return env;
     }

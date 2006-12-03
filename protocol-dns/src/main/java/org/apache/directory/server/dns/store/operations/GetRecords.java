@@ -72,11 +72,11 @@ public class GetRecords implements ContextOperation
     /**
      * Mappings of type to objectClass.
      */
-    private static final Map TYPE_TO_OBJECTCLASS;
+    private static final Map<RecordType, String> TYPE_TO_OBJECTCLASS;
 
     static
     {
-        Map typeToObjectClass = new HashMap();
+        Map<RecordType, String> typeToObjectClass = new HashMap<RecordType, String>();
         typeToObjectClass.put( RecordType.SOA, "apacheDnsStartOfAuthorityRecord" );
         typeToObjectClass.put( RecordType.A, "apacheDnsAddressRecord" );
         typeToObjectClass.put( RecordType.NS, "apacheDnsNameServerRecord" );
@@ -92,11 +92,11 @@ public class GetRecords implements ContextOperation
     /**
      * Mappings of type to objectClass.
      */
-    private static final Map OBJECTCLASS_TO_TYPE;
+    private static final Map<String, RecordType> OBJECTCLASS_TO_TYPE;
 
     static
     {
-        Map objectClassToType = new HashMap();
+        Map<String, RecordType> objectClassToType = new HashMap<String, RecordType>();
         objectClassToType.put( "apacheDnsStartOfAuthorityRecord", RecordType.SOA );
         objectClassToType.put( "apacheDnsAddressRecord", RecordType.A );
         objectClassToType.put( "apacheDnsNameServerRecord", RecordType.NS );
