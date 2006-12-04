@@ -31,6 +31,6 @@ public class StoredProcedureResponse extends ExtendedResponseImpl
     }
 
     private static final long serialVersionUID = 1L;
-    public static final String EXTENSION_OID = "1.2.6.1.4.1.18060.1.1.1.100.7";
+    public static final String EXTENSION_OID = "1.3.6.1.4.1.18060.0.1.7";
 
 }

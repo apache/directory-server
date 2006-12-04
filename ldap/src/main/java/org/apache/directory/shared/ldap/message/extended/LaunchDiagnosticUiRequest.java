@@ -38,7 +38,7 @@ public class LaunchDiagnosticUiRequest extends ExtendedRequestImpl
 {
     private static final long serialVersionUID = -7481749915684864433L;
 
-    public static final String EXTENSION_OID = "1.2.6.1.4.1.18060.1.1.1.100.1";
+    public static final String EXTENSION_OID = "1.3.6.1.4.1.18060.0.1.1";
 
     private static final byte[] EMPTY_PAYLOAD = new byte[0];
 

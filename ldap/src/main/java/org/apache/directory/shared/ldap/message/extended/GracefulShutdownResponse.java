@@ -36,7 +36,7 @@ public class GracefulShutdownResponse extends ExtendedResponseImpl
 {
     private static final long serialVersionUID = -3824715470944544189L;
 
-    public static final String EXTENSION_OID = "1.2.6.1.4.1.18060.1.1.1.100.4";
+    public static final String EXTENSION_OID = "1.3.6.1.4.1.18060.0.1.4";
 
     private static final byte[] EMPTY_RESPONSE = new byte[0];
 
