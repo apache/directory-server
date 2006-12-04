@@ -60,6 +60,8 @@
 #              | 1.3.6.1.4.1.18060.0.4.0.2.21 | m-form                      |
 #              | 1.3.6.1.4.1.18060.0.4.0.2.22 | m-supDITStructureRule       |
 #              | 1.3.6.1.4.1.18060.0.4.0.2.23 | m-extensionDITStructureRule |
+#              | 1.3.6.1.4.1.18060.0.4.0.2.24 | m-oc                        |
+#              | 1.3.6.1.4.1.18060.0.4.0.2.25 | m-extensionNameForm         |
 #              +------------------------------+-----------------------------+
 #
 #              +------------------------------+-----------------------------+
@@ -71,6 +73,7 @@
 #              | 1.3.6.1.4.1.18060.0.4.0.3.4  | metaSyntax                  |
 #              | 1.3.6.1.4.1.18060.0.4.0.3.5  | metaMatchingRule            |
 #              | 1.3.6.1.4.1.18060.0.4.0.3.6  | metaDITStructureRule        |
+#              | 1.3.6.1.4.1.18060.0.4.0.3.7  | metaNameForm                |
 #              +------------------------------+-----------------------------+
 #
 # =============================================================================
@@ -129,7 +132,7 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.5
     MAY ( m-obsolete $ m-extensionAttributeType )
 )
 
-# --- MetaDITStructureRule objectclass --------------------------------------------
+# --- MetaDITStructureRule objectclass ----------------------------------------
 objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.6
     NAME 'metaDITStructureRule'
     DESC 'Meta definition of the DITStructureRule object'
@@ -139,14 +142,14 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.6
     MAY ( m-obsolete $ m-supDITStructureRule $ m-extensionDITStructureRule )
 )
 
-# --- Meta objectclass --------------------------------------------
+# --- MetaNameForm objectclass ------------------------------------------------
 objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.7
-    NAME 'metaMatchingRule'
-    DESC 'Meta definition of the MatchingRule object'
+    NAME 'metaNameForm'
+    DESC 'Meta definition of the NameForm object'
     SUP MetaTop
     STRUCTURAL
-    MUST m-syntax
-    MAY ( m-obsolete $ m-extensionAttributeType )
+    MUST ( m-oc $ m-must )
+    MAY ( m-obsolete $ m-may $ m-extensionNameForm )
 )
 
 
@@ -323,6 +326,20 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.22 NAME 'm-supDITStructureRule'
 # --- m-extensionDITStructureRule AttributeType -------------------------------
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.23 NAME 'm-extensionDITStructureRule'
     DESC 'Extensions for DITStructureRule'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+)
+
+# --- m-oc AttributeType ------------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.24 NAME 'm-oc'
+    DESC 'The structural ObjectClass'
+    EQUALITY numericOidMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+)
+
+# --- m-extensionNameForm AttributeType ---------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.25 NAME 'm-extensionNameForm'
+    DESC 'Extensions for NameForm'
     EQUALITY caseIgnoreMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
 )
