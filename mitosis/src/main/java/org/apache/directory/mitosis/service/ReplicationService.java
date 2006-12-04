@@ -123,9 +123,8 @@ public class ReplicationService extends BaseInterceptor
 {
     private static final Logger log = LoggerFactory.getLogger( ReplicationService.class );
 
-    /** TODO these OID's need to be switched from safehaus to apache enterprise numbers */
-    private static final String ENTRY_CSN_OID = "1.2.6.1.4.1.18060.1.1.1.3.30";
-    private static final String ENTRY_DELETED_OID = "1.2.6.1.4.1.18060.1.1.1.3.31";
+    private static final String ENTRY_CSN_OID = "1.3.6.1.4.1.18060.0.4.1.2.30";
+    private static final String ENTRY_DELETED_OID = "1.3.6.1.4.1.18060.0.4.1.2.31";
 
     private DirectoryServiceConfiguration directoryServiceConfiguration;
     private ReplicationConfiguration configuration;

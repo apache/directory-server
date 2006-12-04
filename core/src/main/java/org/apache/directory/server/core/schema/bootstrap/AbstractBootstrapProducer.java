@@ -97,12 +97,14 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         return new BootstrapObjectClass( oid, registries );
     }
 
+    
     /**
      * A mutable Syntax for the bootstrap phase that uses the
      * syntaxCheckerRegistry to dynamically resolve syntax checkers.
      */
     public static class BootstrapSyntax extends AbstractSyntax
     {
+        private static final long serialVersionUID = 1L;
         final SyntaxCheckerRegistry registry;
 
 
@@ -145,6 +147,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
 
     public static class BootstrapMatchingRule extends AbstractMatchingRule
     {
+        private static final long serialVersionUID = 1L;
         final SyntaxRegistry syntaxRegistry;
         final NormalizerRegistry normalizerRegistry;
         final ComparatorRegistry comparatorRegistry;
@@ -391,6 +394,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
      */
     public static class BootstrapObjectClass extends AbstractSchemaObject implements ObjectClass
     {
+        private static final long serialVersionUID = 1L;
         private final ObjectClassRegistry objectClassRegistry;
         private final AttributeTypeRegistry attributeTypeRegistry;
 
