@@ -20,6 +20,8 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import java.io.Serializable;
+
 import javax.naming.NamingException;
 
 
@@ -29,7 +31,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Normalizer
+public interface Normalizer extends Serializable
 {
     /**
      * Gets the normalized value.

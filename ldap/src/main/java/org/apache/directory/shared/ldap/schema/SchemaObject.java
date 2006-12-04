@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.schema;
 
+import java.io.Serializable;
+
 
 /**
  * Most schema objects have some common attributes. This super interface
@@ -27,7 +29,7 @@ package org.apache.directory.shared.ldap.schema;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SchemaObject
+public interface SchemaObject extends Serializable
 {
     /**
      * Gets whether or not this SchemaObject has been inactivated. All
