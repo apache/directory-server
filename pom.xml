@@ -21,6 +21,12 @@
       <id>apache.snapshots</id>
       <name>Apache Snapshot Plugins</name>
       <url>http://minotaur.apache.org/maven-snapshot-repository</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true></enabled>
+      </snapshots>
     </pluginRepository>
   </pluginRepositories>
 
@@ -208,6 +214,7 @@
     <profile>
       <id>jdk1.5</id>
       <activation>
+        <activeByDefault>true</activeByDefault>
         <jdk>1.5</jdk>
       </activation>
       <modules>
