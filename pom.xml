@@ -21,12 +21,12 @@
       <id>apache.snapshots</id>
       <name>Apache Snapshot Plugins</name>
       <url>http://minotaur.apache.org/maven-snapshot-repository</url>
-      <releases>
+      <!--releases>
         <enabled>false</enabled>
       </releases>
       <snapshots>
         <enabled>true></enabled>
-      </snapshots>
+      </snapshots-->
     </pluginRepository>
   </pluginRepositories>
 
