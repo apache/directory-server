@@ -22,10 +22,10 @@ package org.apache.directory.server.core.schema.bootstrap;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.schema.NameOrNumericIdSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.ObjectClassTypeSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.ObjectClassTypeSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 
 
 
@@ -68,7 +68,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
     {
         private static final long serialVersionUID = 1L;
         private final static String OID = "1.3.6.1.4.1.18060.0.4.0.0.0";
-        private final static SyntaxChecker CHECKER = new NameOrNumericIdSyntaxChecker();
+        private final static SyntaxChecker CHECKER = new NumericOidSyntaxChecker();
         private final static String[] NAMES = new String[] { "nameOrOid" };
         
         public final SyntaxChecker getSyntaxChecker() throws NamingException

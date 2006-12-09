@@ -23,8 +23,8 @@ package org.apache.directory.server.core.schema.bootstrap;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.bootstrap.ProducerTypeEnum;
-import org.apache.directory.shared.ldap.schema.AcceptAllSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 
 
 /**

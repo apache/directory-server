@@ -22,9 +22,9 @@ package org.apache.directory.server.core.schema.bootstrap;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.schema.NameOrNumericIdSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.ObjectClassTypeSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.ObjectClassTypeSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 
 
 
@@ -58,8 +58,8 @@ public class ApachemetaSyntaxCheckerProducer extends AbstractBootstrapProducer
     {
         SyntaxChecker checker = null;
         
-        checker = new NameOrNumericIdSyntaxChecker();
-        cb.schemaObjectProduced( this, NameOrNumericIdSyntaxChecker.DEFAULT_OID, checker );
+        checker = new NumericOidSyntaxChecker();
+        cb.schemaObjectProduced( this, NumericOidSyntaxChecker.DEFAULT_OID, checker );
         
         checker = new ObjectClassTypeSyntaxChecker();
         cb.schemaObjectProduced( this, ObjectClassTypeSyntaxChecker.DEFAULT_OID, checker );
