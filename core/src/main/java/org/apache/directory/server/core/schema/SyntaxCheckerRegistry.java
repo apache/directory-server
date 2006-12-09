@@ -22,7 +22,7 @@ package org.apache.directory.server.core.schema;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 
 
 /**
