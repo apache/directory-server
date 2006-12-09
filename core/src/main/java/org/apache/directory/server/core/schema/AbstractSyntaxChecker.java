@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 
 
 /**
