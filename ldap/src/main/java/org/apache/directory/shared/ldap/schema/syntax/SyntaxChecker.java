@@ -17,62 +17,44 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema;
+package org.apache.directory.shared.ldap.schema.syntax;
 
 
 import javax.naming.NamingException;
 
 
 /**
- * A SyntaxChecker implementation which accepts all values as valid.
+ * Used to validate values of a particular syntax. This interface does not
+ * correlate to any LDAP or X.500 construct. It has been created as a means to
+ * enforce a syntax within the Eve server.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
-public class AcceptAllSyntaxChecker implements SyntaxChecker
+public interface SyntaxChecker
 {
-    /** the OID of the Syntax this checker is associated with */
-    private final String oid;
-
-
     /**
-     * Creates a SyntaxChecker which accepts all values.
+     * Gets the OID of the attribute syntax.
      * 
-     * @param oid
-     *            the oid of the Syntax this checker is associated with
+     * @return the object identifier of the Syntax this SyntaxChecker validates
      */
-    public AcceptAllSyntaxChecker(String oid)
-    {
-        this.oid = oid;
-    }
+    abstract String getSyntaxOid();
 
 
     /**
-     * @see SyntaxChecker#getSyntaxOid()
-     */
-    public String getSyntaxOid()
-    {
-        return oid;
-    }
-
-
-    /**
-     * Returns true every time.
+     * Determines if the attribute's value conforms to the attribute syntax.
      * 
-     * @see SyntaxChecker#isValidSyntax(Object)
+     * @param value the value of some attribute with the syntax
+     * @return true if the value is in the valid syntax, false otherwise
      */
-    public boolean isValidSyntax( Object a_value )
-    {
-        return true;
-    }
+    boolean isValidSyntax( Object value );
 
 
     /**
-     * Does nothing but return immediately and no exceptions are ever thrown.
+     * Asserts whether or not the attribute's value conforms to the attribute
+     * syntax.
      * 
-     * @see SyntaxChecker#assertSyntax(Object)
+     * @param value the value of some attribute with the syntax
+     * @throws NamingException if the value does not conform to the attribute syntax.
      */
-    public void assertSyntax( Object value ) throws NamingException
-    {
-    }
+    void assertSyntax( Object value ) throws NamingException;
 }

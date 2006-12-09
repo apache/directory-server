@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema;
+package org.apache.directory.shared.ldap.schema.syntax;
 
 
 import javax.naming.NamingException;
@@ -29,25 +29,38 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A SyntaxChecker which verifies that a value is either a name or a numeric id 
- * according to RFC 4512.
+ * A SyntaxChecker which verifies that a value is a Boolean according to RFC 4517.
+ * 
+ * From RFC 4512 & RFC 4517 :
+ * 
+ * BitString    = SQUOTE *binary-digit SQUOTE "B"
+ * binary-digit = "0" / "1"
+ * SQUOTE  = %x27                           ; hyphen ("'")
+ * 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NameOrNumericIdSyntaxChecker implements SyntaxChecker
+public class BitStringSyntaxChecker implements SyntaxChecker
 {
-    public static final String DEFAULT_OID = "1.3.6.1.4.1.18060.0.4.0.0.0";
+    /** The Syntax OID, according to RFC 4517, par. 3.3.2 */
+    public static final String DEFAULT_OID = "1.3.6.1.4.1.1466.115.121.1.6";
+    
+    /** The Syntax OID */
     private final String oid;
     
     
-    public NameOrNumericIdSyntaxChecker( String oid )
+    public BitStringSyntaxChecker( String oid )
     {
         this.oid = oid;
     }
     
-    
-    public NameOrNumericIdSyntaxChecker()
+    /**
+     * 
+     * Creates a new instance of BitStringSyntaxChecker.
+     *
+     */
+    public BitStringSyntaxChecker()
     {
         this.oid = DEFAULT_OID;
     }
@@ -104,40 +117,38 @@ public class NameOrNumericIdSyntaxChecker implements SyntaxChecker
             return false;
         }
         
-        // if the first character is a digit it's an attempt at an OID and must be
-        // checked to make sure there are no other chars except '.' and digits.
-        if ( Character.isDigit( strValue.charAt( 0 ) ) )
+        int pos = 0;
+        
+        // Check that the String respect the syntax : ' ([01]+) ' B
+        if ( ! StringTools.isCharASCII( strValue, pos++, '\'' ) )
         {
-            if ( ! org.apache.directory.shared.asn1.primitives.OID.isOID( strValue ) )
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return false;
         }
 
-        // here we just need to make sure that we have the right characters in the 
-        // string and that it starts with a letter.
-        if ( Character.isLetter( strValue.charAt( 0 ) ) )
-        {
-            final int limit = strValue.length();
-            for ( int ii = 0; ii < limit; ii++ )
-            {
-                char ch = strValue.charAt( ii );
-                
-                if ( ! Character.isLetter( ch ) && ! Character.isDigit( ch ) && ! ( '-' == ch ) )
-                {
-                    return false;
-                }
-            }
-        }
-        else
+        // We must have at least one bit
+        if ( ! StringTools.isBit( strValue, pos++ ) )
         {
             return false;
         }
         
+        while ( StringTools.isBit( strValue, pos ) )
+        {
+            // Loop until we get a char which is not a 0 or a 1
+            pos++;
+        }
+
+        // Now, we must have a simple quote 
+        if ( ! StringTools.isCharASCII( strValue, pos++, '\'' ) )
+        {
+            return false;
+        }
+
+        // followed by a 'B'
+        if ( ! StringTools.isCharASCII( strValue, pos, 'B' ) )
+        {
+            return false;
+        }
+
         return true;
     }
 }

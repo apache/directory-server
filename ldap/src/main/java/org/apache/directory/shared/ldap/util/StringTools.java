@@ -102,6 +102,69 @@ public class StringTools
             true,  true,  true,  false, false, false, false, false 
         };
 
+    /** &lt;alpha-lower-case> ::= [0x61-0x7A] */
+    public static final boolean[] ALPHA_LOWER_CASE =
+        { 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  false, false, false, false, false 
+        };
+
+    /** &lt;alpha-upper-case> ::= [0x41-0x5A] */
+    public static final boolean[] ALPHA_UPPER_CASE =
+        { 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+        };
+
+    /** &lt;alpha-digit> | &lt;digit> */
+    public static final boolean[] ALPHA_DIGIT =
+        { 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            false, false, false, false, false, false, false, false, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  false, false, false, false, false, false, 
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true,
+            true,  true,  true,  true,  true,  true,  true,  true,  
+            true,  true,  true,  false, false, false, false, false, 
+            false, true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  false, false, false, false, false 
+        };
+
     /** &lt;alpha> | &lt;digit> | '-' */
     public static final boolean[] CHAR =
         { 
@@ -205,6 +268,34 @@ public class StringTools
               0,   0,   0,   0,   0,   0,   0,   0 
         };
 
+    /** upperCase = 'A' .. 'Z', '0'..'9', '-' */
+    public static final char[] UPPER_CASE =
+        { 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0, '-',   0,   0, 
+            '0', '1', '2', '3', '4', '5', '6', '7', 
+            '8', '9',   0,   0,   0,   0,   0,   0, 
+              0, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 
+            'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 
+            'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 
+            'X', 'Y', 'Z',   0,   0,   0,   0,   0, 
+              0, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 
+            'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 
+            'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 
+            'X', 'Y', 'Z',   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0, 
+              0,   0,   0,   0,   0,   0,   0,   0 
+        };
     private static final int CHAR_ONE_BYTE_MASK = 0xFFFFFF80;
 
     private static final int CHAR_TWO_BYTES_MASK = 0xFFFFF800;
@@ -462,7 +553,27 @@ public class StringTools
         
         for ( int i = 0; i < chars.length; i++ )
         {
-            chars[i] = LOWER_CASE[ chars[i]];
+            chars[i] = LOWER_CASE[ chars[i] ];
+        }
+        
+        return new String( chars );
+    }
+    
+    /**
+     * Rewrote the toLowercase method to improve performances.
+     * In Ldap, attributesType are supposed to use ASCII chars :
+     * 'a'-'z', 'A'-'Z', '0'-'9', '.' and '-' only.
+     * 
+     * @param value The String to uppercase
+     * @return The uppercase string
+     */
+    public static final String toUpperCase( String value )
+    {
+        char[] chars = value.toCharArray();
+        
+        for ( int i = 0; i < chars.length; i++ )
+        {
+            chars[i] = UPPER_CASE[ chars[i] ];
         }
         
         return new String( chars );
@@ -1482,6 +1593,31 @@ public class StringTools
     }
 
     /**
+     * Test if the current character is a bit, ie 0 or 1.
+     * 
+     * @param string
+     *            The String which contains the data
+     * @param index
+     *            Current position in the string
+     * @return <code>true</code> if the current character is a bit (0 or 1)
+     */
+    public static final boolean isBit( String string, int index )
+    {
+        int length = string.length();
+        
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return false;
+        }
+        else
+        {
+            char c =  string.charAt(  index );
+            return ( ( c == '0' ) || ( c == '1' ) );
+        }
+    }
+
+
+    /**
      * Get the character at a given position in a string, checking fo limits
      * 
      * @param string
@@ -1735,6 +1871,74 @@ public class StringTools
         }
     }
 
+    /**
+     * Test if the current character is a lowercased Alpha character : <br/>
+     * &lt;alpha> ::= [0x61-0x7A]
+     * 
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return <code>true</code> if the current character is a lower Alpha
+     *         character
+     */
+    public static final boolean isAlphaLowercaseASCII( String string, int index )
+    {
+        int length = string.length();
+        
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return false;
+        }
+        else
+        {
+            char c = string.charAt( index++ );
+
+            if ( ( c > 127 ) || ( ALPHA_LOWER_CASE[c] == false ) )
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+
+    /**
+     * Test if the current character is a uppercased Alpha character : <br/>
+     * &lt;alpha> ::= [0x61-0x7A]
+     * 
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return <code>true</code> if the current character is a lower Alpha
+     *         character
+     */
+    public static final boolean isAlphaUppercaseASCII( String string, int index )
+    {
+        int length = string.length();
+        
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return false;
+        }
+        else
+        {
+            char c = string.charAt( index++ );
+
+            if ( ( c > 127 ) || ( ALPHA_UPPER_CASE[c] == false ) )
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+
 
     /**
      * Test if the current character is a digit &lt;digit> ::= '0' | '1' | '2' |
@@ -1825,6 +2029,41 @@ public class StringTools
             return ( ( ( chars[0] > 127 ) || !DIGIT[chars[0]] ) ? false : true );
         }
     }
+
+    /**
+     * Check if the current character is an 7 bits ASCII CHAR (between 0 and
+     * 127). 
+     * &lt;char> ::= &lt;alpha> | &lt;digit>
+     * 
+     * @param string
+     *            The string which contains the data
+     * @param index
+     *            Current position in the string
+     * @return The position of the next character, if the current one is a CHAR.
+     */
+    public static final boolean isAlphaDigit( String string, int index )
+    {
+        int length = string.length();
+        
+        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return false;
+        }
+        else
+        {
+            char c = string.charAt( index++ );
+
+            if ( ( c > 127 ) || ( ALPHA_DIGIT[c] == false ) )
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+
 
 
     /**

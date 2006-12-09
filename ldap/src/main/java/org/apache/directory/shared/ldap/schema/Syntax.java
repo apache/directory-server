@@ -22,6 +22,8 @@ package org.apache.directory.shared.ldap.schema;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+
 
 /**
  * A syntax definition. Each attribute stored in a directory has a defined
@@ -64,7 +66,7 @@ import javax.naming.NamingException;
  *      ldapbis [MODELS]</a>
  * @see DescriptionUtils#getDescription(Syntax)
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 437007 $
  */
 public interface Syntax extends SchemaObject
 {

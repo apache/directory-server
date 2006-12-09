@@ -17,48 +17,63 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema;
+package org.apache.directory.shared.ldap.schema.syntax;
 
 
 import javax.naming.NamingException;
 
 
+
 /**
- * Used to validate values of a particular syntax. This interface does not
- * correlate to any LDAP or X.500 construct. It has been created as a means to
- * enforce a syntax within the Eve server.
+ * A SyntaxChecker implementation which accepts all values as valid.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SyntaxChecker
+public class AcceptAllSyntaxChecker implements SyntaxChecker
 {
-    /**
-     * Gets the OID of the attribute syntax.
-     * 
-     * @return the object identifier of the Syntax this SyntaxChecker validates
-     */
-    String getSyntaxOid();
+    /** the OID of the Syntax this checker is associated with */
+    private final String oid;
 
 
     /**
-     * Determines if the attribute's value conforms to the attribute syntax.
+     * Creates a SyntaxChecker which accepts all values.
      * 
-     * @param a_value
-     *            the value of some attribute with the syntax
-     * @return true if the value is in the valid syntax, false otherwise
+     * @param oid
+     *            the oid of the Syntax this checker is associated with
      */
-    boolean isValidSyntax( Object a_value );
+    public AcceptAllSyntaxChecker(String oid)
+    {
+        this.oid = oid;
+    }
 
 
     /**
-     * Asserts whether or not the attribute's value conforms to the attribute
-     * syntax.
-     * 
-     * @param a_value
-     *            the value of some attribute with the syntax
-     * @throws NamingException
-     *             if the value does not conform to the attribute syntax.
+     * @see SyntaxChecker#getSyntaxOid()
      */
-    void assertSyntax( Object a_value ) throws NamingException;
+    public String getSyntaxOid()
+    {
+        return oid;
+    }
+
+
+    /**
+     * Returns true every time.
+     * 
+     * @see SyntaxChecker#isValidSyntax(Object)
+     */
+    public boolean isValidSyntax( Object a_value )
+    {
+        return true;
+    }
+
+
+    /**
+     * Does nothing but return immediately and no exceptions are ever thrown.
+     * 
+     * @see SyntaxChecker#assertSyntax(Object)
+     */
+    public void assertSyntax( Object value ) throws NamingException
+    {
+    }
 }

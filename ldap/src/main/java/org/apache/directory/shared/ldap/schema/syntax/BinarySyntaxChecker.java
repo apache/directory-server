@@ -17,10 +17,11 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema;
+package org.apache.directory.shared.ldap.schema.syntax;
 
 
 import javax.naming.NamingException;
+
 
 
 /**
@@ -59,7 +60,7 @@ public class BinarySyntaxChecker implements SyntaxChecker
 
 
     /**
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#assertSyntax(Object)
+     * @see org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker#assertSyntax(Object)
      */
     public void assertSyntax( Object value ) throws NamingException
     {
@@ -68,7 +69,7 @@ public class BinarySyntaxChecker implements SyntaxChecker
 
 
     /**
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#getSyntaxOid()
+     * @see org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker#getSyntaxOid()
      */
     public String getSyntaxOid()
     {
@@ -77,7 +78,7 @@ public class BinarySyntaxChecker implements SyntaxChecker
 
 
     /**
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(Object)
+     * @see org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker#isValidSyntax(Object)
      */
     public boolean isValidSyntax( Object value )
     {

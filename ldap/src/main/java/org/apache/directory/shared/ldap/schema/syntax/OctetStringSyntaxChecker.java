@@ -17,40 +17,42 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema;
+package org.apache.directory.shared.ldap.schema.syntax;
 
 
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A syntax checker which checks to see if an objectClass' type is either: 
- * AUXILIARY, STRUCTURAL, or ABSTRACT.  The case is NOT ignored.
- *
+ * A SyntaxChecker which verifies that a value is a Octet String according to RFC 4517.
+ * 
+ * From RFC 4517 :
+ * OctetString = *OCTET
+ * 
+ * From RFC 4512 :
+ * OCTET   = %x00-FF ; Any octet (8-bit data unit)
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 437007 $
  */
-public class ObjectClassTypeSyntaxChecker implements SyntaxChecker
+public class OctetStringSyntaxChecker implements SyntaxChecker
 {
-    public static final String DEFAULT_OID = "1.3.6.1.4.1.18060.0.4.0.0.1";
-    private final String oid;
- 
+    /** The Syntax OID, according to RFC 4517, par. 3.3.25 */
+    public static final String OID = "1.3.6.1.4.1.1466.115.121.1.40";
     
-    public ObjectClassTypeSyntaxChecker( String oid )
-    {
-        this.oid = oid;
-    }
-    
-    
-    public ObjectClassTypeSyntaxChecker()
-    {
-        this.oid = DEFAULT_OID;
-    }
 
+    /**
+     * 
+     * Creates a new instance of OctetStringSyntaxChecker.
+     *
+     */
+    public OctetStringSyntaxChecker()
+    {
+    }
+    
     
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#assertSyntax(java.lang.Object)
@@ -63,67 +65,19 @@ public class ObjectClassTypeSyntaxChecker implements SyntaxChecker
         }
     }
 
-
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#getSyntaxOid()
      */
     public String getSyntaxOid()
     {
-        return oid;
+        return OID;
     }
-
-
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
-
-        if ( value == null )
-        {
-            return false;
-        }
-        
-        if ( value instanceof String )
-        {
-            strValue = ( String ) value;
-        }
-        else if ( value instanceof byte[] )
-        {
-            strValue = StringTools.utf8ToString( ( byte[] ) value ); 
-        }
-        else
-        {
-            strValue = value.toString();
-        }
-
-        if ( strValue.length() == 0 )
-        {
-            return false;
-        }
-
-        if ( strValue.length() < 8 || strValue.length() > 10 )
-        {
-            return false;
-        }
-        
-        char ch = strValue.charAt( 0 );
-        switch( ch )
-        {
-            case( 'A' ):
-                if ( strValue.equals( "AUXILIARY" ) || strValue.equals( "ABSTRACT" ) )
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            case( 'S' ):
-                return strValue.equals( "STRUCTURAL" );
-            default:
-                return false;
-        }
+        return ( value != null );
     }
 }
