@@ -17,7 +17,9 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema;
+package org.apache.directory.shared.ldap.schema.syntax;
+
+import org.apache.directory.shared.ldap.schema.syntax.ObjectClassTypeSyntaxChecker;
 
 import junit.framework.TestCase;
 

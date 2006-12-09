@@ -17,8 +17,10 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema;
+package org.apache.directory.shared.ldap.schema.syntax;
 
+
+import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
 
 import junit.framework.TestCase;
 
@@ -31,7 +33,7 @@ import junit.framework.TestCase;
  */
 public class NameOrNumericIdSyntaxCheckerTest extends TestCase
 {
-    NameOrNumericIdSyntaxChecker checker = new NameOrNumericIdSyntaxChecker( "1.1" );
+    NumericOidSyntaxChecker checker = new NumericOidSyntaxChecker( "1.1" );
 
 
     public void testNullString()
