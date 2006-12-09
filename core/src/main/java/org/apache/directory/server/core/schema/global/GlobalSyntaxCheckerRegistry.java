@@ -27,7 +27,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.SyntaxCheckerRegistry;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapSyntaxCheckerRegistry;
-import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
