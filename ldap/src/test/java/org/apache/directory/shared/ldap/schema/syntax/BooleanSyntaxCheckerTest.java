@@ -19,21 +19,19 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-
-import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.BooleanSyntaxChecker;
 
 import junit.framework.TestCase;
 
-
 /**
- * A test case for the NameOrNumericId test.
+ * Test cases for BooleanSyntaxChecker.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NameOrNumericIdSyntaxCheckerTest extends TestCase
+public class BooleanSyntaxCheckerTest extends TestCase
 {
-    NumericOidSyntaxChecker checker = new NumericOidSyntaxChecker( "1.1" );
+    BooleanSyntaxChecker checker = new BooleanSyntaxChecker();
 
 
     public void testNullString()
@@ -48,34 +46,27 @@ public class NameOrNumericIdSyntaxCheckerTest extends TestCase
     }
 
 
-    /*
     public void testOneCharString()
     {
-        assertFalse( checker.isValidSyntax( "0" ) );
-        assertFalse( checker.isValidSyntax( "." ) );
-        assertTrue( checker.isValidSyntax( "a" ) );
-        assertFalse( checker.isValidSyntax( "-" ) );
-    }
-    */
-    
-    public void testNumericIds()
-    {
-        assertFalse( checker.isValidSyntax( "111" ) );
-        assertFalse( checker.isValidSyntax( "11.a" ) );
-        assertFalse( checker.isValidSyntax( "11.1a" ) );
-        assertTrue( checker.isValidSyntax( "1.1" ) );
-        assertTrue( checker.isValidSyntax( "1.3.6.1.2.67.3.2" ) );
+        assertFalse( checker.isValidSyntax( "f" ) );
+        assertFalse( checker.isValidSyntax( "F" ) );
+        assertFalse( checker.isValidSyntax( "t" ) );
+        assertFalse( checker.isValidSyntax( "T" ) );
     }
     
-    /*
-    public void testNames()
+    
+    public void testWrongCase()
     {
-        assertFalse( checker.isValidSyntax( "asdf$" ) );
-        assertTrue( checker.isValidSyntax( "asdf-asdf" ) );
-        assertFalse( checker.isValidSyntax( "-asdf-asdf" ) );
-        assertTrue( checker.isValidSyntax( "A-asdf-asdf" ) );
-        assertFalse( checker.isValidSyntax( "0-asdf-asdf" ) );
-        assertTrue( checker.isValidSyntax( "A-asdf0a234sdf" ) );
+        assertFalse( checker.isValidSyntax( "fAlSe" ) );
+        assertFalse( checker.isValidSyntax( "tRue" ) );
+        assertFalse( checker.isValidSyntax( "false" ) );
+        assertFalse( checker.isValidSyntax( "abc" ) );
     }
-    */
+    
+    
+    public void testCorrectCase()
+    {
+        assertTrue( checker.isValidSyntax( "FALSE" ) );
+        assertTrue( checker.isValidSyntax( "TRUE" ) );
+    }
 }

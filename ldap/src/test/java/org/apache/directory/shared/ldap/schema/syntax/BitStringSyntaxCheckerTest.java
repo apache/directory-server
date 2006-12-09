@@ -20,20 +20,17 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
-import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
-
 import junit.framework.TestCase;
 
-
 /**
- * A test case for the NameOrNumericId test.
+ * Test cases for BitStringSyntaxChecker.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NameOrNumericIdSyntaxCheckerTest extends TestCase
+public class BitStringSyntaxCheckerTest extends TestCase
 {
-    NumericOidSyntaxChecker checker = new NumericOidSyntaxChecker( "1.1" );
+    BitStringSyntaxChecker checker = new BitStringSyntaxChecker();
 
 
     public void testNullString()
@@ -48,34 +45,33 @@ public class NameOrNumericIdSyntaxCheckerTest extends TestCase
     }
 
 
-    /*
     public void testOneCharString()
     {
         assertFalse( checker.isValidSyntax( "0" ) );
-        assertFalse( checker.isValidSyntax( "." ) );
-        assertTrue( checker.isValidSyntax( "a" ) );
-        assertFalse( checker.isValidSyntax( "-" ) );
-    }
-    */
-    
-    public void testNumericIds()
-    {
-        assertFalse( checker.isValidSyntax( "111" ) );
-        assertFalse( checker.isValidSyntax( "11.a" ) );
-        assertFalse( checker.isValidSyntax( "11.1a" ) );
-        assertTrue( checker.isValidSyntax( "1.1" ) );
-        assertTrue( checker.isValidSyntax( "1.3.6.1.2.67.3.2" ) );
+        assertFalse( checker.isValidSyntax( "'" ) );
+        assertFalse( checker.isValidSyntax( "1" ) );
+        assertFalse( checker.isValidSyntax( "B" ) );
     }
     
-    /*
-    public void testNames()
+    
+    public void testWrongCase()
     {
-        assertFalse( checker.isValidSyntax( "asdf$" ) );
-        assertTrue( checker.isValidSyntax( "asdf-asdf" ) );
-        assertFalse( checker.isValidSyntax( "-asdf-asdf" ) );
-        assertTrue( checker.isValidSyntax( "A-asdf-asdf" ) );
-        assertFalse( checker.isValidSyntax( "0-asdf-asdf" ) );
-        assertTrue( checker.isValidSyntax( "A-asdf0a234sdf" ) );
+        assertFalse( checker.isValidSyntax( "'0101B" ) );
+        assertFalse( checker.isValidSyntax( "0101B" ) );
+        assertFalse( checker.isValidSyntax( "0101'B" ) );
+        assertFalse( checker.isValidSyntax( "''B" ) );
+        assertFalse( checker.isValidSyntax( "'0101'" ) );
+        assertFalse( checker.isValidSyntax( "'11200'B" ) );
+        assertFalse( checker.isValidSyntax( "'1100'b" ) );
     }
-    */
+    
+    
+    public void testCorrectCase()
+    {
+        assertTrue( checker.isValidSyntax( "'0'B" ) );
+        assertTrue( checker.isValidSyntax( "'1'B" ) );
+        assertTrue( checker.isValidSyntax( "'0000'B" ) );
+        assertTrue( checker.isValidSyntax( "'11111'B" ) );
+        assertTrue( checker.isValidSyntax( "'01010101011100'B" ) );
+    }
 }

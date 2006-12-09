@@ -19,21 +19,17 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-
-import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
-
 import junit.framework.TestCase;
 
-
 /**
- * A test case for the NameOrNumericId test.
+ * Test cases for IntegerSyntaxChecker.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NameOrNumericIdSyntaxCheckerTest extends TestCase
+public class IntegerSyntaxCheckerTest extends TestCase
 {
-    NumericOidSyntaxChecker checker = new NumericOidSyntaxChecker( "1.1" );
+    IntegerSyntaxChecker checker = new IntegerSyntaxChecker();
 
 
     public void testNullString()
@@ -48,34 +44,29 @@ public class NameOrNumericIdSyntaxCheckerTest extends TestCase
     }
 
 
-    /*
     public void testOneCharString()
     {
-        assertFalse( checker.isValidSyntax( "0" ) );
-        assertFalse( checker.isValidSyntax( "." ) );
-        assertTrue( checker.isValidSyntax( "a" ) );
+        assertFalse( checker.isValidSyntax( "f" ) );
         assertFalse( checker.isValidSyntax( "-" ) );
     }
-    */
     
-    public void testNumericIds()
+    
+    public void testWrongCase()
     {
-        assertFalse( checker.isValidSyntax( "111" ) );
-        assertFalse( checker.isValidSyntax( "11.a" ) );
-        assertFalse( checker.isValidSyntax( "11.1a" ) );
-        assertTrue( checker.isValidSyntax( "1.1" ) );
-        assertTrue( checker.isValidSyntax( "1.3.6.1.2.67.3.2" ) );
+        assertFalse( checker.isValidSyntax( "000" ) );
+        assertFalse( checker.isValidSyntax( "-0" ) );
+        assertFalse( checker.isValidSyntax( " 1" ) );
+        assertFalse( checker.isValidSyntax( "1 " ) );
     }
     
-    /*
-    public void testNames()
+    
+    public void testCorrectCase()
     {
-        assertFalse( checker.isValidSyntax( "asdf$" ) );
-        assertTrue( checker.isValidSyntax( "asdf-asdf" ) );
-        assertFalse( checker.isValidSyntax( "-asdf-asdf" ) );
-        assertTrue( checker.isValidSyntax( "A-asdf-asdf" ) );
-        assertFalse( checker.isValidSyntax( "0-asdf-asdf" ) );
-        assertTrue( checker.isValidSyntax( "A-asdf0a234sdf" ) );
+        assertTrue( checker.isValidSyntax( "1" ) );
+        assertTrue( checker.isValidSyntax( "10" ) );
+        assertTrue( checker.isValidSyntax( "1111" ) );
+        assertTrue( checker.isValidSyntax( "-1" ) );
+        assertTrue( checker.isValidSyntax( "-1234567891" ) );
+        assertTrue( checker.isValidSyntax( "123456789" ) );
     }
-    */
 }
