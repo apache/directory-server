@@ -29,7 +29,8 @@ import java.io.ObjectStreamConstants;
 
 
 /**
- * Encodes {@link Operation}s to <tt>byte[]</tt> and vice versa.
+ * Encodes {@link Operation}s to <tt>byte[]</tt> and vice versa so an
+ * {@link Operation} can be transferred via TCP/IP communication.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -40,6 +41,9 @@ public class OperationCodec
     }
 
 
+    /**
+     * Transforms the specified {@link Operation} into a byte array.
+     */
     public byte[] encode( Operation op )
     {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -59,6 +63,9 @@ public class OperationCodec
     }
 
 
+    /**
+     * Transforms the specified byte array into an {@link Operation}.
+     */
     public Operation decode( byte[] data )
     {
         ObjectInputStream in;
