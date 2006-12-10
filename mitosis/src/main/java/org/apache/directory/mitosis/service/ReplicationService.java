@@ -47,6 +47,7 @@ import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationFactory;
 import org.apache.directory.mitosis.service.protocol.codec.ReplicationServerProtocolCodecFactory;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientContextHandler;
+import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerContextHandler;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerProtocolHandler;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
@@ -77,24 +78,31 @@ import org.slf4j.LoggerFactory;
  * of each {@link Replica} in the cluster has the same content without any
  * conflict.
  * <p>
- * Once an operation is invoked, this interceptor transforms it into more than
- * one sub-operations that makes the operation more proper for replication.
- * The transformation process is actually just creating an instance of
- * {@link Operation}, which abstracts the transformation.
+ * Once an operation is invoked, this interceptor transforms it into one or
+ * more operations that makes the requested operation more proper and robust
+ * for replication.  The transformation process is actually just calling a
+ * respective factory method in {@link OperationFactory}.  The methods in 
+ * {@link OperationFactory} returns a new {@link Operation} instance.
  * <p>
- * Calling
+ * The newly created {@link Operation} is used for three purposes.
+ * <ul>
+ * <li>To perform the requested operation to the local {@link PartitionNexus}
+ * <li>To store the created {@link Operation} itself to
+ *     {@link ReplicationStore} so that it can be retrieved later by
+ *     {@link ReplicationLogCleanJob} and {@link ReplicationClientContextHandler}
+ * <li>To transfer itself to other {@link Replica}s via TCP/IP communication
+ *     between {@link ReplicationClientContextHandler} and
+ *     {@link ReplicationServerContextHandler}
+ * </ul>
+ * The first two actions (modifying the local DIT and storing the
+ * {@link Operation} to {@link ReplicationStore}) are performed automatically
+ * when
  * {@link Operation#execute(PartitionNexus, ReplicationStore, AttributeTypeRegistry)}
- * will <b>1)</b> execute the sub-operations on the specified
- * {@link PartitionNexus} and <b>2)</b> store itself to the specified.  The
- * first step affects the DIT this interceptor is attached to, and the second
- * step is to retrieve the change log of the DIT so they are propagated to
- * the other {@link Replica}s.  Please refer to each {@link Operation}
- * implementations to see how each JNDI operation is transformed into multiple
- * operations, and refer to {@link ReplicationClientContextHandler} to see how
- * the change logs are propagated to the other {@link Replica}s.
- * {@link ClientConnectionManager} is also a good starting point for
- * understanding the propagation process in that it's the place that initiates
- * the connections to the other {@link Replica}s.
+ * method is invoked.  {@link ReplicationService} always call it instead of
+ * forwarding the requested operation to the next {@link Interceptor}.
+ * <p>
+ * The last action takes place by {@link ReplicationClientContextHandler},
+ * which handles TCP/IP connection managed by {@link ClientConnectionManager}.
  * <p>
  * There are two special attributes in the entries to be replicated:
  * <ul>
