@@ -25,14 +25,29 @@ import java.io.Serializable;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
 
+import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.Constants;
+import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.mitosis.common.CSN;
-import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * Represents a small operation on an entry in replicated {@link DirectoryPartition}.
+ * Represents an operation performed on one or more entries in replicated
+ * {@link Partition}.  Each {@link Operation} has its own {@link CSN} which
+ * identifies itself.
+ * <p>
+ * An {@link Operation} is usually created by calling factory methods in
+ * {@link OperationFactory}, which produces a {@link CompositeOperation} of
+ * smaller multiple operation.  For example,
+ * {@link OperationFactory#newDelete(LdapDN)} returns a
+ * {@link CompositeOperation} which consists of two
+ * {@link ReplaceAttributeOperation}s; one updates {@link Constants#ENTRY_CSN}
+ * attribute and the other updates {@link Constants#ENTRY_DELETED}.  Refer
+ * to {@link OperationFactory} to find out what LDAP/JNDI operation is 
+ * translated into what {@link Operation} instance.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -95,7 +110,7 @@ public class Operation implements Serializable
         }
     }
 
-
+    @SuppressWarnings("unused")
     protected void execute0( PartitionNexus nexus, ReplicationStore store, AttributeTypeRegistry registry ) 
         throws NamingException
     {
