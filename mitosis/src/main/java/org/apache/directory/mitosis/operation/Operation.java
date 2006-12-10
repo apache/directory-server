@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * <p>
  * An {@link Operation} is usually created by calling factory methods in
  * {@link OperationFactory}, which produces a {@link CompositeOperation} of
- * smaller multiple operation.  For example,
+ * smaller multiple operations.  For example,
  * {@link OperationFactory#newDelete(LdapDN)} returns a
  * {@link CompositeOperation} which consists of two
  * {@link ReplaceAttributeOperation}s; one updates {@link Constants#ENTRY_CSN}

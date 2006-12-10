@@ -48,8 +48,27 @@ import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 
 
 /**
- * Converts a complex JNDI operations into multiple simple operations. 
- *
+ * Creates an {@link Operation} instance for a JNDI operation.  The
+ * {@link Operation} instance returned by the provided factory methods are
+ * mostly a {@link CompositeOperation}, which consists smaller JNDI
+ * operations. The elements of the {@link CompositeOperation} differs between
+ * the original JNDI operation to make the operation more robust to
+ * replication conflict.  All {@link Operation}s created by
+ * {@link OperationFactory} whould be robust to the replication conflict and
+ * should be able to recover from the conflict. 
+ * <p>
+ * "Add" (or "bind") is the only operation that doesn't return a
+ * {@link CompositeOperation} but returns an {@link AddEntryOperation}.
+ * It is because all other operations needs to update its related entry's
+ * {@link Constants#ENTRY_CSN} or {@link Constants#ENTRY_DELETED} attribute
+ * with additional sub-operations.  In contrast, "add" operation doesn't need
+ * to create a {@link CompositeOperation} because those attributes can be
+ * added just modifying an {@link AddEntryOperation} rather than creating
+ * a parent operation and add sub-operations there.
+ * <p>
+ * Please note that all operations update {@link Constants#ENTRY_CSN} and
+ * documentation for each method won't explain this behavior.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class OperationFactory
@@ -71,12 +90,22 @@ public class OperationFactory
     }
 
 
+    /**
+     * Creates a new {@link Operation} that performs LDAP "add" operation
+     * with a newly generated {@link CSN}.
+     */
     public Operation newAdd( LdapDN normalizedName, Attributes entry ) throws NamingException
     {
         return newAdd( newCSN(), normalizedName, entry );
     }
 
 
+    /**
+     * Creates a new {@link Operation} that performs LDAP "add" operation
+     * with the specified {@link CSN}.  The new entry will have three
+     * additional attributes; {@link Constants#ENTRY_CSN} ({@link CSN}),
+     * {@link Constants#ENTRY_UUID}, and {@link Constants#ENTRY_DELETED}.
+     */
     private Operation newAdd( CSN csn, LdapDN normalizedName, Attributes entry ) throws NamingException
     {
         // Check an entry already exists.
@@ -98,6 +127,11 @@ public class OperationFactory
     }
 
 
+    /**
+     * Creates a new {@link Operation} that performs "delete" operation.
+     * The created {@link Operation} doesn't actually delete the entry.
+     * Instead, it sets {@link Constants#ENTRY_DELETED} to "true". 
+     */
     public Operation newDelete( LdapDN normalizedName )
     {
         CSN csn = newCSN();
@@ -111,6 +145,14 @@ public class OperationFactory
     }
 
 
+    /**
+     * Returns a new {@link Operation} that performs "modify" operation.
+     * 
+     * @return a {@link CompositeOperation} that consists of one or more
+     * {@link AttributeOperation}s and one additional operation that
+     * sets {@link Constants#ENTRY_DELETED} to "false" to resurrect the
+     * entry the modified attributes belong to.
+     */
     public Operation newModify( LdapDN normalizedName, int modOp, Attributes attributes )
     {
         CSN csn = newCSN();
@@ -131,6 +173,14 @@ public class OperationFactory
     }
 
 
+    /**
+     * Returns a new {@link Operation} that performs "modify" operation.
+     * 
+     * @return a {@link CompositeOperation} that consists of one or more
+     * {@link AttributeOperation}s and one additional operation that
+     * sets {@link Constants#ENTRY_DELETED} to "false" to resurrect the
+     * entry the modified attributes belong to.
+     */
     public Operation newModify( LdapDN normalizedName, ModificationItem[] items )
     {
         CSN csn = newCSN();
@@ -151,6 +201,12 @@ public class OperationFactory
     }
 
 
+    /**
+     * Returns a new {@link AttributeOperation} that performs one 
+     * attribute modification operation.  This method is called by other
+     * methods internally to create an appropriate {@link AttributeOperation}
+     * instance from the specified <tt>modOp</tt> value.
+     */
     private Operation newModify( CSN csn, LdapDN normalizedName, int modOp, Attribute attribute )
     {
         switch ( modOp )
@@ -167,6 +223,13 @@ public class OperationFactory
     }
 
 
+    /**
+     * Returns a new {@link Operation} that performs "modifyRN" operation.
+     * This operation is a subset of "move" operation.
+     * Calling this method actually forwards the call to
+     * {@link #newMove(LdapDN, LdapDN, String, boolean)} with unchanged
+     * <tt>newParentName</tt>. 
+     */
     public Operation newModifyRn( LdapDN oldName, String newRdn, boolean deleteOldRn ) throws NamingException
     {
         LdapDN newParentName = ( LdapDN ) oldName.clone();
@@ -176,12 +239,25 @@ public class OperationFactory
     }
 
 
+    /**
+     * Returns a new {@link Operation} that performs "move" operation.
+     * Calling this method actually forwards the call to
+     * {@link #newMove(LdapDN, LdapDN, String, boolean)} with unchanged
+     * <tt>newRdn</tt> and '<tt>true</tt>' <tt>deleteOldRn</tt>. 
+     */
     public Operation newMove( LdapDN oldName, LdapDN newParentName ) throws NamingException
     {
         return newMove( oldName, newParentName, oldName.get( oldName.size() - 1 ), true );
     }
 
 
+    /**
+     * Returns a new {@link Operation} that performs "move" operation.
+     * Please note this operation is the most fragile operation I've written
+     * so it should be reviewed completely again.  This methods
+     * doesn't allow you to specify <tt>deleteOldRn</tt> as <tt>false</tt>
+     * for now.  This limitation should be removed too.
+     */
     public Operation newMove( LdapDN oldName, LdapDN newParentName, String newRdn, boolean deleteOldRn )
         throws NamingException
     {
@@ -239,6 +315,11 @@ public class OperationFactory
     }
 
 
+    /**
+     * Make sure the specified <tt>newEntryName</tt> already exists.  It
+     * checked {@link Constants#ENTRY_DELETED} additionally to see if the
+     * entry actually exists in a {@link Partition} but maked as deleted.
+     */
     private void checkBeforeAdd( LdapDN newEntryName ) throws NamingException
     {
         if ( nexus.hasEntry( newEntryName ) )
@@ -262,6 +343,12 @@ public class OperationFactory
     }
 
 
+    /**
+     * Adds default {@link Operation}s that should be followed by all
+     * JNDI/LDAP operations except "add/bind" operation.  This method
+     * currently adds only one attribute, {@link Constants#ENTRY_CSN}.
+     * @return what you specified as a parameter to enable invocation chaining
+     */
     private CompositeOperation addDefaultOperations( CompositeOperation result, CSN csn, LdapDN normalizedName )
     {
         result.add( new ReplaceAttributeOperation( csn, normalizedName, new BasicAttribute( Constants.ENTRY_CSN, csn
@@ -269,7 +356,10 @@ public class OperationFactory
         return result;
     }
 
-
+    /**
+     * Creates new {@link CSN} from the {@link CSNFactory} which was specified
+     * in the constructor.
+     */
     private CSN newCSN()
     {
         return csnFactory.newInstance( replicaId );
