@@ -39,12 +39,14 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.Constants;
+import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.SimpleCSN;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationFactory;
 import org.apache.directory.mitosis.service.protocol.codec.ReplicationServerProtocolCodecFactory;
+import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientContextHandler;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerProtocolHandler;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
