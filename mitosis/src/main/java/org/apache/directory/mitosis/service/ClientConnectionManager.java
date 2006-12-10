@@ -56,7 +56,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
  * {@link ReplicationService} and keeps trying to connect to them.
  * <p>
  * When the connection attempt fails, the interval between each connection
- * attempt doubles up (2, 4, 8, 16, ...) to 60 seconds at maximum.
+ * attempt doubles up (0, 2, 4, 8, 16, ...) to 60 seconds at maximum.
  * <p>
  * Once the connection attempt succeeds, the interval value is reset to
  * its initial value (0 second) and the established connection is handled
