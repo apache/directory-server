@@ -51,11 +51,11 @@ import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
  * Creates an {@link Operation} instance for a JNDI operation.  The
  * {@link Operation} instance returned by the provided factory methods are
  * mostly a {@link CompositeOperation}, which consists smaller JNDI
- * operations. The elements of the {@link CompositeOperation} differs between
+ * operations. The elements of the {@link CompositeOperation} differs from
  * the original JNDI operation to make the operation more robust to
  * replication conflict.  All {@link Operation}s created by
  * {@link OperationFactory} whould be robust to the replication conflict and
- * should be able to recover from the conflict. 
+ * should be able to recover from the conflict.
  * <p>
  * "Add" (or "bind") is the only operation that doesn't return a
  * {@link CompositeOperation} but returns an {@link AddEntryOperation}.
