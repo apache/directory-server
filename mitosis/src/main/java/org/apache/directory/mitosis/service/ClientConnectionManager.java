@@ -138,7 +138,7 @@ class ClientConnectionManager
             while ( i.hasNext() )
             {
                 Replica replica = ( Replica ) i.next();
-                Connection con = ( Connection ) sessions.get( replica.getId() );
+                Connection con = sessions.get( replica.getId() );
                 if ( con == null )
                 {
                     con = new Connection();
@@ -192,7 +192,7 @@ class ClientConnectionManager
                 // Someone might have modified the configuration,
                 // and therefore we try to detect newly added replicas.
                 Replica replica = ( Replica ) i.next();
-                Connection con = ( Connection ) sessions.get( replica.getId() );
+                Connection con = sessions.get( replica.getId() );
                 if ( con == null )
                 {
                     con = new Connection();

@@ -44,13 +44,12 @@ import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.mina.util.AvailablePortFinder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A test case for {@link ReplicationServiceIntegrationTest}
@@ -60,8 +59,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ReplicationServiceIntegrationTest extends TestCase
 {
-    private final Logger log = LoggerFactory.getLogger( ReplicationServiceIntegrationTest.class );
-
     private Map contexts = new HashMap();
     private Map replicationServices = new HashMap();
 
@@ -123,6 +120,7 @@ public class ReplicationServiceIntegrationTest extends TestCase
         return ( String ) attr.get();
     }
 
+    @SuppressWarnings("unchecked")
     private void createReplicas( String[] names ) throws Exception
     {
         int lastAvailablePort = 1024;
@@ -156,7 +154,7 @@ public class ReplicationServiceIntegrationTest extends TestCase
             ldapCfg.setShutdownHookEnabled( false );
             ldapCfg.setWorkingDirectory( workDir );
 
-            List interceptorCfgs = ldapCfg.getInterceptorConfigurations();
+            List<InterceptorConfiguration> interceptorCfgs = ldapCfg.getInterceptorConfigurations();
 
             ReplicationConfiguration replicationCfg = new ReplicationConfiguration();
             replicationCfg.setReplicaId( replica.getId() );
@@ -213,14 +211,7 @@ public class ReplicationServiceIntegrationTest extends TestCase
         return context;
     }
     
-    private void replicate( String name ) throws Exception
-    {
-        Thread.sleep( 2500 );
-        ReplicationService service = ( ReplicationService ) replicationServices.get( name );
-        service.replicate();
-        Thread.sleep( 2500 );
-    }
-
+    @SuppressWarnings("unchecked")
     private void destroyAllReplicas() throws Exception
     {
         for( Iterator i = contexts.keySet().iterator(); i.hasNext(); )

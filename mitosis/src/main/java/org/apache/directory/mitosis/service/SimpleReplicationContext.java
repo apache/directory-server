@@ -152,7 +152,7 @@ public class SimpleReplicationContext implements ReplicationContext
                     "Only clients can begin replication." );
         }
         
-        ReplicationContextHandler contextHandler = ( ( ReplicationProtocolHandler ) handler ).getContextHandler();
+        ReplicationContextHandler contextHandler = handler.getContextHandler();
         return ( ( ReplicationClientContextHandler ) contextHandler ).beginReplication( this );
     }
 
@@ -184,7 +184,7 @@ public class SimpleReplicationContext implements ReplicationContext
         ExpirationTask task;
         synchronized ( expirableMessages )
         {
-            task = ( ExpirationTask ) expirableMessages.remove( new Integer( sequence ) );
+            task = expirableMessages.remove( new Integer( sequence ) );
         }
         return task;
     }

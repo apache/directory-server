@@ -54,7 +54,7 @@ public class Replica
      * 
      * <replicaId>@<server>:<port>
      * 
-     * @param The replica to create
+     * @param replica The replica to create
      */
     public Replica( String replica )
     {
