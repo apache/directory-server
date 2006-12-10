@@ -28,6 +28,7 @@ import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.service.protocol.codec.ReplicationClientProtocolCodecFactory;
+import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientContextHandler;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientProtocolHandler;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationProtocolHandler;
 import org.apache.mina.common.ConnectFuture;
@@ -51,6 +52,18 @@ import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 /**
  * Manages all outgoing connections to remote replicas.
+ * It gets the list of the peer {@link Replica}s from
+ * {@link ReplicationService} and keeps trying to connect to them.
+ * <p>
+ * When the connection attempt fails, the interval between each connection
+ * attempt doubles up (2, 4, 8, 16, ...) to 60 seconds at maximum.
+ * <p>
+ * Once the connection attempt succeeds, the interval value is reset to
+ * its initial value (0 second) and the established connection is handled
+ * by {@link ReplicationClientProtocolHandler}.
+ * The {@link ReplicationClientProtocolHandler} actually wraps
+ * a {@link ReplicationClientContextHandler} that drives the actual
+ * replication process.
  *
  * @author Trustin Lee
  * @version $Rev: 116 $, $Date: 2006-09-18 13:47:53Z $
