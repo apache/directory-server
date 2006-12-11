@@ -4,14 +4,14 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.5.0-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-core-osgi</artifactId>
   <name>ApacheDS JNDI Backing Store</name>
   <description>
     The ApacheDS JNDI Backing Store packaged as an OSGi bundle.
   </description>
-  <packaging>osgi-bundle</packaging>  
+  <packaging>bundle</packaging>  
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -51,30 +51,19 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.felix.plugins</groupId>
-        <artifactId>maven-osgi-plugin</artifactId>
-        <version>0.8.0-SNAPSHOT</version>
-        <extensions>true</extensions>
-        <configuration>
-          <osgiManifest>
-            <bundleName>ApacheDS JNDI Backing Store Bundle</bundleName>
-            <bundleVendor>Apache Software Foundation</bundleVendor>
-            <bundleCategory>Network Service</bundleCategory>
-            <bundleDescription>
-              A bundle that registers the Apache Directory JNDI provider backing store.
-            </bundleDescription>
-            <bundleActivator>
-              org.apache.ldap.server.Activator
-            </bundleActivator>
-            <importPackage>
-              org.osgi.framework,com.sun.jndi.ldap,javax.naming,javax.naming.directory,javax.naming.event,javax.naming.ldap,javax.naming.spi,org.apache.commons.collections,org.apache.directory.shared.asn1.primitives,org.apache.directory.shared.ldap,org.apache.directory.shared.ldap.aci,org.apache.directory.shared.ldap.codec.util,org.apache.directory.shared.ldap.exception,org.apache.directory.shared.ldap.filter,org.apache.directory.shared.ldap.ldif,org.apache.directory.shared.ldap.message,org.apache.directory.shared.ldap.name,org.apache.directory.shared.ldap.schema,org.apache.directory.shared.ldap.subtree,org.apache.directory.shared.ldap.util,org.slf4j,org.apache.directory.shared.ldap.trigger
-            </importPackage>
-            <exportPackage>
-              org.apache.directory.server.core,org.apache.directory.server.core.authn,org.apache.directory.server.core.configuration,org.apache.directory.server.core.jndi,org.apache.directory.server.core.partition,org.apache.directory.server.core.partition.impl.btree,org.apache.directory.server.core.partition.impl.btree.gui,org.apache.directory.server.core.schema.bootstrap
-            </exportPackage>
-          </osgiManifest>
-        </configuration>
-      </plugin>
+		        <groupId>org.apache.felix</groupId>
+		        <artifactId>maven-bundle-plugin</artifactId>
+		        <extensions>true</extensions>
+		        <configuration>
+		          <instructions>
+						<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+						<Export-Package>*</Export-Package>
+						<Import-Package>!javax.swing,!javax.swing.*,*</Import-Package>
+						<DynamicImport-Package>antlr</DynamicImport-Package>
+						<Bundle-Activator>org.apache.ldap.server.Activator</Bundle-Activator>
+					</instructions>
+		        </configuration>
+		    </plugin>
     </plugins>
   </build>
 </project>

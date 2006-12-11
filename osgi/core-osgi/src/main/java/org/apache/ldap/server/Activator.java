@@ -26,7 +26,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
@@ -124,7 +124,7 @@ public class Activator implements BundleActivator
     {
         MutableStartupConfiguration config = new MutableStartupConfiguration();
 
-        MutableDirectoryPartitionConfiguration partConfig = new MutableDirectoryPartitionConfiguration();
+        MutablePartitionConfiguration partConfig = new MutablePartitionConfiguration();
         partConfig.setName( "example" );
 
         HashSet indices = new HashSet();
