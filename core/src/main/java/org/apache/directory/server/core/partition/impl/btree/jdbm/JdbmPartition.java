@@ -53,8 +53,6 @@ import org.apache.directory.server.core.partition.impl.btree.IndexAssertionEnume
 import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
 import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.OidRegistry;
 
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
@@ -114,10 +112,11 @@ public class JdbmPartition extends BTreePartition
     /** a system index on aliasedObjectName attribute */
     private Index aliasIdx;
     
-    private OidRegistry oidRegistry;
-    private AttributeTypeRegistry attrRegistry;
     private BTreePartitionConfiguration cfg;
 
+    private static AttributeType OBJECT_CLASS_AT;
+    private static AttributeType ALIAS_AT;
+    
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -144,9 +143,13 @@ public class JdbmPartition extends BTreePartition
         }
         
         oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
-        attrRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        attributeTypeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+
+        OBJECT_CLASS_AT = attributeTypeRegistry.lookup( "objectClass" );
+        ALIAS_AT = attributeTypeRegistry.lookup( Partition.ALIAS_ATTRIBUTE );
+        
         this.upSuffix = new LdapDN( cfg.getSuffix() );
-        this.normSuffix = LdapDN.normalize( upSuffix, attrRegistry.getNormalizerMapping() );
+        this.normSuffix = LdapDN.normalize( upSuffix, attributeTypeRegistry.getNormalizerMapping() );
 
         File workingDirectory = new File( factoryCfg.getStartupConfiguration().getWorkingDirectory().getPath()
             + File.separator + cfg.getName() );
@@ -674,7 +677,7 @@ public class JdbmPartition extends BTreePartition
 
         // Access aliasedObjectName, normalize it and generate the Name 
         normalizedAliasTargetDn = new LdapDN( aliasTarget );
-        normalizedAliasTargetDn.normalize( attrRegistry.getNormalizerMapping() );
+        normalizedAliasTargetDn.normalize( attributeTypeRegistry.getNormalizerMapping() );
 
         /*
          * Check For Cycles
@@ -749,8 +752,6 @@ public class JdbmPartition extends BTreePartition
         }
 
         // Add the alias to the simple alias index
-        // TODO should we be adding aliasTarget which is not normalized or 
-        //      should we be adding targetDn.toNormName()
         aliasIdx.add( normalizedAliasTargetDn.getNormName(), aliasId );
 
         /*
@@ -823,8 +824,7 @@ public class JdbmPartition extends BTreePartition
             throw new LdapNameNotFoundException( "Id for parent '" + parentDn + "' not found!" );
         }
 
-        AttributeType octype = attrRegistry.lookup( "objectClass" );
-        Attribute objectClass = ServerUtils.getAttribute( octype, entry );
+        Attribute objectClass = ServerUtils.getAttribute( OBJECT_CLASS_AT, entry );
 
         if ( objectClass == null )
         {
@@ -837,8 +837,7 @@ public class JdbmPartition extends BTreePartition
 
         if ( objectClass.contains( Partition.ALIAS_OBJECT ) )
         {
-            AttributeType aliasType = attrRegistry.lookup( Partition.ALIAS_ATTRIBUTE );
-            Attribute aliasAttr = ServerUtils.getAttribute( aliasType, entry );
+            Attribute aliasAttr = ServerUtils.getAttribute( ALIAS_AT, entry );
             addAliasIndices( id, normName, ( String ) aliasAttr.get() );
         }
 
@@ -892,8 +891,7 @@ public class JdbmPartition extends BTreePartition
         BigInteger parentId = getParentId( id );
         NamingEnumeration attrs = entry.getIDs();
 
-        AttributeType octype = attrRegistry.lookup( "objectClass" );
-        Attribute objectClass = ServerUtils.getAttribute( octype, entry );
+        Attribute objectClass = ServerUtils.getAttribute( OBJECT_CLASS_AT, entry );
         if ( objectClass.contains( Partition.ALIAS_OBJECT ) )
         {
             dropAliasIndices( id );
@@ -1083,7 +1081,7 @@ public class JdbmPartition extends BTreePartition
         }
 
         // add all the values in mods to the same attribute in the entry
-        AttributeType type = attrRegistry.lookup( modsOid );
+        AttributeType type = attributeTypeRegistry.lookup( modsOid );
         Attribute entryAttrToAddTo = ServerUtils.getAttribute( type, entry );
 
         if ( entryAttrToAddTo == null )
@@ -1138,7 +1136,7 @@ public class JdbmPartition extends BTreePartition
             }
         }
 
-        AttributeType attrType = attrRegistry.lookup( modsOid );
+        AttributeType attrType = attributeTypeRegistry.lookup( modsOid );
         /*
          * If there are no attribute values in the modifications then this 
          * implies the compelete removal of the attribute from the entry. Else
@@ -1354,7 +1352,7 @@ public class JdbmPartition extends BTreePartition
          */
 
         String newRdnAttrOid = oidRegistry.getOid( newRdnAttr );
-        AttributeType newRdnAttrType = attrRegistry.lookup( newRdnAttrOid );
+        AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newRdnAttrOid );
         Attribute rdnAttr = ServerUtils.getAttribute( newRdnAttrType, entry );
         if ( rdnAttr == null )
         {
@@ -1401,7 +1399,7 @@ public class JdbmPartition extends BTreePartition
             String oldRdnAttr = NamespaceTools.getRdnAttribute( oldRdn );
             String oldRdnAttrOid = oidRegistry.getOid( oldRdnAttr );
             String oldRdnValue = NamespaceTools.getRdnValue( oldRdn );
-            AttributeType oldRdnAttrType = attrRegistry.lookup( oldRdnAttrOid );
+            AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldRdnAttrOid );
             
             ServerUtils.getAttribute( oldRdnAttrType, entry ).remove( oldRdnValue );
 
@@ -1468,7 +1466,7 @@ public class JdbmPartition extends BTreePartition
         // Now we can handle the appropriate name indices for all cases
         ndnIdx.drop( id );
         
-        LdapDN normalizedDn = LdapDN.normalize( updn, attrRegistry.getNormalizerMapping() );
+        LdapDN normalizedDn = LdapDN.normalize( updn, attributeTypeRegistry.getNormalizerMapping() );
         ndnIdx.add( ndnIdx.getNormalized( normalizedDn.toNormName() ), id );
 
         updnIdx.drop( id );

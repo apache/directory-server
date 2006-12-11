@@ -41,6 +41,7 @@ import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.core.schema.Registries;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -66,7 +67,10 @@ public abstract class BTreePartition implements Partition
      * the search engine used to search the database
      */
     private SearchEngine searchEngine = null;
-    private AttributeTypeRegistry attributeTypeRegistry = null;
+    private Optimizer optimizer = new NoOpOptimizer();
+    
+    protected AttributeTypeRegistry attributeTypeRegistry = null;
+    protected OidRegistry oidRegistry = null;
 
 
     // ------------------------------------------------------------------------
@@ -80,28 +84,36 @@ public abstract class BTreePartition implements Partition
     {
     }
 
+    
+    /**
+     * Allows for schema entity registries to be swapped out during runtime.  This is 
+     * primarily here to facilitate the swap out of a temporary bootstrap registry.  
+     * Registry changes require swapping out the search engine used by a partition 
+     * since the registries are used by elements in the search engine.
+     * 
+     * @param registries the schema entity registries
+     */
+    public void setRegistries( Registries registries )
+    {
+        attributeTypeRegistry = registries.getAttributeTypeRegistry();
+        oidRegistry = registries.getOidRegistry();
+        ExpressionEvaluator evaluator = new ExpressionEvaluator( this, oidRegistry, attributeTypeRegistry );
+        ExpressionEnumerator enumerator = new ExpressionEnumerator( this, attributeTypeRegistry, evaluator );
+        this.searchEngine = new DefaultSearchEngine( this, evaluator, enumerator, optimizer );
+    }
+    
 
     public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
         throws NamingException
     {
-        attributeTypeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
-        ExpressionEvaluator evaluator = new ExpressionEvaluator( this, oidRegistry, attributeTypeRegistry );
-        ExpressionEnumerator enumerator = new ExpressionEnumerator( this, attributeTypeRegistry, evaluator );
         BTreePartitionConfiguration btConfig = BTreePartitionConfiguration.convert( cfg );
-        
-        
-        Optimizer optimizer;
         if ( btConfig.isOptimizerEnabled() )
         {
             optimizer = new DefaultOptimizer( this );
         }
-        else
-        {
-            optimizer = new NoOpOptimizer();
-        }
-        
-        this.searchEngine = new DefaultSearchEngine( this, evaluator, enumerator, optimizer );
+
+        // Call this ONLY after trying to override the optimizer default above
+        setRegistries( factoryCfg.getGlobalRegistries() );
 
         Set<String> sysOidSet = new HashSet<String>();
         sysOidSet.add( Oid.EXISTANCE );
