@@ -29,32 +29,28 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A SyntaxChecker which verifies that a value is a Numeric String according to RFC 4517.
- * 
- * From RFC 4517 :
- * 
- * NumericString = 1*(DIGIT / SPACE)
+ * A SyntaxChecker which verifies that a value is a Number according to RFC 4512.
  * 
  * From RFC 4512 :
+ * number  = DIGIT | ( LDIGIT 1*DIGIT )
  * DIGIT   = %x30 | LDIGIT       ; "0"-"9"
  * LDIGIT  = %x31-39             ; "1"-"9"
- * SPACE   = %x20                ; space (" ")
  * 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NumericStringSyntaxChecker implements SyntaxChecker
+public class NumberSyntaxChecker implements SyntaxChecker
 {
     /** The Syntax OID, according to RFC 4517, par. 3.3.23 */
-    public static final String OID = "1.3.6.1.4.1.1466.115.121.1.36";
+    public static final String OID = "1.3.6.1.4.1.18060.0.4.0.0.4";
     
     /**
      * 
-     * Creates a new instance of NumericStringSyntaxChecker.
+     * Creates a new instance of NumberSyntaxChecker.
      *
      */
-    public NumericStringSyntaxChecker()
+    public NumberSyntaxChecker()
     {
     }
     
@@ -126,7 +122,6 @@ public class NumericStringSyntaxChecker implements SyntaxChecker
                 case '7' :
                 case '8' :
                 case '9' :
-                case ' ' :
                     continue;
                     
                 default : 

@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class NumericOidSyntaxChecker implements SyntaxChecker
 {
-    public static final String DEFAULT_OID = "1.3.6.1.4.1.18060.0.4.0.0.0";
+    public static final String DEFAULT_OID = "1.3.6.1.4.1.18060.0.4.0.0.2";
     private final String oid;
     
     

@@ -26,6 +26,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -60,7 +61,8 @@ public class ObjectClassDescriptionSyntaxChecker implements SyntaxChecker
     /** The Syntax OID, according to RFC 4517, par. 3.3.24 */
     public static final String OID = "1.3.6.1.4.1.1466.115.121.1.37";
 
-    private SchemaParser schemaParser;
+	/** The schema parser used to parse the ObjectClassDescription Syntax */
+    private ObjectClassDescriptionSchemaParser schemaParser = new ObjectClassDescriptionSchemaParser();
 
 
     /**
@@ -119,14 +121,10 @@ public class ObjectClassDescriptionSyntaxChecker implements SyntaxChecker
             strValue = value.toString();
         }
 
-        if ( schemaParser == null )
-        {
-            schemaParser = new SchemaParser();
-        }
-
         try
         {
             schemaParser.parseObjectClassDescription( strValue );
+                
             return true;
         }
         catch ( ParseException pe )
