@@ -418,7 +418,7 @@ public class SchemaUtils
 
         if ( at.getUsage() != null )
         {
-            buf.append( " USAGE " ).append( at.getUsage() );
+            buf.append( " USAGE " ).append( UsageEnum.render( at.getUsage() ) );
         }
 
         // @todo extensions are not presently supported and skipped

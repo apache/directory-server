@@ -78,32 +78,52 @@ public enum UsageEnum
      */
     public static UsageEnum getUsage( String usage )
     {
-        UsageEnum result = valueOf( usage );
-        
-        if ( result != null )
+        try
         {
+            UsageEnum result = valueOf( usage );
+            
             return result;
         }
-        
-    	if ( "directoryOperation".equals( usage ) )
-    	{
-    		return DIRECTORY_OPERATION;
-    	}
-    	else if ( "distributedOperation".equals( usage ) )
-    	{
-    		return DISTRIBUTED_OPERATION;
-    	}
-    	else if ( "dsaOperation".equals( usage ) )
-    	{
-    		return DSA_OPERATION;	
-    	}
-    	else if ( "userApplications".equals( usage ) ) 
-    	{
-    		return USER_APPLICATIONS;
-    	}
-    	else 
-    	{
-    		return null;
-    	}
+        catch( IllegalArgumentException iae )
+        {
+        	if ( "directoryOperation".equals( usage ) )
+        	{
+        		return DIRECTORY_OPERATION;
+        	}
+        	else if ( "distributedOperation".equals( usage ) )
+        	{
+        		return DISTRIBUTED_OPERATION;
+        	}
+        	else if ( "dsaOperation".equals( usage ) )
+        	{
+        		return DSA_OPERATION;	
+        	}
+        	else if ( "userApplications".equals( usage ) ) 
+        	{
+        		return USER_APPLICATIONS;
+        	}
+        	else 
+        	{
+        		return null;
+        	}
+        }
+    }
+    
+    /**
+     * Get the string representation for UsageEnum, which will be
+     * used by the AttributeType rendering 
+     * @param usage The UsageEnum of which we want the rendering string
+     * @return The rendering stringe
+     */
+    public static String render( UsageEnum usage )
+    {
+        switch ( usage )
+        {
+            case DIRECTORY_OPERATION    : return "directoryOperation";
+            case DISTRIBUTED_OPERATION  : return "distributedOperation";
+            case DSA_OPERATION          : return "dsaOperation";
+            case USER_APPLICATIONS      : return "userApplications";
+            default : return "";
+        }
     }
 }
