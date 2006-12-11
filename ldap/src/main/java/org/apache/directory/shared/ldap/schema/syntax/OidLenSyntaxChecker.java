@@ -23,35 +23,54 @@ package org.apache.directory.shared.ldap.schema.syntax;
 import javax.naming.NamingException;
 
 
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A SyntaxChecker which verifies that a value is a Number according to RFC 4512.
+ * A SyntaxChecker which verifies that a value is a numeric oid and a length
+ * constraint according to RFC 4512.
  * 
  * From RFC 4512 :
- * number  = DIGIT | ( LDIGIT 1*DIGIT )
- * DIGIT   = %x30 | LDIGIT       ; "0"-"9"
- * LDIGIT  = %x31-39             ; "1"-"9"
+ * 
+ * noidlen    = numericoid [ LCURLY len RCURLY ]
+ * numericoid = number 1*( DOT number )
+ * len        = number
+ * number     = DIGIT | ( LDIGIT 1*DIGIT )
+ * DIGIT      = %x30 | LDIGIT                  ; "0"-"9"
+ * LDIGIT     = %x31-39                        ; "1"-"9"
+ * DOT        = %x2E                           ; period (".")
+ * LCURLY  = %x7B                              ; left curly brace "{"
+ * RCURLY  = %x7D                              ; right curly brace "}"
  * 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NumberSyntaxChecker implements SyntaxChecker
+public class OidLenSyntaxChecker implements SyntaxChecker
 {
-    /** The Syntax OID, according to RFC 4517, par. 3.3.23 */
-    public static final String OID = "1.3.6.1.4.1.18060.0.4.0.0.4";
+    /** The Syntax OID */
+    public static final String DEFAULT_OID = "1.3.6.1.4.1.18060.0.4.0.0.5";
+    
+    /** The Syntax OID */
+    private final String oid;
+    
+    
+    public OidLenSyntaxChecker( String oid )
+    {
+        this.oid = oid;
+    }
     
     /**
      * 
-     * Creates a new instance of NumberSyntaxChecker.
+     * Creates a new instance of OidLenSyntaxChecker.
      *
      */
-    public NumberSyntaxChecker()
+    public OidLenSyntaxChecker()
     {
+        this.oid = DEFAULT_OID;
     }
     
     
@@ -72,7 +91,7 @@ public class NumberSyntaxChecker implements SyntaxChecker
      */
     public String getSyntaxOid()
     {
-        return OID;
+        return oid;
     }
 
 
@@ -101,41 +120,59 @@ public class NumberSyntaxChecker implements SyntaxChecker
             strValue = value.toString();
         }
 
-        // We should have at least one char
         if ( strValue.length() == 0 )
         {
             return false;
         }
         
-        // Check that each char is either a digit or a space
-        for ( int i = 0; i < strValue.length(); i++ )
+        // We are looking at the first position of the len part
+        int pos = strValue.indexOf( '{' );
+            
+        if ( pos < 0 )
         {
-            switch ( strValue.charAt( i ) )
+            // Not found ... but it may still be a valid OID
+            return OID.isOID( strValue );
+        }
+        else
+        {
+            // we should have a len value. First check that the OID is valid
+            String oid = strValue.substring( 0, pos );
+            
+            if ( !OID.isOID( oid ) )
             {
-                case '0': 
-                case '1' :
-                case '2' :
-                case '3' :
-                case '4' :
-                case '5' :
-                case '6' :
-                case '7' :
-                case '8' :
-                case '9' :
-                    continue;
-                    
-                default : 
-                    return false;
+                return false;
             }
+            
+            String len = strValue.substring( pos );
+            
+            // We must have a lnumber and a '}' at the end
+            if ( len.charAt( len.length() -1 ) != '}' )
+            {
+                // No final '}'
+                return false;
+            }
+            
+            for ( int i = 1; i < len.length() - 1; i++ )
+            {
+                switch ( len.charAt(i) )
+                {
+                    case '0': case '1': case '2' : case '3': case '4':
+                    case '5': case '6': case '7' : case '8': case '9':
+                        break;
+                        
+                    default: 
+                        return false;
+                }
+            }
+            
+            if ( ( len.charAt( 1 ) == '0' ) && len.length() > 3 )
+            {
+                // A number can't start with a '0' unless it's the only
+                // number
+                return false;
+            }
+            
+            return true;
         }
-        
-        if ( ( strValue.charAt( 0 ) == '0' ) && strValue.length() > 1 )
-        {
-            // A number can't start with a '0' unless it's the only
-            // number
-            return false;
-        }
-
-        return true;
     }
 }
