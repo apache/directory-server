@@ -69,6 +69,7 @@ public abstract class BTreePartition implements Partition
     private SearchEngine searchEngine = null;
     private Optimizer optimizer = new NoOpOptimizer();
     
+    protected BTreePartitionConfiguration btpConfig;
     protected AttributeTypeRegistry attributeTypeRegistry = null;
     protected OidRegistry oidRegistry = null;
 
@@ -106,8 +107,8 @@ public abstract class BTreePartition implements Partition
     public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
         throws NamingException
     {
-        BTreePartitionConfiguration btConfig = BTreePartitionConfiguration.convert( cfg );
-        if ( btConfig.isOptimizerEnabled() )
+        this.btpConfig = BTreePartitionConfiguration.convert( cfg );
+        if ( this.btpConfig.isOptimizerEnabled() )
         {
             optimizer = new DefaultOptimizer( this );
         }

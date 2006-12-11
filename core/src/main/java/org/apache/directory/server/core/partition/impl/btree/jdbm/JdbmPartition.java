@@ -112,8 +112,6 @@ public class JdbmPartition extends BTreePartition
     /** a system index on aliasedObjectName attribute */
     private Index aliasIdx;
     
-    private BTreePartitionConfiguration cfg;
-
     private static AttributeType OBJECT_CLASS_AT;
     private static AttributeType ALIAS_AT;
     
@@ -135,11 +133,11 @@ public class JdbmPartition extends BTreePartition
     {
         if ( cfg instanceof BTreePartitionConfiguration )
         {
-            this.cfg = ( BTreePartitionConfiguration ) cfg;
+            btpConfig = ( BTreePartitionConfiguration ) cfg;
         }
         else
         {
-            this.cfg = MutableBTreePartitionConfiguration.getConfiguration( cfg );
+            btpConfig = MutableBTreePartitionConfiguration.getConfiguration( cfg );
         }
         
         oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
@@ -872,7 +870,7 @@ public class JdbmPartition extends BTreePartition
 
         master.put( entry, id );
         
-        if ( cfg.isSynchOnWrite() )
+        if ( btpConfig.isSynchOnWrite() )
         {
             sync();
         }
@@ -931,7 +929,7 @@ public class JdbmPartition extends BTreePartition
 
         master.delete( id );
         
-        if ( cfg.isSynchOnWrite() )
+        if ( btpConfig.isSynchOnWrite() )
         {
             sync();
         }
@@ -1276,7 +1274,7 @@ public class JdbmPartition extends BTreePartition
 
         master.put( entry, id );
         
-        if ( cfg.isSynchOnWrite() )
+        if ( btpConfig.isSynchOnWrite() )
         {
             sync();
         }
@@ -1310,7 +1308,7 @@ public class JdbmPartition extends BTreePartition
 
         master.put( entry, id );
         
-        if ( cfg.isSynchOnWrite() )
+        if ( btpConfig.isSynchOnWrite() )
         {
             sync();
         }
@@ -1435,7 +1433,7 @@ public class JdbmPartition extends BTreePartition
         newUpdn.add( newUpdn.size(), newRdn ); // add da new upRdn
         modifyDn( id, newUpdn, false ); // propagate dn changes
         
-        if ( cfg.isSynchOnWrite() )
+        if ( btpConfig.isSynchOnWrite() )
         {
             sync();
         }
@@ -1520,7 +1518,7 @@ public class JdbmPartition extends BTreePartition
         modifyRn( oldChildDn, newRdn, deleteOldRdn );
         move( oldChildDn, childId, newParentDn );
         
-        if ( cfg.isSynchOnWrite() )
+        if ( btpConfig.isSynchOnWrite() )
         {
             sync();
         }
@@ -1532,7 +1530,7 @@ public class JdbmPartition extends BTreePartition
         BigInteger childId = getEntryId( oldChildDn.toString() );
         move( oldChildDn, childId, newParentDn );
         
-        if ( cfg.isSynchOnWrite() )
+        if ( btpConfig.isSynchOnWrite() )
         {
             sync();
         }
