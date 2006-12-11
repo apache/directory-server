@@ -27,18 +27,18 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
-import org.apache.directory.shared.ldap.schema.syntax.SchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
 
 
 /**
- * Tests the SchemaParser class.
+ * Tests the ObjectClassDescriptionSchemaParser class.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SchemaParserObjectClassDescriptionTest extends TestCase
 {
     /** the parser instance */
-    private SchemaParser parser;
+    private ObjectClassDescriptionSchemaParser parser;
 
     /** holds multithreaded success value */
     boolean isSuccessMultithreaded = true;
@@ -46,7 +46,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
 
     protected void setUp() throws Exception
     {
-        parser = new SchemaParser();
+        parser = new ObjectClassDescriptionSchemaParser();
     }
 
 
