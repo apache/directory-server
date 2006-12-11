@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.schema.syntax;
 import javax.naming.NamingException;
 
 
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -112,23 +113,8 @@ public class NumericOidSyntaxChecker implements SyntaxChecker
         {
             return false;
         }
-        
-        // if the first character is a digit it's an attempt at an OID and must be
-        // checked to make sure there are no other chars except '.' and digits.
-        if ( Character.isDigit( strValue.charAt( 0 ) ) )
-        {
-            if ( ! org.apache.directory.shared.asn1.primitives.OID.isOID( strValue ) )
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-        else
-        {
-            return false;
-        }
+
+        // Just check that the valuse is a valid OID
+        return ( OID.isOID( strValue ) );
     }
 }
