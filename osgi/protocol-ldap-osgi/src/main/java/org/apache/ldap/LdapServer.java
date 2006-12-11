@@ -22,6 +22,7 @@ import java.net.InetSocketAddress;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.ldap.LdapProtocolProvider;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.mina.common.IoAcceptor;
@@ -47,7 +48,7 @@ public class LdapServer
 
         try
         {
-            provider = new LdapProtocolProvider( (Hashtable) env.clone() );
+            provider = new LdapProtocolProvider( new StartupConfiguration(), (Hashtable) env.clone() );
 
             acceptor.bind( new InetSocketAddress( port ), provider.getHandler() );
 

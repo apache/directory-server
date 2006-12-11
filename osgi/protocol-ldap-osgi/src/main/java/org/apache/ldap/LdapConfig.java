@@ -32,8 +32,8 @@ public class LdapConfig extends Configuration
     public static String LDAP_PORT_KEY = "ldap.port";
     public static String LDAPS_PORT_KEY = "ldaps.port";
 
-    private static String LDAP_PORT_DEFAULT = "389";
-    private static String LDAPS_PORT_DEFAULT = "636";
+    private static String LDAP_PORT_DEFAULT = "10389";
+    private static String LDAPS_PORT_DEFAULT = "10636";
 
     private static String SERVICE_PID = "service.pid";
     private static String PID = "org.apache.ldap";
