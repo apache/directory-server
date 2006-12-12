@@ -94,7 +94,7 @@ public enum UsageEnum
         	{
         		return DISTRIBUTED_OPERATION;
         	}
-        	else if ( "dsaOperation".equals( usage ) )
+        	else if ( "dSAOperation".equals( usage ) )
         	{
         		return DSA_OPERATION;	
         	}
@@ -126,7 +126,7 @@ public enum UsageEnum
         {
             case DIRECTORY_OPERATION    : return "directoryOperation";
             case DISTRIBUTED_OPERATION  : return "distributedOperation";
-            case DSA_OPERATION          : return "dsaOperation";
+            case DSA_OPERATION          : return "dSAOperation";
             case USER_APPLICATIONS      : return "userApplications";
             default : return "";
         }

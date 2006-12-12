@@ -42,7 +42,7 @@ public class UsageEnumTest extends TestCase
         assertEquals( UsageEnum.DIRECTORY_OPERATION, UsageEnum.getUsage( "directoryOperation" ) );
         assertEquals( UsageEnum.USER_APPLICATIONS, UsageEnum.getUsage( "userApplications" ) );
         assertEquals( UsageEnum.DISTRIBUTED_OPERATION, UsageEnum.getUsage( "distributedOperation" ) );
-        assertEquals( UsageEnum.DSA_OPERATION, UsageEnum.getUsage( "dsaOperation" ) );
+        assertEquals( UsageEnum.DSA_OPERATION, UsageEnum.getUsage( "dSAOperation" ) );
         assertEquals( null, UsageEnum.getUsage( "azerty" ) );
     }
     
@@ -51,7 +51,7 @@ public class UsageEnumTest extends TestCase
         assertEquals( "directoryOperation", UsageEnum.render( UsageEnum.DIRECTORY_OPERATION ) );
         assertEquals( "userApplications", UsageEnum.render( UsageEnum.USER_APPLICATIONS ) );
         assertEquals( "distributedOperation", UsageEnum.render( UsageEnum.DISTRIBUTED_OPERATION ) );
-        assertEquals( "dsaOperation", UsageEnum.render( UsageEnum.DSA_OPERATION ) );
+        assertEquals( "dSAOperation", UsageEnum.render( UsageEnum.DSA_OPERATION ) );
         assertEquals( "", UsageEnum.render( null ) );
     }
 }
