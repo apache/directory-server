@@ -38,7 +38,7 @@ import org.apache.mina.common.IoSession;
 import org.apache.mina.util.SessionLog;
 
 
-public class SimpleReplicationContext implements ReplicationContext
+public class DefaultReplicationContext implements ReplicationContext
 {
     private static final Timer expirationTimer = new Timer( "ReplicationMessageExpirer" );
 
@@ -52,7 +52,7 @@ public class SimpleReplicationContext implements ReplicationContext
     private State state = State.INIT;
 
 
-    public SimpleReplicationContext( ReplicationService service, DirectoryServiceConfiguration serviceCfg,
+    public DefaultReplicationContext( ReplicationService service, DirectoryServiceConfiguration serviceCfg,
         ReplicationConfiguration configuration, IoSession session )
     {
         this.service = service;

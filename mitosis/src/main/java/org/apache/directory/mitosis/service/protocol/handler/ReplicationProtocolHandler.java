@@ -23,7 +23,7 @@ package org.apache.directory.mitosis.service.protocol.handler;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.service.ReplicationContext;
 import org.apache.directory.mitosis.service.ReplicationService;
-import org.apache.directory.mitosis.service.SimpleReplicationContext;
+import org.apache.directory.mitosis.service.DefaultReplicationContext;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
@@ -64,7 +64,7 @@ public class ReplicationProtocolHandler implements IoHandler
 
     public void sessionCreated( IoSession session ) throws Exception
     {
-        session.setAttribute( CONTEXT, new SimpleReplicationContext( service, serviceCfg, configuration, session ) );
+        session.setAttribute( CONTEXT, new DefaultReplicationContext( service, serviceCfg, configuration, session ) );
     }
 
 
