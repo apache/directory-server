@@ -44,39 +44,40 @@ public class PrintableStringSyntaxCheckerTest extends TestCase
     }
 
 
-    public void testWrongCase()
+    /**
+     * 
+     * Check that non printable Strings are not accepted. We created Strings
+     * which contains only one char which is not in the acceptable set of
+     * printable chars.
+     *
+     */
+    public void testWrongStrings()
     {
-        assertFalse( checker.isValidSyntax( "@" ) );
-        assertFalse( checker.isValidSyntax( "tRue#" ) );
-        assertFalse( checker.isValidSyntax( "&" ) );
-        assertFalse( checker.isValidSyntax( "é" ) );
-        assertFalse( checker.isValidSyntax( "\"" ) );
-        assertFalse( checker.isValidSyntax( "§" ) );
-        assertFalse( checker.isValidSyntax( "è" ) );
-        assertFalse( checker.isValidSyntax( "!" ) );
-        assertFalse( checker.isValidSyntax( "ç" ) );
-        assertFalse( checker.isValidSyntax( "à" ) );
-        assertFalse( checker.isValidSyntax( "°" ) );
-        assertFalse( checker.isValidSyntax( "_" ) );
-        assertFalse( checker.isValidSyntax( "#" ) );
-        assertFalse( checker.isValidSyntax( "<" ) );
-        assertFalse( checker.isValidSyntax( ">" ) );
-        assertFalse( checker.isValidSyntax( ";" ) );
-        assertFalse( checker.isValidSyntax( "ù" ) );
-        assertFalse( checker.isValidSyntax( "%" ) );
-        assertFalse( checker.isValidSyntax( "`" ) );
-        assertFalse( checker.isValidSyntax( "£" ) );
-        assertFalse( checker.isValidSyntax( "$" ) );
-        assertFalse( checker.isValidSyntax( "*" ) );
-        assertFalse( checker.isValidSyntax( "€" ) );
-        assertFalse( checker.isValidSyntax( "^" ) );
-        assertFalse( checker.isValidSyntax( "¨" ) );
-        assertFalse( checker.isValidSyntax( "\\" ) );
-        assertFalse( checker.isValidSyntax( "|" ) );
-        assertFalse( checker.isValidSyntax( "´" ) );
-        assertFalse( checker.isValidSyntax( "„" ) );
-        assertFalse( checker.isValidSyntax( "[" ) );
-        assertFalse( checker.isValidSyntax( "]" ) );
+        for ( int i = 0; i < 0x1F; i++ )
+        {
+            assertFalse( checker.isValidSyntax( new String( new byte[]{(byte)i} ) ) );
+        }
+
+        for ( int i = 0x21; i < 0x26; i++ )
+        {
+            assertFalse( checker.isValidSyntax( new String( new byte[]{(byte)i} ) ) );
+        }
+
+        for ( int i = 0x5B; i < 0x60; i++ )
+        {
+            assertFalse( checker.isValidSyntax( new String( new byte[]{(byte)i} ) ) );
+        }
+
+        for ( int i = 0x7B; i < 0x7F; i++ )
+        {
+            assertFalse( checker.isValidSyntax( new String( new byte[]{(byte)i} ) ) );
+        }
+
+        assertFalse( checker.isValidSyntax( new String( new byte[]{(byte)0x2A} ) ) );
+        assertFalse( checker.isValidSyntax( new String( new byte[]{(byte)0x3B} ) ) );
+        assertFalse( checker.isValidSyntax( new String( new byte[]{(byte)0x3C} ) ) );
+        assertFalse( checker.isValidSyntax( new String( new byte[]{(byte)0x3E} ) ) );
+        assertFalse( checker.isValidSyntax( new String( new byte[]{(byte)0x40} ) ) );
     }
     
     
