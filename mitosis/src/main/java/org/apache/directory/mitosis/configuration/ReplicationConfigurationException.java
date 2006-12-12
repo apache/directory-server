@@ -23,6 +23,12 @@ package org.apache.directory.mitosis.configuration;
 import org.apache.directory.mitosis.common.ReplicationException;
 
 
+/**
+ * A {@link ReplicationException} which is thrown when there's an error
+ * in {@link ReplicationConfiguration}.
+ * 
+ * @author The Apache Directory Project Team
+ */
 public class ReplicationConfigurationException extends ReplicationException
 {
     /**
