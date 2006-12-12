@@ -117,6 +117,11 @@ public enum UsageEnum
      */
     public static String render( UsageEnum usage )
     {
+        if ( usage == null)
+        {
+            return "";
+        }
+        
         switch ( usage )
         {
             case DIRECTORY_OPERATION    : return "directoryOperation";
