@@ -136,6 +136,7 @@
           <debug>true</debug>
           <optimize>true</optimize>
           <showDeprecations>true</showDeprecations>
+          <encoding>ISO-8859-1</encoding>
         </configuration>
       </plugin>
       <plugin>
