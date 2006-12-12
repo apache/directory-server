@@ -23,8 +23,11 @@
 #              +------------------------------+-----------------------------+
 #              |          Syntax OID          |            name             |
 #              +------------------------------+-----------------------------+
-#              | 1.3.6.1.4.1.18060.0.4.0.0.0  | nameOrNumericId             |
 #              | 1.3.6.1.4.1.18060.0.4.0.0.1  | objectClassType             |
+#              | 1.3.6.1.4.1.18060.0.4.0.0.2  | NumericOid                  |
+#              | 1.3.6.1.4.1.18060.0.4.0.0.3  | attributeTypeUsage          |
+#              | 1.3.6.1.4.1.18060.0.4.0.0.4  | number                      |
+#              | 1.3.6.1.4.1.18060.0.4.0.0.5  | oidLen                      |
 #              +------------------------------+-----------------------------+
 #
 #              +------------------------------+-----------------------------+
@@ -67,6 +70,7 @@
 #              | 1.3.6.1.4.1.18060.0.4.0.2.28 | m-extensionDITContentRule   |
 #              | 1.3.6.1.4.1.18060.0.4.0.2.29 | m-applies                   |
 #              | 1.3.6.1.4.1.18060.0.4.0.2.30 | m-extensionMatchingRuleUse  |
+#              | 1.3.6.1.4.1.18060.0.4.0.2.31 | m-matchingRuleSyntax        |
 #              +------------------------------+-----------------------------+
 #
 #              +------------------------------+-----------------------------+
@@ -185,7 +189,7 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.9
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.1 NAME 'm-oid'
     DESC 'The Object Identifier'
     EQUALITY objectIdentifierMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.2
     SINGLE-VALUE
 )
 
@@ -216,21 +220,21 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.4 NAME 'm-obsolete'
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.5 NAME 'm-supObjectclass'
     DESC 'The list of superiors'
     EQUALITY nameOrNumericIdMatch
-    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.0
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
 )
 
 # --- m-must AttributeType ----------------------------------------------------
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.6 NAME 'm-must'
     DESC 'The list of mandatory ATs'
     EQUALITY nameOrNumericIdMatch
-    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.0
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
 )
 
 # --- m-may AttributeType -----------------------------------------------------
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.7 NAME 'm-may'
     DESC 'The list of authorized ATs'
     EQUALITY nameOrNumericIdMatch
-    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.0
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
 )
 
 # --- m-typeObjectClass AttributeType ---------------------------------------
@@ -252,7 +256,7 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.9 NAME 'm-extensionObjectClass'
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.10 NAME 'm-supAttributeType'
     DESC 'The list of superior'
     EQUALITY nameOrNumericIdMatch
-    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.0
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
     SINGLE-VALUE
 )
 
@@ -260,7 +264,7 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.10 NAME 'm-supAttributeType'
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.11 NAME 'm-equality'
     DESC 'Equality matching rule'
     EQUALITY nameOrNumericIdMatch
-    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.0
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
     SINGLE-VALUE
 )
 
@@ -268,7 +272,7 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.11 NAME 'm-equality'
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.12 NAME 'm-ordering'
     DESC 'Ordering matching rule'
     EQUALITY nameOrNumericIdMatch
-    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.0
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
     SINGLE-VALUE
 )
 
@@ -276,15 +280,15 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.12 NAME 'm-ordering'
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.13 NAME 'm-substr'
     DESC 'Substring matching rule'
     EQUALITY nameOrNumericIdMatch
-    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.0
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
     SINGLE-VALUE
 )
 
-# --- m-syntax AttributeType --------------------------------------------------
-attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.14 NAME 'm-syntax'
-    DESC 'The attribute syntax'
+# --- m-attributeTypeSyntaxsyntax AttributeType -------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.14 NAME 'm-attributeTypesyntax'
+    DESC 'The attributeType syntax'
     EQUALITY nameOrNumericIdMatch
-    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.0
+    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.2
     SINGLE-VALUE
 )
 
@@ -312,8 +316,8 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.17 NAME 'm-noUserModification'
     SINGLE-VALUE
 )
 
-# --- m-usage AttributeType ---------------------------------------------------
-attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.18 NAME 'm-usage'
+# --- m-attributeTypeUusage AttributeType -------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.18 NAME 'm-attributeTypeUsage'
     DESC 'Type of operation'
     EQUALITY caseIgnoreMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
@@ -331,21 +335,21 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.19 NAME 'm-extensionAttributeType'
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.20 NAME 'm-ruleId'
     DESC 'The rule ID'
     EQUALITY ruleIDMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.4
 )
 
 # --- m-form AttributeType ----------------------------------------------------
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.21 NAME 'm-form'
     DESC 'The name form associated with this DITStructure rule'
     EQUALITY caseIgnoreMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
 )
 
 # --- m-supDITStructureRule AttributeType -------------------------------------
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.22 NAME 'm-supDITStructureRule'
     DESC 'The list of superiors'
     EQUALITY supDITStructureRuleMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.36
 )
 
 # --- m-extensionDITStructureRule AttributeType -------------------------------
@@ -359,7 +363,7 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.23 NAME 'm-extensionDITStructureRule'
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.24 NAME 'm-oc'
     DESC 'The structural ObjectClass'
     EQUALITY numericOidMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
 )
 
 # --- m-extensionNameForm AttributeType ---------------------------------------
@@ -373,14 +377,14 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.25 NAME 'm-extensionNameForm'
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.26 NAME 'm-aux'
     DESC 'List of auxiliary ObjectClasses'
     EQUALITY numericOidMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
 )
 
 # --- m-not AttributeType -----------------------------------------------------
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.27 NAME 'm-not'
     DESC 'List of precluded attribute types'
     EQUALITY numericOidMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
 )
 
 # --- m-extensionDITContentRule AttributeType ---------------------------------
@@ -394,7 +398,7 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.28 NAME 'm-extensionDITContentRule'
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.29 NAME 'm-applies'
     DESC 'List of attribute types the matching rule applies to'
     EQUALITY numericOidMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
 )
 
 # --- m-extensionMatchingRuleUse AttributeType --------------------------------
@@ -402,4 +406,12 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.30 NAME 'm-extensionMatchingRuleUse'
     DESC 'Extensions for DITContentRule'
     EQUALITY caseIgnoreMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+)
+
+# --- m-matchingRuleSyntax AttributeType --------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.31 NAME 'm-matchingRuleSyntax'
+    DESC 'The matchingRule attribute syntax '
+    EQUALITY NumericOidMatch
+    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.2
+    SINGLE-VALUE
 )
