@@ -24,13 +24,22 @@ import java.util.Iterator;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.mitosis.common.Constants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-
+/**
+ * A <a href="http://www.opensymphony.com/quartz/">OpenSymphony Quartz</a>
+ * {@link Job} that purges old replication logs and the old entries marked as
+ * 'deleted' (i.e. {@link Constants#ENTRY_DELETED} is <tt>true</tt>).  This
+ * {@link Job} just calls {@link ReplicationService#purgeAgedData()} to
+ * purge old data. 
+ * 
+ * @author The Apache Directory Project Team
+ */
 public class ReplicationLogCleanJob implements Job
 {
     public static final String INSTANCE_ID = "instanceId";

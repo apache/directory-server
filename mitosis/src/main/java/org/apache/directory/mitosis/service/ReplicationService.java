@@ -256,6 +256,15 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
+    /**
+     * Purges old replication logs and the old entries marked as 'deleted'
+     * (i.e. {@link Constants#ENTRY_DELETED} is <tt>true</tt>).  This method
+     * should be called periodically to make sure the size of the DIT and
+     * {@link ReplicationStore} increase limitlessly.
+     * 
+     * @see ReplicationConfiguration#setLogMaxAge(int)
+     * @see ReplicationLogCleanJob
+     */
     public void purgeAgedData() throws NamingException
     {
         Attributes rootDSE = nexus.getRootDSE();
