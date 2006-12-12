@@ -37,7 +37,11 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.util.SessionLog;
 
-
+/**
+ * The default implementation of {@link ReplicationContext}
+ * 
+ * @author The Apache Directory Project Team
+ */
 public class DefaultReplicationContext implements ReplicationContext
 {
     private static final Timer expirationTimer = new Timer( "ReplicationMessageExpirer" );
