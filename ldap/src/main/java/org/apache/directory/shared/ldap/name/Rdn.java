@@ -116,7 +116,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
    private String upName = null;
 
    /** The normalized RDN */
-   private String string = null;
+   private String normName = null;
 
    /** The starting position of this RDN in the given string from which
     * we have extracted the upName */
@@ -178,7 +178,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
        // name-components in a RDN... So we won't initialize the Map and the
        // treeSet.
        upName = "";
-       string = "";
+       normName = "";
    }
 
 
@@ -201,15 +201,15 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
            // create the internal normalized form
            // and store the user provided form
-           normalizeString();
+           normalize();
            upName = rdn;
-               length = rdn.length();
+           length = rdn.length();
        }
        else
        {
            upName = "";
-           string = "";
-               length = 0;
+           normName = "";
+           length = 0;
        }
    }
 
@@ -237,7 +237,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
        start = 0;
        length = upName.length();
        // create the internal normalized form
-       normalizeString();
+       normalize();
    }
 
 
@@ -252,7 +252,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
    {
        super();
        nbAtavs = rdn.getNbAtavs();
-       this.string = new String( rdn.string );
+       this.normName = new String( rdn.normName );
        this.upName = new String( rdn.getUpName() );
        this.start = rdn.start;
        this.length = rdn.length;
@@ -291,13 +291,13 @@ public class Rdn implements Cloneable, Comparable, Serializable
    // WARNING : The protection level is left unspecified intentionnaly.
    // We need this method to be visible from the DnParser class, but not
    // from outside this package.
-   /* Unspecified protection */void normalizeString()
+   /* Unspecified protection */void normalize()
    {
        switch ( nbAtavs )
        {
            case 0:
                // An empty RDN
-               string = "";
+               normName = "";
                break;
 
            case 1:
@@ -305,11 +305,11 @@ public class Rdn implements Cloneable, Comparable, Serializable
                // We will trim and lowercase type and value.
                if ( atav.getValue() instanceof String )
                {
-                       string = atav.getType() + '=' + (String)atav.getValue();
+                   normName = atav.getNormalizedValue();
                }
                else
                {
-                       string = atav.getType() + "=#" + StringTools.dumpHexPairs( (byte[])atav.getValue() );
+                   normName = atav.getType() + "=#" + StringTools.dumpHexPairs( (byte[])atav.getValue() );
                }
 
                break;
@@ -334,7 +334,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                    sb.append( ata.normalize() );
                }
 
-               string = sb.toString();
+               normName = sb.toString();
                break;
        }
    }
@@ -407,7 +407,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
        atavType = null;
        atavTypes.clear();
        nbAtavs = 0;
-       string = "";
+       normName = "";
        upName = "";
        start = -1;
        length = 0;
@@ -734,7 +734,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
     */
    public String toString()
    {
-       return string;
+       return normName == null ? "" : normName;
    }
 
 

@@ -162,14 +162,14 @@ public class DNUtils
             ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 14 -> 17
             ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 18 -> 1B
             ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 1C -> 1F
-            ONE_CHAR,      ONE_CHAR,      PARSING_ERROR, PARSING_ERROR,// 20 -> 23
+            ONE_CHAR,      ONE_CHAR,      PARSING_ERROR, ONE_CHAR,     // 20 -> 23
             ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 24 -> 27
             ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      PARSING_ERROR,// 28 -> 2B
             PARSING_ERROR, ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 2C -> 2F
             ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 30 -> 33
             ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      ONE_CHAR,     // 34 -> 37
             ONE_CHAR,      ONE_CHAR,      ONE_CHAR,      PARSING_ERROR,// 38 -> 3B
-            PARSING_ERROR, PARSING_ERROR, PARSING_ERROR, ONE_CHAR      // 3C -> 3F
+            PARSING_ERROR, ONE_CHAR,      PARSING_ERROR, ONE_CHAR      // 3C -> 3F
         };
 
     /** "oid." static */

@@ -1392,7 +1392,7 @@ public class LdapDN /* extends LdapString */implements Name
            Rdn rdn = rdns.nextElement();
            String upName = rdn.getUpName();
            rdnOidToName( rdn, oidsMap );
-           rdn.normalizeString();
+           rdn.normalize();
            rdn.setUpName( upName );
        }
 
@@ -1431,7 +1431,7 @@ public class LdapDN /* extends LdapString */implements Name
            Rdn rdn = rdns.nextElement();
            String upName = rdn.getUpName();
            rdnOidToName( rdn, oidsMap );
-           rdn.normalizeString();
+           rdn.normalize();
            rdn.setUpName( upName );
        }
 

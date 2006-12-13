@@ -183,9 +183,10 @@ public class RdnTest extends TestCase
     */
    public void testRdnPairCharAttributeValue() throws InvalidNameException
    {
-       String rdn = StringTools.utf8ToString( new byte[]{'a', '=', ',', '=', '+', '<', '>', '#', ';', '\\', '"', (byte)0xC3, (byte)0xA9});
+       String rdn = StringTools.utf8ToString( new byte[]{'a', '=', '\\', ',', '=', '\\', '+', '\\', '<', 
+           '\\', '>', '#', '\\', ';', '\\', '\\', '\\', '"', '\\', 'C', '3', '\\', 'A', '9' });
        Assert.assertEquals( rdn, new Rdn(
-           "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\C3\\A9" ).toString() );
+           "a = \\,=\\+\\<\\>#\\;\\\\\\\"\\C3\\A9" ).toString() );
    }
 
 
@@ -203,7 +204,7 @@ public class RdnTest extends TestCase
     */
    public void testRdnQuotedAttributeValue() throws InvalidNameException
    {
-       Assert.assertEquals( "a=quoted \"value", new Rdn( "a = quoted \\\"value" ).toString() );
+       Assert.assertEquals( "a=quoted \\\"value", new Rdn( "a = quoted \\\"value" ).toString() );
    }
 
 

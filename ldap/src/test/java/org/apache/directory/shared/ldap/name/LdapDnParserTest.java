@@ -193,9 +193,8 @@ public class LdapDnParserTest extends TestCase
    public void testLdapDNPairCharAttributeValue() throws NamingException
    {
        NameParser dnParser = LdapDnParser.getNameParser();
-       String expected = StringTools.utf8ToString( new byte[]{'a', '=', ',', '=', '+', '<', '>', '#', ';', '\\', '"', (byte)0xC3, (byte)0xA9});
        LdapDN dn = ( LdapDN ) dnParser.parse( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\C3\\A9" );
-       Assert.assertEquals( expected, dn.toString() );
+       Assert.assertEquals( "a=\\,=\\+\\<\\>#\\;\\\\\\\"\\C3\\A9", dn.toString() );
        Assert.assertEquals( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\C3\\A9", dn.getUpName() );
    }
 
@@ -219,7 +218,7 @@ public class LdapDnParserTest extends TestCase
    {
        NameParser dnParser = LdapDnParser.getNameParser();
        LdapDN dn = ( LdapDN ) dnParser.parse( "a = quoted \\\"value" );
-       Assert.assertEquals( "a=quoted \"value", dn.toString() );
+       Assert.assertEquals( "a=quoted \\\"value", dn.toString() );
        Assert.assertEquals( "a = quoted \\\"value", dn.getUpName() );
    }
 
@@ -244,14 +243,11 @@ public class LdapDnParserTest extends TestCase
        String dn = StringTools.utf8ToString( new byte[]{'C', 'N', ' ', '=', ' ', 'E', 'm', 'm', 'a', 'n', 'u', 'e', 
            'l', ' ', ' ', 'L', (byte)0xc3, (byte)0xa9, 'c', 'h', 'a', 'r', 'n', 'y'} );
 
-       String expected = StringTools.utf8ToString( new byte[]{'c', 'n', '=','E', 'm', 'm', 'a', 'n', 'u', 'e', 
-           'l', ' ', ' ', 'L', (byte)0xc3, (byte)0xa9, 'c', 'h', 'a', 'r', 'n', 'y'} );
-
        NameParser dnParser = LdapDnParser.getNameParser();
        LdapDN name = ( LdapDN ) dnParser.parse( dn );
 
        Assert.assertEquals( dn, name.getUpName() );
-       Assert.assertEquals( expected, name.toString() );
+       Assert.assertEquals( "cn=Emmanuel  L\\C3\\A9charny", name.toString() );
    }
 
 
@@ -387,7 +383,7 @@ public class LdapDnParserTest extends TestCase
 
        assertEquals( "RFC2253_3 : ", "CN=L. Eagle,   O=Sue\\, Grabbit and Runn, C=GB", ( ( LdapDN ) nameRFC2253_3 )
            .getUpName() );
-       assertEquals( "RFC2253_3 : ", "cn=L. Eagle,o=Sue, Grabbit and Runn,c=GB", nameRFC2253_3.toString() );
+       assertEquals( "RFC2253_3 : ", "cn=L. Eagle,o=Sue\\, Grabbit and Runn,c=GB", nameRFC2253_3.toString() );
    }
 
 
@@ -475,7 +471,7 @@ public class LdapDnParserTest extends TestCase
        NameParser parser = LdapDnParser.getNameParser();
        String input = "ou=some test\\,  something else";
        String result = parser.parse( input ).toString();
-       assertEquals( "ou=some test,  something else", result );
+       assertEquals( "ou=some test\\,  something else", result );
    }
 
 
@@ -486,19 +482,19 @@ public class LdapDnParserTest extends TestCase
        NameParser parser = LdapDnParser.getNameParser();
        Name result = parser.parse( path );
        assertEquals( path, ( ( LdapDN ) result ).getUpName() );
-       assertEquals( "windowsfilepath=C:\\cygwin", result.toString() );
+       assertEquals( "windowsfilepath=C:\\\\cygwin", result.toString() );
    }
 
 
    public void testNameFrenchChars() throws Exception
    {
        String cn = new String( new byte[]
-           { 'c', 'n', '=', 0x4A, ( byte ) 0xC3, ( byte ) 0xA9, 0x72, ( byte ) 0xC3, ( byte ) 0xB4, 0x6D, 0x65 } );
+           { 'c', 'n', '=', 0x4A, ( byte ) 0xC3, ( byte ) 0xA9, 0x72, ( byte ) 0xC3, ( byte ) 0xB4, 0x6D, 0x65 }, "UTF-8" );
 
        NameParser parser = LdapDnParser.getNameParser();
        String result = parser.parse( cn ).toString();
 
-       assertEquals( cn, result.toString() );
+       assertEquals( "cn=J\\C3\\A9r\\C3\\B4me", result.toString() );
 
    }
 
@@ -513,7 +509,7 @@ public class LdapDnParserTest extends TestCase
        NameParser parser = LdapDnParser.getNameParser();
        String result = parser.parse( cn ).toString();
 
-       assertEquals( cn, result.toString() );
+       assertEquals( "cn=\\C3\\84\\C3\\96\\C3\\9C\\C3\\9F\\C3\\A4\\C3\\B6\\C3\\BC", result.toString() );
    }
 
 
@@ -528,7 +524,7 @@ public class LdapDnParserTest extends TestCase
        NameParser parser = LdapDnParser.getNameParser();
        String result = parser.parse( cn ).toString();
 
-       assertEquals( cn, result.toString() );
+       assertEquals( "cn=\\C4\\B0\\C4\\B1\\C5\\9E\\C5\\9F\\C3\\96\\C3\\B6\\C3\\9C\\C3\\BC\\C4\\9E\\C4\\9F", result.toString() );
 
    }
 
@@ -542,11 +538,12 @@ public class LdapDnParserTest extends TestCase
    public final void testNonEscapedChars() throws NamingException
    {
        NameParser parser = LdapDnParser.getNameParser();
-       String input = "ou=ou=test";
+       String input = "ou=ou+test";
 
        try
        {
-           parser.parse( input ).toString();
+           String res = parser.parse( input ).toString();
+           System.out.println( res);
        }
        catch ( NamingException ne )
        {
