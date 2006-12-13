@@ -291,7 +291,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         
         try
         {
-            pcfg.setSuffix( "ou=test=testing" );
+            pcfg.setSuffix( "ou=test+testing" );
         }
         catch ( LdapConfigurationException ce )
         {
