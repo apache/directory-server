@@ -26,6 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
+
 
 /**
  * RFC 4512 - 4.1.1. Object Class Description
@@ -34,12 +36,7 @@ import java.util.Map;
  */
 public class ObjectClassDescription
 {
-    public static enum Kind
-    {
-        ABSTRACT, STRUCTURAL, AUXILIARY
-    }
-
-    private String oid;
+    private String numericOid;
 
     private List<String> names;
 
@@ -49,7 +46,7 @@ public class ObjectClassDescription
 
     private List<String> superiorObjectClasses;
 
-    private Kind kind;
+    private ObjectClassTypeEnum kind;
 
     private List<String> mustAttributeTypes;
 
@@ -60,12 +57,12 @@ public class ObjectClassDescription
 
     public ObjectClassDescription()
     {
-        this.oid = "";
+        numericOid = "";
         names = new ArrayList<String>();
         description = "";
         isObsolete = false;
         superiorObjectClasses = new ArrayList<String>();
-        kind = Kind.STRUCTURAL;
+        kind = ObjectClassTypeEnum.STRUCTURAL;
         mustAttributeTypes = new ArrayList<String>();
         mayAttributeTypes = new ArrayList<String>();
         extensions = new LinkedHashMap<String, List<String>>();
@@ -146,13 +143,13 @@ public class ObjectClassDescription
 
     public String getNumericOid()
     {
-        return oid;
+        return numericOid;
     }
 
 
-    public void setOid( String oid )
+    public void setNumericOid( String numericOid )
     {
-        this.oid = oid;
+        this.numericOid = numericOid;
     }
 
 
@@ -168,13 +165,13 @@ public class ObjectClassDescription
     }
 
 
-    public Kind getKind()
+    public ObjectClassTypeEnum getKind()
     {
         return kind;
     }
 
 
-    public void setKind( Kind kind )
+    public void setKind( ObjectClassTypeEnum kind )
     {
         this.kind = kind;
     }
@@ -182,25 +179,24 @@ public class ObjectClassDescription
 
     public void addSuperiorObjectClass( String oid )
     {
-        this.superiorObjectClasses.add( oid );
+        superiorObjectClasses.add( oid );
     }
 
 
     public void addMustAttributeType( String oid )
     {
-        this.mustAttributeTypes.add( oid );
+        mustAttributeTypes.add( oid );
     }
 
 
     public void addMayAttributeType( String oid )
     {
-        this.mayAttributeTypes.add( oid );
+        mayAttributeTypes.add( oid );
     }
 
 
     public void addExtension( String key, List<String> values )
     {
-        this.extensions.put( key, values );
+        extensions.put( key, values );
     }
-
 }

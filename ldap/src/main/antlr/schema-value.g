@@ -34,7 +34,7 @@ import java.util.* ;
 class AntlrSchemaValueLexer extends Lexer;
 
 options    {
-    k = 2 ;
+    k = 3 ;
     exportVocab=AntlrSchemaValue ;
     charVocabulary = '\3'..'\377' ;
     caseSensitive = true ;
@@ -46,18 +46,17 @@ SP : ( ' ' )+ { setText(" "); };
 
 LPAR : '(' ;
 RPAR : ')' ;
+protected LDIGIT : '1'..'9' ;
+protected DIGIT : '0'..'9' ; 
+protected NUMBER : DIGIT | ( LDIGIT (DIGIT)+ ) ;
 
 QUOTE : '\'' ;
 DOLLAR : '$' ;
-LBRACKET : '{' ;
-RBRACKET : '}' ;
-LEN : LBRACKET (DIGIT)+ RBRACKET ;
-DIGIT : ('0'..'9') ; 
-NUMERICOID : ('0'..'9')+ ( '.' ('0'..'9')+ )+ ;
+LCURLY : '{' ;
+RCURLY : '}' ;
+NUMERICOID : NUMBER ( '.' NUMBER )+ ;
 DESCR : ( 'a'..'z' | 'A'..'Z' ) ( 'a'..'z' | 'A'..'Z' | '0'..'9' | '-' )* ;
-
-
-
+LEN : LCURLY n:NUMBER RCURLY { setText(n.getText()); } ;
 
 
 /**
@@ -73,6 +72,21 @@ options    {
     defaultErrorHandler = false ;
     //buildAST=true ;
 }
+
+
+    /**
+     * noidlen = numericoid [ LCURLY len RCURLY ]
+     * len = number
+     */
+noidlen returns [AntlrSchemaParser.NoidLen noidlen = new AntlrSchemaParser.NoidLen()]
+    :
+    ( 
+      o:NUMERICOID { noidlen.noid = o.getText(); } 
+      (
+        l:LEN { noidlen.len = Integer.parseInt(l.getText()); } 
+      )?
+    )
+    ;
 
 
     /**

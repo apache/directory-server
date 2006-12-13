@@ -23,18 +23,18 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 import java.io.StringReader;
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
+import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 
 /**
- * A parser for RFC 4512 object class descriptons
+ * A parser for RFC 4512 attribute type descriptions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ObjectClassDescriptionSchemaParser
+public class AttributeTypeDescriptionSchemaParser
 {
 
     /** the antlr generated parser being wrapped */
@@ -51,7 +51,7 @@ public class ObjectClassDescriptionSchemaParser
     /**
      * Creates a schema parser instance.
      */
-    public ObjectClassDescriptionSchemaParser()
+    public AttributeTypeDescriptionSchemaParser()
     {
         lexer = new ReusableAntlrSchemaLexer( new StringReader( "" ) );
         parser = new ReusableAntlrSchemaParser( lexer );
@@ -70,59 +70,68 @@ public class ObjectClassDescriptionSchemaParser
 
 
     /**
-     * Parses a object class definition according to RFC 4512:
+     * Parses a attribute type description according to RFC 4512:
      * 
      * <pre>
-     * ObjectClassDescription = LPAREN WSP
-     *     numericoid                 ; object identifier
-     *     [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
-     *     [ SP "DESC" SP qdstring ]  ; description
-     *     [ SP "OBSOLETE" ]          ; not active
-     *     [ SP "SUP" SP oids ]       ; superior object classes
-     *     [ SP kind ]                ; kind of class
-     *     [ SP "MUST" SP oids ]      ; attribute types
-     *     [ SP "MAY" SP oids ]       ; attribute types
-     *     extensions WSP RPAREN
-     *
-     * kind = "ABSTRACT" / "STRUCTURAL" / "AUXILIARY"
+     * AttributeTypeDescription = LPAREN WSP
+     *     numericoid                    ; object identifier
+     *     [ SP "NAME" SP qdescrs ]      ; short names (descriptors)
+     *     [ SP "DESC" SP qdstring ]     ; description
+     *     [ SP "OBSOLETE" ]             ; not active
+     *     [ SP "SUP" SP oid ]           ; supertype
+     *     [ SP "EQUALITY" SP oid ]      ; equality matching rule
+     *     [ SP "ORDERING" SP oid ]      ; ordering matching rule
+     *     [ SP "SUBSTR" SP oid ]        ; substrings matching rule
+     *     [ SP "SYNTAX" SP noidlen ]    ; value syntax
+     *     [ SP "SINGLE-VALUE" ]         ; single-value
+     *     [ SP "COLLECTIVE" ]           ; collective
+     *     [ SP "NO-USER-MODIFICATION" ] ; not user modifiable
+     *     [ SP "USAGE" SP usage ]       ; usage
+     *     extensions WSP RPAREN         ; extensions
+     * 
+     * usage = "userApplications"     /  ; user
+     *         "directoryOperation"   /  ; directory operational
+     *         "distributedOperation" /  ; DSA-shared operational
+     *         "dSAOperation"            ; DSA-specific operational     
      * 
      * extensions = *( SP xstring SP qdstrings )
      * xstring = "X" HYPHEN 1*( ALPHA / HYPHEN / USCORE ) 
      * </pre>
      * 
-     * @param objectClassDescription the object class description to be parsed
-     * @return the parsed ObjectClassDescription bean
+     * @param attributeTypeDescription the attribute type description to be parsed
+     * @return the parsed AttributeTypeDescription bean
      * @throws ParseException if there are any recognition errors (bad syntax)
      */
-    public synchronized ObjectClassDescription parseObjectClassDescription( String objectClassDescription )
+    public synchronized AttributeTypeDescription parseAttributeTypeDescription( String attributeTypeDescription )
         throws ParseException
     {
 
-        if ( objectClassDescription == null )
+        if ( attributeTypeDescription == null )
         {
             throw new ParseException( "Null", 0 );
         }
 
-        reset( objectClassDescription ); // reset and initialize the parser / lexer pair
+        reset( attributeTypeDescription ); // reset and initialize the parser / lexer pair
 
         try
         {
-            ObjectClassDescription ocd = parser.objectClassDescription();
-            return ocd;
+            AttributeTypeDescription atd = parser.attributeTypeDescription();
+            return atd;
         }
         catch ( RecognitionException re )
         {
-            String msg = "Parser failure on object class description:\n\t" + objectClassDescription;
+            String msg = "Parser failure on attribute type description:\n\t" + attributeTypeDescription;
             msg += "\nAntlr message: " + re.getMessage();
             msg += "\nAntlr column: " + re.getColumn();
             throw new ParseException( msg, re.getColumn() );
         }
         catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on object class description:\n\t" + objectClassDescription;
+            String msg = "Parser failure on attribute type description:\n\t" + attributeTypeDescription;
             msg += "\nAntlr message: " + tse.getMessage();
             throw new ParseException( msg, 0 );
         }
 
     }
+
 }

@@ -23,18 +23,18 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 import java.io.StringReader;
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
+import org.apache.directory.shared.ldap.schema.syntax.LdapSyntaxDescription;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 
 /**
- * A parser for RFC 4512 object class descriptons
+ * A parser for RFC 4512 LDAP syntx descriptions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ObjectClassDescriptionSchemaParser
+public class LdapSyntaxDescriptionSchemaParser
 {
 
     /** the antlr generated parser being wrapped */
@@ -51,7 +51,7 @@ public class ObjectClassDescriptionSchemaParser
     /**
      * Creates a schema parser instance.
      */
-    public ObjectClassDescriptionSchemaParser()
+    public LdapSyntaxDescriptionSchemaParser()
     {
         lexer = new ReusableAntlrSchemaLexer( new StringReader( "" ) );
         parser = new ReusableAntlrSchemaParser( lexer );
@@ -70,59 +70,49 @@ public class ObjectClassDescriptionSchemaParser
 
 
     /**
-     * Parses a object class definition according to RFC 4512:
+     * Parses a LDAP syntax description according to RFC 4512:
      * 
      * <pre>
-     * ObjectClassDescription = LPAREN WSP
-     *     numericoid                 ; object identifier
-     *     [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
-     *     [ SP "DESC" SP qdstring ]  ; description
-     *     [ SP "OBSOLETE" ]          ; not active
-     *     [ SP "SUP" SP oids ]       ; superior object classes
-     *     [ SP kind ]                ; kind of class
-     *     [ SP "MUST" SP oids ]      ; attribute types
-     *     [ SP "MAY" SP oids ]       ; attribute types
-     *     extensions WSP RPAREN
-     *
-     * kind = "ABSTRACT" / "STRUCTURAL" / "AUXILIARY"
-     * 
-     * extensions = *( SP xstring SP qdstrings )
-     * xstring = "X" HYPHEN 1*( ALPHA / HYPHEN / USCORE ) 
+     * SyntaxDescription = LPAREN WSP
+     *    numericoid                 ; object identifier
+     *    [ SP "DESC" SP qdstring ]  ; description
+     *    extensions WSP RPAREN      ; extensions
      * </pre>
      * 
-     * @param objectClassDescription the object class description to be parsed
-     * @return the parsed ObjectClassDescription bean
+     * @param ldapSyntaxDescription the LDAP syntay description to be parsed
+     * @return the parsed LdapSyntaxDescription bean
      * @throws ParseException if there are any recognition errors (bad syntax)
      */
-    public synchronized ObjectClassDescription parseObjectClassDescription( String objectClassDescription )
+    public synchronized LdapSyntaxDescription parseLdapSyntaxDescription( String ldapSyntaxDescription )
         throws ParseException
     {
 
-        if ( objectClassDescription == null )
+        if ( ldapSyntaxDescription == null )
         {
             throw new ParseException( "Null", 0 );
         }
 
-        reset( objectClassDescription ); // reset and initialize the parser / lexer pair
+        reset( ldapSyntaxDescription ); // reset and initialize the parser / lexer pair
 
         try
         {
-            ObjectClassDescription ocd = parser.objectClassDescription();
-            return ocd;
+            LdapSyntaxDescription lsd = parser.ldapSyntaxDescription();
+            return lsd;
         }
         catch ( RecognitionException re )
         {
-            String msg = "Parser failure on object class description:\n\t" + objectClassDescription;
+            String msg = "Parser failure on LDAP syntay description:\n\t" + ldapSyntaxDescription;
             msg += "\nAntlr message: " + re.getMessage();
             msg += "\nAntlr column: " + re.getColumn();
             throw new ParseException( msg, re.getColumn() );
         }
         catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on object class description:\n\t" + objectClassDescription;
+            String msg = "Parser failure on LDAP syntay description:\n\t" + ldapSyntaxDescription;
             msg += "\nAntlr message: " + tse.getMessage();
             throw new ParseException( msg, 0 );
         }
 
     }
+
 }

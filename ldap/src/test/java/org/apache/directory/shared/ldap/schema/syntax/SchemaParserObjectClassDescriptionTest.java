@@ -26,6 +26,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
 
@@ -95,6 +96,11 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         ocd = parser.parseObjectClassDescription( value );
         assertEquals( "1.1", ocd.getNumericOid() );
 
+        // simple
+        value = "( 0.0 )";
+        ocd = parser.parseObjectClassDescription( value );
+        assertEquals( "0.0", ocd.getNumericOid() );
+        
         // simple with spaces
         value = "(          1.1          )";
         ocd = parser.parseObjectClassDescription( value );
@@ -154,6 +160,18 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         {
             parser.parseObjectClassDescription( value );
             fail( "Exception expected, invalid NUMERICOID '1.1' (quoted)" );
+        }
+        catch ( ParseException pe )
+        {
+            // expected
+        }
+        
+        // leading 0
+        value = "( 01.1 )";
+        try
+        {
+            parser.parseObjectClassDescription( value );
+            fail( "Exception expected, invalid NUMERICOID 01.1." );
         }
         catch ( ParseException pe )
         {
@@ -549,22 +567,22 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         // DEFAULT is STRUCTURAL
         value = "( 1.1 )";
         ocd = parser.parseObjectClassDescription( value );
-        assertEquals( ObjectClassDescription.Kind.STRUCTURAL, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
 
         // ABSTRACT
         value = "( 1.1 ABSTRACT )";
         ocd = parser.parseObjectClassDescription( value );
-        assertEquals( ObjectClassDescription.Kind.ABSTRACT, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.ABSTRACT, ocd.getKind() );
 
         // AUXILIARY
         value = "( 1.1 AUXILIARY )";
         ocd = parser.parseObjectClassDescription( value );
-        assertEquals( ObjectClassDescription.Kind.AUXILIARY, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.AUXILIARY, ocd.getKind() );
 
         // STRUCTURAL
         value = "( 1.1 STRUCTURAL )";
         ocd = parser.parseObjectClassDescription( value );
-        assertEquals( ObjectClassDescription.Kind.STRUCTURAL, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
 
         // ivalid
         value = "( 1.1 FOO )";
@@ -754,7 +772,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "RFC2256: a person", ocd.getDescription() );
         assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "top", ocd.getSuperiorObjectClasses().get( 0 ) );
-        assertEquals( ObjectClassDescription.Kind.STRUCTURAL, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
         assertEquals( 2, ocd.getMustAttributeTypes().size() );
         assertEquals( "sn", ocd.getMustAttributeTypes().get( 0 ) );
         assertEquals( "cn", ocd.getMustAttributeTypes().get( 1 ) );
@@ -782,7 +800,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "top", ocd.getNames().get( 0 ) );
         assertEquals( "top of the superclass chain", ocd.getDescription() );
         assertEquals( 0, ocd.getSuperiorObjectClasses().size() );
-        assertEquals( ObjectClassDescription.Kind.ABSTRACT, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.ABSTRACT, ocd.getKind() );
         assertEquals( 1, ocd.getMustAttributeTypes().size() );
         assertEquals( "objectClass", ocd.getMustAttributeTypes().get( 0 ) );
         assertEquals( 0, ocd.getMayAttributeTypes().size() );
@@ -801,7 +819,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "RFC2256: a person", ocd.getDescription() );
         assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "top", ocd.getSuperiorObjectClasses().get( 0 ) );
-        assertEquals( ObjectClassDescription.Kind.STRUCTURAL, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
         assertEquals( 2, ocd.getMustAttributeTypes().size() );
         assertEquals( "sn", ocd.getMustAttributeTypes().get( 0 ) );
         assertEquals( "cn", ocd.getMustAttributeTypes().get( 1 ) );
@@ -825,7 +843,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "RFC1274: simple security object", ocd.getDescription() );
         assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "top", ocd.getSuperiorObjectClasses().get( 0 ) );
-        assertEquals( ObjectClassDescription.Kind.AUXILIARY, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.AUXILIARY, ocd.getKind() );
         assertEquals( 1, ocd.getMustAttributeTypes().size() );
         assertEquals( "userPassword", ocd.getMustAttributeTypes().get( 0 ) );
         assertEquals( 0, ocd.getMayAttributeTypes().size() );
@@ -844,7 +862,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "Standard LDAP objectclass", ocd.getDescription() );
         assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "top", ocd.getSuperiorObjectClasses().get( 0 ) );
-        assertEquals( ObjectClassDescription.Kind.ABSTRACT, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.ABSTRACT, ocd.getKind() );
         assertEquals( 1, ocd.getMustAttributeTypes().size() );
         assertEquals( "aliasedObjectName", ocd.getMustAttributeTypes().get( 0 ) );
         assertEquals( 0, ocd.getMayAttributeTypes().size() );
@@ -866,7 +884,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "dcObject", ocd.getNames().get( 0 ) );
         assertEquals( "", ocd.getDescription() );
         assertEquals( 0, ocd.getSuperiorObjectClasses().size() );
-        assertEquals( ObjectClassDescription.Kind.AUXILIARY, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.AUXILIARY, ocd.getKind() );
         assertEquals( 1, ocd.getMustAttributeTypes().size() );
         assertEquals( "dc", ocd.getMustAttributeTypes().get( 0 ) );
         assertEquals( 0, ocd.getMayAttributeTypes().size() );
@@ -895,7 +913,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "", ocd.getDescription() );
         assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "Top", ocd.getSuperiorObjectClasses().get( 0 ) );
-        assertEquals( ObjectClassDescription.Kind.STRUCTURAL, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
         assertEquals( 1, ocd.getMustAttributeTypes().size() );
         assertEquals( "cn", ocd.getMustAttributeTypes().get( 0 ) );
         assertEquals( 11, ocd.getMayAttributeTypes().size() );
@@ -940,7 +958,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "", ocd.getDescription() );
         assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "top", ocd.getSuperiorObjectClasses().get( 0 ) );
-        assertEquals( ObjectClassDescription.Kind.STRUCTURAL, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
         assertEquals( 1, ocd.getMustAttributeTypes().size() );
         assertEquals( "l", ocd.getMustAttributeTypes().get( 0 ) );
         assertEquals( 4, ocd.getMayAttributeTypes().size() );
@@ -963,7 +981,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "", ocd.getDescription() );
         assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "top", ocd.getSuperiorObjectClasses().get( 0 ) );
-        assertEquals( ObjectClassDescription.Kind.STRUCTURAL, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
         assertEquals( 0, ocd.getMustAttributeTypes().size() );
         assertEquals( 3, ocd.getMayAttributeTypes().size() );
         assertEquals( "msieee80211-Data", ocd.getMayAttributeTypes().get( 0 ) );
@@ -983,7 +1001,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "x500subSchema", ocd.getNames().get( 0 ) );
         assertEquals( "", ocd.getDescription() );
         assertEquals( 0, ocd.getSuperiorObjectClasses().size() );
-        assertEquals( ObjectClassDescription.Kind.AUXILIARY, ocd.getKind() );
+        assertEquals( ObjectClassTypeEnum.AUXILIARY, ocd.getKind() );
         assertEquals( 0, ocd.getMustAttributeTypes().size() );
         assertEquals( 7, ocd.getMayAttributeTypes().size() );
         assertEquals( "dITStructureRules", ocd.getMayAttributeTypes().get( 0 ) );

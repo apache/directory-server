@@ -22,6 +22,8 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import java.io.* ;
 import java.util.* ;
+import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
+import org.apache.directory.shared.ldap.schema.UsageEnum;
 
 }
 
@@ -52,11 +54,6 @@ RBRACKET : '}' ;
 
 LEN : LBRACKET ('0'..'9')+ RBRACKET ;
 
-USERAPPLICATIONS : "userApplications" ;
-DIRECTORYOPERATION : "directoryOperation" ;
-DISTRIBUTEDOPERATION : "distributedOperation" ;
-DSAOPERATION : "dSAOperation" ;
-
 SINGLE_VALUE : ( "SINGLE-VALUE" (WHSP)? ) ;
 COLLECTIVE : ( "COLLECTIVE" (WHSP)? ) ;
 NO_USER_MODIFICATION : ( "NO-USER-MODIFICATION" (WHSP)? ) ;
@@ -76,7 +73,6 @@ EQUALITY : ( "EQUALITY" WHSP equality:VALUES ) { setText(equality.getText().trim
 ORDERING : ( "ORDERING" WHSP ordering:VALUES ) { setText(ordering.getText().trim()); } ;
 SUBSTR : ( "SUBSTR" WHSP substr:VALUES ) { setText(substr.getText().trim()); } ;
 SYNTAX : ( "SYNTAX" WHSP syntax:VALUES (len:LEN)? ) { setText(syntax.getText().trim() + (len!=null?len.getText().trim():"")); } ;
-USAGE : ( "USAGE" WHSP op:VALUES ) { setText(op.getText().trim()); } ;
 APPLIES : ( "APPLIES" WHSP applies:VALUES ) { setText(applies.getText().trim()); } ;
 EXTENSION : x:( "X-" ( 'a'..'z' | 'A'..'Z' | '-' | '_' )+ WHSP VALUES ) ; 
 
@@ -85,6 +81,11 @@ protected VALUE : (WHSP)? ( QUOTED_STRING | UNQUOTED_STRING ) (options {greedy=t
 protected UNQUOTED_STRING : (options{greedy=true;}: 'a'..'z' | 'A'..'Z' | '0'..'9' | '-' | ';' | '.' )+ ;
 protected QUOTED_STRING : ( QUOTE (~'\'')* QUOTE ) ;
 
+USAGE : ( "USAGE" (WHSP)? ) ;
+USER_APPLICATIONS : ( "userApplications" (WHSP)? ) ;
+DIRECTORY_OPERATION : ( "directoryOperation" (WHSP)? ) ;
+DISTRIBUTED_OPERATION : ( "distributedOperation" (WHSP)? ) ;
+DSA_OPERATION : ( "dSAOperation" (WHSP)? ) ;
 
 /**
  * An antlr generated schema main parser.
@@ -102,43 +103,18 @@ options    {
 {
 	static class Extension
 	{
-	
-	    private String key;
-	    
-	    private List<String> values;
-	    
-	    public Extension()
-	    {
-	        this.key = "";
-	        this.values = new ArrayList<String>();
-	    }
-	
-	    public String getKey()
-	    {
-	        return key;
-	    }
-	
-	    public void setKey( String key )
-	    {
-	        this.key = key;
-	    }
-	
-	    public List<String> getValues()
-	    {
-	        return values;
-	    }
-	
-	    public void setValues( List<String> values )
-	    {
-	        this.values = values;
-	    }
-	    
+	    String key = "";
+	    List<String> values = new ArrayList<String>();
 	    
 	    public void addValue( String value )
 	    {
 	        this.values.add( value );
 	    }
-	    
+	}
+	static class NoidLen
+	{
+	    String noid = "";
+	    int len = 0;
 	}
 }
 
@@ -167,7 +143,7 @@ options    {
     */
 objectClassDescription returns [ObjectClassDescription ocd = new ObjectClassDescription()]
     :
-    ( oid:STARTNUMERICOID { ocd.setOid(numericoid(oid.getText())); } )
+    ( oid:STARTNUMERICOID { ocd.setNumericOid(numericoid(oid.getText())); } )
     (
 	    ( name:NAME { ocd.setNames(qdescrs(name.getText())); } )
 	    |
@@ -177,11 +153,11 @@ objectClassDescription returns [ObjectClassDescription ocd = new ObjectClassDesc
 	    |
 	    ( sup:SUP { ocd.setSuperiorObjectClasses(oids(sup.getText())); } )
 	    |
-	    ( ABSTRACT { ocd.setKind( ObjectClassDescription.Kind.ABSTRACT ); }
+	    ( ABSTRACT { ocd.setKind( ObjectClassTypeEnum.ABSTRACT ); }
 	      |
-	      STRUCTURAL { ocd.setKind( ObjectClassDescription.Kind.STRUCTURAL ); }
+	      STRUCTURAL { ocd.setKind( ObjectClassTypeEnum.STRUCTURAL ); }
 	      |
-	      AUXILIARY { ocd.setKind( ObjectClassDescription.Kind.AUXILIARY ); } 
+	      AUXILIARY { ocd.setKind( ObjectClassTypeEnum.AUXILIARY ); } 
 	    )
 	    |
 	    ( must:MUST { ocd.setMustAttributeTypes(oids(must.getText())); } )
@@ -190,10 +166,125 @@ objectClassDescription returns [ObjectClassDescription ocd = new ObjectClassDesc
 	    |
 	    ( extension:EXTENSION { 
 	        Extension ex = extension(extension.getText());
-	        ocd.addExtension(ex.getKey(), ex.getValues()); 
+	        ocd.addExtension(ex.key, ex.values); 
 	     } )
 	)*    
     RPAR
+    ;
+
+
+    /**
+     * Production for matching attribute type descriptions. It is fault-tolerant
+     * against element ordering.
+     *
+     * <pre>
+     * AttributeTypeDescription = LPAREN WSP
+     *     numericoid                    ; object identifier
+     *     [ SP "NAME" SP qdescrs ]      ; short names (descriptors)
+     *     [ SP "DESC" SP qdstring ]     ; description
+     *     [ SP "OBSOLETE" ]             ; not active
+     *     [ SP "SUP" SP oid ]           ; supertype
+     *     [ SP "EQUALITY" SP oid ]      ; equality matching rule
+     *     [ SP "ORDERING" SP oid ]      ; ordering matching rule
+     *     [ SP "SUBSTR" SP oid ]        ; substrings matching rule
+     *     [ SP "SYNTAX" SP noidlen ]    ; value syntax
+     *     [ SP "SINGLE-VALUE" ]         ; single-value
+     *     [ SP "COLLECTIVE" ]           ; collective
+     *     [ SP "NO-USER-MODIFICATION" ] ; not user modifiable
+     *     [ SP "USAGE" SP usage ]       ; usage
+     *     extensions WSP RPAREN         ; extensions
+     * 
+     * usage = "userApplications"     /  ; user
+     *         "directoryOperation"   /  ; directory operational
+     *         "distributedOperation" /  ; DSA-shared operational
+     *         "dSAOperation"            ; DSA-specific operational     
+     * 
+     * extensions = *( SP xstring SP qdstrings )
+     * xstring = "X" HYPHEN 1*( ALPHA / HYPHEN / USCORE ) 
+     * </pre>
+    */
+attributeTypeDescription returns [AttributeTypeDescription atd = new AttributeTypeDescription()]
+    :
+    ( oid:STARTNUMERICOID { atd.setNumericOid(numericoid(oid.getText())); } )
+    (
+	    ( name:NAME { atd.setNames(qdescrs(name.getText())); } )
+	    |
+	    ( desc:DESC { atd.setDescription(qdstring(desc.getText())); } )
+	    |
+	    ( OBSOLETE { atd.setObsolete( true ); } )
+	    |
+	    ( sup:SUP { atd.setSuperType(oid(sup.getText())); } )
+	    |
+        ( equality:EQUALITY { atd.setEqualityMatchingRule(oid(equality.getText())); } )
+        |
+        ( ordering:ORDERING { atd.setOrderingMatchingRule(oid(ordering.getText())); } )
+        |
+        ( substr:SUBSTR { atd.setSubstringsMatchingRule(oid(substr.getText())); } )
+        |
+        ( syntax:SYNTAX { 
+            NoidLen noidlen = noidlen(syntax.getText());
+            atd.setSyntax(noidlen.noid); 
+            atd.setSyntaxLength(noidlen.len);
+          } )
+        |
+        ( SINGLE_VALUE { atd.setSingleValued( true ); } )
+        |
+        ( COLLECTIVE { atd.setCollective( true ); } )
+        |
+        ( NO_USER_MODIFICATION { atd.setUserModifiable( false ); } )
+        |
+	    ( USAGE (WHSP)* USER_APPLICATIONS { atd.setUsage( UsageEnum.USER_APPLICATIONS ); }
+	      |
+	      USAGE DIRECTORY_OPERATION { atd.setUsage( UsageEnum.DIRECTORY_OPERATION ); }
+	      |
+	      USAGE DISTRIBUTED_OPERATION { atd.setUsage( UsageEnum.DISTRIBUTED_OPERATION ); } 
+	      |
+	      USAGE DSA_OPERATION { atd.setUsage( UsageEnum.DSA_OPERATION ); } 
+	    )
+	    |
+	    ( extension:EXTENSION { 
+	        Extension ex = extension(extension.getText());
+	        atd.addExtension(ex.key, ex.values); 
+	     } )
+	)*    
+    RPAR
+    ;
+
+
+    /**
+     * Production for matching ldap syntax descriptions. It is fault-tolerant
+     * against element ordering.
+     *
+     * <pre>
+     * SyntaxDescription = LPAREN WSP
+     *    numericoid                 ; object identifier
+     *    [ SP "DESC" SP qdstring ]  ; description
+     *    extensions WSP RPAREN      ; extensions
+     * </pre>
+    */
+ldapSyntaxDescription returns [LdapSyntaxDescription lsd = new LdapSyntaxDescription()]
+     :
+    ( oid:STARTNUMERICOID { lsd.setNumericOid(numericoid(oid.getText())); } )
+    (
+	    ( desc:DESC { lsd.setDescription(qdstring(desc.getText())); } )
+	    |
+	    ( extension:EXTENSION { 
+	        Extension ex = extension(extension.getText());
+	        lsd.addExtension(ex.key, ex.values); 
+	     } )
+    )*
+    RPAR
+    ;
+
+
+noidlen [String s] returns [NoidLen noidlen]
+    {
+        noidlen = new NoidLen();
+        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
+        AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
+        noidlen = parser.noidlen();
+    }
+    :
     ;
 
 

@@ -81,8 +81,8 @@ options    {
      */
 extension returns [AntlrSchemaParser.Extension extension = new AntlrSchemaParser.Extension()]
     :
-    ( xkey:XKEY { extension.setKey(xkey.getText()); } )
-    ( xvalues:XVALUES { extension.setValues(qdstrings(xvalues.getText())); } )
+    ( xkey:XKEY { extension.key = xkey.getText(); } )
+    ( xvalues:XVALUES { extension.values = qdstrings(xvalues.getText()); } )
     ;
     
     
