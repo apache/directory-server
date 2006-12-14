@@ -196,6 +196,8 @@ public class SchemaUtilsTest extends TestCase
 
     static class SyntaxImpl extends AbstractSyntax
     {
+        public final static long serialVersionUID = 1L;
+        
         protected SyntaxImpl(String oid)
         {
             super( oid );
@@ -279,6 +281,8 @@ public class SchemaUtilsTest extends TestCase
 
     static class MatchingRuleImpl extends AbstractMatchingRule
     {
+        private static final long serialVersionUID = 1L;
+
         Syntax syntax;
 
 
