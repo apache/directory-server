@@ -242,8 +242,8 @@ public abstract class Provider
         try
         {
             Class clazz = Class.forName( className );
-            Method method = clazz.getMethod( "getProvider", null );
-            provider = ( Provider ) method.invoke( null, null );
+            Method method = clazz.getMethod( "getProvider", (Class[])null );
+            provider = ( Provider ) method.invoke( null, (Object[])null );
         }
         catch ( ClassNotFoundException cnfe )
         {

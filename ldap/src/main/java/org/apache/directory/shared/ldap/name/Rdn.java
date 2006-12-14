@@ -139,6 +139,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
     * 
     * Note : there is no Generic available classes in commons-collection...
     */
+   @SuppressWarnings({"unchecked"})
    private Map<String, AttributeTypeAndValue> atavTypes = new MultiHashMap();
 
    /**
@@ -248,6 +249,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
     * @param rdn
     *            The non-null Rdn to be copied.
     */
+   @SuppressWarnings({"unchecked"})
    public Rdn( Rdn rdn )
    {
        super();
@@ -353,6 +355,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
    // WARNING : The protection level is left unspecified intentionnaly.
    // We need this method to be visible from the DnParser class, but not
    // from outside this package.
+   @SuppressWarnings({"unchecked"})
    /* Unspecified protection */void addAttributeTypeAndValue( String type, Object value ) throws InvalidNameException
    {
        // First, let's normalize the type
@@ -575,6 +578,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
    /**
     * Clone the Rdn
     */
+   @SuppressWarnings({"unchecked"})
    public Object clone()
    {
        try

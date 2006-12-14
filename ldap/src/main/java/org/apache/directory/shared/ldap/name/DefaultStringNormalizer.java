@@ -35,6 +35,8 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class DefaultStringNormalizer implements Normalizer
 {
+    public static final long serialVersionUID = 1L;
+    
     private static final DefaultStringNormalizer NORMALIZER = new DefaultStringNormalizer();
     
     public Object normalize( Object value ) throws NamingException
