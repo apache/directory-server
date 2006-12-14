@@ -119,9 +119,9 @@ public class StoredProcedure extends Asn1Object
      */
     public static class StoredProcedureParameter
     {
-        private byte[] type;
+        byte[] type;
 
-        private byte[] value;
+        byte[] value;
 
 
         public byte[] getType()
@@ -261,7 +261,7 @@ public class StoredProcedure extends Asn1Object
 
                     // The parameter sequence
                     bb.put( UniversalTag.SEQUENCE_TAG );
-                    int localParameterLength = ( ( Integer ) parameterLength.get( parameterNumber ) ).intValue();
+                    int localParameterLength = parameterLength.get( parameterNumber );
                     bb.put( TLV.getBytes( localParameterLength ) );
 
                     // The parameter type

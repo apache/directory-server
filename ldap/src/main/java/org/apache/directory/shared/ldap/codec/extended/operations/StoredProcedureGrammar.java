@@ -45,7 +45,7 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
 
     /** The logger */
     //private static final Logger log = LoggerFactory.getLogger( StoredProcedureGrammar.class );
-    private static final Logger log = Logger.getLogger( StoredProcedureGrammar.class );
+    static final Logger log = Logger.getLogger( StoredProcedureGrammar.class );
 
     /** The instance of grammar. StoredProcedureGrammar is a singleton. */
     private static IGrammar instance = new StoredProcedureGrammar();

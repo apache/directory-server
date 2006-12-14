@@ -394,15 +394,15 @@ public class TwixTransformer implements TransformerSpi
 
                 if ( twixFilter instanceof AndFilter )
                 {
-                    branch = new BranchNode( BranchNode.AND );
+                    branch = new BranchNode( AbstractExprNode.AND );
                 }
                 else if ( twixFilter instanceof OrFilter )
                 {
-                    branch = new BranchNode( BranchNode.OR );
+                    branch = new BranchNode( AbstractExprNode.OR );
                 }
                 else if ( twixFilter instanceof NotFilter )
                 {
-                    branch = new BranchNode( BranchNode.NOT );
+                    branch = new BranchNode( AbstractExprNode.NOT );
                 }
 
                 List<Filter> filtersSet = ( ( ConnectorFilter ) twixFilter ).getFilterSet();

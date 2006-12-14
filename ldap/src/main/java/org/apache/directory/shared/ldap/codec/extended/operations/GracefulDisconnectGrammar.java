@@ -25,6 +25,7 @@ import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
+import org.apache.directory.shared.asn1.ber.grammar.IStates;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -61,10 +62,10 @@ import org.slf4j.LoggerFactory;
 public class GracefulDisconnectGrammar extends AbstractGrammar implements IGrammar
 {
     /** The logger */
-    private static final Logger log = LoggerFactory.getLogger( GracefulDisconnectGrammar.class );
+    static final Logger log = LoggerFactory.getLogger( GracefulDisconnectGrammar.class );
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /** The instance of grammar. GracefulDisconnectnGrammar is a singleton */
     private static IGrammar instance = new GracefulDisconnectGrammar();
@@ -182,8 +183,8 @@ public class GracefulDisconnectGrammar extends AbstractGrammar implements IGramm
          * 
          * Creates the GracefulDisconnect object
          */
-        super.transitions[GracefulDisconnectStatesEnum.INIT_GRAMMAR_STATE][UniversalTag.SEQUENCE_TAG] = 
-            new GrammarTransition( GracefulDisconnectStatesEnum.INIT_GRAMMAR_STATE,
+        super.transitions[IStates.INIT_GRAMMAR_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( IStates.INIT_GRAMMAR_STATE,
                                     GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_STATE, 
                                     UniversalTag.SEQUENCE_TAG,
                 new GrammarAction(

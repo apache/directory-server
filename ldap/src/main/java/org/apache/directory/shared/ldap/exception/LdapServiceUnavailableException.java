@@ -87,9 +87,9 @@ public class LdapServiceUnavailableException extends ServiceUnavailableException
      *             if the result code is not within the set
      *             {@link ResultCodeEnum#SERVICEUNAVAILABLE_CODES}.
      */
-    private void checkResultCode( ResultCodeEnum resultCode )
+    private void checkResultCode( ResultCodeEnum result )
     {
-        if ( !ResultCodeEnum.getServiceCodes().contains( resultCode ) )
+        if ( !ResultCodeEnum.getServiceCodes().contains( result ) )
         {
             String msg = "Only the following LDAP result codes can be used: " + ResultCodeEnum.getSearchCodes();
             throw new IllegalArgumentException( msg );

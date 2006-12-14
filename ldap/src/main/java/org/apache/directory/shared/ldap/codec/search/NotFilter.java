@@ -71,7 +71,7 @@ public class NotFilter extends ConnectorFilter
      */
     public Filter getNotFilter()
     {
-        return ( Filter ) filterSet.get( 0 );
+        return filterSet.get( 0 );
     }
 
 

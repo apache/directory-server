@@ -112,9 +112,9 @@ public class SubstringFilter extends Filter
      * 
      * @param anySubstrings The anySubstrings to set.
      */
-    public void addAnySubstrings( String anySubstrings )
+    public void addAnySubstrings( String any )
     {
-        this.anySubstrings.add( anySubstrings );
+        this.anySubstrings.add( any );
     }
 
 

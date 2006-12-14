@@ -149,8 +149,8 @@ public class ExtendedRequest extends LdapMessage
 
         if ( requestValue != null )
         {
-            extendedRequestLength += 1 + TLV.getNbBytes( ( ( byte[] ) requestValue ).length )
-                + ( ( byte[] ) requestValue ).length;
+            extendedRequestLength += 1 + TLV.getNbBytes( requestValue.length )
+                + requestValue.length;
         }
 
         return 1 + TLV.getNbBytes( extendedRequestLength ) + extendedRequestLength;

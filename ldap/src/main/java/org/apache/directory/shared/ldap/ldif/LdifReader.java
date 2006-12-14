@@ -235,9 +235,9 @@ public class LdifReader implements Iterator
         version = DEFAULT_VERSION;
     }
 
-    private void init( BufferedReader in ) throws NamingException
+    private void init( BufferedReader inf ) throws NamingException
     {
-        this.in = in;
+        this.in = inf;
         lines = new ArrayList<String>();
         position = new Position();
         version = DEFAULT_VERSION;
@@ -258,28 +258,28 @@ public class LdifReader implements Iterator
      */
     public LdifReader( String ldifFileName ) throws NamingException
     {
-        File in = new File( ldifFileName );
+        File inf = new File( ldifFileName );
 
-        if ( in.exists() == false )
+        if ( inf.exists() == false )
         {
-            log.error( "File {} cannot be found", in.getAbsoluteFile() );
-            throw new NamingException( "Cannot find file " + in.getAbsoluteFile() );
+            log.error( "File {} cannot be found", inf.getAbsoluteFile() );
+            throw new NamingException( "Cannot find file " + inf.getAbsoluteFile() );
         }
 
-        if ( in.canRead() == false )
+        if ( inf.canRead() == false )
         {
-            log.error( "File {} cannot be read", in.getName() );
-            throw new NamingException( "Cannot read file " + in.getName() );
+            log.error( "File {} cannot be read", inf.getName() );
+            throw new NamingException( "Cannot read file " + inf.getName() );
         }
 
         try
         {
-            init( new BufferedReader( new FileReader( in ) ) );
+            init( new BufferedReader( new FileReader( inf ) ) );
         }
         catch (FileNotFoundException fnfe)
         {
-            log.error( "File {} cannot be found", in.getAbsoluteFile() );
-            throw new NamingException( "Cannot find file " + in.getAbsoluteFile() );
+            log.error( "File {} cannot be found", inf.getAbsoluteFile() );
+            throw new NamingException( "Cannot find file " + inf.getAbsoluteFile() );
         }
     }
 
@@ -628,8 +628,8 @@ public class LdifReader implements Iterator
 
                                 try
                                 {
-                                    DataInputStream in = new DataInputStream( new FileInputStream( file ) );
-                                    in.read( data );
+                                    DataInputStream inf = new DataInputStream( new FileInputStream( file ) );
+                                    inf.read( data );
 
                                     return data;
                                 }
@@ -1314,7 +1314,7 @@ public class LdifReader implements Iterator
      */
     private int parseVersion() throws NamingException
     {
-        int version = DEFAULT_VERSION;
+        int ver = DEFAULT_VERSION;
 
         // First, read a list of lines
         readLines();
@@ -1322,7 +1322,7 @@ public class LdifReader implements Iterator
         if ( lines.size() == 0 )
         {
             log.warn( "The ldif file is empty" );
-            return version;
+            return ver;
         }
 
         // get the first line
@@ -1349,7 +1349,7 @@ public class LdifReader implements Iterator
 
             try
             {
-                version = Integer.parseInt( versionNumber );
+                ver = Integer.parseInt( versionNumber );
             }
             catch (NumberFormatException nfe)
             {
@@ -1367,7 +1367,7 @@ public class LdifReader implements Iterator
             log.warn( "No version information : assuming version: 1" );
         }
 
-        return version;
+        return ver;
     }
 
     /**
@@ -1507,11 +1507,11 @@ public class LdifReader implements Iterator
         }
 
         // Open the file and then get a channel from the stream
-        BufferedReader in;
+        BufferedReader inf;
 
         try
         {
-            in = new BufferedReader( new InputStreamReader( new FileInputStream( file ), Charset.forName( encoding ) ) );
+            inf = new BufferedReader( new InputStreamReader( new FileInputStream( file ), Charset.forName( encoding ) ) );
         }
         catch (FileNotFoundException fnfe)
         {
@@ -1519,7 +1519,7 @@ public class LdifReader implements Iterator
             throw new NamingException( "Filename " + fileName + " not found." );
         }
 
-        return parseLdif( in );
+        return parseLdif( inf );
     }
 
     /**
@@ -1541,11 +1541,11 @@ public class LdifReader implements Iterator
         }
 
         StringReader strIn = new StringReader( ldif );
-        BufferedReader in = new BufferedReader( strIn );
+        BufferedReader inf = new BufferedReader( strIn );
 
         try
         {
-            List entries = parseLdif( in );
+            List entries = parseLdif( inf );
 
             if ( log.isDebugEnabled() )
             {
@@ -1656,12 +1656,12 @@ public class LdifReader implements Iterator
      * @throws NamingException
      *             If something went wrong
      */
-    public List<Entry> parseLdif( BufferedReader in ) throws NamingException
+    public List<Entry> parseLdif( BufferedReader inf ) throws NamingException
     {
         // Create a list that will contain the read entries
         List<Entry> entries = new ArrayList<Entry>();
 
-        this.in = in;
+        this.in = inf;
 
         // First get the version - if any -
         version = parseVersion();

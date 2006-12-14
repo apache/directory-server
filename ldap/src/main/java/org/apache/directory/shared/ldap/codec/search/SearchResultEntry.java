@@ -159,7 +159,7 @@ public class SearchResultEntry extends LdapMessage
      */
     public void setPartialAttributeList( Attributes partialAttributeList )
     {
-        this.partialAttributeList = ( Attributes ) partialAttributeList;
+        this.partialAttributeList = partialAttributeList;
     }
 
 
@@ -268,7 +268,7 @@ public class SearchResultEntry extends LdapMessage
 
                             while ( values.hasMoreElements() )
                             {
-                                Object value = ( Object ) values.next();
+                                Object value = values.next();
 
                                 if ( value instanceof String )
                                 {

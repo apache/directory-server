@@ -87,7 +87,7 @@ public class ControlValueAction extends GrammarAction
         Control control = message.getCurrentControl();
         Value value = tlv.getValue();
 
-        ControlDecoder decoder = ( ControlDecoder ) controlDecoders.get( control.getControlType() );
+        ControlDecoder decoder = controlDecoders.get( control.getControlType() );
 
         // Store the value - have to handle the special case of a 0 length value
         if ( tlv.getLength() == 0 )

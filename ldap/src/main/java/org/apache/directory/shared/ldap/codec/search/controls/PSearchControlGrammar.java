@@ -25,6 +25,7 @@ import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
+import org.apache.directory.shared.asn1.ber.grammar.IStates;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -59,10 +60,10 @@ import org.slf4j.LoggerFactory;
 public class PSearchControlGrammar extends AbstractGrammar implements IGrammar
 {
     /** The logger */
-    private static final Logger log = LoggerFactory.getLogger( PSearchControlGrammar.class );
+    static final Logger log = LoggerFactory.getLogger( PSearchControlGrammar.class );
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /** The instance of grammar. PSearchControlGrammar is a singleton */
     private static IGrammar instance = new PSearchControlGrammar();
@@ -86,8 +87,8 @@ public class PSearchControlGrammar extends AbstractGrammar implements IGrammar
          *     
          * Initialize the persistence search object
          */
-        super.transitions[PSearchControlStatesEnum.INIT_GRAMMAR_STATE][UniversalTag.SEQUENCE_TAG] = 
-            new GrammarTransition( PSearchControlStatesEnum.INIT_GRAMMAR_STATE, 
+        super.transitions[IStates.INIT_GRAMMAR_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( IStates.INIT_GRAMMAR_STATE, 
                                     PSearchControlStatesEnum.PSEARCH_SEQUENCE_STATE, 
                                     UniversalTag.SEQUENCE_TAG, 
                 new GrammarAction( "Init PSearchControl" )

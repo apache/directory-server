@@ -123,10 +123,10 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
     // -----------------------------------------------------------------
 
     /** The logger */
-    private static final Logger log = LoggerFactory.getLogger( LdapMessageGrammar.class );
+    static final Logger log = LoggerFactory.getLogger( LdapMessageGrammar.class );
 
     /** A speedup for logger */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    static final boolean IS_DEBUG = log.isDebugEnabled();
     
     /** The instance of grammar. LdapMessageGrammar is a singleton */
     private static IGrammar instance = new LdapMessageGrammar();
@@ -593,12 +593,12 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                     }
                     else
                     {
-                        LdapDN name = LdapDN.EMPTY_LDAPDN;
+                        LdapDN dn = LdapDN.EMPTY_LDAPDN;
                         byte[] dnBytes = tlv.getValue().getData();
 
                         try
                         {
-                            name = new LdapDN( dnBytes );
+                            dn = new LdapDN( dnBytes );
                         }
                         catch ( InvalidNameException ine )
                         {
@@ -612,7 +612,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                             throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_DN_SYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
 
-                        bindRequestMessage.setName( name );
+                        bindRequestMessage.setName( dn );
                     }
 
                     if ( IS_DEBUG )
@@ -2315,7 +2315,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                         try
                         {
                             LdapDN dn = new LdapDN( dnBytes );
-                            newRdn = ( ( LdapDN ) dn ).getRdn( 0 );
+                            newRdn = dn.getRdn( 0 );
                         }
                         catch ( InvalidNameException ine )
                         {

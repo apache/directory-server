@@ -352,26 +352,26 @@ public class SearchRequest extends LdapMessage
      * 
      * @param filter The filter to set.
      */
-    public void addCurrentFilter( Filter filter ) throws DecoderException
+    public void addCurrentFilter( Filter localFilter ) throws DecoderException
     {
         if ( currentFilter != null )
         {
             // Ok, we have a parent. The new Filter will be added to
             // this parent, and will become the currentFilter if it's a connector.
-            ( ( ConnectorFilter ) currentFilter ).addFilter( filter );
-            filter.setParent( currentFilter );
+            ( ( ConnectorFilter ) currentFilter ).addFilter( localFilter );
+            localFilter.setParent( currentFilter );
             
-            if ( filter instanceof ConnectorFilter )
+            if ( localFilter instanceof ConnectorFilter )
             {
-                currentFilter = filter;
+                currentFilter = localFilter;
             }
         }
         else
         {
             // No parent. This Filter will become the root.
-            currentFilter = filter;
+            currentFilter = localFilter;
             currentFilter.setParent( this );
-            this.filter = filter;
+            this.filter = localFilter;
         }
     }
 
@@ -380,7 +380,7 @@ public class SearchRequest extends LdapMessage
      * 
      * @param filter The filter to set.
      */
-    public void setCurrentFilter( Filter filter ) throws DecoderException
+    public void setCurrentFilter( Filter filter )
     {
         currentFilter = filter;
     }
@@ -394,22 +394,22 @@ public class SearchRequest extends LdapMessage
      * 
      * @param container The container being decoded
      */
-    public void unstackFilters( IAsn1Container container ) throws DecoderException
+    public void unstackFilters( IAsn1Container container )
     {
         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
 
         TLV tlv = ldapMessageContainer.getCurrentTLV();
-        TLV parent = tlv.getParent();
-        Filter filter = terminalFilter;
+        TLV localParent = tlv.getParent();
+        Filter localFilter = terminalFilter;
 
         // The parent has been completed, so fold it
-        while ( ( parent != null ) && ( parent.getExpectedLength() == 0 ) )
+        while ( ( localParent != null ) && ( localParent.getExpectedLength() == 0 ) )
         {
-            Asn1Object filterParent = filter.getParent();
+            Asn1Object filterParent = localFilter.getParent();
             
             // We have a special case with PresentFilter, which has not been 
             // pushed on the stack, so we need to get its parent's parent
-            if ( filter instanceof PresentFilter )
+            if ( localFilter instanceof PresentFilter )
             {
                 filterParent = filterParent.getParent();
             }
@@ -419,8 +419,8 @@ public class SearchRequest extends LdapMessage
                 // The parent is a filter ; it will become the new currentFilter
                 // and we will loop again. 
                 currentFilter = (Filter)filterParent;
-                filter = currentFilter;
-                parent = parent.getParent();
+                localFilter = currentFilter;
+                localParent = localParent.getParent();
             }
             else
             {

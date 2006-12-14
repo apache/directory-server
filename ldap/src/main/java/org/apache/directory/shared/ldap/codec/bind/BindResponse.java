@@ -120,8 +120,8 @@ public class BindResponse extends LdapResponse
 
         if ( serverSaslCreds != null )
         {
-            bindResponseLength += 1 + TLV.getNbBytes( ( ( byte[] ) serverSaslCreds ).length )
-                + ( ( byte[] ) serverSaslCreds ).length;
+            bindResponseLength += 1 + TLV.getNbBytes( serverSaslCreds.length )
+                + serverSaslCreds.length;
         }
 
         return 1 + TLV.getNbBytes( bindResponseLength ) + bindResponseLength;
@@ -156,11 +156,11 @@ public class BindResponse extends LdapResponse
             {
                 buffer.put( ( byte ) LdapConstants.SERVER_SASL_CREDENTIAL_TAG );
 
-                buffer.put( TLV.getBytes( ( ( byte[] ) serverSaslCreds ).length ) );
+                buffer.put( TLV.getBytes( serverSaslCreds.length ) );
 
-                if ( ( ( byte[] ) serverSaslCreds ).length != 0 )
+                if ( serverSaslCreds.length != 0 )
                 {
-                    buffer.put( ( byte[] ) serverSaslCreds );
+                    buffer.put( serverSaslCreds );
                 }
             }
         }

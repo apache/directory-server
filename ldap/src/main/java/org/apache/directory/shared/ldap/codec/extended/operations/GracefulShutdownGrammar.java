@@ -25,6 +25,7 @@ import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
+import org.apache.directory.shared.asn1.ber.grammar.IStates;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -52,10 +53,10 @@ import org.slf4j.LoggerFactory;
 public class GracefulShutdownGrammar extends AbstractGrammar implements IGrammar
 {
     /** The logger */
-    private static final Logger log = LoggerFactory.getLogger( GracefulShutdownGrammar.class );
+    static final Logger log = LoggerFactory.getLogger( GracefulShutdownGrammar.class );
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /** The instance of grammar. GracefulShutdownGrammar is a singleton */
     private static IGrammar instance = new GracefulShutdownGrammar();
@@ -80,8 +81,8 @@ public class GracefulShutdownGrammar extends AbstractGrammar implements IGrammar
          *     
          * Creates the GracefulShutdown object
          */
-        super.transitions[GracefulShutdownStatesEnum.INIT_GRAMMAR_STATE][UniversalTag.SEQUENCE_TAG] = 
-            new GrammarTransition( GracefulShutdownStatesEnum.INIT_GRAMMAR_STATE, GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_STATE, UniversalTag.SEQUENCE_TAG,
+        super.transitions[IStates.INIT_GRAMMAR_STATE][UniversalTag.SEQUENCE_TAG] = 
+            new GrammarTransition( IStates.INIT_GRAMMAR_STATE, GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_STATE, UniversalTag.SEQUENCE_TAG,
                 new GrammarAction( "Init GracefulShutdown" )
             {
                 public void action( IAsn1Container container )

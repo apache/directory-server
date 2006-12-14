@@ -109,7 +109,7 @@ public class LdapMessage extends Asn1Object
      */
     public Control getControls( int i )
     {
-        return ( Control ) controls.get( i );
+        return controls.get( i );
     }
 
 

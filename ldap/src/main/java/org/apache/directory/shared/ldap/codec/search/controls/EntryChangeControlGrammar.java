@@ -47,10 +47,10 @@ import org.slf4j.LoggerFactory;
 public class EntryChangeControlGrammar extends AbstractGrammar implements IGrammar
 {
     /** The logger */
-    private static final Logger log = LoggerFactory.getLogger( EntryChangeControlGrammar.class );
+    static final Logger log = LoggerFactory.getLogger( EntryChangeControlGrammar.class );
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /** The instance of grammar. EntryChangeControlGrammar is a singleton */
     private static IGrammar instance = new EntryChangeControlGrammar();

@@ -452,8 +452,8 @@ public class ModifyRequest extends LdapMessage
 
                     // The modification sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
-                    int localModificationSequenceLength = ( ( Integer ) modificationSequenceLength
-                        .get( modificationNumber ) ).intValue();
+                    int localModificationSequenceLength = modificationSequenceLength
+                        .get( modificationNumber );
                     buffer.put( TLV.getBytes( localModificationSequenceLength ) );
 
                     // The operation. The value has to be changed, it's not
@@ -479,8 +479,7 @@ public class ModifyRequest extends LdapMessage
 
                     // The modification
                     buffer.put( UniversalTag.SEQUENCE_TAG );
-                    int localModificationLength = ( ( Integer ) modificationLength.get( modificationNumber ) )
-                        .intValue();
+                    int localModificationLength = modificationLength.get( modificationNumber );
                     buffer.put( TLV.getBytes( localModificationLength ) );
 
                     // The modification type
@@ -488,7 +487,7 @@ public class ModifyRequest extends LdapMessage
 
                     // The values
                     buffer.put( UniversalTag.SET_TAG );
-                    int localValuesLength = ( ( Integer ) valuesLength.get( modificationNumber ) ).intValue();
+                    int localValuesLength = valuesLength.get( modificationNumber );
                     buffer.put( TLV.getBytes( localValuesLength ) );
 
                     try

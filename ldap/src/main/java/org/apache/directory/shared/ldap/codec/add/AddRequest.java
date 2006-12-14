@@ -372,7 +372,7 @@ public class AddRequest extends LdapMessage
 
                     // The attributes list sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
-                    int localAttributeLength = ( ( Integer ) attributeLength.get( attributeNumber ) ).intValue();
+                    int localAttributeLength = attributeLength.get( attributeNumber );
                     buffer.put( TLV.getBytes( localAttributeLength ) );
 
                     // The attribute type
@@ -380,7 +380,7 @@ public class AddRequest extends LdapMessage
 
                     // The values
                     buffer.put( UniversalTag.SET_TAG );
-                    int localValuesLength = ( ( Integer ) valuesLength.get( attributeNumber ) ).intValue();
+                    int localValuesLength = valuesLength.get( attributeNumber );
                     buffer.put( TLV.getBytes( localValuesLength ) );
 
                     try

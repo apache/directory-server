@@ -53,7 +53,7 @@ public class TwixEncoder implements ProviderEncoder
     private static final boolean IS_DEBUG = log.isDebugEnabled();
     
     /** The associated Provider */
-    private final Provider provider;
+    final Provider provider;
 
     /** The callback to call when the encoding is done */
     private EncoderCallback encodeCallback;

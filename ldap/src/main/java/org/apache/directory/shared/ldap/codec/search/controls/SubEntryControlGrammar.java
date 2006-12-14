@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public class SubEntryControlGrammar extends AbstractGrammar implements IGrammar
 {
     /** The logger */
-    private static final Logger log = LoggerFactory.getLogger( SubEntryControlGrammar.class );
+    static final Logger log = LoggerFactory.getLogger( SubEntryControlGrammar.class );
 
     /** The instance of grammar. SubEntryControlGrammar is a singleton */
     private static IGrammar instance = new SubEntryControlGrammar();
