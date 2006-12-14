@@ -37,19 +37,10 @@ public class AttributeTypeAndValueTest extends TestCase
 {
    // ~ Methods
    // ------------------------------------------------------------------------------------
-
-   /**
-    * Setup the test
-    */
-   protected void setUp()
-   {
-   }
-
-
    /**
     * Test a null AttributeTypeAndValue
     */
-   public void testAttributeTypeAndValueNull() throws InvalidNameException
+   public void testAttributeTypeAndValueNull()
    {
        AttributeTypeAndValue atav = new AttributeTypeAndValue();
        assertEquals( "", atav.toString() );
@@ -62,7 +53,7 @@ public class AttributeTypeAndValueTest extends TestCase
    /**
     * test an empty AttributeTypeAndValue
     */
-   public void testLdapRDNEmpty() throws InvalidNameException
+   public void testLdapRDNEmpty()
    {
        try
        {

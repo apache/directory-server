@@ -48,6 +48,7 @@ public class DnParserDIRSERVER_584_Test extends TestCase
        }
        catch ( InvalidNameException e )
        {
+           // Nothing to do
        }
    }
 

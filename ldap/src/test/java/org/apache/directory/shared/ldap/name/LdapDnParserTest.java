@@ -42,14 +42,6 @@ public class LdapDnParserTest extends TestCase
    // ~ Methods
    // ------------------------------------------------------------------------------------
 
-   /**
-    * Setup the test
-    */
-   protected void setUp()
-   {
-   }
-
-
    // CONSTRUCTOR functions --------------------------------------------------
 
    /**
@@ -275,7 +267,7 @@ public class LdapDnParserTest extends TestCase
     * @throws NamingException
     *             if anything goes wrong
     */
-   public final void testDnParser() throws NamingException
+   public final void testDnParser()
    {
        NameParser parser = LdapDnParser.getNameParser();
 
@@ -441,7 +433,7 @@ public class LdapDnParserTest extends TestCase
     * @throws NamingException
     *             if anything goes wrong
     */
-   public final void testParseInvalidString() throws NamingException
+   public final void testParseInvalidString()
    {
        NameParser parser = LdapDnParser.getNameParser();
 
@@ -535,7 +527,7 @@ public class LdapDnParserTest extends TestCase
     * @throws NamingException
     *             if anything goes wrong on parse()
     */
-   public final void testNonEscapedChars() throws NamingException
+   public final void testNonEscapedChars()
    {
        NameParser parser = LdapDnParser.getNameParser();
        String input = "ou=ou+test";

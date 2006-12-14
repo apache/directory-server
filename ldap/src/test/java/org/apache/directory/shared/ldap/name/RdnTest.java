@@ -42,19 +42,10 @@ public class RdnTest extends TestCase
 {
    // ~ Methods
    // ------------------------------------------------------------------------------------
-
-   /**
-    * Setup the test
-    */
-   protected void setUp()
-   {
-   }
-
-
    /**
     * Test a null RDN
     */
-   public void testRdnNull() throws InvalidNameException
+   public void testRdnNull()
    {
        Assert.assertEquals( "", new Rdn().toString() );
    }
@@ -400,7 +391,7 @@ public class RdnTest extends TestCase
    }
 
 
-   public void testGetSize0() throws InvalidNameException
+   public void testGetSize0()
    {
        Rdn rdn = new Rdn();
 
@@ -422,7 +413,7 @@ public class RdnTest extends TestCase
    }
 
 
-   public void testUnescapeValueHexa() throws InvalidNameException
+   public void testUnescapeValueHexa()
    {
        byte[] res = ( byte[] ) Rdn.unescapeValue( "#fF" );
 
@@ -433,7 +424,7 @@ public class RdnTest extends TestCase
    }
 
 
-   public void testUnescapeValueHexaWrong() throws InvalidNameException
+   public void testUnescapeValueHexaWrong()
    {
        try
        {
@@ -447,7 +438,7 @@ public class RdnTest extends TestCase
    }
 
 
-   public void testUnescapeValueString() throws InvalidNameException
+   public void testUnescapeValueString()
    {
        String res = ( String ) Rdn.unescapeValue( "azerty" );
 
@@ -455,7 +446,7 @@ public class RdnTest extends TestCase
    }
 
 
-   public void testUnescapeValueStringSpecial() throws InvalidNameException
+   public void testUnescapeValueStringSpecial()
    {
        String res = ( String ) Rdn.unescapeValue( "\\\\\\#\\,\\+\\;\\<\\>\\=\\\"\\ " );
 
@@ -463,7 +454,7 @@ public class RdnTest extends TestCase
    }
 
 
-   public void testEscapeValueString() throws InvalidNameException
+   public void testEscapeValueString()
    {
        String res = Rdn.escapeValue( StringTools.getBytesUtf8( "azerty" ) );
 
@@ -471,7 +462,7 @@ public class RdnTest extends TestCase
    }
 
 
-   public void testEscapeValueStringSpecial() throws InvalidNameException
+   public void testEscapeValueStringSpecial()
    {
        String res = Rdn.escapeValue( StringTools.getBytesUtf8( "\\#,+;<>=\" " ) );
 
@@ -479,7 +470,7 @@ public class RdnTest extends TestCase
    }
 
 
-   public void testEscapeValueNumeric() throws InvalidNameException
+   public void testEscapeValueNumeric()
    {
        String res = Rdn.escapeValue( new byte[]
            { '-', 0x00, '-', 0x1F, '-', 0x7F, '-' } );
@@ -488,7 +479,7 @@ public class RdnTest extends TestCase
    }
 
 
-   public void testEscapeValueMix() throws InvalidNameException
+   public void testEscapeValueMix()
    {
        String res = Rdn.escapeValue( new byte[]
            { '\\', 0x00, '-', '+', '#', 0x7F, '-' } );
