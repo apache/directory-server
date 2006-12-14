@@ -88,7 +88,7 @@ public final class MessageDecoder implements ProviderDecoder
         this.env.put( Provider.BERLIB_PROVIDER, providerEnv.get( Provider.BERLIB_PROVIDER ) );
         this.provider = Provider.getProvider( providerEnv );
 
-        Set binaries;
+        Set<String> binaries;
 
         if ( env.containsKey( BINARY_KEY ) )
         {
@@ -100,6 +100,7 @@ public final class MessageDecoder implements ProviderDecoder
                 {
                     log.warn( "Null value for " + BINARY_KEY + " key in environment.  Using empty set for binaries." );
                 }
+                
                 binaries = Collections.EMPTY_SET;
             }
             else if ( val instanceof String )
@@ -107,21 +108,21 @@ public final class MessageDecoder implements ProviderDecoder
                 // parse out all words based on expected JNDI format of this
                 // attribute
                 String binaryIds = ( String ) val;
-                binaries = new HashSet();
+                binaries = new HashSet<String>();
 
                 if ( !StringTools.isEmpty( binaryIds ) )
                 {
                     String[] binaryArray = binaryIds.split( " " );
 
-                    for ( int i = 0; i < binaryArray.length; i++ )
+                    for ( String binary:binaryArray )
                     {
-                        binaries.add( StringTools.lowerCase( StringTools.trim( binaryArray[i] ) ) );
+                        binaries.add( StringTools.lowerCase( StringTools.trim( binary ) ) );
                     }
                 }
             } // if already parsed and set as a collection use it
             else if ( val instanceof Collection )
             {
-                binaries = new HashSet();
+                binaries = new HashSet<String>();
                 binaries.addAll( ( Set ) val );
             } // complain if it's something else
             else
