@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
 public class LdapDN /* extends LdapString */implements Name
 {
    /** The LoggerFactory used by this class */
-   private static Logger log = LoggerFactory.getLogger( LdapDN.class );
+   protected static Logger log = LoggerFactory.getLogger( LdapDN.class );
 
    /**
     * Declares the Serial Version Uid.
@@ -81,7 +81,7 @@ public class LdapDN /* extends LdapString */implements Name
    // ~ Static fields/initializers
    // -----------------------------------------------------------------
    /** The RDNs that are elements of the DN */
-   private List<Rdn> rdns = new ArrayList<Rdn>( 5 );
+   protected List<Rdn> rdns = new ArrayList<Rdn>( 5 );
 
    /** The user provided name */
    private String upName;
@@ -120,7 +120,7 @@ public class LdapDN /* extends LdapString */implements Name
        {
            for ( int ii = 0; ii < name.size(); ii++ )
            {
-               String nameComponent = ( String ) name.get( ii );
+               String nameComponent = name.get( ii );
                add( nameComponent );
            }
        }
@@ -524,7 +524,11 @@ public class LdapDN /* extends LdapString */implements Name
     */
    public boolean startsWith( Name name )
    {
-       if ( name instanceof LdapDN )
+       if ( name == null )
+       {
+           return true;
+       }
+       else if ( name instanceof LdapDN )
        {
            LdapDN nameDN = ( LdapDN ) name;
 
@@ -555,7 +559,7 @@ public class LdapDN /* extends LdapString */implements Name
 
            return true;
        }
-       else if ( name instanceof Name )
+       else
        {
            if ( name.size() == 0 )
            {
@@ -578,7 +582,7 @@ public class LdapDN /* extends LdapString */implements Name
                
                try
                {
-                   nameRdn = new Rdn( ( String ) name.get( name.size() - i - 1 ) );
+                   nameRdn = new Rdn( name.get( name.size() - i - 1 ) );
                }
                catch ( InvalidNameException e )
                {
@@ -593,11 +597,6 @@ public class LdapDN /* extends LdapString */implements Name
            }
 
            return true;
-       }
-       else
-       {
-           // We don't accept a Name which is not a LdapName
-           return name == null;
        }
    }
 
@@ -738,7 +737,7 @@ public class LdapDN /* extends LdapString */implements Name
     *
     * @return All the components
     */
-   public List getRdns()
+   public List<Rdn> getRdns()
    {
        List<Rdn> newRdns = new ArrayList<Rdn>();
 
@@ -1028,7 +1027,7 @@ public class LdapDN /* extends LdapString */implements Name
     *             if adding <tt>RDN</tt> would violate the syntax rules of
     *             this name
     */
-   public Name add( Rdn newRdn ) throws InvalidNameException
+   public Name add( Rdn newRdn )
    {
        rdns.add( 0, newRdn );
        normalizeInternal();
@@ -1255,7 +1254,7 @@ public class LdapDN /* extends LdapString */implements Name
 
                if ( oidNormalizer != null )
                {
-                   return new AttributeTypeAndValue( oidNormalizer.getAttributeTypeOid(), ( String ) oidNormalizer.getNormalizer()
+                   return new AttributeTypeAndValue( oidNormalizer.getAttributeTypeOid(), oidNormalizer.getNormalizer()
                        .normalize( atav.getValue() ) );
 
                }
@@ -1335,7 +1334,7 @@ public class LdapDN /* extends LdapString */implements Name
                        value = DefaultStringNormalizer.normalizeString( ( String ) value );
 
                        rdn.addAttributeTypeAndValue( oidNormalizer.getAttributeTypeOid(),
-                           ( String ) oidNormalizer.getNormalizer()
+                           oidNormalizer.getNormalizer()
                            .normalize( value ) );
 
                    }
@@ -1423,18 +1422,30 @@ public class LdapDN /* extends LdapString */implements Name
            return;
        }
 
-       Enumeration<Rdn> rdns = getAllRdn();
+       Enumeration<Rdn> localRdns = getAllRdn();
 
        // Loop on all RDNs
-       while ( rdns.hasMoreElements() )
+       while ( localRdns.hasMoreElements() )
        {
-           Rdn rdn = rdns.nextElement();
-           String upName = rdn.getUpName();
+           Rdn rdn = localRdns.nextElement();
+           String localUpName = rdn.getUpName();
            rdnOidToName( rdn, oidsMap );
            rdn.normalize();
-           rdn.setUpName( upName );
+           rdn.setUpName( localUpName );
        }
 
        normalizeInternal();
+   }
+   
+   /**
+    * Check if a DistinguishedName is syntaxically valid
+    *
+    * @param dn The DN to validate
+    * @return <code>true></code> if the DN is valid, <code>false</code>
+    * otherwise
+    */
+   public static boolean isValid( String dn )
+   {
+       return LdapDnParser.validateInternal( dn );
    }
 }

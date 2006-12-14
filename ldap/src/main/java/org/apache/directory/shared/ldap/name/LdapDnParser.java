@@ -77,6 +77,7 @@ public class LdapDnParser implements NameParser
     */
    private LdapDnParser()
    {
+       // Nothing to do
    }
 
 
@@ -146,6 +147,60 @@ public class LdapDnParser implements NameParser
        else
        {
            throw new InvalidNameException( "Bad DN : " + dn );
+       }
+   }
+
+
+   /**
+    * Validate a DN
+    *
+    * @param dn
+    *            The DN to be parsed
+    *            
+    * @return <code>true</code> if the DN is valid
+    */
+   public static boolean validateInternal( String dn )
+   {
+       if ( dn.length() == 0 )
+       {
+           // We have an empty DN, just get out of the function.
+           return true;
+       }
+
+       Position pos = new Position();
+       pos.start = 0;
+
+       // <name> ::= <name-component> <name-components>
+       // <name-components> ::= <spaces> <separator> <spaces> <name-component>
+       // <name-components> | e
+       if ( RdnParser.isValid( dn, pos, true ) )
+       {
+           // Now, parse the following nameComponents
+           do
+           {
+               if ( ( StringTools.isCharASCII( dn, pos.start, ',' ) == false )
+                   && ( StringTools.isCharASCII( dn, pos.start, ';' ) == false ) )
+               {
+
+                   if ( pos.start != dn.length() )
+                   {
+                       return false;
+                   }
+                   else
+                   {
+                       break;
+                   }
+               }
+
+               pos.start++;
+           }
+           while ( RdnParser.isValid( dn, pos, false ) );
+           
+           return true;
+       }
+       else
+       {
+           return false;
        }
    }
 

@@ -156,6 +156,71 @@ public class RdnParser
         }
     }
 
+    /**
+     * Validate this rule : <br>
+     * <p>
+     * &lt;oidValue&gt; ::= [0-9] &lt;digits&gt; &lt;oids&gt;
+     * </p>
+     *
+     * @param chars
+     *            The char array to parse
+     * @param pos
+     *            The current position in the byte buffer
+     * @return <code>true</code> if this is a valid OID
+     */
+    private static boolean isValidOidValue( String string, Position pos )
+    {
+        pos.start += pos.length;
+        pos.end = pos.start;
+
+        // <attributType> ::= [0-9] <digits> <oids>
+        if ( StringTools.isDigit( string, pos.start ) == false )
+        {
+            // Nope... An error
+            return false;
+        }
+        else
+        {
+            // Let's process an oid
+            pos.end++;
+
+            while ( StringTools.isDigit( string, pos.end ) )
+            {
+                pos.end++;
+            }
+
+            // <oids> ::= '.' [0-9] <digits> <oids> | e
+            if ( StringTools.isCharASCII( string, pos.end, '.' ) == false )
+            {
+                return false;
+            }
+            else
+            {
+                do
+                {
+                    pos.end++;
+
+                    if ( StringTools.isDigit( string, pos.end ) == false )
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        pos.end++;
+
+                        while ( StringTools.isDigit( string, pos.end ) )
+                        {
+                            pos.end++;
+                        }
+                    }
+
+                }
+                while ( StringTools.isCharASCII( string, pos.end, '.' ) );
+
+                return true;
+            }
+        }
+    }
 
     /**
      * Parse this rule : <br>
@@ -238,6 +303,61 @@ public class RdnParser
             // An oid
             // <attributType> ::= [0-9] <digits> <oids>
             return parseOidValue( string, pos );
+        }
+    }
+
+    /**
+     * Parse this rule : <br>
+     * <p>
+     * &lt;attributType&gt; ::= [a-zA-Z] &lt;keychars&gt; | &lt;oidPrefix&gt;
+     * [0-9] &lt;digits&gt; &lt;oids&gt; | [0-9] &lt;digits&gt; &lt;oids&gt;
+     * </p>
+     * The string *MUST* be an ASCII string, not an unicode string.
+     *
+     * @param chars
+     *            The char array to parse
+     * @param pos
+     *            The current position in the char array
+     * @return The new position in the char array, or PARSING_ERROR if the rule
+     *         does not apply to the char array
+     */
+    private static boolean isValidAttributeType( String string, Position pos )
+    {
+        // <attributType> ::= [a-zA-Z] <keychars> | <oidPrefix> [0-9] <digits>
+        // <oids> | [0-9] <digits> <oids>
+        if ( StringTools.isAlphaASCII( string, pos.start ) )
+        {
+            // <attributType> ::= [a-zA-Z] <keychars> | <oidPrefix> [0-9]
+            // <digits> <oids>
+
+            // We have got an Alpha char, it may be the begining of an OID ?
+            if ( parseOidPrefix( string, pos ) != DNUtils.PARSING_ERROR )
+            {
+                pos.length = 4;
+
+                return isValidOidValue( string, pos );
+            }
+            else
+            {
+                // It's not an oid, it's a String (ASCII)
+                // <attributType> ::= [a-zA-Z] <keychars>
+                // <keychars> ::= [a-zA-Z] <keychar> | [0-9] <keychar> | '-'
+                // <keychar> | e
+                pos.end++;
+
+                while ( StringTools.isAlphaDigitMinus( string, pos.end ) )
+                {
+                    pos.end++;
+                }
+
+                return true;
+            }
+        }
+        else
+        {
+            // An oid
+            // <attributType> ::= [0-9] <digits> <oids>
+            return isValidOidValue( string, pos );
         }
     }
 
@@ -448,6 +568,163 @@ public class RdnParser
         }
     }
 
+    /**
+     * Validate this rule : <br>
+     * <p>
+     * &lt;attributeValue&gt; ::= &lt;pairs-or-strings&gt; | '#'
+     *     &lt;hexstring&gt; |'"' &lt;quotechar-or-pairs&gt; '"' <br>
+     * &lt;pairs-or-strings&gt; ::= '\' &lt;pairchar&gt;
+     * &lt;pairs-or-strings&gt; | &lt;stringchar&gt; &lt;pairs-or-strings&gt; | |
+     * e <br>
+     * &lt;quotechar-or-pairs&gt; ::= &lt;quotechar&gt;
+     * &lt;quotechar-or-pairs&gt; | '\' &lt;pairchar&gt;
+     * &lt;quotechar-or-pairs&gt; | e <br>
+     * </p>
+     *
+     * @param chars
+     *            The char array to parse
+     * @param pos
+     *            The current position in the char array
+     * @return <code>true</code> if the rule is valid
+     */
+    private static boolean isValidAttributeValue( String string, Position pos )
+    {
+        char c = StringTools.charAt( string, pos.start );
+
+        if ( c == '#' )
+        {
+            pos.start++;
+            int nbHex = 0;
+            int currentPos = pos.start;
+
+            // First, we will count the number of hexPairs
+            while ( DNUtils.parseHexPair( string, currentPos ) >= 0 )
+            {
+                nbHex++;
+                currentPos += DNUtils.TWO_CHARS;
+            }
+
+            byte[] hexValue = new byte[nbHex];
+
+            // Now, convert the value
+            // <attributeValue> ::= '#' <hexstring>
+            if ( DNUtils.parseHexString( string, hexValue, pos ) == DNUtils.PARSING_ERROR )
+            {
+                return false;
+            }
+
+            pos.start--;
+            StringTools.trimRight( string, pos );
+            pos.length = pos.end - pos.start;
+
+            return true;
+        }
+        else if ( c == '"' )
+        {
+            pos.start++;
+            pos.length = 0;
+            pos.end = pos.start;
+            int nbBytes = 0;
+
+            // <attributeValue> ::= '"' <quotechar-or-pair> '"'
+            // <quotechar-or-pairs> ::= <quotechar> <quotechar-or-pairs> | '\'
+            //                                                  <pairchar> <quotechar-or-pairs> | e
+            while ( true )
+            {
+                if ( StringTools.isCharASCII( string, pos.end, '\\' ) )
+                {
+                    pos.end++;
+                    int nbChars = 0;
+
+                    if ( ( nbChars = DNUtils.isPairChar( string, pos.start ) ) != DNUtils.PARSING_ERROR )
+                    {
+                        pos.end += nbChars;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if ( ( nbBytes = DNUtils.isQuoteChar( string, pos.end ) ) != DNUtils.PARSING_ERROR )
+                {
+                    pos.end += nbBytes;
+                }
+                else
+                {
+                    pos.length = pos.end - pos.start;
+                    break;
+                }
+            }
+
+            if ( StringTools.isCharASCII( string, pos.end, '"' ) )
+            {
+                pos.end++;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            while ( true )
+            {
+                if ( StringTools.isCharASCII( string, pos.end, '\\' ) )
+                {
+                    // '\' <pairchar> <pairs-or-strings>
+                    pos.end++;
+
+                    int nbChars = 0;
+                    
+                    if ( ( nbChars = DNUtils.isPairChar( string, pos.end ) ) == DNUtils.PARSING_ERROR )
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        pos.end += nbChars;
+                    }
+                }
+                else
+                {
+                    int nbChars = 0;
+
+                    // <stringchar> <pairs-or-strings>
+                    if ( ( nbChars = DNUtils.isStringChar( string, pos.end ) ) != DNUtils.PARSING_ERROR )
+                    {
+                        // A special case : if we have some spaces before the
+                        // '+' character,
+                        // we MUST skip them.
+                        if ( StringTools.isCharASCII( string, pos.end, '+' ) )
+                        {
+                            //StringTools.trimLeft( string, pos );
+
+                            if ( ( DNUtils.isStringChar( string, pos.end ) == DNUtils.PARSING_ERROR )
+                                && ( StringTools.isCharASCII( string, pos.end, '\\' ) == false ) )
+                            {
+                                // Ok, we are done with the stringchar.
+                                return true;
+                            }
+                            else
+                            {
+                                pos.end++;
+                            }
+                        }
+                        else
+                        {
+                            pos.end += nbChars;
+                        }
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
 
     /**
      * Parse this rule : <br>
@@ -524,6 +801,71 @@ public class RdnParser
         }
     }
 
+
+    /**
+     * Validate this rule : <br>
+     * <p>
+     * &lt;nameComponents&gt; ::= &lt;spaces&gt; '+' &lt;spaces&gt;
+     * &lt;attributeType&gt; &lt;spaces&gt; '=' &lt;spaces&gt;
+     * &lt;attributeValue&gt; &lt;nameComponents&gt; | e
+     * </p>
+     *
+     * @param chars
+     *            The char buffer to parse
+     * @param pos
+     *            The current position in the byte buffer
+     * @return <code>true</code> if the rule is valid
+     */
+    private static boolean isValidNameComponents( String string, Position pos, boolean isFirstRdn )
+    {
+        int newStart = 0;
+
+        while ( true )
+        {
+            StringTools.trimLeft( string, pos );
+
+            if ( StringTools.isCharASCII( string, pos.end, '+' ) )
+            {
+                pos.start++;
+            }
+            else
+            {
+                // <attributeTypeAndValues> ::= e
+                return true;
+            }
+
+            StringTools.trimLeft( string, pos );
+
+            if ( !isValidAttributeType( string, pos ) )
+            {
+                return false;
+            }
+
+            pos.start = pos.end;
+
+            StringTools.trimLeft( string, pos );
+
+            if ( StringTools.isCharASCII( string, pos.end, '=' ) )
+            {
+                pos.start++;
+            }
+            else
+            {
+                return false;
+            }
+
+            StringTools.trimLeft( string, pos );
+
+            if ( !isValidAttributeValue( string, pos ) )
+            {
+                return false;
+            }
+
+            newStart = pos.end;
+            pos.start = newStart;
+            pos.end = newStart;
+        }
+    }
 
     /**
      * Unescape pairChars.
@@ -629,6 +971,62 @@ public class RdnParser
         return DNUtils.PARSING_OK;
     }
 
+    /**
+     * Validate a NameComponent : <br>
+     * <p>
+     * &lt;name-component&gt; ::= &lt;attributeType&gt; &lt;spaces&gt; '='
+     * &lt;spaces&gt; &lt;attributeValue&gt; &lt;nameComponents&gt;
+     * </p>
+     *
+     * @param dn The String to parse
+     * @param pos The current position in the buffer
+     * @return <code>true</code> if the RDN is valid
+     */
+    public static boolean isValid( String dn, Position pos, boolean isfirstRdn )
+    {
+        StringTools.trimLeft( dn, pos );
+
+        pos.end = pos.start;
+        pos.length = 0;
+        
+        if ( !isValidAttributeType( dn, pos ) )
+        {
+            return false;
+        }
+
+        pos.start = pos.end;
+
+        StringTools.trimLeft( dn, pos );
+
+        if ( StringTools.isCharASCII( dn, pos.start, '=' ) == false )
+        {
+            return false;
+        }
+        else
+        {
+            pos.start++;
+        }
+
+        StringTools.trimLeft( dn, pos );
+
+        pos.end = pos.start;
+
+        if ( !isValidAttributeValue( dn, pos ) )
+        {
+            return false;
+        }
+
+        pos.start = pos.end;
+        pos.length = 0;
+
+        if ( !isValidNameComponents( dn, pos, isfirstRdn )  )
+        {
+            return false;
+        }
+        
+        pos.start = pos.end;
+        return true;
+    }
 
     /**
      * Parse a NameComponent : <br>
@@ -647,5 +1045,24 @@ public class RdnParser
     {
         parse( string, new Position(), rdn );
         rdn.normalize();
+    }
+
+    /**
+     * Validtae a NameComponent : <br>
+     * <p>
+     * &lt;name-component&gt; ::= &lt;attributeType&gt; &lt;spaces&gt; '='
+     * &lt;spaces&gt; &lt;attributeValue&gt; &lt;nameComponents&gt;
+     * </p>
+     *
+     * @param string
+     *            The buffer to parse
+     * @param rdn
+     *            The RDN to fill. Beware that if the RDN is not empty, the new
+     *            AttributeTypeAndValue will be added.
+     * @return <code>true</code> if the RDN is valid
+     */
+    public static boolean isValid( String string )
+    {
+        return isValid( string, new Position(), false );
     }
 }

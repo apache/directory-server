@@ -152,7 +152,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
     * case where we only have a single type=value. This will be 99.99% the
     * case. This avoids the creation of a HashMap.
     */
-   private AttributeTypeAndValue atav = null;
+   protected AttributeTypeAndValue atav = null;
 
    /**
     * The number of atavs. We store this number here to avoid complex
@@ -277,7 +277,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
                while ( iter.hasNext() )
                {
-                   AttributeTypeAndValue currentAtav = ( AttributeTypeAndValue ) iter.next();
+                   AttributeTypeAndValue currentAtav = iter.next();
                    atavs.add( (AttributeTypeAndValue)currentAtav.clone() );
                    atavTypes.put( currentAtav.getType(), currentAtav );
                }
@@ -522,7 +522,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
            default:
                if ( atavTypes.containsKey( normalizedType ) )
                {
-                   return ( AttributeTypeAndValue ) atavTypes.get( normalizedType );
+                   return atavTypes.get( normalizedType );
                }
                else
                {
@@ -564,7 +564,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
                public void remove()
                {
-
+                   // nothing to do
                }
            };
        }
@@ -855,7 +855,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
            return false;
        }
 
-       return compareTo( ( Rdn ) rdn ) == EQUALS;
+       return compareTo( rdn ) == EQUALS;
    }
 
 
@@ -1021,7 +1021,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                    {
                        if ( StringTools.isHex( chars, i ) )
                        {
-                           pair += ( byte ) StringTools.HEX_VALUE[chars[i]];
+                           pair += StringTools.HEX_VALUE[chars[i]];
                            bytes[pos++] = pair;
                        }
                    }
