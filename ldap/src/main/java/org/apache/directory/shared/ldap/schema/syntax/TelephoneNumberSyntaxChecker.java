@@ -52,7 +52,7 @@ public class TelephoneNumberSyntaxChecker implements SyntaxChecker
     /** The Syntax OID, according to RFC 4517, par. 3.3.31 */
     public static final String OID = "1.3.6.1.4.1.1466.115.121.1.50";
     
-    /** Other regexp to extend the initial one */
+    /** Other regexps to extend the initial one */
     private List<String> regexps;
     
     /** Other regexp to extend the initial one, compiled */
@@ -187,6 +187,11 @@ public class TelephoneNumberSyntaxChecker implements SyntaxChecker
             }
             else
             {
+                if ( compiledREs == null )
+                {
+                    return false;
+                }
+                
                 // The default is not enough, let's try
                 // the other regexps
                 for ( Pattern pattern:compiledREs )
