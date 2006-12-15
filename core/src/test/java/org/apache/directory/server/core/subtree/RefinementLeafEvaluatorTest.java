@@ -29,6 +29,7 @@ import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.schema.bootstrap.*;
 import org.apache.directory.server.core.schema.global.GlobalRegistries;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 
@@ -111,7 +112,7 @@ public class RefinementLeafEvaluatorTest extends TestCase
 
         try
         {
-            assertFalse( evaluator.evaluate( new SimpleNode( "", "", LeafNode.GREATEREQ ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new SimpleNode( "", "", AssertionEnum.GREATEREQ ), objectClasses ) );
             fail( "should never get here due to an NE" );
         }
         catch ( NamingException ne )
@@ -120,7 +121,7 @@ public class RefinementLeafEvaluatorTest extends TestCase
 
         try
         {
-            assertFalse( evaluator.evaluate( new SimpleNode( "", "", LeafNode.EQUALITY ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new SimpleNode( "", "", AssertionEnum.EQUALITY ), objectClasses ) );
             fail( "should never get here due to an NE" );
         }
         catch ( NamingException ne )
@@ -129,7 +130,7 @@ public class RefinementLeafEvaluatorTest extends TestCase
 
         try
         {
-            assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "", LeafNode.EQUALITY ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "", AssertionEnum.EQUALITY ), objectClasses ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -139,7 +140,7 @@ public class RefinementLeafEvaluatorTest extends TestCase
         try
         {
             objectClasses = new BasicAttribute( "incorrectAttrId" );
-            assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "", LeafNode.EQUALITY ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "", AssertionEnum.EQUALITY ), objectClasses ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -154,19 +155,19 @@ public class RefinementLeafEvaluatorTest extends TestCase
 
         // positive test
         objectClasses = new BasicAttribute( "objectClass", "person" );
-        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", AssertionEnum.EQUALITY ), objectClasses ) );
 
         objectClasses = new BasicAttribute( "objectClass" );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
-        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", AssertionEnum.EQUALITY ), objectClasses ) );
 
         // negative tests
         objectClasses = new BasicAttribute( "objectClass", "person" );
-        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "blah", LeafNode.EQUALITY ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "blah", AssertionEnum.EQUALITY ), objectClasses ) );
 
         objectClasses = new BasicAttribute( "objectClass", "blah" );
-        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "person", AssertionEnum.EQUALITY ), objectClasses ) );
     }
 
 
@@ -176,18 +177,18 @@ public class RefinementLeafEvaluatorTest extends TestCase
 
         // positive test
         objectClasses = new BasicAttribute( "objectClass", "person" );
-        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", AssertionEnum.EQUALITY ), objectClasses ) );
 
         objectClasses = new BasicAttribute( "objectClass" );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
-        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", AssertionEnum.EQUALITY ), objectClasses ) );
 
         // negative tests
         objectClasses = new BasicAttribute( "objectClass", "person" );
-        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", AssertionEnum.EQUALITY ), objectClasses ) );
 
         objectClasses = new BasicAttribute( "objectClass", "blah" );
-        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", AssertionEnum.EQUALITY ), objectClasses ) );
     }
 }

@@ -41,6 +41,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -115,7 +116,7 @@ public class TriggerSpecCache
         {
             String suffix = ( String ) suffixes.next();
             LdapDN baseDn = new LdapDN( suffix );
-            ExprNode filter = new SimpleNode( OC_ATTR, TRIGGER_SUBENTRY_OC, SimpleNode.EQUALITY );
+            ExprNode filter = new SimpleNode( OC_ATTR, TRIGGER_SUBENTRY_OC, AssertionEnum.EQUALITY );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration results = nexus.search( baseDn, env, filter, ctls );

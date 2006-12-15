@@ -40,6 +40,7 @@ import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -119,7 +120,7 @@ public class TupleCache
         {
             String suffix = ( String ) suffixes.next();
             LdapDN baseDn = parseNormalized( suffix );
-            ExprNode filter = new SimpleNode( OC_ATTR, ACSUBENTRY_OC, SimpleNode.EQUALITY );
+            ExprNode filter = new SimpleNode( OC_ATTR, ACSUBENTRY_OC, AssertionEnum.EQUALITY );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration results = nexus.search( baseDn, env, filter, ctls );

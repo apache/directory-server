@@ -74,7 +74,7 @@ public class RefinementEvaluator
 
         switch ( bnode.getOperator() )
         {
-            case ( BranchNode.OR  ):
+            case OR :
                 Iterator children = bnode.getChildren().iterator();
 
                 while ( children.hasNext() )
@@ -88,7 +88,8 @@ public class RefinementEvaluator
                 }
 
                 return false;
-            case ( BranchNode.AND  ):
+                
+            case AND :
                 children = bnode.getChildren().iterator();
                 while ( children.hasNext() )
                 {
@@ -101,7 +102,8 @@ public class RefinementEvaluator
                 }
 
                 return true;
-            case ( BranchNode.NOT  ):
+                
+            case NOT :
                 if ( null != bnode.getChild() )
                 {
                     return !evaluate( bnode.getChild(), objectClasses );

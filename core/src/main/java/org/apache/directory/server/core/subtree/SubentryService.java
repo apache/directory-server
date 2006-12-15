@@ -36,6 +36,7 @@ import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -133,7 +134,7 @@ public class SubentryService extends BaseInterceptor
 
         // prepare to find all subentries in all namingContexts
         Iterator suffixes = this.nexus.listSuffixes();
-        ExprNode filter = new SimpleNode( "objectclass", "subentry", LeafNode.EQUALITY );
+        ExprNode filter = new SimpleNode( "objectclass", "subentry", AssertionEnum.EQUALITY );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[] { "subtreeSpecification", "objectClass" } );

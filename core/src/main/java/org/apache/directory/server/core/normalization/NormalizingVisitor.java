@@ -21,6 +21,7 @@ package org.apache.directory.server.core.normalization;
 
 
 import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterVisitor;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -203,7 +205,7 @@ public class NormalizingVisitor implements FilterVisitor
                         // remove the child at ii
                         bnode.getChildren().remove( child );
                         
-                        if ( bnode.getOperator() != BranchNode.AND )
+                        if ( bnode.getOperator() != AssertionEnum.AND )
                         {
                             bnode.set( "undefined", Boolean.TRUE );
                         }
@@ -227,7 +229,7 @@ public class NormalizingVisitor implements FilterVisitor
                 catch( UndefinedFilterAttributeException e )
                 {
                     bnode.getChildren().remove( ii );
-                    if ( bnode.getOperator() != BranchNode.AND )
+                    if ( bnode.getOperator() != AssertionEnum.AND )
                     {
                         bnode.set( "undefined", Boolean.TRUE );
                     }
@@ -263,7 +265,7 @@ public class NormalizingVisitor implements FilterVisitor
                     
                     // now for AND & OR nodes with a single child left replace them
                     // with their child at the same index they AND/OR node was in
-                    if ( child.getChildren().size() == 1 && child.getOperator() != BranchNode.NOT )
+                    if ( child.getChildren().size() == 1 && child.getOperator() != AssertionEnum.NOT )
                     {
                         bnode.getChildren().remove( child );
                         if ( ii >= bnode.getChildren().size() )
@@ -293,7 +295,7 @@ public class NormalizingVisitor implements FilterVisitor
     }
 
 
-    public ArrayList getOrder( BranchNode node, ArrayList children )
+    public List<ExprNode> getOrder( BranchNode node, List<ExprNode> children )
     {
         return children;
     }

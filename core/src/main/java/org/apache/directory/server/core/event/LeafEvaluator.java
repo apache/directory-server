@@ -105,21 +105,28 @@ public class LeafEvaluator implements Evaluator
 
         switch ( ( ( LeafNode ) node ).getAssertionType() )
         {
-            case ( LeafNode.APPROXIMATE  ):
+            case APPROXIMATE :
                 return evalEquality( ( SimpleNode ) node, entry );
-            case ( LeafNode.EQUALITY  ):
+                
+            case EQUALITY :
                 return evalEquality( ( SimpleNode ) node, entry );
-            case ( LeafNode.EXTENSIBLE  ):
+                
+            case EXTENSIBLE :
                 throw new NotImplementedException();
-            case ( LeafNode.GREATEREQ  ):
+                
+            case GREATEREQ :
                 return evalGreater( ( SimpleNode ) node, entry, true );
-            case ( LeafNode.LESSEQ  ):
+                
+            case LESSEQ :
                 return evalGreater( ( SimpleNode ) node, entry, false );
-            case ( LeafNode.PRESENCE  ):
+                
+            case PRESENCE :
                 String attrId = ( ( PresenceNode ) node ).getAttribute();
                 return evalPresence( attrId, entry );
-            case ( LeafNode.SUBSTRING  ):
+                
+            case SUBSTRING :
                 return substringEvaluator.evaluate( node, dn, entry );
+                
             default:
                 throw new NamingException( "Unrecognized leaf node type: " + ( ( LeafNode ) node ).getAssertionType() );
         }

@@ -49,6 +49,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
@@ -219,7 +220,7 @@ public class SchemaService extends BaseInterceptor
 
             // see if node attribute is objectClass
             if ( node.getAttribute().equalsIgnoreCase( "2.5.4.0" )
-                && "subschema".equalsIgnoreCase( compareto ) && node.getAssertionType() == SimpleNode.EQUALITY )
+                && "subschema".equalsIgnoreCase( compareto ) && node.getAssertionType() == AssertionEnum.EQUALITY )
             {
                 // call.setBypass( true );
                 Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );

@@ -23,6 +23,7 @@ package org.apache.directory.server.core.partition.impl.btree.gui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.swing.tree.TreeNode;
 
@@ -69,7 +70,7 @@ public class ASTNode implements TreeNode
             }
 
             BranchNode branch = ( BranchNode ) exprNode;
-            ArrayList exprNodes = branch.getChildren();
+            List<ExprNode> exprNodes = branch.getChildren();
             for ( int ii = 0; ii < exprNodes.size(); ii++ )
             {
                 ExprNode child = ( ExprNode ) exprNodes.get( ii );

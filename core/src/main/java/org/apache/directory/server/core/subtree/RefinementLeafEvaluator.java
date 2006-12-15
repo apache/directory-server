@@ -21,6 +21,7 @@ package org.apache.directory.server.core.subtree;
 
 
 import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -71,7 +72,7 @@ public class RefinementLeafEvaluator
         {
             throw new IllegalArgumentException( "node cannot be null" );
         }
-        if ( node.getAssertionType() != LeafNode.EQUALITY )
+        if ( node.getAssertionType() != AssertionEnum.EQUALITY )
         {
             throw new NamingException( "Unrecognized assertion type for refinement node: " + node.getAssertionType() );
         }

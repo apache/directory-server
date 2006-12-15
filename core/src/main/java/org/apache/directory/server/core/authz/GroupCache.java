@@ -22,6 +22,7 @@ package org.apache.directory.server.core.authz;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -106,9 +107,9 @@ public class GroupCache
         // search all naming contexts for static groups and generate
         // normalized sets of members to cache within the map
 
-        BranchNode filter = new BranchNode( BranchNode.OR );
-        filter.addNode( new SimpleNode( OC_ATTR, GROUPOFNAMES_OC, SimpleNode.EQUALITY ) );
-        filter.addNode( new SimpleNode( OC_ATTR, GROUPOFUNIQUENAMES_OC, SimpleNode.EQUALITY ) );
+        BranchNode filter = new BranchNode( AssertionEnum.OR );
+        filter.addNode( new SimpleNode( OC_ATTR, GROUPOFNAMES_OC, AssertionEnum.EQUALITY ) );
+        filter.addNode( new SimpleNode( OC_ATTR, GROUPOFUNIQUENAMES_OC, AssertionEnum.EQUALITY ) );
 
         Iterator suffixes = nexus.listSuffixes();
         while ( suffixes.hasNext() )

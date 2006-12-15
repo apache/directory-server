@@ -29,6 +29,8 @@ import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
+
 
 
 /**
@@ -104,7 +106,7 @@ public class ExpressionEvaluator implements Evaluator
 
         switch ( bnode.getOperator() )
         {
-            case ( BranchNode.OR  ):
+            case OR :
                 Iterator children = bnode.getChildren().iterator();
 
                 while ( children.hasNext() )
@@ -118,7 +120,8 @@ public class ExpressionEvaluator implements Evaluator
                 }
 
                 return false;
-            case ( BranchNode.AND  ):
+                
+            case AND :
                 children = bnode.getChildren().iterator();
                 while ( children.hasNext() )
                 {
@@ -131,7 +134,8 @@ public class ExpressionEvaluator implements Evaluator
                 }
 
                 return true;
-            case ( BranchNode.NOT  ):
+                
+            case NOT :
                 if ( null != bnode.getChild() )
                 {
                     return !evaluate( bnode.getChild(), dn, entry );

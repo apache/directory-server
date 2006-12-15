@@ -107,7 +107,7 @@ public class ExpressionEvaluator implements Evaluator
 
         switch ( bnode.getOperator() )
         {
-            case ( BranchNode.OR  ):
+            case OR :
                 Iterator children = bnode.getChildren().iterator();
 
                 while ( children.hasNext() )
@@ -121,7 +121,8 @@ public class ExpressionEvaluator implements Evaluator
                 }
 
                 return false;
-            case ( BranchNode.AND  ):
+                
+            case AND :
                 children = bnode.getChildren().iterator();
                 while ( children.hasNext() )
                 {
@@ -134,13 +135,15 @@ public class ExpressionEvaluator implements Evaluator
                 }
 
                 return true;
-            case ( BranchNode.NOT  ):
+                
+            case NOT :
                 if ( null != bnode.getChild() )
                 {
                     return !evaluate( bnode.getChild(), record );
                 }
 
                 throw new NamingException( "Negation has no child: " + node );
+                
             default:
                 throw new NamingException( "Unrecognized branch node operator: " + bnode.getOperator() );
         }

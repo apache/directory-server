@@ -62,6 +62,7 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
@@ -807,7 +808,7 @@ public class ReferralService extends BaseInterceptor
 
     static ExprNode getReferralFilter()
     {
-        return new SimpleNode( OBJCLASS_ATTR, REFERRAL_OC, LeafNode.EQUALITY );
+        return new SimpleNode( OBJCLASS_ATTR, REFERRAL_OC, AssertionEnum.EQUALITY );
     }
 
 

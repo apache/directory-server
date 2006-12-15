@@ -45,6 +45,7 @@ import javax.naming.spi.DirectoryManager;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
@@ -488,11 +489,11 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 
                 if ( value instanceof byte[] )
                 {
-                    node = new SimpleNode( attr.getID(), ( byte [] ) value, SimpleNode.EQUALITY );
+                    node = new SimpleNode( attr.getID(), ( byte [] ) value, AssertionEnum.EQUALITY );
                 }
                 else 
                 {
-                    node = new SimpleNode( attr.getID(), ( String ) value, SimpleNode.EQUALITY );
+                    node = new SimpleNode( attr.getID(), ( String ) value, AssertionEnum.EQUALITY );
                 }
 
                 return getNexusProxy().search( target, getEnvironment(), node, ctls );
@@ -505,7 +506,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
          */
         Attribute attr;
         SimpleNode node;
-        BranchNode filter = new BranchNode( BranchNode.AND );
+        BranchNode filter = new BranchNode( AssertionEnum.AND );
         NamingEnumeration list = matchingAttributes.getAll();
 
         // Loop through each attribute value pair
@@ -535,7 +536,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 // Add simpel AVA node if its value is a String 
                 if ( val instanceof String )
                 {
-                    node = new SimpleNode( attr.getID(), ( String ) val, SimpleNode.EQUALITY );
+                    node = new SimpleNode( attr.getID(), ( String ) val, AssertionEnum.EQUALITY );
                     filter.addNode( node );
                 }
             }

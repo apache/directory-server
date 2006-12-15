@@ -29,6 +29,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.shared.ldap.filter.AbstractExprNode;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
@@ -126,7 +127,7 @@ public class DefaultSearchEngine implements SearchEngine
         }
 
         // Add the scope node using the eective base to the ilter
-        BranchNode root = new BranchNode( AbstractExprNode.AND );
+        BranchNode root = new BranchNode( AssertionEnum.AND );
         ExprNode node = new ScopeNode( env, effectiveBase.toString(), searchCtls.getSearchScope() );
         root.getChildren().add( node );
         root.getChildren().add( filter );

@@ -20,13 +20,13 @@
 package org.apache.directory.server.core.normalization;
 
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ExtensibleNode;
@@ -61,7 +61,7 @@ public class ExpandingVisitor implements FilterVisitor
     }
 
 
-    public ArrayList getOrder( BranchNode node, ArrayList children )
+    public List<ExprNode> getOrder( BranchNode node, List<ExprNode> children )
     {
         return children;
     }
@@ -97,7 +97,7 @@ public class ExpandingVisitor implements FilterVisitor
                         // create a new OR node to hold all descendent forms
                         // add to this node the generalized leaf node and 
                         // replace the old leaf with the new OR branch node
-                        BranchNode orNode = new BranchNode( BranchNode.OR );
+                        BranchNode orNode = new BranchNode( AssertionEnum.OR );
                         orNode.getChildren().add( leaf );
                         children.set( ii, orNode );
                         
@@ -110,26 +110,29 @@ public class ExpandingVisitor implements FilterVisitor
                             
                             switch( leaf.getAssertionType() )
                             {
-                                case( LeafNode.EXTENSIBLE ):
+                                case EXTENSIBLE :
                                     ExtensibleNode extensibleNode = ( ExtensibleNode ) leaf;
                                     newLeaf = new ExtensibleNode( descendant.getOid(), 
                                         extensibleNode.getValue(), 
                                         extensibleNode.getMatchingRuleId(), 
                                         extensibleNode.dnAttributes() );
                                     break;
-                                case( LeafNode.PRESENCE ):
+                                    
+                                case PRESENCE :
                                     newLeaf = new PresenceNode( descendant.getOid() );
                                     break;
-                                case( LeafNode.SUBSTRING ):
+                                    
+                                case SUBSTRING :
                                     SubstringNode substringNode = ( SubstringNode ) leaf;
                                     newLeaf = new SubstringNode( descendant.getOid(), 
                                         substringNode.getInitial(), 
                                         substringNode.getFinal() );
                                     break;
-                                case( LeafNode.APPROXIMATE ):
-                                case( LeafNode.EQUALITY ):
-                                case( LeafNode.GREATEREQ ):
-                                case( LeafNode.LESSEQ ):
+                                    
+                                case APPROXIMATE :
+                                case EQUALITY :
+                                case GREATEREQ :
+                                case LESSEQ :
                                     SimpleNode simpleNode = ( SimpleNode ) leaf;
                                     if ( simpleNode.getValue() instanceof String )
                                     {
@@ -150,6 +153,7 @@ public class ExpandingVisitor implements FilterVisitor
                                             simpleNode.getAssertionType() );
                                     }
                                     break;
+                                    
                                 default:
                                     throw new IllegalStateException( "Unknown assertion type: " 
                                         + leaf.getAssertionType() );

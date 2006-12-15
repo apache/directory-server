@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -99,27 +100,34 @@ public class ExpressionEnumerator implements Enumerator
 
             switch ( leaf.getAssertionType() )
             {
-                case ( LeafNode.APPROXIMATE  ):
+                case APPROXIMATE :
                     list = enumEquality( ( SimpleNode ) node );
                     break;
-                case ( LeafNode.EQUALITY  ):
+                    
+                case EQUALITY :
                     list = enumEquality( ( SimpleNode ) node );
                     break;
-                case ( LeafNode.EXTENSIBLE  ):
+                    
+                case EXTENSIBLE :
                     // N O T   I M P L E M E N T E D   Y E T !
                     throw new NotImplementedException();
-                case ( LeafNode.GREATEREQ  ):
+                
+                case GREATEREQ :
                     list = enumGreater( ( SimpleNode ) node, true );
                     break;
-                case ( LeafNode.LESSEQ  ):
+                    
+                case LESSEQ :
                     list = enumGreater( ( SimpleNode ) node, false );
                     break;
-                case ( LeafNode.PRESENCE  ):
+                    
+                case PRESENCE :
                     list = enumPresence( ( PresenceNode ) node );
                     break;
-                case ( LeafNode.SUBSTRING  ):
+                    
+                case SUBSTRING :
                     list = substringEnumerator.enumerate( leaf );
                     break;
+                    
                 default:
                     throw new IllegalArgumentException( "Unknown leaf assertion" );
             }
@@ -130,15 +138,18 @@ public class ExpressionEnumerator implements Enumerator
 
             switch ( branch.getOperator() )
             {
-                case ( BranchNode.AND  ):
+                case AND :
                     list = enumConj( branch );
                     break;
-                case ( BranchNode.NOT  ):
+                    
+                case NOT :
                     list = enumNeg( branch );
                     break;
-                case ( BranchNode.OR  ):
+                    
+                case OR :
                     list = enumDisj( branch );
                     break;
+                    
                 default:
                     throw new IllegalArgumentException( "Unknown branch logical operator" );
             }
@@ -155,7 +166,7 @@ public class ExpressionEnumerator implements Enumerator
      */
     private NamingEnumeration enumDisj( BranchNode node ) throws NamingException
     {
-        ArrayList children = node.getChildren();
+        List<ExprNode> children = node.getChildren();
         NamingEnumeration[] childEnumerations = new NamingEnumeration[children.size()];
 
         // Recursively create NamingEnumerations for each child expression node
@@ -226,7 +237,7 @@ public class ExpressionEnumerator implements Enumerator
          * we will use for iteration by creating a NamingEnumeration over its
          * expression.
          */
-        final ArrayList children = node.getChildren();
+        final List<ExprNode> children = node.getChildren();
         for ( int ii = 0; ii < children.size(); ii++ )
         {
             ExprNode child = ( ExprNode ) children.get( ii );

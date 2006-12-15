@@ -40,6 +40,7 @@ import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.core.schema.OidRegistry;
 
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ExtensibleNode;
@@ -211,7 +212,7 @@ public class NormalizationService extends BaseInterceptor
                 
                 bnode.getChildren().remove( e.getUndefinedFilterNode() );
                 
-                if ( bnode.getOperator() == BranchNode.AND )
+                if ( bnode.getOperator() == AssertionEnum.AND )
                 {
                     return new EmptyEnumeration();
                 }
@@ -237,7 +238,7 @@ public class NormalizationService extends BaseInterceptor
             }
 
             // now for AND & OR nodes with a single child left replace them with their child
-            if ( child.getChildren().size() == 1 && child.getOperator() != BranchNode.NOT )
+            if ( child.getChildren().size() == 1 && child.getOperator() != AssertionEnum.NOT )
             {
                 filter = child.getChild();
             }
@@ -259,7 +260,7 @@ public class NormalizationService extends BaseInterceptor
             {
                 // create new OR node and add the filter leaf to it 
                 // and set filter to this new branch node
-                BranchNode bnode = new BranchNode( BranchNode.OR );
+                BranchNode bnode = new BranchNode( AssertionEnum.OR );
                 bnode.getChildren().add( filter );
                 filter = bnode;
                 
@@ -273,26 +274,29 @@ public class NormalizationService extends BaseInterceptor
                     
                     switch( leaf.getAssertionType() )
                     {
-                        case( LeafNode.EXTENSIBLE ):
+                        case EXTENSIBLE :
                             ExtensibleNode extensibleNode = ( ExtensibleNode ) leaf;
                             newLeaf = new ExtensibleNode( descendant.getOid(), 
                                 extensibleNode.getValue(), 
                                 extensibleNode.getMatchingRuleId(), 
                                 extensibleNode.dnAttributes() );
                             break;
-                        case( LeafNode.PRESENCE ):
+                            
+                        case PRESENCE :
                             newLeaf = new PresenceNode( descendant.getOid() );
                             break;
-                        case( LeafNode.SUBSTRING ):
+                            
+                        case SUBSTRING :
                             SubstringNode substringNode = ( SubstringNode ) leaf;
                             newLeaf = new SubstringNode( descendant.getOid(), 
                                 substringNode.getInitial(), 
                                 substringNode.getFinal() );
                             break;
-                        case( LeafNode.APPROXIMATE ):
-                        case( LeafNode.EQUALITY ):
-                        case( LeafNode.GREATEREQ ):
-                        case( LeafNode.LESSEQ ):
+                            
+                        case APPROXIMATE :
+                        case EQUALITY :
+                        case GREATEREQ :
+                        case LESSEQ :
                             SimpleNode simpleNode = ( SimpleNode ) leaf;
                             if ( simpleNode.getValue() instanceof String )
                             {
@@ -313,6 +317,7 @@ public class NormalizationService extends BaseInterceptor
                                     simpleNode.getAssertionType() );
                             }
                             break;
+                            
                         default:
                             throw new IllegalStateException( "Unknown assertion type: " 
                                 + leaf.getAssertionType() );

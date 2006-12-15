@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
@@ -104,30 +105,36 @@ public class DefaultOptimizer implements Optimizer
 
             switch ( leaf.getAssertionType() )
             {
-                case ( LeafNode.APPROXIMATE  ):
+                case APPROXIMATE :
                     /** Feature not implemented so we just use equality matching */
                     count = getEqualityScan( ( SimpleNode ) leaf );
                     break;
-                case ( LeafNode.EQUALITY  ):
+                    
+                case EQUALITY :
                     count = getEqualityScan( ( SimpleNode ) leaf );
                     break;
-                case ( LeafNode.EXTENSIBLE  ):
+                    
+                case EXTENSIBLE :
                     /** Cannot really say so we presume the total index count */
                     count = getFullScan( leaf );
                     break;
-                case ( LeafNode.GREATEREQ  ):
+                    
+                case GREATEREQ :
                     count = getGreaterLessScan( ( SimpleNode ) leaf, true );
                     break;
-                case ( LeafNode.LESSEQ  ):
+                    
+                case LESSEQ :
                     count = getGreaterLessScan( ( SimpleNode ) leaf, false );
                     break;
-                case ( LeafNode.PRESENCE  ):
+                case PRESENCE :
                     count = getPresenceScan( ( PresenceNode ) leaf );
                     break;
-                case ( LeafNode.SUBSTRING  ):
+                    
+                case SUBSTRING :
                     /** Cannot really say so we presume the total index count */
                     count = getFullScan( leaf );
                     break;
+                    
                 default:
                     throw new IllegalArgumentException( "Unrecognized leaf node" );
             }
@@ -141,15 +148,18 @@ public class DefaultOptimizer implements Optimizer
 
             switch ( bnode.getOperator() )
             {
-                case ( BranchNode.AND  ):
+                case AND :
                     count = getConjunctionScan( bnode );
                     break;
-                case ( BranchNode.NOT  ):
+                    
+                case NOT :
                     count = getNegationScan( bnode );
                     break;
-                case ( BranchNode.OR  ):
+                    
+                case OR :
                     count = getDisjunctionScan( bnode );
                     break;
+                    
                 default:
                     throw new IllegalArgumentException( "Unrecognized branch node type" );
             }
@@ -179,7 +189,7 @@ public class DefaultOptimizer implements Optimizer
     private BigInteger getConjunctionScan( BranchNode node ) throws NamingException
     {
         BigInteger count = MAX;
-        ArrayList children = node.getChildren();
+        List<ExprNode> children = node.getChildren();
 
         for ( int ii = 0; ii < children.size(); ii++ )
         {
@@ -235,7 +245,7 @@ public class DefaultOptimizer implements Optimizer
      */
     private BigInteger getDisjunctionScan( BranchNode node ) throws NamingException
     {
-        ArrayList children = node.getChildren();
+        List<ExprNode> children = node.getChildren();
         BigInteger total = BigInteger.ZERO;
 
         for ( int ii = 0; ii < children.size(); ii++ )
