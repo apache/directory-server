@@ -334,7 +334,6 @@ public class LdapDNTest extends TestCase
        }
        catch ( InvalidNameException ine )
        {
-
            assertFalse( LdapDN.isValid( "a = #AABBCCDD3" ) );
            assertTrue( true );
        }
@@ -362,6 +361,25 @@ public class LdapDNTest extends TestCase
        assertTrue( LdapDN.isValid( "a = \\\" quoted value \\\"" ) );
        assertEquals( "a=\\\" quoted value \\\"", dn.toString() );
        assertEquals( "a = \\\" quoted value \\\"", dn.getUpName() );
+   }
+
+   /**
+    * test a simple DN with a comma at the end
+    */
+   public void testLdapDNComaAtEnd() throws InvalidNameException
+   {
+       assertFalse( LdapDN.isValid( "a = b,"  ) );
+       assertFalse( LdapDN.isValid( "a = b, "  ) );
+       
+       try
+       {
+           new LdapDN( "a = b," );
+           fail();
+       }
+       catch ( InvalidNameException ine )
+       {
+           assertTrue( true );
+       }
    }
 
 
