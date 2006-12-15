@@ -28,6 +28,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.filter.AbstractExprNode;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -267,19 +268,19 @@ public class SubtreeSpecificationParserTest extends TestCase
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_REFINEMENT );
 
-        SimpleNode n1 = new SimpleNode( "objectClass", "1.2.3", 0 );
-        SimpleNode n2 = new SimpleNode( "objectClass", "4.5.6", 0 );
-        SimpleNode n3 = new SimpleNode( "objectClass", "person-7", 0 );
-        BranchNode n4 = new BranchNode( AbstractExprNode.OR );
+        SimpleNode n1 = new SimpleNode( "objectClass", "1.2.3", AssertionEnum.EQUALITY );
+        SimpleNode n2 = new SimpleNode( "objectClass", "4.5.6", AssertionEnum.EQUALITY );
+        SimpleNode n3 = new SimpleNode( "objectClass", "person-7", AssertionEnum.EQUALITY );
+        BranchNode n4 = new BranchNode( AssertionEnum.OR );
         n4.addNode( n2 );
         n4.addNode( n3 );
-        BranchNode n5 = new BranchNode( AbstractExprNode.AND );
+        BranchNode n5 = new BranchNode( AssertionEnum.AND );
         n5.addNode( n1 );
         n5.addNode( n4 );
-        SimpleNode n6 = new SimpleNode( "objectClass", "10.11.12", 0 );
-        BranchNode n7 = new BranchNode( AbstractExprNode.NOT );
+        SimpleNode n6 = new SimpleNode( "objectClass", "10.11.12", AssertionEnum.EQUALITY );
+        BranchNode n7 = new BranchNode( AssertionEnum.NOT );
         n7.addNode( n6 );
-        BranchNode n8 = new BranchNode( AbstractExprNode.AND );
+        BranchNode n8 = new BranchNode( AssertionEnum.AND );
         n8.addNode( n5 );
         n8.addNode( n7 );
 

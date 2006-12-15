@@ -73,7 +73,7 @@ public class ExtensibleNode extends LeafNode
      */
     public ExtensibleNode(String attribute, byte[] value, String matchingRuleId, boolean dnAttributes)
     {
-        super( attribute, EXTENSIBLE );
+        super( attribute, AssertionEnum.EXTENSIBLE );
 
         this.value = value;
         this.matchingRuleId = matchingRuleId;

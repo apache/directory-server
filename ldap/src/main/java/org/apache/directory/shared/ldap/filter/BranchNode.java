@@ -22,6 +22,7 @@ package org.apache.directory.shared.ldap.filter;
 
 
 import java.util.ArrayList;
+import java.util.List;
 import java.math.BigInteger;
 
 
@@ -35,43 +36,42 @@ import java.math.BigInteger;
 public class BranchNode extends AbstractExprNode
 {
     /** logical operator for this branch node */
-    private final int m_operator;
+    private final AssertionEnum operator;
 
     /** child node list for this branch node */
-    private ArrayList m_children = null;
+    private List<ExprNode> children = null;
 
 
     /**
      * Creates a BranchNode using a logical operator and a list of children.
      * 
-     * @param an_operator
+     * @param operator
      *            the logical operator to use for this branch node.
      * @param a_childList
      *            the child nodes under this branch node.
      */
-    public BranchNode(int an_operator, ArrayList a_childList)
+    public BranchNode( AssertionEnum operator, List<ExprNode> childList)
     {
-        super( an_operator );
+        super( operator );
 
-        if ( null == a_childList )
+        if ( null == childList )
         {
-            m_children = new ArrayList( 2 );
+            children = new ArrayList<ExprNode>( 2 );
         }
         else
         {
-            m_children = a_childList;
+            children = childList;
         }
 
-        m_operator = an_operator;
+        this.operator = operator;
 
-        switch ( m_operator )
+        switch ( operator )
         {
-            case ( AND ):
+            case AND :
+            case NOT :
+            case OR :
                 break;
-            case ( NOT ):
-                break;
-            case ( OR ):
-                break;
+
             default:
                 throw new IllegalArgumentException( "Logical operator argument in constructor is undefined." );
         }
@@ -81,12 +81,12 @@ public class BranchNode extends AbstractExprNode
     /**
      * Creates a BranchNode using a logical operator.
      * 
-     * @param an_operator
+     * @param operator
      *            the logical operator to use for this branch node.
      */
-    public BranchNode(int an_operator)
+    public BranchNode( AssertionEnum operator)
     {
-        this( an_operator, null );
+        this( operator, null );
     }
 
 
@@ -96,17 +96,17 @@ public class BranchNode extends AbstractExprNode
      * add more than one node to a negation branch node will result in an
      * IllegalStateException.
      * 
-     * @param a_node
+     * @param node
      *            the child expression to add to this branch node
      */
-    public void addNode( ExprNode a_node )
+    public void addNode( ExprNode node )
     {
-        if ( NOT == m_operator && m_children.size() >= 1 )
+        if ( ( AssertionEnum.NOT == operator ) && ( children.size() >= 1 ) )
         {
             throw new IllegalStateException( "Cannot add more than one element" + " to a negation node." );
         }
 
-        m_children.add( a_node );
+        children.add( node );
     }
 
 
@@ -116,17 +116,17 @@ public class BranchNode extends AbstractExprNode
      * more than one child. An attempt to add more than one node to a negation
      * branch node will result in an IllegalStateException.
      * 
-     * @param a_node
+     * @param node
      *            the child expression to add to this branch node
      */
-    public void addNodeToHead( ExprNode a_node )
+    public void addNodeToHead( ExprNode node )
     {
-        if ( NOT == m_operator && m_children.size() >= 1 )
+        if ( ( AssertionEnum.NOT == operator ) && ( children.size() >= 1 ) )
         {
             throw new IllegalStateException( "Cannot add more than one element" + " to a negation node." );
         }
 
-        m_children.add( 0, a_node );
+        children.add( 0, node );
     }
 
 
@@ -148,9 +148,9 @@ public class BranchNode extends AbstractExprNode
      * 
      * @return the list of child nodes under this branch node.
      */
-    public ArrayList getChildren()
+    public List<ExprNode> getChildren()
     {
-        return m_children;
+        return children;
     }
 
 
@@ -163,9 +163,9 @@ public class BranchNode extends AbstractExprNode
      */
     public ExprNode getChild()
     {
-        if ( m_children.size() > 0 )
+        if ( children.size() > 0 )
         {
-            return ( ExprNode ) m_children.get( 0 );
+            return children.get( 0 );
         }
 
         return null;
@@ -175,12 +175,12 @@ public class BranchNode extends AbstractExprNode
     /**
      * Sets the list of children under this node.
      * 
-     * @param a_list
+     * @param list
      *            the list of children to set.
      */
-    void setChildren( ArrayList a_list )
+    void setChildren( List<ExprNode> list )
     {
-        m_children = a_list;
+        children = list;
     }
 
 
@@ -189,9 +189,9 @@ public class BranchNode extends AbstractExprNode
      * 
      * @return the operator constant.
      */
-    public int getOperator()
+    public AssertionEnum getOperator()
     {
-        return m_operator;
+        return operator;
     }
 
 
@@ -202,7 +202,7 @@ public class BranchNode extends AbstractExprNode
      */
     public boolean isDisjunction()
     {
-        return OR == m_operator;
+        return AssertionEnum.OR == operator;
     }
 
 
@@ -213,7 +213,7 @@ public class BranchNode extends AbstractExprNode
      */
     public boolean isConjunction()
     {
-        return AND == m_operator;
+        return AssertionEnum.AND == operator;
     }
 
 
@@ -222,9 +222,9 @@ public class BranchNode extends AbstractExprNode
      * 
      * @return true if the operation is a NOT, false otherwise.
      */
-    public final boolean isNegation()
+    public boolean isNegation()
     {
-        return NOT == m_operator;
+        return AssertionEnum.NOT == operator;
     }
 
 
@@ -234,43 +234,47 @@ public class BranchNode extends AbstractExprNode
      * 
      * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(java.lang.StringBuffer)
      */
-    public StringBuffer printToBuffer( StringBuffer a_buf )
+    public StringBuffer printToBuffer( StringBuffer buf )
     {
-        a_buf.append( '(' );
+        buf.append( '(' );
 
-        switch ( m_operator )
+        switch ( operator )
         {
-            case ( AND ):
-                a_buf.append( "& " );
+            case AND :
+                buf.append( "& " );
                 break;
-            case ( NOT ):
-                a_buf.append( "! " );
+                
+            case NOT :
+                buf.append( "! " );
                 break;
-            case ( OR ):
-                a_buf.append( "| " );
+                
+            case OR :
+                buf.append( "| " );
                 break;
+                
             default:
-                a_buf.append( "UNKNOWN" );
+                buf.append( "UNKNOWN" );
         }
 
-        for ( int ii = 0; ii < m_children.size(); ii++ )
+        for ( ExprNode node:children )
         {
-            ( ( ExprNode ) m_children.get( ii ) ).printToBuffer( a_buf );
+        	node.printToBuffer( buf );
         }
-
-        a_buf.append( ')' );
-        if ( null != getAnnotations() && getAnnotations().containsKey( "count" ) )
+        
+        buf.append( ')' );
+        
+        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
         {
-            a_buf.append( '[' );
-            a_buf.append( ( ( BigInteger ) getAnnotations().get( "count" ) ).toString() );
-            a_buf.append( "] " );
+            buf.append( '[' );
+            buf.append( ( ( BigInteger ) getAnnotations().get( "count" ) ).toString() );
+            buf.append( "] " );
         }
         else
         {
-            a_buf.append( ' ' );
+            buf.append( ' ' );
         }
 
-        return a_buf;
+        return buf;
     }
 
 
@@ -282,26 +286,29 @@ public class BranchNode extends AbstractExprNode
      *            the operator constant.
      * @return one of the strings AND, OR, or NOT.
      */
-    public static String getOperatorString( int a_operator )
+    public static String getOperatorString( AssertionEnum operator )
     {
-        String l_opstr = null;
+        String opstr = null;
 
-        switch ( a_operator )
+        switch ( operator )
         {
-            case ( AND ):
-                l_opstr = "AND";
+            case AND :
+                opstr = "AND";
                 break;
-            case ( NOT ):
-                l_opstr = "NOT";
+                
+            case NOT :
+                opstr = "NOT";
                 break;
-            case ( OR ):
-                l_opstr = "OR";
+                
+            case OR :
+                opstr = "OR";
                 break;
+                
             default:
-                l_opstr = "UNKNOWN";
+                opstr = "UNKNOWN";
         }
 
-        return l_opstr;
+        return opstr;
     }
 
 
@@ -313,20 +320,21 @@ public class BranchNode extends AbstractExprNode
      */
     public String toString()
     {
-        StringBuffer l_buf = new StringBuffer();
-        l_buf.append( getOperatorString( m_operator ) );
-        if ( null != getAnnotations() && getAnnotations().containsKey( "count" ) )
+        StringBuffer buf = new StringBuffer();
+        buf.append( getOperatorString( operator ) );
+        
+        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
         {
-            l_buf.append( '[' );
-            l_buf.append( ( ( BigInteger ) getAnnotations().get( "count" ) ).toString() );
-            l_buf.append( "] " );
+            buf.append( '[' );
+            buf.append( ( ( BigInteger ) getAnnotations().get( "count" ) ).toString() );
+            buf.append( "] " );
         }
         else
         {
-            l_buf.append( ' ' );
+            buf.append( ' ' );
         }
 
-        return l_buf.toString();
+        return buf.toString();
     }
 
 
@@ -338,26 +346,25 @@ public class BranchNode extends AbstractExprNode
     {
         if ( visitor.isPrefix() )
         {
-            ArrayList children = visitor.getOrder( this, m_children );
+            List<ExprNode> children = visitor.getOrder( this, this.children );
 
             if ( visitor.canVisit( this ) )
             {
                 visitor.visit( this );
             }
 
-            for ( int ii = 0; ii < children.size(); ii++ )
+            for ( ExprNode node:children )
             {
-                ( ( ExprNode ) children.get( ii ) ).accept( visitor );
+                node.accept( visitor );
             }
         }
         else
         {
-            ArrayList children = visitor.getOrder( this, m_children );
+            List<ExprNode> children = visitor.getOrder( this, this.children );
 
-            for ( int ii = 0; ii < children.size(); ii++ )
+            for ( ExprNode node:children )
             {
-                ExprNode child = ( ExprNode ) children.get( ii );
-                child.accept( visitor );
+                node.accept( visitor );
             }
 
             if ( visitor.canVisit( this ) )
@@ -397,18 +404,19 @@ public class BranchNode extends AbstractExprNode
 
         BranchNode otherExprNode = ( BranchNode ) other;
 
-        ArrayList otherChildren = otherExprNode.getChildren();
+        List<ExprNode> otherChildren = otherExprNode.getChildren();
 
-        if ( otherExprNode.getOperator() != m_operator )
+        if ( otherExprNode.getOperator() != operator )
         {
             return false;
         }
 
-        if ( otherChildren == m_children )
+        if ( otherChildren == children )
         {
             return true;
         }
 
-        return ( null != m_children && null != otherChildren ) && m_children.equals( otherChildren );
+        return ( ( null != children ) && ( null != otherChildren ) && 
+        	children.equals( otherChildren ) );
     }
 }

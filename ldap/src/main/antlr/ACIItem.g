@@ -35,7 +35,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.filter.AbstractExprNode;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
@@ -1213,7 +1213,7 @@ item returns [ LeafNode node ]
     :
     ID_item ( SP )* COLON ( SP )* l_oid=oid
     {
-        node = new SimpleNode( "objectClass" , l_oid , AbstractExprNode.EQUALITY );
+        node = new SimpleNode( "objectClass" , l_oid , AssertionEnum.EQUALITY );
     }
     ;
 
@@ -1226,7 +1226,7 @@ and returns [ BranchNode node ]
     :
     ID_and ( SP )* COLON ( SP )* children=refinements
     {
-        node = new BranchNode( AbstractExprNode.AND , children );
+        node = new BranchNode( AssertionEnum.AND , children );
     }
     ;
 
@@ -1239,7 +1239,7 @@ or returns [ BranchNode node ]
     :
     ID_or ( SP )* COLON ( SP )* children=refinements
     {
-        node = new BranchNode( AbstractExprNode.OR , children );
+        node = new BranchNode( AssertionEnum.OR , children );
     }
     ;
 
@@ -1252,7 +1252,7 @@ not returns [ BranchNode node ]
     :
     ID_not ( SP )* COLON ( SP )* children=refinements
     {
-        node = new BranchNode( AbstractExprNode.NOT , children );
+        node = new BranchNode( AssertionEnum.NOT , children );
     }
     ;
 

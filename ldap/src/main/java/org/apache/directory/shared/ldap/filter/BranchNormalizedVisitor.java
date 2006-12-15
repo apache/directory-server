@@ -20,6 +20,7 @@
 package org.apache.directory.shared.ldap.filter;
 
 
+import java.util.List;
 import java.util.TreeSet;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -52,7 +53,7 @@ public class BranchNormalizedVisitor implements FilterVisitor
 
         BranchNode branch = ( BranchNode ) node;
 
-        if ( branch.getOperator() == AbstractExprNode.NOT )
+        if ( branch.getOperator() == AssertionEnum.NOT )
         {
             return;
         }
@@ -61,7 +62,7 @@ public class BranchNormalizedVisitor implements FilterVisitor
 
         TreeSet set = new TreeSet( nodeComparator );
 
-        ArrayList children = branch.getChildren();
+        List<ExprNode> children = branch.getChildren();
 
         for ( int ii = 0; ii < children.size(); ii++ )
         {
@@ -98,7 +99,7 @@ public class BranchNormalizedVisitor implements FilterVisitor
     }
 
 
-    public ArrayList getOrder( BranchNode node, ArrayList children )
+    public List<ExprNode> getOrder( BranchNode node, List<ExprNode> children )
     {
         return children;
     }

@@ -38,7 +38,7 @@ public abstract class LeafNode extends AbstractExprNode
      * @param attribute the attribute this node is based on
      * @param type the type of this leaf node
      */
-    protected LeafNode( String attribute, int type )
+    protected LeafNode( String attribute, AssertionEnum type )
     {
         super( type );
         this.attribute = attribute;

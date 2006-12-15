@@ -32,47 +32,11 @@ import java.util.HashMap;
  */
 public abstract class AbstractExprNode implements ExprNode
 {
-    /** equality assertion node */
-    public static final int EQUALITY = 0;
-
-    /** presence assertion node */
-    public static final int PRESENCE = 1;
-
-    /** substring match assertion node */
-    public static final int SUBSTRING = 2;
-
-    /** greater than or equal to assertion node */
-    public static final int GREATEREQ = 3;
-
-    /** less than or equal to assertion node */
-    public static final int LESSEQ = 4;
-
-    /** approximate assertion node */
-    public static final int APPROXIMATE = 5;
-
-    /** extensible match assertion node */
-    public static final int EXTENSIBLE = 6;
-
-    /** scope assertion node */
-    public static final int SCOPE = 7;
-
-    /** Predicate assertion node */
-    public static final int ASSERTION = 8;
-
-    /** OR operator constant */
-    public static final int OR = 9;
-
-    /** AND operator constant */
-    public static final int AND = 10;
-
-    /** NOT operator constant */
-    public static final int NOT = 11;
-
     /** The map of annotations */
-    private Map m_annotations;
+    private Map<String, Object> annotations;
 
     /** node type set to enumation of constants */
-    private final int m_assertionType;
+    private final AssertionEnum assertionType;
 
 
     /**
@@ -81,65 +45,23 @@ public abstract class AbstractExprNode implements ExprNode
      * @param a_type
      *            the type of this leaf node
      */
-    protected AbstractExprNode(int a_type)
+    protected AbstractExprNode( AssertionEnum type)
     {
-        m_assertionType = a_type;
-
-        switch ( m_assertionType )
-        {
-            case ( APPROXIMATE ):
-                break;
-
-            case ( EQUALITY ):
-                break;
-
-            case ( EXTENSIBLE ):
-                break;
-
-            case ( GREATEREQ ):
-                break;
-
-            case ( LESSEQ ):
-                break;
-
-            case ( PRESENCE ):
-                break;
-
-            case ( SUBSTRING ):
-                break;
-
-            case ( SCOPE ):
-                break;
-
-            case ( ASSERTION ):
-                break;
-
-            case ( OR ):
-                break;
-
-            case ( AND ):
-                break;
-
-            case ( NOT ):
-                break;
-
-            default:
-                throw new IllegalArgumentException( "Attribute value assertion type is undefined." );
-        }
+        assertionType = type;
     }
 
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#get(java.lang.Object)
      */
-    public Object get( Object a_key )
+    public Object get( Object key )
     {
-        if ( null == getAnnotations() )
+        if ( null == annotations )
         {
             return null;
         }
 
-        return getAnnotations().get( a_key );
+        return annotations.get( key );
     }
 
 
@@ -147,14 +69,14 @@ public abstract class AbstractExprNode implements ExprNode
      * @see org.apache.directory.shared.ldap.filter.ExprNode#set(java.lang.Object,
      *      java.lang.Object)
      */
-    public void set( Object a_key, Object a_value )
+    public void set( String key, Object value )
     {
-        if ( null == getAnnotations() )
+        if ( null == annotations )
         {
-            m_annotations = new HashMap( 2 );
+            annotations = new HashMap<String, Object>( 2 );
         }
 
-        getAnnotations().put( a_key, a_value );
+        annotations.put( key, value );
     }
 
 
@@ -165,7 +87,7 @@ public abstract class AbstractExprNode implements ExprNode
      */
     protected Map getAnnotations()
     {
-        return m_annotations;
+        return annotations;
     }
 
 
@@ -174,9 +96,9 @@ public abstract class AbstractExprNode implements ExprNode
      * 
      * @return the assertion or node type
      */
-    public final int getAssertionType()
+    public AssertionEnum getAssertionType()
     {
-        return m_assertionType;
+        return assertionType;
     }
 
 
@@ -188,44 +110,44 @@ public abstract class AbstractExprNode implements ExprNode
      * @return the string representation
      * TODO Refactor these classes to use an enumeration type
      */
-    public static final String getOperationString( int a_assertionType )
+    public static final String getOperationString( AssertionEnum assertionType )
     {
-        String l_opstr = null;
+        String opstr = null;
 
-        switch ( a_assertionType )
+        switch ( assertionType )
         {
-            case ( APPROXIMATE ):
-                l_opstr = "~=";
+            case APPROXIMATE :
+                opstr = "~=";
 
                 break;
 
-            case ( EQUALITY ):
-                l_opstr = "=";
+            case EQUALITY :
+                opstr = "=";
 
                 break;
 
-            case ( EXTENSIBLE ):
-                l_opstr = "extensible";
+            case EXTENSIBLE :
+                opstr = "extensible";
 
                 break;
 
-            case ( GREATEREQ ):
-                l_opstr = ">=";
+            case GREATEREQ :
+                opstr = ">=";
 
                 break;
 
-            case ( LESSEQ ):
-                l_opstr = "<=";
+            case LESSEQ :
+                opstr = "<=";
 
                 break;
 
-            case ( PRESENCE ):
-                l_opstr = "=*";
+            case PRESENCE :
+                opstr = "=*";
 
                 break;
 
-            case ( SUBSTRING ):
-                l_opstr = "=";
+            case SUBSTRING :
+                opstr = "=";
 
                 break;
 
@@ -233,7 +155,7 @@ public abstract class AbstractExprNode implements ExprNode
                 throw new IllegalArgumentException( "Attribute value assertion type is undefined." );
         }
 
-        return l_opstr;
+        return opstr;
     }
 
 
@@ -261,20 +183,21 @@ public abstract class AbstractExprNode implements ExprNode
 
         AbstractExprNode otherExprNode = ( AbstractExprNode ) other;
 
-        if ( otherExprNode.getAssertionType() != m_assertionType )
+        if ( otherExprNode.getAssertionType() != assertionType )
         {
             return false;
         }
 
-        Map otherAnnotations = otherExprNode.getAnnotations();
+        Map otherAnnotations = otherExprNode.annotations;
 
-        if ( otherAnnotations == m_annotations )
+        if ( otherAnnotations == annotations )
         {
             return true;
         }
 
         // return true if both are non-null and equals() is true
 
-        return ( ( null != m_annotations && null != otherAnnotations ) && m_annotations.equals( otherAnnotations ) );
+        return ( ( null != annotations ) && ( null != otherAnnotations ) && 
+        		annotations.equals( otherAnnotations ) );
     }
 }

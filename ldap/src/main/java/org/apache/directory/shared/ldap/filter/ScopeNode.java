@@ -58,7 +58,7 @@ public class ScopeNode extends AbstractExprNode
      */
     public ScopeNode(DerefAliasesEnum derefAliases, String baseDn, int scope)
     {
-        super( SCOPE );
+        super( AssertionEnum.SCOPE );
         this.scope = scope;
         this.baseDn = baseDn;
         this.derefAliases = derefAliases;
@@ -76,9 +76,9 @@ public class ScopeNode extends AbstractExprNode
      * @param scope
      *            the search scope
      */
-    public ScopeNode(Map env, String baseDn, int scope)
+    public ScopeNode( Map<String, DerefAliasesEnum> env, String baseDn, int scope )
     {
-        super( SCOPE );
+        super( AssertionEnum.SCOPE );
         this.scope = scope;
         this.baseDn = baseDn;
         this.derefAliases = DerefAliasesEnum.getEnum( env );

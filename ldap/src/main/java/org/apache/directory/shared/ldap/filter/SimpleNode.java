@@ -42,7 +42,7 @@ public class SimpleNode extends LeafNode
      * @param type
      *            the type of the assertion
      */
-    public SimpleNode( String attribute, byte[] value, int type )
+    public SimpleNode( String attribute, byte[] value, AssertionEnum type )
     {
 //        this( attribute, StringTools.utf8ToString( value ), type );
         super( attribute, type );
@@ -50,27 +50,21 @@ public class SimpleNode extends LeafNode
 
         switch ( type )
         {
-            case ( APPROXIMATE ):
+            case APPROXIMATE :
+            case EQUALITY :
+            case GREATEREQ :
+            case LESSEQ :
                 break;
 
-            case ( EQUALITY ):
-                break;
-
-            case ( EXTENSIBLE ):
+            case EXTENSIBLE :
                 throw new IllegalArgumentException( "Assertion type supplied is "
                     + "extensible.  Use ExtensibleNode instead." );
 
-            case ( GREATEREQ ):
-                break;
-
-            case ( LESSEQ ):
-                break;
-
-            case ( PRESENCE ):
+            case PRESENCE :
                 throw new IllegalArgumentException( "Assertion type supplied is "
                     + "presence.  Use PresenceNode instead." );
 
-            case ( SUBSTRING ):
+            case SUBSTRING :
                 throw new IllegalArgumentException( "Assertion type supplied is "
                     + "substring.  Use SubstringNode instead." );
 
@@ -90,34 +84,28 @@ public class SimpleNode extends LeafNode
      * @param type
      *            the type of the assertion
      */
-    public SimpleNode( String attribute, String value, int type )
+    public SimpleNode( String attribute, String value, AssertionEnum type )
     {
         super( attribute, type );
         this.value = value;
 
         switch ( type )
         {
-            case ( APPROXIMATE ):
+            case APPROXIMATE :
+            case EQUALITY :
+            case GREATEREQ :
+            case LESSEQ :
                 break;
 
-            case ( EQUALITY ):
-                break;
-
-            case ( EXTENSIBLE ):
+            case EXTENSIBLE :
                 throw new IllegalArgumentException( "Assertion type supplied is "
                     + "extensible.  Use ExtensibleNode instead." );
 
-            case ( GREATEREQ ):
-                break;
-
-            case ( LESSEQ ):
-                break;
-
-            case ( PRESENCE ):
+            case PRESENCE :
                 throw new IllegalArgumentException( "Assertion type supplied is "
                     + "presence.  Use PresenceNode instead." );
 
-            case ( SUBSTRING ):
+            case SUBSTRING :
                 throw new IllegalArgumentException( "Assertion type supplied is "
                     + "substring.  Use SubstringNode instead." );
 
@@ -159,19 +147,19 @@ public class SimpleNode extends LeafNode
 
         switch ( getAssertionType() )
         {
-            case ( APPROXIMATE ):
+            case APPROXIMATE :
                 buf.append( "~=" );
                 break;
 
-            case ( EQUALITY ):
+            case EQUALITY :
                 buf.append( "=" );
                 break;
 
-            case ( GREATEREQ ):
+            case GREATEREQ :
                 buf.append( ">=" );
                 break;
 
-            case ( LESSEQ ):
+            case LESSEQ :
                 buf.append( "<=" );
                 break;
 

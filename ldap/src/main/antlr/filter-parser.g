@@ -28,6 +28,7 @@ package org.apache.directory.shared.ldap.filter;
 import antlr.*;
 import java.util.ArrayList;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 }
 
 // ----------------------------------------------------------------------------
@@ -182,7 +183,7 @@ and returns [BranchNode node]
       }
     )+
     {
-        node = new BranchNode( AbstractExprNode.AND, children );
+        node = new BranchNode( AssertionEnum.AND, children );
     }
     ;
 
@@ -207,7 +208,7 @@ or returns [BranchNode node]
       }
     )+
     {
-        node = new BranchNode( AbstractExprNode.OR, children );
+        node = new BranchNode( AssertionEnum.OR, children );
     }
     ;
 
@@ -222,7 +223,7 @@ not returns [BranchNode node]
 }
     : EXCLAMATION child=filter
     {
-        node = new BranchNode( AbstractExprNode.NOT );
+        node = new BranchNode( AssertionEnum.NOT );
         node.addNode( child );
     }
     ;
@@ -256,7 +257,7 @@ simple returns [LeafNode node]
 {
     String attribute = null;
     node = null;
-    int type = -1;
+    AssertionEnum type = null;
 }
     /*
      * Reads the attribute description, the assertion operator, and then
@@ -271,19 +272,19 @@ simple returns [LeafNode node]
     (
       APPROX
         {
-            type = AbstractExprNode.APPROXIMATE;
+            type = AssertionEnum.APPROXIMATE;
         }
     | GREATEROREQUAL
         {
-            type = AbstractExprNode.GREATEREQ;
+            type = AssertionEnum.GREATEREQ;
         }
     | LESSOREQUAL
         {
-            type = AbstractExprNode.LESSEQ;
+            type = AssertionEnum.LESSEQ;
         }
     | EQUALS
         {
-            type = AbstractExprNode.EQUALITY;
+            type = AssertionEnum.EQUALITY;
         }
     )
       {
@@ -305,9 +306,9 @@ simple returns [LeafNode node]
 
         switch( type )
         {
-            case( AbstractExprNode.APPROXIMATE ):
-            case( AbstractExprNode.GREATEREQ ):
-            case( AbstractExprNode.LESSEQ ):
+            case APPROXIMATE :
+            case GREATEREQ :
+            case LESSEQ :
                 if ( value instanceof String )
                 {
                     node = new SimpleNode( attribute, ( String ) value, type );
@@ -317,7 +318,8 @@ simple returns [LeafNode node]
                     node = new SimpleNode( attribute, ( byte[] ) value, type );
                 }
                 break;
-            case( AbstractExprNode.EQUALITY ):
+                
+            case EQUALITY :
                 if ( value instanceof String )
                 {
                     node = new SimpleNode( attribute, ( String ) value, type );
@@ -331,6 +333,7 @@ simple returns [LeafNode node]
                     node = ( LeafNode ) value;
                 }
                 break;
+                
             default:
                 throw new IllegalStateException( "Expecting one of 4 types" );
         }

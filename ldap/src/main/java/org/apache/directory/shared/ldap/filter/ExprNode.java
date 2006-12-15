@@ -43,12 +43,12 @@ public interface ExprNode
     /**
      * Sets a annotation key to a value.
      * 
-     * @param a_key
+     * @param key
      *            the annotation key.
-     * @param a_value
+     * @param value
      *            the annotation value.
      */
-    void set( Object a_key, Object a_value );
+    void set( String key, Object value );
 
 
     /**

@@ -69,6 +69,7 @@ import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControl;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.filter.AbstractExprNode;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ExtensibleNode;
@@ -394,15 +395,15 @@ public class TwixTransformer implements TransformerSpi
 
                 if ( twixFilter instanceof AndFilter )
                 {
-                    branch = new BranchNode( AbstractExprNode.AND );
+                    branch = new BranchNode( AssertionEnum.AND );
                 }
                 else if ( twixFilter instanceof OrFilter )
                 {
-                    branch = new BranchNode( AbstractExprNode.OR );
+                    branch = new BranchNode( AssertionEnum.OR );
                 }
                 else if ( twixFilter instanceof NotFilter )
                 {
-                    branch = new BranchNode( AbstractExprNode.NOT );
+                    branch = new BranchNode( AssertionEnum.NOT );
                 }
 
                 List<Filter> filtersSet = ( ( ConnectorFilter ) twixFilter ).getFilterSet();
@@ -441,13 +442,13 @@ public class TwixTransformer implements TransformerSpi
                             {
                                 branch = new SimpleNode( ava.getAttributeDesc().toString(), 
                                     (String)ava.getAssertionValue(), 
-                                    AbstractExprNode.EQUALITY );
+                                    AssertionEnum.EQUALITY );
                             }
                             else
                             {
                                 branch = new SimpleNode( ava.getAttributeDesc().toString(), 
                                     (byte[])ava.getAssertionValue(), 
-                                    AbstractExprNode.EQUALITY );
+                                    AssertionEnum.EQUALITY );
                             }
                             
                             break;
@@ -457,13 +458,13 @@ public class TwixTransformer implements TransformerSpi
                             {
                                 branch = new SimpleNode( ava.getAttributeDesc().toString(),
                                     (String)ava.getAssertionValue(),
-                                    AbstractExprNode.GREATEREQ );
+                                    AssertionEnum.GREATEREQ );
                             }
                             else
                             {
                                 branch = new SimpleNode( ava.getAttributeDesc().toString(),
                                     (byte[])ava.getAssertionValue(),
-                                    AbstractExprNode.GREATEREQ );
+                                    AssertionEnum.GREATEREQ );
                             }
 
                             break;
@@ -473,13 +474,13 @@ public class TwixTransformer implements TransformerSpi
                             {
                                 branch = new SimpleNode( ava.getAttributeDesc().toString(), 
                                     (String)ava.getAssertionValue(), 
-                                    AbstractExprNode.LESSEQ );
+                                    AssertionEnum.LESSEQ );
                             }
                             else
                             {
                                 branch = new SimpleNode( ava.getAttributeDesc().toString(), 
                                     (byte[])ava.getAssertionValue(), 
-                                    AbstractExprNode.LESSEQ );
+                                    AssertionEnum.LESSEQ );
                             }
 
                             break;
@@ -489,13 +490,13 @@ public class TwixTransformer implements TransformerSpi
                             {
                                 branch = new SimpleNode( ava.getAttributeDesc().toString(), 
                                     (String)ava.getAssertionValue(), 
-                                    AbstractExprNode.APPROXIMATE );
+                                    AssertionEnum.APPROXIMATE );
                             }
                             else
                             {
                                 branch = new SimpleNode( ava.getAttributeDesc().toString(), 
                                     (byte[])ava.getAssertionValue(), 
-                                    AbstractExprNode.APPROXIMATE );
+                                    AssertionEnum.APPROXIMATE );
                             }
 
                             break;

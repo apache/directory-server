@@ -20,7 +20,7 @@
 package org.apache.directory.shared.ldap.filter;
 
 
-import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -48,20 +48,20 @@ public interface FilterVisitor
     /**
      * Visits a filter expression AST using a specific visitation order.
      * 
-     * @param a_node
+     * @param node
      *            the node to visit
      */
-    void visit( ExprNode a_node );
+    void visit( ExprNode node );
 
 
     /**
      * Checks to see if a node can be visited.
      * 
-     * @param a_node
+     * @param node
      *            the node to be visited
      * @return whether or node the node should be visited
      */
-    boolean canVisit( ExprNode a_node );
+    boolean canVisit( ExprNode node );
 
 
     /**
@@ -83,5 +83,5 @@ public interface FilterVisitor
      *            the child node array
      * @return the new reordered array of children
      */
-    ArrayList getOrder( BranchNode node, ArrayList a_children );
+    List<ExprNode> getOrder( BranchNode node, List<ExprNode> children );
 }

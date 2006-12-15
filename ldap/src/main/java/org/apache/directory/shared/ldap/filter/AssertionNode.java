@@ -75,7 +75,7 @@ public class AssertionNode extends AbstractExprNode
      */
     public AssertionNode(Assertion a_assertion, String a_desc)
     {
-        super( ASSERTION );
+        super( AssertionEnum.ASSERTION );
         m_desc = a_desc;
         m_assertion = a_assertion;
 

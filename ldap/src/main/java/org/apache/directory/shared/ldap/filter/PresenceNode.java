@@ -32,36 +32,36 @@ public final class PresenceNode extends LeafNode
     /**
      * Creates a PresenceNode object based on an attribute.
      * 
-     * @param an_attribute
+     * @param attribute
      *            the attribute to assert the presence of
      */
-    public PresenceNode(String an_attribute)
+    public PresenceNode( String attribute )
     {
-        super( an_attribute, PRESENCE );
+        super( attribute, AssertionEnum.PRESENCE );
     }
 
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(java.lang.StringBuffer)
      */
-    public StringBuffer printToBuffer( StringBuffer a_buf )
+    public StringBuffer printToBuffer( StringBuffer buf )
     {
-        a_buf.append( '(' ).append( getAttribute() ).append( "=*" );
+        buf.append( '(' ).append( getAttribute() ).append( "=*" );
 
-        a_buf.append( ')' );
+        buf.append( ')' );
 
         if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
         {
-            a_buf.append( '[' );
-            a_buf.append( getAnnotations().get( "count" ).toString() );
-            a_buf.append( "] " );
+            buf.append( '[' );
+            buf.append( getAnnotations().get( "count" ).toString() );
+            buf.append( "] " );
         }
         else
         {
-            a_buf.append( ' ' );
+            buf.append( ' ' );
         }
 
-        return a_buf;
+        return buf;
     }
 
 
@@ -70,9 +70,10 @@ public final class PresenceNode extends LeafNode
      */
     public String toString()
     {
-        StringBuffer l_buf = new StringBuffer();
-        printToBuffer( l_buf );
-        return ( l_buf.toString() );
+        StringBuffer buf = new StringBuffer();
+        printToBuffer( buf );
+        
+        return ( buf.toString() );
     }
 
 
@@ -80,11 +81,11 @@ public final class PresenceNode extends LeafNode
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
      *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
-    public void accept( FilterVisitor a_visitor )
+    public void accept( FilterVisitor visitor )
     {
-        if ( a_visitor.canVisit( this ) )
+        if ( visitor.canVisit( this ) )
         {
-            a_visitor.visit( this );
+            visitor.visit( this );
         }
     }
 }
