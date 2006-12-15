@@ -86,32 +86,17 @@ public class BitStringSyntaxChecker implements SyntaxChecker
         return oid;
     }
 
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
+    /**
+     * A shared and static method used to check that the string is a BitString.
+     * A BitString is a string of bits, between quots and followed by a 'B' :
+     * 
+     * '01010110'B for instance
+     * 
+     * @param strValue The string to check
+     * @return <code>true</code> if teh string is a BitString
      */
-    public boolean isValidSyntax( Object value )
+    public static boolean isValid( String strValue )
     {
-        String strValue;
-
-        if ( value == null )
-        {
-            return false;
-        }
-        
-        if ( value instanceof String )
-        {
-            strValue = ( String ) value;
-        }
-        else if ( value instanceof byte[] )
-        {
-            strValue = StringTools.utf8ToString( ( byte[] ) value ); 
-        }
-        else
-        {
-            strValue = value.toString();
-        }
-
         if ( strValue.length() == 0 )
         {
             return false;
@@ -150,5 +135,33 @@ public class BitStringSyntaxChecker implements SyntaxChecker
         }
 
         return true;
+    }
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
+     */
+    public boolean isValidSyntax( Object value )
+    {
+        String strValue;
+
+        if ( value == null )
+        {
+            return false;
+        }
+        
+        if ( value instanceof String )
+        {
+            strValue = ( String ) value;
+        }
+        else if ( value instanceof byte[] )
+        {
+            strValue = StringTools.utf8ToString( ( byte[] ) value ); 
+        }
+        else
+        {
+            strValue = value.toString();
+        }
+
+        return isValid( strValue );
     }
 }
