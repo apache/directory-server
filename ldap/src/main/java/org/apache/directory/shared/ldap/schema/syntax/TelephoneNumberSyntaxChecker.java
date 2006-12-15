@@ -20,6 +20,11 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import javax.naming.NamingException;
 
 
@@ -29,36 +34,93 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A SyntaxChecker which verifies that a value is an Integer according to RFC 4517.
+ * A SyntaxChecker which verifies that a value is a TelephoneNumber according to ITU
+ * recommendation E.123 (which is quite vague ...).
  * 
- * From RFC 4517 :
+ * A valid Telephone number respect more or less this syntax :
  * 
- * Integer = ( HYPHEN LDIGIT *DIGIT ) | number
+ * " *[+]? *((\([0-9- ]+\))|[0-9- ]+)+"
  * 
- * From RFC 4512 :
- * number  = DIGIT | ( LDIGIT 1*DIGIT )
- * DIGIT   = %x30 | LDIGIT       ; "0"-"9"
- * LDIGIT  = %x31-39             ; "1"-"9"
- * HYPHEN  = %x2D                ; hyphen ("-")
+ * If needed, and to allow more syntaxes, a list of regexps has been added
+ * which can be initialized to other values
  * 
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class TelephoneNumberSyntaxChecker implements SyntaxChecker
 {
     /** The Syntax OID, according to RFC 4517, par. 3.3.31 */
-    public static final String OID = "1.3.6.1.4.1.1466.115.121.1.27";
+    public static final String OID = "1.3.6.1.4.1.1466.115.121.1.50";
+    
+    /** Other regexp to extend the initial one */
+    private List<String> regexps;
+    
+    /** Other regexp to extend the initial one, compiled */
+    private List<Pattern> compiledREs;
+    
+    /** The default pattern used to check a TelephoneNumber */
+    private final String DEFAULT_REGEXP = "^ *[+]? *((\\([0-9- ]+\\))|[0-9- ]+)+$";
+    
+    private Pattern defaultPattern =  Pattern.compile( DEFAULT_REGEXP );
+    
+    /** A flag set when only the default regexp should be tested */
+    private boolean defaultMandatory = false;
     
     /**
-     * 
-     * Creates a new instance of IntegerSyntaxChecker.
-     *
+     * Creates a new instance of TelephoneNumberSyntaxChecker.
      */
     public TelephoneNumberSyntaxChecker()
     {
     }
+
+    /**
+     * Add a new valid regexp for a Telephone number
+     * @param regexp The new regexp to check
+     */
+    public void addRegexp( String regexp )
+    {
+        if ( defaultMandatory )
+        {
+            return;
+        }
+        
+        try
+        {
+            Pattern compiledRE = Pattern.compile( regexp );
+
+            if ( regexps == null )
+            { 
+                regexps = new ArrayList<String>();
+                compiledREs = new ArrayList<Pattern>();
+            }
+            
+            regexps.add( regexp );
+            compiledREs.add( compiledRE );
+        }
+        catch ( PatternSyntaxException pse )
+        {
+            return;
+        }
+    }
     
+    /**
+     * 
+     */
+    public void setDefaultRegexp( String regexp )
+    {
+        try
+        {
+            defaultPattern = Pattern.compile( regexp );
+
+            defaultMandatory = true;
+            regexps = null;
+            compiledREs = null;
+        }
+        catch ( PatternSyntaxException pse )
+        {
+            return;
+        }
+    }
     
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#assertSyntax(java.lang.Object)
@@ -111,50 +173,32 @@ public class TelephoneNumberSyntaxChecker implements SyntaxChecker
             return false;
         }
         
-        // The first char must be either a '-' or in [0..9].
-        // If it's a '0', then there should be any other char after
-        int pos = 0;
-        char c = strValue.charAt( pos );
-        
-        if ( c == '-' )
+        // We will use a regexp to check the TelephoneNumber.
+        if ( defaultMandatory )
         {
-            pos = 1;
-        }
-        else if ( !StringTools.isDigit( c ) )
-        {
-            return false;
-        }
-        else if ( c == '0' )
-        {
-            if ( strValue.length() > 1 )
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-            
-        // We must have at least a digit which is not '0'
-        if ( !StringTools.isDigit( strValue, pos ) )
-        {
-            return false;
-        }
-        else if ( StringTools.isCharASCII( strValue, pos, '0' ) )
-        {
-            return false;
+            // We have a unique regexp to check, the default one
+            return defaultPattern.matcher( strValue ).matches();
         }
         else
         {
-            pos++;
+            if ( defaultPattern.matcher( strValue ).matches() )
+            {
+                return true;
+            }
+            else
+            {
+                // The default is not enough, let's try
+                // the other regexps
+                for ( Pattern pattern:compiledREs )
+                {
+                    if ( pattern.matcher( strValue ).matches() )
+                    {
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
         }
-        
-        while ( StringTools.isDigit( strValue, pos) )
-        {
-            pos++;
-        }
-        
-        return ( pos == strValue.length() );
     }
 }
