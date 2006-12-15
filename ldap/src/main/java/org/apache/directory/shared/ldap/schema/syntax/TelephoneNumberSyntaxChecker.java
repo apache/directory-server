@@ -61,10 +61,11 @@ public class TelephoneNumberSyntaxChecker implements SyntaxChecker
     /** The default pattern used to check a TelephoneNumber */
     private final String DEFAULT_REGEXP = "^ *[+]? *((\\([0-9- ]+\\))|[0-9- ]+)+$";
     
+    /** The compiled default pattern */
     private Pattern defaultPattern =  Pattern.compile( DEFAULT_REGEXP );
     
     /** A flag set when only the default regexp should be tested */
-    private boolean defaultMandatory = false;
+    protected boolean defaultMandatory = false;
     
     /**
      * Creates a new instance of TelephoneNumberSyntaxChecker.
