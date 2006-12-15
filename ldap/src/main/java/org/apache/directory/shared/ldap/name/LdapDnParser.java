@@ -136,13 +136,15 @@ public class LdapDnParser implements NameParser
                    }
                    else
                    {
-                       break;
+                       return;
                    }
                }
 
                pos.start++;
            }
            while ( RdnParser.parse( dn, pos, rdn ) != DNUtils.PARSING_ERROR );
+           
+           throw new InvalidNameException( "Bad DN : " + dn );
        }
        else
        {
@@ -188,7 +190,7 @@ public class LdapDnParser implements NameParser
                    }
                    else
                    {
-                       break;
+                       return true;
                    }
                }
 
@@ -196,12 +198,9 @@ public class LdapDnParser implements NameParser
            }
            while ( RdnParser.isValid( dn, pos, false ) );
            
-           return true;
        }
-       else
-       {
-           return false;
-       }
+
+       return false;
    }
 
 
