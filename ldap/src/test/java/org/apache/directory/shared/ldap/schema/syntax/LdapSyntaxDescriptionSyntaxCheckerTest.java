@@ -33,28 +33,7 @@ import junit.framework.TestCase;
  */
 public class LdapSyntaxDescriptionSyntaxCheckerTest extends TestCase
 {
-    LdapSyntaxDescriptionSyntaxChecker checker = new LdapSyntaxDescriptionSyntaxChecker();
-
-
-    public void testNullString()
-    {
-        assertFalse( checker.isValidSyntax( null ) );
-    }
-
-
-    public void testEmptyString()
-    {
-        assertFalse( checker.isValidSyntax( "" ) );
-    }
-
-
-    public void testOneCharString()
-    {
-        assertFalse( checker.isValidSyntax( "A" ) );
-        assertFalse( checker.isValidSyntax( "1" ) );
-        assertFalse( checker.isValidSyntax( "-" ) );
-        assertFalse( checker.isValidSyntax( "(" ) );
-    }
+    private LdapSyntaxDescriptionSyntaxChecker checker = new LdapSyntaxDescriptionSyntaxChecker();
 
 
     public void testValid()
@@ -72,6 +51,12 @@ public class LdapSyntaxDescriptionSyntaxCheckerTest extends TestCase
 
     public void testInvalid()
     {
+        // null 
+        assertFalse( checker.isValidSyntax( null ) );
+        
+        // empty 
+        assertFalse( checker.isValidSyntax( "" ) );
+        
         // missing/invalid OID
         assertFalse( checker.isValidSyntax( "()" ) );
         assertFalse( checker.isValidSyntax( "(  )" ) );

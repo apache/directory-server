@@ -277,6 +277,79 @@ ldapSyntaxDescription returns [LdapSyntaxDescription lsd = new LdapSyntaxDescrip
     ;
 
 
+
+    /**
+     * Production for matching rule descriptions. It is fault-tolerant
+     * against element ordering.
+     *
+     * <pre>
+     * MatchingRuleDescription = LPAREN WSP
+     *    numericoid                 ; object identifier
+     *    [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
+     *    [ SP "DESC" SP qdstring ]  ; description
+     *    [ SP "OBSOLETE" ]          ; not active
+     *    SP "SYNTAX" SP numericoid  ; assertion syntax
+     *    extensions WSP RPAREN      ; extensions
+     * </pre>
+    */
+matchingRuleDescription returns [MatchingRuleDescription mrd = new MatchingRuleDescription()]
+     :
+    ( oid:STARTNUMERICOID { mrd.setNumericOid(numericoid(oid.getText())); } )
+    (
+	    ( name:NAME { mrd.setNames(qdescrs(name.getText())); } )
+	    |
+	    ( desc:DESC { mrd.setDescription(qdstring(desc.getText())); } )
+	    |
+	    ( OBSOLETE { mrd.setObsolete( true ); } )
+	    |
+        ( syntax:SYNTAX { mrd.setSyntax(numericoid(syntax.getText())); } )
+	    |
+	    ( extension:EXTENSION { 
+	        Extension ex = extension(extension.getText());
+	        mrd.addExtension(ex.key, ex.values); 
+	     } )
+    )*
+    RPAR
+    ;
+
+
+    /**
+     * Production for matching rule use descriptions. It is fault-tolerant
+     * against element ordering.
+     *
+     * <pre>
+     * MatchingRuleUseDescription = LPAREN WSP
+     *    numericoid                 ; object identifier
+     *    [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
+     *    [ SP "DESC" SP qdstring ]  ; description
+     *    [ SP "OBSOLETE" ]          ; not active
+     *    SP "APPLIES" SP oids       ; attribute types
+     *    extensions WSP RPAREN      ; extensions
+     * </pre>
+    */
+matchingRuleUseDescription returns [MatchingRuleUseDescription mrud = new MatchingRuleUseDescription()]
+     :
+    ( oid:STARTNUMERICOID { mrud.setNumericOid(numericoid(oid.getText())); } )
+    (
+	    ( name:NAME { mrud.setNames(qdescrs(name.getText())); } )
+	    |
+	    ( desc:DESC { mrud.setDescription(qdstring(desc.getText())); } )
+	    |
+	    ( OBSOLETE { mrud.setObsolete( true ); } )
+	    |
+        ( applies:APPLIES { mrud.setApplicableAttributes(oids(applies.getText())); } )
+	    |
+	    ( extension:EXTENSION { 
+	        Extension ex = extension(extension.getText());
+	        mrud.addExtension(ex.key, ex.values); 
+	     } )
+    )*
+    RPAR
+    ;
+
+
+
+
 noidlen [String s] returns [NoidLen noidlen]
     {
         noidlen = new NoidLen();

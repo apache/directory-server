@@ -33,29 +33,7 @@ import junit.framework.TestCase;
  */
 public class AttributeTypeDescriptionSyntaxCheckerTest extends TestCase
 {
-    AttributeTypeDescriptionSyntaxChecker checker = new AttributeTypeDescriptionSyntaxChecker();
-
-
-    public void testNullString()
-    {
-        assertFalse( checker.isValidSyntax( null ) );
-    }
-
-
-    public void testEmptyString()
-    {
-        assertFalse( checker.isValidSyntax( "" ) );
-    }
-
-
-    public void testOneCharString()
-    {
-        assertFalse( checker.isValidSyntax( "A" ) );
-        assertFalse( checker.isValidSyntax( "1" ) );
-        assertFalse( checker.isValidSyntax( "-" ) );
-        assertFalse( checker.isValidSyntax( "(" ) );
-    }
-
+    private AttributeTypeDescriptionSyntaxChecker checker = new AttributeTypeDescriptionSyntaxChecker();
 
     public void testValid()
     {
@@ -80,12 +58,17 @@ public class AttributeTypeDescriptionSyntaxCheckerTest extends TestCase
         assertTrue( checker.isValidSyntax( "( 2.5.4.3 NAME 'cn' SUP name NO-USER-MODIFICATION USAGE dSAOperation )" ) );
         assertTrue( checker.isValidSyntax( "( 2.5.4.3 NAME 'cn' SUP name NO-USER-MODIFICATION USAGE directoryOperation )" ) );
         assertTrue( checker.isValidSyntax( "( 2.5.4.3 NAME 'cn' SUP name NO-USER-MODIFICATION USAGE distributedOperation )" ) );
-
     }
 
 
     public void testInvalid()
     {
+        // null 
+        assertFalse( checker.isValidSyntax( null ) );
+        
+        // empty 
+        assertFalse( checker.isValidSyntax( "" ) );
+        
         // missing/invalid OID
         assertFalse( checker.isValidSyntax( "()" ) );
         assertFalse( checker.isValidSyntax( "(  )" ) );

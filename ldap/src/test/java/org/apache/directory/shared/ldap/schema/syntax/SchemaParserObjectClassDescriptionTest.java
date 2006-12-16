@@ -21,13 +21,10 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
-import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
 
 
@@ -40,9 +37,6 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
 {
     /** the parser instance */
     private ObjectClassDescriptionSchemaParser parser;
-
-    /** holds multithreaded success value */
-    boolean isSuccessMultithreaded = true;
 
 
     protected void setUp() throws Exception
@@ -64,119 +58,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
      */
     public void testNumericOid() throws ParseException
     {
-        String value = null;
-        ObjectClassDescription ocd = null;
-
-        // null test
-        value = null;
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, null" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // no oid
-        value = "( )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, no NUMERICOID" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // simple
-        value = "( 1.1 )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( "1.1", ocd.getNumericOid() );
-
-        // simple
-        value = "( 0.0 )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( "0.0", ocd.getNumericOid() );
-        
-        // simple with spaces
-        value = "(          1.1          )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( "1.1", ocd.getNumericOid() );
-
-        // non-numeric not allowed
-        value = "( top )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid NUMERICOID top" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // to short
-        value = "( 1 )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid NUMERICOID 1" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // dot only
-        value = "( . )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid NUMERICOID ." );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // ends with dot
-        value = "( 1.1. )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid NUMERICOID 1.1." );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // quotes not allowed
-        value = "( '1.1' )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid NUMERICOID '1.1' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-        
-        // leading 0
-        value = "( 01.1 )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid NUMERICOID 01.1." );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        SchemaParserTestUtils.testNumericOid( parser );
     }
 
 
@@ -187,151 +69,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
      */
     public void testNames() throws ParseException
     {
-        String value = null;
-        ObjectClassDescription ocd = null;
-
-        // alpha
-        value = "( 1.1 NAME 'test' )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( 1, ocd.getNames().size() );
-        assertEquals( "test", ocd.getNames().get( 0 ) );
-
-        // alpha-num-hypen
-        value = "( 1.1 NAME 'a-z-0-9' )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( 1, ocd.getNames().size() );
-        assertEquals( "a-z-0-9", ocd.getNames().get( 0 ) );
-
-        // with parentheses
-        value = "( 1.1 NAME ( 'a-z-0-9' ) )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( 1, ocd.getNames().size() );
-        assertEquals( "a-z-0-9", ocd.getNames().get( 0 ) );
-
-        // with parentheses, without space
-        value = "( 1.1 NAME ('a-z-0-9') )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( 1, ocd.getNames().size() );
-        assertEquals( "a-z-0-9", ocd.getNames().get( 0 ) );
-
-        // multi with space
-        value = "( 1.1 NAME ( 'test' 'a-z-0-9' ) )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( 2, ocd.getNames().size() );
-        assertEquals( "test", ocd.getNames().get( 0 ) );
-        assertEquals( "a-z-0-9", ocd.getNames().get( 1 ) );
-
-        // multi without space
-        value = "( 1.1 NAME ('test' 'a-z-0-9' 'top') )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( 3, ocd.getNames().size() );
-        assertEquals( "test", ocd.getNames().get( 0 ) );
-        assertEquals( "a-z-0-9", ocd.getNames().get( 1 ) );
-        assertEquals( "top", ocd.getNames().get( 2 ) );
-
-        // multi with many spaces
-        value = "(          1.1          NAME          (          'test'          'a-z-0-9'          'top'          )          )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( 3, ocd.getNames().size() );
-        assertEquals( "test", ocd.getNames().get( 0 ) );
-        assertEquals( "a-z-0-9", ocd.getNames().get( 1 ) );
-        assertEquals( "top", ocd.getNames().get( 2 ) );
-
-        // lowercase
-        value = "( 1.1 name 'test' )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, NAME is lowercase" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // unquoted
-        value = "( 1.1 NAME test )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid NAME test (unquoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // start with number
-        value = "( 1.1 NAME '1test' )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid NAME 1test (starts with number)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // start with hypen
-        value = "( 1.1 NAME '-test' )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid NAME -test (starts with hypen)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // invalid character
-        value = "( 1.1 NAME 'te_st' )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid NAME te_st (contains invalid character)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // NAM unknown
-        value = "( 1.1 NAM 'test' )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid token NAM" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // one valid, one invalid
-        value = "( 1.1 NAME ( 'test' 'te_st' ) )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid NAME te_st (contains invalid character)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // no space between values
-        value = "( 1.1 NAME ( 'test''test2' ) )";
-        try
-        {
-            ocd = parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid NAME values (no space between values)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        SchemaParserTestUtils.testNames( parser );
     }
 
 
@@ -342,30 +80,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
      */
     public void testDescription() throws ParseException
     {
-        String value = null;
-        ObjectClassDescription ocd = null;
-
-        // simple
-        value = "(1.1 NAME 'test' DESC 'Descripton')";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( "Descripton", ocd.getDescription() );
-
-        // unicode
-        value = "( 1.1 NAME 'test' DESC 'Descripton äöüß 部長' )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( "Descripton äöüß 部長", ocd.getDescription() );
-
-        // lowercase
-        value = "( 1.1 desc 'Descripton' )";
-        try
-        {
-            parser.parseObjectClassDescription( value );
-            fail( "Exception expected, DESC is lowercase" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        SchemaParserTestUtils.testDescription( parser );
     }
 
 
@@ -376,30 +91,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
      */
     public void testObsolete() throws ParseException
     {
-        String value = null;
-        ObjectClassDescription ocd = null;
-
-        // not obsolete
-        value = "( 1.1 NAME 'test' DESC 'Descripton' )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertFalse( ocd.isObsolete() );
-
-        // obsolete
-        value = "(1.1 NAME 'test' DESC 'Descripton' OBSOLETE)";
-        ocd = parser.parseObjectClassDescription( value );
-        assertTrue( ocd.isObsolete() );
-
-        // ivalid
-        value = "(1.1 NAME 'test' DESC 'Descripton' OBSOLET )";
-        try
-        {
-            ocd = parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid OBSOLETE value" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        SchemaParserTestUtils.testObsolete( parser );
     }
 
 
@@ -707,35 +399,43 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
      */
     public void testExtensions() throws ParseException
     {
+        SchemaParserTestUtils.testExtensions( parser );
+
+    }
+
+
+    /**
+     * Test full object class description.
+     * 
+     * @throws ParseException
+     */
+    public void testFull() throws ParseException
+    {
         String value = null;
         ObjectClassDescription ocd = null;
 
-        // no extension
-        value = "( 1.1 )";
+        value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton äöüß 部長' OBSOLETE SUP ( 2.3.4.5.6.7.8.9.0.1 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) STRUCTURAL MUST ( 3.4.5.6.7.8.9.0.1.2 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) MAY ( 4.5.6.7.8.9.0.1.2.3 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
         ocd = parser.parseObjectClassDescription( value );
-        assertEquals( 0, ocd.getExtensions().size() );
 
-        // single extension with one value
-        value = "( 1.1 X-TEST 'test' )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( 1, ocd.getExtensions().size() );
-        assertNotNull( ocd.getExtensions().get( "X-TEST" ) );
-        assertEquals( 1, ocd.getExtensions().get( "X-TEST" ).size() );
-        assertEquals( "test", ocd.getExtensions().get( "X-TEST" ).get( 0 ) );
-
-        // single extension with multiple values
-        value = "( 1.1 X-TEST-ABC ('test1' 'test äöüß'       'test 部長' ) )";
-        ocd = parser.parseObjectClassDescription( value );
-        assertEquals( 1, ocd.getExtensions().size() );
-        assertNotNull( ocd.getExtensions().get( "X-TEST-ABC" ) );
-        assertEquals( 3, ocd.getExtensions().get( "X-TEST-ABC" ).size() );
-        assertEquals( "test1", ocd.getExtensions().get( "X-TEST-ABC" ).get( 0 ) );
-        assertEquals( "test äöüß", ocd.getExtensions().get( "X-TEST-ABC" ).get( 1 ) );
-        assertEquals( "test 部長", ocd.getExtensions().get( "X-TEST-ABC" ).get( 2 ) );
-
-        // multiple extensions
-        value = "(1.1 X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2'))";
-        ocd = parser.parseObjectClassDescription( value );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", ocd.getNumericOid() );
+        assertEquals( 2, ocd.getNames().size() );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", ocd.getNames().get( 0 ) );
+        assertEquals( "test", ocd.getNames().get( 1 ) );
+        assertEquals( "Descripton äöüß 部長", ocd.getDescription() );
+        assertTrue( ocd.isObsolete() );
+        assertEquals( 2, ocd.getSuperiorObjectClasses().size() );
+        assertEquals( "2.3.4.5.6.7.8.9.0.1", ocd.getSuperiorObjectClasses().get( 0 ) );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", ocd
+            .getSuperiorObjectClasses().get( 1 ) );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
+        assertEquals( 2, ocd.getMustAttributeTypes().size() );
+        assertEquals( "3.4.5.6.7.8.9.0.1.2", ocd.getMustAttributeTypes().get( 0 ) );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", ocd.getMustAttributeTypes()
+            .get( 1 ) );
+        assertEquals( 2, ocd.getMayAttributeTypes().size() );
+        assertEquals( "4.5.6.7.8.9.0.1.2.3", ocd.getMayAttributeTypes().get( 0 ) );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", ocd.getMayAttributeTypes()
+            .get( 1 ) );
         assertEquals( 2, ocd.getExtensions().size() );
         assertNotNull( ocd.getExtensions().get( "X-TEST-a" ) );
         assertEquals( 2, ocd.getExtensions().get( "X-TEST-a" ).size() );
@@ -745,22 +445,14 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( 2, ocd.getExtensions().get( "X-TEST-b" ).size() );
         assertEquals( "test2-1", ocd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
         assertEquals( "test2-2", ocd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
-
-        // invalid extension, no number allowed
-        value = "( 1.1 X-TEST1 'test' )";
-        try
-        {
-            ocd = parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid extension X-TEST1 (no number allowed)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
     }
 
 
+    /**
+     * Ensure that element order is ignored
+     * 
+     * @throws ParseException
+     */
     public void testIgnoreElementOrder() throws ParseException
     {
         String value = "( 2.5.6.6 STRUCTURAL MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) SUP top DESC 'RFC2256: a person' MUST ( sn $ cn ) NAME 'person' )";
@@ -1015,76 +707,14 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
      */
     public void testMultiThreaded() throws Exception
     {
-        // start up and track all threads (40 threads)
-        List<Thread> threads = new ArrayList<Thread>();
-        for ( int ii = 0; ii < 10; ii++ )
-        {
-            Thread t0 = new Thread( new ParseSpecification( "( 1.1 )" ) );
-            Thread t1 = new Thread( new ParseSpecification(
-                "( 2.5.6.0 NAME 'top' DESC 'top of the superclass chain' ABSTRACT MUST objectClass )" ) );
-            Thread t2 = new Thread(
-                new ParseSpecification(
-                    "( 2.5.6.6 NAME 'person' DESC 'RFC2256: a person' SUP top STRUCTURAL MUST ( sn $ cn ) MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) )" ) );
-            Thread t3 = new Thread(
-                new ParseSpecification(
-                    "( 2.16.840.1.113719.1.1.6.1.30 NAME 'List' SUP Top STRUCTURAL MUST cn MAY ( description $ l $ member $ ou $ o $ eMailAddress $ mailboxLocation $ mailboxID $ owner $ seeAlso $ fullName ) X-NDS_NAMING 'cn' X-NDS_CONTAINMENT ( 'Organization' 'organizationalUnit' 'domain' ) X-NDS_NOT_CONTAINER '1' X-NDS_NONREMOVABLE '1' X-NDS_ACL_TEMPLATES '2#entry#[Root Template]#member' )" ) );
-            threads.add( t0 );
-            threads.add( t1 );
-            threads.add( t2 );
-            threads.add( t3 );
-            t0.start();
-            t1.start();
-            t2.start();
-            t3.start();
-        }
-
-        // wait until all threads have died
-        boolean hasLiveThreads = false;
-        do
-        {
-            hasLiveThreads = false;
-
-            for ( int ii = 0; ii < threads.size(); ii++ )
+        String[] testValues = new String[]
             {
-                Thread t = ( Thread ) threads.get( ii );
-                hasLiveThreads = hasLiveThreads || t.isAlive();
-            }
-        }
-        while ( hasLiveThreads );
+                "( 1.1 )",
+                "( 2.5.6.0 NAME 'top' DESC 'top of the superclass chain' ABSTRACT MUST objectClass )",
+                "( 2.5.6.6 NAME 'person' DESC 'RFC2256: a person' SUP top STRUCTURAL MUST ( sn $ cn ) MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) )",
+                "( 2.16.840.1.113719.1.1.6.1.30 NAME 'List' SUP Top STRUCTURAL MUST cn MAY ( description $ l $ member $ ou $ o $ eMailAddress $ mailboxLocation $ mailboxID $ owner $ seeAlso $ fullName ) X-NDS_NAMING 'cn' X-NDS_CONTAINMENT ( 'Organization' 'organizationalUnit' 'domain' ) X-NDS_NOT_CONTAINER '1' X-NDS_NONREMOVABLE '1' X-NDS_ACL_TEMPLATES '2#entry#[Root Template]#member' )" };
+        SchemaParserTestUtils.testMultiThreaded( parser, testValues );
 
-        // check that no one thread failed to parse and generate a SS object
-        assertTrue( isSuccessMultithreaded );
-    }
-
-    /**
-     * Used to test multithreaded use of a single parser.
-     */
-    class ParseSpecification implements Runnable
-    {
-        private final String ocd;
-
-        ObjectClassDescription result;
-
-
-        public ParseSpecification( String ocd )
-        {
-            this.ocd = ocd;
-        }
-
-
-        public void run()
-        {
-            try
-            {
-                result = parser.parseObjectClassDescription( ocd );
-            }
-            catch ( ParseException e )
-            {
-                e.printStackTrace();
-            }
-
-            isSuccessMultithreaded = isSuccessMultithreaded && ( result != null );
-        }
     }
 
 }

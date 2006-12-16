@@ -20,75 +20,48 @@
 
 package org.apache.directory.shared.ldap.schema.syntax;
 
- 
- 
+
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
- 
- 
+
+
 /**
  * RFC 4512 - 4.1.5. LDAP Syntaxes
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapSyntaxDescription
+public class LdapSyntaxDescription extends AbstractSchemaDescription
 {
- 
-    private String numericOid;
- 
-    private String description;
- 
-    private Map<String, List<String>> extensions;
- 
- 
-    public LdapSyntaxDescription( )
+
+    public LdapSyntaxDescription()
     {
         this.numericOid = "";
         description = "";
         extensions = new LinkedHashMap<String, List<String>>();
     }
- 
- 
-    public String getDescription()
+
+
+    public List<String> getNames()
     {
-        return description;
+        throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
     }
- 
- 
-    public void setDescription( String description )
+
+
+    public void setNames( List<String> names )
     {
-        this.description = description;
+        throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
     }
- 
- 
-    public Map<String, List<String>> getExtensions()
+
+
+    public boolean isObsolete()
     {
-        return extensions;
+        throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
     }
- 
- 
-    public void setExtensions( Map<String, List<String>> extensions )
+
+
+    public void setObsolete( boolean isObsolete )
     {
-        this.extensions = extensions;
+        throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
     }
- 
- 
-    public String getNumericOid()
-    {
-        return numericOid;
-    }
- 
- 
-    public void setNumericOid( String oid )
-    {
-        numericOid = oid;
-    }
- 
-    
-    public void addExtension( String key, List<String> values )
-    {
-        extensions.put( key, values );
-    }
- 
+
 }

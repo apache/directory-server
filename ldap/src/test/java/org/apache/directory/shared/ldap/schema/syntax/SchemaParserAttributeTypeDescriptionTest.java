@@ -21,8 +21,6 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -39,9 +37,6 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
 {
     /** the parser instance */
     private AttributeTypeDescriptionSchemaParser parser;
-
-    /** holds multithreaded success value */
-    boolean isSuccessMultithreaded = true;
 
 
     protected void setUp() throws Exception
@@ -63,102 +58,7 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
      */
     public void testNumericOid() throws ParseException
     {
-        String value = null;
-        AttributeTypeDescription atd = null;
-
-        // null test
-        value = null;
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, null" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // no oid
-        value = "( )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, no NUMERICOID" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // simple
-        value = "( 1.1 )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "1.1", atd.getNumericOid() );
-
-        // simple with spaces
-        value = "(          1.1          )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "1.1", atd.getNumericOid() );
-
-        // non-numeric not allowed
-        value = "( cn )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid NUMERICOID top" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // to short
-        value = "( 1 )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid NUMERICOID 1" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // dot only
-        value = "( . )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid NUMERICOID ." );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // ends with dot
-        value = "( 1.1. )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid NUMERICOID 1.1." );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // quotes not allowed
-        value = "( '1.1' )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid NUMERICOID '1.1' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        SchemaParserTestUtils.testNumericOid( parser );
     }
 
 
@@ -169,151 +69,7 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
      */
     public void testNames() throws ParseException
     {
-        String value = null;
-        AttributeTypeDescription atd = null;
-
-        // alpha
-        value = "( 1.1 NAME 'test' )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( 1, atd.getNames().size() );
-        assertEquals( "test", atd.getNames().get( 0 ) );
-
-        // alpha-num-hypen
-        value = "( 1.1 NAME 'a-z-0-9' )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( 1, atd.getNames().size() );
-        assertEquals( "a-z-0-9", atd.getNames().get( 0 ) );
-
-        // with parentheses
-        value = "( 1.1 NAME ( 'a-z-0-9' ) )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( 1, atd.getNames().size() );
-        assertEquals( "a-z-0-9", atd.getNames().get( 0 ) );
-
-        // with parentheses, without space
-        value = "( 1.1 NAME ('a-z-0-9') )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( 1, atd.getNames().size() );
-        assertEquals( "a-z-0-9", atd.getNames().get( 0 ) );
-
-        // multi with space
-        value = "( 1.1 NAME ( 'test' 'a-z-0-9' ) )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( 2, atd.getNames().size() );
-        assertEquals( "test", atd.getNames().get( 0 ) );
-        assertEquals( "a-z-0-9", atd.getNames().get( 1 ) );
-
-        // multi without space
-        value = "( 1.1 NAME ('test' 'a-z-0-9' 'givenName') )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( 3, atd.getNames().size() );
-        assertEquals( "test", atd.getNames().get( 0 ) );
-        assertEquals( "a-z-0-9", atd.getNames().get( 1 ) );
-        assertEquals( "givenName", atd.getNames().get( 2 ) );
-
-        // multi with many spaces
-        value = "(          1.1          NAME          (          'test'          'a-z-0-9'          'givenName'          )          )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( 3, atd.getNames().size() );
-        assertEquals( "test", atd.getNames().get( 0 ) );
-        assertEquals( "a-z-0-9", atd.getNames().get( 1 ) );
-        assertEquals( "givenName", atd.getNames().get( 2 ) );
-
-        // lowercase
-        value = "( 1.1 name 'test' )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, NAME is lowercase" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // unquoted
-        value = "( 1.1 NAME test )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid NAME test (unquoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // start with number
-        value = "( 1.1 NAME '1test' )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid NAME 1test (starts with number)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // start with hypen
-        value = "( 1.1 NAME '-test' )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid NAME -test (starts with hypen)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // invalid character
-        value = "( 1.1 NAME 'te_st' )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid NAME te_st (contains invalid character)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // NAM unknown
-        value = "( 1.1 NAM 'test' )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid token NAM" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // one valid, one invalid
-        value = "( 1.1 NAME ( 'test' 'te_st' ) )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid NAME te_st (contains invalid character)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // no space between values
-        value = "( 1.1 NAME ( 'test''test2' ) )";
-        try
-        {
-            atd = parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid NAME values (no space between values)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        SchemaParserTestUtils.testNames( parser );
     }
 
 
@@ -324,30 +80,7 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
      */
     public void testDescription() throws ParseException
     {
-        String value = null;
-        AttributeTypeDescription atd = null;
-
-        // simple
-        value = "(1.1 NAME 'test' DESC 'Descripton')";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "Descripton", atd.getDescription() );
-
-        // unicode
-        value = "( 1.1 NAME 'test' DESC 'Descripton äöüß 部長' )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "Descripton äöüß 部長", atd.getDescription() );
-
-        // lowercase
-        value = "( 1.1 desc 'Descripton' )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, DESC is lowercase" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        SchemaParserTestUtils.testDescription( parser );
     }
 
 
@@ -358,40 +91,12 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
      */
     public void testObsolete() throws ParseException
     {
-        String value = null;
-        AttributeTypeDescription atd = null;
-
-        // not obsolete
-        value = "( 1.1 NAME 'test' DESC 'Descripton' )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertFalse( atd.isObsolete() );
-
-        // obsolete
-        value = "(1.1 NAME 'test' DESC 'Descripton' OBSOLETE)";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertTrue( atd.isObsolete() );
-
-        // obsolete 
-        value = "(1.1 OBSOLETE)";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertTrue( atd.isObsolete() );
-
-        // ivalid
-        value = "(1.1 NAME 'test' DESC 'Descripton' OBSOLET )";
-        try
-        {
-            atd = parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid OBSOLETE value" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        SchemaParserTestUtils.testObsolete( parser );
     }
 
 
     /**
-     * Test SUP and its values.
+     * Test SUP and its value.
      * 
      * @throws ParseException
      */
@@ -406,14 +111,14 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
         assertNull( atd.getSuperType() );
 
         // SUP numericoid
-        value = "( 1.1 SUP 1.2.3 )";
+        value = "( 1.1 SUP 1.2.3.4.5.6.7.8.9.0 )";
         atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "1.2.3", atd.getSuperType() );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", atd.getSuperType() );
 
         // SUP descr
-        value = "( 1.1 SUP name )";
+        value = "( 1.1 SUP abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 )";
         atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "name", atd.getSuperType() );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd.getSuperType() );
 
         // no quote allowed
         value = "( 1.1 SUP 'name' )";
@@ -494,14 +199,14 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
         assertNull( atd.getEqualityMatchingRule() );
 
         // EQUALITY numericoid
-        value = "( 1.1 EQUALITY 1.2.3 )";
+        value = "( 1.1 EQUALITY 1.2.3.4567.8.9.0 )";
         atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "1.2.3", atd.getEqualityMatchingRule() );
+        assertEquals( "1.2.3.4567.8.9.0", atd.getEqualityMatchingRule() );
 
         // EQUALITY descr
-        value = "( 1.1 EQUALITY caseExcactMatch )";
+        value = "( 1.1 EQUALITY abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 )";
         atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "caseExcactMatch", atd.getEqualityMatchingRule() );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd.getEqualityMatchingRule() );
 
         // no quote allowed
         value = "( 1.1 EQUALITY 'caseExcactMatch' )";
@@ -534,21 +239,21 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
         assertNull( atd.getOrderingMatchingRule() );
 
         // EQUALITY numericoid
-        value = "( 1.1 ORDERING 1.2.3 )";
+        value = "( 1.1 ORDERING 1.2.3.4567.8.9.0 )";
         atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "1.2.3", atd.getOrderingMatchingRule() );
+        assertEquals( "1.2.3.4567.8.9.0", atd.getOrderingMatchingRule() );
 
         // EQUALITY descr
-        value = "( 1.1 ORDERING generalizedTimeOrderingMatch )";
+        value = "( 1.1 ORDERING abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 )";
         atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "generalizedTimeOrderingMatch", atd.getOrderingMatchingRule() );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd.getOrderingMatchingRule() );
 
         // no quote allowed
         value = "( 1.1 ORDERING 'generalizedTimeOrderingMatch' )";
         try
         {
             atd = parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid ORDERING 'caseExcactMatch' (quoted)" );
+            fail( "Exception expected, invalid ORDERING 'generalizedTimeOrderingMatch' (quoted)" );
         }
         catch ( ParseException pe )
         {
@@ -574,21 +279,22 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
         assertNull( atd.getSubstringsMatchingRule() );
 
         // EQUALITY numericoid
-        value = "( 1.1 SUBSTR 1.2.3 )";
+        value = "( 1.1 SUBSTR 1.2.3.4567.8.9.0 )";
         atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "1.2.3", atd.getSubstringsMatchingRule() );
+        assertEquals( "1.2.3.4567.8.9.0", atd.getSubstringsMatchingRule() );
 
         // EQUALITY descr
-        value = "( 1.1 SUBSTR caseIgnoreSubstringsMatch )";
+        value = "( 1.1 SUBSTR abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 )";
         atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "caseIgnoreSubstringsMatch", atd.getSubstringsMatchingRule() );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd
+            .getSubstringsMatchingRule() );
 
         // no quote allowed
-        value = "( 1.1 SUBSTR 'generalizedTimeOrderingMatch' )";
+        value = "( 1.1 SUBSTR 'caseIgnoreSubstringsMatch' )";
         try
         {
             atd = parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid SUBSTR 'generalizedTimeOrderingMatch' (quoted)" );
+            fail( "Exception expected, invalid SUBSTR 'caseIgnoreSubstringsMatch' (quoted)" );
         }
         catch ( ParseException pe )
         {
@@ -614,16 +320,16 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
         assertEquals( 0, atd.getSyntaxLength() );
 
         // SYNTAX numericoid
-        value = "( 1.1 SYNTAX 1.2.3 )";
+        value = "( 1.1 SYNTAX 1.2.3.4567.8.9.0 )";
         atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "1.2.3", atd.getSyntax() );
+        assertEquals( "1.2.3.4567.8.9.0", atd.getSyntax() );
         assertEquals( 0, atd.getSyntaxLength() );
 
         // SYNTAX numericoid and length
-        value = "( 1.1 SYNTAX 1.2.3{32} )";
+        value = "( 1.1 SYNTAX 1.2.3.4567.8.9.0{1234567890} )";
         atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( "1.2.3", atd.getSyntax() );
-        assertEquals( 32, atd.getSyntaxLength() );
+        assertEquals( "1.2.3.4567.8.9.0", atd.getSyntax() );
+        assertEquals( 1234567890, atd.getSyntaxLength() );
 
         // SYNTAX numericoid and zero length
         value = "( 1.1 SYNTAX 1.2.3{0} )";
@@ -655,12 +361,12 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
             // expected
         }
 
-        // zero syntax
+        // leading zero in length
         value = "( 1.1 SYNTAX 1.2.3.4{01} )";
         try
         {
             atd = parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid SYNTAX 1.2.3.4{01} (leading zero length)" );
+            fail( "Exception expected, invalid SYNTAX 1.2.3.4{01} (leading zero in length)" );
         }
         catch ( ParseException pe )
         {
@@ -672,7 +378,7 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
         try
         {
             atd = parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid SYNTAX 1.2.3.4{X} (zero length)" );
+            fail( "Exception expected, invalid SYNTAX 1.2.3.4{X} (invalid length)" );
         }
         catch ( ParseException pe )
         {
@@ -687,6 +393,18 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
             fail( "Exception expected, invalid SYNTAX {32} (no syntax)" );
         }
         catch ( ParseException pe )
+        {
+            // expected
+        }
+
+        // length overflow
+        value = "( 1.1 SYNTAX 1.2.3.4{123456789012} )";
+        try
+        {
+            atd = parser.parseAttributeTypeDescription( value );
+            fail( "Exception expected, invalid SYNTAX 1.2.3.4{123456789012} (length overflow)" );
+        }
+        catch ( NumberFormatException nfe )
         {
             // expected
         }
@@ -869,35 +587,41 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
      */
     public void testExtensions() throws ParseException
     {
+        SchemaParserTestUtils.testExtensions( parser );
+    }
+
+
+    /**
+     * Test full attribute type description.
+     * 
+     * @throws ParseException
+     */
+    public void testFull() throws ParseException
+    {
         String value = null;
         AttributeTypeDescription atd = null;
 
-        // no extension
-        value = "( 1.1 )";
+        value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton äöüß 部長' OBSOLETE SUP abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 EQUALITY 2.3.4.5.6.7.8.9.0.1 ORDERING 3.4.5.6.7.8.9.0.1.2 SUBSTR 4.5.6.7.8.9.0.1.2.3 SYNTAX 5.6.7.8.9.0.1.2.3.4{1234567890} SINGLE-VALUE COLLECTIVE NO-USER-MODIFICATION USAGE dSAOperation X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
         atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( 0, atd.getExtensions().size() );
 
-        // single extension with one value
-        value = "( 1.1 X-TEST 'test' )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( 1, atd.getExtensions().size() );
-        assertNotNull( atd.getExtensions().get( "X-TEST" ) );
-        assertEquals( 1, atd.getExtensions().get( "X-TEST" ).size() );
-        assertEquals( "test", atd.getExtensions().get( "X-TEST" ).get( 0 ) );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", atd.getNumericOid() );
+        assertEquals( 2, atd.getNames().size() );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd.getNames().get( 0 ) );
+        assertEquals( "test", atd.getNames().get( 1 ) );
+        assertEquals( "Descripton äöüß 部長", atd.getDescription() );
+        assertTrue( atd.isObsolete() );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd.getSuperType() );
+        assertEquals( "2.3.4.5.6.7.8.9.0.1", atd.getEqualityMatchingRule() );
+        assertEquals( "3.4.5.6.7.8.9.0.1.2", atd.getOrderingMatchingRule() );
+        assertEquals( "4.5.6.7.8.9.0.1.2.3", atd.getSubstringsMatchingRule() );
+        assertEquals( "5.6.7.8.9.0.1.2.3.4", atd.getSyntax() );
+        assertEquals( 1234567890, atd.getSyntaxLength() );
 
-        // single extension with multiple values
-        value = "( 1.1 X-TEST-ABC ('test1' 'test äöüß'       'test 部長' ) )";
-        atd = parser.parseAttributeTypeDescription( value );
-        assertEquals( 1, atd.getExtensions().size() );
-        assertNotNull( atd.getExtensions().get( "X-TEST-ABC" ) );
-        assertEquals( 3, atd.getExtensions().get( "X-TEST-ABC" ).size() );
-        assertEquals( "test1", atd.getExtensions().get( "X-TEST-ABC" ).get( 0 ) );
-        assertEquals( "test äöüß", atd.getExtensions().get( "X-TEST-ABC" ).get( 1 ) );
-        assertEquals( "test 部長", atd.getExtensions().get( "X-TEST-ABC" ).get( 2 ) );
+        assertTrue( atd.isSingleValued() );
+        assertTrue( atd.isCollective() );
+        assertFalse( atd.isUserModifiable() );
+        assertEquals( UsageEnum.DSA_OPERATION, atd.getUsage() );
 
-        // multiple extensions
-        value = "(1.1 X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2'))";
-        atd = parser.parseAttributeTypeDescription( value );
         assertEquals( 2, atd.getExtensions().size() );
         assertNotNull( atd.getExtensions().get( "X-TEST-a" ) );
         assertEquals( 2, atd.getExtensions().get( "X-TEST-a" ).size() );
@@ -907,22 +631,14 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
         assertEquals( 2, atd.getExtensions().get( "X-TEST-b" ).size() );
         assertEquals( "test2-1", atd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
         assertEquals( "test2-2", atd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
-
-        // invalid extension, no number allowed
-        value = "( 1.1 X-TEST1 'test' )";
-        try
-        {
-            atd = parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, invalid extension X-TEST1 (no number allowed)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
     }
 
 
+    /**
+     * Ensure that element order is ignored
+     * 
+     * @throws ParseException
+     */
     public void testIgnoreElementOrder() throws ParseException
     {
         String value = "( 2.5.4.3 SUP name SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 USAGE userApplications DESC 'RFC2256: common name(s) for which the entity is known by'  EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch NAME ( 'cn' 'commonName' )  )";
@@ -979,77 +695,14 @@ public class SchemaParserAttributeTypeDescriptionTest extends TestCase
      */
     public void testMultiThreaded() throws Exception
     {
-        // start up and track all threads (40 threads)
-        List<Thread> threads = new ArrayList<Thread>();
-        for ( int ii = 0; ii < 10; ii++ )
-        {
-            Thread t0 = new Thread( new ParseSpecification( "( 1.1 )" ) );
-            Thread t1 = new Thread(
-                new ParseSpecification(
-                    "( 2.5.4.41 NAME 'name' DESC 'RFC2256: common supertype of name attributes'  EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} USAGE userApplications )" ) );
-            Thread t2 = new Thread(
-                new ParseSpecification(
-                    "( 2.5.4.3 NAME ( 'cn' 'commonName' ) DESC 'RFC2256: common name(s) for which the entity is known by'  SUP name EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 USAGE userApplications )" ) );
-            Thread t3 = new Thread(
-                new ParseSpecification(
-                    "( 2.5.18.3 NAME 'creatorsName' DESC 'RFC2252: name of creator'  EQUALITY distinguishedNameMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE NO-USER-MODIFICATION USAGE directoryOperation )" ) );
-            threads.add( t0 );
-            threads.add( t1 );
-            threads.add( t2 );
-            threads.add( t3 );
-            t0.start();
-            t1.start();
-            t2.start();
-            t3.start();
-        }
-
-        // wait until all threads have died
-        boolean hasLiveThreads = false;
-        do
-        {
-            hasLiveThreads = false;
-
-            for ( int ii = 0; ii < threads.size(); ii++ )
+        String[] testValues = new String[]
             {
-                Thread t = ( Thread ) threads.get( ii );
-                hasLiveThreads = hasLiveThreads || t.isAlive();
-            }
-        }
-        while ( hasLiveThreads );
+                "( 1.1 )",
+                "( 2.5.4.41 NAME 'name' DESC 'RFC2256: common supertype of name attributes'  EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} USAGE userApplications )",
+                "( 2.5.4.3 NAME ( 'cn' 'commonName' ) DESC 'RFC2256: common name(s) for which the entity is known by'  SUP name EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 USAGE userApplications )",
+                "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton äöüß 部長' OBSOLETE SUP abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 EQUALITY 2.3.4.5.6.7.8.9.0.1 ORDERING 3.4.5.6.7.8.9.0.1.2 SUBSTR 4.5.6.7.8.9.0.1.2.3 SYNTAX 5.6.7.8.9.0.1.2.3.4{1234567890} SINGLE-VALUE COLLECTIVE NO-USER-MODIFICATION USAGE dSAOperation X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
+        SchemaParserTestUtils.testMultiThreaded( parser, testValues );
 
-        // check that no one thread failed to parse and generate a SS object
-        assertTrue( isSuccessMultithreaded );
-    }
-
-    /**
-     * Used to test multithreaded use of a single parser.
-     */
-    class ParseSpecification implements Runnable
-    {
-        private final String atd;
-
-        AttributeTypeDescription result;
-
-
-        public ParseSpecification( String atd )
-        {
-            this.atd = atd;
-        }
-
-
-        public void run()
-        {
-            try
-            {
-                result = parser.parseAttributeTypeDescription( atd );
-            }
-            catch ( ParseException e )
-            {
-                e.printStackTrace();
-            }
-
-            isSuccessMultithreaded = isSuccessMultithreaded && ( result != null );
-        }
     }
 
 }

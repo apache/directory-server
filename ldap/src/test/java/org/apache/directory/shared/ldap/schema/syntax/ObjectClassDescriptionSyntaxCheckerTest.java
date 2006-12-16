@@ -33,29 +33,7 @@ import junit.framework.TestCase;
  */
 public class ObjectClassDescriptionSyntaxCheckerTest extends TestCase
 {
-    ObjectClassDescriptionSyntaxChecker checker = new ObjectClassDescriptionSyntaxChecker();
-
-
-    public void testNullString()
-    {
-        assertFalse( checker.isValidSyntax( null ) );
-    }
-
-
-    public void testEmptyString()
-    {
-        assertFalse( checker.isValidSyntax( "" ) );
-    }
-
-
-    public void testOneCharString()
-    {
-        assertFalse( checker.isValidSyntax( "A" ) );
-        assertFalse( checker.isValidSyntax( "1" ) );
-        assertFalse( checker.isValidSyntax( "-" ) );
-        assertFalse( checker.isValidSyntax( "(" ) );
-    }
-
+    private ObjectClassDescriptionSyntaxChecker checker = new ObjectClassDescriptionSyntaxChecker();
 
     public void testValid()
     {
@@ -74,6 +52,12 @@ public class ObjectClassDescriptionSyntaxCheckerTest extends TestCase
 
     public void testInvalid()
     {
+        // null 
+        assertFalse( checker.isValidSyntax( null ) );
+        
+        // empty 
+        assertFalse( checker.isValidSyntax( "" ) );
+        
         // missing/invalid OID
         assertFalse( checker.isValidSyntax( "()" ) );
         assertFalse( checker.isValidSyntax( "(  )" ) );

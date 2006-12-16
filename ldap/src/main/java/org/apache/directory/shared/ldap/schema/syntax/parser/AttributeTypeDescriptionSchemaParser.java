@@ -20,9 +20,9 @@
 package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 
-import java.io.StringReader;
 import java.text.ParseException;
 
+import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
 
 import antlr.RecognitionException;
@@ -34,40 +34,17 @@ import antlr.TokenStreamException;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AttributeTypeDescriptionSchemaParser
+public class AttributeTypeDescriptionSchemaParser extends AbstractSchemaParser
 {
-
-    /** the antlr generated parser being wrapped */
-    private ReusableAntlrSchemaParser parser;
-
-    /** the antlr generated lexer being wrapped */
-    private ReusableAntlrSchemaLexer lexer;
-    
-    static
-    {
-    }
-
 
     /**
      * Creates a schema parser instance.
      */
     public AttributeTypeDescriptionSchemaParser()
     {
-        lexer = new ReusableAntlrSchemaLexer( new StringReader( "" ) );
-        parser = new ReusableAntlrSchemaParser( lexer );
+        super();
     }
     
-    /**
-     * Initializes the plumbing by creating a pipe and coupling the parser/lexer
-     * pair with it. param spec the specification to be parsed
-     */
-    private void reset( String spec )
-    {
-        StringReader in = new StringReader( spec );
-        lexer.prepareNextInput( in );
-        parser.resetState();
-    }
-
 
     /**
      * Parses a attribute type description according to RFC 4512:
@@ -133,5 +110,12 @@ public class AttributeTypeDescriptionSchemaParser
         }
 
     }
+
+
+    public AbstractSchemaDescription parse( String schemaDescription ) throws ParseException
+    {
+        return parseAttributeTypeDescription( schemaDescription );
+    }
+
 
 }

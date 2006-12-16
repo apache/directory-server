@@ -22,9 +22,7 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 
@@ -34,16 +32,8 @@ import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ObjectClassDescription
+public class ObjectClassDescription extends AbstractSchemaDescription
 {
-    private String numericOid;
-
-    private List<String> names;
-
-    private String description;
-
-    private boolean isObsolete;
-
     private List<String> superiorObjectClasses;
 
     private ObjectClassTypeEnum kind;
@@ -52,56 +42,13 @@ public class ObjectClassDescription
 
     private List<String> mayAttributeTypes;
 
-    private Map<String, List<String>> extensions;
-
 
     public ObjectClassDescription()
     {
-        numericOid = "";
-        names = new ArrayList<String>();
-        description = "";
-        isObsolete = false;
         superiorObjectClasses = new ArrayList<String>();
         kind = ObjectClassTypeEnum.STRUCTURAL;
         mustAttributeTypes = new ArrayList<String>();
         mayAttributeTypes = new ArrayList<String>();
-        extensions = new LinkedHashMap<String, List<String>>();
-    }
-
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-
-    public void setDescription( String description )
-    {
-        this.description = description;
-    }
-
-
-    public Map<String, List<String>> getExtensions()
-    {
-        return extensions;
-    }
-
-
-    public void setExtensions( Map<String, List<String>> extensions )
-    {
-        this.extensions = extensions;
-    }
-
-
-    public boolean isObsolete()
-    {
-        return isObsolete;
-    }
-
-
-    public void setObsolete( boolean isObsolete )
-    {
-        this.isObsolete = isObsolete;
     }
 
 
@@ -126,30 +73,6 @@ public class ObjectClassDescription
     public void setMustAttributeTypes( List<String> mustAttributeTypes )
     {
         this.mustAttributeTypes = mustAttributeTypes;
-    }
-
-
-    public List<String> getNames()
-    {
-        return names;
-    }
-
-
-    public void setNames( List<String> names )
-    {
-        this.names = names;
-    }
-
-
-    public String getNumericOid()
-    {
-        return numericOid;
-    }
-
-
-    public void setNumericOid( String numericOid )
-    {
-        this.numericOid = numericOid;
     }
 
 
@@ -194,9 +117,4 @@ public class ObjectClassDescription
         mayAttributeTypes.add( oid );
     }
 
-
-    public void addExtension( String key, List<String> values )
-    {
-        extensions.put( key, values );
-    }
 }
