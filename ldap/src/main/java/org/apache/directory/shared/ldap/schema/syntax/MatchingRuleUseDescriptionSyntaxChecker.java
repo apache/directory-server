@@ -116,14 +116,7 @@ public class MatchingRuleUseDescriptionSyntaxChecker implements SyntaxChecker
 
         try
         {
-            MatchingRuleUseDescription mrud = schemaParser.parseMatchingRuleUseDescription( strValue );
-            
-            // APPLIES must be present
-            if ( ( mrud.getApplicableAttributes()== null ) || ( mrud.getApplicableAttributes().isEmpty() ) ) 
-            {
-                return false;
-            }
-                
+            schemaParser.parseMatchingRuleUseDescription( strValue );
             return true;
         }
         catch ( ParseException pe )

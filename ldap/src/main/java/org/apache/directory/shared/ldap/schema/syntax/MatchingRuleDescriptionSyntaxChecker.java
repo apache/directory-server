@@ -119,14 +119,7 @@ public class MatchingRuleDescriptionSyntaxChecker implements SyntaxChecker
 
         try
         {
-            MatchingRuleDescription mrd = schemaParser.parseMatchingRuleDescription( strValue );
-            
-            // SYNTAX must be present
-            if ( ( mrd.getSyntax() == null ) ) 
-            {
-                return false;
-            }
-            
+            schemaParser.parseMatchingRuleDescription( strValue );
             return true;
         }
         catch ( ParseException pe )

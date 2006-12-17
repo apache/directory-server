@@ -52,25 +52,25 @@ public class SchemaParserMatchingRuleUseDescriptionTest extends TestCase
 
     public void testNumericOid() throws Exception
     {
-        SchemaParserTestUtils.testNumericOid( parser );
+        SchemaParserTestUtils.testNumericOid( parser, "APPLIES 1.1" );
     }
 
 
     public void testNames() throws Exception
     {
-        SchemaParserTestUtils.testNames( parser );
+        SchemaParserTestUtils.testNames( parser, "1.1", "APPLIES 1.1" );
     }
 
 
     public void testDescription() throws ParseException
     {
-        SchemaParserTestUtils.testDescription( parser );
+        SchemaParserTestUtils.testDescription( parser, "1.1", "APPLIES 1.1" );
     }
 
 
     public void testObsolete() throws ParseException
     {
-        SchemaParserTestUtils.testObsolete( parser );
+        SchemaParserTestUtils.testObsolete( parser, "1.1", "APPLIES 1.1" );
     }
 
 
@@ -79,11 +79,6 @@ public class SchemaParserMatchingRuleUseDescriptionTest extends TestCase
 
         String value = null;
         MatchingRuleUseDescription mrud = null;
-
-        // no APPLIES
-        value = "( 1.1 )";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 0, mrud.getApplicableAttributes().size() );
 
         // APPLIES simple numericoid
         value = "( 1.1 APPLIES 1.2.3.4.5.6.7.8.9.0 )";
@@ -220,12 +215,36 @@ public class SchemaParserMatchingRuleUseDescriptionTest extends TestCase
         {
             // expected
         }
+        
+        // APPLIES is required
+        value = "( 1.1 )";
+        try
+        {
+            mrud = parser.parseMatchingRuleUseDescription( value );
+            fail( "Exception expected, APPLIES is required" );
+        }
+        catch ( ParseException pe )
+        {
+            // expected
+        }
+
+        // APPLIES must only appear once
+        value = "( 1.1 APPLIES test1 APPLIES test2 )";
+        try
+        {
+            mrud = parser.parseMatchingRuleUseDescription( value );
+            fail( "Exception expected, APPLIES appears twice" );
+        }
+        catch ( ParseException pe )
+        {
+            // expected
+        }
     }
 
 
     public void testExtensions() throws ParseException
     {
-        SchemaParserTestUtils.testExtensions( parser );
+        SchemaParserTestUtils.testExtensions( parser, "1.1", "APPLIES 1.1" );
     }
 
 
@@ -259,6 +278,53 @@ public class SchemaParserMatchingRuleUseDescriptionTest extends TestCase
     }
 
 
+    /**
+     * Test unique elements.
+     * 
+     * @throws ParseException
+     */
+    public void testUniqueElements() throws ParseException
+    {
+        String[] testValues = new String[]
+            { 
+                "( 1.1 APPLIES 1.1 NAME 'test1' NAME 'test2' )",
+                "( 1.1 APPLIES 1.1 DESC 'test1' DESC 'test2' )",
+                "( 1.1 APPLIES 1.1 OBSOLETE OBSOLETE )", 
+                "( 1.1 APPLIES 1.1 APPLIES test1 APPLIES test2 )",
+                "( 1.1 APPLIES 1.1 X-TEST 'test1' X-TEST 'test2' )" 
+            };
+        SchemaParserTestUtils.testUnique( parser, testValues );
+    }    
+    
+    
+    /**
+     * Test required elements.
+     * 
+     * @throws ParseException
+     */
+    public void testRequiredElements() throws ParseException
+    {
+        String value = null;
+        MatchingRuleUseDescription mrud = null;
+
+        value = "( 1.2.3.4.5.6.7.8.9.0 APPLIES a )";
+        mrud = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 1, mrud.getApplicableAttributes().size() );
+
+        value = "( 1.2.3.4.5.6.7.8.9.0 )";
+        try
+        {
+            mrud = parser.parseMatchingRuleUseDescription( value );
+            fail( "Exception expected, APPLIES is required" );
+        }
+        catch ( ParseException pe )
+        {
+            // expected
+        }
+
+    }
+    
+    
     ////////////////////////////////////////////////////////////////
     //       Some real-world matching rule use descriptons        //
     ////////////////////////////////////////////////////////////////
@@ -287,7 +353,7 @@ public class SchemaParserMatchingRuleUseDescriptionTest extends TestCase
     {
         String[] testValues = new String[]
             {
-                "( 1.1 )",
+                "( 1.1 APPLIES 1.1 )",
                 "( 2.5.13.17 NAME 'octetStringMatch' APPLIES ( javaSerializedData $ userPassword ) )",
                 "( 2.5.13.1 NAME 'distinguishedNameMatch' APPLIES ( memberOf $ dITRedirect $ associatedName $ secretary $ documentAuthor $ manager $ seeAlso $ roleOccupant $ owner $ member $ distinguishedName $ aliasedObjectName $ namingContexts $ subschemaSubentry $ modifiersName $ creatorsName ) )",
                 "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton äöüß 部長' OBSOLETE APPLIES ( 0.1.2.3.4.5.6.7.8.9 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };

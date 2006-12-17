@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
  * A SyntaxChecker which verifies that a value follows the
- * object class descripton syntax according to RFC 4512, par 4.4.1:
+ * object class descripton syntax according to RFC 4512, par 4.2.1:
  * 
  * <pre>
  * ObjectClassDescription = LPAREN WSP
@@ -124,7 +124,6 @@ public class ObjectClassDescriptionSyntaxChecker implements SyntaxChecker
         try
         {
             schemaParser.parseObjectClassDescription( strValue );
-                
             return true;
         }
         catch ( ParseException pe )

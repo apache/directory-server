@@ -57,7 +57,7 @@ public class SchemaParserLdapSyntaxDescriptionTest extends TestCase
      */
     public void testNumericOid() throws ParseException
     {
-        SchemaParserTestUtils.testNumericOid( parser );
+        SchemaParserTestUtils.testNumericOid( parser, "" );
     }
 
 
@@ -68,7 +68,7 @@ public class SchemaParserLdapSyntaxDescriptionTest extends TestCase
      */
     public void testDescription() throws ParseException
     {
-        SchemaParserTestUtils.testDescription( parser );
+        SchemaParserTestUtils.testDescription( parser, "1.1", "" );
     }
 
 
@@ -79,7 +79,7 @@ public class SchemaParserLdapSyntaxDescriptionTest extends TestCase
      */
     public void testExtensions() throws ParseException
     {
-        SchemaParserTestUtils.testExtensions( parser );
+        SchemaParserTestUtils.testExtensions( parser, "1.1", "" );
     }
 
 
@@ -110,6 +110,22 @@ public class SchemaParserLdapSyntaxDescriptionTest extends TestCase
 
     }
 
+
+    /**
+     * Test unique elements.
+     * 
+     * @throws ParseException
+     */
+    public void testUniqueElements() throws ParseException
+    {
+        String[] testValues = new String[]
+            { 
+                "( 1.1 DESC 'test1' DESC 'test2' )",
+                "( 1.1 X-TEST 'test1' X-TEST 'test2' )" 
+            };
+        SchemaParserTestUtils.testUnique( parser, testValues );
+    }
+    
 
     ////////////////////////////////////////////////////////////////
     //         Some real-world attribute type definitions         //

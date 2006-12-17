@@ -18,7 +18,7 @@ public abstract class SchemaParserTestUtils
      * 
      * @throws ParseException
      */
-    public static void testNumericOid( AbstractSchemaParser parser ) throws ParseException
+    public static void testNumericOid( AbstractSchemaParser parser, String required ) throws ParseException
     {
         String value = null;
         AbstractSchemaDescription asd = null;
@@ -48,22 +48,22 @@ public abstract class SchemaParserTestUtils
         }
 
         // simple
-        value = "( 0.1.2.3.4.5.6.7.8.9 )";
+        value = "( 0.1.2.3.4.5.6.7.8.9 "+required+" )";
         asd = parser.parse( value );
         TestCase.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
 
         // simple
-        value = "( 123.4567.890 )";
+        value = "( 123.4567.890 "+required+")";
         asd = parser.parse( value );
         TestCase.assertEquals( "123.4567.890", asd.getNumericOid() );
         
         // simple with spaces
-        value = "(          0.1.2.3.4.5.6.7.8.9          )";
+        value = "(          0.1.2.3.4.5.6.7.8.9         "+required+" )";
         asd = parser.parse( value );
         TestCase.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
 
         // non-numeric not allowed
-        value = "( test )";
+        value = "( test "+required+" )";
         try
         {
             parser.parse( value );
@@ -75,7 +75,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // to short
-        value = "( 1 )";
+        value = "( 1 "+required+" )";
         try
         {
             parser.parse( value );
@@ -87,7 +87,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // dot only
-        value = "( . )";
+        value = "( . "+required+" )";
         try
         {
             parser.parse( value );
@@ -99,7 +99,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // ends with dot
-        value = "( 1.1. )";
+        value = "( 1.1. "+required+" )";
         try
         {
             parser.parse( value );
@@ -111,7 +111,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // quotes not allowed
-        value = "( '1.1' )";
+        value = "( '1.1' "+required+" )";
         try
         {
             parser.parse( value );
@@ -123,7 +123,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // leading 0 not allowed
-        value = "( 01.1 )";
+        value = "( 01.1 "+required+" )";
         try
         {
             parser.parse( value );
@@ -135,7 +135,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // alpha not allowed
-        value = "( 1.2.a.4 )";
+        value = "( 1.2.a.4 "+required+" )";
         try
         {
             parser.parse( value );
@@ -153,44 +153,44 @@ public abstract class SchemaParserTestUtils
      * 
      * @throws ParseException
      */
-    public static void testNames( AbstractSchemaParser parser ) throws ParseException
+    public static void testNames( AbstractSchemaParser parser, String oid, String required ) throws ParseException
     {
         String value = null;
         AbstractSchemaDescription asd = null;
 
         // alpha
-        value = "( 1.1 NAME 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' )";
+        value = "( "+oid+" "+required+" NAME 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' )";
         asd = parser.parse( value );
         TestCase.assertEquals( 1, asd.getNames().size() );
         TestCase.assertEquals( "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", asd.getNames().get( 0 ) );
 
         // alpha-num-hypen
-        value = "( 1.1 NAME 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' )";
+        value = "( "+oid+" "+required+" NAME 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' )";
         asd = parser.parse( value );
         TestCase.assertEquals( 1, asd.getNames().size() );
         TestCase.assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", asd.getNames().get( 0 ) );
 
         // with parentheses
-        value = "( 1.1 NAME ( 'a-z-0-9' ) )";
+        value = "( "+oid+" "+required+" NAME ( 'a-z-0-9' ) )";
         asd = parser.parse( value );
         TestCase.assertEquals( 1, asd.getNames().size() );
         TestCase.assertEquals( "a-z-0-9", asd.getNames().get( 0 ) );
 
         // with parentheses, without space
-        value = "( 1.1 NAME ('a-z-0-9') )";
+        value = "( "+oid+" "+required+" NAME ('a-z-0-9') )";
         asd = parser.parse( value );
         TestCase.assertEquals( 1, asd.getNames().size() );
         TestCase.assertEquals( "a-z-0-9", asd.getNames().get( 0 ) );
 
         // multi with space
-        value = "( 1.1 NAME ( 'test1' 'test2' ) )";
+        value = "( "+oid+" "+required+" NAME ( 'test1' 'test2' ) )";
         asd = parser.parse( value );
         TestCase.assertEquals( 2, asd.getNames().size() );
         TestCase.assertEquals( "test1", asd.getNames().get( 0 ) );
         TestCase.assertEquals( "test2", asd.getNames().get( 1 ) );
 
         // multi without space
-        value = "( 1.1 NAME ('test1' 'test2' 'test3') )";
+        value = "( "+oid+" "+required+" NAME ('test1' 'test2' 'test3') )";
         asd = parser.parse( value );
         TestCase.assertEquals( 3, asd.getNames().size() );
         TestCase.assertEquals( "test1", asd.getNames().get( 0 ) );
@@ -198,7 +198,7 @@ public abstract class SchemaParserTestUtils
         TestCase.assertEquals( "test3", asd.getNames().get( 2 ) );
 
         // multi with many spaces
-        value = "(          1.1          NAME          (          'test1'          'test2'          'test3'          )          )";
+        value = "(          "+oid+" "+required+"          NAME          (          'test1'          'test2'          'test3'          )          )";
         asd = parser.parse( value );
         TestCase.assertEquals( 3, asd.getNames().size() );
         TestCase.assertEquals( "test1", asd.getNames().get( 0 ) );
@@ -206,7 +206,7 @@ public abstract class SchemaParserTestUtils
         TestCase.assertEquals( "test3", asd.getNames().get( 2 ) );
 
         // lowercase
-        value = "( 1.1 name 'test' )";
+        value = "( "+oid+" "+required+" name 'test' )";
         try
         {
             parser.parse( value );
@@ -218,7 +218,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // unquoted
-        value = "( 1.1 NAME test )";
+        value = "( "+oid+" "+required+" NAME test )";
         try
         {
             parser.parse( value );
@@ -230,7 +230,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // start with number
-        value = "( 1.1 NAME '1test' )";
+        value = "( "+oid+" "+required+" NAME '1test' )";
         try
         {
             parser.parse( value );
@@ -242,7 +242,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // start with hypen
-        value = "( 1.1 NAME '-test' )";
+        value = "( "+oid+" "+required+" NAME '-test' )";
         try
         {
             parser.parse( value );
@@ -254,7 +254,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // invalid character
-        value = "( 1.1 NAME 'te_st' )";
+        value = "( "+oid+" "+required+" NAME 'te_st' )";
         try
         {
             parser.parse( value );
@@ -266,7 +266,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // NAM unknown
-        value = "( 1.1 NAM 'test' )";
+        value = "( "+oid+" "+required+" NAM 'test' )";
         try
         {
             parser.parse( value );
@@ -278,7 +278,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // one valid, one invalid
-        value = "( 1.1 NAME ( 'test' 'te_st' ) )";
+        value = "( "+oid+" "+required+" NAME ( 'test' 'te_st' ) )";
         try
         {
             parser.parse( value );
@@ -290,7 +290,7 @@ public abstract class SchemaParserTestUtils
         }
 
         // no space between values
-        value = "( 1.1 NAME ( 'test1''test2' ) )";
+        value = "( "+oid+" "+required+" NAME ( 'test1''test2' ) )";
         try
         {
             asd = parser.parse( value );
@@ -308,23 +308,23 @@ public abstract class SchemaParserTestUtils
      * 
      * @throws ParseException
      */
-    public static void testDescription( AbstractSchemaParser parser ) throws ParseException
+    public static void testDescription( AbstractSchemaParser parser, String oid, String required ) throws ParseException
     {
         String value = null;
         AbstractSchemaDescription asd = null;
 
         // simple
-        value = "(1.1 DESC 'Descripton')";
+        value = "("+oid+" "+required+" DESC 'Descripton')";
         asd = parser.parse( value );
         TestCase.assertEquals( "Descripton", asd.getDescription() );
 
         // unicode
-        value = "( 1.1 DESC 'Descripton äöüß 部長' )";
+        value = "( "+oid+" "+required+" DESC 'Descripton äöüß 部長' )";
         asd = parser.parse( value );
         TestCase.assertEquals( "Descripton äöüß 部長", asd.getDescription() );
 
         // lowercase
-        value = "( 1.1 desc 'Descripton' )";
+        value = "( "+oid+" "+required+" desc 'Descripton' )";
         try
         {
             parser.parse( value );
@@ -343,18 +343,18 @@ public abstract class SchemaParserTestUtils
      * 
      * @throws ParseException
      */
-    public static void testExtensions( AbstractSchemaParser parser ) throws ParseException
+    public static void testExtensions( AbstractSchemaParser parser, String oid, String required ) throws ParseException
     {
         String value = null;
         AbstractSchemaDescription asd = null;
 
         // no extension
-        value = "( 1.1 )";
+        value = "( "+oid+" "+required+" )";
         asd = parser.parse( value );
         TestCase.assertEquals( 0, asd.getExtensions().size() );
 
         // single extension with one value
-        value = "( 1.1 X-TEST 'test' )";
+        value = "( "+oid+" "+required+" X-TEST 'test' )";
         asd = parser.parse( value );
         TestCase.assertEquals( 1, asd.getExtensions().size() );
         TestCase.assertNotNull( asd.getExtensions().get( "X-TEST" ) );
@@ -362,7 +362,7 @@ public abstract class SchemaParserTestUtils
         TestCase.assertEquals( "test", asd.getExtensions().get( "X-TEST" ).get( 0 ) );
 
         // single extension with multiple values
-        value = "( 1.1 X-TEST-ABC ('test1' 'test äöüß'       'test 部長' ) )";
+        value = "( "+oid+" "+required+" X-TEST-ABC ('test1' 'test äöüß'       'test 部長' ) )";
         asd = parser.parse( value );
         TestCase.assertEquals( 1, asd.getExtensions().size() );
         TestCase.assertNotNull( asd.getExtensions().get( "X-TEST-ABC" ) );
@@ -372,7 +372,7 @@ public abstract class SchemaParserTestUtils
         TestCase.assertEquals( "test 部長", asd.getExtensions().get( "X-TEST-ABC" ).get( 2 ) );
 
         // multiple extensions
-        value = "(1.1 X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2'))";
+        value = "("+oid+" "+required+" X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2'))";
         asd = parser.parse( value );
         TestCase.assertEquals( 2, asd.getExtensions().size() );
         TestCase.assertNotNull( asd.getExtensions().get( "X-TEST-a" ) );
@@ -385,7 +385,7 @@ public abstract class SchemaParserTestUtils
         TestCase.assertEquals( "test2-2", asd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
 
         // invalid extension, no number allowed
-        value = "( 1.1 X-TEST1 'test' )";
+        value = "( "+oid+" "+required+" X-TEST1 'test' )";
         try
         {
             asd = parser.parse( value );
@@ -404,33 +404,33 @@ public abstract class SchemaParserTestUtils
      * 
      * @throws ParseException
      */
-    public static void testObsolete( AbstractSchemaParser parser ) throws ParseException
+    public static void testObsolete( AbstractSchemaParser parser, String oid, String required ) throws ParseException
     {
         String value = null;
         AbstractSchemaDescription asd = null;
 
         // not obsolete
-        value = "( 1.1 )";
+        value = "( "+oid+" "+required+" )";
         asd = parser.parse( value );
         TestCase.assertFalse( asd.isObsolete() );
 
         // not obsolete
-        value = "( 1.1 NAME 'test' DESC 'Descripton' )";
+        value = "( "+oid+" "+required+" NAME 'test' DESC 'Descripton' )";
         asd = parser.parse( value );
         TestCase.assertFalse( asd.isObsolete() );
         
         // obsolete
-        value = "(1.1 NAME 'test' DESC 'Descripton' OBSOLETE)";
+        value = "("+oid+" "+required+" NAME 'test' DESC 'Descripton' OBSOLETE)";
         asd = parser.parse( value );
         TestCase.assertTrue( asd.isObsolete() );
 
         // obsolete 
-        value = "(1.1 OBSOLETE)";
+        value = "("+oid+" "+required+" OBSOLETE)";
         asd = parser.parse( value );
         TestCase.assertTrue( asd.isObsolete() );
 
         // ivalid
-        value = "(1.1 NAME 'test' DESC 'Descripton' OBSOLET )";
+        value = "("+oid+" "+required+" NAME 'test' DESC 'Descripton' OBSOLET )";
         try
         {
             asd = parser.parse( value );
@@ -442,7 +442,7 @@ public abstract class SchemaParserTestUtils
         }
         
         // trailing value not allowed
-        value = "(1.1 NAME 'test' DESC 'Descripton' OBSOLETE 'true' )";
+        value = "("+oid+" "+required+" NAME 'test' DESC 'Descripton' OBSOLETE 'true' )";
         try
         {
             asd = parser.parse( value );
@@ -455,6 +455,30 @@ public abstract class SchemaParserTestUtils
         
     }
     
+    
+    
+    /**
+     * Test extensions.
+     * 
+     * @throws ParseException
+     */
+    public static void testUnique( AbstractSchemaParser parser, String[] testValues ) throws ParseException
+    {
+        for ( int i = 0; i < testValues.length; i++ )
+        {
+            String testValue = testValues[i];
+            try
+            {
+                parser.parse( testValue );
+                TestCase.fail( "Exception expected, element appears twice in "+testValue );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+        }
+        
+    }
     
     
     /**

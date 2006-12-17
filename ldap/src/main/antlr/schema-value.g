@@ -49,15 +49,20 @@ RPAR : ')' ;
 protected LDIGIT : '1'..'9' ;
 protected DIGIT : '0'..'9' ; 
 protected NUMBER : DIGIT | ( LDIGIT (DIGIT)+ ) ;
+protected NUMERICOID : NUMBER ( '.' NUMBER )+ ;
 
 QUOTE : '\'' ;
 DOLLAR : '$' ;
 LCURLY : '{' ;
 RCURLY : '}' ;
-NUMERICOID : NUMBER ( '.' NUMBER )+ ;
 DESCR : ( 'a'..'z' | 'A'..'Z' ) ( 'a'..'z' | 'A'..'Z' | '0'..'9' | '-' )* ;
 LEN : LCURLY n:NUMBER RCURLY { setText(n.getText()); } ;
 
+NUMBER_OR_NUMERICOID :
+    ( NUMBER '.' ) => NUMERICOID { $setType( NUMERICOID ); }
+    |
+    ( NUMBER ) { $setType( NUMBER ); }
+    ;
 
 /**
  * An antlr generated schema parser. This is a sub-parser used to parse
@@ -191,6 +196,48 @@ qdescrs returns [List<String> qdescrs]
     		(SP)?
     		RPAR 
 		)
+    )
+    ;
+    
+    /**
+     * ruleid = number
+     * number  = DIGIT / ( LDIGIT 1*DIGIT )
+     *
+     */
+ruleid returns [Integer ruleid=null]
+    : 
+    (
+        (SP)? 
+        n:NUMBER { ruleid = Integer.parseInt(n.getText()); }
+    )
+    ;
+
+
+    /**
+     * ruleids = ruleid / ( LPAREN WSP ruleidlist WSP RPAREN )
+     * ruleidlist = ruleid *( SP ruleid )
+     */
+ruleids returns [List<Integer> ruleids]
+    {
+        ruleids = new ArrayList<Integer>();
+        Integer ruleid = null;
+    }
+    :
+    (
+        ( 
+        	ruleid=ruleid { ruleids.add(ruleid); } 
+    	)
+    |
+        ( 
+        	LPAR 
+        	ruleid=ruleid { ruleids.add(ruleid); } 
+        	( 
+        		SP
+        		ruleid=ruleid { ruleids.add(ruleid); } 
+        	)* 
+        	(SP)?
+        	RPAR 
+        )
     )
     ;
     

@@ -26,7 +26,6 @@ import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -141,26 +140,7 @@ public class AttributeTypeDescriptionSyntaxChecker implements SyntaxChecker
 
         try
         {
-            AttributeTypeDescription atd = schemaParser.parseAttributeTypeDescription( strValue );
-            
-            // SYNTAX or SUP must be contained
-            if ( ( atd.getSyntax() == null ) && ( atd.getSuperType() == null ) ) 
-            {
-                return false;
-            }
-            
-            // COLLECTIVE requires usage userApplications
-            if ( atd.isCollective() && ( atd.getUsage() != UsageEnum.USER_APPLICATIONS ) )
-            {
-                return false;
-            }
-            
-            // NO-USER-MODIFICATION requires an operational usage.
-            if ( !atd.isUserModifiable() && ( atd.getUsage() == UsageEnum.USER_APPLICATIONS ) ) 
-            {
-                return false;
-            }
-                
+            schemaParser.parseAttributeTypeDescription( strValue );
             return true;
         }
         catch ( ParseException pe )

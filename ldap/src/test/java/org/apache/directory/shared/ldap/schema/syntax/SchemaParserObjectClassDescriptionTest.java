@@ -58,7 +58,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
      */
     public void testNumericOid() throws ParseException
     {
-        SchemaParserTestUtils.testNumericOid( parser );
+        SchemaParserTestUtils.testNumericOid( parser, "" );
     }
 
 
@@ -69,7 +69,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
      */
     public void testNames() throws ParseException
     {
-        SchemaParserTestUtils.testNames( parser );
+        SchemaParserTestUtils.testNames( parser, "1.1", "" );
     }
 
 
@@ -80,7 +80,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
      */
     public void testDescription() throws ParseException
     {
-        SchemaParserTestUtils.testDescription( parser );
+        SchemaParserTestUtils.testDescription( parser, "1.1", "" );
     }
 
 
@@ -91,7 +91,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
      */
     public void testObsolete() throws ParseException
     {
-        SchemaParserTestUtils.testObsolete( parser );
+        SchemaParserTestUtils.testObsolete( parser, "1.1", "" );
     }
 
 
@@ -399,7 +399,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
      */
     public void testExtensions() throws ParseException
     {
-        SchemaParserTestUtils.testExtensions( parser );
+        SchemaParserTestUtils.testExtensions( parser, "1.1", "" );
 
     }
 
@@ -448,6 +448,31 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
     }
 
 
+    /**
+     * Test unique elements.
+     * 
+     * @throws ParseException
+     */
+    public void testUniqueElements() throws ParseException
+    {
+        String[] testValues = new String[]
+            { 
+                "( 1.1 NAME 'test1' NAME 'test2' )", 
+                "( 1.1 DESC 'test1' DESC 'test2' )",
+                "( 1.1 OBSOLETE OBSOLETE )", 
+                "( 1.1 SUP test1 SUP test2 )",
+                "( 1.1 STRUCTURAL STRUCTURAL )",
+                "( 1.1 ABSTRACT ABSTRACT )",
+                "( 1.1 AUXILIARY AUXILIARY )",
+                "( 1.1 STRUCTURAL AUXILIARY AUXILIARY )",
+                "( 1.1 MUST test1 MUST test2 )",
+                "( 1.1 MAY test1 MAY test2 )",
+                "( 1.1 X-TEST 'test1' X-TEST 'test2' )" 
+            };
+        SchemaParserTestUtils.testUnique( parser, testValues );
+    }
+    
+    
     /**
      * Ensure that element order is ignored
      * 

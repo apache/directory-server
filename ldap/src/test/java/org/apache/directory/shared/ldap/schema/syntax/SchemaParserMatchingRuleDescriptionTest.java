@@ -51,25 +51,25 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
 
     public void testNumericOid() throws Exception
     {
-        SchemaParserTestUtils.testNumericOid( parser );
+        SchemaParserTestUtils.testNumericOid( parser, "SYNTAX 1.1" );
     }
 
 
     public void testNames() throws Exception
     {
-        SchemaParserTestUtils.testNames( parser );
+        SchemaParserTestUtils.testNames( parser, "1.1", "SYNTAX 1.1" );
     }
 
 
     public void testDescription() throws ParseException
     {
-        SchemaParserTestUtils.testDescription( parser );
+        SchemaParserTestUtils.testDescription( parser, "1.1", "SYNTAX 1.1" );
     }
 
 
     public void testObsolete() throws ParseException
     {
-        SchemaParserTestUtils.testObsolete( parser );
+        SchemaParserTestUtils.testObsolete( parser, "1.1", "SYNTAX 1.1" );
     }
 
 
@@ -106,12 +106,36 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
             // expected
         }
 
+        // SYNTAX is required
+        value = "( 1.1 )";
+        try
+        {
+            mrd = parser.parseMatchingRuleDescription( value );
+            fail( "Exception expected, SYNTAX is required" );
+        }
+        catch ( ParseException pe )
+        {
+            // expected
+        }
+
+        // OC must only appear once
+        value = "( 1.1 SYNTAX 2.2 SYNTAX 3.3 )";
+        try
+        {
+            mrd = parser.parseMatchingRuleDescription( value );
+            fail( "Exception expected, SYNTAX appears twice" );
+        }
+        catch ( ParseException pe )
+        {
+            // expected
+        }
+        
     }
 
 
     public void testExtensions() throws ParseException
     {
-        SchemaParserTestUtils.testExtensions( parser );
+        SchemaParserTestUtils.testExtensions( parser, "1.1", "SYNTAX 1.1" );
     }
 
 
@@ -140,8 +164,55 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
         assertEquals( "test2-1", mrd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
         assertEquals( "test2-2", mrd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
     }
+    
+    
+    /**
+     * Test unique elements.
+     * 
+     * @throws ParseException
+     */
+    public void testUniqueElements() throws ParseException
+    {
+        String[] testValues = new String[]
+            { 
+                "( 1.1 SYNTAX 1.1 NAME 'test1' NAME 'test2' )", 
+                "( 1.1 SYNTAX 1.1 DESC 'test1' DESC 'test2' )",
+                "( 1.1 SYNTAX 1.1 OBSOLETE OBSOLETE )", 
+                "( 1.1 SYNTAX 1.1 SYNTAX 2.2 SYNTAX 3.3 )",
+                "( 1.1 SYNTAX 1.1 X-TEST 'test1' X-TEST 'test2' )" 
+            };
+        SchemaParserTestUtils.testUnique( parser, testValues );
+    }
 
 
+    /**
+     * Test required elements.
+     * 
+     * @throws ParseException
+     */
+    public void testRequiredElements() throws ParseException
+    {
+        String value = null;
+        MatchingRuleDescription mrd = null;
+
+        value = "( 1.2.3.4.5.6.7.8.9.0 SYNTAX 1.1 )";
+        mrd = parser.parseMatchingRuleDescription( value );
+        assertNotNull( mrd.getSyntax() );
+
+        value = "( 1.2.3.4.5.6.7.8.9.0 )";
+        try
+        {
+            mrd = parser.parseMatchingRuleDescription( value );
+            fail( "Exception expected, SYNTAX is required" );
+        }
+        catch ( ParseException pe )
+        {
+            // expected
+        }
+
+    }
+    
+    
     ////////////////////////////////////////////////////////////////
     //         Some real-world matching rule descriptons          //
     ////////////////////////////////////////////////////////////////
@@ -203,7 +274,7 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
     {
         String[] testValues = new String[]
             {
-                "( 1.1 )",
+                "( 1.1 SYNTAX 1.1 )",
                 "( 2.5.13.5 NAME 'caseExactMatch' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )",
                 "( 2.5.13.5 NAME 'caseExactMatch' DESC 'Case Exact Matching on Directory String [defined in X.520]' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )",
                 "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton äöüß 部長' OBSOLETE SYNTAX 0.1.2.3.4.5.6.7.8.9 X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
