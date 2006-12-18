@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.Asn1Object;
+import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
@@ -78,7 +78,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryChangeControl extends Asn1Object
+public class EntryChangeControl extends AbstractAsn1Object
 {
     public static final int UNDEFINED_CHANGE_NUMBER = -1;
 

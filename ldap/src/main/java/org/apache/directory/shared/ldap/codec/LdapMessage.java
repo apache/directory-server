@@ -20,6 +20,7 @@
 package org.apache.directory.shared.ldap.codec;
 
 
+import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
@@ -59,7 +60,7 @@ import java.util.List;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapMessage extends Asn1Object
+public class LdapMessage extends AbstractAsn1Object
 {
     // ~ Instance fields
     // ----------------------------------------------------------------------------

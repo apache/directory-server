@@ -66,7 +66,7 @@ public abstract class ConnectorFilter extends Filter
      * 
      * @param filter The filter to add
      */
-    public void addFilter( Filter filter ) throws DecoderException
+    public void addFilter( Filter filter )  throws DecoderException
     {
 
         if ( filterSet == null )

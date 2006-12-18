@@ -660,6 +660,7 @@ public class PropertiesUtils
         }
 
         String[] items = props.getProperty( key ).trim().split( delimiter );
+        
         for ( int ii = 0; ii < items.length; ii++ )
         {
             values.add( items[ii] );

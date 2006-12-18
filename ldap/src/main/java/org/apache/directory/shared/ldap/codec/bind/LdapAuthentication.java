@@ -20,7 +20,7 @@
 package org.apache.directory.shared.ldap.codec.bind;
 
 
-import org.apache.directory.shared.asn1.Asn1Object;
+import org.apache.directory.shared.asn1.AbstractAsn1Object;
 
 
 /**
@@ -30,6 +30,6 @@ import org.apache.directory.shared.asn1.Asn1Object;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class LdapAuthentication extends Asn1Object
+public abstract class LdapAuthentication extends AbstractAsn1Object
 {
 }

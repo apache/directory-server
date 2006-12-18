@@ -761,7 +761,7 @@ public class StringTools
             throw new PatternSyntaxException( "Regex was null", "null", -1 );
         }
 
-        ArrayList any = new ArrayList();
+        List<String> any = new ArrayList<String>();
         String remaining = ldapRegex;
         int index = remaining.indexOf( '*' );
 
@@ -797,7 +797,7 @@ public class StringTools
 
             for ( int i = 0; i < anyStrs.length; i++ )
             {
-                anyStrs[i] = ( String ) any.get( i );
+                anyStrs[i] = any.get( i );
             }
 
             return getRegex( initialPattern, anyStrs, finalPattern );
@@ -828,7 +828,7 @@ public class StringTools
         int start = 0;
         int stop = -1;
         String path = null;
-        ArrayList list = new ArrayList();
+        List<String> list = new ArrayList<String>();
 
         // Abandon with no values if paths string is null
         if ( paths == null || paths.trim().equals( "" ) )

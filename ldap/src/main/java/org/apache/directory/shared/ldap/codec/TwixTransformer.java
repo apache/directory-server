@@ -68,7 +68,6 @@ import org.apache.directory.shared.ldap.codec.search.controls.PSearchControl;
 import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControl;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
-import org.apache.directory.shared.ldap.filter.AbstractExprNode;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;

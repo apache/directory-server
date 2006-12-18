@@ -36,7 +36,7 @@ public class ReferralImpl implements Referral
     static final long serialVersionUID = 2638820668325359096L;
 
     /** Sequence of LDAPUrls composing this Referral */
-    private final List urls = new ArrayList();
+    private final List<String> urls = new ArrayList<String>();
 
 
     // ------------------------------------------------------------------------

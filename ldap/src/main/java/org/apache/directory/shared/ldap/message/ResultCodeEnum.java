@@ -1137,7 +1137,7 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
         set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
         ADD_CODES = Collections.unmodifiableSet( set );
-    };
+    }
 
     /**
      * A set of result code enumerations that may result from delete operations.
@@ -1184,7 +1184,7 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
         set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
         DELETE_CODES = Collections.unmodifiableSet( set );
-    };
+    }
 
     /**
      * A set of result code enumerations resulting from modifyDn operations. The
@@ -1970,7 +1970,7 @@ public enum ResultCodeEnum
 
         if ( set.size() == 1 )
         {
-            return ( ResultCodeEnum ) set.iterator().next();
+            return set.iterator().next();
         }
 
         if ( type == null )
@@ -1992,7 +1992,7 @@ public enum ResultCodeEnum
         switch ( type )
         {
             case ABANDON_REQUEST :
-                return ( ResultCodeEnum ) set.iterator().next();
+                return set.iterator().next();
                 
             case ADD_REQUEST :
                 candidates = intersection( set, ADD_CODES );
@@ -2067,7 +2067,7 @@ public enum ResultCodeEnum
                 break;
                 
             case UNBIND_REQUEST :
-                return ( ResultCodeEnum ) set.iterator().next();
+                return set.iterator().next();
         }
 
         // we don't want any codes that do not have anything to do w/ errors
@@ -2078,7 +2078,7 @@ public enum ResultCodeEnum
             return ResultCodeEnum.OTHER;
         }
 
-        return ( ResultCodeEnum ) candidates.iterator().next();
+        return candidates.iterator().next();
     }
 
 

@@ -52,10 +52,10 @@ public class LockableAttributesImpl implements Attributes, Serializable
 	{
     	static transient final long serialVersionUID = 1L;
     	
-		private String upId;
-		private Attribute attribute;
+		String upId;
+		Attribute attribute;
 		
-		private Holder( String upId, Attribute attribute )
+		Holder( String upId, Attribute attribute )
 		{
 			this.upId = upId;
 			this.attribute = attribute;
@@ -143,7 +143,7 @@ public class LockableAttributesImpl implements Attributes, Serializable
 	}
 	
     /** Cache of lowercase id Strings to mixed cased user provided String ids */
-    private Map keyMap;
+    Map<String, Holder> keyMap;
 
 
     // ------------------------------------------------------------------------
@@ -155,7 +155,7 @@ public class LockableAttributesImpl implements Attributes, Serializable
      */
     public LockableAttributesImpl()
     {
-        keyMap = new HashMap();
+        keyMap = new HashMap<String, Holder>();
     }
 
     // ------------------------------------------------------------------------
@@ -283,7 +283,7 @@ public class LockableAttributesImpl implements Attributes, Serializable
     {
     	if ( attrId != null )
     	{
-    		Holder holder = (Holder)keyMap.get( StringTools.toLowerCase( attrId ) );
+    		Holder holder = keyMap.get( StringTools.toLowerCase( attrId ) );
     		return holder != null ? holder.attribute : null;
     	}
     	else
@@ -303,7 +303,7 @@ public class LockableAttributesImpl implements Attributes, Serializable
      *         If attribute set has zero attributes, an empty enumeration is
      *         returned.
      */
-    public NamingEnumeration getAll()
+    public NamingEnumeration<Attribute> getAll()
     {
         return new IteratorNamingEnumeration( new AttributeIterator( this ) );
     }
@@ -319,7 +319,7 @@ public class LockableAttributesImpl implements Attributes, Serializable
      *         attribute set has zero attributes, an empty enumeration is
      *         returned.
      */
-    public NamingEnumeration getIDs()
+    public NamingEnumeration<String> getIDs()
     {
     	String[] ids = new String[keyMap.size()];
     	
@@ -379,7 +379,7 @@ public class LockableAttributesImpl implements Attributes, Serializable
     	
         if ( keyMap.containsKey( key ) )
         {
-            old = (Attribute)((Holder)keyMap.remove( key )).attribute;
+            old = keyMap.remove( key ).attribute;
         }
         else
         {
@@ -429,7 +429,7 @@ public class LockableAttributesImpl implements Attributes, Serializable
     	
         if ( keyMap.containsKey( key ) )
         {
-        	Holder holder = (Holder)keyMap.remove( key );
+        	Holder holder = keyMap.remove( key );
         	
         	if ( holder != null ) 
         	{
@@ -453,15 +453,12 @@ public class LockableAttributesImpl implements Attributes, Serializable
     	{
 	    	LockableAttributesImpl clone = (LockableAttributesImpl)super.clone();
 	
-			clone.keyMap = (Map)((HashMap)keyMap).clone();
+			clone.keyMap = (Map<String, Holder>)(((HashMap<String, Holder>)keyMap).clone());
 			
-	        Iterator keys = keyMap.keySet().iterator();
-	
-	        while ( keys.hasNext() )
+            for ( String key:keyMap.keySet() )
 	        {
-	        	String key = (String)keys.next();
-	        	Holder holder = (Holder)keyMap.get( key );
-	            clone.keyMap.put( key, holder.clone() );
+	        	Holder holder = keyMap.get( key );
+	            clone.keyMap.put( key, (Holder)holder.clone() );
 	        }
 	    	
 	        return clone;

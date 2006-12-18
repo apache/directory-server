@@ -341,7 +341,7 @@ public class NestableDelegate implements Serializable
         }
 
         // generating the nested stack trace
-        List stacks = new ArrayList();
+        List<String[]> stacks = new ArrayList<String[]>();
         while ( throwable != null )
         {
             String[] st = getStackFrames( throwable );

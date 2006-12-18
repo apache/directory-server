@@ -21,8 +21,8 @@ package org.apache.directory.shared.ldap.filter;
 
 
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.io.IOException;
 import java.text.ParseException;
@@ -58,16 +58,14 @@ public class BranchNormalizedVisitor implements FilterVisitor
             return;
         }
 
-        Comparator nodeComparator = new NodeComparator();
+        Comparator<ExprNode> nodeComparator = new NodeComparator();
 
-        TreeSet set = new TreeSet( nodeComparator );
+        Set<ExprNode> set = new TreeSet<ExprNode>( nodeComparator );
 
         List<ExprNode> children = branch.getChildren();
 
-        for ( int ii = 0; ii < children.size(); ii++ )
+        for ( ExprNode child:branch.getChildren() )
         {
-            ExprNode child = ( ExprNode ) children.get( ii );
-
             if ( !child.isLeaf() )
             {
                 visit( child );
@@ -148,21 +146,17 @@ public class BranchNormalizedVisitor implements FilterVisitor
         return normalized.toString().trim();
     }
 
-    class NodeComparator implements Comparator
+    class NodeComparator implements Comparator<ExprNode>
     {
-        public int compare( Object o1, Object o2 )
+        public int compare( ExprNode o1, ExprNode o2 )
         {
             StringBuffer buf = new StringBuffer();
-
-            ExprNode n1 = ( ExprNode ) o1;
-
-            ExprNode n2 = ( ExprNode ) o2;
 
             buf.setLength( 0 );
 
             String s1 = null;
 
-            n1.printToBuffer( buf );
+            o1.printToBuffer( buf );
 
             s1 = buf.toString();
 
@@ -170,7 +164,7 @@ public class BranchNormalizedVisitor implements FilterVisitor
 
             String s2 = null;
 
-            n2.printToBuffer( buf );
+            o2.printToBuffer( buf );
 
             s2 = buf.toString();
 

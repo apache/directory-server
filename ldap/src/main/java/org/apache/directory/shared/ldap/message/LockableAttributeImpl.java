@@ -51,13 +51,13 @@ public class LockableAttributeImpl implements Attribute
     private final String upId;
 
     /** In case we have only one value, just use this container */
-    private Object value;
+    Object value;
     
     /** the list of attribute values */
-    private List list;
+    private List<Object> list;
     
     /** The number of values stored */
-    private int size = 0;
+    int size = 0;
 
 
     // ------------------------------------------------------------------------
@@ -124,7 +124,7 @@ public class LockableAttributeImpl implements Attribute
      * @param list
      *            the list of values to start with
      */
-    private LockableAttributeImpl(final String id, final List list)
+    private LockableAttributeImpl(final String id, final List<Object> list)
     {
         upId = id;
         this.list = list;
@@ -142,11 +142,11 @@ public class LockableAttributeImpl implements Attribute
      * 
      * @return the Iterator wrapped as a NamingEnumberation.
      */
-    public NamingEnumeration getAll()
+    public NamingEnumeration<Object> getAll()
     {
     	if ( size < 2 )
     	{
-    		return new IteratorNamingEnumeration( new Iterator()
+    		return new IteratorNamingEnumeration( new Iterator<Object>()
     		{
     			private boolean done = (size != 0);
     				
@@ -266,7 +266,7 @@ public class LockableAttributeImpl implements Attribute
     		case 1 :
     			exists = value.equals( attrVal );
 
-    			list = new ArrayList();
+    			list = new ArrayList<Object>();
     			list.add( value );
     			list.add( attrVal );
     			size++;
@@ -380,7 +380,7 @@ public class LockableAttributeImpl implements Attribute
     			return new LockableAttributeImpl( upId, value );
     			
     		default :
-    			return new LockableAttributeImpl( upId, (List)((ArrayList)list).clone() );
+    			return new LockableAttributeImpl( upId, (List<Object>)((ArrayList<Object>)list).clone() );
     	}
     }
 
@@ -467,7 +467,7 @@ public class LockableAttributeImpl implements Attribute
     			return;
     			
     		case 1 :
-    			list = new ArrayList();
+    			list = new ArrayList<Object>();
     			
     			if ( index == 0 )
     			{
@@ -519,7 +519,7 @@ public class LockableAttributeImpl implements Attribute
     			}
     			else
     			{
-    				list = new ArrayList();
+    				list = new ArrayList<Object>();
     				list.add( value );
     				list.add( attrVal );
     				size = 2;

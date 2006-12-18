@@ -20,7 +20,7 @@
 package org.apache.directory.shared.ldap.codec.search;
 
 
-import org.apache.directory.shared.asn1.Asn1Object;
+import org.apache.directory.shared.asn1.AbstractAsn1Object;
 
 
 /**
@@ -30,7 +30,7 @@ import org.apache.directory.shared.asn1.Asn1Object;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class Filter extends Asn1Object
+public abstract class Filter extends AbstractAsn1Object
 {
     /**
      * The constructor.

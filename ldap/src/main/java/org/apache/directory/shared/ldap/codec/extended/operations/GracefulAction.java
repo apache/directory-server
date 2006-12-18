@@ -21,7 +21,7 @@
 package org.apache.directory.shared.ldap.codec.extended.operations;
 
 
-import org.apache.directory.shared.asn1.Asn1Object;
+import org.apache.directory.shared.asn1.AbstractAsn1Object;
 
 
 /**
@@ -29,7 +29,7 @@ import org.apache.directory.shared.asn1.Asn1Object;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class GracefulAction extends Asn1Object
+public abstract class GracefulAction extends AbstractAsn1Object
 {
     /** Undetermined value used for timeOffline */
     public static final int UNDETERMINED = 0;

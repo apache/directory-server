@@ -76,7 +76,7 @@ public class ExceptionUtils
         Method getCauseMethod;
         try
         {
-            getCauseMethod = Throwable.class.getMethod( "getCause", null );
+            getCauseMethod = Throwable.class.getMethod( "getCause", (Class[])null );
         }
         catch ( Exception e )
         {
@@ -128,9 +128,9 @@ public class ExceptionUtils
     {
         if ( isNotEmpty( methodName ) )
         {
-            List list = new ArrayList( Arrays.asList( CAUSE_METHOD_NAMES ) );
+            List<String> list = new ArrayList<String>( Arrays.asList( CAUSE_METHOD_NAMES ) );
             list.add( methodName );
-            CAUSE_METHOD_NAMES = ( String[] ) list.toArray( new String[list.size()] );
+            CAUSE_METHOD_NAMES = list.toArray( new String[list.size()] );
         }
     }
 
@@ -323,7 +323,7 @@ public class ExceptionUtils
         Method method = null;
         try
         {
-            method = throwable.getClass().getMethod( methodName, null );
+            method = throwable.getClass().getMethod( methodName, (Class[])null );
         }
         catch ( NoSuchMethodException ignored )
         {
@@ -458,7 +458,7 @@ public class ExceptionUtils
         {
             try
             {
-                Method method = cls.getMethod( CAUSE_METHOD_NAMES[i], null );
+                Method method = cls.getMethod( CAUSE_METHOD_NAMES[i], (Class[])null );
                 if ( method != null && Throwable.class.isAssignableFrom( method.getReturnType() ) )
                 {
                     return true;
@@ -539,13 +539,15 @@ public class ExceptionUtils
      */
     public static Throwable[] getThrowables( Throwable throwable )
     {
-        List list = new ArrayList();
+        List<Throwable> list = new ArrayList<Throwable>();
+        
         while ( throwable != null )
         {
             list.add( throwable );
             throwable = ExceptionUtils.getCause( throwable );
         }
-        return ( Throwable[] ) list.toArray( new Throwable[list.size()] );
+        
+        return list.toArray( new Throwable[list.size()] );
     }
 
 
@@ -758,13 +760,16 @@ public class ExceptionUtils
         {
             return ArrayUtils.EMPTY_STRING_ARRAY;
         }
+        
         Throwable throwables[] = getThrowables( throwable );
         int count = throwables.length;
-        ArrayList frames = new ArrayList();
-        List nextTrace = getStackFrameList( throwables[count - 1] );
+        List<String> frames = new ArrayList<String>();
+        List<String> nextTrace = getStackFrameList( throwables[count - 1] );
+        
         for ( int i = count; --i >= 0; )
         {
-            List trace = nextTrace;
+            List<String> trace = nextTrace;
+            
             if ( i != 0 )
             {
                 nextTrace = getStackFrameList( throwables[i - 1] );
@@ -783,7 +788,7 @@ public class ExceptionUtils
                 frames.add( trace.get( j ) );
             }
         }
-        return ( String[] ) frames.toArray( new String[0] );
+        return frames.toArray( new String[0] );
     }
 
 
@@ -902,12 +907,14 @@ public class ExceptionUtils
     {
         String linebreak = SystemUtils.LINE_SEPARATOR;
         StringTokenizer frames = new StringTokenizer( stackTrace, linebreak );
-        List list = new LinkedList();
+        List<String> list = new LinkedList<String>();
+        
         while ( frames.hasMoreTokens() )
         {
             list.add( frames.nextToken() );
         }
-        return ( String[] ) list.toArray( new String[list.size()] );
+        
+        return list.toArray( new String[list.size()] );
     }
 
 
@@ -927,18 +934,20 @@ public class ExceptionUtils
      *            is any throwable
      * @return List of stack frames
      */
-    static List getStackFrameList( Throwable t )
+    static List<String> getStackFrameList( Throwable t )
     {
         String stackTrace = getStackTrace( t );
         String linebreak = SystemUtils.LINE_SEPARATOR;
         StringTokenizer frames = new StringTokenizer( stackTrace, linebreak );
-        List list = new LinkedList();
+        List<String> list = new LinkedList<String>();
         boolean traceStarted = false;
+        
         while ( frames.hasMoreTokens() )
         {
             String token = frames.nextToken();
             // Determine if the line starts with <whitespace>at
             int at = token.indexOf( "at" );
+            
             if ( at != -1 && token.substring( 0, at ).trim().length() == 0 )
             {
                 traceStarted = true;

@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.codec;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.Asn1Object;
+import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 
 
@@ -64,7 +64,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ManageDsaITControl extends Asn1Object
+public class ManageDsaITControl extends AbstractAsn1Object
 {
     private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.allocate( 0 );
 

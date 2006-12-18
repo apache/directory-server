@@ -24,6 +24,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.*;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -459,7 +460,7 @@ public class NamespaceTools
     public static String[] getCompositeComponents( String compositeNameComponent ) throws NamingException
     {
         int lastIndex = compositeNameComponent.length() - 1;
-        ArrayList comps = new ArrayList();
+        List<String> comps = new ArrayList<String>();
 
         for ( int ii = compositeNameComponent.length() - 1; ii >= 0; ii-- )
         {
@@ -470,6 +471,7 @@ public class NamespaceTools
                     throw new NamingException( "invalid name - a name cannot start with a '+': "
                         + compositeNameComponent );
                 }
+                
                 if ( compositeNameComponent.charAt( ii - 1 ) != '\\' )
                 {
                     if ( lastIndex == compositeNameComponent.length() - 1 )
@@ -504,7 +506,7 @@ public class NamespaceTools
             comps.add( compositeNameComponent );
         }
 
-        return ( String[] ) comps.toArray( EMPTY_STRING_ARRAY );
+        return comps.toArray( EMPTY_STRING_ARRAY );
     }
 
 

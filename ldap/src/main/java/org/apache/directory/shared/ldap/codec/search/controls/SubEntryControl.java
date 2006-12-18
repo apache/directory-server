@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.Asn1Object;
+import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 
@@ -33,7 +33,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubEntryControl extends Asn1Object
+public class SubEntryControl extends AbstractAsn1Object
 {
     private boolean visibility = false;
 

@@ -24,7 +24,7 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.directory.shared.asn1.Asn1Object;
+import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoredProcedureCall extends Asn1Object
+public class StoredProcedureCall extends AbstractAsn1Object
 {
 
     private String name;
