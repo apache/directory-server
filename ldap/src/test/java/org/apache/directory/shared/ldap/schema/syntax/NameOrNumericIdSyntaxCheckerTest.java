@@ -33,7 +33,7 @@ import junit.framework.TestCase;
  */
 public class NameOrNumericIdSyntaxCheckerTest extends TestCase
 {
-    NumericOidSyntaxChecker checker = new NumericOidSyntaxChecker( "1.1" );
+    NumericOidSyntaxChecker checker = new NumericOidSyntaxChecker();
 
 
     public void testNullString()

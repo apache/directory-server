@@ -128,7 +128,7 @@ public class SchemaParserDITStructureRuleDescriptionTest extends TestCase
         try
         {
             parser.parse( value );
-            TestCase.fail( "Exception expected, invalid ruleid '1234567890' (quoted)" );
+            fail( "Exception expected, invalid ruleid '1234567890' (quoted)" );
         }
         catch ( ParseException pe )
         {
@@ -373,7 +373,7 @@ public class SchemaParserDITStructureRuleDescriptionTest extends TestCase
      * 
      * @throws ParseException
      */
-    public void testUniqueElements() throws ParseException
+    public void testUniqueElements()
     {
         String[] testValues = new String[]
             { 

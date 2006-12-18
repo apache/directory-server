@@ -36,6 +36,11 @@ public class TelephoneNumberSyntaxCheckerTest extends TestCase
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
+    
+    public void testOID()
+    {
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.50", checker.getSyntaxOid() );
+    }
 
 
     public void testEmptyString()

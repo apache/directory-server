@@ -99,7 +99,7 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
         try
         {
             parser.parse( value );
-            TestCase.fail( "Exception expected, invalid SYNTAX test" );
+            fail( "Exception expected, invalid SYNTAX test" );
         }
         catch ( ParseException pe )
         {
@@ -127,7 +127,7 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
         }
         catch ( ParseException pe )
         {
-            // expected
+            assertTrue( true );
         }
         
     }
@@ -171,7 +171,7 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
      * 
      * @throws ParseException
      */
-    public void testUniqueElements() throws ParseException
+    public void testUniqueElements()
     {
         String[] testValues = new String[]
             { 
@@ -207,7 +207,7 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
         }
         catch ( ParseException pe )
         {
-            // expected
+            assertTrue( true );
         }
 
     }
@@ -251,18 +251,17 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
      * This is a real matching rule from Sun Directory 5.2. It has an invalid 
      * syntax, no DOTs allowed in NAME value. 
      */
-    public void testSun2() throws ParseException
+    public void testSun2()
     {
         String value = "( 1.3.6.1.4.1.42.2.27.9.4.34.3.6 NAME 'caseExactSubstringMatch-2.16.840.1.113730.3.3.2.11.3' DESC 'en' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )";
         try
         {
             parser.parseMatchingRuleDescription( value );
-            TestCase
-                .fail( "Exception expected, invalid NAME value 'caseExactSubstringMatch-2.16.840.1.113730.3.3.2.11.3' (contains DOTs)" );
+            fail( "Exception expected, invalid NAME value 'caseExactSubstringMatch-2.16.840.1.113730.3.3.2.11.3' (contains DOTs)" );
         }
         catch ( ParseException pe )
         {
-            // expected
+            assertTrue( true );
         }
     }
 

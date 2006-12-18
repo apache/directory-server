@@ -31,7 +31,7 @@ import junit.framework.TestCase;
  */
 public class ObjectClassTypeSyntaxCheckerTest extends TestCase
 {
-    ObjectClassTypeSyntaxChecker checker = new ObjectClassTypeSyntaxChecker( "1.1" );
+    ObjectClassTypeSyntaxChecker checker = new ObjectClassTypeSyntaxChecker();
 
 
     public void testNullString()
