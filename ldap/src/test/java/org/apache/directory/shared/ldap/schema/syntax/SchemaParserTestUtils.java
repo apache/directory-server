@@ -322,7 +322,21 @@ public class SchemaParserTestUtils extends TestCase
         value = "( "+oid+" "+required+" DESC 'Descripton äöüß 部長' )";
         asd = parser.parse( value );
         assertEquals( "Descripton äöüß 部長", asd.getDescription() );
-
+        
+        // escaped characters
+        value = "( "+oid+" "+required+" DESC 'test\\5Ctest' )";
+        asd = parser.parse( value );
+        TestCase.assertEquals( "test\\test", asd.getDescription() );
+        value = "( "+oid+" "+required+" DESC 'test\\5ctest' )";
+        asd = parser.parse( value );
+        TestCase.assertEquals( "test\\test", asd.getDescription() );
+        value = "( "+oid+" "+required+" DESC 'test\\27test' )";
+        asd = parser.parse( value );
+        TestCase.assertEquals( "test'test", asd.getDescription() );
+        value = "( "+oid+" "+required+" DESC '\\5C\\27\\5c' )";
+        asd = parser.parse( value );
+        TestCase.assertEquals( "\\'\\", asd.getDescription() );
+        
         // lowercase
         value = "( "+oid+" "+required+" desc 'Descripton' )";
         try
@@ -384,6 +398,14 @@ public class SchemaParserTestUtils extends TestCase
         assertEquals( "test2-1", asd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
         assertEquals( "test2-2", asd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
 
+        // some more complicated
+        value = "("+oid+" "+required+" X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ('\\5C\\27\\5c'))";
+        asd = parser.parse( value );
+        assertEquals( 1, asd.getExtensions().size() );
+        assertNotNull( asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ) );
+        assertEquals( 1, asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ).size() );
+        assertEquals( "\\'\\", asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ).get( 0 ) );
+        
         // invalid extension, no number allowed
         value = "( "+oid+" "+required+" X-TEST1 'test' )";
         try
