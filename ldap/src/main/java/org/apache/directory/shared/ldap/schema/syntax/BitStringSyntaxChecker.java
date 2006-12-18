@@ -20,11 +20,6 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
-import javax.naming.NamingException;
-
-
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -41,19 +36,10 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BitStringSyntaxChecker implements SyntaxChecker
+public class BitStringSyntaxChecker extends AbstractSyntaxChecker
 {
     /** The Syntax OID, according to RFC 4517, par. 3.3.2 */
-    public static final String DEFAULT_OID = "1.3.6.1.4.1.1466.115.121.1.6";
-    
-    /** The Syntax OID */
-    private final String oid;
-    
-    
-    public BitStringSyntaxChecker( String oid )
-    {
-        this.oid = oid;
-    }
+    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.6";
     
     /**
      * 
@@ -62,30 +48,9 @@ public class BitStringSyntaxChecker implements SyntaxChecker
      */
     public BitStringSyntaxChecker()
     {
-        this.oid = DEFAULT_OID;
+        super( SC_OID );
     }
     
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#assertSyntax(java.lang.Object)
-     */
-    public void assertSyntax( Object value ) throws NamingException
-    {
-        if ( ! isValidSyntax( value ) )
-        {
-            throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-        }
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#getSyntaxOid()
-     */
-    public String getSyntaxOid()
-    {
-        return oid;
-    }
-
     /**
      * A shared and static method used to check that the string is a BitString.
      * A BitString is a string of bits, between quots and followed by a 'B' :

@@ -20,12 +20,7 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
-import javax.naming.NamingException;
-
-
 import org.apache.directory.shared.asn1.primitives.OID;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -51,19 +46,10 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class OidSyntaxChecker implements SyntaxChecker
+public class OidSyntaxChecker extends AbstractSyntaxChecker
 {
     /** The Syntax OID, according RFC 4517, par. 3.3.26 */
-    public static final String DEFAULT_OID = "1.3.6.1.4.1.1466.115.121.1.38";
-    
-    /** The Syntax OID */
-    private final String oid;
-    
-    
-    public OidSyntaxChecker( String oid )
-    {
-        this.oid = oid;
-    }
+    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.38";
     
     /**
      * 
@@ -72,31 +58,10 @@ public class OidSyntaxChecker implements SyntaxChecker
      */
     public OidSyntaxChecker()
     {
-        this.oid = DEFAULT_OID;
+        super( SC_OID );
     }
     
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#assertSyntax(java.lang.Object)
-     */
-    public void assertSyntax( Object value ) throws NamingException
-    {
-        if ( ! isValidSyntax( value ) )
-        {
-            throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-        }
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#getSyntaxOid()
-     */
-    public String getSyntaxOid()
-    {
-        return oid;
-    }
-
-
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */

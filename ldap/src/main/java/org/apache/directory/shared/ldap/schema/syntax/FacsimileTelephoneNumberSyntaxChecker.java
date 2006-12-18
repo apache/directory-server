@@ -23,11 +23,6 @@ package org.apache.directory.shared.ldap.schema.syntax;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
-
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -56,7 +51,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class FacsimileTelephoneNumberSyntaxChecker extends TelephoneNumberSyntaxChecker
 {
     /** The Syntax OID, according to RFC 4517, par. 3.3.11 */
-    public static final String OID = "1.3.6.1.4.1.1466.115.121.1.22";
+    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.22";
     
     /** Fax parameters possible values */
     private final static String TWO_DIMENSIONAL  = "twoDimensional";
@@ -87,26 +82,7 @@ public class FacsimileTelephoneNumberSyntaxChecker extends TelephoneNumberSyntax
      */
     public FacsimileTelephoneNumberSyntaxChecker()
     {
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#assertSyntax(java.lang.Object)
-     */
-    public void assertSyntax( Object value ) throws NamingException
-    {
-        if ( ! isValidSyntax( value ) )
-        {
-            throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-        }
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#getSyntaxOid()
-     */
-    public String getSyntaxOid()
-    {
-        return OID;
+        super( SC_OID );
     }
 
 

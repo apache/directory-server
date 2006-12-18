@@ -22,10 +22,6 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import java.text.ParseException;
 
-import javax.naming.NamingException;
-
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -55,11 +51,11 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ObjectClassDescriptionSyntaxChecker implements SyntaxChecker
+public class ObjectClassDescriptionSyntaxChecker extends AbstractSyntaxChecker
 {
 
     /** The Syntax OID, according to RFC 4517, par. 3.3.24 */
-    public static final String OID = "1.3.6.1.4.1.1466.115.121.1.37";
+    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.37";
 
 	/** The schema parser used to parse the ObjectClassDescription Syntax */
     private ObjectClassDescriptionSchemaParser schemaParser = new ObjectClassDescriptionSchemaParser();
@@ -72,27 +68,7 @@ public class ObjectClassDescriptionSyntaxChecker implements SyntaxChecker
      */
     public ObjectClassDescriptionSyntaxChecker()
     {
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#getSyntaxOid()
-     */
-    public String getSyntaxOid()
-    {
-        return OID;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#assertSyntax(java.lang.Object)
-     */
-    public void assertSyntax( Object value ) throws NamingException
-    {
-        if ( !isValidSyntax( value ) )
-        {
-            throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-        }
+        super( SC_OID );
     }
 
 

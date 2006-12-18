@@ -20,12 +20,6 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
-import javax.naming.NamingException;
-
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-
-
 /**
  * A SyntaxChecker which verifies that a value is a Jpeg according to RFC 4517.
  * 
@@ -42,12 +36,11 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 437007 $
  */
-public class JpegSyntaxChecker implements SyntaxChecker
+public class JpegSyntaxChecker extends AbstractSyntaxChecker
 {
     /** The Syntax OID, according to RFC 4517, par. 3.3.25 */
-    public static final String OID = "1.3.6.1.4.1.1466.115.121.1.28";
+    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.28";
     
-
     /**
      * 
      * Creates a new instance of JpegSyntaxChecker.
@@ -55,27 +48,9 @@ public class JpegSyntaxChecker implements SyntaxChecker
      */
     public JpegSyntaxChecker()
     {
+        super( SC_OID );
     }
     
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#assertSyntax(java.lang.Object)
-     */
-    public void assertSyntax( Object value ) throws NamingException
-    {
-        if ( ! isValidSyntax( value ) )
-        {
-            throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#getSyntaxOid()
-     */
-    public String getSyntaxOid()
-    {
-        return OID;
-    }
     
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)

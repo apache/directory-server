@@ -20,11 +20,6 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
-import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
-
-
-
 /**
  * A SyntaxChecker implemented using Perl5 regular expressions to constrain
  * values.
@@ -32,11 +27,8 @@ import javax.naming.directory.InvalidAttributeValueException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RegexSyntaxChecker implements SyntaxChecker
+public class RegexSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** the oid of the syntax checked */
-    private final String oid;
-
     /** the set of regular expressions */
     private final String[] expressions;
 
@@ -50,19 +42,10 @@ public class RegexSyntaxChecker implements SyntaxChecker
      * @param matchExprArray
      *            the array of matching expressions
      */
-    public RegexSyntaxChecker(String oid, String[] matchExprArray)
+    public RegexSyntaxChecker( String oid, String[] matchExprArray )
     {
+        super( oid );
         expressions = matchExprArray;
-        this.oid = oid;
-    }
-
-
-    /**
-     * @see org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker#getSyntaxOid()
-     */
-    public String getSyntaxOid()
-    {
-        return oid;
     }
 
 
@@ -90,19 +73,5 @@ public class RegexSyntaxChecker implements SyntaxChecker
         }
 
         return match;
-    }
-
-
-    /**
-     * @see org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker#assertSyntax(java.lang.Object)
-     */
-    public void assertSyntax( Object value ) throws NamingException
-    {
-        if ( isValidSyntax( value ) )
-        {
-            return;
-        }
-
-        throw new InvalidAttributeValueException( value + " does not conform to the syntax specified by " + oid );
     }
 }

@@ -20,62 +20,25 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
-import javax.naming.NamingException;
-
-
-
 /**
  * A binary value (universal value acceptor) syntax checker.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BinarySyntaxChecker implements SyntaxChecker
+public class BinarySyntaxChecker extends AbstractSyntaxChecker
 {
-    /** an instance so we don't have to create one every time */
-    public static final SyntaxChecker INSTANCE = new BinarySyntaxChecker();
-
     /** the Apache assigned internal OID for this syntax checker */
-    public static final String OID = "1.3.6.1.4.1.1466.115.121.1.5";
-
-
-    /**
-     * Gets the singleton instance for this class.
-     * 
-     * @return the singleton instance
-     */
-    public static SyntaxChecker getSingletonInstance()
-    {
-        return INSTANCE;
-    }
+    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.5";
 
 
     /**
      * Private default constructor to prevent unnecessary instantiation.
      */
-    private BinarySyntaxChecker()
+    public BinarySyntaxChecker()
     {
-        // so people are not creating this unnecesarily
+        super( SC_OID );
     }
-
-
-    /**
-     * @see org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker#assertSyntax(Object)
-     */
-    public void assertSyntax( Object value ) throws NamingException
-    {
-        // do nothing because everything is valid
-    }
-
-
-    /**
-     * @see org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker#getSyntaxOid()
-     */
-    public String getSyntaxOid()
-    {
-        return OID;
-    }
-
 
     /**
      * @see org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker#isValidSyntax(Object)

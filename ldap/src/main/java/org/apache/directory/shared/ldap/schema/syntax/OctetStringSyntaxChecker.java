@@ -20,12 +20,6 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
-import javax.naming.NamingException;
-
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-
-
 /**
  * A SyntaxChecker which verifies that a value is a Octet String according to RFC 4517.
  * 
@@ -38,10 +32,10 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 437007 $
  */
-public class OctetStringSyntaxChecker implements SyntaxChecker
+public class OctetStringSyntaxChecker extends AbstractSyntaxChecker
 {
     /** The Syntax OID, according to RFC 4517, par. 3.3.25 */
-    public static final String OID = "1.3.6.1.4.1.1466.115.121.1.40";
+    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.40";
     
 
     /**
@@ -51,26 +45,7 @@ public class OctetStringSyntaxChecker implements SyntaxChecker
      */
     public OctetStringSyntaxChecker()
     {
-    }
-    
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#assertSyntax(java.lang.Object)
-     */
-    public void assertSyntax( Object value ) throws NamingException
-    {
-        if ( ! isValidSyntax( value ) )
-        {
-            throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#getSyntaxOid()
-     */
-    public String getSyntaxOid()
-    {
-        return OID;
+        super( SC_OID );
     }
     
     /* (non-Javadoc)

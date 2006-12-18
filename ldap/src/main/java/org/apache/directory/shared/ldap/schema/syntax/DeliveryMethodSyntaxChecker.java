@@ -23,11 +23,6 @@ package org.apache.directory.shared.ldap.schema.syntax;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
-
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -50,14 +45,11 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DeliveryMethodSyntaxChecker implements SyntaxChecker
+public class DeliveryMethodSyntaxChecker extends AbstractSyntaxChecker
 {
     /** The Syntax OID, according to RFC 4517, par. 3.3.5 */
-    public static final String DEFAULT_OID = "1.3.6.1.4.1.1466.115.121.1.14";
+    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.14";
     
-    /** The Syntax OID */
-    private final String oid;
-
     private static final String[] PDMS = 
         {
             "any", "mhs", "physical", "telex", "teletex",
@@ -77,11 +69,6 @@ public class DeliveryMethodSyntaxChecker implements SyntaxChecker
     }
 
     
-    public DeliveryMethodSyntaxChecker( String oid )
-    {
-        this.oid = oid;
-    }
-    
     /**
      * 
      * Creates a new instance of DeliveryMethodSyntaxChecker.
@@ -89,30 +76,9 @@ public class DeliveryMethodSyntaxChecker implements SyntaxChecker
      */
     public DeliveryMethodSyntaxChecker()
     {
-        this.oid = DEFAULT_OID;
+        super( SC_OID );
     }
     
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#assertSyntax(java.lang.Object)
-     */
-    public void assertSyntax( Object value ) throws NamingException
-    {
-        if ( ! isValidSyntax( value ) )
-        {
-            throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-        }
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#getSyntaxOid()
-     */
-    public String getSyntaxOid()
-    {
-        return oid;
-    }
-
     /**
      * 
      * Check if the string contains a delivery method which has 
