@@ -63,7 +63,7 @@ public class ValueTest extends TestCase
 
         encoded = Value.getBytes( -27066 );
 
-        Assert.assertEquals( ( byte ) 0x96, ( byte ) encoded[0] );
+        Assert.assertEquals( ( byte ) 0x96, encoded[0] );
         Assert.assertEquals( 0x46, encoded[1] );
 
     }

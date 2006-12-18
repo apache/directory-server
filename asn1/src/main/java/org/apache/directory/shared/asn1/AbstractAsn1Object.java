@@ -31,15 +31,34 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface Asn1Object
+public abstract class AbstractAsn1Object implements Asn1Object
 {
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
+
+    /** The object's current length. It is used while decoding PDUs */
+    private transient int currentLength;
+
+    /** The object's expected length. It is used while decoding PDUs */
+    private transient int expectedLength;
+
+    /** The encapsulating Object */
+    protected transient AbstractAsn1Object parent;
+
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
+
     /**
      * Get the current object length, which is the sum of all inner length
      * already decoded.
      * 
      * @return The current object's length
      */
-    int getCurrentLength();
+    public int getCurrentLength()
+    {
+        return currentLength;
+    }
 
 
     /**
@@ -47,7 +66,7 @@ public interface Asn1Object
      * 
      * @return The object's computed length
      */
-    int computeLength();
+    public abstract int computeLength();
 
 
     /**
@@ -57,7 +76,10 @@ public interface Asn1Object
      *            The buffer where to put the PDU
      * @return The PDU.
      */
-    ByteBuffer encode( ByteBuffer buffer ) throws EncoderException;
+    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
+    {
+        return null;
+    }
 
 
     /**
@@ -65,7 +87,10 @@ public interface Asn1Object
      * 
      * @return The expected object's length
      */
-    int getExpectedLength();
+    public int getExpectedLength()
+    {
+        return expectedLength;
+    }
 
 
     /**
@@ -76,7 +101,15 @@ public interface Asn1Object
      * @throws DecoderException
      *             Thrown if the current length exceed the expected length
      */
-    void addLength( int length ) throws DecoderException;
+    public void addLength( int length ) throws DecoderException
+    {
+        currentLength += length;
+
+        if ( currentLength > expectedLength )
+        {
+            throw new DecoderException( "Current Length is above expected Length" );
+        }
+    }
 
 
     /**
@@ -85,7 +118,10 @@ public interface Asn1Object
      * @param expectedLength
      *            The expectedLength to set.
      */
-    public void setExpectedLength( int expectedLength );
+    public void setExpectedLength( int expectedLength )
+    {
+        this.expectedLength = expectedLength;
+    }
 
 
     /**
@@ -94,7 +130,10 @@ public interface Asn1Object
      * @param currentLength
      *            The currentLength to set.
      */
-    public void setCurrentLength( int currentLength );
+    public void setCurrentLength( int currentLength )
+    {
+        this.currentLength = currentLength;
+    }
 
 
     /**
@@ -102,5 +141,20 @@ public interface Asn1Object
      * 
      * @return Returns the parent.
      */
-    public Asn1Object getParent();
+    public AbstractAsn1Object getParent()
+    {
+        return parent;
+    }
+
+
+    /**
+     * Set the parent
+     * 
+     * @param parent
+     *            The parent to set.
+     */
+    public void setParent( AbstractAsn1Object parent )
+    {
+        this.parent = parent;
+    }
 }

@@ -99,7 +99,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * </code> otherwise
      * @throws DecoderException If something went wrong.
      */
-    private boolean treatTagStartState( ByteBuffer stream, IAsn1Container container ) throws DecoderException, NamingException
+    private boolean treatTagStartState( ByteBuffer stream, IAsn1Container container )
     {
 
         if ( stream.hasRemaining() )
@@ -275,7 +275,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * </code> otherwise
      * @throws DecoderException Thrown if anything went wrong
      */
-    private boolean treatLengthPendingState( ByteBuffer stream, IAsn1Container container ) throws DecoderException
+    private boolean treatLengthPendingState( ByteBuffer stream, IAsn1Container container )
     {
 
         if ( stream.hasRemaining() )
@@ -531,7 +531,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * </code> otherwise
      * @throws DecoderException Thrown if anything went wrong
      */
-    private boolean treatValueStartState( ByteBuffer stream, IAsn1Container container ) throws DecoderException
+    private boolean treatValueStartState( ByteBuffer stream, IAsn1Container container )
     {
 
         TLV currentTlv = container.getCurrentTLV();
@@ -579,7 +579,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * more bytes.
      * @throws DecoderException Thrown if anything went wrong
      */
-    private boolean treatValuePendingState( ByteBuffer stream, IAsn1Container container ) throws DecoderException
+    private boolean treatValuePendingState( ByteBuffer stream, IAsn1Container container )
     {
 
         TLV currentTlv = container.getCurrentTLV();
