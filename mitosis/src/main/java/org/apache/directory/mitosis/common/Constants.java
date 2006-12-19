@@ -31,19 +31,40 @@ import org.apache.directory.server.core.invocation.Invocation;
 
 
 /**
- * 
- * TODO Constants.
+ * Defines constant values used by Mitosis.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class Constants
 {
+    /**
+     * The name of the attribute that represents the {@link UUID} of an
+     * LDAP entry.
+     */
     public static final String ENTRY_UUID = "entryUUID";
+    
+    /**
+     * The name of the attribute that represents the {@link CSN} of an LDAP
+     * entry.
+     */
     public static final String ENTRY_CSN = "entryCSN";
+    
+    /**
+     * The name of the attribute that determines if an entry is actually
+     * deleted or not (even if it exists in a DIT.)
+     */
     public static final String ENTRY_DELETED = "entryDeleted";
+    
+    /**
+     * The OID of <tt>objectClass</tt> class.
+     */
     public static final String OBJECT_CLASS_OID = "2.5.4.0";
 
     
+    /**
+     * A {@link SearchResultFilter} that filters out the entries whose
+     * {@link #ENTRY_DELETED} attribute is <tt>true</tt>.
+     */
     public static final SearchResultFilter DELETED_ENTRIES_FILTER = new SearchResultFilter()
     {
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
