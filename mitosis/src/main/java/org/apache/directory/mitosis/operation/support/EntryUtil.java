@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.Constants;
-import org.apache.directory.mitosis.common.SimpleCSN;
+import org.apache.directory.mitosis.common.DefaultCSN;
 
 
 public class EntryUtil
@@ -59,7 +59,7 @@ public class EntryUtil
 
             try
             {
-                oldCSN = new SimpleCSN( String.valueOf( entryCSNAttr.get() ) );
+                oldCSN = new DefaultCSN( String.valueOf( entryCSNAttr.get() ) );
             }
             catch ( IllegalArgumentException e )
             {

@@ -25,13 +25,13 @@ package org.apache.directory.mitosis.common;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SimpleCSNFactory implements CSNFactory
+public class DefaultCSNFactory implements CSNFactory
 {
     private static int operationSequence;
     private static long lastTimestamp = System.currentTimeMillis();
 
 
-    public SimpleCSNFactory()
+    public DefaultCSNFactory()
     {
     }
 
@@ -58,7 +58,7 @@ public class SimpleCSNFactory implements CSNFactory
             operationSequence = 0;
         }
 
-        CSN newCSN = new SimpleCSN( newTimestamp, replicaId, operationSequence++ );
+        CSN newCSN = new DefaultCSN( newTimestamp, replicaId, operationSequence++ );
         lastTimestamp = newTimestamp;
         return newCSN;
     }

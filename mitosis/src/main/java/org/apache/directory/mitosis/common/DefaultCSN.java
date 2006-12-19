@@ -30,7 +30,7 @@ import org.apache.directory.mitosis.util.OctetString;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SimpleCSN implements CSN, Serializable, Comparable
+public class DefaultCSN implements CSN, Serializable, Comparable
 {
     /**
      * Declares the Serial Version Uid.
@@ -64,7 +64,7 @@ public class SimpleCSN implements CSN, Serializable, Comparable
      * @param replicaId Replica ID where modification occurred (<tt>[-_A-Za-z0-9]{1,16}</tt>)
      * @param operationSequence Operation sequence
      */
-    public SimpleCSN( long timestamp, ReplicaId replicaId, int operationSequence )
+    public DefaultCSN( long timestamp, ReplicaId replicaId, int operationSequence )
     {
         this.timestamp = timestamp;
         this.replicaId = replicaId;
@@ -80,7 +80,7 @@ public class SimpleCSN implements CSN, Serializable, Comparable
      *
      * @param value The String containing the CSN
      */
-    public SimpleCSN( String value ) throws InvalidCSNException
+    public DefaultCSN( String value ) throws InvalidCSNException
     {
         assert value != null;
 
@@ -129,7 +129,7 @@ public class SimpleCSN implements CSN, Serializable, Comparable
      *
      * @param value The byte array which contains the serialized CSN
      */
-    public SimpleCSN( byte[] value )
+    public DefaultCSN( byte[] value )
     {
         timestamp = ( ( long ) ( value[0] & 0x00FF ) << 56 ) | ( ( long ) ( value[1] & 0x00FF ) << 48 )
             | ( ( long ) ( value[2] & 0x00FF ) << 40 ) | ( ( long ) ( value[3] & 0x00FF ) << 32 )

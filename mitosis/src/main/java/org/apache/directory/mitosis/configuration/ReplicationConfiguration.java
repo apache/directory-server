@@ -33,8 +33,8 @@ import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.SimpleCSNFactory;
-import org.apache.directory.mitosis.common.SimpleUUIDFactory;
+import org.apache.directory.mitosis.common.DefaultCSNFactory;
+import org.apache.directory.mitosis.common.DefaultUUIDFactory;
 import org.apache.directory.mitosis.common.UUID;
 import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.service.ReplicationService;
@@ -67,8 +67,8 @@ public class ReplicationConfiguration
 
     private final Set<Replica> peerReplicas = new HashSet<Replica>();
     
-    private UUIDFactory uuidFactory = new SimpleUUIDFactory();
-    private CSNFactory csnFactory = new SimpleCSNFactory();
+    private UUIDFactory uuidFactory = new DefaultUUIDFactory();
+    private CSNFactory csnFactory = new DefaultCSNFactory();
     private ReplicationStore store = new DerbyReplicationStore();
     private int logMaxAge = DEFAULT_LOG_MAX_AGE; // a week (days)
 
@@ -154,7 +154,7 @@ public class ReplicationConfiguration
 
     /**
      * Returns the {@link CSNFactory} for generating {@link CSN}s.
-     * The default factory is {@link SimpleCSNFactory}.
+     * The default factory is {@link DefaultCSNFactory}.
      */
     public CSNFactory getCsnFactory()
     {
@@ -164,7 +164,7 @@ public class ReplicationConfiguration
 
     /**
      * Sets the {@link CSNFactory} for generating {@link CSN}s.
-     * The default factory is {@link SimpleCSNFactory}.
+     * The default factory is {@link DefaultCSNFactory}.
      */
     public void setCsnFactory( CSNFactory csnFactory )
     {
@@ -273,7 +273,7 @@ public class ReplicationConfiguration
     /**
      * Returns the {@link UUIDFactory} which generates {@link UUID}s for
      * new directory entries.  The default implementation is
-     * {@link SimpleUUIDFactory}.
+     * {@link DefaultUUIDFactory}.
      */
     public UUIDFactory getUuidFactory()
     {
@@ -283,7 +283,7 @@ public class ReplicationConfiguration
     /**
      * Sets the {@link UUIDFactory} which generates {@link UUID}s for
      * new directory entries.  The default implementation is
-     * {@link SimpleUUIDFactory}.
+     * {@link DefaultUUIDFactory}.
      */
     public void setUuidFactory( UUIDFactory uuidFactory )
     {

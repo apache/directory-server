@@ -24,7 +24,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.directory.BasicAttribute;
 
 import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.SimpleCSN;
+import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.operation.AddAttributeOperation;
 import org.apache.directory.mitosis.service.protocol.codec.LogEntryMessageDecoder;
 import org.apache.directory.mitosis.service.protocol.codec.LogEntryMessageEncoder;
@@ -39,7 +39,7 @@ public class LogEntryMessageCodecTest extends AbstractMessageCodecTest
     public LogEntryMessageCodecTest() throws InvalidNameException
     {
         super(
-            new LogEntryMessage( 1234, new AddAttributeOperation( new SimpleCSN( System.currentTimeMillis(),
+            new LogEntryMessage( 1234, new AddAttributeOperation( new DefaultCSN( System.currentTimeMillis(),
                 new ReplicaId( "testReplica0" ), 1234 ), new LdapDN( "ou=system" ),
                 new BasicAttribute( "Hello", "Test" ) ) ), new LogEntryMessageEncoder(), new LogEntryMessageDecoder() );
     }

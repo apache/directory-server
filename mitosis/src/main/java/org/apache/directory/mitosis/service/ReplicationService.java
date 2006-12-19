@@ -41,7 +41,7 @@ import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.Constants;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.SimpleCSN;
+import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationFactory;
@@ -274,7 +274,7 @@ public class ReplicationService extends BaseInterceptor
             throw new NamingException( "No namingContexts attributes in rootDSE." );
         }
 
-        CSN purgeCSN = new SimpleCSN( System.currentTimeMillis() - configuration.getLogMaxAge() * 1000L * 60L * 60L
+        CSN purgeCSN = new DefaultCSN( System.currentTimeMillis() - configuration.getLogMaxAge() * 1000L * 60L * 60L
             * 24L, // convert days to millis
             new ReplicaId( "ZZZZZZZZZZZZZZZZ" ), Integer.MAX_VALUE );
         FilterParser parser = new FilterParserImpl();

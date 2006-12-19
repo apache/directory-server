@@ -28,12 +28,12 @@ import org.safehaus.uuid.UUIDGenerator;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SimpleUUIDFactory implements UUIDFactory
+public class DefaultUUIDFactory implements UUIDFactory
 {
     private static final UUIDGenerator generator = UUIDGenerator.getInstance();
 
 
-    public SimpleUUIDFactory()
+    public DefaultUUIDFactory()
     {
     }
 
@@ -44,6 +44,6 @@ public class SimpleUUIDFactory implements UUIDFactory
     public UUID newInstance()
     {
         org.safehaus.uuid.UUID uuid = generator.generateTimeBasedUUID();
-        return new SimpleUUID( uuid.asByteArray() );
+        return new DefaultUUID( uuid.asByteArray() );
     }
 }

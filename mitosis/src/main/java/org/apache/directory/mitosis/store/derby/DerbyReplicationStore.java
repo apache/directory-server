@@ -39,7 +39,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.SimpleCSN;
+import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.common.UUID;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
@@ -550,7 +550,7 @@ public class DerbyReplicationStore implements ReplicationStore
             Iterator<ReplicaId> i = knownReplicaIds.iterator();
             while ( i.hasNext() )
             {
-                newUV.setCSN( new SimpleCSN( 0, i.next(), 0 ) );
+                newUV.setCSN( new DefaultCSN( 0, i.next(), 0 ) );
             }
         }
 
@@ -718,7 +718,7 @@ public class DerbyReplicationStore implements ReplicationStore
                 rs = ps.executeQuery();
                 if ( rs.next() )
                 {
-                    result.setCSN( new SimpleCSN( rs.getLong( 1 ), replicaId, rs.getInt( 2 ) ) );
+                    result.setCSN( new DefaultCSN( rs.getLong( 1 ), replicaId, rs.getInt( 2 ) ) );
                 }
                 rs.close();
                 rs = null;

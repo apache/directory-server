@@ -51,9 +51,9 @@ import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.SimpleCSN;
-import org.apache.directory.mitosis.common.SimpleCSNFactory;
-import org.apache.directory.mitosis.common.SimpleUUIDFactory;
+import org.apache.directory.mitosis.common.DefaultCSN;
+import org.apache.directory.mitosis.common.DefaultCSNFactory;
+import org.apache.directory.mitosis.common.DefaultUUIDFactory;
 import org.apache.directory.mitosis.common.UUID;
 import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
@@ -75,8 +75,8 @@ public class DerbyReplicationStoreTest extends TestCase
     private static final ReplicaId OTHER_REPLICA_ID_2 = new ReplicaId( "OTHER_REPLICA_2" );
     private static final File DB_PATH = new File( "target/testDB" );
 
-    private final UUIDFactory uuidFactory = new SimpleUUIDFactory();
-    private final CSNFactory csnFactory = new SimpleCSNFactory();
+    private final UUIDFactory uuidFactory = new DefaultUUIDFactory();
+    private final CSNFactory csnFactory = new DefaultCSNFactory();
     private DerbyReplicationStore store;
     private int testCount;
     private long startTime;
@@ -258,7 +258,7 @@ public class DerbyReplicationStoreTest extends TestCase
         CSN csn;
         ReplicationLogIterator it;
 
-        it = store.getLogs( new SimpleCSN( 0, REPLICA_ID, 0 ), false );
+        it = store.getLogs( new DefaultCSN( 0, REPLICA_ID, 0 ), false );
         it.next();
         csn = it.getOperation().getCSN();
         it.close();
@@ -267,7 +267,7 @@ public class DerbyReplicationStoreTest extends TestCase
         Assert.assertEquals( 1, store.removeLogs( csn, true ) );
         Assert.assertEquals( 0, store.getLogSize( REPLICA_ID ) );
 
-        it = store.getLogs( new SimpleCSN( 0, OTHER_REPLICA_ID, 0 ), false );
+        it = store.getLogs( new DefaultCSN( 0, OTHER_REPLICA_ID, 0 ), false );
         Assert.assertTrue( it.next() );
         csn = it.getOperation().getCSN();
         it.close();
@@ -282,10 +282,10 @@ public class DerbyReplicationStoreTest extends TestCase
 
     private void subTestVectors() throws Exception
     {
-        CSN csnA = new SimpleCSN( 0, REPLICA_ID, 0 );
-        CSN csnB = new SimpleCSN( 1, REPLICA_ID, 0 );
-        CSN csnC = new SimpleCSN( 0, OTHER_REPLICA_ID_2, 0 );
-        CSN csnD = new SimpleCSN( 0, OTHER_REPLICA_ID_2, 1 );
+        CSN csnA = new DefaultCSN( 0, REPLICA_ID, 0 );
+        CSN csnB = new DefaultCSN( 1, REPLICA_ID, 0 );
+        CSN csnC = new DefaultCSN( 0, OTHER_REPLICA_ID_2, 0 );
+        CSN csnD = new DefaultCSN( 0, OTHER_REPLICA_ID_2, 1 );
         store.putLog( new Operation( csnA ) );
         store.putLog( new Operation( csnB ) );
         store.putLog( new Operation( csnC ) );

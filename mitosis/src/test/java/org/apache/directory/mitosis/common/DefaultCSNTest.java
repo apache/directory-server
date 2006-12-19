@@ -29,14 +29,14 @@ import junit.framework.TestCase;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SimpleCSNTest extends TestCase
+public class DefaultCSNTest extends TestCase
 {
 
     public void testCSN()
     {
         long ts = System.currentTimeMillis();
 
-        CSN csn = new SimpleCSN( Long.toString( ts, 16 ) + ":abcdefghi0123:" + 1 );
+        CSN csn = new DefaultCSN( Long.toString( ts, 16 ) + ":abcdefghi0123:" + 1 );
 
         assertEquals( ts, csn.getTimestamp() );
         assertEquals( 1, csn.getOperationSequence() );
@@ -48,7 +48,7 @@ public class SimpleCSNTest extends TestCase
     {
         try
         {
-            new SimpleCSN( "" );
+            new DefaultCSN( "" );
             fail();
         }
         catch ( AssertionError ae )
@@ -66,7 +66,7 @@ public class SimpleCSNTest extends TestCase
     {
         try
         {
-            new SimpleCSN( "123" );
+            new DefaultCSN( "123" );
             fail();
         }
         catch ( AssertionError ae )
@@ -84,7 +84,7 @@ public class SimpleCSNTest extends TestCase
     {
         try
         {
-            new SimpleCSN( "zzz:abc:1" );
+            new DefaultCSN( "zzz:abc:1" );
             fail();
         }
         catch ( AssertionError ae )
@@ -102,7 +102,7 @@ public class SimpleCSNTest extends TestCase
     {
         try
         {
-            new SimpleCSN( ":abc:1" );
+            new DefaultCSN( ":abc:1" );
             fail();
         }
         catch ( AssertionError ae )
@@ -120,7 +120,7 @@ public class SimpleCSNTest extends TestCase
     {
         try
         {
-            new SimpleCSN( "123:*:1" );
+            new DefaultCSN( "123:*:1" );
             fail();
         }
         catch ( AssertionError ae )
@@ -138,7 +138,7 @@ public class SimpleCSNTest extends TestCase
     {
         try
         {
-            new SimpleCSN( "123::1" );
+            new DefaultCSN( "123::1" );
             fail();
         }
         catch ( AssertionError ae )
@@ -156,7 +156,7 @@ public class SimpleCSNTest extends TestCase
     {
         try
         {
-            new SimpleCSN( "123:abc:zzz" );
+            new DefaultCSN( "123:abc:zzz" );
             fail();
         }
         catch ( AssertionError ae )
@@ -174,7 +174,7 @@ public class SimpleCSNTest extends TestCase
     {
         try
         {
-            new SimpleCSN( "123:abc:" );
+            new DefaultCSN( "123:abc:" );
             fail();
         }
         catch ( AssertionError ae )
@@ -192,7 +192,7 @@ public class SimpleCSNTest extends TestCase
     {
         try
         {
-            new SimpleCSN( "123:abc" );
+            new DefaultCSN( "123:abc" );
             fail();
         }
         catch ( AssertionError ae )
@@ -208,7 +208,7 @@ public class SimpleCSNTest extends TestCase
 
     public void testCSNToBytes()
     {
-        CSN csn = new SimpleCSN( "0123456789abcdef:test:5678cdef" );
+        CSN csn = new DefaultCSN( "0123456789abcdef:test:5678cdef" );
 
         byte[] bytes = csn.toBytes();
 
@@ -227,7 +227,7 @@ public class SimpleCSNTest extends TestCase
 
         assertEquals( "test", new String( bytes, 12, bytes.length - 12 ) );
 
-        CSN deserializedCSN = new SimpleCSN( bytes );
+        CSN deserializedCSN = new DefaultCSN( bytes );
         assertEquals( csn, deserializedCSN );
     }
 }

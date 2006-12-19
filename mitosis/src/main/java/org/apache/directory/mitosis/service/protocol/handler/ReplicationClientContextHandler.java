@@ -39,7 +39,7 @@ import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.SimpleCSN;
+import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.operation.AddEntryOperation;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.service.ReplicationContext;
@@ -324,7 +324,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 CSN csn = null;
                 try
                 {
-                    csn = new SimpleCSN( String.valueOf( entryCSNAttr.get() ) );
+                    csn = new DefaultCSN( String.valueOf( entryCSNAttr.get() ) );
                 }
                 catch ( IllegalArgumentException ex )
                 {

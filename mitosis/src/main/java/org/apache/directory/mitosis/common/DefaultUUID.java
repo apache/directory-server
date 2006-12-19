@@ -28,14 +28,14 @@ import org.apache.directory.mitosis.util.OctetString;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SimpleUUID implements UUID
+public class DefaultUUID implements UUID
 {
     private static final long serialVersionUID = 3256721788405953846L;
 
     private final String uuid;
 
 
-    public SimpleUUID( byte[] uuid )
+    public DefaultUUID( byte[] uuid )
     {
         if ( uuid.length != 16 )
         {
@@ -46,7 +46,7 @@ public class SimpleUUID implements UUID
     }
 
 
-    public SimpleUUID( String uuid )
+    public DefaultUUID( String uuid )
     {
         String newUUID = uuid.replaceAll( "[^0-9A-Za-z]", "" );
 
