@@ -31,8 +31,7 @@ public class AcceptAllSyntaxChecker extends AbstractSyntaxChecker
     /**
      * Creates a SyntaxChecker which accepts all values.
      * 
-     * @param oid
-     *            the oid of the Syntax this checker is associated with
+     * @param oid the oid of the Syntax this checker is associated with
      */
     public AcceptAllSyntaxChecker(String oid)
     {
@@ -45,7 +44,7 @@ public class AcceptAllSyntaxChecker extends AbstractSyntaxChecker
      * 
      * @see SyntaxChecker#isValidSyntax(Object)
      */
-    public boolean isValidSyntax( Object a_value )
+    public boolean isValidSyntax( Object value )
     {
         return true;
     }

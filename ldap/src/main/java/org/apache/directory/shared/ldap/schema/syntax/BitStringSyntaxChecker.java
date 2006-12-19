@@ -52,6 +52,18 @@ public class BitStringSyntaxChecker extends AbstractSyntaxChecker
     }
     
     /**
+     * 
+     * Creates a new instance of BitStringSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected BitStringSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
+    /**
      * A shared and static method used to check that the string is a BitString.
      * A BitString is a string of bits, between quots and followed by a 'B' :
      * 

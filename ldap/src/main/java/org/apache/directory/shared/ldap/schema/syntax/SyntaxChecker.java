@@ -37,7 +37,7 @@ public interface SyntaxChecker
      * 
      * @return the object identifier of the Syntax this SyntaxChecker validates
      */
-    abstract String getSyntaxOid();
+    String getSyntaxOid();
 
 
     /**

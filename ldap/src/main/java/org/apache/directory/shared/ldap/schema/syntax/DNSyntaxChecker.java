@@ -46,6 +46,18 @@ public class DNSyntaxChecker extends AbstractSyntaxChecker
         super( SC_OID );
     }
 
+    /**
+     * 
+     * Creates a new instance of DNSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected DNSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */

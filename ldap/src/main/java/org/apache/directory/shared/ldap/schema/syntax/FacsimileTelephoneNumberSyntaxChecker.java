@@ -86,6 +86,18 @@ public class FacsimileTelephoneNumberSyntaxChecker extends TelephoneNumberSyntax
     }
 
 
+    /**
+     * 
+     * Creates a new instance of FacsimileTelephoneNumberSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected FacsimileTelephoneNumberSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */

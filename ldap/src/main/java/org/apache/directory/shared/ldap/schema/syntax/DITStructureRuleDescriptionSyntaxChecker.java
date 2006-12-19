@@ -68,6 +68,18 @@ public class DITStructureRuleDescriptionSyntaxChecker extends AbstractSyntaxChec
         super( SC_OID );
     }
 
+    /**
+     * 
+     * Creates a new instance of DITStructureRuleDescriptionSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected DITStructureRuleDescriptionSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */

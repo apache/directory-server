@@ -67,6 +67,18 @@ public class DITContentRuleDescriptionSyntaxChecker extends AbstractSyntaxChecke
     }
 
 
+    /**
+     * 
+     * Creates a new instance of DITContentRuleDescriptionSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected DITContentRuleDescriptionSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */

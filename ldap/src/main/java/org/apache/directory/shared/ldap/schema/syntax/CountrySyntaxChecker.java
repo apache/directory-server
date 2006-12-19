@@ -96,6 +96,18 @@ public class CountrySyntaxChecker extends AbstractSyntaxChecker
     }
     
     
+    /**
+     * 
+     * Creates a new instance of CountrySyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected CountrySyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */

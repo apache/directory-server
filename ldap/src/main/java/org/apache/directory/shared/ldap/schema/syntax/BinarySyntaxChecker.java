@@ -41,6 +41,18 @@ public class BinarySyntaxChecker extends AbstractSyntaxChecker
     }
 
     /**
+     * 
+     * Creates a new instance of BinarySyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected BinarySyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
+    /**
      * @see org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker#isValidSyntax(Object)
      */
     public boolean isValidSyntax( Object value )

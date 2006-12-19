@@ -60,6 +60,18 @@ public class LdapSyntaxDescriptionSyntaxChecker extends AbstractSyntaxChecker
         super( SC_OID );
     }
 
+    /**
+     * 
+     * Creates a new instance of LdapSyntaxDescriptionSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected LdapSyntaxDescriptionSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */

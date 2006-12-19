@@ -66,6 +66,18 @@ public class NameFormDescriptionSyntaxChecker extends AbstractSyntaxChecker
     }
 
 
+    /**
+     * 
+     * Creates a new instance of NameFormDescriptionSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected NameFormDescriptionSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */

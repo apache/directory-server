@@ -48,6 +48,18 @@ public class Ia5StringSyntaxChecker extends AbstractSyntaxChecker
         super( SC_OID );
     }
     
+    /**
+     * 
+     * Creates a new instance of Ia5StringSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected Ia5StringSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */

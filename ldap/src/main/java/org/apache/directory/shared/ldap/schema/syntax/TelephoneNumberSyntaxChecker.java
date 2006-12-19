@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class TelephoneNumberSyntaxChecker extends AbstractSyntaxChecker
 {
     /** The Syntax OID, according to RFC 4517, par. 3.3.31 */
-    private static final String OID = "1.3.6.1.4.1.1466.115.121.1.50";
+    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.50";
     
     /** Other regexps to extend the initial one */
     private List<String> regexps;
@@ -67,11 +67,13 @@ public class TelephoneNumberSyntaxChecker extends AbstractSyntaxChecker
      */
     public TelephoneNumberSyntaxChecker()
     {
-        super( OID );
+        super( SC_OID );
     }
 
     /**
      * Creates a new instance of TelephoneNumberSyntaxChecker.
+     * 
+     * @param The OID to associate with this SyntaxChecker
      */
     protected TelephoneNumberSyntaxChecker( String oid )
     {

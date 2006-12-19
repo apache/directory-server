@@ -19,6 +19,9 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * A SyntaxChecker implemented using Perl5 regular expressions to constrain
@@ -30,7 +33,7 @@ package org.apache.directory.shared.ldap.schema.syntax;
 public class RegexSyntaxChecker extends AbstractSyntaxChecker
 {
     /** the set of regular expressions */
-    private final String[] expressions;
+    private List<String> expressions;
 
 
     /**
@@ -45,10 +48,36 @@ public class RegexSyntaxChecker extends AbstractSyntaxChecker
     public RegexSyntaxChecker( String oid, String[] matchExprArray )
     {
         super( oid );
-        expressions = matchExprArray;
+        
+        if ( ( matchExprArray != null ) && ( matchExprArray.length != 0 ) )
+        {
+            expressions = new ArrayList<String>( matchExprArray.length );
+            
+            for ( String regexp:matchExprArray )
+            {
+                expressions.add( regexp );
+            }
+        }
+        else
+        {
+            expressions = new ArrayList<String>();
+        }
     }
 
 
+    /**
+     * 
+     * Creates a new instance of RegexSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected RegexSyntaxChecker( String oid )
+    {
+        super( oid );
+        expressions = new ArrayList<String>();
+    }
+    
     /**
      * @see org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker#isValidSyntax(java.lang.Object)
      */
@@ -61,9 +90,9 @@ public class RegexSyntaxChecker extends AbstractSyntaxChecker
         {
             str = ( String ) value;
 
-            for ( int i = 0; i < expressions.length; i++ )
+            for ( String regexp:expressions )
             {
-                match = match && str.matches( expressions[i] );
+                match = match && str.matches( regexp );
 
                 if ( !match )
                 {
@@ -73,5 +102,29 @@ public class RegexSyntaxChecker extends AbstractSyntaxChecker
         }
 
         return match;
+    }
+
+    /**
+     * Get the list of regexp stored into this SyntaxChecker
+     * 
+     * @return AN array containing all the stored regexp
+     */
+    public String[] getExpressions()
+    {
+        return (String[])expressions.toArray();
+    }
+
+    /**
+     * Add a list of regexp to be applied by this SyntaxChecker
+     * 
+     * @param expressions The regexp list to add
+     */
+    public void setExpressions( String[] expressions )
+    {
+        for ( String regexp:expressions )
+        {
+            this.expressions.add( regexp );
+        }
+
     }
 }

@@ -65,6 +65,18 @@ public class MatchingRuleUseDescriptionSyntaxChecker extends AbstractSyntaxCheck
     }
 
 
+    /**
+     * 
+     * Creates a new instance of MatchingRuleUseDescriptionSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected MatchingRuleUseDescriptionSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */

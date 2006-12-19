@@ -38,10 +38,27 @@ public class AttributeTypeUsageSyntaxChecker extends AbstractSyntaxChecker
 {
     /** The Apache OID for meta syntax checker */
     private static final String SC_OID = "1.3.6.1.4.1.18060.0.4.0.0.3";
-    
+
+    /**
+     * 
+     * Creates a new instance of AttributeTypeUsageSyntaxChecker.
+     *
+     */
     public AttributeTypeUsageSyntaxChecker()
     {
         super( SC_OID );
+    }
+
+    /**
+     * 
+     * Creates a new instance of AttributeTypeUsageSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected AttributeTypeUsageSyntaxChecker( String oid )
+    {
+        super( oid );
     }
     
     /* (non-Javadoc)

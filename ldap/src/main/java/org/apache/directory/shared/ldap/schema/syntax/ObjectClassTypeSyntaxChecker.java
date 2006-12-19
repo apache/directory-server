@@ -46,6 +46,18 @@ public class ObjectClassTypeSyntaxChecker extends AbstractSyntaxChecker
     }
 
     
+    /**
+     * 
+     * Creates a new instance of ObjectClassTypeSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected ObjectClassTypeSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */

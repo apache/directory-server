@@ -81,6 +81,18 @@ public class DeliveryMethodSyntaxChecker extends AbstractSyntaxChecker
     
     /**
      * 
+     * Creates a new instance of DeliveryMethodSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected DeliveryMethodSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
+    /**
+     * 
      * Check if the string contains a delivery method which has 
      * not already been found.
      * 

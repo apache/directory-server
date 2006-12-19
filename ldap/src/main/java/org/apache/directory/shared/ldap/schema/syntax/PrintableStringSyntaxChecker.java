@@ -91,6 +91,18 @@ public class PrintableStringSyntaxChecker extends AbstractSyntaxChecker
     }
     
     
+    /**
+     * 
+     * Creates a new instance of PrintableStringSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected PrintableStringSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */

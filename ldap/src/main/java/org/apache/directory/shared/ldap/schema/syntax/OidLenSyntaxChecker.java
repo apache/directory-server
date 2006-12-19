@@ -49,9 +49,26 @@ public class OidLenSyntaxChecker extends AbstractSyntaxChecker
     /** The Syntax OID */
     private static final String SC_OID = "1.3.6.1.4.1.18060.0.4.0.0.5";
     
+    /**
+     * 
+     * Creates a new instance of OidLenSyntaxChecker.
+     *
+     */
     public OidLenSyntaxChecker()
     {
         super( SC_OID );
+    }
+    
+    /**
+     * 
+     * Creates a new instance of OidLenSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected OidLenSyntaxChecker( String oid )
+    {
+        super( oid );
     }
     
     /* (non-Javadoc)

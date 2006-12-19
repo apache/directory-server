@@ -57,6 +57,18 @@ public class NumericOidSyntaxChecker extends AbstractSyntaxChecker
     }
     
     
+    /**
+     * 
+     * Creates a new instance of NumericOidSyntaxChecker.
+     * 
+     * @param the oid to associate with this new SyntaxChecker
+     *
+     */
+    protected NumericOidSyntaxChecker( String oid )
+    {
+        super( oid );
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      */
