@@ -21,8 +21,8 @@ package org.apache.directory.mitosis.common;
 
 
 /**
- * 
- * TODO ReplicationException.
+ * A {@link RuntimeException} which if thrown when a problem occurred during
+ * the replication process.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -30,25 +30,34 @@ public class ReplicationException extends RuntimeException
 {
     private static final long serialVersionUID = -347196060295426926L;
 
-
+    /**
+     * Creates a new instance.
+     */
     public ReplicationException()
     {
         super();
     }
 
-
+    /**
+     * Creates a new instance with the specified <tt>message</tt> and
+     * <tt>cause</tt>.
+     */
     public ReplicationException( String message, Throwable cause )
     {
         super( message, cause );
     }
 
-
+    /**
+     * Creates a new instance with the specified <tt>message</tt>.
+     */
     public ReplicationException( String message )
     {
         super( message );
     }
 
-
+    /**
+     * Creates a new instance with the specified <tt>cause</tt>.
+     */
     public ReplicationException( Throwable cause )
     {
         super( cause );
