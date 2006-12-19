@@ -25,12 +25,20 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientContextHandler;
 import org.apache.directory.shared.ldap.util.EqualsBuilder;
 import org.apache.directory.shared.ldap.util.HashCodeBuilder;
 
 
 /**
- * TODO CSNVector.
+ * Creates a set of {@link CSN}s, which is defined in LDUP specification.
+ * Each {@link CSN} in the same {@link CSNVector} has different
+ * {@link ReplicaId} component from each other.  Its data structure is 
+ * similar to a {@link Map} whose key is {@link ReplicaId}.
+ * <p>
+ * {@link CSNVector} is usually used to represent 'Update Vector (UV)' and
+ * 'Purge Vector (PV)'.  Please refer to the LDUP specification and other 
+ * Mitosis classes such as {@link ReplicationClientContextHandler}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -47,52 +55,84 @@ public class CSNVector
 
     private final Map<ReplicaId,CSN> csns = new HashMap<ReplicaId,CSN>();
 
-
+    /**
+     * Creates a new empty instance.
+     */
     public CSNVector()
     {
     }
 
-
+    /**
+     * Adds the specified <tt>csn</tt> to this vector.  If there's a
+     * {@link CSN} with the same {@link ReplicaId}, it is replaced by
+     * the specified <tt>csn</tt>.
+     */
     public void setCSN( CSN csn )
     {
         csns.put( csn.getReplicaId(), csn );
     }
 
 
-    public void setAllCSN( CSNVector uv )
+    /**
+     * Adds all {@link CSN}s that the specified <tt>vector</tt> contains to
+     * this vector.  If there's a {@link CSN} with the same {@link ReplicaId}
+     * in this vector, it is replaced by the {@link CSN} in the specified
+     * <tt>vector</tt>.
+     */
+    public void setAllCSN( CSNVector vector )
     {
-        Iterator<CSN> i = uv.csns.values().iterator();
+        Iterator<CSN> i = vector.csns.values().iterator();
         while ( i.hasNext() )
         {
             setCSN( i.next() );
         }
     }
 
-
+    /**
+     * Returns the {@link CSN} whith the specified <tt>replicaId</tt> from
+     * this vector.
+     * 
+     * @return <tt>null</tt> if there's no match
+     */
     public CSN getCSN( ReplicaId replicaId )
     {
         return csns.get( replicaId );
     }
 
 
+    /**
+     * Removed the {@link CSN} whith the specified <tt>replicaId</tt> from
+     * this vector and returns the removed {@link CSN}.
+     * 
+     * @return <tt>null</tt> if there's no match
+     */
     public CSN removeCSN( ReplicaId replicaId )
     {
         return csns.remove( replicaId );
     }
 
 
-    public Set getReplicaIds()
+    /**
+     * Returns the {@link Set} of the {@link ReplicaId}s extracted from
+     * the {@link CSN}s in this vector.
+     */
+    public Set<ReplicaId> getReplicaIds()
     {
         return csns.keySet();
     }
 
-
+    /**
+     * Returns the number of {@link CSN}s that this vector contains.
+     */
     public int size()
     {
         return csns.size();
     }
 
-
+    /**
+     * Returns <tt>true</tt> if and if only the specified <tt>object</tt> is
+     * a {@link CSNVector} and contains the {@link CSN}s with the same values.
+     */
     public boolean equals( Object object )
     {
         if ( object == this )
@@ -107,20 +147,24 @@ public class CSNVector
         return new EqualsBuilder().append( this.csns, rhs.csns ).isEquals();
     }
 
-
+    /**
+     * Returns the hash code of this vector, calculated from each {@link CSN}
+     * element. 
+     */
     public int hashCode()
     {
         return new HashCodeBuilder( -33446267, -459427867 ).append( this.csns ).toHashCode();
     }
 
-
-    public Object clone()
+    /**
+     * Creates a deep copy of this vector and returns it.
+     */
+    public CSNVector clone()
     {
         CSNVector result = new CSNVector();
         result.csns.putAll( this.csns );
         return result;
     }
-
 
     public String toString()
     {
