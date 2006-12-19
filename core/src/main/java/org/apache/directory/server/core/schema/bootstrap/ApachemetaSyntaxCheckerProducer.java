@@ -59,9 +59,9 @@ public class ApachemetaSyntaxCheckerProducer extends AbstractBootstrapProducer
         SyntaxChecker checker = null;
         
         checker = new NumericOidSyntaxChecker();
-        cb.schemaObjectProduced( this, NumericOidSyntaxChecker.DEFAULT_OID, checker );
+        cb.schemaObjectProduced( this, checker.getSyntaxOid(), checker );
         
         checker = new ObjectClassTypeSyntaxChecker();
-        cb.schemaObjectProduced( this, ObjectClassTypeSyntaxChecker.DEFAULT_OID, checker );
+        cb.schemaObjectProduced( this, checker.getSyntaxOid(), checker );
     }
 }
