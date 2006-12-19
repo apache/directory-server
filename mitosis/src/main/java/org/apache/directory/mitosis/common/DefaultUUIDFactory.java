@@ -24,7 +24,7 @@ import org.safehaus.uuid.UUIDGenerator;
 
 
 /**
- * Generates {@link UUID}.
+ * A default {@link UUIDFactory} implementation.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

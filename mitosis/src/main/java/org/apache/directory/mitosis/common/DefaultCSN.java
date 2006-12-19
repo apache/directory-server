@@ -26,7 +26,7 @@ import org.apache.directory.mitosis.util.OctetString;
 
 
 /**
- * Basic implementation of {@link CSN}.
+ * A default implementation of {@link CSN}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
