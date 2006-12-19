@@ -21,8 +21,8 @@ package org.apache.directory.mitosis.common;
 
 
 /**
- * 
- * InvalidCSNException is thrown when trying to create an invalid CSN.
+ * A {@link RuntimeException} which is thrown when a wrong string
+ * representation is specified to create a new {@link CSN}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -38,24 +38,34 @@ public class InvalidCSNException extends RuntimeException
     private static final long serialVersionUID = 1L;
 
 
+    /**
+     * Creates a new instance.
+     */
     public InvalidCSNException()
     {
         super();
     }
 
-
+    /**
+     * Creates a new instance with the specified <tt>message</tt> and
+     * <tt>cause</tt>.
+     */
     public InvalidCSNException( String message, Throwable cause )
     {
         super( message, cause );
     }
 
-
+    /**
+     * Creates a new instance with the specified <tt>message</tt>.
+     */
     public InvalidCSNException( String message )
     {
         super( message );
     }
 
-
+    /**
+     * Creates a new instance with the specified <tt>cause</tt>.
+     */
     public InvalidCSNException( Throwable cause )
     {
         super( cause );
