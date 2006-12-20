@@ -453,7 +453,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
      * 
      * @throws ParseException
      */
-    public void testUniqueElements() throws ParseException
+    public void testUniqueElements()
     {
         String[] testValues = new String[]
             { 

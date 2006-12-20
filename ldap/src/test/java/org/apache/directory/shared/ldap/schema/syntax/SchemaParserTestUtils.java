@@ -326,16 +326,16 @@ public class SchemaParserTestUtils extends TestCase
         // escaped characters
         value = "( "+oid+" "+required+" DESC 'test\\5Ctest' )";
         asd = parser.parse( value );
-        TestCase.assertEquals( "test\\test", asd.getDescription() );
+        assertEquals( "test\\test", asd.getDescription() );
         value = "( "+oid+" "+required+" DESC 'test\\5ctest' )";
         asd = parser.parse( value );
-        TestCase.assertEquals( "test\\test", asd.getDescription() );
+        assertEquals( "test\\test", asd.getDescription() );
         value = "( "+oid+" "+required+" DESC 'test\\27test' )";
         asd = parser.parse( value );
-        TestCase.assertEquals( "test'test", asd.getDescription() );
+        assertEquals( "test'test", asd.getDescription() );
         value = "( "+oid+" "+required+" DESC '\\5C\\27\\5c' )";
         asd = parser.parse( value );
-        TestCase.assertEquals( "\\'\\", asd.getDescription() );
+        assertEquals( "\\'\\", asd.getDescription() );
         
         // lowercase
         value = "( "+oid+" "+required+" desc 'Descripton' )";
