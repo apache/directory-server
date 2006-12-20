@@ -5,12 +5,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import org.apache.directory.shared.ldap.schema.syntax.parser.AbstractSchemaParser;
 
 
-public class SchemaParserTestUtils extends TestCase
+public class SchemaParserTestUtils 
 {
 
     /**
@@ -28,7 +28,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, null" );
+            Assert.fail( "Exception expected, null" );
         }
         catch ( ParseException pe )
         {
@@ -40,7 +40,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, no NUMERICOID" );
+            Assert.fail( "Exception expected, no NUMERICOID" );
         }
         catch ( ParseException pe )
         {
@@ -50,24 +50,24 @@ public class SchemaParserTestUtils extends TestCase
         // simple
         value = "( 0.1.2.3.4.5.6.7.8.9 "+required+" )";
         asd = parser.parse( value );
-        assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
+        Assert.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
 
         // simple
         value = "( 123.4567.890 "+required+")";
         asd = parser.parse( value );
-        assertEquals( "123.4567.890", asd.getNumericOid() );
+        Assert.assertEquals( "123.4567.890", asd.getNumericOid() );
         
         // simple with spaces
         value = "(          0.1.2.3.4.5.6.7.8.9         "+required+" )";
         asd = parser.parse( value );
-        assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
+        Assert.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
 
         // non-numeric not allowed
         value = "( test "+required+" )";
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid NUMERICOID test" );
+            Assert.fail( "Exception expected, invalid NUMERICOID test" );
         }
         catch ( ParseException pe )
         {
@@ -79,7 +79,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid NUMERICOID 1" );
+            Assert.fail( "Exception expected, invalid NUMERICOID 1" );
         }
         catch ( ParseException pe )
         {
@@ -91,7 +91,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid NUMERICOID ." );
+            Assert.fail( "Exception expected, invalid NUMERICOID ." );
         }
         catch ( ParseException pe )
         {
@@ -103,7 +103,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid NUMERICOID 1.1." );
+            Assert.fail( "Exception expected, invalid NUMERICOID 1.1." );
         }
         catch ( ParseException pe )
         {
@@ -115,7 +115,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid NUMERICOID '1.1' (quoted)" );
+            Assert.fail( "Exception expected, invalid NUMERICOID '1.1' (quoted)" );
         }
         catch ( ParseException pe )
         {
@@ -127,7 +127,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid NUMERICOID 01.1 (leading zero)" );
+            Assert.fail( "Exception expected, invalid NUMERICOID 01.1 (leading zero)" );
         }
         catch ( ParseException pe )
         {
@@ -139,11 +139,11 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid NUMERICOID 1.2.a.4 (alpha not allowed)" );
+            Assert.fail( "Exception expected, invalid NUMERICOID 1.2.a.4 (alpha not allowed)" );
         }
         catch ( ParseException pe )
         {
-            assertTrue( true );
+            Assert.assertTrue( true );
         }
         
     }
@@ -161,56 +161,56 @@ public class SchemaParserTestUtils extends TestCase
         // alpha
         value = "( "+oid+" "+required+" NAME 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' )";
         asd = parser.parse( value );
-        assertEquals( 1, asd.getNames().size() );
-        assertEquals( "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", asd.getNames().get( 0 ) );
+        Assert.assertEquals( 1, asd.getNames().size() );
+        Assert.assertEquals( "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", asd.getNames().get( 0 ) );
 
         // alpha-num-hypen
         value = "( "+oid+" "+required+" NAME 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' )";
         asd = parser.parse( value );
-        assertEquals( 1, asd.getNames().size() );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", asd.getNames().get( 0 ) );
+        Assert.assertEquals( 1, asd.getNames().size() );
+        Assert.assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", asd.getNames().get( 0 ) );
 
         // with parentheses
         value = "( "+oid+" "+required+" NAME ( 'a-z-0-9' ) )";
         asd = parser.parse( value );
-        assertEquals( 1, asd.getNames().size() );
-        assertEquals( "a-z-0-9", asd.getNames().get( 0 ) );
+        Assert.assertEquals( 1, asd.getNames().size() );
+        Assert.assertEquals( "a-z-0-9", asd.getNames().get( 0 ) );
 
         // with parentheses, without space
         value = "( "+oid+" "+required+" NAME ('a-z-0-9') )";
         asd = parser.parse( value );
-        assertEquals( 1, asd.getNames().size() );
-        assertEquals( "a-z-0-9", asd.getNames().get( 0 ) );
+        Assert.assertEquals( 1, asd.getNames().size() );
+        Assert.assertEquals( "a-z-0-9", asd.getNames().get( 0 ) );
 
         // multi with space
         value = "( "+oid+" "+required+" NAME ( 'test1' 'test2' ) )";
         asd = parser.parse( value );
-        assertEquals( 2, asd.getNames().size() );
-        assertEquals( "test1", asd.getNames().get( 0 ) );
-        assertEquals( "test2", asd.getNames().get( 1 ) );
+        Assert.assertEquals( 2, asd.getNames().size() );
+        Assert.assertEquals( "test1", asd.getNames().get( 0 ) );
+        Assert.assertEquals( "test2", asd.getNames().get( 1 ) );
 
         // multi without space
         value = "( "+oid+" "+required+" NAME ('test1' 'test2' 'test3') )";
         asd = parser.parse( value );
-        assertEquals( 3, asd.getNames().size() );
-        assertEquals( "test1", asd.getNames().get( 0 ) );
-        assertEquals( "test2", asd.getNames().get( 1 ) );
-        assertEquals( "test3", asd.getNames().get( 2 ) );
+        Assert.assertEquals( 3, asd.getNames().size() );
+        Assert.assertEquals( "test1", asd.getNames().get( 0 ) );
+        Assert.assertEquals( "test2", asd.getNames().get( 1 ) );
+        Assert.assertEquals( "test3", asd.getNames().get( 2 ) );
 
         // multi with many spaces
         value = "(          "+oid+" "+required+"          NAME          (          'test1'          'test2'          'test3'          )          )";
         asd = parser.parse( value );
-        assertEquals( 3, asd.getNames().size() );
-        assertEquals( "test1", asd.getNames().get( 0 ) );
-        assertEquals( "test2", asd.getNames().get( 1 ) );
-        assertEquals( "test3", asd.getNames().get( 2 ) );
+        Assert.assertEquals( 3, asd.getNames().size() );
+        Assert.assertEquals( "test1", asd.getNames().get( 0 ) );
+        Assert.assertEquals( "test2", asd.getNames().get( 1 ) );
+        Assert.assertEquals( "test3", asd.getNames().get( 2 ) );
 
         // lowercase
         value = "( "+oid+" "+required+" name 'test' )";
         try
         {
             parser.parse( value );
-            fail( "Exception expected, NAME is lowercase" );
+            Assert.fail( "Exception expected, NAME is lowercase" );
         }
         catch ( ParseException pe )
         {
@@ -222,7 +222,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid NAME test (unquoted)" );
+            Assert.fail( "Exception expected, invalid NAME test (unquoted)" );
         }
         catch ( ParseException pe )
         {
@@ -234,7 +234,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid NAME 1test (starts with number)" );
+            Assert.fail( "Exception expected, invalid NAME 1test (starts with number)" );
         }
         catch ( ParseException pe )
         {
@@ -246,7 +246,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid NAME -test (starts with hypen)" );
+            Assert.fail( "Exception expected, invalid NAME -test (starts with hypen)" );
         }
         catch ( ParseException pe )
         {
@@ -258,7 +258,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid NAME te_st (contains invalid character)" );
+            Assert.fail( "Exception expected, invalid NAME te_st (contains invalid character)" );
         }
         catch ( ParseException pe )
         {
@@ -270,7 +270,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid token NAM" );
+            Assert.fail( "Exception expected, invalid token NAM" );
         }
         catch ( ParseException pe )
         {
@@ -282,7 +282,7 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             parser.parse( value );
-            fail( "Exception expected, invalid NAME te_st (contains invalid character)" );
+            Assert.fail( "Exception expected, invalid NAME te_st (contains invalid character)" );
         }
         catch ( ParseException pe )
         {
@@ -294,11 +294,11 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             asd = parser.parse( value );
-            fail( "Exception expected, invalid NAME values (no space between values)" );
+            Assert.fail( "Exception expected, invalid NAME values (no space between values)" );
         }
         catch ( ParseException pe )
         {
-            assertTrue( true );
+            Assert.assertTrue( true );
         }
     }
     
@@ -316,37 +316,37 @@ public class SchemaParserTestUtils extends TestCase
         // simple
         value = "("+oid+" "+required+" DESC 'Descripton')";
         asd = parser.parse( value );
-        assertEquals( "Descripton", asd.getDescription() );
+        Assert.assertEquals( "Descripton", asd.getDescription() );
 
         // unicode
         value = "( "+oid+" "+required+" DESC 'Descripton äöüß 部長' )";
         asd = parser.parse( value );
-        assertEquals( "Descripton äöüß 部長", asd.getDescription() );
+        Assert.assertEquals( "Descripton äöüß 部長", asd.getDescription() );
         
         // escaped characters
         value = "( "+oid+" "+required+" DESC 'test\\5Ctest' )";
         asd = parser.parse( value );
-        assertEquals( "test\\test", asd.getDescription() );
+        Assert.assertEquals( "test\\test", asd.getDescription() );
         value = "( "+oid+" "+required+" DESC 'test\\5ctest' )";
         asd = parser.parse( value );
-        assertEquals( "test\\test", asd.getDescription() );
+        Assert.assertEquals( "test\\test", asd.getDescription() );
         value = "( "+oid+" "+required+" DESC 'test\\27test' )";
         asd = parser.parse( value );
-        assertEquals( "test'test", asd.getDescription() );
+        Assert.assertEquals( "test'test", asd.getDescription() );
         value = "( "+oid+" "+required+" DESC '\\5C\\27\\5c' )";
         asd = parser.parse( value );
-        assertEquals( "\\'\\", asd.getDescription() );
+        Assert.assertEquals( "\\'\\", asd.getDescription() );
         
         // lowercase
         value = "( "+oid+" "+required+" desc 'Descripton' )";
         try
         {
             parser.parse( value );
-            fail( "Exception expected, DESC is lowercase" );
+            Assert.fail( "Exception expected, DESC is lowercase" );
         }
         catch ( ParseException pe )
         {
-            assertTrue( true );
+            Assert.assertTrue( true );
         }
         
     }
@@ -365,57 +365,57 @@ public class SchemaParserTestUtils extends TestCase
         // no extension
         value = "( "+oid+" "+required+" )";
         asd = parser.parse( value );
-        assertEquals( 0, asd.getExtensions().size() );
+        Assert.assertEquals( 0, asd.getExtensions().size() );
 
         // single extension with one value
         value = "( "+oid+" "+required+" X-TEST 'test' )";
         asd = parser.parse( value );
-        assertEquals( 1, asd.getExtensions().size() );
-        assertNotNull( asd.getExtensions().get( "X-TEST" ) );
-        assertEquals( 1, asd.getExtensions().get( "X-TEST" ).size() );
-        assertEquals( "test", asd.getExtensions().get( "X-TEST" ).get( 0 ) );
+        Assert.assertEquals( 1, asd.getExtensions().size() );
+        Assert.assertNotNull( asd.getExtensions().get( "X-TEST" ) );
+        Assert.assertEquals( 1, asd.getExtensions().get( "X-TEST" ).size() );
+        Assert.assertEquals( "test", asd.getExtensions().get( "X-TEST" ).get( 0 ) );
 
         // single extension with multiple values
         value = "( "+oid+" "+required+" X-TEST-ABC ('test1' 'test äöüß'       'test 部長' ) )";
         asd = parser.parse( value );
-        assertEquals( 1, asd.getExtensions().size() );
-        assertNotNull( asd.getExtensions().get( "X-TEST-ABC" ) );
-        assertEquals( 3, asd.getExtensions().get( "X-TEST-ABC" ).size() );
-        assertEquals( "test1", asd.getExtensions().get( "X-TEST-ABC" ).get( 0 ) );
-        assertEquals( "test äöüß", asd.getExtensions().get( "X-TEST-ABC" ).get( 1 ) );
-        assertEquals( "test 部長", asd.getExtensions().get( "X-TEST-ABC" ).get( 2 ) );
+        Assert.assertEquals( 1, asd.getExtensions().size() );
+        Assert.assertNotNull( asd.getExtensions().get( "X-TEST-ABC" ) );
+        Assert.assertEquals( 3, asd.getExtensions().get( "X-TEST-ABC" ).size() );
+        Assert.assertEquals( "test1", asd.getExtensions().get( "X-TEST-ABC" ).get( 0 ) );
+        Assert.assertEquals( "test äöüß", asd.getExtensions().get( "X-TEST-ABC" ).get( 1 ) );
+        Assert.assertEquals( "test 部長", asd.getExtensions().get( "X-TEST-ABC" ).get( 2 ) );
 
         // multiple extensions
         value = "("+oid+" "+required+" X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2'))";
         asd = parser.parse( value );
-        assertEquals( 2, asd.getExtensions().size() );
-        assertNotNull( asd.getExtensions().get( "X-TEST-a" ) );
-        assertEquals( 2, asd.getExtensions().get( "X-TEST-a" ).size() );
-        assertEquals( "test1-1", asd.getExtensions().get( "X-TEST-a" ).get( 0 ) );
-        assertEquals( "test1-2", asd.getExtensions().get( "X-TEST-a" ).get( 1 ) );
-        assertNotNull( asd.getExtensions().get( "X-TEST-b" ) );
-        assertEquals( 2, asd.getExtensions().get( "X-TEST-b" ).size() );
-        assertEquals( "test2-1", asd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
-        assertEquals( "test2-2", asd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
+        Assert.assertEquals( 2, asd.getExtensions().size() );
+        Assert.assertNotNull( asd.getExtensions().get( "X-TEST-a" ) );
+        Assert.assertEquals( 2, asd.getExtensions().get( "X-TEST-a" ).size() );
+        Assert.assertEquals( "test1-1", asd.getExtensions().get( "X-TEST-a" ).get( 0 ) );
+        Assert.assertEquals( "test1-2", asd.getExtensions().get( "X-TEST-a" ).get( 1 ) );
+        Assert.assertNotNull( asd.getExtensions().get( "X-TEST-b" ) );
+        Assert.assertEquals( 2, asd.getExtensions().get( "X-TEST-b" ).size() );
+        Assert.assertEquals( "test2-1", asd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
+        Assert.assertEquals( "test2-2", asd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
 
         // some more complicated
         value = "("+oid+" "+required+" X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ('\\5C\\27\\5c'))";
         asd = parser.parse( value );
-        assertEquals( 1, asd.getExtensions().size() );
-        assertNotNull( asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ) );
-        assertEquals( 1, asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ).size() );
-        assertEquals( "\\'\\", asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ).get( 0 ) );
+        Assert.assertEquals( 1, asd.getExtensions().size() );
+        Assert.assertNotNull( asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ) );
+        Assert.assertEquals( 1, asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ).size() );
+        Assert.assertEquals( "\\'\\", asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ).get( 0 ) );
         
         // invalid extension, no number allowed
         value = "( "+oid+" "+required+" X-TEST1 'test' )";
         try
         {
             asd = parser.parse( value );
-            fail( "Exception expected, invalid extension X-TEST1 (no number allowed)" );
+            Assert.fail( "Exception expected, invalid extension X-TEST1 (no number allowed)" );
         }
         catch ( ParseException pe )
         {
-            assertTrue( true );
+            Assert.assertTrue( true );
         }
 
     }
@@ -434,29 +434,29 @@ public class SchemaParserTestUtils extends TestCase
         // not obsolete
         value = "( "+oid+" "+required+" )";
         asd = parser.parse( value );
-        assertFalse( asd.isObsolete() );
+        Assert.assertFalse( asd.isObsolete() );
 
         // not obsolete
         value = "( "+oid+" "+required+" NAME 'test' DESC 'Descripton' )";
         asd = parser.parse( value );
-        assertFalse( asd.isObsolete() );
+        Assert.assertFalse( asd.isObsolete() );
         
         // obsolete
         value = "("+oid+" "+required+" NAME 'test' DESC 'Descripton' OBSOLETE)";
         asd = parser.parse( value );
-        assertTrue( asd.isObsolete() );
+        Assert.assertTrue( asd.isObsolete() );
 
         // obsolete 
         value = "("+oid+" "+required+" OBSOLETE)";
         asd = parser.parse( value );
-        assertTrue( asd.isObsolete() );
+        Assert.assertTrue( asd.isObsolete() );
 
         // ivalid
         value = "("+oid+" "+required+" NAME 'test' DESC 'Descripton' OBSOLET )";
         try
         {
             asd = parser.parse( value );
-            fail( "Exception expected, invalid OBSOLETE value" );
+            Assert.fail( "Exception expected, invalid OBSOLETE value" );
         }
         catch ( ParseException pe )
         {
@@ -468,11 +468,11 @@ public class SchemaParserTestUtils extends TestCase
         try
         {
             asd = parser.parse( value );
-            fail( "Exception expected, trailing value ('true') now allowed" );
+            Assert.fail( "Exception expected, trailing value ('true') now allowed" );
         }
         catch ( ParseException pe )
         {
-            assertTrue( true );
+            Assert.assertTrue( true );
         }
         
     }
@@ -492,11 +492,11 @@ public class SchemaParserTestUtils extends TestCase
             try
             {
                 parser.parse( testValue );
-                fail( "Exception expected, element appears twice in "+testValue );
+                Assert.fail( "Exception expected, element appears twice in "+testValue );
             }
             catch ( ParseException pe )
             {
-                assertTrue( true );
+                Assert.assertTrue( true );
             }
         }
         
@@ -538,7 +538,7 @@ public class SchemaParserTestUtils extends TestCase
         while ( hasLiveThreads );
 
         // check that no one thread failed to parse and generate a SS object
-        assertTrue( isSuccessMultithreaded[0] );
+        Assert.assertTrue( isSuccessMultithreaded[0] );
         
     }
 
