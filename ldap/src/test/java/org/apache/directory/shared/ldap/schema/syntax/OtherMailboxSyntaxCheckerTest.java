@@ -48,6 +48,8 @@ public class OtherMailboxSyntaxCheckerTest extends TestCase
     {
         assertFalse( checker.isValidSyntax( "mailType" ) );
         assertFalse( checker.isValidSyntax( "%$test" ) );
+        assertFalse( checker.isValidSyntax( "test$test$test" ) );
+        assertFalse( checker.isValidSyntax( "test$test$" ) );
         assertFalse( checker.isValidSyntax( new String( new byte[]{ 'm', 'a', 'i', 'l', '$', 0x00, 0x7F, (byte)0x80 }, "UTF-8" ) ) );
     }
     
