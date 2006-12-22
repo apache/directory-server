@@ -102,9 +102,18 @@ public class NameAndOptionalUIDSyntaxChecker extends AbstractSyntaxChecker
         
         if ( sharpPos != -1 )
         {
+            // Now, check that we don't have another '#'
+            if ( strValue.indexOf( '#' ) != sharpPos )
+            {
+                // Yes, we have one : this is not allowed, it should have been
+                // escaped.
+                return false;
+            }
+            
             // This is an UID if the '#' is immediatly
             // followed by a BitString, except if the '#' is
             // on the last position
+            // We shoould not find a
             if ( BitStringSyntaxChecker.isValid( strValue.substring( sharpPos + 1 ) ) && 
                  ( sharpPos < strValue.length() ) )
             {
@@ -122,7 +131,8 @@ public class NameAndOptionalUIDSyntaxChecker extends AbstractSyntaxChecker
             }
             else
             {
-                return LdapDN.isValid( strValue );
+                // We have found a '#' but no UID part.
+                return false;
             }
         }
         else

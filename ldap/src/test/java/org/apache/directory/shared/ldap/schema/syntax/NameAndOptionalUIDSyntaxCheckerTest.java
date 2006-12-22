@@ -65,6 +65,9 @@ public class NameAndOptionalUIDSyntaxCheckerTest extends TestCase
     public void testWrongUID()
     {
         assertFalse( checker.isValidSyntax( "#'0101'B" ) );
+        assertFalse( checker.isValidSyntax( "a=\\#,e=f#'1010'B" ) );
+        assertFalse( checker.isValidSyntax( "a=b##'0101'B" ) );
+        assertFalse( checker.isValidSyntax( "a=b#'0101'C" ) );
     }
     
     
@@ -84,10 +87,5 @@ public class NameAndOptionalUIDSyntaxCheckerTest extends TestCase
         assertTrue( checker.isValidSyntax( "a=b + c=d#'1010'B" ) );
         assertTrue( checker.isValidSyntax( "a=b,c=d#'1010'B" ) );
         assertTrue( checker.isValidSyntax( "a=b\\,c = d, e=f#'1010'B" ) );
-        assertTrue( checker.isValidSyntax( "a=b\\,c = \\#0A0A, e=f#'1010'B" ) );
-        
-        // With 'false' UID (they are part of DN)
-        assertTrue( checker.isValidSyntax( "a=b##'0101'B" ) );
-        assertTrue( checker.isValidSyntax( "a=b#'0101'C" ) );
     }
 }
