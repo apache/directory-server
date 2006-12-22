@@ -31,11 +31,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * mailbox-type = PrintableString
  * mailbox      = IA5String
  * 
- * This class extends PrintableString to benefit from its isValid() method. Of
- * course, we also have to check that the second part is an IA5String, but as in 
- * Java we  can't inherit from two classes, and as IA5Strings are easier to check,
- * we have made this choice.
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
