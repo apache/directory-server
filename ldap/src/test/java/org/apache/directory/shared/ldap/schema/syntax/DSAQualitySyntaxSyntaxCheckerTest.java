@@ -50,7 +50,6 @@ public class DSAQualitySyntaxSyntaxCheckerTest extends TestCase
         assertFalse( checker.isValidSyntax( "DEFuNCT" ) );
         assertFalse( checker.isValidSyntax( " DEFUNCT" ) );
         assertFalse( checker.isValidSyntax( "DEFUNCT$desc" ) );
-        assertFalse( checker.isValidSyntax( "DEFUNCT#" ) );
         assertFalse( checker.isValidSyntax( "EXPERIMENTAL#test @ bad <desc>" ) );
     }
     
@@ -63,5 +62,6 @@ public class DSAQualitySyntaxSyntaxCheckerTest extends TestCase
         assertTrue( checker.isValidSyntax( "PILOT-SERVICE" ) );
         assertTrue( checker.isValidSyntax( "FULL-SERVICE" ) );
         assertTrue( checker.isValidSyntax( "EXPERIMENTAL#test desc" ) );
+        assertTrue( checker.isValidSyntax( "DEFUNCT#" ) );
     }
 }
