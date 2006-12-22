@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DSAQualitySyntaxSyntaxChecker extends PrintableStringSyntaxChecker
+public class DSAQualitySyntaxSyntaxChecker extends AbstractSyntaxChecker
 {
     /** The Syntax OID, according to RFC 2252 */
     private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.19";
@@ -163,6 +163,6 @@ public class DSAQualitySyntaxSyntaxChecker extends PrintableStringSyntaxChecker
         }
         
         // Check that the description is a PrintableString
-        return super.isValidSyntax( remaining.substring( 1 ) );
+        return StringTools.isPrintableString( remaining.substring( 1 ) );
     }
 }

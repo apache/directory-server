@@ -90,17 +90,6 @@ public class Ia5StringSyntaxChecker extends AbstractSyntaxChecker
             return false;
         }
         
-        //All the chars must be in [0x00, 0x7F]
-        for ( int i = 0; i < strValue.length(); i++ )
-        {
-            char c = strValue.charAt( i );
-            
-            if ( ( c < 0 ) || ( c > 0x7F ) )
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return StringTools.isIA5String( strValue );
     }
 }

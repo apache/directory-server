@@ -59,27 +59,6 @@ public class PrintableStringSyntaxChecker extends AbstractSyntaxChecker
     /** The Syntax OID, according to RFC 4517, par. 3.3.29 */
     private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.44";
     
-    /** A table containing booleans when the corresponding char is printable */
-    private static final boolean[] IS_PRINTABLE_CHAR =
-        {
-        false, false, false, false, false, false, false, false, // ---, ---, ---, ---, ---, ---, ---, ---
-        false, false, false, false, false, false, false, false, // ---, ---, ---, ---, ---, ---, ---, ---
-        false, false, false, false, false, false, false, false, // ---, ---, ---, ---, ---, ---, ---, ---
-        false, false, false, false, false, false, false, false, // ---, ---, ---, ---, ---, ---, ---, ---
-        true,  false, false, false, false, false, false, true,  // ' ', ---, ---, ---, ---, ---, ---, "'" 
-        true,  true,  false, true,  true,  true,  true,  true,  // '(', ')', ---, '+', ',', '-', '.', '/'
-        true,  true,  true,  true,  true,  true,  true,  true,  // '0', '1', '2', '3', '4', '5', '6', '7',  
-        true,  true,  true,  false, false, true,  false, true,  // '8', '9', ':', ---, ---, '=', ---, '?'
-        false, true,  true,  true,  true,  true,  true,  true,  // ---, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 
-        true,  true,  true,  true,  true,  true,  true,  true,  // 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'
-        true,  true,  true,  true,  true,  true,  true,  true,  // 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W'
-        true,  true,  true,  false, false, false, false, false, // 'X', 'Y', 'Z', ---, ---, ---, ---, ---
-        false, true,  true,  true,  true,  true,  true,  true,  // ---, 'a', 'b', 'c', 'd', 'e', 'f', 'g' 
-        true,  true,  true,  true,  true,  true,  true,  true,  // 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o'
-        true,  true,  true,  true,  true,  true,  true,  true,  // 'p', 'q', 'r', 's', 't', 'u', 'v', 'w'
-        true,  true,  true,  false, false, false, false, false  // 'x', 'y', 'z', ---, ---, ---, ---, ---
-        };
-    
     /**
      * 
      * Creates a new instance of PrintableStringSyntaxChecker.
@@ -138,17 +117,7 @@ public class PrintableStringSyntaxChecker extends AbstractSyntaxChecker
         {
             return false;
         }
-        
-        for ( int i = 0; i < strValue.length(); i++ )
-        {
-            char c = strValue.charAt( i );
-            
-            if ( ( c > 127 ) || !IS_PRINTABLE_CHAR[ c ] )
-            {
-                return false;
-            }
-        }
-        
-        return true;
+
+        return StringTools.isPrintableString( strValue );
     }
 }
