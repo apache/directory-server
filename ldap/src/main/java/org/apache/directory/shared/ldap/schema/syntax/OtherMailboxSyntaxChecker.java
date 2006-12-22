@@ -105,6 +105,12 @@ public class OtherMailboxSyntaxChecker extends AbstractSyntaxChecker
         
         String mailbox = ( ( dollar < strValue.length() - 1 ) ? 
             strValue.substring( dollar + 1 ) : "" ); 
+        
+        // The mailbox should not contains a '$'
+        if ( mailbox.indexOf( '$' ) != -1 )
+        {
+            return false;
+        }
             
         // Check that the mailboxType is a PrintableString
         if ( !StringTools.isPrintableString( mailboxType ) )
