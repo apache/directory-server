@@ -226,6 +226,28 @@ public class StringTools
             false, false, false, false, false, false, false, false, 
             false, false, false, false, false, false, false, false, 
             false, false, false, false, false, false, false, false };
+    
+    /** A table containing booleans when the corresponding char is printable */
+    private static final boolean[] IS_PRINTABLE_CHAR =
+        {
+        false, false, false, false, false, false, false, false, // ---, ---, ---, ---, ---, ---, ---, ---
+        false, false, false, false, false, false, false, false, // ---, ---, ---, ---, ---, ---, ---, ---
+        false, false, false, false, false, false, false, false, // ---, ---, ---, ---, ---, ---, ---, ---
+        false, false, false, false, false, false, false, false, // ---, ---, ---, ---, ---, ---, ---, ---
+        true,  false, false, false, false, false, false, true,  // ' ', ---, ---, ---, ---, ---, ---, "'" 
+        true,  true,  false, true,  true,  true,  true,  true,  // '(', ')', ---, '+', ',', '-', '.', '/'
+        true,  true,  true,  true,  true,  true,  true,  true,  // '0', '1', '2', '3', '4', '5', '6', '7',  
+        true,  true,  true,  false, false, true,  false, true,  // '8', '9', ':', ---, ---, '=', ---, '?'
+        false, true,  true,  true,  true,  true,  true,  true,  // ---, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 
+        true,  true,  true,  true,  true,  true,  true,  true,  // 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'
+        true,  true,  true,  true,  true,  true,  true,  true,  // 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W'
+        true,  true,  true,  false, false, false, false, false, // 'X', 'Y', 'Z', ---, ---, ---, ---, ---
+        false, true,  true,  true,  true,  true,  true,  true,  // ---, 'a', 'b', 'c', 'd', 'e', 'f', 'g' 
+        true,  true,  true,  true,  true,  true,  true,  true,  // 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o'
+        true,  true,  true,  true,  true,  true,  true,  true,  // 'p', 'q', 'r', 's', 't', 'u', 'v', 'w'
+        true,  true,  true,  false, false, false, false, false  // 'x', 'y', 'z', ---, ---, ---, ---, ---
+        };
+
 
     /** &lt;hex> ::= [0x30-0x39] | [0x41-0x46] | [0x61-0x66] */
     public static final byte[] HEX_VALUE =
@@ -3104,4 +3126,62 @@ public class StringTools
         
         return new String( result );
     }
+    
+    /**
+     * 
+     * Check that a String is a valid IA5String. An IA5String contains only
+     * char which values is between [0, 7F]
+     *
+     * @param str The String to check
+     * @return <code>true</code> if the string is an IA5String or is empty, 
+     * <code>false</code> otherwise
+     */
+    public static boolean isIA5String( String str )
+    {
+        if ( ( str == null ) || ( str.length() == 0 ) )
+        {
+            return true;
+        }
+        
+        // All the chars must be in [0x00, 0x7F]
+        for ( char c:str.toCharArray() )
+        {
+            if ( ( c < 0 ) || ( c > 0x7F ) )
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    
+    /**
+     * 
+     * Check that a String is a valid PrintableString. A PrintableString contains only
+     * the following set of chars :
+     * { ' ', ''', '(', ')', '+', '-', '.', '/', [0-9], ':', '=', '?', [A-Z], [a-z]}
+     *
+     * @param str The String to check
+     * @return <code>true</code> if the string is a PrintableString or is empty, 
+     * <code>false</code> otherwise
+     */
+    public static boolean isPrintableString( String str )
+    {
+        if ( ( str == null ) || ( str.length() == 0 ) )
+        {
+            return true;
+        }
+        
+        for ( char c:str.toCharArray() )
+        {
+            if ( ( c > 127 ) || !IS_PRINTABLE_CHAR[ c ] )
+            {
+                return false;
+            }
+        }
+    
+        return true;
+    }
+
 }
