@@ -379,17 +379,22 @@ public class OperationalAttributeService extends BaseInterceptor
             if ( attr != null )
             {
                 LdapDN creatorsName = new LdapDN( ( String ) attr.get() );
-                attr.set( 0, denormalizeTypes( creatorsName ).getUpName() );
+                
+                attr.clear();
+                attr.add( denormalizeTypes( creatorsName ).getUpName() );
             }
             
             type = null;
             type = registry.lookup( "modifiersName" );
             attr = null;
             attr = AttributeUtils.getAttribute( entry, type );
+            
             if ( attr != null )
             {
                 LdapDN modifiersName = new LdapDN( ( String ) attr.get() );
-                attr.set( 0, denormalizeTypes( modifiersName ).getUpName() );
+
+                attr.clear();
+                attr.add( denormalizeTypes( modifiersName ).getUpName() );
             }
         }
     }
