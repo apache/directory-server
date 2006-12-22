@@ -63,6 +63,7 @@ public class DeliveryMethodSyntaxCheckerTest extends TestCase
         assertFalse( checker.isValidSyntax( "any $$ mhs" ) );
         assertFalse( checker.isValidSyntax( "$" ) );
         assertFalse( checker.isValidSyntax( "$ any" ) );
+        assertFalse( checker.isValidSyntax( " any any" ) );
     }
 
     
