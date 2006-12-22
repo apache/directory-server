@@ -47,17 +47,6 @@ public class NameOrNumericIdSyntaxCheckerTest extends TestCase
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
-
-    /*
-    public void testOneCharString()
-    {
-        assertFalse( checker.isValidSyntax( "0" ) );
-        assertFalse( checker.isValidSyntax( "." ) );
-        assertTrue( checker.isValidSyntax( "a" ) );
-        assertFalse( checker.isValidSyntax( "-" ) );
-    }
-    */
-    
     public void testNumericIds()
     {
         assertFalse( checker.isValidSyntax( "111" ) );
@@ -66,16 +55,4 @@ public class NameOrNumericIdSyntaxCheckerTest extends TestCase
         assertTrue( checker.isValidSyntax( "1.1" ) );
         assertTrue( checker.isValidSyntax( "1.3.6.1.2.67.3.2" ) );
     }
-    
-    /*
-    public void testNames()
-    {
-        assertFalse( checker.isValidSyntax( "asdf$" ) );
-        assertTrue( checker.isValidSyntax( "asdf-asdf" ) );
-        assertFalse( checker.isValidSyntax( "-asdf-asdf" ) );
-        assertTrue( checker.isValidSyntax( "A-asdf-asdf" ) );
-        assertFalse( checker.isValidSyntax( "0-asdf-asdf" ) );
-        assertTrue( checker.isValidSyntax( "A-asdf0a234sdf" ) );
-    }
-    */
 }
