@@ -19,15 +19,6 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-import java.text.ParseException;
-
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
-import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
-
 import junit.framework.TestCase;
 
 /**
@@ -227,5 +218,14 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
     public void testSpecOrderOfComponentsDoesNotMatter() throws Exception
     {
         assertTrue( checker.isValidSyntax( SPEC_ORDER_OF_COMPONENTS_DOES_NOT_MATTER ) );
+    }
+
+    /**
+     * Tests the parser with a valid specification with unordinary component
+     * order.
+     */
+    public void testBadAssertion() throws Exception
+    {
+        assertFalse( checker.isValidSyntax( INVALID_SILLY_THING ) );
     }
 }

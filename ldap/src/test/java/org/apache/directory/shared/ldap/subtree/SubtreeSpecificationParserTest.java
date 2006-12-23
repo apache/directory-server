@@ -27,7 +27,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.directory.shared.ldap.filter.AbstractExprNode;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;

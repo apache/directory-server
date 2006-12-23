@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.filter;
 import java.io.IOException;
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.filter.AbstractExprNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExtensibleNode;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;

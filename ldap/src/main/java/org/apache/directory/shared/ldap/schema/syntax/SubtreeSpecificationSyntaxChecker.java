@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.aci.ACIItemChecker;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
