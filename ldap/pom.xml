@@ -116,7 +116,7 @@
         <artifactId>maven-antlr-plugin</artifactId>
         <configuration>
           <!--grammars>filter-value-lexer.g filter-lexer.g filter-lexer.g filter-value-parser.g filter-parser.g *.gsubtree-specification.g ACIItem.g TriggerSpecification.g schema.g</grammars-->
-          <grammars>filter-value-lexer.g filter-lexer.g filter-lexer.g filter-value-parser.g filter-parser.g ACIItem.g ACIItemChecker.g schema-extension.g schema-qdstring.g schema-value.g schema.g subtree-specification.g TriggerSpecification.g</grammars>
+          <grammars>filter-value-lexer.g filter-lexer.g filter-lexer.g filter-value-parser.g filter-parser.g ACIItem.g ACIItemChecker.g schema-extension.g schema-qdstring.g schema-value.g schema.g subtree-specification.g SubtreeSpecificationChecker.g TriggerSpecification.g</grammars>
         </configuration>
         <executions>
            <execution>

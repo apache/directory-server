@@ -19,6 +19,12 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
+import java.text.ParseException;
+
+import org.apache.directory.shared.ldap.aci.ACIItemChecker;
+import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationChecker;
+import org.apache.directory.shared.ldap.util.StringTools;
+
 
 /**
  * A SyntaxChecker which verifies that a value is a subtree specification.
@@ -28,11 +34,12 @@ package org.apache.directory.shared.ldap.schema.syntax;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 488616 $
  */
-public class SubtreeSpecificationSyntaxChecker extends BinarySyntaxChecker
+public class SubtreeSpecificationSyntaxChecker extends AbstractSyntaxChecker
 {
     /** the Apache assigned internal OID for this syntax checker */
     private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.45";
 
+    private SubtreeSpecificationChecker checker = new SubtreeSpecificationChecker();
 
     /**
      * Private default constructor to prevent unnecessary instantiation.
@@ -59,6 +66,42 @@ public class SubtreeSpecificationSyntaxChecker extends BinarySyntaxChecker
      */
     public boolean isValidSyntax( Object value )
     {
-        return true;
+        String strValue;
+
+        if ( value == null )
+        {
+            return false;
+        }
+        
+        if ( value instanceof String )
+        {
+            strValue = ( String ) value;
+        }
+        else if ( value instanceof byte[] )
+        {
+            strValue = StringTools.utf8ToString( ( byte[] ) value ); 
+        }
+        else
+        {
+            strValue = value.toString();
+        }
+
+        if ( strValue.length() == 0 )
+        {
+            return false;
+        }
+
+        try
+        {
+            synchronized( checker )
+            {
+                checker.parse( strValue );
+            }
+            return true;
+        }
+        catch ( ParseException pe )
+        {
+            return false;
+        }
     }
 }
