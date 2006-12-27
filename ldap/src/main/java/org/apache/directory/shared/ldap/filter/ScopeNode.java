@@ -167,6 +167,15 @@ public class ScopeNode extends AbstractExprNode
 
         return buf;
     }
+    
+    
+    /**
+     * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     */
+    public StringBuffer printRefinementToBuffer( StringBuffer a_buf ) throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException( "ScopeNode can't be part of a refinement" );
+    }
 
 
     /**

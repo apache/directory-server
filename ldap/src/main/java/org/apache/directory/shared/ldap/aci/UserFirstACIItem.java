@@ -135,4 +135,95 @@ public class UserFirstACIItem extends ACIItem
         }
         return tuples;
     }
+    
+    
+    /**
+     * Converts this item into its string representation as stored
+     * in directory.
+     *
+     * @param buffer the string buffer
+     */
+    public void printToBuffer( StringBuffer buffer )
+    {
+        buffer.append( '{' );
+        buffer.append( ' ' );
+        
+        // identificationTag
+        buffer.append( "identificationTag" );
+        buffer.append( ' ' );
+        buffer.append( '"' );
+        buffer.append( getIdentificationTag() );
+        buffer.append( '"' );
+        buffer.append( ',' );
+        buffer.append( ' ' );
+        
+        // precedence
+        buffer.append( "precedence" );
+        buffer.append( ' ' );
+        buffer.append( getPrecedence() );
+        buffer.append( ',' );
+        buffer.append( ' ' );
+        
+        // authenticationLevel
+        buffer.append( "authenticationLevel" );
+        buffer.append( ' ' );
+        buffer.append( getAuthenticationLevel().getName() );
+        buffer.append( ',' );
+        buffer.append( ' ' );
+        
+        // itemOrUserFirst
+        buffer.append( "itemOrUserFirst" );
+        buffer.append( ' ' );
+        buffer.append( "userFirst" );
+        buffer.append( ':' );
+        buffer.append( ' ' );
+        
+        buffer.append( '{' );
+        buffer.append( ' ' );
+        
+        // protectedItems
+        buffer.append( "userClasses" );
+        buffer.append( ' ' );
+        buffer.append( '{' );
+        buffer.append( ' ' );
+        for ( Iterator it = userClasses.iterator(); it.hasNext(); )
+        {
+            UserClass userClass =  ( UserClass ) it.next();
+            userClass.printToBuffer( buffer );
+            
+            if(it.hasNext()) {
+                buffer.append( ',' );
+                buffer.append( ' ' );
+            }
+        }
+        buffer.append( ' ' );
+        buffer.append( '}' );
+        
+        buffer.append( ',' );
+        buffer.append( ' ' );
+        
+        // itemPermissions
+        buffer.append( "userPermissions" );
+        buffer.append( ' ' );
+        buffer.append( '{' );
+        buffer.append( ' ' );
+        for ( Iterator it = userPermissions.iterator(); it.hasNext(); )
+        {
+            UserPermission permission = ( UserPermission ) it.next();
+            permission.printToBuffer( buffer );
+            
+            if(it.hasNext()) {
+                buffer.append( ',' );
+                buffer.append( ' ' );
+            }
+        }
+        buffer.append( ' ' );
+        buffer.append( '}' );
+        
+        buffer.append( ' ' );
+        buffer.append( '}' );
+        
+        buffer.append( ' ' );
+        buffer.append( '}' );
+    }
 }

@@ -76,6 +76,15 @@ public final class PresenceNode extends LeafNode
         return ( buf.toString() );
     }
 
+    
+    /**
+     * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     */
+    public StringBuffer printRefinementToBuffer( StringBuffer a_buf ) throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException( "PresenceNode can't be part of a refinement" );
+    }
+
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(

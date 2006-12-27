@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.subtree;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
+import java.util.Iterator;
 import java.util.Set;
 import java.util.Collections;
 
@@ -237,4 +238,108 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
     {
         return this.refinement;
     }
+
+    
+    /**
+     * Converts this item into its string representation as stored
+     * in directory.
+     *
+     * @param buffer the string buffer
+     */
+    public void printToBuffer( StringBuffer buffer )
+    {
+        buffer.append( '{' );
+        
+        if(!base.isEmpty()) {
+            buffer.append( ' ' );
+            buffer.append( "base" );
+            buffer.append( ' ' );
+            buffer.append( '"' );
+            buffer.append( base.getUpName() );
+            buffer.append( '"' );
+            buffer.append( ',' );
+        }
+        
+        if(minBaseDistance > 0) {
+            buffer.append( ' ' );
+            buffer.append( "minimum" );
+            buffer.append( ' ' );
+            buffer.append( minBaseDistance );
+            buffer.append( ',' );
+        }
+        
+        if(maxBaseDistance > UNBOUNDED_MAX) {
+            buffer.append( ' ' );
+            buffer.append( "maximum" );
+            buffer.append( ' ' );
+            buffer.append( maxBaseDistance );
+            buffer.append( ',' );
+        }
+        
+        if(!chopBefore.isEmpty() || !chopAfter.isEmpty()) {
+            buffer.append( ' ' );
+            buffer.append( "specificExclusions" );
+            buffer.append( ' ' );
+            buffer.append( '{' );
+
+            for ( Iterator it = chopBefore.iterator(); it.hasNext(); )
+            {
+                LdapDN dn = ( LdapDN ) it.next();
+                buffer.append( ' ' );
+                buffer.append( "chopBefore" );
+                buffer.append( ':' );
+                buffer.append( ' ' );
+                buffer.append( '"' );
+                buffer.append( dn.getUpName() );
+                buffer.append( '"' );
+                
+                if(it.hasNext())
+                {
+                    buffer.append( ',' );
+                    buffer.append( ' ' );
+                }
+            }
+            
+            for ( Iterator it = chopAfter.iterator(); it.hasNext(); )
+            {
+                LdapDN dn = ( LdapDN ) it.next();
+                buffer.append( ' ' );
+                buffer.append( "chopAfter" );
+                buffer.append( ':' );
+                buffer.append( ' ' );
+                buffer.append( '"' );
+                buffer.append( dn.getUpName() );
+                buffer.append( '"' );
+                
+                if(it.hasNext())
+                {
+                    buffer.append( ',' );
+                    buffer.append( ' ' );
+                }
+            }
+            
+            buffer.append( ' ' );
+            buffer.append( '}' );
+            
+            buffer.append( ',' );
+        }
+        
+        if(refinement != null) 
+        {
+            buffer.append( ' ' );
+            buffer.append( "specificationFilter" );
+            buffer.append( ' ' );
+            refinement.printRefinementToBuffer( buffer );
+            buffer.append( ',' );
+        }
+        
+        if(buffer.charAt( buffer.length()-1 ) == ',') {
+            buffer.deleteCharAt( buffer.length()-1 );
+        }
+        
+        buffer.append( ' ' );
+        buffer.append( '}' );
+    }
+
+    
 }

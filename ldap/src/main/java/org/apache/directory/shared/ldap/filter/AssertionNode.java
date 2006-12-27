@@ -122,6 +122,15 @@ public class AssertionNode extends AbstractExprNode
         return a_buf.append( m_desc ).append( MAX_STR );
     }
 
+    
+    /**
+     * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     */
+    public StringBuffer printRefinementToBuffer( StringBuffer a_buf ) throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException( "AssertionNode can't be part of a refinement" );
+    }
+
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(

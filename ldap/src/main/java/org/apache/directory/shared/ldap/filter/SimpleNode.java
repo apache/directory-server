@@ -184,6 +184,44 @@ public class SimpleNode extends LeafNode
         return buf;
     }
 
+    
+    /**
+     * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     */
+    public StringBuffer printRefinementToBuffer( StringBuffer buf ) throws UnsupportedOperationException
+    {
+
+        switch ( getAssertionType() )
+        {
+            case EQUALITY:
+                break;
+
+            case APPROXIMATE:
+                throw new UnsupportedOperationException( "Approximate assertion isn't valid for a refinement" );
+
+            case GREATEREQ:
+                throw new UnsupportedOperationException( "GreaterOrEqual assertion isn't valid for a refinement" );
+
+            case LESSEQ:
+                throw new UnsupportedOperationException( "LessOrEqual assertion isn't valid for a refinement" );
+
+            default:
+                throw new UnsupportedOperationException( "Undefined assertion for a refinement" );
+        }
+
+        if ( getAttribute() == null || !"objectClass".equalsIgnoreCase( getAttribute() ) )
+        {
+            throw new UnsupportedOperationException( "Invalid attribute " + getAttribute() + " for a refinement" );
+        }
+
+        buf.append( "item" );
+        buf.append( ':' );
+        buf.append( ' ' );
+        buf.append( getValue() );
+
+        return buf;
+    }
+
 
     /**
      * @see java.lang.Object#toString()

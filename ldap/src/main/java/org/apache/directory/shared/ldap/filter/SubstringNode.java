@@ -246,6 +246,15 @@ public class SubstringNode extends LeafNode
         return buf;
     }
 
+    
+    /**
+     * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     */
+    public StringBuffer printRefinementToBuffer( StringBuffer a_buf ) throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException( "SubstringNode can't be part of a refinement" );
+    }
+
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(

@@ -81,4 +81,66 @@ public class UserPermission extends Permission
         return "itemPermission: precedence=" + getPrecedence() + ", " + "protectedItems=" + protectedItems + ", "
             + "grantsAndDenials=" + getGrantsAndDenials();
     }
+    
+    
+    /**
+     * Converts this item into its string representation as stored
+     * in directory.
+     *
+     * @param buffer the string buffer
+     */
+    public void printToBuffer( StringBuffer buffer )
+    {
+        buffer.append( '{' );
+        buffer.append( ' ' );
+
+        if ( getPrecedence() >= 0 && getPrecedence() <= 255 )
+        {
+            buffer.append( "precedence" );
+            buffer.append( ' ' );
+            buffer.append( getPrecedence() );
+            buffer.append( ',' );
+            buffer.append( ' ' );
+        }
+        
+        buffer.append( "protectedItems" );
+        buffer.append( ' ' );
+        buffer.append( '{' );
+        buffer.append( ' ' );
+        for ( Iterator it = protectedItems.iterator(); it.hasNext(); )
+        {
+            ProtectedItem item = ( ProtectedItem ) it.next();
+            item.printToBuffer( buffer );
+            
+            if(it.hasNext()) {
+                buffer.append( ',' );
+                buffer.append( ' ' );
+            }
+        }
+        buffer.append( ' ' );
+        buffer.append( '}' );
+        
+        buffer.append( ',' );
+        buffer.append( ' ' );
+        
+        buffer.append( "grantsAndDenials" );
+        buffer.append( ' ' );
+        buffer.append( '{' );
+        buffer.append( ' ' );
+        for ( Iterator it = getGrantsAndDenials().iterator(); it.hasNext(); )
+        {
+            GrantAndDenial grantAndDenial = ( GrantAndDenial ) it.next();
+            grantAndDenial.printToBuffer( buffer );
+            
+            if(it.hasNext()) {
+                buffer.append( ',' );
+                buffer.append( ' ' );
+            }
+        }
+        buffer.append( ' ' );
+        buffer.append( '}' );
+        
+        buffer.append( ' ' );
+        buffer.append( '}' );
+    }
 }

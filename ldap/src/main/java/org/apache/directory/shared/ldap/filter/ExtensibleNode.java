@@ -145,6 +145,15 @@ public class ExtensibleNode extends LeafNode
         return buf;
     }
 
+    
+    /**
+     * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     */
+    public StringBuffer printRefinementToBuffer( StringBuffer a_buf ) throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException( "ExtensibleNode can't be part of a refinement" );
+    }
+
 
     /**
      * @see java.lang.Object#toString()

@@ -59,6 +59,16 @@ public abstract class UserClass implements Serializable
     protected UserClass()
     {
     }
+    
+    
+    /**
+     * Converts this item into its string representation as stored
+     * in directory.
+     *
+     * @param buffer the string buffer
+     */
+    public abstract void printToBuffer( StringBuffer buffer );
+    
 
     /**
      * Every directory user (with possible requirements for
@@ -77,6 +87,12 @@ public abstract class UserClass implements Serializable
         public String toString()
         {
             return "allUsers";
+        }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "allUsers" );
         }
     }
 
@@ -98,6 +114,12 @@ public abstract class UserClass implements Serializable
         public String toString()
         {
             return "thisEntry";
+        }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "thisEntry" );
         }
     }
 
@@ -164,6 +186,29 @@ public abstract class UserClass implements Serializable
         {
             return names.toString();
         }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( '{' );
+            buffer.append( ' ' );
+            
+            for ( Iterator it = names.iterator(); it.hasNext(); )
+            {
+                javax.naming.Name name = ( javax.naming.Name ) it.next();
+                buffer.append( '"' );
+                buffer.append( name.toString() );
+                buffer.append( '"' );
+                
+                if(it.hasNext()) {
+                    buffer.append( ',' );
+                    buffer.append( ' ' );
+                }
+            }
+            
+            buffer.append( ' ' );
+            buffer.append( '}' );
+        }
     }
 
     /**
@@ -189,6 +234,14 @@ public abstract class UserClass implements Serializable
         public String toString()
         {
             return "name: " + super.toString();
+        }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "name" );
+            buffer.append( ' ' );
+            super.printToBuffer( buffer );
         }
     }
 
@@ -218,6 +271,14 @@ public abstract class UserClass implements Serializable
         public String toString()
         {
             return "userGroup: " + super.toString();
+        }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "userGroup" );
+            buffer.append( ' ' );
+            super.printToBuffer( buffer );
         }
     }
 
@@ -281,6 +342,29 @@ public abstract class UserClass implements Serializable
         public String toString()
         {
             return "subtree: " + subtreeSpecifications;
+        }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "subtree" );
+            buffer.append( ' ' );
+            buffer.append( '{' );
+            buffer.append( ' ' );
+            
+            for ( Iterator it = subtreeSpecifications.iterator(); it.hasNext(); )
+            {
+                SubtreeSpecification ss = ( SubtreeSpecification ) it.next();
+                ss.printToBuffer( buffer );
+                
+                if(it.hasNext()) {
+                    buffer.append( ',' );
+                    buffer.append( ' ' );
+                }
+            }
+            
+            buffer.append( ' ' );
+            buffer.append( '}' );
         }
     }
 }

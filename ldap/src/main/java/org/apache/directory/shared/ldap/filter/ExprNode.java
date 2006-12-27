@@ -70,6 +70,18 @@ public interface ExprNode
 
 
     /**
+     * Recursively appends the refinement string representation of this node and its
+     * descendents in prefix notation to a buffer.
+     * 
+     * @param a_buf
+     *            the buffer to append to.
+     * @throws UnsupportedOperationException
+     *            if this node isn't a part of a refinement.
+     */
+    StringBuffer printRefinementToBuffer( StringBuffer a_buf ) throws UnsupportedOperationException;
+    
+    
+    /**
      * Element/node accept method for visitor pattern.
      * 
      * @param a_visitor

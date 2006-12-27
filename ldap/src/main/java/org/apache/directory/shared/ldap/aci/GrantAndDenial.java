@@ -172,4 +172,16 @@ public class GrantAndDenial
     {
         return "[" + code + "] " + name;
     }
+    
+    
+    /**
+     * Converts this item into its string representation as stored
+     * in directory.
+     *
+     * @param buffer the string buffer
+     */
+    public void printToBuffer( StringBuffer buffer )
+    {
+        buffer.append( getName() );
+    }
 }

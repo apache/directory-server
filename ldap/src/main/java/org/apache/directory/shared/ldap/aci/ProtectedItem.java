@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -69,6 +70,16 @@ public abstract class ProtectedItem implements Serializable
     {
     }
 
+    
+    /**
+     * Converts this item into its string representation as stored
+     * in directory.
+     *
+     * @param buffer the string buffer
+     */
+    public abstract void printToBuffer( StringBuffer buffer );
+
+    
     /**
      * The contents of entries (possibly a family member) which are restricted
      * to those that have object class values that satisfy the predicate defined
@@ -117,6 +128,14 @@ public abstract class ProtectedItem implements Serializable
 
             return false;
         }
+
+
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "classes" );
+            buffer.append( ' ' );
+            classes.printRefinementToBuffer( buffer );
+        }
     }
 
     /**
@@ -141,6 +160,12 @@ public abstract class ProtectedItem implements Serializable
         {
             return "entry";
         }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "entry" );
+        }
     }
 
     /**
@@ -161,6 +186,12 @@ public abstract class ProtectedItem implements Serializable
         {
             return "allUserAttributeTypes";
         }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "allUserAttributeTypes" );
+        }
     }
 
     /**
@@ -180,6 +211,12 @@ public abstract class ProtectedItem implements Serializable
         public String toString()
         {
             return "allUserAttributeTypesAndValues";
+        }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "allUserAttributeTypesAndValues" );
         }
     }
 
@@ -244,6 +281,27 @@ public abstract class ProtectedItem implements Serializable
 
             return false;
         }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( '{' );
+            buffer.append( ' ' );
+            
+            for ( Iterator it = attributeTypes.iterator(); it.hasNext(); )
+            {
+                String attributeType = ( String ) it.next();
+                buffer.append( attributeType );
+                
+                if(it.hasNext()) {
+                    buffer.append( ',' );
+                    buffer.append( ' ' );
+                }
+            }
+            
+            buffer.append( ' ' );
+            buffer.append( '}' );
+        }
     }
 
     /**
@@ -269,7 +327,15 @@ public abstract class ProtectedItem implements Serializable
 
         public String toString()
         {
-            return "attributType: " + attributeTypes;
+            return "attributeType: " + attributeTypes;
+        }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "attributeType" );
+            buffer.append( ' ' );
+            super.printToBuffer( buffer );
         }
     }
 
@@ -296,6 +362,14 @@ public abstract class ProtectedItem implements Serializable
         public String toString()
         {
             return "allAttributeValues: " + attributeTypes;
+        }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "allAttributeValues" );
+            buffer.append( ' ' );
+            super.printToBuffer( buffer );
         }
     }
 
@@ -327,6 +401,14 @@ public abstract class ProtectedItem implements Serializable
         public String toString()
         {
             return "selfValue: " + attributeTypes;
+        }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "selfValue" );
+            buffer.append( ' ' );
+            super.printToBuffer( buffer );
         }
     }
 
@@ -388,6 +470,39 @@ public abstract class ProtectedItem implements Serializable
         public String toString()
         {
             return "attributeValue: " + attributes;
+        }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "attributeValue" );
+            buffer.append( ' ' );
+           
+            buffer.append( '{' );
+            buffer.append( ' ' );
+            
+            for ( Iterator it = attributes.iterator(); it.hasNext(); )
+            {
+                Attribute attribute = ( Attribute ) it.next();
+                buffer.append( attribute.getID() );
+                buffer.append( '=' );
+                try
+                {
+                    buffer.append( attribute.get( 0 ) );
+                }
+                catch ( NamingException e )
+                {
+                    // doesn't occur here, it is a BasicAttribute
+                }
+                
+                if(it.hasNext()) {
+                    buffer.append( ',' );
+                    buffer.append( ' ' );
+                }
+            }
+            
+            buffer.append( ' ' );
+            buffer.append( '}' );
         }
     }
 
@@ -457,6 +572,30 @@ public abstract class ProtectedItem implements Serializable
         {
             return "maxValueCount: " + items;
         }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "maxValueCount" );
+            buffer.append( ' ' );
+           
+            buffer.append( '{' );
+            buffer.append( ' ' );
+            
+            for ( Iterator it = items.iterator(); it.hasNext(); )
+            {
+                MaxValueCountItem item = ( MaxValueCountItem ) it.next();
+                item.printToBuffer( buffer );
+                
+                if(it.hasNext()) {
+                    buffer.append( ',' );
+                    buffer.append( ' ' );
+                }
+            }
+            
+            buffer.append( ' ' );
+            buffer.append( '}' );
+        }
     }
 
     /**
@@ -520,6 +659,14 @@ public abstract class ProtectedItem implements Serializable
             filter.printToBuffer( buf );
             return buf.toString();
         }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "rangeOfValues" );
+            buffer.append( ' ' );
+            filter.printToBuffer( buffer );
+        }
     }
 
     /**
@@ -580,6 +727,14 @@ public abstract class ProtectedItem implements Serializable
         public String toString()
         {
             return "maxImmSub: " + value;
+        }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "maxImmSub" );
+            buffer.append( ' ' );
+            buffer.append( value );
         }
     }
 
@@ -650,6 +805,30 @@ public abstract class ProtectedItem implements Serializable
         {
             return "restrictedBy: " + items;
         }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( "restrictedBy" );
+            buffer.append( ' ' );
+            
+            buffer.append( '{' );
+            buffer.append( ' ' );
+            
+            for ( Iterator it = items.iterator(); it.hasNext(); )
+            {
+                RestrictedByItem item = ( RestrictedByItem ) it.next();
+                item.printToBuffer( buffer );
+                
+                if(it.hasNext()) {
+                    buffer.append( ',' );
+                    buffer.append( ' ' );
+                }
+            }
+            
+            buffer.append( ' ' );
+            buffer.append( '}' );
+        }
     }
 
     /**
@@ -701,6 +880,26 @@ public abstract class ProtectedItem implements Serializable
         public String toString()
         {
             return "attributeType=" + attributeType + ", maxCount=" + maxCount;
+        }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( '{' );
+            buffer.append( ' ' );
+            
+            buffer.append( "type" );
+            buffer.append( ' ' );
+            buffer.append( attributeType );
+
+            buffer.append( ' ' );
+            
+            buffer.append( "maxCount" );
+            buffer.append( ' ' );
+            buffer.append( maxCount );
+            
+            buffer.append( ' ' );
+            buffer.append( '}' );
         }
     }
 
@@ -755,5 +954,26 @@ public abstract class ProtectedItem implements Serializable
         {
             return "attributeType=" + attributeType + ", valuesIn=" + valuesIn;
         }
+        
+        
+        public void printToBuffer( StringBuffer buffer )
+        {
+            buffer.append( '{' );
+            buffer.append( ' ' );
+            
+            buffer.append( "type" );
+            buffer.append( ' ' );
+            buffer.append( attributeType );
+
+            buffer.append( ' ' );
+            
+            buffer.append( "valuesIn" );
+            buffer.append( ' ' );
+            buffer.append( valuesIn );
+            
+            buffer.append( ' ' );
+            buffer.append( '}' );
+        }
     }
+    
 }

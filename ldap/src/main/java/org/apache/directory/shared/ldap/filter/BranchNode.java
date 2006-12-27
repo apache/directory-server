@@ -22,8 +22,11 @@ package org.apache.directory.shared.ldap.filter;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.math.BigInteger;
+
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -277,6 +280,48 @@ public class BranchNode extends AbstractExprNode
         return buf;
     }
 
+    
+    /**
+     * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     */
+    public StringBuffer printRefinementToBuffer( StringBuffer buf ) throws UnsupportedOperationException
+    {
+        
+        
+        switch ( operator )
+        {
+            case AND :
+                buf.append( "and" );
+                break;
+            case OR :
+                buf.append( "or" );
+                break;
+            case NOT :
+                buf.append( "not" );
+                break;
+        }
+        
+        
+        buf.append( ':' );
+        buf.append( ' ' );
+        buf.append( '{' );
+        
+        for ( Iterator<ExprNode> it = children.iterator(); it.hasNext(); )
+        {
+            ExprNode node = it.next();
+            node.printRefinementToBuffer( buf );
+            
+            if(it.hasNext())
+            {
+                buf.append( ',' );
+                buf.append( ' ' );
+            }
+        }
+        
+        buf.append( '}' );
+        
+        return buf;
+    }
 
     /**
      * Gets a human readable representation for the operators: AND for '&', OR
