@@ -22,7 +22,15 @@ package org.apache.directory.mitosis.service.protocol.handler;
 
 import org.apache.directory.mitosis.service.ReplicationService;
 
-
+/**
+ * A {@link ReplicationProtocolHandler} for server-side, which uses
+ * {@link ReplicationServerContextHandler}.  This class is actually 
+ * a shortcut to creating a {@link ReplicationProtocolHandler} with a
+ * new {@link ReplicationServerContextHandler}.
+ * 
+ * @author The Apache Directory Project (dev@directory.apache.org)
+ * @version $Rev$, $Date$
+ */
 public class ReplicationServerProtocolHandler extends ReplicationProtocolHandler
 {
     public ReplicationServerProtocolHandler( ReplicationService service )

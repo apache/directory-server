@@ -29,7 +29,13 @@ import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 
-
+/**
+ * A MINA {@link IoHandler} that wraps a {@link ReplicationContextHandler}
+ * and provides a default implementation of {@link ReplicationContext}.
+ *  
+ * @author The Apache Directory Project (dev@directory.apache.org)
+ * @version $Rev$, $Date$
+ */
 public class ReplicationProtocolHandler implements IoHandler
 {
     private static final String CONTEXT = "context";
