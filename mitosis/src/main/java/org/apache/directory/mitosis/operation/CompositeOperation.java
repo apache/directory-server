@@ -68,7 +68,7 @@ public class CompositeOperation extends Operation
         }
 
 
-        public Set getKnownReplicaIds()
+        public Set<ReplicaId> getKnownReplicaIds()
         {
             return null;
         }
