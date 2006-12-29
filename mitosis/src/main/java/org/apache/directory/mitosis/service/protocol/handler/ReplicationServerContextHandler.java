@@ -23,8 +23,6 @@ package org.apache.directory.mitosis.service.protocol.handler;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 
-import org.apache.mina.common.IdleStatus;
-import org.apache.mina.util.SessionLog;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.operation.Operation;
@@ -40,11 +38,15 @@ import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.mina.common.IdleStatus;
+import org.apache.mina.util.SessionLog;
 
 
 /**
  * {@link ReplicationContextHandler} that implements server-side replication logic
- * which retrieves any changes occurred in remote replicas.
+ * which retrieves any changes occurred in remote replicas.  Please refer to
+ * {@link ReplicationClientContextHandler} for the detailed protocol flow and
+ * the description of the replication logic execution.
  *
  * @author The Apache Directory Project (dev@directory.apache.org)
  * @version $Rev: 116 $, $Date: 2006-09-18 13:47:53Z $

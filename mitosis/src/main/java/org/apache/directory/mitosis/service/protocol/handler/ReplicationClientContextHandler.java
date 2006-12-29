@@ -31,15 +31,12 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.mina.common.IdleStatus;
-import org.apache.mina.util.SessionLog;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
+import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.DefaultCSN;
+import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.AddEntryOperation;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.service.ReplicationContext;
@@ -56,11 +53,63 @@ import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.mina.common.IdleStatus;
+import org.apache.mina.util.SessionLog;
 
 
 /**
  * {@link ReplicationContextHandler} that implements client-side replication
- * logic which sends any changes out-of-date to server.
+ * logic which sends any changes out-of-date to server.  The following is
+ * the detailed protocol flow and the description of the replication logic
+ * execution.
+ * <ul>
+ * <li><tt>ClientConnectionManager</tt> connects the client to the server.</li>
+ * <li>The client sends {@link LoginMessage} to the server.</li>
+ * <li>The server responds with {@link LoginAckMessage} to the client
+ *     <ul>
+ *     <li>Unless the response code is {@link Constants#OK}, disconnect.
+ *         Next connection attempt is performed by
+ *         <tt>ClientConnectionManager</tt> later.</li>
+ *     <li>Otherwise, the state of the {@link ReplicationContext} changes to
+ *         {@link State#READY}, and proceed.</li>
+ *     </ul></li>
+ * <li>The client tries to transfer the data that server needs from
+ *     in {@link ReplicationStore} periodically using
+ *     {@link #contextIdle(ReplicationContext, IdleStatus)} event,
+ *     which is implemented using <tt>sessionIdle</tt> event in MINA. 
+ *     <ul>
+ *     <li>The client sends a {@link BeginLogEntriesMessage} to the server.</li>
+ *     <li>The server responds with {@link BeginLogEntriesAckMessage}.
+ *         <ul>
+ *         <li>If the response code is {@link Constants#OK},
+ *             <ul>
+ *             <li>{@link BeginLogEntriesAckMessage} contains a
+ *                 Update Vector (UV) of the server. The client compares
+ *                 the received UV and the client's Purge Vector (PV).
+ *                 <ul>
+ *                 <li>If the PV is greater than the UV, this means the client
+ *                     can't send all operation logs that server needs to get
+ *                     synchronized.  This usually means that the server has
+ *                     been offline for too long time and got out-of-sync
+ *                     finally due to the log-purging process of the client
+ *                     side (see {@link ReplicationConfiguration#getLogMaxAge()}).
+ *                     The clients sends all entries in the DIT to the server,
+ *                     and the server overwrites its current DIT with the
+ *                     received entries.</li>
+ *                 <li>Otherwise, the client sends only the changed part since
+ *                     the last synchronization by querying its
+ *                     {@link ReplicationStore} by calling
+ *                     {@link ReplicationStore#getLogs(CSNVector, boolean)}.</li>
+ *                 <li>The data transfer is very simple.  It's asynchronous
+ *                     request-response exchange.  The client sends {@link LogEntryMessage},
+ *                     and then the server responds with {@link LogEntryAckMessage}.</li>
+ *             </ul></li>
+ *         <li>If the response code is not {@link Constants#OK}, retry later.</li>
+ *         </ul></li>
+ *     </ul></li>
+ * </ul>
  *
  * @author The Apache Directory Project (dev@directory.apache.org)
  * @version $Rev: 116 $, $Date: 2006-09-18 13:47:53Z $
