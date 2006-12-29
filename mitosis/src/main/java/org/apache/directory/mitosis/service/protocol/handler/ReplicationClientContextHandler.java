@@ -59,10 +59,10 @@ import org.apache.directory.mitosis.store.ReplicationStore;
 
 
 /**
- * {@link ReplicationContextHandler} that implements client-side replication logic
- * which sends any changes out-of-date to server.
+ * {@link ReplicationContextHandler} that implements client-side replication
+ * logic which sends any changes out-of-date to server.
  *
- * @author Trustin Lee
+ * @author The Apache Directory Project (dev@directory.apache.org)
  * @version $Rev: 116 $, $Date: 2006-09-18 13:47:53Z $
  */
 public class ReplicationClientContextHandler implements ReplicationContextHandler

@@ -30,7 +30,7 @@ import org.apache.directory.mitosis.common.Replica;
  * A {@link PropertyEditor} that converts strings into {@link Replica}s
  * and vice versa.
  *
- * @author Trustin Lee
+ * @author The Apache Directory Project (dev@directory.apache.org)
  * @version $Rev: 95 $, $Date: 2006-09-16 13:04:28 +0200 (Sat, 16 Sep 2006) $
  */
 public class ReplicaPropertyEditor extends PropertyEditorSupport

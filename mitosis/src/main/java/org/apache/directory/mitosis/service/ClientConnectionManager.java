@@ -65,7 +65,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
  * a {@link ReplicationClientContextHandler} that drives the actual
  * replication process.
  *
- * @author Trustin Lee
+ * @author The Apache Directory Project (dev@directory.apache.org)
  * @version $Rev: 116 $, $Date: 2006-09-18 13:47:53Z $
  */
 class ClientConnectionManager
