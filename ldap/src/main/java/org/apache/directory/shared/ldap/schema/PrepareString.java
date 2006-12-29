@@ -22,6 +22,7 @@ package org.apache.directory.shared.ldap.schema;
 
 import java.io.IOException;
 
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.unicode.InvalidCharacterException;
 // import org.apache.directory.shared.ldap.util.unicode.Normalizer;
 
@@ -87,15 +88,29 @@ public class PrepareString
     
     /**
      * 
-     * TODO normalize.
+     * We have to go through 6 steps :
+     * 
+     * 1) Transcode
+     * 2) Map
+     * 3) Normalize
+     * 4) Prohibit
+     * 5) Bidi
+     * 6) Insignifiant Character Handling
+     * 
+     * The first step is already done, the step (3) is not done.
      *
      * @param str
      * @return
      * @throws IOException
      */
-    public static StringBuilder normalize( String str ) throws IOException
+    public static String normalize( String str ) throws IOException
     {
-        return null; //Normalizer.normalize( str, Normalizer.Form.KC );
+        String res = map( str );
+        prohibit( res );
+        res = bidi( res );
+        res = insignifiantSpacesString( res );
+        
+        return res;
     }
     
     /**
@@ -3928,7 +3943,10 @@ public class PrepareString
      */
     public static void prohibit( String str ) throws InvalidCharacterException
     {
-        prohibit( str.toCharArray() );
+        if ( !StringTools.isEmpty( str ) )
+        {
+            prohibit( str.toCharArray() );
+        }
     }
     
     /**
@@ -3953,6 +3971,12 @@ public class PrepareString
 
         for ( char c:array )
         {
+            // Shortcut ASCII chars
+            if ( c < 0x0221 )
+            {
+                continue;
+            }
+            
             // RFC 3454, Table A.1
             switch ( c )
             {
@@ -4477,7 +4501,7 @@ public class PrepareString
                 throw new InvalidCharacterException( c );
             }
 
-            if ( ( c == 0xFFFE ) || ( c <= 0xFFFF ) )
+            if ( ( c == 0xFFFE ) || ( c == 0xFFFF ) )
             {
                 throw new InvalidCharacterException( c );
             }
@@ -4525,7 +4549,7 @@ public class PrepareString
      */
     public static String bidi( String str )
     {
-        return bidi( str.toCharArray() ).toString();
+        return ( str == null ? str : bidi( str.toCharArray() ).toString() );
     }
     
     /**
