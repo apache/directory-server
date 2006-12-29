@@ -19,7 +19,13 @@
  */
 package org.apache.directory.mitosis.store;
 
-
+/**
+ * A {@link RuntimeException} which is thrown when {@link ReplicationStore}
+ * has a problem in accessing its underlying data source (e.g. a file).
+ * 
+ * @author The Apache Directory Project (dev@directory.apache.org)
+ * @version $Rev$, $Date$
+ */
 public class ReplicationStoreException extends RuntimeException
 {
 

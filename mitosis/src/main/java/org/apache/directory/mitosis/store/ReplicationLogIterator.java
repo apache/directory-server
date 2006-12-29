@@ -20,16 +20,33 @@
 package org.apache.directory.mitosis.store;
 
 
+import java.sql.ResultSet;
+
 import org.apache.directory.mitosis.operation.Operation;
 
-
+/**
+ * Iterates a set of {@link Operation}s, which is a result of a query on 
+ * {@link ReplicationStore}.  It's usage is similar to that of JDBC
+ * {@link ResultSet}.
+ * 
+ * @author The Apache Directory Project (dev@directory.apache.org)
+ * @version $Rev$, $Date$
+ */
 public interface ReplicationLogIterator
 {
+    /**
+     * Move on to the next item.
+     * @return <tt>true</tt> if and only if it has more item.
+     */
     boolean next();
 
-
+    /**
+     * Releases all resources allocated to this iterator.
+     */
     void close();
 
-
+    /**
+     * Returns the {@link Operation} on the current iterator position.
+     */
     Operation getOperation();
 }
