@@ -21,9 +21,10 @@ package org.apache.directory.mitosis.util;
 
 
 /**
- * A utuility class that generates octet strings from numbers.
+ * A utuility class that converts an integer to an octet string, and vice
+ * versa.
  * 
- * @author Trustin Lee (trustin@apache.org)
+ * @author The Apache Directory Project (dev@directory.apache.org)
  * @version $Rev: 118 $, $Date: 2006-09-18 13:48:47Z $
  */
 public class OctetString
@@ -51,64 +52,74 @@ public class OctetString
     }
 
 
-    public static void append( StringBuffer dst, long value )
+    /**
+     * Converts the specified <tt>value</tt> to an octet string and appends
+     * it to the specified <tt>destination</tt>.
+     */
+    public static void append( StringBuffer destination, long value )
     {
         int v;
         v = ( int ) ( value >>> 56 );
-        dst.append( highDigits[v] );
-        dst.append( lowDigits[v] );
+        destination.append( highDigits[v] );
+        destination.append( lowDigits[v] );
 
         v = ( int ) ( value >>> 48 ) & 0xff;
-        dst.append( highDigits[v] );
-        dst.append( lowDigits[v] );
+        destination.append( highDigits[v] );
+        destination.append( lowDigits[v] );
 
         v = ( int ) ( value >>> 40 ) & 0xff;
-        dst.append( highDigits[v] );
-        dst.append( lowDigits[v] );
+        destination.append( highDigits[v] );
+        destination.append( lowDigits[v] );
 
         v = ( int ) ( value >>> 32 ) & 0xff;
-        dst.append( highDigits[v] );
-        dst.append( lowDigits[v] );
+        destination.append( highDigits[v] );
+        destination.append( lowDigits[v] );
 
         v = ( int ) ( value >>> 24 ) & 0xff;
-        dst.append( highDigits[v] );
-        dst.append( lowDigits[v] );
+        destination.append( highDigits[v] );
+        destination.append( lowDigits[v] );
 
         v = ( int ) ( value >>> 16 ) & 0xff;
-        dst.append( highDigits[v] );
-        dst.append( lowDigits[v] );
+        destination.append( highDigits[v] );
+        destination.append( lowDigits[v] );
 
         v = ( int ) ( value >>> 8 ) & 0xff;
-        dst.append( highDigits[v] );
-        dst.append( lowDigits[v] );
+        destination.append( highDigits[v] );
+        destination.append( lowDigits[v] );
 
         v = ( int ) value & 0xff;
-        dst.append( highDigits[v] );
-        dst.append( lowDigits[v] );
+        destination.append( highDigits[v] );
+        destination.append( lowDigits[v] );
     }
 
 
-    public static void append( StringBuffer dst, int value )
+    /**
+     * Converts the specified <tt>value</tt> to an octet string and appends
+     * it to the specified <tt>destination</tt>.
+     */
+    public static void append( StringBuffer destination, int value )
     {
         int v;
         v = ( value >>> 24 ) & 0xff;
-        dst.append( highDigits[v] );
-        dst.append( lowDigits[v] );
+        destination.append( highDigits[v] );
+        destination.append( lowDigits[v] );
 
         v = ( value >>> 16 ) & 0xff;
-        dst.append( highDigits[v] );
-        dst.append( lowDigits[v] );
+        destination.append( highDigits[v] );
+        destination.append( lowDigits[v] );
 
         v = ( value >>> 8 ) & 0xff;
-        dst.append( highDigits[v] );
-        dst.append( lowDigits[v] );
+        destination.append( highDigits[v] );
+        destination.append( lowDigits[v] );
 
         v = value & 0xff;
-        dst.append( highDigits[v] );
-        dst.append( lowDigits[v] );
+        destination.append( highDigits[v] );
+        destination.append( lowDigits[v] );
     }
 
-
+    /**
+     * Converts the specified binary data into an octet string and returns it.
+     */
     public static String toString( byte[] src )
     {
         final int end = src.length;
@@ -122,7 +133,9 @@ public class OctetString
         return dst.toString();
     }
 
-
+    /**
+     * Converts the specified value into an octet string and returns it.
+     */
     public static String toString( long value )
     {
         StringBuffer dst = new StringBuffer( 16 );
@@ -130,7 +143,9 @@ public class OctetString
         return dst.toString();
     }
 
-
+    /**
+     * Converts the specified value into an octet string and returns it.
+     */
     public static String toString( int value )
     {
         StringBuffer dst = new StringBuffer( 8 );
@@ -138,13 +153,19 @@ public class OctetString
         return dst.toString();
     }
 
-
+    /**
+     * Converts the specified octet string value into an integer and returns
+     * it.
+     */
     public static int parseInt( String value )
     {
         return Integer.parseInt( value, 16 );
     }
 
-
+    /**
+     * Converts the specified octet string value into a long integer and
+     * returns it.
+     */
     public static long parseLong( String value )
     {
         return Long.parseLong( value, 16 );
