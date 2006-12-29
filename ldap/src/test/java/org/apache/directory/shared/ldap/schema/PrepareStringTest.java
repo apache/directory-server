@@ -166,7 +166,7 @@ public class PrepareStringTest extends TestCase
     
     public void testInsignifiantSpacesHandleNumericStringNull()
     {
-        assertNull( PrepareString.insignifiantCharNumericString( (String )null ) );
+        assertEquals( "", PrepareString.insignifiantCharNumericString( (String )null ) );
     }
 
     public void testInsignifiantSpacesHandleNumericStringEmpty()
