@@ -78,8 +78,7 @@ public class ServerSASLCredsAction extends GrammarAction
 
         if ( IS_DEBUG )
         {
-            log.debug( "The SASL credentials value is : {}", bindResponseMessage.getServerSaslCreds()
-                .toString() );
+            log.debug( "The SASL credentials value is : {}", StringTools.dumpBytes( bindResponseMessage.getServerSaslCreds() ) );
         }
 
         return;
