@@ -147,7 +147,7 @@ public class SaslCredentials extends LdapAuthentication
 
         if ( IS_DEBUG )
         {
-            log.debug( "SASL Authentication length : {}", new Integer( saslLength ) );
+            log.debug( "SASL Authentication length : {}", Integer.valueOf( saslLength ) );
         }
 
         return saslLength;
