@@ -427,7 +427,7 @@ public class TwixTransformer implements TransformerSpi
 
                 if ( twixFilter instanceof PresentFilter )
                 {
-                    branch = new PresenceNode( ( ( PresentFilter ) twixFilter ).getAttributeDescription().toString() );
+                    branch = new PresenceNode( ( ( PresentFilter ) twixFilter ).getAttributeDescription() );
                 }
                 else if ( twixFilter instanceof AttributeValueAssertionFilter )
                 {
