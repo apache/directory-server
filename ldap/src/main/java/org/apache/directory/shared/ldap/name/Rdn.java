@@ -252,8 +252,8 @@ public class Rdn implements Cloneable, Comparable, Serializable
    {
        super();
        nbAtavs = rdn.getNbAtavs();
-       this.normName = new String( rdn.normName );
-       this.upName = new String( rdn.getUpName() );
+       this.normName = rdn.normName;
+       this.upName = rdn.getUpName();
        this.start = rdn.start;
        this.length = rdn.length;
 
@@ -965,7 +965,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
            {
                if ( StringTools.isHex( chars, i ) && StringTools.isHex( chars, i + 1 ) )
                {
-                   hexValue[pos++] = ( byte ) ( ( StringTools.HEX_VALUE[chars[i]] << 4 ) + StringTools.HEX_VALUE[chars[i + 1]] );
+                   hexValue[pos++] = StringTools.getHexValue( chars[i], chars[i + 1] );
                }
                else
                {
@@ -1009,7 +1009,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                            if ( StringTools.isHex( chars, i ) )
                            {
                                isHex = true;
-                               pair = ( ( byte ) ( StringTools.HEX_VALUE[chars[i]] << 4 ) );
+                               pair = ( (byte)( StringTools.getHexValue( chars[i] ) << 4 ) );
                            }
                    }
                }
@@ -1019,7 +1019,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                    {
                        if ( StringTools.isHex( chars, i ) )
                        {
-                           pair += StringTools.HEX_VALUE[chars[i]];
+                           pair += StringTools.getHexValue( chars[i] );
                            bytes[pos++] = pair;
                        }
                    }
