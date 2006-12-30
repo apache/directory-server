@@ -553,6 +553,49 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
         return result;
     }
 
+    /**
+     * @see Object#equals(Object)
+     */
+    public boolean equals( Object obj )
+    {
+        if ( this == obj )
+        {
+            return true;
+        }
+        
+        if ( obj == null)
+        {
+            return false;
+        }
+        
+        if ( obj.getClass() != this.getClass() )
+        {
+            return false;
+        }
+        
+        AttributeTypeAndValue instance = (AttributeTypeAndValue)obj;
+     
+        // Compare the type
+        if ( this.type == null )
+        {
+            if ( instance.type != null )
+            {
+                return false;
+            }
+        }
+        else 
+        {
+            if ( !this.type.equals( instance.type ) )
+            {
+                return false;
+            }
+        }
+            
+        // Compare the value
+        return ( this.value == null ? 
+            instance.value == null  :
+            this.type.equals( instance.type ) );
+    }
 
     /**
      * A String representation of a AttributeTypeAndValue.
