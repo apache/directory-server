@@ -609,7 +609,7 @@ public class LdapResult extends AbstractAsn1Object
         }
 
         sb.append( "            Matched DN : '" ).append( matchedDN == null ? "": matchedDN.toString() ).append( "'\n" );
-        sb.append( "            Error message : '" ).append( errorMessage == null ? "" : errorMessage.toString() ).append( "'\n" );
+        sb.append( "            Error message : '" ).append( errorMessage == null ? "" : errorMessage ).append( "'\n" );
 
         
         if ( ( referrals != null ) && ( referrals.size() != 0 ) )
