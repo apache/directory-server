@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +92,7 @@ public class SimpleAuthentication extends LdapAuthentication
 
         if ( IS_DEBUG )
         {
-            log.debug( "Simple Authentication length : {}", new Integer( length ) );
+            log.debug( "Simple Authentication length : {}", Integer.valueOf( length ) );
         }
 
         return length;
@@ -142,6 +143,6 @@ public class SimpleAuthentication extends LdapAuthentication
      */
     public String toString()
     {
-        return ( ( simple == null ) ? "null" : simple.toString() );
+        return ( ( simple == null ) ? "null" : StringTools.dumpBytes( simple) );
     }
 }
