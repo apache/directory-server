@@ -1050,7 +1050,7 @@ public class LdapURL
                     }
                     else
                     {
-                        value = new String( decode( new String( chars, start, i - start ) ) ).trim();
+                        value = decode( new String( chars, start, i - start ) ).trim();
 
                         if ( value.length() == 0 )
                         {
