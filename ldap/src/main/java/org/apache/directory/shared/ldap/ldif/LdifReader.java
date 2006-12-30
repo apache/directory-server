@@ -37,6 +37,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
@@ -625,10 +626,11 @@ public class LdifReader implements Iterator
                             else
                             {
                                 byte[] data = new byte[(int) length];
+                                DataInputStream inf = null;
 
                                 try
                                 {
-                                    DataInputStream inf = new DataInputStream( new FileInputStream( file ) );
+                                    inf = new DataInputStream( new FileInputStream( file ) );
                                     inf.read( data );
 
                                     return data;
@@ -646,7 +648,21 @@ public class LdifReader implements Iterator
                                     log.error( "File {} error reading", fileName );
                                     throw new NamingException( "Bad URL, file can't be read" );
                                 }
-
+                                finally
+                                {
+                                    if ( inf != null )
+                                    {
+                                        try
+                                        {
+                                            inf.close();
+                                        }
+                                        catch ( IOException ioe )
+                                        {
+                                            log.error( "Error while closing the stream : {}", ioe.getMessage() );
+                                            // Just do nothing ...
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -1549,7 +1565,7 @@ public class LdifReader implements Iterator
 
             if ( log.isDebugEnabled() )
             {
-                log.debug( "Parsed {} entries.", ( entries == null ? new Integer( 0 ) : new Integer( entries.size() ) ) );
+                log.debug( "Parsed {} entries.", ( entries == null ? Integer.valueOf( 0 ) : Integer.valueOf( entries.size() ) ) );
             }
 
             return entries;
@@ -1570,7 +1586,7 @@ public class LdifReader implements Iterator
      * 
      * @return the next LDIF as a String.
      */
-    public Object next()
+    public Object next() throws NoSuchElementException
     {
         try
         {
