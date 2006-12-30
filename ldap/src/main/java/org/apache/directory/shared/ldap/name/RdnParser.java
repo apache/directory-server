@@ -492,8 +492,7 @@ public class RdnParser
                                 hasPairChar = true;
                             }
 
-                            byte b = ( byte ) ( ( StringTools.HEX_VALUE[string.charAt( pos.end )] << 4 ) + StringTools.HEX_VALUE[string
-                                .charAt( pos.end + 1 )] );
+                            byte b = StringTools.getHexValue( string.charAt( pos.end ), string.charAt( pos.end + 1 ) );
 
                             sb.append( (char)(b & 0x00FF) );
                         }
