@@ -186,8 +186,6 @@ public class Rdn implements Cloneable, Comparable, Serializable
    /**
     * A constructor that parse a String representing a RDN.
     *
-    * The input String must be UTF-8 encoded
-    *
     * @param rdn The String containing the RDN to parse
     * @throws InvalidNameException If the RDN is invalid
     */
