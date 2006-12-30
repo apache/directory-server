@@ -313,7 +313,8 @@ public class StoredProcedure extends AbstractAsn1Object
     		{
     			StoredProcedureParameter spParam = (StoredProcedureParameter)params.next();
     			
-    			sb.append( "            type[" ).append( i ) .append( "] : '" ).append( spParam.type ).append( "'\n" );
+    			sb.append( "            type[" ).append( i ) .append( "] : '" ).
+                    append( StringTools.utf8ToString( spParam.type ) ).append( "'\n" );
     			sb.append( "            value[" ).append( i ) .append( "] : '" ).
     				append( StringTools.dumpBytes( spParam.value ) ).append( "'\n" );
     		}
