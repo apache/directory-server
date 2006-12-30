@@ -299,8 +299,8 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                     // The Length should be null
                     if ( expectedLength != 0 )
                     {
-                        log.error( "The length of a UnBindRequest must be null, the actual value is {}", new Integer(
-                            expectedLength ) );
+                        log.error( "The length of a UnBindRequest must be null, the actual value is {}", 
+                            Integer.valueOf( expectedLength ) );
                         
                         // This will generate a PROTOCOL_ERROR
                         throw new DecoderException( "The length of a UnBindRequest must be null" );
@@ -454,7 +454,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
 
                         if ( IS_DEBUG )
                         {
-                            log.debug( "AbandonMessage Id has been decoded : {}", new Integer( abandonnedMessageId ) );
+                            log.debug( "AbandonMessage Id has been decoded : {}", Integer.valueOf( abandonnedMessageId ) );
                         }
 
                         ldapMessageContainer.grammarEndAllowed( true );
@@ -546,7 +546,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
 
                         if ( IS_DEBUG )
                         {
-                            log.debug( "Ldap version ", new Integer( version ) );
+                            log.debug( "Ldap version ", Integer.valueOf( version ) );
                         }
 
                         bindRequestMessage.setVersion( version );
@@ -3708,7 +3708,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
 
                     if ( IS_DEBUG )
                     {
-                        log.debug( "The sizeLimit value is set to {} objects", new Integer( sizeLimit ) );
+                        log.debug( "The sizeLimit value is set to {} objects", Integer.valueOf( sizeLimit ) );
                     }
 
                     return;
@@ -3757,7 +3757,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
 
                     if ( IS_DEBUG )
                     {
-                        log.debug( "The timeLimit value is set to {} seconds", new Integer( timeLimit ) );
+                        log.debug( "The timeLimit value is set to {} seconds", Integer.valueOf( timeLimit ) );
                     }
 
                     return;
@@ -6100,7 +6100,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
 
                     if ( IS_DEBUG )
                     {
-                        log.debug( "DN Attributes : {}", new Boolean( extensibleMatchFilter.isDnAttributes() ) );
+                        log.debug( "DN Attributes : {}", Boolean.valueOf( extensibleMatchFilter.isDnAttributes() ) );
                     }
                     
                     // unstack the filters if needed
