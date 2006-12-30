@@ -139,7 +139,7 @@ public class PresentFilter extends Filter
 
         StringBuffer sb = new StringBuffer();
 
-        sb.append( attributeDescription.toString() ).append( "=*" );
+        sb.append( attributeDescription ).append( "=*" );
 
         return sb.toString();
     }
