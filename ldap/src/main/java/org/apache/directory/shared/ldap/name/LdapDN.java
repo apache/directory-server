@@ -271,7 +271,7 @@ public class LdapDN /* extends LdapString */implements Name
 
            String newNormName = sb.toString();
 
-           if ( normName != newNormName )
+           if ( ( normName ==  null ) || !normName.equals( newNormName ) )
            {
                bytes = StringTools.getBytesUtf8( newNormName );
                normName = newNormName;
@@ -441,7 +441,7 @@ public class LdapDN /* extends LdapString */implements Name
    {
        int result = 17;
 
-       if ( ( rdns != null ) || ( rdns.size() == 0 ) )
+       if ( ( rdns != null ) && ( rdns.size() == 0 ) )
        {
            for ( Rdn rdn:rdns )
            {
@@ -588,6 +588,7 @@ public class LdapDN /* extends LdapString */implements Name
                {
                    e.printStackTrace();
                    log.error( "Failed to parse RDN for name " + name.toString(), e );
+                   return false;
                }
 
                if ( nameRdn.compareTo( ldapRdn ) != 0 )
