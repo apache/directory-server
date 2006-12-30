@@ -154,7 +154,7 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
 
                     if ( log.isDebugEnabled() )
                     {
-                        log.debug( "Procedure found : " + storedProcedure.getProcedure() );
+                        log.debug( "Procedure found : " + StringTools.utf8ToString( storedProcedure.getProcedure() ) );
                     }
                 }
             } );
