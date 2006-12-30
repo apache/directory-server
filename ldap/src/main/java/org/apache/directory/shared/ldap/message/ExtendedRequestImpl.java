@@ -218,7 +218,7 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
         StringBuffer sb = new StringBuffer();
 
         sb.append( "    Extended request\n" );
-        sb.append( "        Request name : '" ).append( oid.toString() ).append( "'\n" );
+        sb.append( "        Request name : '" ).append( oid ).append( "'\n" );
 
         if ( oid != null )
         {
