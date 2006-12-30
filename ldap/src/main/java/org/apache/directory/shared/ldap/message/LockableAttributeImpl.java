@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.message;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -155,7 +156,7 @@ public class LockableAttributeImpl implements Attribute
     				return done;
     			}
     			
-    			public Object next() 
+    			public Object next() throws NoSuchElementException
     			{
     				done = false;
     				return value;
@@ -371,6 +372,15 @@ public class LockableAttributeImpl implements Attribute
      */
     public Object clone()
     {
+        try
+        {
+            super.clone();
+        }
+        catch ( CloneNotSupportedException cnse )
+        {
+            // Just do nothing... Object is Cloneable
+        }
+        
     	switch ( size )
     	{
     		case 0 :
