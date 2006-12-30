@@ -82,7 +82,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
      */
     public SearchRequestImpl(final int id)
     {
-        super( id, TYPE );
+        super( id, MessageTypeEnum.SEARCH_REQUEST );
     }
 
 
