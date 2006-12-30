@@ -307,7 +307,7 @@ public class AddRequest extends LdapMessage
 
         if ( IS_DEBUG )
         {
-            log.debug( "AddRequest PDU length = {}", new Integer( result ) );
+            log.debug( "AddRequest PDU length = {}", Integer.valueOf( result ) );
         }
 
         return result;
