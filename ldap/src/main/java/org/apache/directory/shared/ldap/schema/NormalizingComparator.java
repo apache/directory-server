@@ -48,12 +48,10 @@ public class NormalizingComparator implements Comparator
     /**
      * A comparator which normalizes a value first before comparing them.
      * 
-     * @param normalizer
-     *            the Normalizer to normalize values with before comparing
-     * @param comparator
-     *            the underlying comparator to use for comparisons
+     * @param normalizer the Normalizer to normalize values with before comparing
+     * @param comparator the underlying comparator to use for comparisons
      */
-    public NormalizingComparator(Normalizer normalizer, Comparator comparator)
+    public NormalizingComparator( Normalizer normalizer, Comparator comparator )
     {
         this.normalizer = normalizer;
         this.comparator = comparator;

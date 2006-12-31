@@ -62,7 +62,7 @@ public abstract class AbstractAttributeType extends AbstractSchemaObject impleme
      * @param oid
      *            the IANA OID number for the attributeType
      */
-    protected AbstractAttributeType(String oid)
+    protected AbstractAttributeType( String oid )
     {
         super( oid );
     }

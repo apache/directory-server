@@ -36,10 +36,9 @@ public abstract class AbstractMatchingRule extends AbstractSchemaObject implemen
     /**
      * Creates a MatchingRule using the minimal set of required information.
      * 
-     * @param oid
-     *            the object identifier for this matching rule
+     * @param oid the object identifier for this matching rule
      */
-    protected AbstractMatchingRule(String oid)
+    protected AbstractMatchingRule( String oid )
     {
         super( oid );
     }

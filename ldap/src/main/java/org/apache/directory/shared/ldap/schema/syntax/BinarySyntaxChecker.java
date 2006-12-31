@@ -31,14 +31,17 @@ public class BinarySyntaxChecker extends AbstractSyntaxChecker
     /** the Apache assigned internal OID for this syntax checker */
     private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.5";
 
+    public static final SyntaxChecker INSTANCE = new BinarySyntaxChecker();
+
 
     /**
-     * Private default constructor to prevent unnecessary instantiation.
+     * Bogus this should be public and not private.
      */
     public BinarySyntaxChecker()
     {
         super( SC_OID );
     }
+
 
     /**
      * 
@@ -51,6 +54,7 @@ public class BinarySyntaxChecker extends AbstractSyntaxChecker
     {
         super( oid );
     }
+
     
     /**
      * @see org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker#isValidSyntax(Object)

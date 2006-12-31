@@ -20,22 +20,49 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
+import javax.naming.NamingException;
+
+
 /**
  * A SyntaxChecker implementation which accepts all values as valid.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AcceptAllSyntaxChecker extends AbstractSyntaxChecker
+public class AcceptAllSyntaxChecker implements SyntaxChecker
 {
+    /** the OID of the Syntax this checker is associated with */
+    private String oid;
+
+
     /**
      * Creates a SyntaxChecker which accepts all values.
      * 
      * @param oid the oid of the Syntax this checker is associated with
      */
-    public AcceptAllSyntaxChecker(String oid)
+    public AcceptAllSyntaxChecker( String oid )
     {
-        super( oid );
+        this.oid = oid;
+    }
+
+    
+    public AcceptAllSyntaxChecker()
+    {
+    }
+
+    
+    public void setSyntaxOid( String oid )
+    {
+        this.oid = oid;
+    }
+    
+    
+    /**
+     * @see SyntaxChecker#getSyntaxOid()
+     */
+    public String getSyntaxOid()
+    {
+        return oid;
     }
 
 
@@ -47,5 +74,15 @@ public class AcceptAllSyntaxChecker extends AbstractSyntaxChecker
     public boolean isValidSyntax( Object value )
     {
         return true;
+    }
+
+
+    /**
+     * Does nothing but return immediately and no exceptions are ever thrown.
+     * 
+     * @see SyntaxChecker#assertSyntax(Object)
+     */
+    public void assertSyntax( Object value ) throws NamingException
+    {
     }
 }

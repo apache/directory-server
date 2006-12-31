@@ -91,7 +91,7 @@ public enum ObjectClassTypeEnum
 
         if ( upperCase.equals( "STRUCTURAL" ) )
         {
-            return ABSTRACT;
+            return STRUCTURAL;
         }
         else if ( upperCase.equals( "AUXILIARY" ) )
         {

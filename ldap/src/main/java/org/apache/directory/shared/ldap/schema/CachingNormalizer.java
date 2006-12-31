@@ -33,6 +33,8 @@ import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
  */
 public class CachingNormalizer implements Normalizer
 {
+    private static final long serialVersionUID = 1L;
+
     /** Cache maximum size default */
     public static final int CACHE_MAX = 250;
 
@@ -40,7 +42,7 @@ public class CachingNormalizer implements Normalizer
     private final SynchronizedLRUMap cache;
 
     /** The underlying decorated Normalizer */
-    private final Normalizer normalizer;
+    protected final Normalizer normalizer;
 
 
     // ------------------------------------------------------------------------
@@ -51,10 +53,9 @@ public class CachingNormalizer implements Normalizer
      * Creates a CachingNormalizer that decorates another normalizer using a
      * default cache size.
      * 
-     * @param normalizer
-     *            the underlying Normalizer being decorated
+     * @param normalizer the underlying Normalizer being decorated
      */
-    public CachingNormalizer(Normalizer normalizer)
+    public CachingNormalizer( Normalizer normalizer )
     {
         this( normalizer, CACHE_MAX );
     }
@@ -64,12 +65,10 @@ public class CachingNormalizer implements Normalizer
      * Creates a CachingNormalizer that decorates another normalizer using a
      * specified cache size.
      * 
-     * @param normalizer
-     *            the underlying Normalizer being decorated
-     * @param cacheSz
-     *            the maximum size of the name cache
+     * @param normalizer the underlying Normalizer being decorated
+     * @param cacheSz the maximum size of the name cache
      */
-    public CachingNormalizer(Normalizer normalizer, int cacheSz)
+    public CachingNormalizer( Normalizer normalizer, int cacheSz )
     {
         this.normalizer = normalizer;
         cache = new SynchronizedLRUMap( cacheSz );

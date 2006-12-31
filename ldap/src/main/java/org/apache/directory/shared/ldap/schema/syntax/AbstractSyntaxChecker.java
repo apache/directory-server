@@ -60,6 +60,7 @@ public abstract class AbstractSyntaxChecker implements SyntaxChecker
         return oid;
     }
     
+
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#assertSyntax(java.lang.Object)
      */
