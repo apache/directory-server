@@ -321,7 +321,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         if ( delay > 0 )
         {
             // delay is in seconds
-            long delayMillis = delay * 1000;
+            long delayMillis = delay * 1000L;
             long startTime = System.currentTimeMillis();
 
             while ( ( System.currentTimeMillis() - startTime ) < delayMillis )

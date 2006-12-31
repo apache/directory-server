@@ -30,7 +30,6 @@ import org.apache.directory.server.core.schema.bootstrap.*;
 import org.apache.directory.server.core.schema.global.GlobalRegistries;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
-import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 
 import java.util.Set;

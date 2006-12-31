@@ -240,7 +240,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         // Check for Referenceable
         if ( obj instanceof Referenceable )
         {
-            obj = ( ( Referenceable ) obj ).getReference();
             throw new NamingException( "Do not know how to store Referenceables yet!" );
         }
 

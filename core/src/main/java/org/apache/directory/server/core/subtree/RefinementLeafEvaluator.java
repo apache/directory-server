@@ -22,7 +22,6 @@ package org.apache.directory.server.core.subtree;
 
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
-import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.util.StringTools;
 

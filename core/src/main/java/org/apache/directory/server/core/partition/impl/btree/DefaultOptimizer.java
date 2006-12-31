@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;

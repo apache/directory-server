@@ -102,7 +102,10 @@ class JavaLdapSupport
         {
             try
             {
-                in.close();
+                if ( in != null )
+                {
+                    in.close();
+                }
             }
             catch ( IOException e )
             {
@@ -141,7 +144,10 @@ class JavaLdapSupport
         {
             try
             {
-                out.close();
+                if ( out != null )
+                {
+                    out.close();
+                }
             }
             catch ( IOException e )
             {

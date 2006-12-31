@@ -172,22 +172,24 @@ public class TupleCache
         }
 
         List entryTuples = new ArrayList();
+        
         for ( int ii = 0; ii < aci.size(); ii++ )
         {
             ACIItem item = null;
+            String aciStr = ( String ) aci.get( ii ); 
 
             try
             {
-                item = aciParser.parse( ( String ) aci.get( ii ) );
+                item = aciParser.parse( aciStr );
+                entryTuples.addAll( item.toTuples() );
             }
             catch ( ParseException e )
             {
-                String msg = "ACIItem parser failure on '" + item + "'. Cannnot add ACITuples to TupleCache.";
+                String msg = "ACIItem parser failure on " + aciStr + ". Cannnot add ACITuples to TupleCache.";
                 log.warn( msg, e );
             }
-
-            entryTuples.addAll( item.toTuples() );
         }
+        
         tuples.put( normName.toNormName(), entryTuples );
     }
 
