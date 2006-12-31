@@ -42,17 +42,169 @@ public class ValueTest extends TestCase
      */
     public void testValueGetNbBytes()
     {
-        Assert.assertEquals( 1, Value.getNbBytes( 0 ) );
-        Assert.assertEquals( 1, Value.getNbBytes( 1 ) );
-        Assert.assertEquals( 2, Value.getNbBytes( 255 ) );
-        Assert.assertEquals( 2, Value.getNbBytes( 256 ) );
-        Assert.assertEquals( 3, Value.getNbBytes( 65535 ) );
-        Assert.assertEquals( 3, Value.getNbBytes( 65536 ) );
-        Assert.assertEquals( 4, Value.getNbBytes( 16777215 ) );
-        Assert.assertEquals( 4, Value.getNbBytes( 16777216 ) );
-        Assert.assertEquals( 1, Value.getNbBytes( -1 ) );
+        assertEquals( 1, Value.getNbBytes( 0x00000000 ) );
+        assertEquals( 1, Value.getNbBytes( 0x00000001 ) );
+        assertEquals( 2, Value.getNbBytes( 0x000000FF ) );
+        assertEquals( 2, Value.getNbBytes( 0x00000100 ) );
+        assertEquals( 3, Value.getNbBytes( 0x0000FFFF ) );
+        assertEquals( 3, Value.getNbBytes( 0x00010000 ) );
+        assertEquals( 4, Value.getNbBytes( 0x00FFFFFF ) );
+        assertEquals( 4, Value.getNbBytes( 0x01000000 ) );
+        assertEquals( 1, Value.getNbBytes( -1 ) );
+        assertEquals( 4, Value.getNbBytes( 0x7FFFFFFF ) );
+        assertEquals( 1, Value.getNbBytes( 0xFFFFFFFF ) );
     }
 
+    public void testGetBytes()
+    {
+        byte[] bb = Value.getBytes( 0x00000000 );
+        assertEquals( 1, bb.length );
+        assertEquals( 0, bb[0] );
+
+        bb = Value.getBytes( 0x00000001 );
+        assertEquals( 1, bb.length );
+        assertEquals( 1, bb[0] );
+
+        bb = Value.getBytes( 0x0000007F );
+        assertEquals( 1, bb.length );
+        assertEquals( 0x7F, bb[0] );
+
+        bb = Value.getBytes( 0x00000080 );
+        assertEquals( 2, bb.length );
+        assertEquals( 0x00, bb[0] );
+        assertEquals( (byte)0x80, bb[1] );
+
+        bb = Value.getBytes( 0x000000FF );
+        assertEquals( 2, bb.length );
+        assertEquals( 0x00, bb[0] );
+        assertEquals( (byte)0xFF, bb[1] );
+
+        bb = Value.getBytes( 0x00007FFF );
+        assertEquals( 2, bb.length );
+        assertEquals( 0x7F, bb[0] );
+        assertEquals( (byte)0xFF, bb[1] );
+
+        bb = Value.getBytes( 0x00008000 );
+        assertEquals( 3, bb.length );
+        assertEquals( 0x00, bb[0] );
+        assertEquals( (byte)0x80, bb[1] );
+        assertEquals( 0x00, bb[2] );
+
+        bb = Value.getBytes( 0x0000FFFF );
+        assertEquals( 3, bb.length );
+        assertEquals( 0x00, bb[0] );
+        assertEquals( (byte)0xFF, bb[1] );
+        assertEquals( (byte)0xFF, bb[2] );
+
+        bb = Value.getBytes( 0x00010000 );
+        assertEquals( 3, bb.length );
+        assertEquals( 0x01, bb[0] );
+        assertEquals( 0x00, bb[1] );
+        assertEquals( 0x00, bb[2] );
+
+        bb = Value.getBytes( 0x007FFFFF );
+        assertEquals( 3, bb.length );
+        assertEquals( 0x7F, bb[0] );
+        assertEquals( (byte)0xFF, bb[1] );
+        assertEquals( (byte)0xFF, bb[2] );
+
+        bb = Value.getBytes( 0x00800000 );
+        assertEquals( 4, bb.length );
+        assertEquals( 0x00, bb[0] );
+        assertEquals( (byte)0x80, bb[1] );
+        assertEquals( 0x00, bb[2] );
+        assertEquals( 0x00, bb[3] );
+
+        bb = Value.getBytes( 0x00FFFFFF );
+        assertEquals( 4, bb.length );
+        assertEquals( 0x00, bb[0] );
+        assertEquals( (byte)0xFF, bb[1] );
+        assertEquals( (byte)0xFF, bb[2] );
+        assertEquals( (byte)0xFF, bb[3] );
+
+        bb = Value.getBytes( 0x01000000 );
+        assertEquals( 4, bb.length );
+        assertEquals( 0x01, bb[0] );
+        assertEquals( 0x00, bb[1] );
+        assertEquals( 0x00, bb[2] );
+        assertEquals( 0x00, bb[3] );
+
+        bb = Value.getBytes( 0x7FFFFFFF );
+        assertEquals( 4, bb.length );
+        assertEquals( 0x7F, bb[0] );
+        assertEquals( (byte)0xFF, bb[1] );
+        assertEquals( (byte)0xFF, bb[2] );
+        assertEquals( (byte)0xFF, bb[3] );
+
+        bb = Value.getBytes( 0x80000000 );
+        assertEquals( 4, bb.length );
+        assertEquals( (byte)0x80, bb[0] );
+        assertEquals( (byte)0x00, bb[1] );
+        assertEquals( (byte)0x00, bb[2] );
+        assertEquals( (byte)0x00, bb[3] );
+        
+        bb = Value.getBytes( 0xFFFFFFFF );
+        assertEquals( 1, bb.length );
+        assertEquals( (byte)0xFF, bb[0] );
+        
+        bb = Value.getBytes( 0xFFFFFF80 );
+        assertEquals( 1, bb.length );
+        assertEquals( (byte)0x80, bb[0] );
+
+        bb = Value.getBytes( 0xFFFFFF7F );
+        assertEquals( 2, bb.length );
+        assertEquals( (byte)0xFF, bb[0] );
+        assertEquals( 0x7F, bb[1] );
+
+        bb = Value.getBytes( 0xFFFFFF00 );
+        assertEquals( 2, bb.length );
+        assertEquals( (byte)0xFF, bb[0] );
+        assertEquals( 0x00, bb[1] );
+
+        bb = Value.getBytes( 0xFFFF8000 );
+        assertEquals( 2, bb.length );
+        assertEquals( (byte)0x80, bb[0] );
+        assertEquals( 0x00, bb[1] );
+
+        bb = Value.getBytes( 0xFFFF7FFF );
+        assertEquals( 3, bb.length );
+        assertEquals( (byte)0xFF, bb[0] );
+        assertEquals( 0x7F, bb[1] );
+        assertEquals( (byte)0xFF, bb[2] );
+
+        bb = Value.getBytes( 0xFFFF0000 );
+        assertEquals( 3, bb.length );
+        assertEquals( (byte)0xFF, bb[0] );
+        assertEquals( 0x00, bb[1] );
+        assertEquals( 0x00, bb[2] );
+
+        bb = Value.getBytes( 0xFF800000 );
+        assertEquals( 3, bb.length );
+        assertEquals( (byte)0x80, bb[0] );
+        assertEquals( 0x00, bb[1] );
+        assertEquals( 0x00, bb[2] );
+
+        bb = Value.getBytes( 0xFF7FFFFF );
+        assertEquals( 4, bb.length );
+        assertEquals( (byte)0xFF, bb[0] );
+        assertEquals( 0x7F, bb[1] );
+        assertEquals( (byte)0xFF, bb[2] );
+        assertEquals( (byte)0xFF, bb[3] );
+
+        bb = Value.getBytes( 0xFF000000 );
+        assertEquals( 4, bb.length );
+        assertEquals( (byte)0xFF, bb[0] );
+        assertEquals( 0x00, bb[1] );
+        assertEquals( 0x00, bb[2] );
+        assertEquals( 0x00, bb[3] );
+
+        bb = Value.getBytes( 0x80000000 );
+        assertEquals( 4, bb.length );
+        assertEquals( (byte)0x80, bb[0] );
+        assertEquals( 0x00, bb[1] );
+        assertEquals( 0x00, bb[2] );
+        assertEquals( 0x00, bb[3] );
+    }
 
     public void testEncodeInt2Bytes()
     {

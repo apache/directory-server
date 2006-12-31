@@ -76,11 +76,6 @@ public class Value implements Cloneable, Serializable
 
     private static final int THREE_BYTE_MIN = -( 1 << 23 );
 
-    private static final int FOUR_BYTE_MAX = ( 1 << 31 ) - 1; // 0x7FFFFFFF
-
-    private static final int FOUR_BYTE_MIN = Integer.MIN_VALUE;
-
-
     // ~ Methods
     // ------------------------------------------------------------------------------------
 
@@ -232,13 +227,9 @@ public class Value implements Cloneable, Serializable
         {
             return 3;
         }
-        else if ( value >= FOUR_BYTE_MIN && value <= FOUR_BYTE_MAX )
-        {
-            return 4;
-        }
         else
         {
-            return 5;
+            return 4;
         }
     }
 
@@ -254,7 +245,6 @@ public class Value implements Cloneable, Serializable
      * - [0x010000 - 0x7FFFFF] : 0xVV 0xVV 0xVV 
      * - [0x800000 - 0xFFFFFF] : 0x00 0xVV 0xVV 0xVV 
      * - [0x01000000 - 0x7FFFFFFF] : 0xVV 0xVV 0xVV 0xVV 
-     * - [0x80000000 - 0xFFFFFFFF] : 0x00 0xVV 0xVV 0xVV 0xVV 
      * 2) Negative number - (~value) + 1
      * 
      * @param value The value to store in a byte array
@@ -265,31 +255,78 @@ public class Value implements Cloneable, Serializable
     {
         byte[] bytes = null;
 
-        if ( value >= ONE_BYTE_MIN && value <= ONE_BYTE_MAX )
+        if ( value >= 0 )
         {
-            bytes = new byte[1];
-            bytes[0] = ( byte ) value;
+            if ( ( value >= 0 ) && ( value <= ONE_BYTE_MAX ) )
+            {
+                bytes = new byte[1];
+                bytes[0] = ( byte ) value;
+            }
+            else if ( ( value > ONE_BYTE_MAX ) && ( value <= TWO_BYTE_MAX ) )
+            {
+                bytes = new byte[2];
+                bytes[1] = ( byte ) value;
+                bytes[0] = ( byte ) ( value >> 8 );
+            }
+            else if ( ( value > TWO_BYTE_MAX ) && ( value <= THREE_BYTE_MAX ) )
+            {
+                bytes = new byte[3];
+                bytes[2] = ( byte ) value;
+                bytes[1] = ( byte ) ( value >> 8 );
+                bytes[0] = ( byte ) ( value >> 16 );
+            }
+            else
+            {
+                bytes = new byte[4];
+                bytes[3] = ( byte ) value;
+                bytes[2] = ( byte ) ( value >> 8 );
+                bytes[1] = ( byte ) ( value >> 16 );
+                bytes[0] = ( byte ) ( value >> 24 );
+            }
         }
-        else if ( value >= TWO_BYTE_MIN && value <= TWO_BYTE_MAX )
+        else
         {
-            bytes = new byte[2];
-            bytes[1] = ( byte ) value;
-            bytes[0] = ( byte ) ( value >> 8 );
-        }
-        else if ( value >= THREE_BYTE_MIN && value <= THREE_BYTE_MAX )
-        {
-            bytes = new byte[3];
-            bytes[2] = ( byte ) value;
-            bytes[1] = ( byte ) ( value >> 8 );
-            bytes[0] = ( byte ) ( value >> 16 );
-        }
-        else if ( value >= FOUR_BYTE_MIN && value <= FOUR_BYTE_MAX )
-        {
-            bytes = new byte[4];
-            bytes[3] = ( byte ) value;
-            bytes[2] = ( byte ) ( value >> 8 );
-            bytes[1] = ( byte ) ( value >> 16 );
-            bytes[0] = ( byte ) ( value >> 24 );
+            // On special case : 0x80000000
+            if ( value == 0x80000000 )
+            {
+                bytes = new byte[4];
+                bytes[3] = ( byte ) value;
+                bytes[2] = ( byte ) ( value >> 8 );
+                bytes[1] = ( byte ) ( value >> 16 );
+                bytes[0] = ( byte ) ( value >> 24 );
+            }
+            else 
+            {
+                // We have to compute the complement, and add 1
+                //value = ( ~value ) + 1;
+                
+                if ( value >= 0xFFFFFF80 )
+                {
+                    bytes = new byte[1];
+                    bytes[0] = ( byte ) value;
+                }
+                else if ( value >= 0xFFFF8000 )
+                {
+                    bytes = new byte[2];
+                    bytes[1] = ( byte ) ( value & 0x000000FF );
+                    bytes[0] = ( byte ) ( value >> 8 );
+                }
+                else if ( value >= 0xFF800000 )
+                {
+                    bytes = new byte[3];
+                    bytes[2] = ( byte ) value ;
+                    bytes[1] = ( byte ) ( value >> 8 );
+                    bytes[0] = ( byte ) ( value >> 16 );
+                }
+                else
+                {
+                    bytes = new byte[4];
+                    bytes[3] = ( byte ) value;
+                    bytes[2] = ( byte ) ( value >> 8 );
+                    bytes[1] = ( byte ) ( value >> 16 );
+                    bytes[0] = ( byte ) ( value >> 24 );
+                }
+            }
         }
 
         return bytes;
