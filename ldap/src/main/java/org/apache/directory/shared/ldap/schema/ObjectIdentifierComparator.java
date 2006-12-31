@@ -37,15 +37,15 @@ public class ObjectIdentifierComparator implements Comparator, Serializable
 
     public int compare( Object o1, Object o2 )
     {
-        if ( o1 == null && o2 == null )
+        if ( ( o1 == null ) && ( o2 == null ) )
         {
             return 0;
         }
-        else if ( o1 != null && o2 == null )
+        else if ( ( o1 != null ) && ( o2 == null ) )
         {
             return 1;
         }
-        else if ( o1 == null && o2 != null )
+        else if ( ( o1 == null ) && ( o2 != null ) )
         {
             return -1;
         }

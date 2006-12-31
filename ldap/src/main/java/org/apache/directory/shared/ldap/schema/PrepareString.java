@@ -4590,7 +4590,11 @@ public class PrepareString
     public static StringBuilder bidi( char[] array )
     {
         StringBuilder sb = new StringBuilder( array == null ? 0 : array.length );
-        sb.append( array );
+        
+        if ( array != null )
+        {
+            sb.append( array );
+        }
         
         return sb;
     }

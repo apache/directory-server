@@ -54,7 +54,7 @@ public class TelephoneNumberSyntaxChecker extends AbstractSyntaxChecker
     private List<Pattern> compiledREs;
     
     /** The default pattern used to check a TelephoneNumber */
-    private final String DEFAULT_REGEXP = "^ *[+]? *((\\([0-9- ]+\\))|[0-9- ]+)+$";
+    private final static String DEFAULT_REGEXP = "^ *[+]? *((\\([0-9- ]+\\))|[0-9- ]+)+$";
     
     /** The compiled default pattern */
     private Pattern defaultPattern =  Pattern.compile( DEFAULT_REGEXP );

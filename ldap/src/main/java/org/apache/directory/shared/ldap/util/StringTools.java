@@ -82,7 +82,7 @@ public class StringTools
     private static final int UTF8_SIX_BYTES = 0x00FC;
 
     /** &lt;alpha> ::= [0x41-0x5A] | [0x61-0x7A] */
-    public static final boolean[] ALPHA =
+    private static final boolean[] ALPHA =
         { 
             false, false, false, false, false, false, false, false, 
             false, false, false, false, false, false, false, false, 
@@ -103,7 +103,7 @@ public class StringTools
         };
 
     /** &lt;alpha-lower-case> ::= [0x61-0x7A] */
-    public static final boolean[] ALPHA_LOWER_CASE =
+    private static final boolean[] ALPHA_LOWER_CASE =
         { 
             false, false, false, false, false, false, false, false, 
             false, false, false, false, false, false, false, false, 
@@ -124,7 +124,7 @@ public class StringTools
         };
 
     /** &lt;alpha-upper-case> ::= [0x41-0x5A] */
-    public static final boolean[] ALPHA_UPPER_CASE =
+    private static final boolean[] ALPHA_UPPER_CASE =
         { 
             false, false, false, false, false, false, false, false, 
             false, false, false, false, false, false, false, false, 
@@ -145,7 +145,7 @@ public class StringTools
         };
 
     /** &lt;alpha-digit> | &lt;digit> */
-    public static final boolean[] ALPHA_DIGIT =
+    private static final boolean[] ALPHA_DIGIT =
         { 
             false, false, false, false, false, false, false, false, 
             false, false, false, false, false, false, false, false, 
@@ -166,7 +166,7 @@ public class StringTools
         };
 
     /** &lt;alpha> | &lt;digit> | '-' */
-    public static final boolean[] CHAR =
+    private static final boolean[] CHAR =
         { 
             false, false, false, false, false, false, false, false, 
             false, false, false, false, false, false, false, false, 
@@ -187,7 +187,7 @@ public class StringTools
         };
 
     /** '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' */
-    public static final boolean[] DIGIT =
+    private static final boolean[] DIGIT =
         { 
             false, false, false, false, false, false, false, false, 
             false, false, false, false, false, false, false, false, 
@@ -250,7 +250,7 @@ public class StringTools
 
 
     /** &lt;hex> ::= [0x30-0x39] | [0x41-0x46] | [0x61-0x66] */
-    public static final byte[] HEX_VALUE =
+    private static final byte[] HEX_VALUE =
         { 
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 00 -> 0F
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 10 -> 1F
@@ -262,7 +262,7 @@ public class StringTools
         };
 
     /** lowerCase = 'a' .. 'z', '0'..'9', '-' */
-    public static final char[] LOWER_CASE =
+    private static final char[] LOWER_CASE =
         { 
               0,   0,   0,   0,   0,   0,   0,   0, 
               0,   0,   0,   0,   0,   0,   0,   0, 
@@ -291,7 +291,7 @@ public class StringTools
         };
 
     /** upperCase = 'A' .. 'Z', '0'..'9', '-' */
-    public static final char[] UPPER_CASE =
+    private static final char[] UPPER_CASE =
         { 
               0,   0,   0,   0,   0,   0,   0,   0, 
               0,   0,   0,   0,   0,   0,   0,   0, 
@@ -318,6 +318,7 @@ public class StringTools
               0,   0,   0,   0,   0,   0,   0,   0, 
               0,   0,   0,   0,   0,   0,   0,   0 
         };
+    
     private static final int CHAR_ONE_BYTE_MASK = 0xFFFFFF80;
 
     private static final int CHAR_TWO_BYTES_MASK = 0xFFFFF800;
@@ -846,7 +847,6 @@ public class StringTools
      */
     public static final List getPaths( String paths, FileFilter filter )
     {
-        final int max = paths.length() - 1;
         int start = 0;
         int stop = -1;
         String path = null;
@@ -857,6 +857,8 @@ public class StringTools
         {
             return list;
         }
+
+        final int max = paths.length() - 1;
 
         // Loop spliting string using OS path separator: terminate
         // when the start index is at the end of the paths string.
@@ -1483,12 +1485,16 @@ public class StringTools
      */
     public static final boolean areEquals( String string1, int index, String text )
     {
+        if ( ( string1 == null ) || ( text == null ) ) 
+        {
+            return false;
+        }
+        
         int length1 = string1.length();
         int length2 = text.length();
 
-        if ( ( string1 == null ) || ( length1 == 0 ) || ( length1 <= index ) || ( index < 0 )
-            || ( text == null ) || ( length2 == 0 )
-            || ( length2 > ( length1 + index ) ) )
+        if ( ( length1 == 0 ) || ( length1 <= index ) || ( index < 0 )
+            || ( length2 == 0 ) || ( length2 > ( length1 + index ) ) )
         {
             return false;
         }
@@ -1625,9 +1631,14 @@ public class StringTools
      */
     public static final boolean isBit( String string, int index )
     {
+        if ( string == null )
+        {
+            return false;
+        }
+        
         int length = string.length();
         
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return false;
         }
@@ -1650,9 +1661,14 @@ public class StringTools
      */
     public static final char charAt( String string, int index )
     {
+        if ( string == null )
+        {
+            return '\0';
+        }
+        
         int length = string.length();
         
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return '\0';
         }
@@ -1662,6 +1678,25 @@ public class StringTools
         }
     }
 
+    public static byte getHexValue( char c1, char c2 )
+    {
+        if ( ( c1 > 127 ) || (c2 > 127 ) || ( c1 < 0 ) | ( c2 < 0 ) )
+        {
+            return -1;
+        }
+        
+        return (byte)( ( HEX_VALUE[c1] << 4 ) | HEX_VALUE[c2] );
+    }
+
+    public static byte getHexValue( char c )
+    {
+        if ( ( c > 127 ) || ( c < 0 ) )
+        {
+            return -1;
+        }
+        
+        return HEX_VALUE[c];
+    }
 
     /**
      * Check if the current character is an Hex Char &lt;hex> ::= [0x30-0x39] |
@@ -1793,6 +1828,34 @@ public class StringTools
         return ( car >= '0' ) && ( car <= '9' );
     }
 
+    /**
+     * Test if the current byte is an Alpha character : 
+     * &lt;alpha> ::= [0x41-0x5A] | [0x61-0x7A]
+     * 
+     * @param c The byte to test
+     * 
+     * @return <code>true</code> if the byte is an Alpha
+     *         character
+     */
+    public static final boolean isAlpha( byte c )
+    {
+        return ( ( c > 127 ) || ( ALPHA[c] == false ) );
+    }
+
+    /**
+     * Test if the current character is an Alpha character : 
+     * &lt;alpha> ::= [0x41-0x5A] | [0x61-0x7A]
+     * 
+     * @param c The char to test
+     * 
+     * @return <code>true</code> if the character is an Alpha
+     *         character
+     */
+    public static final boolean isAlpha( char c )
+    {
+        return ( ( c > 127 ) || ( ALPHA[c] == false ) );
+    }
+
 
     /**
      * Test if the current character is an Alpha character : &lt;alpha> ::=
@@ -1872,9 +1935,14 @@ public class StringTools
      */
     public static final boolean isAlphaASCII( String string, int index )
     {
+        if ( string == null )
+        {
+            return false;
+        }
+        
         int length = string.length();
         
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return false;
         }
@@ -1906,9 +1974,14 @@ public class StringTools
      */
     public static final boolean isAlphaLowercaseASCII( String string, int index )
     {
+        if ( string == null )
+        {
+            return false;
+        }
+
         int length = string.length();
         
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return false;
         }
@@ -1940,9 +2013,14 @@ public class StringTools
      */
     public static final boolean isAlphaUppercaseASCII( String string, int index )
     {
+        if ( string == null )
+        {
+            return false;
+        }
+
         int length = string.length();
         
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return false;
         }
@@ -2019,9 +2097,14 @@ public class StringTools
      */
     public static final boolean isDigit( String string, int index )
     {
+        if ( string == null )
+        {
+            return false;
+        }
+
         int length = string.length();
         
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return false;
         }
@@ -2065,9 +2148,14 @@ public class StringTools
      */
     public static final boolean isAlphaDigit( String string, int index )
     {
+        if ( string == null )
+        {
+            return false;
+        }
+
         int length = string.length();
         
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return false;
         }
@@ -2163,9 +2251,14 @@ public class StringTools
      */
     public static final boolean isAlphaDigitMinus( String string, int index )
     {
+        if ( string == null )
+        {
+            return false;
+        }
+
         int length = string.length();
         
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return false;
         }
@@ -2690,6 +2783,7 @@ public class StringTools
         {
             return null;
         }
+        
         return str.toUpperCase();
     }
 
@@ -2718,6 +2812,7 @@ public class StringTools
         {
             return null;
         }
+        
         return str.toLowerCase();
     }
 
@@ -2979,7 +3074,7 @@ public class StringTools
      */
     public static final String getDefaultCharsetName()
     {
-    	if (null == defaultCharset) 
+    	if ( null == defaultCharset ) 
     	{
     		try 
     		{
@@ -3012,6 +3107,7 @@ public class StringTools
         }
         
         char[] chars = str.toCharArray();
+        
         if ( chars[0] != '#' )
         {
             throw new InvalidNameException( "Expected string to start with a '#' character.  " +
@@ -3043,11 +3139,18 @@ public class StringTools
      */
     public static final String decodeEscapedHex( String str ) throws InvalidNameException
     {
-        int length = str.length();
-        if ( str == null || length == 0 )
+        if ( str == null )
         {
-            throw new InvalidNameException( "Expected string to be non-empty or non-null " +
-                    "with valid index."  );
+            throw new InvalidNameException( "Expected string to be non-null " +
+            "with valid index."  );
+        }
+        
+        int length = str.length();
+        
+        if ( length == 0 )
+        {
+            throw new InvalidNameException( "Expected string to be non-empty " +
+            "with valid index."  );
         }
         
         // create buffer and add everything before start of scan
@@ -3085,6 +3188,7 @@ public class StringTools
     private static int collectEscapedHexBytes( ByteBuffer bb, String str, int index )
     {
         int advanceBy = 0;
+        
         for ( int ii = index; ii < str.length(); ii += 3, advanceBy += 3 )
         {
             // we have the start of a hex escape sequence

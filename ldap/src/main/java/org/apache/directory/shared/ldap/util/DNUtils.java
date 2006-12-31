@@ -256,9 +256,9 @@ public class DNUtils
         }
         else
         {
-            byte c = byteArray[index++];
+            byte b = byteArray[index++];
 
-            if ( ( c > 127 ) || ( StringTools.ALPHA[c] == false ) )
+            if ( StringTools.isAlpha( b ) == false )
             {
                 return -1;
             }
@@ -290,7 +290,7 @@ public class DNUtils
         {
             char c = charArray[index++];
 
-            if ( ( c > 127 ) || ( StringTools.ALPHA[c] == false ) )
+            if ( StringTools.isAlpha( c ) == false )
             {
                 return PARSING_ERROR;
             }
@@ -393,9 +393,14 @@ public class DNUtils
      */
     public static int isPairChar( String string, int index )
     {
+        if ( string == null )
+        {
+            return PARSING_ERROR;
+        }
+
         int length = string.length();
         
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return PARSING_ERROR;
         }
@@ -501,9 +506,14 @@ public class DNUtils
      */
     public static int isStringChar( String string, int index )
     {
+        if ( string == null )
+        {
+            return PARSING_ERROR;
+        }
+        
         int length = string.length();
         
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return PARSING_ERROR;
         }
@@ -595,9 +605,14 @@ public class DNUtils
      */
     public static int isQuoteChar( String string, int index )
     {
+        if ( string == null )
+        {
+            return PARSING_ERROR;
+        }
+
         int length = string.length();
 
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return PARSING_ERROR;
         }
@@ -717,8 +732,7 @@ public class DNUtils
      */
     private static byte getHexPair( String string, int index )
     {
-    	return (byte)((StringTools.HEX_VALUE[string.charAt( index )] << 4) | 
-    				(StringTools.HEX_VALUE[string.charAt( index + 1 )]) );
+    	return StringTools.getHexValue( string.charAt( index ), string.charAt( index + 1 ) );
     }
 
     /**

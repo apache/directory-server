@@ -45,17 +45,17 @@ public class ByteArrayComparator implements Comparator
         // Handle some basis cases
         // -------------------------------------------------------------------
 
-        if ( b1 == null && b2 == null )
+        if ( ( b1 == null ) && ( b2 == null ) )
         {
             return 0;
         }
         
-        if ( b1 != null && b2 == null )
+        if ( ( b1 != null ) && ( b2 == null ) )
         {
             return 1;
         }
         
-        if ( b1 == null && b2 != null )
+        if ( ( b1 == null ) && ( b2 != null ) )
         {
             return -1;
         }

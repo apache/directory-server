@@ -3774,7 +3774,7 @@ public class ArrayUtils
         final Double[] result = new Double[array.length];
         for ( int i = 0; i < array.length; i++ )
         {
-            result[i] = new Double( array[i] );
+            result[i] = Double.valueOf( array[i] );
         }
         return result;
     }
@@ -3881,7 +3881,7 @@ public class ArrayUtils
         final Float[] result = new Float[array.length];
         for ( int i = 0; i < array.length; i++ )
         {
-            result[i] = new Float( array[i] );
+            result[i] = Float.valueOf( array[i] );
         }
         return result;
     }
