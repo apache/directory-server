@@ -81,7 +81,7 @@ public class BaseCommand
     protected void init()
     {
         BaseToolCommandCL command;
-
+ 
         command = new DiagnosticCommandCL();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );

@@ -71,7 +71,7 @@ public class ExceptionService extends BaseInterceptor
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         nexus = factoryCfg.getPartitionNexus();
-        normalizerMap = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         Attribute attr = nexus.getRootDSE().get( "subschemaSubentry" );
         subschemSubentryDn = new LdapDN( ( String ) attr.get() );
         subschemSubentryDn.normalize( normalizerMap );

@@ -25,6 +25,7 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.message.Control;
@@ -78,8 +79,8 @@ public class MiscTest extends AbstractServerTest
         }
         else if ( this.getName().equals( "testUserAuthOnMixedCaseSuffix" ) )
         {
-            Set partitions = new HashSet();
-            partitions.addAll( configuration.getContextPartitionConfigurations() );
+            Set<PartitionConfiguration> partitions = new HashSet();
+            partitions.addAll( configuration.getPartitionConfigurations() );
             MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
             partition.setSuffix( "dc=aPache,dc=org" );
             Attributes entry = new BasicAttributes( "dc", "aPache", true );
@@ -91,7 +92,7 @@ public class MiscTest extends AbstractServerTest
             partition.setContextEntry( entry );
             partition.setIndexedAttributes( Collections.singleton( "dc" ) );
             partitions.add( partition );
-            configuration.setContextPartitionConfigurations( partitions );
+            configuration.setPartitionConfigurations( partitions );
         }
         else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
         {
@@ -100,7 +101,7 @@ public class MiscTest extends AbstractServerTest
 
             // create a partition to search
             Set partitions = new HashSet();
-            partitions.addAll( configuration.getContextPartitionConfigurations() );
+            partitions.addAll( configuration.getPartitionConfigurations() );
             MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
             partition.setSuffix( "dc=apache,dc=org" );
             Attributes entry = new BasicAttributes( "dc", "apache", true );
@@ -112,7 +113,7 @@ public class MiscTest extends AbstractServerTest
             partition.setContextEntry( entry );
             partition.setIndexedAttributes( Collections.singleton( "dc" ) );
             partitions.add( partition );
-            configuration.setContextPartitionConfigurations( partitions );
+            configuration.setPartitionConfigurations( partitions );
         }
 
         super.setUp();

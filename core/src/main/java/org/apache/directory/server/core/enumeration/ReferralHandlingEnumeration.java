@@ -33,7 +33,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.referral.ReferralLut;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;

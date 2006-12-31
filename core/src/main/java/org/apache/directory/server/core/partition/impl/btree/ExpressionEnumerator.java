@@ -26,7 +26,7 @@ import java.util.List;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.filter.AssertionNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;

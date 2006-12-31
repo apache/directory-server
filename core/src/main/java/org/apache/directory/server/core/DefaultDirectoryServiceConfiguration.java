@@ -28,7 +28,8 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.global.GlobalRegistries;
+import org.apache.directory.server.core.schema.SchemaManager;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -79,9 +80,9 @@ class DefaultDirectoryServiceConfiguration implements DirectoryServiceConfigurat
     }
 
 
-    public GlobalRegistries getGlobalRegistries()
+    public Registries getRegistries()
     {
-        return parent.getGlobalRegistries();
+        return parent.getRegistries();
     }
 
 
@@ -113,5 +114,11 @@ class DefaultDirectoryServiceConfiguration implements DirectoryServiceConfigurat
         String authentication, String baseName ) throws NamingException
     {
         return parent.getJndiContext( principalDn, principal, credential, authentication, baseName );
+    }
+
+
+    public SchemaManager getSchemaManager()
+    {
+        return parent.getSchemaManager();
     }
 }

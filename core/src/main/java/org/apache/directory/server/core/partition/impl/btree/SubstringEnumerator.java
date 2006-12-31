@@ -26,7 +26,7 @@ import java.util.regex.PatternSyntaxException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;

@@ -42,14 +42,6 @@ import org.apache.directory.server.core.normalization.NormalizationService;
 import org.apache.directory.server.core.operational.OperationalAttributeService;
 import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.server.core.schema.SchemaService;
-import org.apache.directory.server.core.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.core.schema.bootstrap.BootstrapSchema;
-import org.apache.directory.server.core.schema.bootstrap.CollectiveSchema;
-import org.apache.directory.server.core.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.core.schema.bootstrap.CosineSchema;
-import org.apache.directory.server.core.schema.bootstrap.InetorgpersonSchema;
-import org.apache.directory.server.core.schema.bootstrap.JavaSchema;
-import org.apache.directory.server.core.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.shared.ldap.ldif.Entry;
@@ -81,8 +73,7 @@ public class StartupConfiguration extends Configuration
     private Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
     private List interceptorConfigurations; // Set<InterceptorConfiguration>
     private PartitionConfiguration systemPartitionConfiguration; 
-    private Set bootstrapSchemas; // Set<BootstrapSchema>
-    private Set contextPartitionConfigurations = new HashSet(); // Set<ContextPartitionConfiguration>
+    private Set<PartitionConfiguration> partitionConfigurations = new HashSet<PartitionConfiguration>();
     private List testEntries = new ArrayList(); // List<Attributes>
 
 
@@ -92,7 +83,6 @@ public class StartupConfiguration extends Configuration
     public StartupConfiguration()
     {
         setDefaultAuthenticatorConfigurations();
-        setDefaultBootstrapSchemas();
         setDefaultInterceptorConfigurations();
     }
 
@@ -104,7 +94,6 @@ public class StartupConfiguration extends Configuration
     public StartupConfiguration(String instanceId)
     {
         setDefaultAuthenticatorConfigurations();
-        setDefaultBootstrapSchemas();
         setDefaultInterceptorConfigurations();
         setInstanceId( instanceId );
     }
@@ -132,24 +121,6 @@ public class StartupConfiguration extends Configuration
         set.add( authCfg );
 
         setAuthenticatorConfigurations( set );
-    }
-
-
-    private void setDefaultBootstrapSchemas()
-    {
-        Set set;
-        // Set default bootstrap schemas
-        set = new HashSet();
-
-        set.add( new CoreSchema() );
-        set.add( new CosineSchema() );
-        set.add( new ApacheSchema() );
-        set.add( new InetorgpersonSchema() );
-        set.add( new JavaSchema() );
-        set.add( new SystemSchema() );
-        set.add( new CollectiveSchema() );
-
-        setBootstrapSchemas( set );
     }
 
 
@@ -259,36 +230,18 @@ public class StartupConfiguration extends Configuration
 
 
     /**
-     * Returns {@link BootstrapSchema}s to load while bootstrapping.
-     */
-    public Set getBootstrapSchemas()
-    {
-        return ConfigurationUtil.getClonedSet( bootstrapSchemas );
-    }
-
-
-    /**
-     * Sets {@link BootstrapSchema}s to load while bootstrapping.
-     */
-    protected void setBootstrapSchemas( Set bootstrapSchemas )
-    {
-        this.bootstrapSchemas = ConfigurationUtil.getTypeSafeSet( bootstrapSchemas, BootstrapSchema.class );
-    }
-
-
-    /**
      * Returns {@link PartitionConfiguration}s to configure context partitions.
      */
-    public Set getContextPartitionConfigurations()
+    public Set<PartitionConfiguration> getPartitionConfigurations()
     {
-        return ConfigurationUtil.getClonedSet( contextPartitionConfigurations );
+        return ConfigurationUtil.getClonedSet( partitionConfigurations );
     }
 
 
     /**
      * Sets {@link PartitionConfiguration}s to configure context partitions.
      */
-    protected void setContextPartitionConfigurations( Set contextParitionConfigurations )
+    protected void setPartitionConfigurations( Set contextParitionConfigurations )
     {
         Set newSet = ConfigurationUtil.getTypeSafeSet( contextParitionConfigurations,
             PartitionConfiguration.class );
@@ -308,7 +261,7 @@ public class StartupConfiguration extends Configuration
             names.add( name );
         }
 
-        this.contextPartitionConfigurations = newSet;
+        this.partitionConfigurations = newSet;
     }
 
 

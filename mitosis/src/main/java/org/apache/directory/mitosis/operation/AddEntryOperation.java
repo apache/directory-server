@@ -29,7 +29,7 @@ import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 

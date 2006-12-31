@@ -58,7 +58,7 @@ import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -178,7 +178,7 @@ public class ReplicationService extends BaseInterceptor
         nexus = serviceCfg.getPartitionNexus();
         store = configuration.getStore();
         operationFactory = new OperationFactory( serviceCfg, configuration );
-        attrRegistry = serviceCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        attrRegistry = serviceCfg.getRegistries().getAttributeTypeRegistry();
 
         // Initialize store and service
         store.open( serviceCfg, configuration );

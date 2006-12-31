@@ -25,15 +25,17 @@ import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration;
-import org.apache.directory.server.core.schema.bootstrap.NisSchema;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 
 
@@ -55,17 +57,9 @@ public class SearchOpsITest extends AbstractAdminTestCase
     }
     
     
+    @SuppressWarnings("unchecked")
     public void setUp() throws Exception
     {
-        // -------------------------------------------------------------------
-        // Alter the system configuration to include the NisSchema
-        // -------------------------------------------------------------------
-
-        Set schemas = new HashSet();
-        schemas.addAll( configuration.getBootstrapSchemas() );
-        schemas.add( new NisSchema() );
-        configuration.setBootstrapSchemas( schemas );
-        
         // -------------------------------------------------------------------
         // Alter the partition configuration to index gidNumber
         // -------------------------------------------------------------------
@@ -89,6 +83,27 @@ public class SearchOpsITest extends AbstractAdminTestCase
         }
         
         super.setUp();
+
+        // -------------------------------------------------------------------
+        // Enable the nis schema
+        // -------------------------------------------------------------------
+
+        // check if nis is disabled
+        Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
+        boolean isNisDisabled = false;
+        if ( nisAttrs.get( "m-disabled" ) != null )
+        {
+            isNisDisabled = ( ( String ) nisAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
+        }
+        
+        // if nis is disabled then enable it
+        if ( isNisDisabled )
+        {
+            Attribute disabled = new BasicAttribute( "m-disabled" );
+            ModificationItem[] mods = new ModificationItem[] { 
+                new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
+            schemaRoot.modifyAttributes( "cn=nis", mods );
+        }
         
         // -------------------------------------------------------------------
         // Add a bunch of nis groups
@@ -108,7 +123,7 @@ public class SearchOpsITest extends AbstractAdminTestCase
      */
     public Set searchGroups( String filter ) throws NamingException
     {
-        Set results = new HashSet();
+        Set<String> results = new HashSet<String>();
         NamingEnumeration list = sysRoot.search( "ou=groups", filter, new SearchControls() );
         while( list.hasMore() )
         {

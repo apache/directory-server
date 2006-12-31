@@ -27,7 +27,8 @@ import javax.naming.Context;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.global.GlobalRegistries;
+import org.apache.directory.server.core.schema.SchemaManager;
+import org.apache.directory.server.schema.registries.Registries;
 
 
 /**
@@ -72,7 +73,7 @@ public interface DirectoryServiceConfiguration
     /**
      * Returns the registries for system schema objects of the {@link DirectoryService}.
      */
-    GlobalRegistries getGlobalRegistries();
+    Registries getRegistries();
 
 
     /**
@@ -87,6 +88,10 @@ public interface DirectoryServiceConfiguration
      */
     InterceptorChain getInterceptorChain();
 
+    /**
+     * Returns the schema manager for the {@link DirectoryService}.
+     */
+    SchemaManager getSchemaManager();
 
     /**
      * Returns <tt>true</tt> if this service is started

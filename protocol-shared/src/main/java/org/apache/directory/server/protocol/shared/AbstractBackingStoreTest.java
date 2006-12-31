@@ -52,14 +52,14 @@ import org.apache.directory.server.core.configuration.MutablePartitionConfigurat
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.core.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.core.schema.bootstrap.ApachednsSchema;
-import org.apache.directory.server.core.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.core.schema.bootstrap.CosineSchema;
-import org.apache.directory.server.core.schema.bootstrap.InetorgpersonSchema;
-import org.apache.directory.server.core.schema.bootstrap.Krb5kdcSchema;
-import org.apache.directory.server.core.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.protocol.shared.store.KerberosAttribute;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.ApachednsSchema;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.CosineSchema;
+import org.apache.directory.server.schema.bootstrap.InetorgpersonSchema;
+import org.apache.directory.server.schema.bootstrap.Krb5kdcSchema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
@@ -155,13 +155,19 @@ public abstract class AbstractBackingStoreTest extends TestCase
         schemas.add( new Krb5kdcSchema() );
         schemas.add( new SystemSchema() );
         schemas.add( new ApachednsSchema() );
-        config.setBootstrapSchemas( schemas );
+
+        if ( true )
+        {
+            throw new RuntimeException( "Need to find a way to configure the use of different schemas on startup." );
+        }
+        
+        //config.setBootstrapSchemas( schemas );
 
         Set partitions = new HashSet();
         partitions.add( getExamplePartition() );
         partitions.add( getApachePartition() );
 
-        config.setContextPartitionConfigurations( Collections.unmodifiableSet( partitions ) );
+        config.setPartitionConfigurations( Collections.unmodifiableSet( partitions ) );
 
         return config.toJndiEnvironment();
     }

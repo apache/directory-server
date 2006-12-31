@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>1.5.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-btree-base</artifactId>
+  <name>ApacheDS BTree Base</name>
+  <packaging>jar</packaging>
+  <description>
+    Base BTree interfaces used by the BTreePartition and JdbmPartitions as well
+    as by the JdbmStore.  Used to break cyclic dependencies.
+  </description>
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-schema-registries</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+  </dependencies>
+</project>
+

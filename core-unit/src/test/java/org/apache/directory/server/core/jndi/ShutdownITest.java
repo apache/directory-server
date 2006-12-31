@@ -47,7 +47,7 @@ public class ShutdownITest extends AbstractAdminTestCase
      */
     public void testShutdownNonNullContext() throws Exception
     {
-        setSysRoot( "uid=admin,ou=system", "secret", new ShutdownConfiguration() );
+        setContextRoots( "uid=admin,ou=system", "secret", new ShutdownConfiguration() );
         assertNotNull( sysRoot );
         doDelete( configuration.getWorkingDirectory() );
     }
@@ -60,11 +60,11 @@ public class ShutdownITest extends AbstractAdminTestCase
      */
     public void testShutdownRestart() throws Exception
     {
-        setSysRoot( "uid=admin,ou=system", "secret", new ShutdownConfiguration() );
+        setContextRoots( "uid=admin,ou=system", "secret", new ShutdownConfiguration() );
         assertNotNull( sysRoot );
 
         // restart the system now
-        setSysRoot( "uid=admin,ou=system", "secret", configuration );
+        setContextRoots( "uid=admin,ou=system", "secret", configuration );
 
         // (tearDown is overriden)
         super.tearDown();

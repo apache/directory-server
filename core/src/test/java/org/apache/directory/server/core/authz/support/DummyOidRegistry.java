@@ -28,7 +28,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.authz.support.ACITupleFilter;
-import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 
 
 /**

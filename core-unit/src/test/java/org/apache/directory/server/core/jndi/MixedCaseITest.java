@@ -70,7 +70,7 @@ public class MixedCaseITest extends AbstractAdminTestCase
         Set partitions = new HashSet();
         partitions.add( partition );
 
-        configuration.setContextPartitionConfigurations( partitions );
+        configuration.setPartitionConfigurations( partitions );
         super.overrideEnvironment( Context.PROVIDER_URL, suffix );
 
         super.setUp();

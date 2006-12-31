@@ -210,16 +210,19 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>jdk1.5</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-        <jdk>1.5</jdk>
-      </activation>
       <modules>
         <!-- module>maven-osgi-plugin</module-->
 
+        <module>bootstrap-partition</module>
+        <module>bootstrap-plugin</module>
+        <module>schema-extras</module>
+        <module>schema-bootstrap</module>
+
+        <module>utils</module>
+        <module>schema-registries</module>
+        <module>jdbm-store</module>
+        <module>constants</module>
+        <module>btree-base</module>
         <module>core</module>
         <module>core-shared</module>
         <module>core-plugin</module>
@@ -251,76 +254,6 @@
         <!-- extra for jdk 1.5 -->
 
       </modules>
-    </profile>
-
-    <!--profile>
-      <id>jdk1.4</id>
-      <activation>
-        <jdk>1.4</jdk>
-      </activation>
-      <modules>
-        <module>maven-osgi-plugin</module>
-
-        <module>core</module>
-        <module>core-shared</module>
-        <module>core-plugin</module>
-        <module>core-unit</module>
-        <module>protocol-shared</module>
-        <module>protocol-ntp</module>
-        <module>protocol-ldap</module>
-        <module>protocol-kerberos</module>
-        <module>protocol-dhcp</module>
-        <module>protocol-dns</module>
-        <module>protocol-changepw</module>
-        <module>server-tools</module>
-
-        <!== breaks the build on first try
-        <module>sar-plugin</module>
-        <module>server-sar</module>
-        ==>
-
-        <module>server-unit</module>
-        <module>server-main</module>
-        <module>server-jndi</module>
-        <module>kerberos-shared</module>
-
-        <module>mitosis</module>
-        <module>server-replication</module>
-      </modules>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>validate</phase>
-                <configuration>
-                  <tasks>
-                    <echo>
-====================================================================
-                       W A R N I N G
-                       =============
-
-Build with 1.4 jvm will not include modules:
-
- o server-ssl
-
-Use JDK 1.5 to make sure these modules build.
-====================================================================
-                    </echo>
-                  </tasks>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile-->
-  </profiles>
 
   <developers>
     <developer>

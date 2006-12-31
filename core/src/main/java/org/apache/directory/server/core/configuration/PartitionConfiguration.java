@@ -30,7 +30,7 @@ import javax.naming.directory.BasicAttributes;
 
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.schema.MatchingRuleRegistry;
+import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Normalizer;

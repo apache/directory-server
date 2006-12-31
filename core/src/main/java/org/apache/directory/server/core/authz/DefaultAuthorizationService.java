@@ -102,7 +102,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         nexus = factoryCfg.getPartitionNexus();
-        normalizerMapping = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        normalizerMapping = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
 
         // disable this static module if basic access control mechanisms are enabled
         enabled = !factoryCfg.getStartupConfiguration().isAccessControlEnabled();

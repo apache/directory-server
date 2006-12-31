@@ -30,7 +30,7 @@ import org.apache.directory.mitosis.common.Constants;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 

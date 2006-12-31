@@ -29,13 +29,12 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 
 import org.apache.directory.server.core.schema.SchemaService;
-import org.apache.directory.server.core.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.core.schema.bootstrap.BootstrapRegistries;
-import org.apache.directory.server.core.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.core.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.core.schema.bootstrap.CosineSchema;
-import org.apache.directory.server.core.schema.bootstrap.InetorgpersonSchema;
-import org.apache.directory.server.core.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -45,22 +44,19 @@ import junit.framework.TestCase;
 
 /**
  * Tests methods in SchemaService.
- * 
  */
 public class SchemaServiceTest extends TestCase
 {
-    BootstrapRegistries registries = new BootstrapRegistries();
+    DefaultRegistries registries;
 
 
     public void setUp() throws Exception
     {
-        registries = new BootstrapRegistries();
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
+        registries = new DefaultRegistries( "bootstrap", loader );
         loader.load( new SystemSchema(), registries );
         loader.load( new ApacheSchema(), registries );
         loader.load( new CoreSchema(), registries );
-        loader.load( new CosineSchema(), registries );
-        loader.load( new InetorgpersonSchema(), registries );
     }
 
     
@@ -68,7 +64,7 @@ public class SchemaServiceTest extends TestCase
     {
         AttributeTypeRegistry attrRegistry = registries.getAttributeTypeRegistry();
         Iterator list = attrRegistry.descendants( "name" );
-        Set nameAttrs = new HashSet();
+        Set<String> nameAttrs = new HashSet<String>();
         while ( list.hasNext() )
         {
             AttributeType type = ( AttributeType ) list.next();
@@ -128,38 +124,35 @@ public class SchemaServiceTest extends TestCase
 
     public void testAlterObjectClassesInetOrgPersonAttrValue() throws NamingException
     {
-        Attribute attr = new BasicAttribute( "objectClass", "inetOrgPerson" );
+        Attribute attr = new BasicAttribute( "objectClass", "organizationalPerson" );
         SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
-        assertEquals( 3, attr.size() );
+        assertEquals( 2, attr.size() );
         assertTrue( attr.contains( "person" ) );
         assertTrue( attr.contains( "organizationalPerson" ) );
-        assertTrue( attr.contains( "inetOrgPerson" ) );
     }
 
 
     public void testAlterObjectClassesOverlapping() throws NamingException
     {
-        Attribute attr = new BasicAttribute( "objectClass", "inetOrgPerson" );
+        Attribute attr = new BasicAttribute( "objectClass", "organizationalPerson" );
         attr.add( "residentialPerson" );
         SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
-        assertEquals( 4, attr.size() );
+        assertEquals( 3, attr.size() );
         assertTrue( attr.contains( "person" ) );
         assertTrue( attr.contains( "organizationalPerson" ) );
-        assertTrue( attr.contains( "inetOrgPerson" ) );
         assertTrue( attr.contains( "residentialPerson" ) );
     }
 
 
     public void testAlterObjectClassesOverlappingAndDsa() throws NamingException
     {
-        Attribute attr = new BasicAttribute( "objectClass", "inetOrgPerson" );
+        Attribute attr = new BasicAttribute( "objectClass", "organizationalPerson" );
         attr.add( "residentialPerson" );
         attr.add( "dSA" );
         SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
-        assertEquals( 6, attr.size() );
+        assertEquals( 5, attr.size() );
         assertTrue( attr.contains( "person" ) );
         assertTrue( attr.contains( "organizationalPerson" ) );
-        assertTrue( attr.contains( "inetOrgPerson" ) );
         assertTrue( attr.contains( "residentialPerson" ) );
         assertTrue( attr.contains( "dSA" ) );
         assertTrue( attr.contains( "applicationEntity" ) );

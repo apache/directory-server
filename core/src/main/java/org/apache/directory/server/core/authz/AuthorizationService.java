@@ -35,10 +35,10 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
-import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -166,8 +166,8 @@ public class AuthorizationService extends BaseInterceptor
         super.init( factoryCfg, cfg );
         tupleCache = new TupleCache( factoryCfg );
         groupCache = new GroupCache( factoryCfg );
-        attrRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
+        attrRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+        OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
         
         // look up some constant information
         objectClassOid = oidRegistry.getOid( "objectClass" );
@@ -177,7 +177,7 @@ public class AuthorizationService extends BaseInterceptor
         acSubentryType = attrRegistry.lookup( acSubentryOid );
         
         aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( attrRegistry, oidRegistry ), attrRegistry.getNormalizerMapping() );
-        engine = new ACDFEngine( factoryCfg.getGlobalRegistries().getOidRegistry(), attrRegistry );
+        engine = new ACDFEngine( factoryCfg.getRegistries().getOidRegistry(), attrRegistry );
         chain = factoryCfg.getInterceptorChain();
         enabled = factoryCfg.getStartupConfiguration().isAccessControlEnabled();
 

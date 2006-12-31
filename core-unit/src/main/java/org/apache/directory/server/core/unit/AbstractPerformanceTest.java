@@ -152,10 +152,10 @@ public class AbstractPerformanceTest extends AbstractTestCase
             partConfig.setContextEntry( attributes );
             
             configuration.setShutdownHookEnabled( false );
-            configuration.setContextPartitionConfigurations( Collections.singleton( partConfig ) );
+            configuration.setPartitionConfigurations( Collections.singleton( partConfig ) );
             
             doDelete( configuration.getWorkingDirectory() );
-            setSysRoot( username, password, configuration );
+            setContextRoots( username, password, configuration );
             
             Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
             env.put( Context.SECURITY_PRINCIPAL, username );

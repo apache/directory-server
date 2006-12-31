@@ -39,9 +39,9 @@ import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.OidRegistry;
-import org.apache.directory.server.core.schema.Registries;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -63,13 +63,10 @@ public abstract class BTreePartition implements Partition
 {
     private static final Logger log = LoggerFactory.getLogger( BTreePartition.class );
 
-    /**
-     * the search engine used to search the database
-     */
+    /** the search engine used to search the database */
     private SearchEngine searchEngine = null;
     private Optimizer optimizer = new NoOpOptimizer();
     
-    protected BTreePartitionConfiguration btpConfig;
     protected AttributeTypeRegistry attributeTypeRegistry = null;
     protected OidRegistry oidRegistry = null;
 
@@ -94,7 +91,22 @@ public abstract class BTreePartition implements Partition
      * 
      * @param registries the schema entity registries
      */
-    public void setRegistries( Registries registries )
+    public void initRegistries( Registries registries )
+    {
+        initRegistries1( registries );
+    }
+    
+    
+    /**
+     * This should be called second after initializing the optimizer with 
+     * initOptimizer0.  This is the same as calling initRegistries() 
+     * (initRegistries actually calls initRegistries1) except it is protected 
+     * to hide the '1' at the end of the method name.  The '1' indicates it 
+     * is the 2nd thing that must be executed during initialization.
+     * 
+     * @param registries the schema entity registries
+     */
+    protected void initRegistries1( Registries registries )
     {
         attributeTypeRegistry = registries.getAttributeTypeRegistry();
         oidRegistry = registries.getOidRegistry();
@@ -103,19 +115,17 @@ public abstract class BTreePartition implements Partition
         this.searchEngine = new DefaultSearchEngine( this, evaluator, enumerator, optimizer );
     }
     
-
-    public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
-        throws NamingException
+    
+    /**
+     * Use this method to initialize the indices.  Only call this after
+     * the registries and the optimizer have been enabled.  The '2' at the end
+     * shows this is the 3rd init method called in the init sequence.
+     * 
+     * @param indices
+     * @throws NamingException
+     */
+    protected void initIndices2(Set indices ) throws NamingException
     {
-        this.btpConfig = BTreePartitionConfiguration.convert( cfg );
-        if ( this.btpConfig.isOptimizerEnabled() )
-        {
-            optimizer = new DefaultOptimizer( this );
-        }
-
-        // Call this ONLY after trying to override the optimizer default above
-        setRegistries( factoryCfg.getGlobalRegistries() );
-
         Set<String> sysOidSet = new HashSet<String>();
         sysOidSet.add( Oid.EXISTANCE );
         sysOidSet.add( Oid.HIERARCHY );
@@ -128,7 +138,7 @@ public abstract class BTreePartition implements Partition
         // Used to calculate the system indices we must automatically add
         Set<String> customAddedSystemIndices = new HashSet<String>();
         
-        for ( Iterator ii = cfg.getIndexedAttributes().iterator(); ii.hasNext(); /**/ )
+        for ( Iterator ii = indices.iterator(); ii.hasNext(); /**/ )
         {
             /*
              * NOTE
@@ -299,15 +309,54 @@ public abstract class BTreePartition implements Partition
                 }
             }
         }
+    }
 
+    
+    /**
+     * Called last (4th) to check if the suffix entry has been created on disk,
+     * and if not it is created.
+     *  
+     * @param suffix
+     * @param entry
+     * @throws NamingException
+     */
+    protected void initSuffixEntry3( String suffix, Attributes entry ) throws NamingException
+    {
         // add entry for context, if it does not exist
         Attributes suffixOnDisk = getSuffixEntry();
         if ( suffixOnDisk == null )
         {
-            LdapDN suffix = new LdapDN( cfg.getSuffix() );
-            LdapDN normalizedSuffix = LdapDN.normalize( suffix, attributeTypeRegistry.getNormalizerMapping() );
-            add( normalizedSuffix, cfg.getContextEntry() );
+            LdapDN dn = new LdapDN( suffix );
+            LdapDN normalizedSuffix = LdapDN.normalize( dn, attributeTypeRegistry.getNormalizerMapping() );
+            add( normalizedSuffix, entry );
         }
+    }
+
+    
+    /**
+     * Call this first in the init sequence to initialize the optimizer.
+     * 
+     * @param cfg
+     */
+    protected void initOptimizer0( PartitionConfiguration cfg )
+    {
+        if ( cfg instanceof BTreePartitionConfiguration )
+        {
+            if ( ( ( BTreePartitionConfiguration ) cfg ).isOptimizerEnabled() )
+            {
+                optimizer = new DefaultOptimizer( this );
+            }
+        }
+    }
+
+    
+    public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
+        throws NamingException
+    {
+        initOptimizer0( cfg );
+        initRegistries1( factoryCfg.getRegistries() );
+        initIndices2( cfg.getIndexedAttributes() );
+        initSuffixEntry3( cfg.getSuffix(), cfg.getContextEntry() );
     }
 
 

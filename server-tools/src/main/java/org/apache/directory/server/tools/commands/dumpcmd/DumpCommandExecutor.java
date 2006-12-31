@@ -18,7 +18,7 @@
  *  
  */
 package org.apache.directory.server.tools.commands.dumpcmd;
-
+ 
 
 import java.io.File;
 import java.io.FileWriter;
@@ -46,9 +46,10 @@ import org.apache.directory.server.configuration.ServerStartupConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.bootstrap.BootstrapRegistries;
-import org.apache.directory.server.core.schema.bootstrap.BootstrapSchemaLoader;
+//import org.apache.directory.server.core.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
@@ -75,9 +76,9 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
     public static final String EXCLUDEDATTRIBUTES_PARAMETER = "excluded-attributes";
     public static final String INCLUDEOPERATIONAL_PARAMETER = "include-operational";
 
-    private BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
-    private BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-    private Set exclusions = new HashSet();
+    private DefaultRegistries bootstrapRegistries = new DefaultRegistries( "bootstrap", new BootstrapSchemaLoader() );
+    //private BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
+    private Set<String> exclusions = new HashSet<String>();
     private boolean includeOperational = false;
     private String outputFile;
     private String[] partitions;
@@ -140,7 +141,14 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
     private void execute() throws Exception
     {
         getLayout().verifyInstallation();
-        loader.load( getConfiguration().getBootstrapSchemas(), bootstrapRegistries );
+        
+        if ( true )
+        {
+            throw new RuntimeException( "Schema initialization is a bit messed up or needs to be " +
+                    "/n re-evaluated here." );
+        }
+        
+        // loader.load( getConfiguration().getBootstrapSchemas(), bootstrapRegistries );
 
         PrintWriter out = null;
         if ( excludedAttributes != null )
@@ -173,7 +181,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
 
     private void processParameters( Parameter[] params )
     {
-        Map parameters = new HashMap();
+        Map<String, Object> parameters = new HashMap<String, Object>();
         for ( int i = 0; i < params.length; i++ )
         {
             Parameter parameter = params[i];
@@ -258,7 +266,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
 
     private void processListeners( ListenerParameter[] listeners )
     {
-        Map parameters = new HashMap();
+        Map<String, ToolCommandListener> parameters = new HashMap<String, ToolCommandListener>();
         for ( int i = 0; i < listeners.length; i++ )
         {
             ListenerParameter parameter = listeners[i];
@@ -346,7 +354,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
 
     private void filterAttributes( String dn, Attributes entry ) throws NamingException
     {
-        List toRemove = new ArrayList();
+        List<String> toRemove = new ArrayList<String>();
         AttributeTypeRegistry registry = bootstrapRegistries.getAttributeTypeRegistry();
         NamingEnumeration attrs = entry.getAll();
         while ( attrs.hasMore() )

@@ -42,7 +42,7 @@ public class SyncITest extends AbstractAdminTestCase
      */
     public void testSyncNoException() throws Exception
     {
-        sysRoot = setSysRoot( "uid=admin,ou=system", "secret", new SyncConfiguration() );
+        setContextRoots( "uid=admin,ou=system", "secret", new SyncConfiguration() );
         assertNotNull( sysRoot );
     }
 
@@ -55,7 +55,7 @@ public class SyncITest extends AbstractAdminTestCase
      */
     public void testPostSyncLookup() throws Exception
     {
-        sysRoot = setSysRoot( "uid=admin,ou=system", "secret", new SyncConfiguration() );
+        setContextRoots( "uid=admin,ou=system", "secret", new SyncConfiguration() );
 
         Attributes users = sysRoot.getAttributes( "ou=users" );
 

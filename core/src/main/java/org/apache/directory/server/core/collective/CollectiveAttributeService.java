@@ -29,8 +29,8 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -81,7 +81,7 @@ public class CollectiveAttributeService extends BaseInterceptor
     {
         super.init( factoryCfg, cfg );
         nexus = factoryCfg.getPartitionNexus();
-        registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        registry = factoryCfg.getRegistries().getAttributeTypeRegistry();
     }
 
 

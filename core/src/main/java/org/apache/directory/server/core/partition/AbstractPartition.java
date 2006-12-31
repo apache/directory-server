@@ -170,7 +170,7 @@ public abstract class AbstractPartition implements Partition
         if ( suffixDn == null )
         {
             suffixDn = new LdapDN( cfg.getSuffix() );
-            suffixDn.normalize( factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            suffixDn.normalize( factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         }
 
         return suffixDn;

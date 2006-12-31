@@ -18,7 +18,7 @@
  *  
  */
 package org.apache.directory.mitosis.store.derby;
-
+ 
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +45,8 @@ import org.apache.directory.server.core.configuration.MutableStartupConfiguratio
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.global.GlobalRegistries;
+import org.apache.directory.server.core.schema.SchemaManager;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
@@ -407,7 +408,7 @@ public class DerbyReplicationStoreTest extends TestCase
         }
 
 
-        public GlobalRegistries getGlobalRegistries()
+        public Registries getRegistries()
         {
             return null;
         }
@@ -432,6 +433,12 @@ public class DerbyReplicationStoreTest extends TestCase
 
 
         public DirectoryServiceListener getServiceListener()
+        {
+            return null;
+        }
+
+
+        public SchemaManager getSchemaManager()
         {
             return null;
         }

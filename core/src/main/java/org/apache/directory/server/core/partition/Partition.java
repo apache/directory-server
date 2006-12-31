@@ -184,7 +184,7 @@ public interface Partition
      * <a href="http://java.sun.com/j2se/1.4.2/docs/api/
      * javax/naming/directory/SearchResult.html">SearchResult</a>.
      */
-    NamingEnumeration search( LdapDN baseName, Map environment, ExprNode filter, SearchControls searchControls )
+    NamingEnumeration<SearchResult> search( LdapDN baseName, Map environment, ExprNode filter, SearchControls searchControls )
         throws NamingException;
 
 

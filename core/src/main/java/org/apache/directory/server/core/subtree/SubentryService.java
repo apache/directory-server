@@ -30,8 +30,8 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -116,8 +116,8 @@ public class SubentryService extends BaseInterceptor
         super.init( factoryCfg, cfg );
         this.nexus = factoryCfg.getPartitionNexus();
         this.factoryCfg = factoryCfg;
-        this.attrRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        this.oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
+        this.attrRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+        this.oidRegistry = factoryCfg.getRegistries().getOidRegistry();
         
         // setup various attribute type values
         objectClassType = attrRegistry.lookup( oidRegistry.getOid( "objectClass" ) );
@@ -129,7 +129,7 @@ public class SubentryService extends BaseInterceptor
                 return attrRegistry.getNormalizerMapping();
             }
         }, attrRegistry.getNormalizerMapping() );
-        evaluator = new SubtreeEvaluator( factoryCfg.getGlobalRegistries().getOidRegistry() );
+        evaluator = new SubtreeEvaluator( factoryCfg.getRegistries().getOidRegistry() );
 
         // prepare to find all subentries in all namingContexts
         Iterator suffixes = this.nexus.listSuffixes();

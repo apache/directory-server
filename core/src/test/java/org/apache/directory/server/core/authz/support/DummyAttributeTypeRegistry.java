@@ -28,7 +28,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.authz.support.ACITupleFilter;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -463,5 +463,11 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
     public boolean hasDescendants( String ancestorId ) throws NamingException
     {
         return false;
+    }
+
+
+    public Iterator<AttributeType> iterator()
+    {
+        return null;
     }
 }

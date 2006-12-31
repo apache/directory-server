@@ -29,9 +29,9 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.normalization.NormalizingVisitor;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
-import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -77,12 +77,12 @@ public class EventService extends BaseInterceptor
     {
         super.init( factoryCfg, cfg );
 
-        OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
-        attributeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
+        attributeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
         evaluator = new ExpressionEvaluator( oidRegistry, attributeRegistry );
         nexus = factoryCfg.getPartitionNexus();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
-        visitor = new NormalizingVisitor( ncn, factoryCfg.getGlobalRegistries().getOidRegistry() );
+        visitor = new NormalizingVisitor( ncn, factoryCfg.getRegistries().getOidRegistry() );
     }
 
 

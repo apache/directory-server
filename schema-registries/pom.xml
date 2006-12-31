@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>1.5.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-schema-registries</artifactId>
+  <name>ApacheDS Schema Registries</name>
+  <description>
+    Interfaces for schema entity registries are contained here.
+  </description>
+  <packaging>jar</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-core-shared</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+  </dependencies>
+</project>
+

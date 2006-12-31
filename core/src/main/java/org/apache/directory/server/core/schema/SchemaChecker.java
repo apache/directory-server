@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.schema;
 
 
+import org.apache.directory.server.schema.registries.ObjectClassRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
@@ -664,6 +666,7 @@ public class SchemaChecker
      * @return the set of attributes composing the Rdn for the name
      * @throws NamingException if the syntax of the Rdn is incorrect
      */
+    @SuppressWarnings("unchecked")
     private static Set getRdnAttributes( Name name ) throws NamingException
     {
         String[] comps = NamespaceTools.getCompositeComponents( name.get( name.size() - 1 ) );

@@ -338,7 +338,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
             SessionLog.info( ctx.getSession(), "Sending entries under '" + contextName + '\'' );
 
-            Map mapping = ctx.getServiceConfiguration().getGlobalRegistries().getAttributeTypeRegistry()
+            Map mapping = ctx.getServiceConfiguration().getRegistries().getAttributeTypeRegistry()
                 .getNormalizerMapping();
             contextName.normalize( mapping );
             sendAllEntries( ctx, contextName );
@@ -383,7 +383,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
                 // Convert the entry into AddEntryOperation log.
                 LdapDN dn = new LdapDN( sr.getName() );
-                dn.normalize( ctx.getServiceConfiguration().getGlobalRegistries()
+                dn.normalize( ctx.getServiceConfiguration().getRegistries()
                     .getAttributeTypeRegistry().getNormalizerMapping() );
                 Operation op = new AddEntryOperation( csn, dn, attrs );
 

@@ -36,9 +36,9 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
-import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -80,8 +80,8 @@ public class NormalizationService extends BaseInterceptor
 
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
-        OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
-        attributeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
+        attributeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
         normVisitor = new NormalizingVisitor( ncn, oidRegistry );
         expVisitor = new ExpandingVisitor( attributeRegistry );

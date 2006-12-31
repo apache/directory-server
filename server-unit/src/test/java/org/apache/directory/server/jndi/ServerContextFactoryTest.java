@@ -129,7 +129,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
 
         pcfgs.add( pcfg );
 
-        configuration.setContextPartitionConfigurations( pcfgs );
+        configuration.setPartitionConfigurations( pcfgs );
 
         super.setUp();
     }

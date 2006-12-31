@@ -31,9 +31,9 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.core.schema.bootstrap.AbstractBootstrapSchema;
-import org.apache.directory.server.core.schema.bootstrap.BootstrapSchema;
-import org.apache.directory.server.core.schema.bootstrap.ProducerTypeEnum;
+import org.apache.directory.server.schema.bootstrap.AbstractBootstrapSchema;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchema;
+import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -66,7 +66,7 @@ public class DirectorySchemaToolMojo extends AbstractMojo
 
     /**
      * The default package to use for generated schema classes.
-     * @parameter expression="org.apache.directory.server.core.schema.bootstrap"
+     * @parameter expression="org.apache.directory.server.schema.bootstrap"
      */
     private String defaultPackage;
 
@@ -203,14 +203,6 @@ public class DirectorySchemaToolMojo extends AbstractMojo
                     
                 case SYNTAX_PRODUCER :
                     typeName = "ProducerTypeEnum.SYNTAX_PRODUCER";
-                    break;
-                    
-                case STATE_FACTORY_PRODUCER :
-                    typeName = "ProducerTypeEnum.STATE_FACTORY_PRODUCER";
-                    break;
-                    
-                case OBJECT_FACTORY_PRODUCER :
-                    typeName = "ProducerTypeEnum.OBJECT_FACTORY_PRODUCER";
                     break;
                     
                 default:

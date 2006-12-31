@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>1.5.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-jdbm-store</artifactId>
+  <name>ApacheDS JDBM Store</name>
+  <packaging>jar</packaging>
+  <description>
+    A JDBM entry store which does not have any dependency on core interfaces.
+    The JDBM partition will use this store and build on it to adapt this to 
+    server specific partition interfaces.
+    Having this separate module without dependencies on core interfaces makes
+    it easier to avoid cyclic dependencies between modules.  This is especially
+    important for use within the bootstrap plugin which needs to build the
+    schema partition used for bootstrapping the server.
+  </description>
+  <dependencies>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jdbm</groupId>
+      <artifactId>jdbm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-constants</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-utils</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-btree-base</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-schema-registries</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+  </dependencies>
+</project>
+

@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.normalization;
 
 
-import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;

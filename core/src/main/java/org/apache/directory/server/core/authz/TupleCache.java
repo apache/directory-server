@@ -34,9 +34,9 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.ConcreteNameComponentNormalizer;
-import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -91,10 +91,10 @@ public class TupleCache
      */
     public TupleCache(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
-    	normalizerMap = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+    	normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         this.nexus = factoryCfg.getPartitionNexus();
-        AttributeTypeRegistry attributeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
+        AttributeTypeRegistry attributeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+        OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
         aciParser = new ACIItemParser( ncn, normalizerMap );
         env = ( Hashtable ) factoryCfg.getEnvironment().clone();

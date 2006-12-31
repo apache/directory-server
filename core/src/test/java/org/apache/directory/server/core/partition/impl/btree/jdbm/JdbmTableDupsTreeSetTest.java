@@ -29,7 +29,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.TupleComparator;
-import org.apache.directory.server.core.schema.SerializableComparator;
+import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.shared.ldap.util.ArrayEnumeration;
 import org.apache.directory.shared.ldap.util.BigIntegerComparator;
 

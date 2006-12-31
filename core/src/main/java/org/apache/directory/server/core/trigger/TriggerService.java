@@ -45,9 +45,9 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.sp.LdapClassLoader;
 import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -215,7 +215,7 @@ public class TriggerService extends BaseInterceptor
     {
         super.init( dirServCfg, intCfg );
         triggerSpecCache = new TriggerSpecCache( dirServCfg );
-        attrRegistry = dirServCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        attrRegistry = dirServCfg.getRegistries().getAttributeTypeRegistry();
         triggerParser = new TriggerSpecificationParser
             ( new NormalizerMappingResolver()
                 {

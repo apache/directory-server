@@ -25,10 +25,12 @@ import junit.framework.TestCase;
 import javax.naming.directory.*;
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.schema.ObjectClassRegistry;
 import org.apache.directory.server.core.schema.SchemaChecker;
-import org.apache.directory.server.core.schema.bootstrap.*;
-import org.apache.directory.server.core.schema.global.GlobalRegistries;
+import org.apache.directory.server.schema.bootstrap.*;
+import org.apache.directory.server.schema.registries.DefaultRegistries;
+import org.apache.directory.server.schema.registries.ObjectClassRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -50,7 +52,7 @@ import java.util.HashSet;
  */
 public class SchemaCheckerTest extends TestCase
 {
-    GlobalRegistries registries = null;
+    Registries registries = null;
 
 
     public SchemaCheckerTest() throws NamingException
@@ -63,54 +65,24 @@ public class SchemaCheckerTest extends TestCase
     {
         super( name );
 
-        BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
-
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        Set schemas = new HashSet();
+        registries = new DefaultRegistries( "bootstrap", loader );
+
+        Set<Schema> schemas = new HashSet<Schema>();
         schemas.add( new SystemSchema() );
         schemas.add( new ApacheSchema() );
         schemas.add( new CoreSchema() );
-        schemas.add( new CosineSchema() );
-        schemas.add( new InetorgpersonSchema() );
-        schemas.add( new JavaSchema() );
-        loader.load( schemas, bootstrapRegistries );
+        loader.loadWithDependencies( schemas, ( DefaultRegistries ) registries );
 
-        java.util.List errors = bootstrapRegistries.checkRefInteg();
+        java.util.List errors = registries.checkRefInteg();
         if ( !errors.isEmpty() )
         {
             NamingException e = new NamingException();
             e.setRootCause( ( Throwable ) errors.get( 0 ) );
             throw e;
         }
-
-        registries = new GlobalRegistries( bootstrapRegistries );
     }
 
-
-    //    private GlobalRegistries getGlobalRegistries() throws NamingException
-    //    {
-    //        BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
-    //
-    //        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-    //        Set schemas = new HashSet();
-    //        schemas.add( new SystemSchema() );
-    //        schemas.add( new ApacheSchema() );
-    //        schemas.add( new CoreSchema() );
-    //        schemas.add( new CosineSchema() );
-    //        schemas.add( new InetorgpersonSchema() );
-    //        schemas.add( new JavaSchema() );
-    //        loader.load( schemas, bootstrapRegistries );
-    //
-    //        java.util.List errors = bootstrapRegistries.checkRefInteg();
-    //        if ( !errors.isEmpty() )
-    //        {
-    //            NamingException e = new NamingException();
-    //            e.setRootCause( ( Throwable ) errors.get( 0 ) );
-    //            throw e;
-    //        }
-    //
-    //        return new GlobalRegistries( bootstrapRegistries );
-    //    }
 
     /**
      * Test case to check the schema checker operates correctly when modify

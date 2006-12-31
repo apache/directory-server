@@ -1,0 +1,644 @@
+# =============================================================================
+#   Licensed to the Apache Software Foundation (ASF) under one
+#   or more contributor license agreements.  See the NOTICE file
+#   distributed with this work for additional information
+#   regarding copyright ownership.  The ASF licenses this file
+#   to you under the Apache License, Version 2.0 (the
+#   "License"); you may not use this file except in compliance
+#   with the License.  You may obtain a copy of the License at
+#  
+#     http://www.apache.org/licenses/LICENSE-2.0
+#  
+#   Unless required by applicable law or agreed to in writing,
+#   software distributed under the License is distributed on an
+#   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#   KIND, either express or implied.  See the License for the
+#   specific language governing permissions and limitations
+#   under the License.
+#  
+# =============================================================================
+#                                metameta Schema
+# =============================================================================
+#
+#         +------------------------------+-----------------------------+
+#         |          Syntax OID          |            name             |
+#         +------------------------------+-----------------------------+
+#         | 1.3.6.1.4.1.18060.0.4.0.0.1  | objectClassType             |
+#         | 1.3.6.1.4.1.18060.0.4.0.0.2  | NumericOid                  |
+#         | 1.3.6.1.4.1.18060.0.4.0.0.3  | attributeTypeUsage          |
+#         | 1.3.6.1.4.1.18060.0.4.0.0.4  | number                      |
+#         | 1.3.6.1.4.1.18060.0.4.0.0.5  | oidLen                      |
+#         +------------------------------+-----------------------------+
+#
+#         +------------------------------+-----------------------------+
+#         |       MatchingRule OID       |            name             |
+#         +------------------------------+-----------------------------+
+#         | 1.3.6.1.4.1.18060.0.4.0.1.0  | nameOrNumericIdMatch        |
+#         | 1.3.6.1.4.1.18060.0.4.0.1.1  | objectClassTypeMatch        |
+#         | 1.3.6.1.4.1.18060.0.4.0.1.2  | numericOidMatch             |
+#         | 1.3.6.1.4.1.18060.0.4.0.1.3  | supDITStructureRuleMatch    |
+#         | 1.3.6.1.4.1.18060.0.4.0.1.4  | ruleIDMatch                 |
+#         +------------------------------+-----------------------------+
+#
+#         +------------------------------+-----------------------------+
+#         |      AttributeType OID       |            name             |
+#         +------------------------------+-----------------------------+
+#         | 1.3.6.1.4.1.18060.0.4.0.2.1  | m-oid                       |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.2  | m-name                      |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.3  | m-description               |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.4  | m-obsolete                  |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.5  | m-supObjectClass            |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.6  | m-must                      |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.7  | m-may                       |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.8  | m-typeObjectClass           |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.9  | m-extensionObjectClass      |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.10 | m-supAttributeType          |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.11 | m-equality                  |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.12 | m-ordering                  |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.13 | m-substr                    |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.14 | m-syntax                    |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.15 | m-singleValue               |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.16 | m-collective                |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.17 | m-noUserModification        |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.18 | m-usage                     |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.19 | m-extensionAttributeType    |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.20 | m-ruleId                    |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.21 | m-form                      |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.22 | m-supDITStructureRule       |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.23 | m-extensionDITStructureRule |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.24 | m-oc                        |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.25 | m-extensionNameForm         |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.26 | m-aux                       |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.27 | m-not                       |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.28 | m-extensionDITContentRule   |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.29 | m-applies                   |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.30 | m-extensionMatchingRuleUse  |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.31 | m-matchingRuleSyntax        |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.32 | m-fqcn                      |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.33 | m-bytecode                  |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.34 | x-humanReadible             |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.35 | m-extensionSyntax           |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.36 | m-extensionMatchingRule     |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.37 | m-disabled                  |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.38 | m-dependencies              |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.39 | m-owner                     |
+#         +------------------------------+-----------------------------+
+#
+#         +------------------------------+-----------------------------+
+#         |       Objectclasses OID      |            name             |
+#         +------------------------------+-----------------------------+
+#         | 1.3.6.1.4.1.18060.0.4.0.3.1  | metaTop                     |
+#         | 1.3.6.1.4.1.18060.0.4.0.3.2  | metaObjectclass             |
+#         | 1.3.6.1.4.1.18060.0.4.0.3.3  | metaAttributeType           |
+#         | 1.3.6.1.4.1.18060.0.4.0.3.4  | metaSyntax                  |
+#         | 1.3.6.1.4.1.18060.0.4.0.3.5  | metaMatchingRule            |
+#         | 1.3.6.1.4.1.18060.0.4.0.3.6  | metaDITStructureRule        |
+#         | 1.3.6.1.4.1.18060.0.4.0.3.7  | metaNameForm                |
+#         | 1.3.6.1.4.1.18060.0.4.0.3.8  | metaMatchingRuleUse         |
+#         | 1.3.6.1.4.1.18060.0.4.0.3.9  | metaDITContentRule          |
+#         | 1.3.6.1.4.1.18060.0.4.0.3.10 | metaSyntaxChecker           |
+#         | 1.3.6.1.4.1.18060.0.4.0.3.11 | metaSchema                  |
+#         | 1.3.6.1.4.1.18060.0.4.0.3.12 | metaNormalizer              |
+#         | 1.3.6.1.4.1.18060.0.4.0.3.13 | metaComparator              |
+#         +------------------------------+-----------------------------+
+#
+# =============================================================================
+
+# =============================================================================
+# objectclasses
+# =============================================================================
+
+# --- metaTop objectclass -----------------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.1
+    NAME 'metaTop'
+    DESC 'Top level objectclass of all meta objects'
+    SUP top
+    ABSTRACT
+    MUST m-oid
+    MAY m-description
+)
+
+# --- metaobjectclass objectclass ---------------------------------------------
+# ObjectClassDescription = LPAREN WSP
+#         numericoid                 ; object identifier
+#         [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
+#         [ SP "DESC" SP qdstring ]  ; description
+#         [ SP "OBSOLETE" ]          ; not active
+#         [ SP "SUP" SP oids ]       ; superior object classes
+#         [ SP kind ]                ; kind of class
+#         [ SP "MUST" SP oids ]      ; attribute types
+#         [ SP "MAY" SP oids ]       ; attribute types
+#         extensions WSP RPAREN
+#
+# kind = "ABSTRACT" / "STRUCTURAL" / "AUXILIARY"
+#
+# The numericOid is an m-oid attributeType, it is stored in
+# the metaTop objectClass
+#------------------------------------------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.2
+    NAME 'metaObjectclass'
+    DESC 'meta definition of the objectclass object'
+    SUP metaTop
+    STRUCTURAL
+    MUST m-oid
+    MAY ( m-name $ m-obsolete $ m-supObjectClass $ m-typeObjectClass $ m-must $ 
+	  m-may $ m-extensionObjectClass )
+)
+
+# --- metaAttributeType objectclass -------------------------------------------
+#
+# AttributeTypeDescription = LPAREN WSP
+#     numericoid                    ; object identifier
+#     [ SP "NAME" SP qdescrs ]      ; short names (descriptors)
+#     [ SP "DESC" SP qdstring ]     ; description
+#     [ SP "OBSOLETE" ]             ; not active
+#     [ SP "SUP" SP oid ]           ; supertype
+#     [ SP "EQUALITY" SP oid ]      ; equality matching rule
+#     [ SP "ORDERING" SP oid ]      ; ordering matching rule
+#     [ SP "SUBSTR" SP oid ]        ; substrings matching rule
+#     [ SP "SYNTAX" SP noidlen ]    ; value syntax
+#     [ SP "SINGLE-VALUE" ]         ; single-value
+#     [ SP "COLLECTIVE" ]           ; collective
+#     [ SP "NO-USER-MODIFICATION" ] ; not user modifiable
+#     [ SP "USAGE" SP usage ]       ; usage
+#     extensions WSP RPAREN         ; extensions
+#
+# usage = "userApplications" |  ; user
+#     "directoryOperation"   |  ; directory operational
+#     "distributedOperation" |  ; DSA-shared operational
+#     "dSAOperation"            ; DSA-specific operational
+#
+# IMPORTANT NOTE :
+# ----------------
+# ==> Either m-sup OR m-syntax MUST be present
+#------------------------------------------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.3
+    NAME 'metaAttributeType'
+    DESC 'meta definition of the AttributeType object'
+    SUP metaTop
+    STRUCTURAL
+    MAY ( m-name $ m-obsolete $ m-supAttributeType $ m-equality $ m-ordering $ 
+          m-substr $ m-syntax $ m-singleValue $ m-collective $
+          m-noUserModification $ m-usage $ m-extensionAttributeType )
+)
+
+# --- metaSyntax objectclass --------------------------------------------------
+#
+# SyntaxDescription = LPAREN WSP
+#     numericoid                 ; object identifier
+#     [ SP "DESC" SP qdstring ]  ; description
+#     extensions WSP RPAREN      ; extensions
+#
+# Except numericOid, no element is mandatory
+#------------------------------------------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.4
+    NAME 'metaSyntax'
+    DESC 'meta definition of the Syntax object'
+    SUP metaTop
+    STRUCTURAL
+    MAY m-extensionSyntax
+)
+
+# --- metaMatchingRule objectclass --------------------------------------------
+#
+# MatchingRuleDescription = LPAREN WSP
+#      numericoid                 ; object identifier
+#      [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
+#      [ SP "DESC" SP qdstring ]  ; description
+#      [ SP "OBSOLETE" ]          ; not active
+#      SP "SYNTAX" SP numericoid  ; assertion syntax
+#      extensions WSP RPAREN      ; extensions
+#
+#------------------------------------------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.5
+    NAME 'metaMatchingRule'
+    DESC 'meta definition of the MatchingRule object'
+    SUP metaTop
+    STRUCTURAL
+    MUST m-syntax
+    MAY ( m-name $ m-obsolete $ m-extensionMatchingRule )
+)
+
+# --- metaDITStructureRule objectclass ----------------------------------------
+#
+# DITStructureRuleDescription = LPAREN WSP
+#     ruleid                     ; rule identifier
+#     [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
+#     [ SP "DESC" SP qdstring ]  ; description
+#     [ SP "OBSOLETE" ]          ; not active
+#     SP "FORM" SP oid           ; NameForm
+#     [ SP "SUP" ruleids ]       ; superior rules
+#     extensions WSP RPAREN      ; extensions
+#
+# IMPORTANT NOTE :
+# ----------------
+# ==> This ObjectClass does not inherit from metaTop, but directly from top.
+#------------------------------------------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.6
+    NAME 'metaDITStructureRule'
+    DESC 'meta definition of the DITStructureRule object'
+    SUP top
+    STRUCTURAL
+    MUST ( m-ruleId $ m-form )
+    MAY ( m-name $ m-obsolete $ m-supDITStructureRule $ 
+          m-extensionDITStructureRule )
+)
+
+# --- metaNameForm objectclass ------------------------------------------------
+#
+# NameFormDescription = LPAREN WSP
+#     numericoid                 ; object identifier
+#     [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
+#     [ SP "DESC" SP qdstring ]  ; description
+#     [ SP "OBSOLETE" ]          ; not active
+#     SP "OC" SP oid             ; structural object class
+#     SP "MUST" SP oids          ; attribute types
+#     [ SP "MAY" SP oids ]       ; attribute types
+#     extensions WSP RPAREN      ; extensions
+#------------------------------------------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.7
+    NAME 'metaNameForm'
+    DESC 'meta definition of the NameForm object'
+    SUP metaTop
+    STRUCTURAL
+    MUST ( m-oc $ m-must )
+    MAY ( m-name $ m-obsolete $ m-may $ m-extensionNameForm )
+)
+
+# --- metaMatchingRuleUse objectclass -----------------------------------------
+#
+# MatchingRuleUseDescription = LPAREN WSP
+#     numericoid                 ; object identifier
+#     [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
+#     [ SP "DESC" SP qdstring ]  ; description
+#     [ SP "OBSOLETE" ]          ; not active
+#     SP "APPLIES" SP oids       ; attribute types
+#     extensions WSP RPAREN      ; extensions
+#------------------------------------------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.8
+    NAME 'metaMatchingRuleUse'
+    DESC 'meta definition of the MatchingRuleUse object'
+    SUP metaTop
+    STRUCTURAL
+    MUST m-applies
+    MAY ( m-name $ m-obsolete $ m-extensionMatchingRuleUse )
+)
+
+# --- metaDITContentRule objectclass ------------------------------------------
+# 
+# DITContentRuleDescription = LPAREN WSP
+#     numericoid                 ; object identifier
+#     [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
+#     [ SP "DESC" SP qdstring ]  ; description
+#     [ SP "OBSOLETE" ]          ; not active
+#     [ SP "AUX" SP oids ]       ; auxiliary object classes
+#     [ SP "MUST" SP oids ]      ; attribute types
+#     [ SP "MAY" SP oids ]       ; attribute types
+#     [ SP "NOT" SP oids ]       ; attribute types
+#     extensions WSP RPAREN      ; extensions
+#------------------------------------------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.9
+    NAME 'metaDITContentRule'
+    DESC 'meta definition of the DITContentRule object'
+    SUP metaTop
+    STRUCTURAL
+    MAY ( m-name $ m-obsolete $ m-aux $ m-must $ m-may $ m-not $ 
+          m-extensionDITContentRule )
+)
+
+# --- metaSyntaxChecker objectclass -------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.10
+    NAME 'metaSyntaxChecker'
+    DESC 'meta definition of the SyntaxChecker object'
+    SUP metaTop
+    STRUCTURAL
+    MUST m-fqcn
+    MAY m-bytecode
+)
+
+# --- metaSchema objectclass --------------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.11
+    NAME 'metaSchema'
+    DESC 'A schema object under which meta schema definitions are found'
+    SUP metaTop
+    STRUCTURAL
+    MUST ( cn $ m-owner )
+    MAY ( m-disabled $ m-dependencies )
+)
+
+# --- metaNormalizer objectclass ----------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.12
+    NAME 'metaNormalizer'
+    DESC 'meta definition of a Normalizer object'
+    SUP metaTop
+    STRUCTURAL
+    MUST m-fqcn
+    MAY m-bytecode
+)
+
+# --- metaComparator objectclass ----------------------------------------------
+objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.13
+    NAME 'metaComparator'
+    DESC 'meta definition of a Comparator object'
+    SUP metaTop
+    STRUCTURAL
+    MUST m-fqcn
+    MAY m-bytecode
+)
+
+# =============================================================================
+# AttributeTypes
+# =============================================================================
+# --- m-oid AttributeType -----------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.1 NAME 'm-oid'
+    DESC 'The Object Identifier'
+    EQUALITY objectIdentifierMatch
+    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.2
+    SINGLE-VALUE
+)
+
+# --- m-name AttributeType ----------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.2 NAME 'm-name'
+    DESC 'The Object name'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768}
+)
+
+# --- m-description AttributeType ---------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.3 NAME 'm-description'
+    DESC 'meta descriptive information'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{1024}
+    SINGLE-VALUE
+)
+
+# --- m-obsolete AttributeType ------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.4 NAME 'm-obsolete'
+    DESC 'The type is obsolete'
+    EQUALITY booleanMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE
+)
+
+# --- m-supObjectClass AttributeType ------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.5 NAME 'm-supObjectClass'
+    DESC 'The list of superiors'
+    EQUALITY nameOrNumericIdMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+)
+
+# --- m-must AttributeType ----------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.6 NAME 'm-must'
+    DESC 'The list of mandatory ATs'
+    EQUALITY nameOrNumericIdMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+)
+
+# --- m-may AttributeType -----------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.7 NAME 'm-may'
+    DESC 'The list of authorized ATs'
+    EQUALITY nameOrNumericIdMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+)
+
+# --- m-typeObjectClass AttributeType -----------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.8 NAME 'm-typeObjectClass'
+    DESC 'The objectclass type'
+    EQUALITY objectClassTypeMatch
+    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.1
+    SINGLE-VALUE
+)
+
+# --- m-extensionObjectClass AttributeType ------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.9 NAME 'm-extensionObjectClass'
+    DESC 'An objectclass extension'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768}
+)
+
+# --- m-supAttributeType AttributeType ----------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.10 NAME 'm-supAttributeType'
+    DESC 'The list of superior'
+    EQUALITY nameOrNumericIdMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+    SINGLE-VALUE
+)
+
+# --- m-equality AttributeType ------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.11 NAME 'm-equality'
+    DESC 'Equality matching rule'
+    EQUALITY nameOrNumericIdMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+    SINGLE-VALUE
+)
+
+# --- m-ordering AttributeType ------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.12 NAME 'm-ordering'
+    DESC 'Ordering matching rule'
+    EQUALITY nameOrNumericIdMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+    SINGLE-VALUE
+)
+
+# --- m-substr AttributeType --------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.13 NAME 'm-substr'
+    DESC 'Substring matching rule'
+    EQUALITY nameOrNumericIdMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+    SINGLE-VALUE
+)
+
+# --- m-syntax AttributeType -------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.14 NAME 'm-syntax'
+    DESC 'The syntax OID for attributeTypes and matchingRules'
+    EQUALITY nameOrNumericIdMatch
+    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.2
+    SINGLE-VALUE
+)
+
+# --- m-singleValue AttributeType ---------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.15 NAME 'm-singleValue'
+    DESC 'The attribute is single valued'
+    EQUALITY booleanMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE
+)
+
+# --- m-collective AttributeType ----------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.16 NAME 'm-collective'
+    DESC 'The attribute is collective'
+    EQUALITY booleanMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE
+)
+
+# --- m-noUserModification AttributeType --------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.17 NAME 'm-noUserModification'
+    DESC 'The attribute is protected'
+    EQUALITY booleanMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE
+)
+
+# --- m-usage AttributeType -------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.18 NAME 'm-usage'
+    DESC 'Usage type of an attributeType'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+    SINGLE-VALUE
+)
+
+# --- m-extensionAttributeType AttributeType ----------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.19 NAME 'm-extensionAttributeType'
+    DESC 'Extension for attributeType'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+)
+
+# --- m-ruleId AttributeType --------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.20 NAME 'm-ruleId'
+    DESC 'The rule ID'
+    EQUALITY ruleIDMatch
+    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.4
+)
+
+# --- m-form AttributeType ----------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.21 NAME 'm-form'
+    DESC 'The name form associated with this DITStructure rule'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+)
+
+# --- m-supDITStructureRule AttributeType -------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.22 NAME 'm-supDITStructureRule'
+    DESC 'The list of superiors'
+    EQUALITY supDITStructureRuleMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.36
+)
+
+# --- m-extensionDITStructureRule AttributeType -------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.23 NAME 'm-extensionDITStructureRule'
+    DESC 'Extensions for DITStructureRule'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+)
+
+# --- m-oc AttributeType ------------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.24 NAME 'm-oc'
+    DESC 'The structural ObjectClass'
+    EQUALITY numericOidMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+)
+
+# --- m-extensionNameForm AttributeType ---------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.25 NAME 'm-extensionNameForm'
+    DESC 'Extensions for NameForm'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+)
+
+# --- m-aux AttributeType -----------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.26 NAME 'm-aux'
+    DESC 'List of auxiliary ObjectClasses'
+    EQUALITY numericOidMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+)
+
+# --- m-not AttributeType -----------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.27 NAME 'm-not'
+    DESC 'List of precluded attribute types'
+    EQUALITY numericOidMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+)
+
+# --- m-extensionDITContentRule AttributeType ---------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.28 NAME 'm-extensionDITContentRule'
+    DESC 'Extensions for DITContentRule'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+)
+
+# --- m-applies AttributeType -------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.29 NAME 'm-applies'
+    DESC 'List of attribute types the matching rule applies to'
+    EQUALITY numericOidMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+)
+
+# --- m-extensionMatchingRuleUse AttributeType --------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.30 NAME 'm-extensionMatchingRuleUse'
+    DESC 'Extensions for MatchingRuleUse'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+)
+
+# --- m-matchingRuleSyntax AttributeType --------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.31 NAME 'm-matchingRuleSyntax'
+    DESC 'The matchingRule attribute syntax '
+    EQUALITY numericOidMatch
+    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.2
+    SINGLE-VALUE
+)
+
+# --- m-fqcn AttributeType ----------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.32 NAME 'm-fqcn'
+    DESC 'The fully qualified class name of a code based schema entity'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+    SINGLE-VALUE
+)
+
+# --- m-bytecode AttributeType ------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.33 NAME 'm-bytecode'
+    DESC 'The Java bytecode for a code based schema entity'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.5
+    SINGLE-VALUE
+)
+
+# --- x-humanReadible AttributeType ------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.34 NAME 'x-humanReadible'
+    DESC 'whether or not a syntax is human readible'
+    EQUALITY booleanMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE
+)
+
+# --- m-extensionSyntax AttributeType -----------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.35 NAME 'm-extensionSyntax'
+    DESC 'Extensions for Syntax'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+)
+
+# --- m-extensionMatchingRule AttributeType -----------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.36 NAME 'm-extensionMatchingRule'
+    DESC 'Extensions for MatchingRule'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+)
+
+# --- m-disabled AttributeType -----------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.37 NAME 'm-disabled'
+    DESC 'Used as a marker for schemas to enable or disable them.'
+    EQUALITY booleanMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE
+)
+
+# --- m-dependencies AttributeType -----------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.38 NAME 'm-dependencies'
+    DESC 'The dependencies of a schema: other schema names.'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+)
+
+# --- m-owner AttributeType -----------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.39 NAME 'm-owner'
+    DESC 'The owner of this schema.'
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    SINGLE-VALUE
+)
+
+
+

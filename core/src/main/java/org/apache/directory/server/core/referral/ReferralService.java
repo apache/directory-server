@@ -54,8 +54,8 @@ import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -165,8 +165,8 @@ public class ReferralService extends BaseInterceptor
     public void init( DirectoryServiceConfiguration dsConfig, InterceptorConfiguration cfg ) throws NamingException
     {
         nexus = dsConfig.getPartitionNexus();
-        attrRegistry = dsConfig.getGlobalRegistries().getAttributeTypeRegistry();
-        oidRegistry = dsConfig.getGlobalRegistries().getOidRegistry();
+        attrRegistry = dsConfig.getRegistries().getAttributeTypeRegistry();
+        oidRegistry = dsConfig.getRegistries().getOidRegistry();
         env = dsConfig.getEnvironment();
 
         Iterator suffixes = nexus.listSuffixes();

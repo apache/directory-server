@@ -47,8 +47,8 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
@@ -193,13 +193,13 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         this.factoryCfg = factoryCfg;
-        this.attrRegistry = this.factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        this.oidRegistry = this.factoryCfg.getGlobalRegistries().getOidRegistry();
+        this.attrRegistry = this.factoryCfg.getRegistries().getAttributeTypeRegistry();
+        this.oidRegistry = this.factoryCfg.getRegistries().getOidRegistry();
         
         List<PartitionConfiguration> initializedPartitionCfgs = new ArrayList<PartitionConfiguration>();
         initializedPartitionCfgs.add( initializeSystemPartition() );
 
-        Iterator i = factoryCfg.getStartupConfiguration().getContextPartitionConfigurations().iterator();
+        Iterator i = factoryCfg.getStartupConfiguration().getPartitionConfigurations().iterator();
         try
         {
             while ( i.hasNext() )
@@ -278,12 +278,12 @@ public class DefaultPartitionNexus extends PartitionNexus
             }
             
             // add all attribute oids of index configs to a hashset
-            Set<String> indices = systemCfg.getIndexedAttributes();
+            Set indices = systemCfg.getIndexedAttributes();
             Set<String> indexOids = new HashSet<String>();
-            OidRegistry registry = factoryCfg.getGlobalRegistries().getOidRegistry();
-            for ( Iterator ii = indices.iterator(); ii.hasNext(); /**/ )
+            OidRegistry registry = factoryCfg.getRegistries().getOidRegistry();
+            for ( Object index : indices )
             {
-                indexOids.add( registry.getOid( ii.next().toString() ) );
+                indexOids.add( registry.getOid( index.toString() ) );
             }
             
             if ( ! indexOids.contains( Oid.ALIAS ) )
@@ -454,7 +454,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
     {
         Partition partition = getBackend( name );
-        AttributeTypeRegistry registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        AttributeTypeRegistry registry = factoryCfg.getRegistries().getAttributeTypeRegistry();
 
         // complain if we do not recognize the attribute being compared
         if ( !registry.hasAttributeType( oid ) )
@@ -527,7 +527,11 @@ public class DefaultPartitionNexus extends PartitionNexus
             throw new ConfigurationException( "Duplicate partition suffix: " + key );
         }
 
-        partition.init( factoryCfg, config );
+        if ( ! partition.isInitialized() )
+        {
+            partition.init( factoryCfg, config );
+        }
+        
         partitions.put( partition.getSuffix().toString(), partition );
 
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );

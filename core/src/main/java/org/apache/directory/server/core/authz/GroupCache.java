@@ -82,7 +82,7 @@ public class GroupCache
      */
     public GroupCache( DirectoryServiceConfiguration factoryCfg ) throws NamingException
     {
-    	normalizerMap = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+    	normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         this.nexus = factoryCfg.getPartitionNexus();
         this.env = ( Hashtable ) factoryCfg.getEnvironment().clone();
         

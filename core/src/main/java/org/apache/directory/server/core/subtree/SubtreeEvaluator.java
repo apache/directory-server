@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.subtree;
 
 
-import org.apache.directory.server.core.schema.OidRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.util.NamespaceTools;

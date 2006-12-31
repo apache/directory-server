@@ -40,7 +40,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
@@ -92,8 +92,8 @@ public class TriggerSpecCache
     public TriggerSpecCache( DirectoryServiceConfiguration dirServCfg ) throws NamingException
     {
         this.nexus = dirServCfg.getPartitionNexus();
-        attrRegistry = dirServCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        final AttributeTypeRegistry registry = dirServCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        attrRegistry = dirServCfg.getRegistries().getAttributeTypeRegistry();
+        final AttributeTypeRegistry registry = dirServCfg.getRegistries().getAttributeTypeRegistry();
         triggerSpecParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
             {
                 public Map getNormalizerMapping() throws NamingException

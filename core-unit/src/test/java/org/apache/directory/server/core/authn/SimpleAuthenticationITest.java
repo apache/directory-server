@@ -185,7 +185,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         configuration.setAllowAnonymousAccess( false );
         try
         {
-            setSysRoot( env );
+            setContextRoots( env );
             fail( "should not get here due to exception" );
         }
         catch ( LdapNoPermissionException e )
@@ -198,8 +198,8 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         configuration.setAllowAnonymousAccess( true );
 
-        InitialLdapContext ctx = ( InitialLdapContext ) setSysRoot( env );
-        assertNotNull( ctx );
+        setContextRoots( env );
+        assertNotNull( sysRoot );
 
         // now go in as anonymous user and we should be wh
         env.put( Context.PROVIDER_URL, "ou=system" );
@@ -242,7 +242,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
 
         try
         {
-            setSysRoot( env );
+            setContextRoots( env );
             fail( "should not get here due to exception" );
         }
         catch ( ConfigurationException e )
@@ -271,7 +271,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
 
         try
         {
-            setSysRoot( env );
+            setContextRoots( env );
             fail( "should not get here due to exception" );
         }
         catch ( ConfigurationException e )

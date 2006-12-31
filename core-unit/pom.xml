@@ -32,6 +32,13 @@
       <artifactId>apacheds-core</artifactId>
       <version>${pom.version}</version>
     </dependency>  
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-schema-extras</artifactId>
+      <version>${pom.version}</version>
+      <scope>test</scope>
+    </dependency>  
   </dependencies>
 
   <profiles>

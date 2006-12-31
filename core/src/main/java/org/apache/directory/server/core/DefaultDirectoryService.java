@@ -20,6 +20,7 @@
 package org.apache.directory.server.core;
 
 
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,6 +35,8 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.configuration.Configuration;
 import org.apache.directory.server.core.configuration.ConfigurationException;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
@@ -42,10 +45,21 @@ import org.apache.directory.server.core.jndi.PropertyKeys;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.schema.bootstrap.BootstrapRegistries;
-import org.apache.directory.server.core.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.core.schema.global.GlobalRegistries;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.schema.PartitionSchemaLoader;
+import org.apache.directory.server.core.schema.SchemaManager;
+import org.apache.directory.server.core.schema.SchemaPartitionDao;
+import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.DefaultRegistries;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
@@ -77,6 +91,8 @@ class DefaultDirectoryService extends DirectoryService
     private final DirectoryServiceConfiguration configuration = new DefaultDirectoryServiceConfiguration( this );
 
     private DirectoryServiceListener serviceListener;
+    
+    private SchemaManager schemaManager;
 
     /** the initial context environment that fired up the backend subsystem */
     private Hashtable<String, Object> environment;
@@ -85,7 +101,7 @@ class DefaultDirectoryService extends DirectoryService
     private StartupConfiguration startupConfiguration;
 
     /** the registries for system schema objects */
-    private GlobalRegistries globalRegistries;
+    private Registries registries;
 
     /** the root nexus */
     private DefaultPartitionNexus partitionNexus;
@@ -107,7 +123,7 @@ class DefaultDirectoryService extends DirectoryService
     /**
      * Creates a new instance.
      */
-    public DefaultDirectoryService(String instanceId)
+    public DefaultDirectoryService( String instanceId )
     {
         if ( instanceId == null )
         {
@@ -315,9 +331,9 @@ class DefaultDirectoryService extends DirectoryService
     }
 
 
-    public GlobalRegistries getGlobalRegistries()
+    public Registries getRegistries()
     {
-        return globalRegistries;
+        return registries;
     }
 
 
@@ -459,7 +475,7 @@ class DefaultDirectoryService extends DirectoryService
         // create system users area
         // -------------------------------------------------------------------
 
-        Map oidsMap = configuration.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        Map oidsMap = configuration.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         LdapDN userDn = new LdapDN( "ou=users,ou=system" );
         userDn.normalize( oidsMap );
         
@@ -665,7 +681,7 @@ class DefaultDirectoryService extends DirectoryService
         boolean needToChangeAdminPassword = false;
 
         LdapDN adminDn = new LdapDN( PartitionNexus.ADMIN_PRINCIPAL );
-        adminDn.normalize( configuration.getGlobalRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        adminDn.normalize( configuration.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         
         Attributes adminEntry = partitionNexus.lookup( adminDn );
         Object userPassword = adminEntry.get( "userPassword" ).get();
@@ -736,24 +752,126 @@ class DefaultDirectoryService extends DirectoryService
         }
 
         // --------------------------------------------------------------------
-        // Load the schema here and check that it is ok!
+        // Load the bootstrap schemas to start up the schema partition
         // --------------------------------------------------------------------
 
-        BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
+        // setup temporary loader and temp registry 
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        loader.load( startupConfiguration.getBootstrapSchemas(), bootstrapRegistries );
+        registries = new DefaultRegistries( "bootstrap", loader );
+        
+        // load essential bootstrap schemas 
+        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
+        bootstrapSchemas.add( new ApachemetaSchema() );
+        bootstrapSchemas.add( new ApacheSchema() );
+        bootstrapSchemas.add( new CoreSchema() );
+        bootstrapSchemas.add( new SystemSchema() );
+        loader.loadWithDependencies( bootstrapSchemas, registries );
 
-        java.util.List errors = bootstrapRegistries.checkRefInteg();
+        // run referential integrity tests
+        java.util.List errors = registries.checkRefInteg();
         if ( !errors.isEmpty() )
         {
             NamingException e = new NamingException();
-
             e.setRootCause( ( Throwable ) errors.get( 0 ) );
-
             throw e;
         }
+        
+        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
+        
+        // --------------------------------------------------------------------
+        // If not present extract schema partition from jar
+        // --------------------------------------------------------------------
 
-        globalRegistries = new GlobalRegistries( bootstrapRegistries );
+        SchemaPartitionExtractor extractor = null; 
+        try
+        {
+            extractor = new SchemaPartitionExtractor( startupConfiguration.getWorkingDirectory() );
+            extractor.extract();
+        }
+        catch ( IOException e )
+        {
+            NamingException ne = new NamingException( "Failed to extract pre-loaded schema partition." );
+            ne.setRootCause( e );
+            throw ne;
+        }
+        
+        // --------------------------------------------------------------------
+        // Initialize schema partition
+        // --------------------------------------------------------------------
+        
+        MutablePartitionConfiguration schemaPartitionConfig = new MutablePartitionConfiguration();
+        schemaPartitionConfig.setName( "schema" );
+        schemaPartitionConfig.setCacheSize( 1000 );
+        schemaPartitionConfig.setIndexedAttributes( extractor.getDbFileListing().getIndexedAttributes() );
+        schemaPartitionConfig.setOptimizerEnabled( true );
+        schemaPartitionConfig.setSuffix( "ou=schema" );
+        
+        Attributes entry = new LockableAttributesImpl();
+        entry.put( "objectClass", "top" );
+        entry.get( "objectClass" ).add( "organizationalUnit" );
+        entry.put( "ou", "schema" );
+        schemaPartitionConfig.setContextEntry( entry );
+        JdbmPartition schemaPartition = new JdbmPartition();
+        schemaPartition.init( configuration, schemaPartitionConfig );
+        schemaPartitionConfig.setContextPartition( schemaPartition );
+
+        // --------------------------------------------------------------------
+        // Enable schemas of all indices of partition configurations 
+        // --------------------------------------------------------------------
+
+        /*
+         * We need to make sure that every attribute indexed by a partition is
+         * loaded into the registries on the next step.  So here we must enable
+         * the schemas of those attributes so they are loaded into the global
+         * registries.
+         */
+        
+        SchemaPartitionDao dao = new SchemaPartitionDao( schemaPartition, registries );
+        Map<String,Schema> schemaMap = dao.getSchemas();
+        PartitionConfiguration pc = startupConfiguration.getSystemPartitionConfiguration();
+        Set<PartitionConfiguration> pcs = new HashSet<PartitionConfiguration>();
+        if ( pc != null )
+        {
+            pcs.add( pc );
+        }
+        else
+        {
+            log.warn( "Encountered null configuration." );
+        }
+            
+        
+        pcs.addAll( startupConfiguration.getPartitionConfigurations() );
+        
+        for ( PartitionConfiguration pconf : pcs )
+        {
+            Iterator indices = pconf.getIndexedAttributes().iterator();
+            while ( indices.hasNext() )
+            {
+                Object indexedAttr = indices.next();
+                String schemaName = dao.findSchema( indexedAttr.toString() );
+                if ( schemaName == null )
+                {
+                    throw new NamingException( "Index on unidentified attribute" );
+                }
+                
+                Schema schema = schemaMap.get( schemaName );
+                if ( schema.isDisabled() )
+                {
+                    dao.enableSchema( schemaName );
+                }
+            }
+        }
+        
+        // --------------------------------------------------------------------
+        // Initialize schema subsystem and reset registries
+        // --------------------------------------------------------------------
+        
+        PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
+        Registries globalRegistries = new DefaultRegistries( "global", schemaLoader );
+        schemaLoader.loadEnabled( globalRegistries );
+        registries = globalRegistries;
+        SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );
+        
         Set<String> binaries = new HashSet<String>();
         if ( this.environment.containsKey( BINARY_KEY ) )
         {
@@ -790,13 +908,16 @@ class DefaultDirectoryService extends DirectoryService
                 }
             }
         }
+        
+        schemaManager = new SchemaManager( globalRegistries, schemaLoader );
 
         // now get all the attributeTypes that are binary from the registry
-        AttributeTypeRegistry registry = globalRegistries.getAttributeTypeRegistry();
+        AttributeTypeRegistry registry = registries.getAttributeTypeRegistry();
         Iterator list = registry.list();
         while ( list.hasNext() )
         {
             AttributeType type = ( AttributeType ) list.next();
+            
             if ( !type.getSyntax().isHumanReadible() )
             {
                 // add the OID for the attributeType
@@ -819,6 +940,7 @@ class DefaultDirectoryService extends DirectoryService
 
         partitionNexus = new DefaultPartitionNexus( new LockableAttributesImpl() );
         partitionNexus.init( configuration, null );
+        partitionNexus.addContextPartition( schemaPartitionConfig );
 
         interceptorChain = new InterceptorChain();
         interceptorChain.init( configuration );
@@ -827,5 +949,11 @@ class DefaultDirectoryService extends DirectoryService
         {
             log.debug( "<--- DefaultDirectoryService initialized" );
         }
+    }
+
+
+    public SchemaManager getSchemaManager()
+    {
+        return schemaManager;
     }
 }

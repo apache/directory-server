@@ -23,9 +23,10 @@ package $package;
 import java.util.ArrayList;
 import javax.naming.NamingException;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
+import org.apache.directory.server.schema.registries.*;
 
-#if ( $package != "org.apache.directory.server.core.schema.bootstrap" )
-import org.apache.directory.server.core.schema.bootstrap.*;
+#if ( $package != "org.apache.directory.server.schema.bootstrap" )
+import org.apache.directory.server.schema.bootstrap.*;
 #end
 
 /**
@@ -52,12 +53,12 @@ public class $classname extends AbstractBootstrapProducer
 
 
     /**
-     * @see BootstrapProducer#produce(BootstrapRegistries, ProducerCallback)
+     * @see BootstrapProducer#produce(Registries, ProducerCallback)
      */
-    public void produce( BootstrapRegistries registries, ProducerCallback cb )
+    public void produce( Registries registries, ProducerCallback cb )
         throws NamingException
     {
-        ArrayList array = new ArrayList();
+        ArrayList<String> array = new ArrayList<String>();
         BootstrapObjectClass objectClass;
 
         #foreach ( $objectClass in $objectClasses )

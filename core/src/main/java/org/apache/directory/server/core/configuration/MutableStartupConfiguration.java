@@ -92,15 +92,9 @@ public class MutableStartupConfiguration extends StartupConfiguration
     }
 
 
-    public void setBootstrapSchemas( Set bootstrapSchemas )
+    public void setPartitionConfigurations( Set paritionConfigurations )
     {
-        super.setBootstrapSchemas( bootstrapSchemas );
-    }
-
-
-    public void setContextPartitionConfigurations( Set contextParitionConfigurations )
-    {
-        super.setContextPartitionConfigurations( contextParitionConfigurations );
+        super.setPartitionConfigurations( paritionConfigurations );
     }
 
 

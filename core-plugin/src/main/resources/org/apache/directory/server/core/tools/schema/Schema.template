@@ -22,9 +22,8 @@ package $package;
 
 import java.util.ArrayList;
 
-
-#if ( $package != "org.apache.directory.server.core.schema.bootstrap" )
-import org.apache.directory.server.core.schema.bootstrap.*;
+#if ( $package != "org.apache.directory.server.schema.bootstrap" )
+import org.apache.directory.server.schema.bootstrap.*;
 #end
 
 
@@ -41,7 +40,7 @@ public class $classname extends AbstractBootstrapSchema
     {
         super( "$owner", "$schema", "$package" );
 
-        ArrayList list = new ArrayList();
+        ArrayList<String> list = new ArrayList<String>();
         #if ( $deps )
 list.clear();
        #foreach ( $name in $deps ) list.add( "$name" );

@@ -80,6 +80,9 @@ public abstract class AbstractTestCase extends TestCase
     /** the context root for the system partition */
     protected LdapContext sysRoot;
 
+    /** the context root for the schema partition */
+    protected LdapContext schemaRoot;
+
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
 
@@ -153,7 +156,7 @@ public abstract class AbstractTestCase extends TestCase
         
     	List entries = reader.parseLdif( LDIF );
         
-        Entry entry = (Entry)entries.get(0);
+        Entry entry = ( Entry ) entries.get(0);
 
         testEntries.add( entry );
 
@@ -203,7 +206,7 @@ public abstract class AbstractTestCase extends TestCase
         configuration.setTestEntries( testEntries );
         configuration.setShutdownHookEnabled( false );
         doDelete( configuration.getWorkingDirectory() );
-        setSysRoot( username, password, configuration );
+        setContextRoots( username, password, configuration );
     }
 
 
@@ -236,13 +239,13 @@ public abstract class AbstractTestCase extends TestCase
      * @return the sysRoot context which is also set
      * @throws NamingException if there is a failure of any kind
      */
-    protected LdapContext setSysRoot( String user, String passwd, Configuration cfg ) throws NamingException
+    protected void setContextRoots( String user, String passwd, Configuration cfg ) throws NamingException
     {
         Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.SECURITY_PRINCIPAL, user );
         env.put( Context.SECURITY_CREDENTIALS, passwd );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        return setSysRoot( env );
+        setContextRoots( env );
     }
 
 
@@ -255,7 +258,7 @@ public abstract class AbstractTestCase extends TestCase
      * @return the sysRoot context which is also set
      * @throws NamingException if there is a failure of any kind
      */
-    protected LdapContext setSysRoot( Hashtable env ) throws NamingException
+    protected void setContextRoots( Hashtable env ) throws NamingException
     {
         Hashtable envFinal = new Hashtable( env );
         if ( !envFinal.containsKey( Context.PROVIDER_URL ) )
@@ -274,7 +277,9 @@ public abstract class AbstractTestCase extends TestCase
         new InitialLdapContext( adminEnv, null );
 
         // OK, now let's get an appropriate context.
-        return sysRoot = new InitialLdapContext( envFinal, null );
+        sysRoot = new InitialLdapContext( envFinal, null );
+        envFinal.put( Context.PROVIDER_URL, "ou=schema" );
+        schemaRoot = new InitialLdapContext( envFinal, null );
     }
 
 
@@ -303,7 +308,7 @@ public abstract class AbstractTestCase extends TestCase
     {
         super.tearDown();
 
-        Hashtable env = new Hashtable();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
 
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );

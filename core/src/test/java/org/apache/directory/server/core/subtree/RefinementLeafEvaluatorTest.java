@@ -25,12 +25,14 @@ import junit.framework.TestCase;
 import javax.naming.NamingException;
 import javax.naming.directory.BasicAttribute;
 
-import org.apache.directory.server.core.schema.OidRegistry;
-import org.apache.directory.server.core.schema.bootstrap.*;
-import org.apache.directory.server.core.schema.global.GlobalRegistries;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.server.schema.bootstrap.*;
+import org.apache.directory.server.schema.registries.DefaultRegistries;
+import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.AssertionEnum;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -45,7 +47,7 @@ import java.util.HashSet;
 public class RefinementLeafEvaluatorTest extends TestCase
 {
     /** the global registries */
-    private GlobalRegistries registries;
+    private Registries registries;
     /** the refinement leaf evaluator to test */
     private RefinementLeafEvaluator evaluator;
 
@@ -56,17 +58,14 @@ public class RefinementLeafEvaluatorTest extends TestCase
      */
     private void init() throws NamingException
     {
-        BootstrapRegistries bsRegistries = new BootstrapRegistries();
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        Set schemas = new HashSet();
+        DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader );
+        Set<Schema> schemas = new HashSet<Schema>();
         schemas.add( new SystemSchema() );
         schemas.add( new ApacheSchema() );
         schemas.add( new CoreSchema() );
-        schemas.add( new CosineSchema() );
-        schemas.add( new InetorgpersonSchema() );
-        schemas.add( new JavaSchema() );
-        loader.load( schemas, bsRegistries );
-        registries = new GlobalRegistries( bsRegistries );
+        loader.loadWithDependencies( schemas, bsRegistries );
+        registries = bsRegistries;
     }
 
 

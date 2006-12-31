@@ -22,10 +22,11 @@ package org.apache.directory.server.core.subtree;
 
 import junit.framework.TestCase;
 
-import org.apache.directory.server.core.schema.OidRegistry;
-import org.apache.directory.server.core.schema.bootstrap.*;
-import org.apache.directory.server.core.schema.global.GlobalRegistries;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
+import org.apache.directory.server.schema.bootstrap.*;
+import org.apache.directory.server.schema.registries.DefaultRegistries;
+import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
@@ -49,23 +50,20 @@ import java.util.HashSet;
  */
 public class SubtreeEvaluatorTest extends TestCase
 {
-    private GlobalRegistries registries;
+    private Registries registries;
     private SubtreeEvaluator evaluator;
 
 
     private void init() throws NamingException
     {
-        BootstrapRegistries bsRegistries = new BootstrapRegistries();
-        registries = new GlobalRegistries( bsRegistries );
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        Set schemas = new HashSet();
+        DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader );
+        registries = bsRegistries;
+        Set<Schema> schemas = new HashSet<Schema>();
         schemas.add( new SystemSchema() );
         schemas.add( new ApacheSchema() );
         schemas.add( new CoreSchema() );
-        schemas.add( new CosineSchema() );
-        schemas.add( new InetorgpersonSchema() );
-        schemas.add( new JavaSchema() );
-        loader.load( schemas, bsRegistries );
+        loader.loadWithDependencies( schemas, bsRegistries );
     }
 
 
@@ -154,7 +152,7 @@ public class SubtreeEvaluatorTest extends TestCase
     public void testWithMinMaxAndChopAfter() throws Exception
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
-        Set chopAfter = new HashSet();
+        Set<LdapDN> chopAfter = new HashSet<LdapDN>();
         chopAfter.add( new LdapDN( "uid=Tori Amos" ) );
         chopAfter.add( new LdapDN( "ou=twolevels,uid=akarasulu" ) );
         modifier.setChopAfterExclusions( chopAfter );
@@ -188,7 +186,7 @@ public class SubtreeEvaluatorTest extends TestCase
     public void testWithMinMaxAndChopBefore() throws Exception
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
-        Set chopBefore = new HashSet();
+        Set<LdapDN> chopBefore = new HashSet<LdapDN>();
         chopBefore.add( new LdapDN( "uid=Tori Amos" ) );
         chopBefore.add( new LdapDN( "ou=threelevels,ou=twolevels,uid=akarasulu" ) );
         modifier.setChopBeforeExclusions( chopBefore );
