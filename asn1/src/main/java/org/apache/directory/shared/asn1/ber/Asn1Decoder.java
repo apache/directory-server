@@ -121,15 +121,8 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
             if ( IS_DEBUG )
             {
-                if ( tlv != null )
-                {
-                    byte tag = container.getCurrentTLV().getTag();
-                    log.debug( "Tag {} has been decoded", Asn1StringUtils.dumpByte( tag ) );
-                }
-                else
-                {
-                    log.debug( "Tag has been decoded, but is null" );
-                }
+                byte tag = container.getCurrentTLV().getTag();
+                log.debug( "Tag {} has been decoded", Asn1StringUtils.dumpByte( tag ) );
             }
 
             return MORE;
@@ -391,7 +384,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             {
                 if  ( tlv != null )
                 {
-                    log.debug( "Root TLV[{}]", new Integer( length ) );
+                    log.debug( "Root TLV[{}]", Integer.valueOf( length ) );
                 }
                 else
                 {
@@ -410,7 +403,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             {
                 // The expected length is lower than the Value length of the
                 // current TLV. This is an error...
-                log.error( "tlv[{}, {}]", new Integer( expectedLength ), new Integer( currentLength ) );
+                log.error( "tlv[{}, {}]", Integer.valueOf( expectedLength ), Integer.valueOf( currentLength ) );
                 throw new DecoderException( "The current Value length is above the expected length" );
             }
 
@@ -503,7 +496,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
         if ( IS_DEBUG )
         {
-            log.debug( "Length {} has been decoded", new Integer( length ) );
+            log.debug( "Length {} has been decoded", Integer.valueOf( length ) );
         }
 
         if ( length == 0 )

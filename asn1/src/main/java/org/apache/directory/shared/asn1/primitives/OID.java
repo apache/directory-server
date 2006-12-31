@@ -23,6 +23,7 @@ package org.apache.directory.shared.asn1.primitives;
 import java.io.Serializable;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 
 
 /**
@@ -119,7 +120,7 @@ public class OID implements Serializable
 
         if ( oid.length < 1 )
         {
-            throw new DecoderException( "Invalid OID : " + oid );
+            throw new DecoderException( "Invalid OID : " + Asn1StringUtils.dumpBytes( oid ) );
         }
 
         // First, we have to calculate the number of int to allocate

@@ -46,7 +46,7 @@ public class TLV
     private int lengthNbBytes;
     
     /** The number of length's bytes currently read */
-    private int LengthBytesRead;
+    private int lengthBytesRead;
 
     /** The current Value being processed */
     private Value value;
@@ -77,13 +77,13 @@ public class TLV
     public static final int SHORT_MASK = 0x1F;
 
     /** A mask to get the Length form */
-    public static final transient int LENGTH_LONG_FORM = 0x0080;
+    public static final int LENGTH_LONG_FORM = 0x0080;
 
     /** Value of the reserved extension */
-    public static final transient int LENGTH_EXTENSION_RESERVED = 0x7F;
+    public static final int LENGTH_EXTENSION_RESERVED = 0x7F;
 
     /** A mask to get the long form value */
-    public static final transient int LENGTH_SHORT_MASK = 0x007F;
+    public static final int LENGTH_SHORT_MASK = 0x007F;
     
     /** A speedup for single bytes length */
     static byte[][] ONE_BYTE = new byte[256][];
@@ -394,18 +394,18 @@ public class TLV
 
     public int getLengthBytesRead()
     {
-        return LengthBytesRead;
+        return lengthBytesRead;
     }
 
 
     public void setLengthBytesRead( int lengthBytesRead )
     {
-        LengthBytesRead = lengthBytesRead;
+        this.lengthBytesRead = lengthBytesRead;
     }
     
     public void incLengthBytesRead()
     {
-        LengthBytesRead++;
+        lengthBytesRead++;
     }
 }
  

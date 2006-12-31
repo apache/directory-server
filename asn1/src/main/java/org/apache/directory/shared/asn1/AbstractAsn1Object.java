@@ -37,13 +37,13 @@ public abstract class AbstractAsn1Object implements Asn1Object
     // ----------------------------------------------------------------------------
 
     /** The object's current length. It is used while decoding PDUs */
-    private transient int currentLength;
+    private int currentLength;
 
     /** The object's expected length. It is used while decoding PDUs */
-    private transient int expectedLength;
+    private int expectedLength;
 
     /** The encapsulating Object */
-    protected transient AbstractAsn1Object parent;
+    protected AbstractAsn1Object parent;
 
 
     // ~ Methods

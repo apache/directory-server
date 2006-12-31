@@ -84,7 +84,9 @@ public class Value implements Cloneable, Serializable
      */
     public Value(byte[] value)
     {
-        data = value;
+        // Do a copy of the byte array
+        data = new byte[value.length];
+        System.arraycopy( value, 0, data, 0, value.length );
         currentPos = 0;
     }
 

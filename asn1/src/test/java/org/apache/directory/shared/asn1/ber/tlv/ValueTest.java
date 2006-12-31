@@ -268,4 +268,18 @@ public class ValueTest extends TestCase
             Assert.assertEquals( testedInt[i], value );
         }
     }
+    
+    public void testNewByteArrayValue()
+    {
+        byte[] bb = new byte[]{0x01, (byte)0xFF};
+        
+        Value v = new Value( bb );
+        byte[] vv = v.getData();
+        
+        assertEquals( 0x01, vv[0] );
+        assertEquals( (byte)0xFF, vv[1] );
+        
+        bb[0] = 0x00;
+        assertEquals( 0x01, vv[0] );
+    }
 }

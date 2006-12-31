@@ -85,7 +85,10 @@ public class DERTaggedObject implements DEREncodable
         this.explicit = explicit;
         this.tag = tag;
         this.obj = obj;
-        this.bytes = bytes;
+
+        // Copy the byte array
+        this.bytes = new byte[bytes.length];
+        System.arraycopy( bytes, 0, this.bytes, 0, bytes.length );
     }
 
 
