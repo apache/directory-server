@@ -42,19 +42,19 @@ public class PSearchControlStatesEnum implements IStates
     public static final int START_STATE = 0;
 
     /** Sequence Value */
-    public static int PSEARCH_SEQUENCE_STATE = 1;
+    public static final int PSEARCH_SEQUENCE_STATE = 1;
 
     /** changeTypes Value */
-    public static int CHANGE_TYPES_STATE = 3;
+    public static final int CHANGE_TYPES_STATE = 3;
     
     /** changesOnly Value */
-    public static int CHANGES_ONLY_STATE = 5;
+    public static final int CHANGES_ONLY_STATE = 5;
 
     /** returnECs Value */
-    public static int RETURN_ECS_STATE = 7;
+    public static final int RETURN_ECS_STATE = 7;
 
     /** terminal state */
-    public static int LAST_PSEARCH_STATE = 8;
+    public static final int LAST_PSEARCH_STATE = 8;
 
     // =========================================================================
     // States debug strings

@@ -40,22 +40,22 @@ public class EntryChangeControlStatesEnum implements IStates
     // =========================================================================
 
     /** Sequence Tag */
-    public static int START_STATE = 0;
+    public static final int START_STATE = 0;
 
     /** Sequence */
-    public static int EC_SEQUENCE_STATE = 1;
+    public static final int EC_SEQUENCE_STATE = 1;
 
     /** changeType */
-    public static int CHANGE_TYPE_STATE = 2;
+    public static final int CHANGE_TYPE_STATE = 2;
 
     /** previousDN */
-    public static int PREVIOUS_DN_STATE = 3;
+    public static final int PREVIOUS_DN_STATE = 3;
 
     /** changeNumber */
-    public static int CHANGE_NUMBER_STATE = 4;
+    public static final int CHANGE_NUMBER_STATE = 4;
 
     /** terminal state */
-    public static int LAST_EC_STATE = 5;
+    public static final int LAST_EC_STATE = 5;
 
     // =========================================================================
     // States debug strings

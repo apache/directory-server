@@ -94,80 +94,80 @@ public class DecoderStackTest extends TestCase
         assertTrue( "expecting empty stack after creation", stack.isEmpty() );
         PassThroDecoder decoder = new PassThroDecoder();
         stack.push( decoder );
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 0 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 0 ), history.getMostRecent() );
 
         assertFalse( "expecting non-empty stack after push", stack.isEmpty() );
 
         stack.push( new IncrementingDecoder() );
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 1 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 1 ), history.getMostRecent() );
 
         stack.push( new IncrementingDecoder() );
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 2 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 2 ), history.getMostRecent() );
 
         stack.push( new IncrementingDecoder() );
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 3 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 3 ), history.getMostRecent() );
 
         stack.push( new IncrementingDecoder() );
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 4 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 4 ), history.getMostRecent() );
 
         stack.push( new IncrementingDecoder() );
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 5 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 5 ), history.getMostRecent() );
 
         stack.push( new IncrementingDecoder() );
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 6 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 6 ), history.getMostRecent() );
 
         stack.push( new IncrementingDecoder() );
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 7 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 7 ), history.getMostRecent() );
 
         // start popping and decrementing now
 
         stack.pop();
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 6 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 6 ), history.getMostRecent() );
 
         stack.pop();
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 5 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 5 ), history.getMostRecent() );
 
         stack.pop();
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 4 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 4 ), history.getMostRecent() );
 
         stack.pop();
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 3 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 3 ), history.getMostRecent() );
 
         stack.pop();
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 2 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 2 ), history.getMostRecent() );
 
         stack.pop();
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 1 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 1 ), history.getMostRecent() );
 
         stack.pop();
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 0 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 0 ), history.getMostRecent() );
 
         assertFalse( "expecting stack with passthrodecoder", stack.isEmpty() );
 
         stack.pop();
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 0 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 0 ), history.getMostRecent() );
 
         assertTrue( "expecting empty stack after last pop", stack.isEmpty() );
 
         stack.pop();
-        stack.decode( new Integer( 0 ) );
-        assertEquals( new Integer( 0 ), history.getMostRecent() );
+        stack.decode( Integer.valueOf( 0 ) );
+        assertEquals( Integer.valueOf( 0 ), history.getMostRecent() );
 
         assertTrue( "expecting empty stack after empty pop", stack.isEmpty() );
     }
@@ -219,7 +219,7 @@ public class DecoderStackTest extends TestCase
         public void decode( Object encoded ) throws DecoderException
         {
             Integer value = ( Integer ) encoded;
-            value = new Integer( value.intValue() + 1 );
+            value = Integer.valueOf( value.intValue() + 1 );
             super.decodeOccurred( value );
         }
     }

@@ -26,9 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.math.BigInteger;
 
-import org.apache.directory.shared.ldap.name.LdapDN;
-
-
 /**
  * Node representing branches within the expression tree corresponding to
  * logical operators within the filter expression.

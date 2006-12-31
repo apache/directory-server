@@ -40,13 +40,13 @@ public class SubEntryControlStatesEnum implements IStates
     // =========================================================================
 
     /** Starting state */
-    public static int START_STATE = 0;
+    public static final int START_STATE = 0;
 
     /** Visibility Value */
-    public static int SUB_ENTRY_VISIBILITY_STATE = 1;
+    public static final int SUB_ENTRY_VISIBILITY_STATE = 1;
 
     /** terminal state */
-    public static int LAST_SUB_ENTRY_STATE = 2;
+    public static final int LAST_SUB_ENTRY_STATE = 2;
 
     // =========================================================================
     // States debug strings

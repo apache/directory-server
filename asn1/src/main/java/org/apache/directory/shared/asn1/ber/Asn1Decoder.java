@@ -361,6 +361,13 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
     private void treatLengthEndState( IAsn1Container container ) throws DecoderException
     {
         TLV tlv = container.getCurrentTLV();
+        
+        if ( tlv == null )
+        {
+            log.error( "The current container TLV is null." );
+            throw new DecoderException( "Current TLV is null" );
+        }
+        
         int length = tlv.getLength();
 
         // We will check the length here. What we must control is

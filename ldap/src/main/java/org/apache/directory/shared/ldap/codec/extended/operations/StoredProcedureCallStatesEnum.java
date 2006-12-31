@@ -38,52 +38,52 @@ public class StoredProcedureCallStatesEnum implements IStates
     // Tags and values
     //=========================================================================
     /** starting state */
-    public static int START_STATE = 0;
+    public static final int START_STATE = 0;
 
     /** StoredProcedureCall */
-    public static int STORED_PROCEDURE_CALL_STATE = 1;
+    public static final int STORED_PROCEDURE_CALL_STATE = 1;
 
     // Name -------------------------------------------------------------------
     /** Name */
-    public static int NAME_STATE = 2;
+    public static final int NAME_STATE = 2;
 
     // Options ----------------------------------------------------------------
     /** Options */
-    public static int OPTIONS_STATE = 3;
+    public static final int OPTIONS_STATE = 3;
 
     // --- Language Scheme ----------------------------------------------------
     /** Language Scheme */
-    public static int LANGUAGE_SCHEME_STATE = 4;
+    public static final int LANGUAGE_SCHEME_STATE = 4;
 
     // --- Search Context -----------------------------------------------------
     /** Search Context */
-    public static int SEARCH_CONTEXT_STATE = 5;
+    public static final int SEARCH_CONTEXT_STATE = 5;
 
     // ------ Context ---------------------------------------------------------
     /** Context */
-    public static int CONTEXT_STATE = 6;
+    public static final int CONTEXT_STATE = 6;
 
     // ------ Scope -----------------------------------------------------------
     /** Scope */
-    public static int SCOPE_STATE = 7;
+    public static final int SCOPE_STATE = 7;
 
     // Parameters -------------------------------------------------------------
     /** Parameters */
-    public static int PARAMETERS_STATE = 8;
+    public static final int PARAMETERS_STATE = 8;
 
     // --- Parameter ----------------------------------------------------------
     /** Parameter */
-    public static int PARAMETER_STATE = 9;
+    public static final int PARAMETER_STATE = 9;
 
     // ------ Parameter type --------------------------------------------------
     /** Parameter type */
-    public static int PARAMETER_TYPE_STATE = 10;
+    public static final int PARAMETER_TYPE_STATE = 10;
 
     // ------ Parameter value -------------------------------------------------
     /** Parameter value */
-    public static int PARAMETER_VALUE_STATE = 11;
+    public static final int PARAMETER_VALUE_STATE = 11;
 
-    public static int LAST_STORED_PROCEDURE_CALL_STATE = 12;
+    public static final int LAST_STORED_PROCEDURE_CALL_STATE = 12;
 
     //=========================================================================
     // States debug strings 

@@ -38,36 +38,36 @@ public class StoredProcedureStatesEnum implements IStates
     // StoredProcedure
     //=========================================================================
     /** starting state */
-    public static int START_STATE = 0;
+    public static final int START_STATE = 0;
 
     /** StoredProcedure */
-    public static int STORED_PROCEDURE_STATE = 1;
+    public static final int STORED_PROCEDURE_STATE = 1;
 
     // Language ---------------------------------------------------------------
     /** Language */
-    public static int LANGUAGE_STATE = 2;
+    public static final int LANGUAGE_STATE = 2;
 
     // Procedure --------------------------------------------------------------
     /** Procedure */
-    public static int PROCEDURE_STATE = 3;
+    public static final int PROCEDURE_STATE = 3;
 
     // Parameters -------------------------------------------------------------
     /** Parameters */
-    public static int PARAMETERS_STATE = 4;
+    public static final int PARAMETERS_STATE = 4;
 
     // Parameter --------------------------------------------------------------
     /** Parameter */
-    public static int PARAMETER_STATE = 5;
+    public static final int PARAMETER_STATE = 5;
 
     // Parameter type ---------------------------------------------------------
     /** Parameter type */
-    public static int PARAMETER_TYPE_STATE = 6;
+    public static final int PARAMETER_TYPE_STATE = 6;
 
     // Parameters value -------------------------------------------------------
     /** Parameter value */
-    public static int PARAMETER_VALUE_STATE = 7;
+    public static final int PARAMETER_VALUE_STATE = 7;
 
-    public static int LAST_STORED_PROCEDURE_STATE = 8;
+    public static final int LAST_STORED_PROCEDURE_STATE = 8;
 
     //=========================================================================
     // States debug strings 

@@ -1608,9 +1608,14 @@ public class StringTools
      */
     public static final boolean isCharASCII( String string, int index, char car )
     {
+        if ( string == null )
+        {
+            return false;
+        }
+        
         int length = string.length();
         
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return false;
         }
@@ -1718,7 +1723,7 @@ public class StringTools
         {
             byte c = byteArray[index];
 
-            if ( ( c > 127 ) || ( HEX[c] == false ) )
+            if ( ( ( c | 0x7F ) != 0x7F ) || ( HEX[c] == false ) )
             {
                 return false;
             }
@@ -1773,9 +1778,14 @@ public class StringTools
      */
     public static final boolean isHex( String string, int index )
     {
+        if ( string == null )
+        {
+            return false;
+        }
+        
         int length = string.length();
         
-        if ( ( string == null ) || ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
             return false;
         }
@@ -1811,7 +1821,7 @@ public class StringTools
         }
         else
         {
-            return ( ( ( byteArray[0] > 127 ) || !DIGIT[byteArray[0]] ) ? false : true );
+            return ( ( ( ( byteArray[0] | 0x7F ) != 0x7F ) || !DIGIT[byteArray[0]] ) ? false : true );
         }
     }
 
@@ -1878,7 +1888,7 @@ public class StringTools
         {
             byte c = byteArray[index++];
 
-            if ( ( c > 127 ) || ( ALPHA[c] == false ) )
+            if ( ( ( c | 0x7F ) != 0x7F ) || ( ALPHA[c] == false ) )
             {
                 return false;
             }
@@ -2058,7 +2068,7 @@ public class StringTools
         }
         else
         {
-            return ( ( ( byteArray[index] > 127 ) || !DIGIT[byteArray[index]] ) ? false : true );
+            return ( ( ( ( byteArray[index] | 0x7F ) !=  0x7F ) || !DIGIT[byteArray[index]] ) ? false : true );
         }
     }
 
@@ -2196,7 +2206,7 @@ public class StringTools
         {
             byte c = byteArray[index++];
 
-            if ( ( c > 127 ) || ( CHAR[c] == false ) )
+            if ( ( ( c | 0x7F ) != 0x7F ) || ( CHAR[c] == false ) )
             {
                 return false;
             }

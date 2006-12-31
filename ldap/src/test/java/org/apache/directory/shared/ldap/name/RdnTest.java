@@ -303,6 +303,26 @@ public class RdnTest extends TestCase
 
 
    /**
+    * Compares with a null RDN.
+    */
+   public void testRDNCompareToNullRdn() throws InvalidNameException
+   {
+       Rdn rdn1 = new Rdn( " a = b " );
+
+       Assert.assertEquals( 1, rdn1.compareTo( null ) );
+   }
+
+   /**
+    * Compares with a bad object
+    */
+   public void testRDNCompareToBadObject() throws InvalidNameException
+   {
+       Rdn rdn1 = new Rdn( " a = b " );
+
+       Assert.assertEquals( Rdn.UNDEFINED, rdn1.compareTo( "test" ) );
+   }
+
+   /**
     * Compares a simple NC to a simple NC.
     */
    public void testRDNCompareToNC2NC() throws InvalidNameException
@@ -404,7 +424,7 @@ public class RdnTest extends TestCase
        Rdn rdn = new Rdn( "a=b + c=d + a=f" );
 
        Assert.assertFalse( rdn.equals( null ) );
-       Assert.assertFalse( rdn.equals( new String( "test" ) ) );
+       Assert.assertFalse( rdn.equals( "test" ) );
        Assert.assertFalse( rdn.equals( new Rdn( "a=c + c=d + a=f" ) ) );
        Assert.assertFalse( rdn.equals( new Rdn( "a=b" ) ) );
        Assert.assertTrue( rdn.equals( new Rdn( "a=b + c=d + a=f" ) ) );

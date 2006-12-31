@@ -144,11 +144,11 @@ public class StoredProcedureCall extends AbstractAsn1Object
 
         public static class Scope
         {
-            public static Scope BASE_OBJECT = new Scope( "baseObject" );
+            public static final Scope BASE_OBJECT = new Scope( "baseObject" );
 
-            public static Scope SINGLE_LEVEL = new Scope( "scopeLevel" );
+            public static final Scope SINGLE_LEVEL = new Scope( "scopeLevel" );
 
-            public static Scope WHOLE_SUBTREE = new Scope( "wholeSubtree" );
+            public static final Scope WHOLE_SUBTREE = new Scope( "wholeSubtree" );
 
             private String name;
 

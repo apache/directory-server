@@ -42,22 +42,22 @@ public class GracefulDisconnectStatesEnum implements IStates
     public static final int START_STATE = 0;
 
     /** Sequence */
-    public static int GRACEFUL_DISCONNECT_SEQUENCE_STATE = 1;
+    public static final int GRACEFUL_DISCONNECT_SEQUENCE_STATE = 1;
 
     /** Time offline */
-    public static int TIME_OFFLINE_STATE = 2;
+    public static final int TIME_OFFLINE_STATE = 2;
 
     /** Delay */
-    public static int DELAY_STATE = 3;
+    public static final int DELAY_STATE = 3;
 
     /** Replicated contexts */
-    public static int REPLICATED_CONTEXTS_STATE = 4;
+    public static final int REPLICATED_CONTEXTS_STATE = 4;
 
     /** Referral */
-    public static int REFERRAL_STATE = 5;
+    public static final int REFERRAL_STATE = 5;
 
     /** terminal state */
-    public static int LAST_GRACEFUL_DISCONNECT_STATE = 6;
+    public static final int LAST_GRACEFUL_DISCONNECT_STATE = 6;
 
     // =========================================================================
     // States debug strings

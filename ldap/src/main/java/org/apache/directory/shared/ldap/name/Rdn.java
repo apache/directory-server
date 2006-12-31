@@ -619,15 +619,17 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
 
    /**
-    * Compares two RDNs. They are equals if : - their have the same number of
-    * NC (AttributeTypeAndValue) - each ATAVs are equals - comparizon of type
-    * are done case insensitive - each value is equel, case sensitive - Order
-    * of ATAV is not important If the RDNs are not equals, a positive number is
+    * Compares two RDNs. They are equals if : 
+    * - their have the same number of NC (AttributeTypeAndValue) 
+    * - each ATAVs are equals 
+    * - comparizon of type are done case insensitive 
+    * - each value is equel, case sensitive 
+    * - Order of ATAV is not important If the RDNs are not equals, a positive number is
     * returned if the first RDN is greated, negative otherwise
     *
     * @param object
     * @return 0 if both rdn are equals. -1 if the current RDN is inferior, 1 if
-    *         teh current Rdn is superioir, UNDIFIED otherwise.
+    *         the current Rdn is superior, UNDEFINED otherwise.
     */
    public int compareTo( Object object )
    {
