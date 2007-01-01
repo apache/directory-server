@@ -90,25 +90,25 @@ public class ModifyRequest extends LdapMessage
     private List<ModificationItem> modifications;
 
     /** The current attribute being decoded */
-    private transient Attribute currentAttribute;
+    private Attribute currentAttribute;
 
     /** A local storage for the operation */
-    private transient int currentOperation;
+    private int currentOperation;
 
     /** The modify request length */
-    private transient int modifyRequestLength;
+    private int modifyRequestLength;
 
     /** The modifications length */
-    private transient int modificationsLength;
+    private int modificationsLength;
 
     /** The modification sequence length */
-    private transient List<Integer> modificationSequenceLength;
+    private List<Integer> modificationSequenceLength;
 
     /** The list of all modification length */
-    private transient List<Integer> modificationLength;
+    private List<Integer> modificationLength;
 
     /** The list of all vals length */
-    private transient List<Integer> valuesLength;
+    private List<Integer> valuesLength;
 
 
     // ~ Constructors

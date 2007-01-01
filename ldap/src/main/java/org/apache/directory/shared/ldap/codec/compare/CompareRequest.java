@@ -64,10 +64,10 @@ public class CompareRequest extends LdapMessage
     private Object assertionValue;
 
     /** The compare request length */
-    private transient int compareRequestLength;
+    private int compareRequestLength;
 
     /** The attribute value assertion length */
-    private transient int avaLength;
+    private int avaLength;
 
 
     // ~ Constructors

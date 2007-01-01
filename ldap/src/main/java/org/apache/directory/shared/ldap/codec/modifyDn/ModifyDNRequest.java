@@ -61,7 +61,7 @@ public class ModifyDNRequest extends LdapMessage
     private LdapDN newSuperior;
 
     /** The modify DN request length */
-    private transient int modifyDNRequestLength;
+    private int modifyDNRequestLength;
 
 
     // ~ Constructors

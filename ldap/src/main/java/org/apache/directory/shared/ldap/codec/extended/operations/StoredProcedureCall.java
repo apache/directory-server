@@ -47,7 +47,7 @@ public class StoredProcedureCall extends AbstractAsn1Object
 
     private List/*<StoredProcedureParameter>*/parameters;
 
-    private transient StoredProcedureParameter currentParameter;
+    private StoredProcedureParameter currentParameter;
 
     /**
      * TODO: Add more length variables.

@@ -72,7 +72,7 @@ public class PSearchControl extends AbstractAsn1Object
     public static final int CHANGE_TYPES_MAX = CHANGE_TYPE_ADD | CHANGE_TYPE_DELETE | CHANGE_TYPE_MODIFY | CHANGE_TYPE_MODDN;
 
     /** A temporary storage for a psearch length */
-    private transient int psearchSeqLength;
+    private int psearchSeqLength;
 
 
     public void setChangesOnly( boolean changesOnly )

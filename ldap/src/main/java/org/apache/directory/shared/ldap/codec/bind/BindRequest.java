@@ -53,7 +53,7 @@ public class BindRequest extends LdapMessage
     private LdapAuthentication authentication;
 
     /** The bind request length */
-    private transient int bindRequestLength;
+    private int bindRequestLength;
 
     /**
      * Creates a new BindRequest object.

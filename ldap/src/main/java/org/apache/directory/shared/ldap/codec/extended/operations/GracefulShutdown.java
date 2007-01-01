@@ -45,7 +45,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 public class GracefulShutdown extends GracefulAction
 {
     /** Length of the sequence */
-    private transient int gracefulSequenceLength;
+    private int gracefulSequenceLength;
 
 
     /**

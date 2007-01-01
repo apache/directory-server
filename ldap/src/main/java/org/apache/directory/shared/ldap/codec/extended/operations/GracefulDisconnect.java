@@ -53,10 +53,10 @@ public class GracefulDisconnect extends GracefulAction
     private List<LdapURL> replicatedContexts;
 
     /** Length of the sequence */
-    private transient int gracefulDisconnectSequenceLength;
+    private int gracefulDisconnectSequenceLength;
 
     /** Length of the replicated contexts */
-    private transient int replicatedContextsLength;
+    private int replicatedContextsLength;
 
 
     /**

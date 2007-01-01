@@ -92,16 +92,16 @@ public class SearchRequest extends LdapMessage
     private Attributes attributes;
 
     /** The current filter. This is used while decoding a PDU */
-    private transient Filter currentFilter;
+    private Filter currentFilter;
 
     /** A temporary storage for a terminal Filter */
-    private transient Filter terminalFilter;
+    private Filter terminalFilter;
     
     /** The searchRequest length */
-    private transient int searchRequestLength;
+    private int searchRequestLength;
 
     /** The attributeDescriptionList length */
-    private transient int attributeDescriptionListLength;
+    private int attributeDescriptionListLength;
 
 
     // ~ Constructors

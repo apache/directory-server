@@ -43,7 +43,7 @@ public class PresentFilter extends Filter
     private String attributeDescription;
     
     /** Temporary storage for attribute description bytes */
-    private transient byte[] attributeDescriptionBytes; 
+    private byte[] attributeDescriptionBytes; 
 
 
     // ~ Constructors

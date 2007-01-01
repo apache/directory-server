@@ -50,7 +50,7 @@ public class SearchResultReference extends LdapMessage
     private List<LdapURL> searchResultReferences;
 
     /** The search result reference length */
-    private transient int searchResultReferenceLength;
+    private int searchResultReferenceLength;
 
 
     // ~ Constructors

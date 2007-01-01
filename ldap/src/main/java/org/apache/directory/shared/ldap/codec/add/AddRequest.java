@@ -81,19 +81,19 @@ public class AddRequest extends LdapMessage
     private Attributes attributes;
 
     /** The current attribute being decoded */
-    private transient Attribute currentAttribute;
+    private Attribute currentAttribute;
 
     /** The add request length */
-    private transient int addRequestLength;
+    private int addRequestLength;
 
     /** The attributes length */
-    private transient int attributesLength;
+    private int attributesLength;
 
     /** The list of all attributes length */
-    private transient List<Integer> attributeLength;
+    private List<Integer> attributeLength;
 
     /** The list of all vals length */
-    private transient List<Integer> valuesLength;
+    private List<Integer> valuesLength;
 
 
     // ~ Constructors

@@ -54,16 +54,16 @@ public class SaslCredentials extends LdapAuthentication
     private String mechanism;
     
     /** The mechanism bytes */
-    private transient byte[] mechanismBytes;
+    private byte[] mechanismBytes;
 
     /** optional credentials of the user */
     private byte[] credentials;
 
     /** The mechanism length */
-    private transient int mechanismLength;
+    private int mechanismLength;
 
     /** The credentials length */
-    private transient int credentialsLength;
+    private int credentialsLength;
 
 
     // ~ Methods

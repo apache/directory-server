@@ -90,10 +90,10 @@ public class EntryChangeControl extends AbstractAsn1Object
     private LdapDN previousDn = null;
     
     /** A temporary storage for the previous DN */
-    private transient byte[] previousDnBytes = null;
+    private byte[] previousDnBytes = null;
 
     /** The entry change global length */
-    private transient int eccSeqLength;
+    private int eccSeqLength;
 
 
     /**

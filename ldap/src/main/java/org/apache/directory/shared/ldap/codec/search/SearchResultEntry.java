@@ -73,25 +73,25 @@ public class SearchResultEntry extends LdapMessage
     private LdapDN objectName;
     
     /** A temporary storage for the byte[] representing the objectName */ 
-    private transient byte[] objectNameBytes;
+    private byte[] objectNameBytes;
 
     /** The attributes list. It contains javax.naming.directory.Attribute */
     private Attributes partialAttributeList;
 
     /** The current attribute being decoded */
-    private transient Attribute currentAttributeValue;
+    private Attribute currentAttributeValue;
 
     /** The search result entry length */
-    private transient int searchResultEntryLength;
+    private int searchResultEntryLength;
 
     /** The partial attributes length */
-    private transient int attributesLength;
+    private int attributesLength;
 
     /** The list of all attributes length */
-    private transient List<Integer> attributeLength;
+    private List<Integer> attributeLength;
 
     /** The list of all vals length */
-    private transient List<Integer> valsLength;
+    private List<Integer> valsLength;
 
 
     // ~ Constructors

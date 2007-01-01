@@ -51,7 +51,7 @@ public class BindResponse extends LdapResponse
     private byte[] serverSaslCreds;
 
     /** The bind response length */
-    private transient int bindResponseLength;
+    private int bindResponseLength;
 
 
     // ~ Constructors

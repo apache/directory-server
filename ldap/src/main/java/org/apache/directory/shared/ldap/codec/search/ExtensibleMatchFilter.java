@@ -47,12 +47,12 @@ public class ExtensibleMatchFilter extends Filter
     private String matchingRule;
     
     /** Matching rule bytes */
-    private transient byte[] matchingRuleBytes;
+    private byte[] matchingRuleBytes;
 
     /** Matching rule type */
     private String type;
     
-    private transient byte[] typeBytes;
+    private byte[] typeBytes;
 
     /** Matching rule value */
     private Object matchValue;
@@ -61,7 +61,7 @@ public class ExtensibleMatchFilter extends Filter
     private boolean dnAttributes;
 
     /** The extensible match length */
-    private transient int extensibleMatchLength;
+    private int extensibleMatchLength;
 
     // ~ Constructors
     // -------------------------------------------------------------------------------

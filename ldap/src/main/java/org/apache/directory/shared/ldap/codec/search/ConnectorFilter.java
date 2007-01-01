@@ -44,7 +44,7 @@ public abstract class ConnectorFilter extends Filter
     protected List<Filter> filterSet;
 
     /** The filters length */
-    protected transient int filtersLength;
+    protected int filtersLength;
 
 
     // ~ Constructors

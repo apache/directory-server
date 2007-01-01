@@ -51,10 +51,10 @@ public class ExtendedRequest extends LdapMessage
     private byte[] requestValue;
 
     /** The extended request length */
-    private transient int extendedRequestLength;
+    private int extendedRequestLength;
 
     /** The OID length */
-    private transient int oidLength;
+    private int oidLength;
 
 
     // ~ Constructors

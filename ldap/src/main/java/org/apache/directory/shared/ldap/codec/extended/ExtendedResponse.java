@@ -52,10 +52,10 @@ public class ExtendedResponse extends LdapResponse
     private Object response;
 
     /** The extended response length */
-    private transient int extendedResponseLength;
+    private int extendedResponseLength;
 
     /** The OID length */
-    private transient int responseNameLength;
+    private int responseNameLength;
 
 
     // ~ Constructors

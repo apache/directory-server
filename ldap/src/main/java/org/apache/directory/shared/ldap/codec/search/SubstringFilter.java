@@ -59,13 +59,13 @@ public class SubstringFilter extends Filter
     private String type;
     
     /** The type length */
-    private transient int typeLength;
+    private int typeLength;
 
     /**
      * This member is used to control the length of the three parts of the
      * substring filter
      */
-    private transient int substringsLength;
+    private int substringsLength;
 
     /** The initial filter */
     private String initialSubstrings;
@@ -77,10 +77,10 @@ public class SubstringFilter extends Filter
     private String finalSubstrings;
 
     /** Temporary storage for substringsFilter length */
-    private transient int substringsFilterLength;
+    private int substringsFilterLength;
 
     /** Temporary storage for substringsFilter sequence length */
-    private transient int substringsFilterSequenceLength;
+    private int substringsFilterSequenceLength;
 
 
     // ~ Methods

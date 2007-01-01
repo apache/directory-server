@@ -48,7 +48,7 @@ public class AttributeValueAssertionFilter extends Filter
     private int filterType;
 
     /** The attributeValueAssertion length */
-    private transient int avaLength;
+    private int avaLength;
 
 
     // ~ Constructors

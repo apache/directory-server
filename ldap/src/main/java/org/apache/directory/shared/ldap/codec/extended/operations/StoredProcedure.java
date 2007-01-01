@@ -49,22 +49,22 @@ public class StoredProcedure extends AbstractAsn1Object
 
     private List<StoredProcedureParameter> parameters = new ArrayList<StoredProcedureParameter>();
 
-    private transient StoredProcedureParameter currentParameter;
+    private StoredProcedureParameter currentParameter;
     
     /** The stored procedure length */
-    private transient int storedProcedureLength;
+    private int storedProcedureLength;
     
     /** The parameters length */
-    private transient int parametersLength;
+    private int parametersLength;
 
     /** The list of all parameter lengths */
-    private transient List<Integer> parameterLength;
+    private List<Integer> parameterLength;
 
     /** The list of all parameter type lengths */
-    private transient List<Integer> paramTypeLength;
+    private List<Integer> paramTypeLength;
 
     /** The list of all parameter value lengths */
-    private transient List<Integer> paramValueLength;
+    private List<Integer> paramValueLength;
 
     public String getLanguage()
     {
