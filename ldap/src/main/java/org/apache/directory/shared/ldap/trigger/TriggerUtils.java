@@ -38,12 +38,12 @@ import javax.naming.ldap.LdapContext;
  */
 public class TriggerUtils
 {
-    public static String SUBTREE_SPECIFICATION_ATTR = "subtreeSpecification";
-    public static String ADMINISTRATIVE_ROLE_ATTR = "administrativeRole";
-    public static String TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE = "triggerExecutionSpecificArea";
-    public static String TRIGGER_EXECUTION_SUBENTRY_OC = "triggerExecutionSubentry";
-    public static String ENTRY_TRIGGER_SPECIFICATION_ATTR = "entryTriggerSpecification";
-    public static String PRESCRIPTIVE_TRIGGER_SPECIFICATION_ATTR = "prescriptiveTriggerSpecification";
+    public static final String SUBTREE_SPECIFICATION_ATTR = "subtreeSpecification";
+    public static final String ADMINISTRATIVE_ROLE_ATTR = "administrativeRole";
+    public static final String TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE = "triggerExecutionSpecificArea";
+    public static final String TRIGGER_EXECUTION_SUBENTRY_OC = "triggerExecutionSubentry";
+    public static final String ENTRY_TRIGGER_SPECIFICATION_ATTR = "entryTriggerSpecification";
+    public static final String PRESCRIPTIVE_TRIGGER_SPECIFICATION_ATTR = "prescriptiveTriggerSpecification";
     
     
     public static void defineTriggerExecutionSpecificPoint( LdapContext apCtx ) throws NamingException
