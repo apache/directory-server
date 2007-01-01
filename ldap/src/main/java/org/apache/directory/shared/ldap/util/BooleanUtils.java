@@ -36,9 +36,9 @@ package org.apache.directory.shared.ldap.util;
  */
 public class BooleanUtils
 {
-    private static final Integer INTEGER_ZERO = new Integer( 0 );
+    private static final Integer INTEGER_ZERO = Integer.valueOf( 0 );
 
-    private static final Integer INTEGER_ONE = new Integer( 1 );
+    private static final Integer INTEGER_ONE = Integer.valueOf( 1 );
 
 
     /**
