@@ -31,6 +31,8 @@ import javax.naming.NamingException;
  */
 public class ObjectIdentifierNormalizer implements Normalizer
 {
+    public static final long serialVersionUID = 1L;
+
     public Object normalize( Object value ) throws NamingException
     {
         if ( value == null )
