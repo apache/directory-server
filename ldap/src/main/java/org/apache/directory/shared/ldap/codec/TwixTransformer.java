@@ -439,13 +439,13 @@ public class TwixTransformer implements TransformerSpi
                         case LdapConstants.EQUALITY_MATCH_FILTER:
                             if ( ava.getAssertionValue() instanceof String )
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc().toString(), 
+                                branch = new SimpleNode( ava.getAttributeDesc(), 
                                     (String)ava.getAssertionValue(), 
                                     AssertionEnum.EQUALITY );
                             }
                             else
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc().toString(), 
+                                branch = new SimpleNode( ava.getAttributeDesc(), 
                                     (byte[])ava.getAssertionValue(), 
                                     AssertionEnum.EQUALITY );
                             }
@@ -455,13 +455,13 @@ public class TwixTransformer implements TransformerSpi
                         case LdapConstants.GREATER_OR_EQUAL_FILTER:
                             if ( ava.getAssertionValue() instanceof String )
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc().toString(),
+                                branch = new SimpleNode( ava.getAttributeDesc(),
                                     (String)ava.getAssertionValue(),
                                     AssertionEnum.GREATEREQ );
                             }
                             else
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc().toString(),
+                                branch = new SimpleNode( ava.getAttributeDesc(),
                                     (byte[])ava.getAssertionValue(),
                                     AssertionEnum.GREATEREQ );
                             }
@@ -471,13 +471,13 @@ public class TwixTransformer implements TransformerSpi
                         case LdapConstants.LESS_OR_EQUAL_FILTER:
                             if ( ava.getAssertionValue() instanceof String )
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc().toString(), 
+                                branch = new SimpleNode( ava.getAttributeDesc(), 
                                     (String)ava.getAssertionValue(), 
                                     AssertionEnum.LESSEQ );
                             }
                             else
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc().toString(), 
+                                branch = new SimpleNode( ava.getAttributeDesc(), 
                                     (byte[])ava.getAssertionValue(), 
                                     AssertionEnum.LESSEQ );
                             }
@@ -487,13 +487,13 @@ public class TwixTransformer implements TransformerSpi
                         case LdapConstants.APPROX_MATCH_FILTER:
                             if ( ava.getAssertionValue() instanceof String )
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc().toString(), 
+                                branch = new SimpleNode( ava.getAttributeDesc(), 
                                     (String)ava.getAssertionValue(), 
                                     AssertionEnum.APPROXIMATE );
                             }
                             else
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc().toString(), 
+                                branch = new SimpleNode( ava.getAttributeDesc(), 
                                     (byte[])ava.getAssertionValue(), 
                                     AssertionEnum.APPROXIMATE );
                             }
@@ -512,26 +512,25 @@ public class TwixTransformer implements TransformerSpi
 
                     if ( filter.getInitialSubstrings() != null )
                     {
-                        initialString = filter.getInitialSubstrings().toString();
+                        initialString = filter.getInitialSubstrings();
                     }
 
                     if ( filter.getFinalSubstrings() != null )
                     {
-                        finalString = filter.getFinalSubstrings().toString();
+                        finalString = filter.getFinalSubstrings();
                     }
 
                     if ( filter.getAnySubstrings() != null )
                     {
-                        Iterator iter = filter.getAnySubstrings().iterator();
                         anyString = new ArrayList<String>();
 
-                        while ( iter.hasNext() )
+                        for ( String any:filter.getAnySubstrings() )
                         {
-                            anyString.add( iter.next().toString() );
+                            anyString.add( any );
                         }
                     }
 
-                    branch = new SubstringNode( anyString, filter.getType().toString(), initialString, finalString );
+                    branch = new SubstringNode( anyString, filter.getType(), initialString, finalString );
                 }
                 else if ( twixFilter instanceof ExtensibleMatchFilter )
                 {
@@ -542,14 +541,14 @@ public class TwixTransformer implements TransformerSpi
 
                     if ( filter.getType() != null )
                     {
-                        attribute = filter.getType().toString();
+                        attribute = filter.getType();
                     }
 
                     Object value = filter.getMatchValue();
 
                     if ( filter.getMatchingRule() != null )
                     {
-                        matchingRule = filter.getMatchingRule().toString();
+                        matchingRule = filter.getMatchingRule();
                     }
 
                     if ( value instanceof String )
