@@ -166,17 +166,12 @@ public abstract class AbstractExprNode implements ExprNode
      */
     public boolean equals( Object other )
     {
-        if ( null == other )
-        {
-            return false;
-        }
-
         if ( this == other )
         {
             return true;
         }
 
-        if ( !( other instanceof AbstractExprNode ) )
+        if ( ( other == null ) || ( other.getClass() != this.getClass() ) )
         {
             return false;
         }
@@ -199,5 +194,16 @@ public abstract class AbstractExprNode implements ExprNode
 
         return ( ( null != annotations ) && ( null != otherAnnotations ) && 
         		annotations.equals( otherAnnotations ) );
+    }
+    
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int hash = 7;
+        hash = hash*31 + ( assertionType == null ? 0 : assertionType.hashCode() );
+        hash = hash*31 + ( annotations == null ? 0 : annotations.hashCode() );
+        return hash;
     }
 }
