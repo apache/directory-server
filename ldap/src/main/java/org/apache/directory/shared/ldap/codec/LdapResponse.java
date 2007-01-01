@@ -39,7 +39,7 @@ public class LdapResponse extends LdapMessage
     private LdapResult ldapResult;
 
     /** The response length */
-    private transient int ldapResponseLength;
+    private int ldapResponseLength;
 
 
     // ~ Constructors

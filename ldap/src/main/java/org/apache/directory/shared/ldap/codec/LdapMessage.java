@@ -75,16 +75,16 @@ public class LdapMessage extends AbstractAsn1Object
     private List<Control> controls;
 
     /** The current control */
-    private transient Control currentControl;
+    private Control currentControl;
 
     /** The LdapMessage length */
-    private transient int ldapMessageLength;
+    private int ldapMessageLength;
 
     /** The controls length */
-    private transient int controlsLength;
+    private int controlsLength;
 
     /** The controls sequence length */
-    private transient int controlsSequenceLength;
+    private int controlsSequenceLength;
 
 
     // ~ Constructors

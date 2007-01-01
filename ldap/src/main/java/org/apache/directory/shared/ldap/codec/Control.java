@@ -55,7 +55,7 @@ public class Control extends AbstractAsn1Object
     private byte[] encodedValue;
 
     /** The control length */
-    private transient int controlLength;
+    private int controlLength;
 
     // ~ Methods
     // ------------------------------------------------------------------------------------

@@ -104,19 +104,19 @@ public class LdapResult extends AbstractAsn1Object
     private LdapDN matchedDN;
 
     /** Temporary storage of the byte[] representing the matchedDN */
-    private transient byte[] matchedDNBytes;
+    private byte[] matchedDNBytes;
 
     /** The error message */
     private String errorMessage;
     
     /** Temporary storage for message bytes */
-    private transient byte[] errorMessageBytes;
+    private byte[] errorMessageBytes;
 
     /** The referrals, if any. This is an optional element */
     private List<LdapURL> referrals;
 
     /** The inner size of the referrals sequence */
-    private transient int referralsLength;
+    private int referralsLength;
 
 
     // ~ Constructors
