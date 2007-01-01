@@ -48,10 +48,6 @@ public class SubstringNode extends LeafNode
     /** List of fragments between wildcards */
     private final List anyPattern;
 
-    /** Generated regular expression from substring assertion expression */
-    private transient Pattern regex = null;
-
-
     /**
      * Creates a new SubstringNode object with only one wildcard and no internal
      * any fragments between wildcards.
@@ -138,11 +134,6 @@ public class SubstringNode extends LeafNode
      */
     public final Pattern getRegex( Normalizer normalizer ) throws PatternSyntaxException, NamingException
     {
-        if ( regex != null )
-        {
-            return regex;
-        }
-
         if ( anyPattern.size() > 0 )
         {
             String[] any = new String[anyPattern.size()];
