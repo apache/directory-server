@@ -81,6 +81,7 @@ public class DnComparator implements Comparator
     public LdapDN getDn( Object obj ) throws NamingException
     {
         LdapDN dn = null;
+        
         if ( obj instanceof LdapDN )
         {
             dn = LdapDN.normalize( ( LdapDN ) obj, attrRegistry.getNormalizerMapping() );
@@ -98,8 +99,9 @@ public class DnComparator implements Comparator
         else
         {
             throw new IllegalStateException( "I do not know how to handle dn comparisons with objects of class: " 
-                + obj.getClass() );
+                + (obj == null ? null : obj.getClass() ) );
         }
+        
         return dn;
     }
 }
