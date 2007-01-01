@@ -178,16 +178,6 @@ public class DNUtils
     /** "OID." static */
     public static final String OID_UPPER = "OID.";
 
-    /** "oid." static */
-    public static final byte[] OID_LOWER_BYTES = new byte[]
-        { 'o', 'i', 'd', '.' };
-
-    /** "OID." static */
-    public static final byte[] OID_UPPER_BYTES = new byte[]
-        { 'O', 'I', 'D', '.' };
-
-
-
     // ~ Methods
     // ------------------------------------------------------------------------------------
 
@@ -214,7 +204,7 @@ public class DNUtils
         {
             byte c = byteArray[index];
 
-            if ( ( c > 127 ) || ( SAFE_INIT_CHAR[c] == false ) )
+            if ( ( ( c | 0x7F ) != 0x7F ) || ( SAFE_INIT_CHAR[c] == false ) )
             {
                 return -1;
             }
@@ -225,7 +215,7 @@ public class DNUtils
             {
                 c = byteArray[index];
 
-                if ( ( c > 127 ) || ( SAFE_CHAR[c] == false ) )
+                if ( ( ( c | 0x7F ) != 0x7F ) || ( SAFE_CHAR[c] == false ) )
                 {
                     break;
                 }
@@ -322,7 +312,7 @@ public class DNUtils
         {
             byte c = byteArray[index];
 
-            if ( ( c > 127 ) || ( PAIR_CHAR[c] == false ) )
+            if ( ( ( c | 0x7F ) != 0x7F )  || ( PAIR_CHAR[c] == false ) )
             {
                 return false;
             }
@@ -361,7 +351,7 @@ public class DNUtils
         {
             char c = charArray[index];
 
-            if ( ( c > 127 ) || ( PAIR_CHAR[c] == false ) )
+            if ( ( ( c | 0x7F ) != 0x7F )  || ( PAIR_CHAR[c] == false ) )
             {
                 return false;
             }
@@ -408,7 +398,7 @@ public class DNUtils
         {
             char c = string.charAt( index );
 
-            if ( ( c > 127 ) || ( PAIR_CHAR[c] == false ) )
+            if ( ( ( c | 0x7F ) != 0x7F )  || ( PAIR_CHAR[c] == false ) )
             {
                 return PARSING_ERROR;
             }
@@ -448,7 +438,7 @@ public class DNUtils
         {
             byte c = byteArray[index];
 
-            if ( c < 0x40 )
+            if ( ( c | 0x3F ) == 0x3F )
             {
                 return STRING_CHAR[ c ];
             }
@@ -521,7 +511,7 @@ public class DNUtils
         {
             char c = string.charAt( index );
 
-            if ( c < 0x40 )
+            if ( ( c | 0x3F) == 0x3F )
             {
                 return STRING_CHAR[ c ];
             }
@@ -894,7 +884,7 @@ public class DNUtils
         {
             byte c = byteArray[index];
 
-            if ( ( c > 127 ) || ( BASE64_CHAR[c] == false ) )
+            if ( ( ( c | 0x7F ) != 0x7F )  || ( BASE64_CHAR[c] == false ) )
             {
                 return -1;
             }
@@ -905,7 +895,7 @@ public class DNUtils
             {
                 c = byteArray[index];
 
-                if ( ( c > 127 ) || ( BASE64_CHAR[c] == false ) )
+                if ( ( ( c | 0x7F ) != 0x7F )  || ( BASE64_CHAR[c] == false ) )
                 {
                     break;
                 }
