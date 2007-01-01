@@ -566,7 +566,7 @@ public class LockableAttributeImpl implements Attribute
             return true;
         }
 
-        if ( !( obj instanceof Attribute ) )
+        if ( ( obj == null ) || !( obj instanceof Attribute ) )
         {
             return false;
         }
@@ -619,7 +619,37 @@ public class LockableAttributeImpl implements Attribute
         		return true;
         }
     }
-    
+
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int hash = 7;
+        hash = hash*31 + size;
+        hash = hash*31 + ( upId == null ? 0 : upId.hashCode() );
+        
+        switch (size)
+        {
+            case 0 :
+                return hash;
+                
+            case 1 :
+                return hash*31 + ( value == null ? 0 : value.hashCode() );
+                
+            default :
+                for ( Object value:list )
+                {
+                    hash = hash*31 + ( value == null ? 0 : value.hashCode() );
+                }
+            
+                return hash;
+        }
+    }
+
+    /**
+     * @see Object#toString()
+     */
     public String toString()
     {
     	StringBuffer sb = new StringBuffer();
