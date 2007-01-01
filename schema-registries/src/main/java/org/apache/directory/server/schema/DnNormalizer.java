@@ -63,6 +63,7 @@ public class DnNormalizer implements Normalizer
     public Object normalize( Object value ) throws NamingException
     {
         LdapDN dn = null;
+        
         if ( value instanceof LdapDN )
         {
             dn = ( LdapDN ) ( ( LdapDN ) value ).clone();
@@ -74,6 +75,11 @@ public class DnNormalizer implements Normalizer
         else if ( value instanceof String )
         {
             dn = new LdapDN( ( String ) value );
+        }
+        else
+        {
+            throw new IllegalStateException( "I do not know how to handle dn normalization with objects of class: " 
+                + (value == null ? null : value.getClass() ) );
         }
         
         dn.normalize( attrRegistry.getNormalizerMapping() );
