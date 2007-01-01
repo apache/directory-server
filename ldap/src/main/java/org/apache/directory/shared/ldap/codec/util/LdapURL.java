@@ -70,7 +70,7 @@ public class LdapURL
     // -----------------------------------------------------------------
 
     /** A null LdapURL */
-    public static final transient LdapURL EMPTY_URL = new LdapURL();
+    public static final LdapURL EMPTY_URL = new LdapURL();
 
     /** The filter parser */
     private static FilterParserImpl filterParser = new FilterParserImpl();
@@ -1085,7 +1085,7 @@ public class LdapURL
                     }
 
                     // An optionnal value
-                    extension = new String( decode( new String( chars, start, i - start ) ) ).trim();
+                    extension = decode( new String( chars, start, i - start ) ).trim();
 
                     if ( extension.length() == 0 )
                     {
@@ -1115,11 +1115,11 @@ public class LdapURL
 
             if ( extension == null )
             {
-                extension = new String( decode( new String( chars, start, chars.length - start ) ) ).trim();
+                extension = decode( new String( chars, start, chars.length - start ) ).trim();
             }
             else
             {
-                value = new String( decode( new String( chars, start, chars.length - start ) ) ).trim();
+                value = decode( new String( chars, start, chars.length - start ) ).trim();
             }
 
             if ( isCritical )
