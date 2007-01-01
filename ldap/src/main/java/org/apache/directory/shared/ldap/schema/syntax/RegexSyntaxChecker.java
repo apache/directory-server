@@ -111,7 +111,8 @@ public class RegexSyntaxChecker extends AbstractSyntaxChecker
      */
     public String[] getExpressions()
     {
-        return (String[])expressions.toArray();
+        String[] exprs = new String[ expressions.size() ];
+        return expressions.toArray( exprs );
     }
 
     /**
