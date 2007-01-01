@@ -633,14 +633,14 @@ public class Rdn implements Cloneable, Comparable, Serializable
     */
    public int compareTo( Object object )
    {
+       if ( object == null )
+       {
+           return SUPERIOR;
+       }
+
        if ( object instanceof Rdn )
        {
            Rdn rdn = ( Rdn ) object;
-
-           if ( rdn == null )
-           {
-               return SUPERIOR;
-           }
 
            if ( rdn.nbAtavs != nbAtavs )
            {
@@ -728,7 +728,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
        }
        else
        {
-           return object != null ? UNDEFINED : SUPERIOR;
+           return UNDEFINED;
        }
    }
 
