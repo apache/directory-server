@@ -58,10 +58,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapDN /* extends LdapString */implements Name
+public class LdapDN implements Name
 {
    /** The LoggerFactory used by this class */
-   protected static Logger log = LoggerFactory.getLogger( LdapDN.class );
+   protected static final Logger log = LoggerFactory.getLogger( LdapDN.class );
 
    /**
     * Declares the Serial Version Uid.
