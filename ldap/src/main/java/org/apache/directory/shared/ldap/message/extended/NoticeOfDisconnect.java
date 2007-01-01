@@ -109,11 +109,11 @@ public class NoticeOfDisconnect extends ExtendedResponseImpl
 
     private static final byte[] EMPTY_RESPONSE = new byte[0];
 
-    public static NoticeOfDisconnect UNAVAILABLE = new NoticeOfDisconnect( ResultCodeEnum.UNAVAILABLE );
+    public static final NoticeOfDisconnect UNAVAILABLE = new NoticeOfDisconnect( ResultCodeEnum.UNAVAILABLE );
 
-    public static NoticeOfDisconnect PROTOCOLERROR = new NoticeOfDisconnect( ResultCodeEnum.PROTOCOL_ERROR );
+    public static final NoticeOfDisconnect PROTOCOLERROR = new NoticeOfDisconnect( ResultCodeEnum.PROTOCOL_ERROR );
 
-    public static NoticeOfDisconnect STRONGAUTHREQUIRED = new NoticeOfDisconnect( ResultCodeEnum.STRONG_AUTH_REQUIRED );
+    public static final NoticeOfDisconnect STRONGAUTHREQUIRED = new NoticeOfDisconnect( ResultCodeEnum.STRONG_AUTH_REQUIRED );
 
 
     private NoticeOfDisconnect(ResultCodeEnum rcode)
