@@ -91,6 +91,11 @@ public class PrepareString
      */
     private static boolean isCombiningMark( char c )
     {
+        if ( c < COMBINING_MARKS[0][0] )
+        {
+            return false;
+        }
+        
         for ( char[] interval:COMBINING_MARKS )
         {
             if ( ( c >= interval[0] ) && ( c <= interval[1] ) )
@@ -124,15 +129,15 @@ public class PrepareString
        switch ( type )
        {
            case NUMERIC_STRING :
-               return insignifiantCharNumericString( bidi( prohibit( map( str ) ) ) );
+               return insignifiantCharNumericString( map( str ) );
 
            case TELEPHONE_NUMBER :
-               return insignifiantCharTelephoneNumber( bidi( prohibit( map( str ) ) ) );
+               return insignifiantCharTelephoneNumber( map( str ) );
 
            case CASE_EXACT :
            case CASE_EXACT_IA5 :
            case DIRECTORY_STRING :
-               return insignifiantSpacesString( bidi( prohibit( map( str ) ) ) );
+               return insignifiantSpacesString( map( str ) );
 
            case CASE_IGNORE_IA5 :
            case CASE_IGNORE_LIST :
@@ -182,13 +187,6 @@ public class PrepareString
         
         for ( char c:array )
         {
-            // First, eliminate surrogates, and replace them by FFFD char
-            if ( ( c >= 0xD800 ) && ( c <= 0xDFFF ) )
-            {
-                sb.append( (char)0xFFFD );
-                continue;
-            }
-            
             switch ( c )
             {
                 case 0x0000:
@@ -3956,6 +3954,13 @@ public class PrepareString
                     break;
         
                 default :
+                    // First, eliminate surrogates, and replace them by FFFD char
+                    if ( ( c >= 0xD800 ) && ( c <= 0xDFFF ) )
+                    {
+                        sb.append( (char)0xFFFD );
+                        continue;
+                    }
+                    
                     sb.append( c );
             }
         }
@@ -4558,6 +4563,591 @@ public class PrepareString
     
     /**
      * 
+     * Prohibit characters described in RFC 4518 :
+     *  - Table A.1 of RFC 3454
+     *  - Table C.3 of RFC 3454
+     *  - Table C.4 of RFC 3454
+     *  - Table C.5 of RFC 3454
+     *  - Table C.8 of RFC 3454
+     *  - character U-FFFD
+     *
+     * @param str The String to analyze
+     * @throws InvalidCharacterException If any character is prohibited
+     */
+    private static void checkProhibited( char c ) throws InvalidCharacterException
+    {
+        // Shortcut chars above 0x0221
+        if ( c < 0x221 )
+        {
+            return;
+        }
+        
+        // RFC 3454, Table A.1
+        switch ( c )
+        {
+            case 0x0221 :
+            case 0x038B :
+            case 0x038D :
+            case 0x03A2 :
+            case 0x03CF :
+            case 0x0487 :
+            case 0x04CF :
+            case 0x0560 :
+            case 0x0588 :
+            case 0x05A2 :
+            case 0x05BA :
+            case 0x0620 :
+            case 0x06FF :
+            case 0x070E :
+            case 0x0904 :
+            case 0x0984 :
+            case 0x09A9 :
+            case 0x09B1 :
+            case 0x09BD :
+            case 0x09DE :
+            case 0x0A29 :
+            case 0x0A31 :
+            case 0x0A34 :
+            case 0x0A37 :
+            case 0x0A3D :
+            case 0x0A5D :
+            case 0x0A84 :
+            case 0x0A8C :
+            case 0x0A8E :
+            case 0x0A92 :
+            case 0x0AA9 :
+            case 0x0AB1 :
+            case 0x0AB4 :
+            case 0x0AC6 :
+            case 0x0ACA :
+            case 0x0B04 :
+            case 0x0B29 :
+            case 0x0B31 :
+            case 0x0B5E :
+            case 0x0B84 :
+            case 0x0B91 :
+            case 0x0B9B :
+            case 0x0B9D :
+            case 0x0BB6 :
+            case 0x0BC9 :
+            case 0x0C04 :
+            case 0x0C0D :
+            case 0x0C11 :
+            case 0x0C29 :
+            case 0x0C34 :
+            case 0x0C45 :
+            case 0x0C49 :
+            case 0x0C84 :
+            case 0x0C8D :
+            case 0x0C91 :
+            case 0x0CA9 :
+            case 0x0CB4 :
+            case 0x0CC5 :
+            case 0x0CC9 :
+            case 0x0CDF :
+            case 0x0D04 :
+            case 0x0D0D :
+            case 0x0D11 :
+            case 0x0D29 :
+            case 0x0D49 :
+            case 0x0D84 :
+            case 0x0DB2 :
+            case 0x0DBC :
+            case 0x0DD5 :
+            case 0x0DD7 :
+            case 0x0E83 :
+            case 0x0E89 :
+            case 0x0E98 :
+            case 0x0EA0 :
+            case 0x0EA4 :
+            case 0x0EA6 :
+            case 0x0EAC :
+            case 0x0EBA :
+            case 0x0EC5 :
+            case 0x0EC7 :
+            case 0x0F48 :
+            case 0x0F98 :
+            case 0x0FBD :
+            case 0x1022 :
+            case 0x1028 :
+            case 0x102B :
+            case 0x1207 :
+            case 0x1247 :
+            case 0x1249 :
+            case 0x1257 :
+            case 0x1259 :
+            case 0x1287 :
+            case 0x1289 :
+            case 0x12AF :
+            case 0x12B1 :
+            case 0x12BF :
+            case 0x12C1 :
+            case 0x12CF :
+            case 0x12D7 :
+            case 0x12EF :
+            case 0x130F :
+            case 0x1311 :
+            case 0x131F :
+            case 0x1347 :
+            case 0x170D :
+            case 0x176D :
+            case 0x1771 :
+            case 0x180F :
+            case 0x1F58 :
+            case 0x1F5A :
+            case 0x1F5C :
+            case 0x1F5E :
+            case 0x1FB5 :
+            case 0x1FC5 :
+            case 0x1FDC :
+            case 0x1FF5 :
+            case 0x1FFF :
+            case 0x24FF :
+            case 0x2618 :
+            case 0x2705 :
+            case 0x2728 :
+            case 0x274C :
+            case 0x274E :
+            case 0x2757 :
+            case 0x27B0 :
+            case 0x2E9A :
+            case 0x3040 :
+            case 0x318F :
+            case 0x32FF :
+            case 0x33FF :
+            case 0xFB37 :
+            case 0xFB3D :
+            case 0xFB3F :
+            case 0xFB42 :
+            case 0xFB45 :
+            case 0xFE53 :
+            case 0xFE67 :
+            case 0xFE75 :
+            case 0xFF00 :
+            case 0xFFE7 :
+                throw new InvalidCharacterException( c );
+        }
+        
+        // RFC 3454, Table A.1, intervals
+        if ( ( c >= 0x0234 ) && ( c <= 0x024F ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x02AE ) && ( c <= 0x02AF ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x02EF ) && ( c <= 0x02FF ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0350 ) && ( c <= 0x035F ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0370 ) && ( c <= 0x0373 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0376 ) && ( c <= 0x0379 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x037B ) && ( c <= 0x037D ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x037F ) && ( c <= 0x0383 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x03F7 ) && ( c <= 0x03FF ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x04F6 ) && ( c <= 0x04F7 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x04FA ) && ( c <= 0x04FF ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0510 ) && ( c <= 0x0530 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0557 ) && ( c <= 0x0558 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x058B ) && ( c <= 0x0590 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x05C5 ) && ( c <= 0x05CF ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x05EB ) && ( c <= 0x05EF ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x05F5 ) && ( c <= 0x060B ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x060D ) && ( c <= 0x061A ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x061C ) && ( c <= 0x061E ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x063B ) && ( c <= 0x063F ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0656 ) && ( c <= 0x065F ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x06EE ) && ( c <= 0x06EF ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x072D ) && ( c <= 0x072F ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x074B ) && ( c <= 0x077F ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x07B2 ) && ( c <= 0x0900 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x093A ) && ( c <= 0x093B ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x094E ) && ( c <= 0x094F ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0955 ) && ( c <= 0x0957 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0971 ) && ( c <= 0x0980 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x098D ) && ( c <= 0x098E ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0991 ) && ( c <= 0x0992 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x09B3 ) && ( c <= 0x09B5 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x09BA ) && ( c <= 0x09BB ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x09C5 ) && ( c <= 0x09C6 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x09C9 ) && ( c <= 0x09CA ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x09CE ) && ( c <= 0x09D6 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x09D8 ) && ( c <= 0x09DB ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x09E4 ) && ( c <= 0x09E5 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x09FB ) && ( c <= 0x0A01 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0A03 ) && ( c <= 0x0A04 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0A0B ) && ( c <= 0x0A0E ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0A11 ) && ( c <= 0x0A12 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0A3A ) && ( c <= 0x0A3B ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0A43 ) && ( c <= 0x0A46 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0A49 ) && ( c <= 0x0A4A ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0A4E ) && ( c <= 0x0A58 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0A5F ) && ( c <= 0x0A65 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0A75 ) && ( c <= 0x0A80 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0ABA ) && ( c <= 0x0ABB ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0ACE ) && ( c <= 0x0ACF ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0AD1 ) && ( c <= 0x0ADF ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0AE1 ) && ( c <= 0x0AE5 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0AF0 ) && ( c <= 0x0B00 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0B0D ) && ( c <= 0x0B0E ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0B11 ) && ( c <= 0x0B12 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0B34 ) && ( c <= 0x0B35 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0B3A ) && ( c <= 0x0B3B ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0B44 ) && ( c <= 0x0B46 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0B49 ) && ( c <= 0x0B4A ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0B4E ) && ( c <= 0x0B55 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0B58 ) && ( c <= 0x0B5B ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0B62 ) && ( c <= 0x0B65 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0B71 ) && ( c <= 0x0B81 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0B8B ) && ( c <= 0x0B8D ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0B96 ) && ( c <= 0x0B98 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0BA0 ) && ( c <= 0x0BA2 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0BA5 ) && ( c <= 0x0BA7 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0BAB ) && ( c <= 0x0BAD ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0BBA ) && ( c <= 0x0BBD ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0BC3 ) && ( c <= 0x0BC5 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0BCE ) && ( c <= 0x0BD6 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0BD8 ) && ( c <= 0x0BE6 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c >= 0x0BF3 ) && ( c <= 0x0C00 ) ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        // RFC 3454, Table C.3
+        if ( ( c >= 0xE000 ) && ( c <= 0xF8FF ) )
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        // RFC 3454, Table C.4
+        if ( ( c >= 0xFDD0 ) && ( c <= 0xFDEF ) )
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        if ( ( c == 0xFFFE ) || ( c == 0xFFFF ) )
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        // RFC 3454, Table C.5 (Surrogates)
+        if ( ( c >= 0xD800 ) && ( c <= 0xDFFF ) )
+        {
+            throw new InvalidCharacterException( c );
+        }
+
+        // RFC 3454, Table C.8 
+        switch ( c) 
+        {
+            case 0x0340 : // COMBINING GRAVE TONE MARK
+            case 0x0341 : // COMBINING ACUTE TONE MARK
+            case 0x200E : // LEFT-TO-RIGHT MARK
+            case 0x200F : // RIGHT-TO-LEFT MARK
+            case 0x202A : // LEFT-TO-RIGHT EMBEDDING
+            case 0x202B : // RIGHT-TO-LEFT EMBEDDING
+            case 0x202C : // POP DIRECTIONAL FORMATTING
+            case 0x202D : // LEFT-TO-RIGHT OVERRIDE
+            case 0x202E : // RIGHT-TO-LEFT OVERRIDE
+            case 0x206A : // INHIBIT SYMMETRIC SWAPPING
+            case 0x206B : // ACTIVATE SYMMETRIC SWAPPING
+            case 0x206C : // INHIBIT ARABIC FORM SHAPING
+            case 0x206D : // ACTIVATE ARABIC FORM SHAPING
+            case 0x206E : // NATIONAL DIGIT SHAPES
+            case 0x206F : // NOMINAL DIGIT SHAPES
+                throw new InvalidCharacterException( c );
+        }
+        
+        if ( c == 0xFFFD ) 
+        {
+            throw new InvalidCharacterException( c );
+        }
+        
+        return;
+    }
+    
+    /**
+     * 
      * Remove all bidirectionnal chars. This is not really clear in RFC 4518
      * what we should do with bidi chars :
      * "Bidirectional characters are ignored."
@@ -4789,6 +5379,8 @@ public class PrepareString
         
         for ( char c:array )
         {
+            checkProhibited( c );
+            
             switch ( state )
             {
                 case START :
