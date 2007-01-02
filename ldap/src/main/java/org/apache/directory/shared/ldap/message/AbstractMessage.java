@@ -34,7 +34,7 @@ public class AbstractMessage implements Message
     static final long serialVersionUID = 7601738291101182094L;
 
     /** Map of message controls using OID Strings for keys and Control values */
-    private final Map controls;
+    private final Map<String, Control> controls;
 
     /** The session unique message sequence identifier */
     private final int id;
@@ -43,7 +43,7 @@ public class AbstractMessage implements Message
     private final MessageTypeEnum type;
 
     /** Transient Message Parameter Hash */
-    private final Map parameters;
+    private final Map<Object, Object> parameters;
 
 
     /**
@@ -58,8 +58,8 @@ public class AbstractMessage implements Message
     {
         this.id = id;
         this.type = type;
-        controls = new HashMap();
-        parameters = new HashMap();
+        controls = new HashMap<String, Control>();
+        parameters = new HashMap<Object, Object>();
     }
 
 
@@ -83,7 +83,7 @@ public class AbstractMessage implements Message
      * @return Map of OID strings to Control object instances.
      * @see Control
      */
-    public Map getControls()
+    public Map<String, Control> getControls()
     {
         return Collections.unmodifiableMap( controls );
     }
@@ -185,7 +185,7 @@ public class AbstractMessage implements Message
             return true;
         }
 
-        if ( !( obj instanceof Message ) )
+        if ( ( obj == null ) || !( obj instanceof Message ) )
         {
             return false;
         }
@@ -219,4 +219,19 @@ public class AbstractMessage implements Message
 
         return true;
     }
+    
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int hash = 7;
+        hash = hash*31 + id;
+        hash = hash*31 + ( type == null ? 0 : type.hashCode() );
+        hash = hash*31 + ( parameters == null ? 0 : parameters.hashCode() );
+        hash = hash*31 + ( controls == null ? 0 : controls.hashCode() );
+        
+        return hash;
+    }
+
 }

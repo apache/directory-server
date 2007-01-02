@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.filter.BranchNormalizedVisitor;
@@ -63,7 +64,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
     private DerefAliasesEnum derefAliases;
 
     /** Attributes to return */
-    private Collection attributes = new ArrayList();
+    private List<String> attributes = new ArrayList<String>();
 
     /** The final result containing SearchResponseDone response */
     private SearchResponseDone response;
@@ -196,7 +197,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
      */
     public MessageTypeEnum[] getResponseTypes()
     {
-        return ( MessageTypeEnum[] ) RESPONSE_TYPES.clone();
+        return RESPONSE_TYPES.clone();
     }
 
 

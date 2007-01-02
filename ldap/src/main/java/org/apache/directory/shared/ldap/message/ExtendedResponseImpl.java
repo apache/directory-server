@@ -20,8 +20,7 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import org.apache.directory.shared.ldap.util.ArrayUtils;
-
+import java.util.Arrays;
 
 /**
  * Lockable ExtendedResponse implementation
@@ -172,7 +171,7 @@ public class ExtendedResponseImpl extends AbstractResultResponse implements Exte
 
         if ( value != null && resp.getResponse() != null )
         {
-            if ( !ArrayUtils.isEquals( value, resp.getResponse() ) )
+            if ( !Arrays.equals( value, resp.getResponse() ) )
             {
                 return false;
             }

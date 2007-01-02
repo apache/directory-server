@@ -20,6 +20,8 @@
 package org.apache.directory.shared.ldap.message;
 
 
+import java.util.Arrays;
+
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -104,6 +106,11 @@ public class BindResponseImpl extends AbstractResultResponse implements BindResp
             return true;
         }
 
+        if ( ( obj == null ) || !( obj instanceof BindResponse ) )
+        {
+            return false;
+        }
+
         if ( !super.equals( obj ) )
         {
             return false;
@@ -111,25 +118,20 @@ public class BindResponseImpl extends AbstractResultResponse implements BindResp
 
         BindResponse response = ( BindResponse ) obj;
         byte[] creds = response.getServerSaslCreds();
-        if ( serverSaslCreds == null && creds != null )
+        
+        if ( serverSaslCreds == null )
         {
-            return false;
-        }
-
-        if ( creds == null && serverSaslCreds != null )
-        {
-            return false;
-        }
-
-        if ( creds != null && serverSaslCreds != null )
-        {
-            if ( !ArrayUtils.isEquals( serverSaslCreds, creds ) )
+            if ( creds != null )
             {
                 return false;
             }
         }
-
-        return true;
+        else if ( creds == null )
+        {
+            return false;
+        }
+        
+        return Arrays.equals( serverSaslCreds, creds );
     }
 
 

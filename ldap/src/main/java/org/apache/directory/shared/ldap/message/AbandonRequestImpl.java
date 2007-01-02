@@ -85,12 +85,18 @@ public class AbandonRequestImpl extends AbstractRequest implements AbandonReques
             return true;
         }
 
+        if ( ( obj == null ) || !( obj instanceof AbandonRequest ) )
+        {
+            return false;
+        }
+        
         if ( !super.equals( obj ) )
         {
             return false;
         }
 
         AbandonRequest req = ( AbandonRequest ) obj;
+        
         if ( req.getAbandoned() != abandonId )
         {
             return false;
@@ -99,6 +105,17 @@ public class AbandonRequestImpl extends AbstractRequest implements AbandonReques
         return true;
     }
 
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int hash = 7;
+        hash = hash*31 + abandonId;
+        hash = hash*31 + super.hashCode();
+        
+        return hash;
+    }
 
     /**
      * RFC 2251 [Section 4.11]: Abandon, Bind, Unbind, and StartTLS operations

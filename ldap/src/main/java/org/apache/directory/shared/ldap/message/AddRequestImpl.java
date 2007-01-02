@@ -162,6 +162,11 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
         {
             return true;
         }
+        
+        if ( ( obj == null ) || !( obj instanceof AddRequest ) )
+        {
+            return false;
+        }
 
         if ( !super.equals( obj ) )
         {
@@ -170,37 +175,39 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
 
         AddRequest req = ( AddRequest ) obj;
 
-        if ( entry != null && req.getEntry() == null )
+        if ( entry == null )
         {
-            return false;
-        }
-
-        if ( entry == null && req.getEntry() != null )
-        {
-            return false;
-        }
-
-        if ( entry != null && req.getEntry() != null )
-        {
-            if ( !entry.equals( req.getEntry() ) )
+            if ( req.getEntry() != null )
             {
                 return false;
             }
         }
-
-        if ( attributes != null && req.getAttributes() == null )
+        else
         {
-            return false;
+            if ( req.getEntry() == null )
+            {
+                return false;
+            }
+            else if ( !entry.equals( req.getEntry() ) )
+            {
+                return false;
+            }
         }
-
-        if ( attributes == null && req.getAttributes() != null )
+        
+        if ( attributes == null )
         {
-            return false;
+            if ( req.getAttributes() != null )
+            {
+                return false;
+            }
         }
-
-        if ( attributes != null && req.getAttributes() != null )
+        else
         {
-            if ( !attributes.equals( req.getAttributes() ) )
+            if ( req.getAttributes() == null )
+            {
+                return false;
+            }
+            else if ( !attributes.equals( req.getAttributes() ) )
             {
                 return false;
             }
@@ -209,7 +216,23 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
         return true;
     }
 
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int hash = 7;
+        hash = hash*31 + ( attributes == null ? 0 : attributes.hashCode() );
+        hash = hash*31 + ( entry == null ? 0 : entry.hashCode() );
+        hash = hash*31 + ( response == null ? 0 : response.hashCode() );
+        hash = hash*31 + super.hashCode();
+        
+        return hash;
+    }
 
+    /**
+     * @see Object#toString()
+     */
     public String toString()
     {
         StringBuffer sb = new StringBuffer();

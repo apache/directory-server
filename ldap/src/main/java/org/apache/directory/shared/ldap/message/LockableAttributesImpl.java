@@ -55,13 +55,13 @@ public class LockableAttributesImpl implements Attributes, Serializable
 		String upId;
 		Attribute attribute;
 		
-		Holder( String upId, Attribute attribute )
+		private Holder( String upId, Attribute attribute )
 		{
 			this.upId = upId;
 			this.attribute = attribute;
 		}
 		
-		public Object clone() throws CloneNotSupportedException
+        public Object clone() throws CloneNotSupportedException
 		{
 			Holder clone = (Holder)super.clone();
 			
@@ -81,6 +81,15 @@ public class LockableAttributesImpl implements Attributes, Serializable
 			
 			return sb.toString();
 		}
+        
+        public int hashCode()
+        {
+            int hash = 7;
+            hash = hash*31 + ( upId == null ? 0 : upId.hashCode() );
+            hash = hash*31 + (attribute == null ? 0 : attribute.hashCode() );
+            
+            return hash;
+        }
 	}
 	
     /**
@@ -512,7 +521,7 @@ public class LockableAttributesImpl implements Attributes, Serializable
             return true;
         }
 
-        if ( !( obj instanceof Attributes ) )
+        if ( ( obj == null ) || !( obj instanceof Attributes ) )
         {
             return false;
         }
@@ -548,5 +557,14 @@ public class LockableAttributesImpl implements Attributes, Serializable
         }
 
         return true;
+    }
+    
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int hash = 7;
+        return hash*31 + keyMap.hashCode();
     }
 }

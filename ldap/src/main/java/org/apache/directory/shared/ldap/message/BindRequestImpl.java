@@ -20,8 +20,9 @@
 package org.apache.directory.shared.ldap.message;
 
 
+import java.util.Arrays;
+
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -44,6 +45,9 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
 
     /** The passwords, keys or tickets used to verify user identity */
     private byte[] credentials;
+    
+    /** A storage for credential hashCode */
+    private int hCredentials;
 
     /** The mechanism used to decode user identity */
     private String mechanism;
@@ -70,6 +74,7 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
     public BindRequestImpl(final int id)
     {
         super( id, TYPE, true );
+        hCredentials = 0;
     }
 
 
@@ -136,6 +141,20 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
     public void setCredentials( byte[] credentials )
     {
         this.credentials = credentials;
+        
+        if ( credentials != null )
+        {
+            hCredentials = 0;
+            
+            for ( byte b:credentials )
+            {
+                hCredentials = hCredentials*31 + b;
+            }
+        }
+        else
+        {
+            hCredentials = 0;
+        }
     }
 
 
@@ -278,7 +297,9 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
         return response;
     }
 
-
+    /**
+     * @see Object#equals(Object)
+     */
     public boolean equals( Object obj )
     {
         if ( obj == this )
@@ -286,6 +307,11 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
             return true;
         }
 
+        if ( ( obj == null ) || !( obj instanceof BindRequest ) )
+        {
+            return false;
+        }
+        
         if ( !super.equals( obj ) )
         {
             return false;
@@ -326,14 +352,30 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
                 
         }
         
-        if ( !ArrayUtils.isEquals( req.getCredentials(), getCredentials() ) )
+        if ( !Arrays.equals( req.getCredentials(), getCredentials() ) )
         {
             return false;
         }
 
         return true;
     }
-
+    
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int hash = 7;
+        hash = hash*31 + ( credentials == null ? 0 : hCredentials );
+        hash = hash*31 + ( isSimple ? 0 : 1 );
+        hash = hash*31 + ( isVersion3 ? 0 : 1 );
+        hash = hash*31 + ( mechanism == null ? 0 : mechanism.hashCode() );
+        hash = hash*31 + ( name == null ? 0 : name.hashCode() );
+        hash = hash*31 + ( response == null ? 0 : response.hashCode() );
+        hash = hash*31 + super.hashCode();
+        
+        return hash;
+    }
 
     /**
      * Get a String representation of a BindRequest

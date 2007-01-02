@@ -47,7 +47,7 @@ public interface Message
      * @return Map of OID strings to Control object instances.
      * @see Control
      */
-    Map getControls();
+    Map<String, Control> getControls();
 
 
     /**

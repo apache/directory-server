@@ -20,10 +20,11 @@
 package org.apache.directory.shared.ldap.message;
 
 
+import java.util.Arrays;
+
 import javax.naming.NamingException;
 import javax.naming.ldap.ExtendedResponse;
 
-import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -198,7 +199,7 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
 
         if ( payload != null && req.getPayload() != null )
         {
-            if ( !ArrayUtils.isEquals( payload, req.getPayload() ) )
+            if ( !Arrays.equals( payload, req.getPayload() ) )
             {
                 return false;
             }
