@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.util;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -75,7 +74,7 @@ public class ClassUtils
      * Maps primitive <code>Class</code>es to their corresponding wrapper
      * <code>Class</code>.
      */
-    private static Map primitiveWrapperMap = new HashMap();
+    private static Map<Class,Class> primitiveWrapperMap = new HashMap<Class,Class>();
     static
     {
         primitiveWrapperMap.put( Boolean.TYPE, Boolean.class );
@@ -280,13 +279,16 @@ public class ClassUtils
         {
             return null;
         }
-        List classes = new ArrayList();
+        
+        List<Class> classes = new ArrayList<Class>();
         Class superclass = cls.getSuperclass();
+        
         while ( superclass != null )
         {
             classes.add( superclass );
             superclass = superclass.getSuperclass();
         }
+        
         return classes;
     }
 
@@ -308,91 +310,40 @@ public class ClassUtils
      * @return the <code>List</code> of interfaces in order, <code>null</code>
      *         if null input
      */
-    public static List getAllInterfaces( Class cls )
+    public static List<Class> getAllInterfaces( Class cls )
     {
         if ( cls == null )
         {
             return null;
         }
-        List list = new ArrayList();
+        
+        List<Class> list = new ArrayList<Class>();
+        
         while ( cls != null )
         {
             Class[] interfaces = cls.getInterfaces();
-            for ( int i = 0; i < interfaces.length; i++ )
+            
+            for ( Class interf:interfaces )
             {
-                if ( list.contains( interfaces[i] ) == false )
+                if ( list.contains( interf ) == false )
                 {
-                    list.add( interfaces[i] );
+                    list.add( interf );
                 }
-                List superInterfaces = getAllInterfaces( interfaces[i] );
-                for ( Iterator it = superInterfaces.iterator(); it.hasNext(); )
+                
+                for ( Class superIntf:getAllInterfaces( interf ) )
                 {
-                    Class intface = ( Class ) it.next();
-                    if ( list.contains( intface ) == false )
+                    if ( list.contains( superIntf ) == false )
                     {
-                        list.add( intface );
+                        list.add( superIntf );
                     }
                 }
             }
+            
             cls = cls.getSuperclass();
         }
         return list;
     }
 
-
-    // /**
-    // * <p>Gets a <code>List</code> of subclasses of the specified class.</p>
-    // *
-    // * <p>This method searches the classpath to find all the subclasses
-    // * of a particular class available. No classes are loaded, the
-    // * returned list contains class names, not classes.</p>
-    // *
-    // * @param cls the class to find subclasses for
-    // * @return the <code>List</code> of subclass String class names
-    // * @throws IllegalArgumentException if the class is <code>null</code>
-    // */
-    // public static List getAllSubclassNames(Class cls) {
-    // if (cls == null) {
-    // throw new IllegalArgumentException("The class must not be null");
-    // }
-    // // TODO Use JavaWorld tip for searching the classpath
-    // return null;
-    // }
-
-    // /**
-    // * <p>Gets a <code>List</code> of subclasses of the specified class.</p>
-    // *
-    // * <p>This method searches the classpath to find all the subclasses
-    // * of a particular class available.</p>
-    // *
-    // * @param cls the class to find subclasses for
-    // * @return the <code>List</code> of subclasses
-    // * @throws IllegalArgumentException if the class is <code>null</code>
-    // */
-    // public static List getAllSubclasses(Class cls) {
-    // List names = getAllSubclassNames(cls);
-    // return convertClassNamesToClasses(names);
-    // }
-
-    // /**
-    // * <p>Gets a <code>List</code> of implementations of the specified
-    // interface.</p>
-    // *
-    // * <p>This method searches the classpath to find all the implementations
-    // * of a particular interface available. No classes are loaded, the
-    // * returned list contains class names, not classes.</p>
-    // *
-    // * @param cls the class to find sub classes for
-    // * @return the <code>List</code> of implementation String class names
-    // * @throws IllegalArgumentException if the class is <code>null</code>
-    // */
-    // public static List getAllImplementationClassNames(Class cls) {
-    // if (cls == null) {
-    // throw new IllegalArgumentException("The class must not be null");
-    // }
-    // // TODO Use JavaWorld tip for searching the classpath
-    // return null;
-    // }
 
     // Convert list
     // ----------------------------------------------------------------------
@@ -415,16 +366,17 @@ public class ClassUtils
      * @throws ClassCastException
      *             if classNames contains a non String entry
      */
-    public static List convertClassNamesToClasses( List classNames )
+    public static List convertClassNamesToClasses( List<String> classNames )
     {
         if ( classNames == null )
         {
             return null;
         }
-        List classes = new ArrayList( classNames.size() );
-        for ( Iterator it = classNames.iterator(); it.hasNext(); )
+        
+        List<Class> classes = new ArrayList<Class>( classNames.size() );
+        
+        for ( String className:classNames )
         {
-            String className = ( String ) it.next();
             try
             {
                 classes.add( Class.forName( className ) );
@@ -434,6 +386,7 @@ public class ClassUtils
                 classes.add( null );
             }
         }
+        
         return classes;
     }
 
@@ -456,25 +409,27 @@ public class ClassUtils
      *             if <code>classes</code> contains a non-<code>Class</code>
      *             entry
      */
-    public static List convertClassesToClassNames( List classes )
+    public static List<String> convertClassesToClassNames( List<Class> classes )
     {
         if ( classes == null )
         {
             return null;
         }
-        List classNames = new ArrayList( classes.size() );
-        for ( Iterator it = classes.iterator(); it.hasNext(); )
+        
+        List<String> classNames = new ArrayList<String>( classes.size() );
+        
+        for ( Class clazz:classes )
         {
-            Class cls = ( Class ) it.next();
-            if ( cls == null )
+            if ( clazz == null )
             {
                 classNames.add( null );
             }
             else
             {
-                classNames.add( cls.getName() );
+                classNames.add( clazz.getName() );
             }
         }
+        
         return classNames;
     }
 
@@ -662,7 +617,7 @@ public class ClassUtils
         Class convertedClass = cls;
         if ( cls != null && cls.isPrimitive() )
         {
-            convertedClass = ( Class ) primitiveWrapperMap.get( cls );
+            convertedClass = primitiveWrapperMap.get( cls );
         }
         return convertedClass;
     }

@@ -349,7 +349,7 @@ public class ArrayUtils
         {
             return null;
         }
-        return ( Object[] ) array.clone();
+        return array.clone();
     }
 
 
@@ -374,7 +374,7 @@ public class ArrayUtils
         {
             return null;
         }
-        return ( long[] ) array.clone();
+        return array.clone();
     }
 
 
@@ -399,7 +399,7 @@ public class ArrayUtils
         {
             return null;
         }
-        return ( int[] ) array.clone();
+        return array.clone();
     }
 
 
@@ -424,7 +424,7 @@ public class ArrayUtils
         {
             return null;
         }
-        return ( short[] ) array.clone();
+        return array.clone();
     }
 
 
@@ -449,7 +449,7 @@ public class ArrayUtils
         {
             return null;
         }
-        return ( char[] ) array.clone();
+        return array.clone();
     }
 
 
@@ -474,7 +474,7 @@ public class ArrayUtils
         {
             return null;
         }
-        return ( byte[] ) array.clone();
+        return array.clone();
     }
 
 
@@ -499,7 +499,7 @@ public class ArrayUtils
         {
             return null;
         }
-        return ( double[] ) array.clone();
+        return array.clone();
     }
 
 
@@ -524,7 +524,7 @@ public class ArrayUtils
         {
             return null;
         }
-        return ( float[] ) array.clone();
+        return array.clone();
     }
 
 
@@ -549,7 +549,7 @@ public class ArrayUtils
         {
             return null;
         }
-        return ( boolean[] ) array.clone();
+        return array.clone();
     }
 
 

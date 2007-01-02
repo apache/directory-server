@@ -50,18 +50,18 @@ public class Base64
             boolean l_quad = false;
             boolean l_trip = false;
 
-            int l_val = ( 0xFF & ( int ) a_data[ii] );
+            int l_val = ( 0xFF & a_data[ii] );
             l_val <<= 8;
             if ( ( ii + 1 ) < a_data.length )
             {
-                l_val |= ( 0xFF & ( int ) a_data[ii + 1] );
+                l_val |= ( 0xFF & a_data[ii + 1] );
                 l_trip = true;
             }
 
             l_val <<= 8;
             if ( ( ii + 2 ) < a_data.length )
             {
-                l_val |= ( 0xFF & ( int ) a_data[ii + 2] );
+                l_val |= ( 0xFF & a_data[ii + 2] );
                 l_quad = true;
             }
 
