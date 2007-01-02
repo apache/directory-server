@@ -218,8 +218,8 @@ public class AttributeSerializerTest extends TestCase
         
         byte[] serialized = serializer.serialize( attr );
         Attribute deserialized = ( Attribute ) serializer.deserialize( serialized );
-        ArrayUtils.isEquals( ba0, ( byte[] ) deserialized.get() );
-        ArrayUtils.isEquals( ba1, ( byte[] ) deserialized.get( 1 ) );
+        ArrayUtils.isEquals( ba0, deserialized.get() );
+        ArrayUtils.isEquals( ba1, deserialized.get( 1 ) );
     }
     
     

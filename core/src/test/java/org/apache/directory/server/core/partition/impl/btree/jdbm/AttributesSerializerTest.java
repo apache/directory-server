@@ -68,8 +68,8 @@ public class AttributesSerializerTest extends TestCase
         assertEquals( "anything over here!", attrDeserialized0.get( 2 ) );
         
         LockableAttributeImpl attrDeserialized1 = ( LockableAttributeImpl ) deserialized.get( "attr1" );
-        ArrayUtils.isEquals( ba0, ( byte[] ) attrDeserialized1.get() );
-        ArrayUtils.isEquals( ba1, ( byte[] ) attrDeserialized1.get( 1 ) );
+        ArrayUtils.isEquals( ba0, attrDeserialized1.get() );
+        ArrayUtils.isEquals( ba1, attrDeserialized1.get( 1 ) );
     }
     
     

@@ -22,6 +22,7 @@ package org.apache.directory.server.core.authn;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -113,7 +114,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         byte[] userPassword = null;
         if ( credentialCache.containsKey( principalDn.getNormName() ) )
         {
-            userPassword = ( byte[] ) credentialCache.get( principalDn.getNormName() );
+            userPassword = credentialCache.get( principalDn.getNormName() );
         }
         else
         {
@@ -132,7 +133,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 String algorithm = this.getAlgorithmForHashedPassword( userPassword );
                 String digestedCredits = this.createDigestedPassword( algorithm, creds );
 
-                credentialsMatch = ArrayUtils.isEquals( StringTools.getBytesUtf8( digestedCredits ), userPassword );
+                credentialsMatch = Arrays.equals( StringTools.getBytesUtf8( digestedCredits ), userPassword );
             }
             catch ( NoSuchAlgorithmException nsae )
             {
@@ -146,7 +147,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         else
         {
             // password is not stored one-way encrypted
-            credentialsMatch = ArrayUtils.isEquals( creds, userPassword );
+            credentialsMatch = Arrays.equals( (byte[])creds, userPassword );
         }
 
         if ( credentialsMatch )
