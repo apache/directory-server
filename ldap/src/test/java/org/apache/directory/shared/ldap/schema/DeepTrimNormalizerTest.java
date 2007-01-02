@@ -163,4 +163,31 @@ public class DeepTrimNormalizerTest extends TestCase
 
        assertEquals( "  ", normalizer.normalize( new String( chars ) ) );
    }
+
+	/*
+   public void testSpeed() throws Exception
+   {
+       Normalizer normalizer = new DeepTrimNormalizer();
+       char[] chars = new char[]{ 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0085, 0x00A0, 0x1680,
+           0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A,
+           0x2028, 0x2029, 0x202F, 0x205F };
+       String s = new String( chars );
+       assertEquals( "  ", normalizer.normalize( s ) );
+       
+       String t = "xs crvtbynujikl7897790";
+       
+       Normalizer normalizer2 = new DeepTrimToLowerNormalizer();
+
+       long t0 = System.currentTimeMillis();
+
+       for ( int i = 0; i < 1000000; i++ )
+       {
+           normalizer.normalize( t );
+       }
+       
+       long t1 = System.currentTimeMillis();
+       
+       System.out.println( t1 - t0 );
+   }
+	*/
 }
