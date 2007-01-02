@@ -389,14 +389,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
             if ( IS_DEBUG )
             {
-                if  ( tlv != null )
-                {
-                    log.debug( "Root TLV[{}]", Integer.valueOf( length ) );
-                }
-                else
-                {
-                    log.debug( "Root TLV[ null ]");
-                }
+                log.debug( "Root TLV[{}]", Integer.valueOf( length ) );
             }
         }
         else
