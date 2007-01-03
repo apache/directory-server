@@ -43,6 +43,7 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
@@ -67,6 +68,7 @@ public class SchemaPartitionDao
     /** static class logger */
     private final static Logger log = LoggerFactory.getLogger( SchemaPartitionDao.class );
 
+
     private final Partition partition;
     private final Registries bootstrapRegistries;
     private final SchemaEntityFactory factory;
@@ -75,6 +77,7 @@ public class SchemaPartitionDao
     
     private final String M_NAME_OID;
     private final String CN_OID;
+    private final String M_OID_OID;
     
     private final AttributeType disabledAttributeType;
     
@@ -95,6 +98,7 @@ public class SchemaPartitionDao
         this.M_NAME_OID = oidRegistry.getOid( MetaSchemaConstants.M_NAME_AT );
         this.CN_OID = oidRegistry.getOid( SystemSchemaConstants.CN_AT );
         this.disabledAttributeType = attrRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT );
+        this.M_OID_OID = oidRegistry.getOid( MetaSchemaConstants.M_OID_AT );
     }
     
     
@@ -168,7 +172,11 @@ public class SchemaPartitionDao
      */
     public String findSchema( String entityName ) throws NamingException
     {
-        SimpleNode filter = new SimpleNode( M_NAME_OID, entityName.toLowerCase(), AssertionEnum.EQUALITY );
+        BranchNode filter = new BranchNode( AssertionEnum.OR );
+        SimpleNode nameAVA = new SimpleNode( M_NAME_OID, entityName.toLowerCase(), AssertionEnum.EQUALITY );
+        SimpleNode oidAVA = new SimpleNode( M_OID_OID, entityName.toLowerCase(), AssertionEnum.EQUALITY );
+        filter.addNode( nameAVA );
+        filter.addNode( oidAVA );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<SearchResult> ne = null;

@@ -130,6 +130,7 @@ public class SchemaService extends BaseInterceptor
     
     // the base DN (normalized) of the schema partition
     private LdapDN schemaBaseDN;
+    
 
     /**
      * Creates a schema service interceptor.
@@ -139,6 +140,7 @@ public class SchemaService extends BaseInterceptor
         startUpTimeStamp = DateUtils.getGeneralizedTime();
     }
 
+    
     /**
      * Initialize the Schema Service
      * 
@@ -667,6 +669,7 @@ public class SchemaService extends BaseInterceptor
     {
         // First, we get the entry from the backend. If it does not exist, then we throw an exception
         Attributes entry = nexus.lookup( name );
+        Attributes targetEntry = SchemaUtils.getTargetEntry( modOp, mods, entry );
         
         if ( entry == null )
         {
@@ -680,7 +683,7 @@ public class SchemaService extends BaseInterceptor
 
         NamingEnumeration changes = mods.getIDs();
         
-        Attributes tmpEntryForAdd = (Attributes)entry.clone();
+        Attributes tmpEntryForAdd = ( Attributes ) entry.clone();
         
         while ( changes.hasMore() )
         {
@@ -789,7 +792,7 @@ public class SchemaService extends BaseInterceptor
 
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.modify( name, modOp, mods, entry );
+            schemaManager.modify( name, modOp, mods, entry, targetEntry );
         }
         next.modify( name, modOp, mods );
     }
@@ -799,6 +802,7 @@ public class SchemaService extends BaseInterceptor
     {
         // First, we get the entry from the backend. If it does not exist, then we throw an exception
         Attributes entry = nexus.lookup( name );
+        Attributes targetEntry = SchemaUtils.getTargetEntry( mods, entry );
 
         if ( entry == null )
         {
@@ -1027,7 +1031,7 @@ public class SchemaService extends BaseInterceptor
 
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.modify( name, mods, entry );
+            schemaManager.modify( name, mods, entry, targetEntry );
         }
         next.modify( name, mods );
     }

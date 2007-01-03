@@ -36,6 +36,7 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -152,7 +153,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
             partConfig.setContextEntry( attributes );
             
             configuration.setShutdownHookEnabled( false );
-            configuration.setPartitionConfigurations( Collections.singleton( partConfig ) );
+            configuration.setPartitionConfigurations( Collections.singleton( ( PartitionConfiguration ) partConfig ) );
             
             doDelete( configuration.getWorkingDirectory() );
             setContextRoots( username, password, configuration );

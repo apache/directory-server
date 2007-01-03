@@ -25,6 +25,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.registries.Registries;
@@ -50,9 +51,10 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
 public class SchemaManager
 {
     private final PartitionSchemaLoader loader;
-    private final MetaSchemaModifyHandler metaSchemaModifyHandler;
+    private final MetaSchemaHandler metaSchemaHandler;
     private final Registries globalRegistries;
     private final AttributeType objectClassAT;
+    private final MetaComparatorHandler metaComparatorHandler;
     
 
     public SchemaManager( Registries globalRegistries, PartitionSchemaLoader loader ) throws NamingException
@@ -61,13 +63,14 @@ public class SchemaManager
         this.globalRegistries = globalRegistries;
         this.objectClassAT = this.globalRegistries.getAttributeTypeRegistry()
             .lookup( SystemSchemaConstants.OBJECT_CLASS_AT );
-        this.metaSchemaModifyHandler = new MetaSchemaModifyHandler( this.globalRegistries, this.loader );
+        this.metaSchemaHandler = new MetaSchemaHandler( this.globalRegistries, this.loader );
+        this.metaComparatorHandler = new MetaComparatorHandler( globalRegistries );
     }
     
     
     public Registries getGlobalRegistries()
     {
-        throw new NotImplementedException();
+        return globalRegistries;
     }
     
     
@@ -78,14 +81,19 @@ public class SchemaManager
 
 
 
-    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry ) throws NamingException
+    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry ) throws NamingException
     {
         Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
         
-        // We are changing a metaSchema entry
-        if ( AttributeUtils.containsValue( oc, "metaSchema", objectClassAT ) )
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
-            metaSchemaModifyHandler.handleMetaSchemaModification( name, modOp, mods, entry );
+            metaSchemaHandler.modify( name, modOp, mods, entry, targetEntry );
+            return;
+        }
+        
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_COMPARATOR_OC, objectClassAT ) )
+        {
+            metaComparatorHandler.modify( name, modOp, mods, entry, targetEntry );
             return;
         }
 
@@ -93,14 +101,19 @@ public class SchemaManager
     }
 
 
-    public void modify( LdapDN name, ModificationItem[] mods, Attributes entry ) throws NamingException
+    public void modify( LdapDN name, ModificationItem[] mods, Attributes entry, Attributes targetEntry ) throws NamingException
     {
         Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
         
-        // We are changing a metaSchema entry
-        if ( AttributeUtils.containsValue( oc, "metaSchema", objectClassAT ) )
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
-            metaSchemaModifyHandler.handleMetaSchemaModification( name, mods, entry );
+            metaSchemaHandler.modify( name, mods, entry, targetEntry );
+            return;
+        }
+        
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_COMPARATOR_OC, objectClassAT ) )
+        {
+            metaComparatorHandler.modify( name, mods, entry, targetEntry );
             return;
         }
 

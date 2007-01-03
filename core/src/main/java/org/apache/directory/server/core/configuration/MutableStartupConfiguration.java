@@ -92,7 +92,7 @@ public class MutableStartupConfiguration extends StartupConfiguration
     }
 
 
-    public void setPartitionConfigurations( Set paritionConfigurations )
+    public void setPartitionConfigurations( Set<PartitionConfiguration> paritionConfigurations )
     {
         super.setPartitionConfigurations( paritionConfigurations );
     }

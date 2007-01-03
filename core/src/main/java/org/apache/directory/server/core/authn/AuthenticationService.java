@@ -23,9 +23,11 @@ package org.apache.directory.server.core.authn;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -105,11 +107,16 @@ public class AuthenticationService extends BaseInterceptor
     /**
      * Deinitializes and deregisters all {@link Authenticator}s from this service.
      */
+    @SuppressWarnings("unchecked")
     public void destroy()
     {
-        for ( Collection<Authenticator> collection:authenticators.values() )
+        Set<Collection<Authenticator>> clonedAuthenticatorCollections = new HashSet<Collection<Authenticator>>();
+        clonedAuthenticatorCollections.addAll( authenticators.values() );
+        for ( Collection<Authenticator> collection:clonedAuthenticatorCollections )
         {
-            for ( Authenticator authenticator:collection )
+            Set <Authenticator> clonedAuthenticators = new HashSet<Authenticator>();
+            clonedAuthenticators.addAll( collection );
+            for ( Authenticator authenticator:clonedAuthenticators )
             {
                 unregister( authenticator );
             }

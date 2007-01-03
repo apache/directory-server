@@ -241,7 +241,7 @@ public class StartupConfiguration extends Configuration
     /**
      * Sets {@link PartitionConfiguration}s to configure context partitions.
      */
-    protected void setPartitionConfigurations( Set contextParitionConfigurations )
+    protected void setPartitionConfigurations( Set<PartitionConfiguration> contextParitionConfigurations )
     {
         Set newSet = ConfigurationUtil.getTypeSafeSet( contextParitionConfigurations,
             PartitionConfiguration.class );

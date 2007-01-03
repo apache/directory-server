@@ -17,8 +17,8 @@
  *   under the License.
  *
  */
-
 package org.apache.directory.server.core.schema;
+
 
 import java.util.Comparator;
 
@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.Syntax;
+
 
 class MatchingRuleImpl extends AbstractMatchingRule implements MutableSchemaObject
 {

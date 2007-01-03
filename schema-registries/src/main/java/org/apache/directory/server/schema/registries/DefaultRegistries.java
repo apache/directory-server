@@ -513,4 +513,10 @@ public class DefaultRegistries implements Registries
     {
         return schemaLoader;
     }
+
+
+    public Schema getSchema( String schemaName )
+    {
+        return this.byName.get( schemaName );
+    }
 }

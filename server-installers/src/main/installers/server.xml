@@ -95,25 +95,9 @@
       <ref bean="systemPartitionConfiguration"/>
     </property>
 
-    <property name="contextPartitionConfigurations">
+    <property name="partitionConfigurations">
       <set>
         <ref bean="examplePartitionConfiguration"/>
-      </set>
-    </property>
-    <property name="bootstrapSchemas">
-      <set>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.AutofsSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.CorbaSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.CoreSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.CosineSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.ApacheSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.CollectiveSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.InetorgpersonSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.JavaSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.Krb5kdcSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.NisSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.SystemSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.ApachednsSchema"/>
       </set>
     </property>
     

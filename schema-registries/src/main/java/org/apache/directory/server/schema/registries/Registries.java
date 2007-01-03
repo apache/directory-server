@@ -48,40 +48,30 @@ public interface Registries
     SchemaLoader setSchemaLoader();
     
     AttributeTypeRegistry getAttributeTypeRegistry();
-
     
     ComparatorRegistry getComparatorRegistry();
 
-
     DITContentRuleRegistry getDitContentRuleRegistry();
-
 
     DITStructureRuleRegistry getDitStructureRuleRegistry();
 
-
     MatchingRuleRegistry getMatchingRuleRegistry();
-
 
     MatchingRuleUseRegistry getMatchingRuleUseRegistry();
 
-
     NameFormRegistry getNameFormRegistry();
-
 
     NormalizerRegistry getNormalizerRegistry();
 
-
     ObjectClassRegistry getObjectClassRegistry();
-
 
     OidRegistry getOidRegistry();
 
-
     SyntaxCheckerRegistry getSyntaxCheckerRegistry();
-
 
     SyntaxRegistry getSyntaxRegistry();
 
-
     List checkRefInteg();
+
+    Schema getSchema( String schemaName );
 }

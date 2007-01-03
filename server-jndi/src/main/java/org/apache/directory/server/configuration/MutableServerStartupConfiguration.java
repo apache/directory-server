@@ -102,13 +102,7 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     }
 
 
-//    public void setBootstrapSchemas( Set arg0 )
-//    {
-//        super.setBootstrapSchemas( arg0 );
-//    }
-//
-
-    public void setPartitionConfigurations( Set arg0 )
+    public void setPartitionConfigurations( Set<PartitionConfiguration> arg0 )
     {
         super.setPartitionConfigurations( arg0 );
     }

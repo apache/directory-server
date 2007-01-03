@@ -42,14 +42,14 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MetaSchemaModifyHandler
+public class MetaSchemaHandler implements SchemaChangeHandler
 {
     private final PartitionSchemaLoader loader;
     private final Registries globalRegistries;
     private final AttributeType disabledAT;
     
 
-    public MetaSchemaModifyHandler( Registries globalRegistries, PartitionSchemaLoader loader ) 
+    public MetaSchemaHandler( Registries globalRegistries, PartitionSchemaLoader loader ) 
         throws NamingException
     {
         this.globalRegistries = globalRegistries;
@@ -59,18 +59,18 @@ public class MetaSchemaModifyHandler
     }
 
     
-    void handleMetaSchemaModification( LdapDN name, int modOp, Attributes mods, Attributes entry )
+    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry )
         throws NamingException
     {
         Attribute disabledInMods = ServerUtils.getAttribute( disabledAT, mods );
         if ( disabledInMods != null )
         {
-            handleMetaSchemaDisable( name, modOp, disabledInMods, ServerUtils.getAttribute( disabledAT, entry ) );
+            disable( name, modOp, disabledInMods, ServerUtils.getAttribute( disabledAT, entry ) );
         }
     }
 
 
-    private void handleMetaSchemaDisable( LdapDN name, int modOp, Attribute disabledInMods, Attribute disabledInEntry )
+    private void disable( LdapDN name, int modOp, Attribute disabledInMods, Attribute disabledInEntry )
         throws NamingException
     {
         switch ( modOp )
@@ -155,7 +155,7 @@ public class MetaSchemaModifyHandler
     }
 
 
-    public void handleMetaSchemaModification( LdapDN name, ModificationItem[] mods, Attributes entry ) 
+    public void modify( LdapDN name, ModificationItem[] mods, Attributes entry, Attributes targetEntry ) 
         throws NamingException
     {
         OidRegistry registry = globalRegistries.getOidRegistry();
@@ -166,9 +166,27 @@ public class MetaSchemaModifyHandler
             String id = registry.getOid( mods[ii].getAttribute().getID() );
             if ( id.equals( disabledAT.getOid() ) )
             {
-                handleMetaSchemaDisable( name, mods[ii].getModificationOp(), 
+                disable( name, mods[ii].getModificationOp(), 
                     mods[ii].getAttribute(), disabledInEntry );
             }
         }
+    }
+
+
+    public void add( LdapDN name, Attributes entry ) throws NamingException
+    {
+        throw new NotImplementedException();
+    }
+
+
+    public void delete( LdapDN name, Attributes entry ) throws NamingException
+    {
+        throw new NotImplementedException();
+    }
+
+
+    public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
+    {
+        throw new NotImplementedException();
     }
 }

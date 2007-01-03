@@ -95,25 +95,9 @@
       <ref bean="systemPartitionConfiguration"/>
     </property>
 
-    <property name="contextPartitionConfigurations">
+    <property name="partitionConfigurations">
       <set>
         <ref bean="examplePartitionConfiguration"/>
-      </set>
-    </property>
-    <property name="bootstrapSchemas">
-      <set>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.AutofsSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.CorbaSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.CoreSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.CosineSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.ApacheSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.CollectiveSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.InetorgpersonSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.JavaSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.Krb5kdcSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.NisSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.SystemSchema"/>
-        <bean class="org.apache.directory.server.core.schema.bootstrap.ApachednsSchema"/>
       </set>
     </property>
     
@@ -121,7 +105,6 @@
       <list>
         <bean class="org.apache.directory.server.ldap.support.extended.GracefulShutdownHandler"/>
         <bean class="org.apache.directory.server.ldap.support.extended.LaunchDiagnosticUiHandler"/>
-        <bean class="org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler"/>
       </list>
     </property>
 
@@ -199,6 +182,23 @@
             <bean class="org.apache.directory.server.core.trigger.TriggerService" />
           </property>
         </bean>
+
+        <!-- Uncomment to enable replication service
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>replicationService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.directory.mitosis.service.ReplicationService">
+              <property name="configuration">
+                <bean class="org.apache.directory.mitosis.configuration.ReplicationConfiguration">
+                  <property name="replicaId"><value>instance_a</value></property>
+                  <property name="serverPort"><value>10390</value></property>
+                  <property name="peerReplicas"><value>instance_b@localhost:10392</value></property>
+                </bean>
+              </property>
+            </bean>
+          </property>
+        </bean>
+        -->
       </list>
     </property>
   </bean>

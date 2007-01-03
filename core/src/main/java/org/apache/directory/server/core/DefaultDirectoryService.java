@@ -851,7 +851,7 @@ class DefaultDirectoryService extends DirectoryService
                 String schemaName = dao.findSchema( indexedAttr.toString() );
                 if ( schemaName == null )
                 {
-                    throw new NamingException( "Index on unidentified attribute" );
+                    throw new NamingException( "Index on unidentified attribute: " + indexedAttr.toString() );
                 }
                 
                 Schema schema = schemaMap.get( schemaName );
