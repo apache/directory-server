@@ -46,17 +46,17 @@ public class Ia5StringSyntaxCheckerTest extends TestCase
 
     public void testWrongCase()
     {
-        assertFalse( checker.isValidSyntax( "é" ) );
-        assertFalse( checker.isValidSyntax( "§" ) );
-        assertFalse( checker.isValidSyntax( "è" ) );
-        assertFalse( checker.isValidSyntax( "ç" ) );
-        assertFalse( checker.isValidSyntax( "à" ) );
-        assertFalse( checker.isValidSyntax( "°" ) );
-        assertFalse( checker.isValidSyntax( "ù" ) );
-        assertFalse( checker.isValidSyntax( "£" ) );
-        assertFalse( checker.isValidSyntax( "€" ) );
-        assertFalse( checker.isValidSyntax( "´" ) );
-        assertFalse( checker.isValidSyntax( "„" ) );
+        assertFalse( checker.isValidSyntax( "\u00E9" ) );
+        assertFalse( checker.isValidSyntax( "\u00A7" ) );
+        assertFalse( checker.isValidSyntax( "\u00E8" ) );
+        assertFalse( checker.isValidSyntax( "\u00C7" ) );
+        assertFalse( checker.isValidSyntax( "\u00E0" ) );
+        assertFalse( checker.isValidSyntax( "\u00B0" ) );
+        assertFalse( checker.isValidSyntax( "\u00F9" ) );
+        assertFalse( checker.isValidSyntax( "\u00A3" ) );
+        assertFalse( checker.isValidSyntax( "\u20AC" ) );
+        assertFalse( checker.isValidSyntax( "\u00B4" ) );
+        assertFalse( checker.isValidSyntax( "\u00B8" ) );
     }
     
     
