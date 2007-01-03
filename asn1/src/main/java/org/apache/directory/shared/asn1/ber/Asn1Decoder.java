@@ -297,13 +297,13 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
                     if ( tlv.getLengthBytesRead() < tlv.getLengthNbBytes() )
                     {
                         container.setState( TLVStateEnum.LENGTH_STATE_PENDING );
+                        return END;
                     }
                     else
                     {
                         container.setState( TLVStateEnum.LENGTH_STATE_END );
+                        return MORE;
                     }
-                    
-                    return END;
                 }
             }
 
