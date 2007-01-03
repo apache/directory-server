@@ -4709,7 +4709,7 @@ public class PrepareString
         if ( StringTools.isEmpty( str ) )
         {
             // Special case : an empty strings is replaced by 2 spaces
-            return "  ";
+            return "";
         }
 
         char[] array = str.toCharArray();
@@ -4722,7 +4722,7 @@ public class PrepareString
         
         // Initialise the starting state
         State state = State.START;
-        int pos = 1;
+        int pos = 0;
         char lowerCase = (char)( caseSensitive ? 0x00 : 0x20 );
         
         // First pass to map the chars
@@ -4734,13 +4734,121 @@ public class PrepareString
         int limit = pos;
         pos = 0;
         
-        // Second pass to remove spaces
-        for ( int i = 1; i < limit; i++ )
+        // Second pass to remove spaces. We work on the target
+        int i = 0;
+        char c = '\0';
+        
+        // First remove starting spaces
+        for (; i < limit; i++ )
         {
-            char c = target[i];
+            c = target[i];
+            
+            if ( c != ' ' )
+            {
+                checkProhibited( c );
+                break;
+            }
+        }
+        
+        // Now, 'i' will be the starting point. We will just handle the special
+        // case of a combining character
+        int start = i;
+        
+        if ( start == limit )
+        {
+            // we only have spaces
+            return "";
+        }
+        else if ( isCombiningMark( c ) )
+        {
+            if ( start == 0 )
+            {
+                // The first char can't be a combining char
+                throw new InvalidCharacterException( c );
+            }
+            else
+            {
+                target[pos++] = ' ';
+                target[pos++] = c;
+                start++;
+            }
+        }
+        else 
+        {
+            target[pos++] = c;
+            start++;
+        }
+        
+        // Now remove the spaces at the end
+        for ( i = limit-1; i > start; i-- )
+        {
+            if ( target[i] != ' ' )
+            {
+                break;
+            }
+        }
+        
+        limit = i + 1;
+        
+        // Let's deal with the following chars. It will be
+        // a list of chars and spaces. We will consider that
+        // we have couples of chars and spaces :
+        // (char * space*)*. We have a special case :
+        // a space followed by a comining char.
+        boolean spaceSeen = false;
+        boolean space2Seen = false;
+        
+        for ( i = start; i < limit; i++ )
+        {
+            c = target[i];
             
             checkProhibited( c );
             
+            if ( isCombiningMark( c ) )
+            {
+                if ( spaceSeen )
+                {
+                    if ( space2Seen )
+                    {
+                        target[pos++] = ' ';
+                    }
+
+                    target[pos++] = ' ';
+                    target[pos++] = c;
+                    spaceSeen = false;
+                    space2Seen = false;
+                }
+                else
+                {
+                    target[pos++] = c;
+                }
+            }
+            else if ( c == ' ' )
+            {
+                if ( spaceSeen )
+                {
+                    space2Seen = true;
+                }
+                else
+                {
+                    spaceSeen = true;
+                }
+            }
+            else
+            {
+                if ( spaceSeen )
+                {
+                    target[pos++] = ' ';
+                    spaceSeen = false;
+                    space2Seen = false;
+                }
+                
+                target[pos++] = c;
+            }
+        }
+                
+
+            /*
             switch ( state )
             {
                 case START :
@@ -4851,16 +4959,8 @@ public class PrepareString
                     
                     break;
             }
-        }
+            */
         
-        int length = (pos == 0 ? 1 : pos);
-        
-        // Now, add a space at the beginning
-        target[0] = 0x0020;
-        
-        // Last, add final space if needed
-        target[ length++ ] = 0x0020;
-        
-        return new String( target, 0, length );
+        return new String( target, 0, pos );
     }
 }
