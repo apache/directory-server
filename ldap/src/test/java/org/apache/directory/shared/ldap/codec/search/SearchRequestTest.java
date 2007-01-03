@@ -30,6 +30,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
+import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.AttributeValueAssertion;
@@ -164,6 +165,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -331,6 +334,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -508,6 +513,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -651,6 +658,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -770,6 +779,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -908,6 +919,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         assertEquals( 4, message.getMessageId() );
         assertEquals( 2, message.getControls().size() );
@@ -1046,6 +1059,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -1171,6 +1186,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         assertEquals( 4, message.getMessageId() );
         assertEquals( 1, message.getControls().size() );
@@ -1369,6 +1386,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -2422,6 +2441,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -2507,6 +2528,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -2596,6 +2619,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -2869,6 +2894,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -2983,6 +3010,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -3087,6 +3116,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -3203,6 +3234,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -3323,6 +3356,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -3446,6 +3481,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -3578,6 +3615,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -3714,6 +3753,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -3857,6 +3898,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -4001,6 +4044,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -4152,6 +4197,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -4269,6 +4316,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 
@@ -4344,6 +4393,8 @@ public class SearchRequestTest extends TestCase
             fail( ne.getMessage() );
         }
 
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
 

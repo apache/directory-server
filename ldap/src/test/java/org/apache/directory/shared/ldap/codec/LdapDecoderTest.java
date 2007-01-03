@@ -458,7 +458,7 @@ public class LdapDecoderTest extends TestCase
             fail( ne.getMessage() );
         }
 
-        assertEquals( TLVStateEnum.LENGTH_STATE_END, ldapMessageContainer.getState() );
+        assertEquals( TLVStateEnum.TAG_STATE_START, ldapMessageContainer.getState() );
 
         // Check the decoded length
         assertEquals( 384, ldapMessageContainer.getCurrentTLV().getLength() );
