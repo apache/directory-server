@@ -20,6 +20,8 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import java.io.IOException;
+
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -45,13 +47,22 @@ public class DeepTrimToLowerNormalizer implements Normalizer
             return null;
         }
 
-        if ( value instanceof byte[] )
+        try
         {
-            return StringTools.deepTrimToLower( StringTools.utf8ToString( ( byte[] ) value ) );
+            if ( value instanceof byte[] )
+            {
+                return PrepareString.normalize( StringTools.utf8ToString( ( byte[] ) value ), 
+                    PrepareString.StringType.CASE_IGNORE );
+            }
+            else
+            {
+                return PrepareString.normalize( ( String ) value,
+                    PrepareString.StringType.CASE_IGNORE );
+            }
         }
-        else
+        catch ( IOException ioe )
         {
-            return StringTools.deepTrimToLower( ( String ) value );
+            throw new NamingException( "Invalid value : " + value );
         }
     }
 }
