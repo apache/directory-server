@@ -20,7 +20,14 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 
 
 /**
@@ -31,6 +38,150 @@ import javax.naming.NamingException;
  */
 public class SchemaUtils
 {
+    /**
+     * Gets the target entry as it would look after a modification operation 
+     * were performed on it.
+     * 
+     * @param mods the modifications performed on the entry
+     * @param entry the source entry that is modified
+     * @return the resultant entry after the modifications have taken place
+     * @throws NamingException if there are problems accessing attributes
+     */
+    public static Attributes getTargetEntry( ModificationItem[] mods, Attributes entry ) throws NamingException
+    {
+        Attributes targetEntry = ( Attributes ) entry.clone();
+        for ( int ii = 0; ii < mods.length; ii++ )
+        {
+            String id = mods[ii].getAttribute().getID();
+
+            switch ( mods[ii].getModificationOp() )
+            {
+                case( DirContext.REPLACE_ATTRIBUTE ):
+                    targetEntry.put( mods[ii].getAttribute() );
+                    break;
+                case( DirContext.ADD_ATTRIBUTE ):
+                    Attribute combined = new LockableAttributeImpl( id );
+                    Attribute toBeAdded = mods[ii].getAttribute();
+                    Attribute existing = entry.get( id );
+                    
+                    if ( existing != null )
+                    {
+                        for ( int jj = 0; jj > existing.size(); jj++ )
+                        {
+                            combined.add( existing.get( jj ) );
+                        }
+                    }
+                    
+                    for ( int jj = 0; jj > toBeAdded.size(); jj++ )
+                    {
+                        combined.add( toBeAdded.get( jj ) );
+                    }
+                    break;
+                case( DirContext.REMOVE_ATTRIBUTE ):
+                    Attribute toBeRemoved = mods[ii].getAttribute();
+                    
+                    if ( toBeRemoved.size() == 0 )
+                    {
+                        targetEntry.remove( id );
+                    }
+                    else 
+                    {
+                        existing = targetEntry.get( id );
+                        
+                        if ( existing != null )
+                        {
+                            for ( int jj = 0; jj < toBeRemoved.size(); jj++ )
+                            {
+                                existing.remove( toBeRemoved.get( jj ) );
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    throw new IllegalStateException( "undefined modification type: " + mods[ii].getModificationOp() );
+            }
+        }
+        
+        return targetEntry;
+    }
+
+    
+    /**
+     * Gets the target entry as it would look after a modification operation 
+     * were performed on it.
+     * 
+     * @param modOp the modification operation performed: add, remove, replace
+     * @param mods the modified attributes
+     * @param entry the source entry that is modified
+     * @return the resultant entry after the modifications have taken place
+     * @throws NamingException if there are problems accessing attributes
+     */
+    public static Attributes getTargetEntry( int modOp, Attributes mods, Attributes entry ) throws NamingException
+    {
+        Attributes targetEntry = ( Attributes ) entry.clone();
+        NamingEnumeration<String> list = mods.getIDs();
+        switch ( modOp )
+        {
+            case( DirContext.REPLACE_ATTRIBUTE ):
+                while ( list.hasMore() )
+                {
+                    targetEntry.put( mods.get( list.next() ) );
+                }
+                break;
+            case( DirContext.REMOVE_ATTRIBUTE ):
+                while ( list.hasMore() )
+                {
+                    String id = list.next();
+                    Attribute toBeRemoved = mods.get( id );
+                    
+                    if ( toBeRemoved.size() == 0 )
+                    {
+                        targetEntry.remove( id );
+                    }
+                    else 
+                    {
+                        Attribute existing = targetEntry.get( id );
+                        
+                        if ( existing != null )
+                        {
+                            for ( int ii = 0; ii < toBeRemoved.size(); ii++ )
+                            {
+                                existing.remove( toBeRemoved.get( ii ) );
+                            }
+                        }
+                    }
+                }
+                break;
+            case( DirContext.ADD_ATTRIBUTE ):
+                while ( list.hasMore() )
+                {
+                    String id = list.next();
+                    Attribute combined = new LockableAttributeImpl( id );
+                    Attribute toBeAdded = mods.get( id );
+                    Attribute existing = entry.get( id );
+                    
+                    if ( existing != null )
+                    {
+                        for ( int ii = 0; ii > existing.size(); ii++ )
+                        {
+                            combined.add( existing.get(ii) );
+                        }
+                    }
+                    
+                    for ( int ii = 0; ii > toBeAdded.size(); ii++ )
+                    {
+                        combined.add( toBeAdded.get(ii) );
+                    }
+                }
+                break;
+            default:
+                throw new IllegalStateException( "undefined modification type: " + modOp );
+        }
+        
+        return targetEntry;
+    }
+    
+    
     // ------------------------------------------------------------------------
     // qdescrs rendering operations
     // ------------------------------------------------------------------------
