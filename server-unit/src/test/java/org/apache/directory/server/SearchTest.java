@@ -394,6 +394,16 @@ public class SearchTest extends AbstractServerTest
         SearchResult result = ( SearchResult ) results.next();
         assertNotNull( result );
         assertFalse( results.hasMore() );
+        
+        NamingEnumeration attrs = result.getAttributes().getAll();
+        
+        while ( attrs.hasMoreElements() )
+        {
+            Attribute attr = (Attribute)attrs.next();
+            String ID = attr.getID();
+            assertEquals( "objectClasses", ID );
+        }
+        
         assertNotNull( result.getAttributes().get( "objectClasses" ) );
         assertEquals( 1, result.getAttributes().size() );
     }
