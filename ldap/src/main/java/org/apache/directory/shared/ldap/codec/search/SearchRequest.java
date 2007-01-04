@@ -32,7 +32,6 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.message.ScopeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.BufferOverflowException;
@@ -151,7 +150,8 @@ public class SearchRequest extends LdapMessage
      */
     public void addAttribute( String attribute )
     {
-        attributes.put( new BasicAttribute( StringTools.lowerCase( attribute ) ) );
+        //attributes.put( new BasicAttribute( StringTools.lowerCase( attribute ) ) );
+        attributes.put( new BasicAttribute( attribute ) );
     }
 
 
