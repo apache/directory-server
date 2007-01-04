@@ -61,8 +61,8 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
 
 
     /**
-     * Creates an enumeration that returns entries packaged within SearchResults
      * using the search parameters supplied to a search call.
+     * Creates an enumeration that returns entries packaged within SearchResults
      * 
      * @param attrIds the returned attributes
      * @param underlying the enumeration over IndexRecords
@@ -211,7 +211,6 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                 {
                     // May be it's because the attributeType is a inherited one?
                     Iterator descendants = registry.descendants( attrIds[ii] );
-                    boolean found = false;
                     
                     while ( descendants.hasNext() )
                     {
@@ -221,15 +220,10 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                         
                         if ( attr != null )
                         {
-                            found = true;
-                            break;
+                            // we may have more than one descendant, like sn and cn
+                            // for name, so add all of them
+                            entry.put( (Attribute)attr.clone() );
                         }
-                    }
-                    
-                    if ( found )
-                    {
-                        // clone attribute to stuff into the new resultant entry
-                        entry.put( (Attribute)attr.clone() );
                     }
                 }
                 else
