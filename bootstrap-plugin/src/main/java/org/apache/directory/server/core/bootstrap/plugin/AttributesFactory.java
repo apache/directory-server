@@ -66,12 +66,13 @@ public class AttributesFactory
             entry.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
         }
         
-        if ( schema.getDependencies() != null && schema.getDependencies().length > 0 )
+        String[] dependencies = schema.getDependencies();
+        if ( dependencies != null && dependencies.length > 0 )
         {
             Attribute attr = new LockableAttributeImpl( MetaSchemaConstants.M_DEPENDENCIES_AT );
-            for ( String dep : schema.getDependencies() )
+            for ( int ii = 0; ii < dependencies.length; ii++ )
             {
-                attr.add( dep );
+                attr.add( dependencies[ii] );
             }
             entry.put( attr );
         }
@@ -281,9 +282,10 @@ public class AttributesFactory
         if ( objectClass.getSuperClasses() != null && objectClass.getSuperClasses().length != 0 )
         {
             Attribute attr = new BasicAttribute( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
-            for ( ObjectClass superClass: objectClass.getSuperClasses() )
+            ObjectClass[] superclasses = objectClass.getSuperClasses();
+            for ( int ii = 0; ii < superclasses.length; ii++ )
             {
-                attr.add( getNameOrNumericoid( superClass ) ); 
+                attr.add( getNameOrNumericoid( superclasses[ii] ) ); 
             }
             entry.put( attr );
         }
@@ -292,9 +294,10 @@ public class AttributesFactory
         if ( objectClass.getMustList() != null && objectClass.getMustList().length != 0 )
         {
             Attribute attr = new BasicAttribute( MetaSchemaConstants.M_MUST_AT );
-            for ( AttributeType mustAttribute: objectClass.getMustList() )
+            AttributeType[] mustList = objectClass.getMustList();
+            for ( int ii = 0; ii < mustList.length; ii++ )
             {
-                attr.add( getNameOrNumericoid( mustAttribute ) );
+                attr.add( getNameOrNumericoid( mustList[ii] ) );
             }
             entry.put( attr );
         }
@@ -303,9 +306,10 @@ public class AttributesFactory
         if ( objectClass.getMayList() != null && objectClass.getMayList().length != 0 )
         {
             Attribute attr = new BasicAttribute( MetaSchemaConstants.M_MAY_AT );
-            for ( AttributeType mayAttribute: objectClass.getMayList() )
+            AttributeType[] mayList = objectClass.getMayList();
+            for ( int ii = 0; ii < mayList.length; ii++ )
             {
-                attr.add( getNameOrNumericoid( mayAttribute ) );
+                attr.add( getNameOrNumericoid( mayList[ii] ) );
             }
             entry.put( attr );
         }
@@ -347,9 +351,9 @@ public class AttributesFactory
         }
         
         Attribute attr = new BasicAttribute( MetaSchemaConstants.M_NAME_AT );
-        for ( String name: names )
+        for ( int ii = 0; ii < names.length; ii++ )
         {
-            attr.add( name );
+            attr.add( names[ii] );
         }
         entry.put( attr );
     }
