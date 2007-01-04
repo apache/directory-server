@@ -706,27 +706,21 @@ public class SearchTest extends AbstractServerTest
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         NamingEnumeration res = ctx.search( "", "(2.5.4.3=Tori*)", controls );
         
-        // collect all results 
-        while ( res.hasMore() )
-        {
-            SearchResult result = ( SearchResult ) res.next();
+        // ensure that the entry "cn=Tori Amos" was found
+        assertTrue( res.hasMore() );
 
-            Attributes attrs = result.getAttributes();
-            
-            NamingEnumeration all = attrs.getAll();
-                
-            while ( all.hasMoreElements() )
-            {
-                Attribute attr = (Attribute)all.next();
-                
-                if ( "jpegPhoto".equalsIgnoreCase( attr.getID() ) )
-                {
-                    byte[] jpegVal = (byte[])attr.get();
-                    
-                    assertTrue( Arrays.equals( jpegVal, jpeg ) );
-                }
-            }
-        }
+        SearchResult result = ( SearchResult ) res.next();
+
+        // ensure that result is not null
+        assertNotNull( result );
+        
+        String rdn = result.getName();
+        
+        // ensure that the entry "cn=Tori Amos" was found
+        assertEquals( "cn=Tori Amos", rdn );
+        
+        // ensure that no other value was found
+        assertFalse( res.hasMore() );
     }
 
     public void testSearchAttrCN() throws NamingException
@@ -739,27 +733,18 @@ public class SearchTest extends AbstractServerTest
         
         assertTrue( res.hasMore() );
         
-        // collect all results 
-        while ( res.hasMore() )
-        {
-            SearchResult result = ( SearchResult ) res.next();
+        SearchResult result = ( SearchResult ) res.next();
 
-            Attributes attrs = result.getAttributes();
-            
-            NamingEnumeration all = attrs.getAll();
-
-            assertTrue( all.hasMoreElements() );
-            
-            while ( all.hasMoreElements() )
-            {
-                Attribute attr = (Attribute)all.next();
-                
-                if ( "commonName".equalsIgnoreCase( attr.getID() ) )
-                {
-                    assertEquals( "Tori Amos", (String)attr.get() );
-                }
-            }
-        }
+        // ensure that result is not null
+        assertNotNull( result );
+        
+        Attributes attrs = result.getAttributes();
+        
+        // ensure the one and only attribute is "cn"
+        assertEquals( 1, attrs.size() );
+        assertNotNull( attrs.get("cn") );
+        assertEquals( 1, attrs.get("cn").size() );
+        assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
     }
 
     public void testSearchAttrName() throws NamingException
@@ -772,27 +757,21 @@ public class SearchTest extends AbstractServerTest
         
         assertTrue( res.hasMore() );
         
-        // collect all results 
-        while ( res.hasMore() )
-        {
-            SearchResult result = ( SearchResult ) res.next();
-
-            Attributes attrs = result.getAttributes();
-            
-            NamingEnumeration all = attrs.getAll();
-
-            assertTrue( all.hasMoreElements() );
-            
-            while ( all.hasMoreElements() )
-            {
-                Attribute attr = (Attribute)all.next();
-                
-                if ( "commonName".equalsIgnoreCase( attr.getID() ) )
-                {
-                    assertEquals( "Tori Amos", (String)attr.get() );
-                }
-            }
-        }
+        SearchResult result = ( SearchResult ) res.next();
+        
+        // ensure that result is not null
+        assertNotNull( result );
+        
+        Attributes attrs = result.getAttributes();
+        
+        // ensure that "cn" and "sn" are returned
+        assertEquals( 2, attrs.size() );
+        assertNotNull( attrs.get("cn") );
+        assertEquals( 1, attrs.get("cn").size() );
+        assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
+        assertNotNull( attrs.get("sn") );
+        assertEquals( 1, attrs.get("sn").size() );
+        assertEquals( "Amos", (String)attrs.get("sn").get() );
     }
 
     public void testSearchAttrCommonName() throws NamingException
@@ -805,27 +784,24 @@ public class SearchTest extends AbstractServerTest
         
         assertTrue( res.hasMore() );
         
-        // collect all results 
-        while ( res.hasMore() )
-        {
-            SearchResult result = ( SearchResult ) res.next();
 
-            Attributes attrs = result.getAttributes();
-            
-            NamingEnumeration all = attrs.getAll();
-
-            assertTrue( all.hasMoreElements() );
-            
-            while ( all.hasMoreElements() )
-            {
-                Attribute attr = (Attribute)all.next();
-                
-                if ( "commonName".equalsIgnoreCase( attr.getID() ) )
-                {
-                    assertEquals( "Tori Amos", (String)attr.get() );
-                }
-            }
-        }
+        SearchResult result = ( SearchResult ) res.next();
+        
+        // ensure that result is not null
+        assertNotNull( result );
+        
+        Attributes attrs = result.getAttributes();
+        
+        // requested attribute was "commonName", but ADS returns "cn". 
+        //       Other servers do the following:
+        //       - OpenLDAP: also return "cn"
+        //       - Siemens DirX: return "commonName"
+        //       - Sun Directory 5.2: return "commonName"
+        // ensure the one and only attribute is "cn"
+        assertEquals( 1, attrs.size() );
+        assertNotNull( attrs.get("cn") );
+        assertEquals( 1, attrs.get("cn").size() );
+        assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
     }
 
     public void testSearchAttrOID() throws NamingException
@@ -838,27 +814,23 @@ public class SearchTest extends AbstractServerTest
         
         assertTrue( res.hasMore() );
         
-        // collect all results 
-        while ( res.hasMore() )
-        {
-            SearchResult result = ( SearchResult ) res.next();
-
-            Attributes attrs = result.getAttributes();
-            
-            NamingEnumeration all = attrs.getAll();
-                
-            assertTrue( all.hasMoreElements() );
-            
-            while ( all.hasMoreElements() )
-            {
-                Attribute attr = (Attribute)all.next();
-                
-                if ( "2.5.4.3".equalsIgnoreCase( attr.getID() ) )
-                {
-                    assertEquals( "Tori Amos", (String)attr.get() );
-                }
-            }
-        }
+        SearchResult result = ( SearchResult ) res.next();
+        
+        // ensure that result is not null
+        assertNotNull( result );
+        
+        Attributes attrs = result.getAttributes();
+        
+        // requested attribute was "2.5.4.3", but ADS returns "cn". 
+        //       Other servers do the following:
+        //       - OpenLDAP: also return "cn"
+        //       - Siemens DirX: also return "cn"
+        //       - Sun Directory 5.2: return "2.5.4.3"
+        // ensure the one and only attribute is "cn"
+        assertEquals( 1, attrs.size() );
+        assertNotNull( attrs.get("cn") );
+        assertEquals( 1, attrs.get("cn").size() );
+        assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
     }
     
 }
