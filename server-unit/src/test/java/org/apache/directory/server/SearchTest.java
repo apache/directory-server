@@ -699,4 +699,166 @@ public class SearchTest extends AbstractServerTest
             }
         }
     }
+    
+    public void testSearchOID() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        NamingEnumeration res = ctx.search( "", "(2.5.4.3=Tori*)", controls );
+        
+        // collect all results 
+        while ( res.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) res.next();
+
+            Attributes attrs = result.getAttributes();
+            
+            NamingEnumeration all = attrs.getAll();
+                
+            while ( all.hasMoreElements() )
+            {
+                Attribute attr = (Attribute)all.next();
+                
+                if ( "jpegPhoto".equalsIgnoreCase( attr.getID() ) )
+                {
+                    byte[] jpegVal = (byte[])attr.get();
+                    
+                    assertTrue( Arrays.equals( jpegVal, jpeg ) );
+                }
+            }
+        }
+    }
+
+    public void testSearchAttrCN() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]{"cn"} );
+        
+        NamingEnumeration res = ctx.search( "", "(commonName=Tori*)", controls );
+        
+        assertTrue( res.hasMore() );
+        
+        // collect all results 
+        while ( res.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) res.next();
+
+            Attributes attrs = result.getAttributes();
+            
+            NamingEnumeration all = attrs.getAll();
+
+            assertTrue( all.hasMoreElements() );
+            
+            while ( all.hasMoreElements() )
+            {
+                Attribute attr = (Attribute)all.next();
+                
+                if ( "commonName".equalsIgnoreCase( attr.getID() ) )
+                {
+                    assertEquals( "Tori Amos", (String)attr.get() );
+                }
+            }
+        }
+    }
+
+    public void testSearchAttrName() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]{"name"} );
+        
+        NamingEnumeration res = ctx.search( "", "(commonName=Tori*)", controls );
+        
+        assertTrue( res.hasMore() );
+        
+        // collect all results 
+        while ( res.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) res.next();
+
+            Attributes attrs = result.getAttributes();
+            
+            NamingEnumeration all = attrs.getAll();
+
+            assertTrue( all.hasMoreElements() );
+            
+            while ( all.hasMoreElements() )
+            {
+                Attribute attr = (Attribute)all.next();
+                
+                if ( "commonName".equalsIgnoreCase( attr.getID() ) )
+                {
+                    assertEquals( "Tori Amos", (String)attr.get() );
+                }
+            }
+        }
+    }
+
+    public void testSearchAttrCommonName() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]{"commonName"} );
+        
+        NamingEnumeration res = ctx.search( "", "(commonName=Tori*)", controls );
+        
+        assertTrue( res.hasMore() );
+        
+        // collect all results 
+        while ( res.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) res.next();
+
+            Attributes attrs = result.getAttributes();
+            
+            NamingEnumeration all = attrs.getAll();
+
+            assertTrue( all.hasMoreElements() );
+            
+            while ( all.hasMoreElements() )
+            {
+                Attribute attr = (Attribute)all.next();
+                
+                if ( "commonName".equalsIgnoreCase( attr.getID() ) )
+                {
+                    assertEquals( "Tori Amos", (String)attr.get() );
+                }
+            }
+        }
+    }
+
+    public void testSearchAttrOID() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]{"2.5.4.3"} );
+        
+        NamingEnumeration res = ctx.search( "", "(commonName=Tori*)", controls );
+        
+        assertTrue( res.hasMore() );
+        
+        // collect all results 
+        while ( res.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) res.next();
+
+            Attributes attrs = result.getAttributes();
+            
+            NamingEnumeration all = attrs.getAll();
+                
+            assertTrue( all.hasMoreElements() );
+            
+            while ( all.hasMoreElements() )
+            {
+                Attribute attr = (Attribute)all.next();
+                
+                if ( "2.5.4.3".equalsIgnoreCase( attr.getID() ) )
+                {
+                    assertEquals( "Tori Amos", (String)attr.get() );
+                }
+            }
+        }
+    }
+    
 }
