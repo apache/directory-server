@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import java.util.Iterator;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -30,6 +32,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -192,17 +195,48 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
         {
             entry = new LockableAttributesImpl();
 
+            Attributes attrs = rec.getAttributes();
+            
             for ( int ii = 0; ii < attrIds.length; ii++ )
             {
-                // there is no attribute by that name in the entry so we continue
-                if ( null == rec.getAttributes().get( attrIds[ii] ) )
+                if ( "1.1".equals( attrIds[ii] ) )
                 {
-                    continue;
+                    break;
                 }
-
-                // clone attribute to stuff into the new resultant entry
-                Attribute attr = ( Attribute ) rec.getAttributes().get( attrIds[ii] ).clone();
-                entry.put( attr );
+                
+                Attribute attr = AttributeUtils.getAttribute( attrs, registry.lookup( attrIds[ii] ) );
+                
+                // there is no attribute by that name in the entry so we continue
+                if ( null == attr )
+                {
+                    // May be it's because the attributeType is a inherited one?
+                    Iterator descendants = registry.descendants( attrIds[ii] );
+                    boolean found = false;
+                    
+                    while ( descendants.hasNext() )
+                    {
+                        AttributeType atype = (AttributeType)descendants.next();
+                        
+                        attr = AttributeUtils.getAttribute( attrs, atype );
+                        
+                        if ( attr != null )
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    if ( found )
+                    {
+                        // clone attribute to stuff into the new resultant entry
+                        entry.put( (Attribute)attr.clone() );
+                    }
+                }
+                else
+                {
+                    // clone attribute to stuff into the new resultant entry
+                    entry.put( (Attribute)attr.clone() );
+                }
             }
         }
 
