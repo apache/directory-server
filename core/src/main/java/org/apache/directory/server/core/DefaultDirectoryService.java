@@ -909,7 +909,8 @@ class DefaultDirectoryService extends DirectoryService
             }
         }
         
-        schemaManager = new SchemaManager( globalRegistries, schemaLoader );
+        schemaManager = new SchemaManager( globalRegistries, schemaLoader, 
+            new SchemaPartitionDao( schemaPartition, registries ) );
 
         // now get all the attributeTypes that are binary from the registry
         AttributeTypeRegistry registry = registries.getAttributeTypeRegistry();

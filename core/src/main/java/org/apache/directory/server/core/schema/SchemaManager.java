@@ -57,9 +57,11 @@ public class SchemaManager
     private final MetaComparatorHandler metaComparatorHandler;
     private final MetaNormalizerHandler metaNormalizerHandler;
     private final MetaSyntaxCheckerHandler metaSyntaxCheckerHandler;
+    private final MetaSyntaxHandler metaSyntaxHandler;
     
 
-    public SchemaManager( Registries globalRegistries, PartitionSchemaLoader loader ) throws NamingException
+    public SchemaManager( Registries globalRegistries, PartitionSchemaLoader loader, SchemaPartitionDao dao ) 
+        throws NamingException
     {
         this.loader = loader;
         this.globalRegistries = globalRegistries;
@@ -69,6 +71,7 @@ public class SchemaManager
         this.metaComparatorHandler = new MetaComparatorHandler( globalRegistries, loader );
         this.metaNormalizerHandler = new MetaNormalizerHandler( globalRegistries, loader );
         this.metaSyntaxCheckerHandler = new MetaSyntaxCheckerHandler( globalRegistries, loader );
+        this.metaSyntaxHandler = new MetaSyntaxHandler( globalRegistries, loader, dao );
     }
     
     
@@ -112,6 +115,12 @@ public class SchemaManager
             return;
         }
 
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_OC, objectClassAT ) )
+        {
+            metaSyntaxHandler.add( name, entry );
+            return;
+        }
+
         throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
     }
     
@@ -141,6 +150,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_CHECKER_OC, objectClassAT ) )
         {
             metaSyntaxCheckerHandler.delete( name, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_OC, objectClassAT ) )
+        {
+            metaSyntaxHandler.delete( name, entry );
             return;
         }
 
@@ -177,6 +192,12 @@ public class SchemaManager
             return;
         }
 
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_OC, objectClassAT ) )
+        {
+            metaSyntaxHandler.modify( name, modOp, mods, entry, targetEntry );
+            return;
+        }
+
         throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
     }
 
@@ -207,6 +228,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_CHECKER_OC, objectClassAT ) )
         {
             metaSyntaxCheckerHandler.modify( name, mods, entry, targetEntry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_OC, objectClassAT ) )
+        {
+            metaSyntaxHandler.modify( name, mods, entry, targetEntry );
             return;
         }
 
@@ -242,6 +269,12 @@ public class SchemaManager
             return;
         }
 
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_OC, objectClassAT ) )
+        {
+            metaSyntaxHandler.rename( name, entry, newRdn );
+            return;
+        }
+
         throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
     }
 
@@ -271,6 +304,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_CHECKER_OC, objectClassAT ) )
         {
             metaSyntaxCheckerHandler.move( oriChildName, newParentName, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_OC, objectClassAT ) )
+        {
+            metaSyntaxHandler.move( oriChildName, newParentName, entry );
             return;
         }
 
@@ -304,6 +343,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_CHECKER_OC, objectClassAT ) )
         {
             metaSyntaxCheckerHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_OC, objectClassAT ) )
+        {
+            metaSyntaxHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
             return;
         }
 

@@ -83,4 +83,13 @@ public interface SyntaxRegistry
      * @return an Iterator over all the Syntaxes within this registry
      */
     Iterator<Syntax> iterator();
+
+
+    /**
+     * Removes a registered syntax from this registry.
+     *
+     * @param numericOid the numerid id of the syntax being removed
+     * @throws NamingException if the id is not numeric
+     */
+    void unregister( String numericOid ) throws NamingException;
 }

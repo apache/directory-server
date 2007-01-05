@@ -599,5 +599,9 @@ public class SchemaCheckerTest extends TestCase
         {
             return null;
         }
+
+        public void unregister( String numericOid ) throws NamingException
+        {
+        }
     }
 }

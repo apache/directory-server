@@ -297,4 +297,19 @@ public class DefaultOidRegistry implements OidRegistry
             log.debug( "registed name '" + name + "' with OID: " + oid );
         }
     }
+
+
+    public void unregister( String numericOid ) throws NamingException
+    {
+        byOid.remove( numericOid );
+        Iterator<String> names = byName.keySet().iterator();
+        while ( names.hasNext() )
+        {
+            String name = names.next();
+            if ( numericOid.equals( byName.get( name ) ) )
+            {
+                byName.remove( name );
+            }
+        }
+    }
 }

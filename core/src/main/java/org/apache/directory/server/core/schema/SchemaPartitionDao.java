@@ -320,4 +320,48 @@ public class SchemaPartitionDao
         
         partition.modify( dn, mods );
     }
+
+
+    /**
+     * Returns the set of matchingRules and attributeTypes which depend on the 
+     * provided syntax.
+     *
+     * @param numericOid the numeric identifier for the entity
+     * @return
+     */
+    public Set<SearchResult> listSyntaxDependies( String numericOid ) throws NamingException
+    {
+        Set<SearchResult> set = new HashSet<SearchResult>( );
+        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        
+        // subfilter for (| (objectClass=metaMatchingRule) (objectClass=metaAttributeType))  
+        BranchNode or = new BranchNode( AssertionEnum.OR );
+        or.addNode( new SimpleNode( SystemSchemaConstants.OBJECT_CLASS_AT, 
+            MetaSchemaConstants.META_MATCHING_RULE_OC, AssertionEnum.EQUALITY ) );
+        or.addNode( new SimpleNode( SystemSchemaConstants.OBJECT_CLASS_AT, 
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC, AssertionEnum.EQUALITY ) );
+        
+        filter.addNode( or );
+        filter.addNode( new SimpleNode( MetaSchemaConstants.M_SYNTAX_AT, 
+            numericOid.toLowerCase(), AssertionEnum.EQUALITY ) );
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+        
+        try
+        {
+            ne = partition.search( partition.getSuffix(), new HashMap(), filter, searchControls );
+            while( ne.hasMore() )
+            {
+                set.add( ne.next() );
+            }
+        }
+        finally
+        {
+            ne.close();
+        }
+        
+        return set;
+    }
 }

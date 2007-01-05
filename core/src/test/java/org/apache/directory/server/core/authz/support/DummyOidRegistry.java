@@ -58,9 +58,9 @@ class DummyOidRegistry implements OidRegistry
     }
 
 
-    public List getNameSet( String oid ) throws NamingException
+    public List<String> getNameSet( String oid ) throws NamingException
     {
-        List list = new ArrayList();
+        List<String> list = new ArrayList<String>();
         list.add( oid );
         return list;
     }
@@ -98,4 +98,8 @@ class DummyOidRegistry implements OidRegistry
         return null;
     }
 
+
+    public void unregister( String numericOid ) throws NamingException
+    {
+    }
 }

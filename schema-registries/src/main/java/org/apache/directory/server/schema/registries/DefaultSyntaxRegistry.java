@@ -132,6 +132,11 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
 
     public String getSchemaName( String id ) throws NamingException
     {
+        if ( ! Character.isDigit( id.charAt( 0 ) ) )
+        {
+            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        }
+
         id = oidRegistry.getOid( id );
         if ( oidToSchema.containsKey( id ) )
         {
@@ -145,5 +150,18 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     public Iterator<Syntax> iterator()
     {
         return byOid.values().iterator();
+    }
+
+
+    public void unregister( String numericOid ) throws NamingException
+    {
+        if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
+        {
+            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        }
+
+        byOid.remove( numericOid );
+        oidToSchema.remove( numericOid );
+        oidRegistry.unregister( numericOid );
     }
 }

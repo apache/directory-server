@@ -110,4 +110,13 @@ public interface OidRegistry
      * @return The Map that contains all the oids
      */
     public Map getNameByOid();
+
+
+    /**
+     * Removes an oid from this registry.
+     *
+     * @param numericOid the numeric identifier for the object
+     * @throws NamingException if the identifier is not numeric
+     */
+    void unregister( String numericOid ) throws NamingException;
 }
