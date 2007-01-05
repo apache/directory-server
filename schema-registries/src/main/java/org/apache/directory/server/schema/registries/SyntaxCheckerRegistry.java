@@ -43,7 +43,7 @@ public interface SyntaxCheckerRegistry
      * @throws NamingException if the SyntaxChecker is already registered or the
      *      registration operation is not supported
      */
-    void register( String schema, String oid, SyntaxChecker syntaxChecker ) throws NamingException;
+    void register( String schema, SyntaxChecker syntaxChecker ) throws NamingException;
 
 
     /**
@@ -77,10 +77,20 @@ public interface SyntaxCheckerRegistry
      */
     boolean hasSyntaxChecker( String oid );
     
+
     /**
      * Get's an iterator over all the syntaxCheckers associated with this registry.
      * 
      * @return an Iterator over all the syntaxCheckers
      */
     Iterator<SyntaxChecker> iterator();
+
+
+    /**
+     * Unregisters a registered syntaxChecker from this registry.
+     * 
+     * @param numericOid the numeric oid of the syntax this checker is associated with
+     * @throws NamingException if the numericOid is not valid
+     */
+    void unregister( String numericOid ) throws NamingException;
 }

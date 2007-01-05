@@ -135,7 +135,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
         if ( ! isExternal )
         {
             // Add indices for ou, uid, and objectClass
-            HashSet indexedAttributes = new HashSet();
+            HashSet<String> indexedAttributes = new HashSet<String>();
             indexedAttributes.add( "ou" );
             indexedAttributes.add( "uid" );
             indexedAttributes.add( "objectClass" );
@@ -158,7 +158,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
             doDelete( configuration.getWorkingDirectory() );
             setContextRoots( username, password, configuration );
             
-            Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+            Hashtable<String, Object> env = new Hashtable<String, Object>( configuration.toJndiEnvironment() );
             env.put( Context.SECURITY_PRINCIPAL, username );
             env.put( Context.SECURITY_CREDENTIALS, password );
             env.put( Context.SECURITY_AUTHENTICATION, "simple" );

@@ -66,19 +66,20 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     // ------------------------------------------------------------------------
 
     
-    public void register( String schema, String oid, SyntaxChecker syntaxChecker ) throws NamingException
+    public void register( String schema, SyntaxChecker syntaxChecker ) throws NamingException
     {
-        if ( byOid.containsKey( oid ) )
+        if ( byOid.containsKey( syntaxChecker.getSyntaxOid() ) )
         {
-            NamingException e = new NamingException( "SyntaxChecker with OID " + oid + " already registered!" );
+            NamingException e = new NamingException( "SyntaxChecker with OID " + syntaxChecker.getSyntaxOid() 
+                + " already registered!" );
             throw e;
         }
 
-        byOid.put( oid, syntaxChecker );
-        oidToSchema.put( oid, schema );
+        byOid.put( syntaxChecker.getSyntaxOid(), syntaxChecker );
+        oidToSchema.put( syntaxChecker.getSyntaxOid(), schema );
         if ( log.isDebugEnabled() )
         {
-            log.debug( "registered syntaxChecher for OID " + oid );
+            log.debug( "registered syntaxChecher for OID " + syntaxChecker.getSyntaxOid() );
         }
     }
 
@@ -125,5 +126,17 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     public Iterator<SyntaxChecker> iterator()
     {
         return byOid.values().iterator();
+    }
+
+
+    public void unregister( String numericOid ) throws NamingException
+    {
+        if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
+        {
+            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        }
+
+        byOid.remove( numericOid );
+        oidToSchema.remove( numericOid );
     }
 }

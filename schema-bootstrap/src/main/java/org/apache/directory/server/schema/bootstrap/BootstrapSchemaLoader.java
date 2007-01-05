@@ -223,7 +223,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
                 SyntaxChecker syntaxChecker = ( SyntaxChecker ) schemaObject;
                 SyntaxCheckerRegistry syntaxCheckerRegistry;
                 syntaxCheckerRegistry = registries.getSyntaxCheckerRegistry();
-                syntaxCheckerRegistry.register( schema.getSchemaName(), id, syntaxChecker );
+                syntaxCheckerRegistry.register( schema.getSchemaName(), syntaxChecker );
                 break;
                 
             case SYNTAX_PRODUCER :

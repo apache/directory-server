@@ -330,7 +330,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
             Attributes attrs = partition.lookup( resultDN );
             SyntaxChecker sc = factory.getSyntaxChecker( attrs, targetRegistries );
-            targetRegistries.getSyntaxCheckerRegistry().register( schema.getSchemaName(), sc.getSyntaxOid(), sc );
+            targetRegistries.getSyntaxCheckerRegistry().register( schema.getSchemaName(), sc );
         }
     }
 
