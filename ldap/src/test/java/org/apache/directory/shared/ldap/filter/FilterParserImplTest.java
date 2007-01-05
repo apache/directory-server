@@ -175,6 +175,21 @@ public class FilterParserImplTest extends TestCase
     }
 
 
+    public void testBadEqualsFilter() throws IOException, ParseException
+    {
+        try
+        {
+            parser.parse( "ou = people" );
+            
+            // The parsing should fail
+            fail( "should fail with bad filter" );
+        }
+        catch( ParseException pe )
+        {
+        }
+    }
+
+
     public void testEqualsWithForwardSlashFilter() throws IOException, ParseException
     {
         SimpleNode node = ( SimpleNode ) parser.parse( "( ou = people/in/my/company )" );
