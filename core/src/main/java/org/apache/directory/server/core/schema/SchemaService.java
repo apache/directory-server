@@ -709,13 +709,13 @@ public class SchemaService extends BaseInterceptor
         
         if ( modOp == DirContext.REMOVE_ATTRIBUTE )
         {
-            SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, mods );
+            SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, mods, this.globalRegistries.getOidRegistry() );
             SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, mods, objectClass );
         }
 
         if ( modOp == DirContext.REPLACE_ATTRIBUTE )
         {
-            SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, mods );
+            SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, mods, this.globalRegistries.getOidRegistry() );
             SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, mods );
             assertNumberOfAttributeValuesValid( mods );
         }
@@ -909,15 +909,49 @@ public class SchemaService extends BaseInterceptor
                         throw new LdapNoSuchAttributeException();
                     }
 
-                    // for required attributes we need to check if all values are removed
-                    // if so then we have a schema violation that must be thrown
-                    if ( isRequired( change.getID(), objectClass ) && isCompleteRemoval( change, entry ) )
+                    // We may have to remove the attribute or only some values
+                    if ( change.size() == 0 )
                     {
-                        log.error( "Trying to remove a required attribute: " + change.getID() );
-                        throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
+                        // No value : we have to remove the entire attribute
+                        // Check that we aren't removing a MUST attribute
+                        if ( isRequired( change.getID(), objectClass ) )
+                        {
+                            log.error( "Trying to remove a required attribute: " + change.getID() );
+                            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
+                        }
                     }
-                    
-                    tmpEntry.remove( change.getID() );
+                    else
+                    {
+                        // for required attributes we need to check if all values are removed
+                        // if so then we have a schema violation that must be thrown
+                        if ( isRequired( change.getID(), objectClass ) && isCompleteRemoval( change, entry ) )
+                        {
+                            log.error( "Trying to remove a required attribute: " + change.getID() );
+                            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
+                        }
+                        
+                        // Now remove the attribute and all its values
+                        Attribute modified = tmpEntry.remove( change.getID() );
+                        
+                        // And inject back the values except the ones to remove
+                        NamingEnumeration values = change.getAll();
+                        
+                        while ( values.hasMoreElements() )
+                        {
+                            modified.remove( values.next() );
+                        }
+                        
+                        // ok, done. Last check : if the attribute does not content any more value;
+                        // and if it's a MUST one, we should thow an exception
+                        if ( ( modified.size() == 0 ) && isRequired( change.getID(), objectClass ) )
+                        {
+                            log.error( "Trying to remove a required attribute: " + change.getID() );
+                            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
+                        }
+                        
+                        // Put back the attribute in the entry
+                        tmpEntry.put( modified );
+                    }
                     
                     SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, change, 
                         this.globalRegistries.getOidRegistry() ); 

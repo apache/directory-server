@@ -387,7 +387,7 @@ public class SchemaChecker
         // from here on the modify operation replaces specific values
         // of the Rdn attribute so we must check to make sure all the old
         // rdn attribute values are present in the replacement set
-        String rdnValue = getRdnValue( id, name );
+        String rdnValue = getRdnValue( id, name, oidRegistry );
         for ( int ii = 0; ii < attribute.size(); ii++ )
         {
             // if the old rdn value is not in the rdn attribute then
@@ -426,7 +426,7 @@ public class SchemaChecker
      * @param attributes the attributes being modified
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyReplace( Name name, int mod, Attributes attributes )
+    public static void preventRdnChangeOnModifyReplace( Name name, int mod, Attributes attributes, OidRegistry oidRegistry )
         throws NamingException
     {
         if ( mod != DirContext.REPLACE_ATTRIBUTE )
@@ -460,7 +460,7 @@ public class SchemaChecker
                 // from here on the modify operation replaces specific values
                 // of the Rdn attribute so we must check to make sure all the old
                 // rdn attribute values are present in the replacement set
-                String rdnValue = getRdnValue( id, name );
+                String rdnValue = getRdnValue( id, name, oidRegistry );
                 Attribute rdnAttr = attributes.get( id );
                 for ( int ii = 0; ii < rdnAttr.size(); ii++ )
                 {
@@ -536,7 +536,7 @@ public class SchemaChecker
         // from here on the modify operation only deletes specific values
         // of the Rdn attribute so we must check if one of those values
         // are used by the Rdn attribute value pair for the name of the entry
-        String rdnValue = getRdnValue( id, name );
+        String rdnValue = getRdnValue( id, name, oidRegistry );
         for ( int ii = 0; ii < attribute.size(); ii++ )
         {
             if ( rdnValue.equals( attribute.get( ii ) ) )
@@ -573,7 +573,7 @@ public class SchemaChecker
      * @param attributes the attributes being modified
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyRemove( Name name, int mod, Attributes attributes )
+    public static void preventRdnChangeOnModifyRemove( Name name, int mod, Attributes attributes, OidRegistry oidRegistry )
         throws NamingException
     {
         if ( mod != DirContext.REMOVE_ATTRIBUTE )
@@ -607,7 +607,7 @@ public class SchemaChecker
                 // from here on the modify operation only deletes specific values
                 // of the Rdn attribute so we must check if one of those values
                 // are used by the Rdn attribute value pair for the name of the entry
-                String rdnValue = getRdnValue( id, name );
+                String rdnValue = getRdnValue( id, name, oidRegistry );
                 Attribute rdnAttr = attributes.get( id );
                 for ( int ii = 0; ii < rdnAttr.size(); ii++ )
                 {
@@ -634,19 +634,38 @@ public class SchemaChecker
      *
      * @param id the attribute id of the Rdn attribute to return
      * @param name the distinguished name of the entry
+     * @param oidRegistry the OID registry
      * @return the Rdn attribute value corresponding to the id, or null if the
      * attribute is not an rdn attribute
      * @throws NamingException if the name is malformed in any way
      */
-    private static String getRdnValue( String id, Name name ) throws NamingException
+    private static String getRdnValue( String id, Name name, OidRegistry oidRegistry ) throws NamingException
     {
+        // Transform the rdnAttrId to it's OID counterPart
+        String idOid = oidRegistry.getOid( id );
+        
+        if ( idOid == null )
+        {
+            log.error( "The id {} does not have any OID. It should be a wrong AttributeType.", id);
+            throw new NamingException( "Wrong AttributeType, does not have an associated OID : " + id ); 
+        }
+
         String[] comps = NamespaceTools.getCompositeComponents( name.get( name.size() - 1 ) );
 
         for ( int ii = 0; ii < comps.length; ii++ )
         {
             String rdnAttrId = NamespaceTools.getRdnAttribute( comps[ii] );
+            
+            // Transform the rdnAttrId to it's OID counterPart
+            String rdnAttrOid = oidRegistry.getOid( rdnAttrId );
 
-            if ( rdnAttrId.equalsIgnoreCase( id ) )
+            if ( rdnAttrOid == null )
+            {
+                log.error( "The id {} does not have any OID. It should be a wrong AttributeType.", rdnAttrOid);
+                throw new NamingException( "Wrong AttributeType, does not have an associated OID : " + rdnAttrOid ); 
+            }
+
+            if ( rdnAttrOid.equalsIgnoreCase( idOid ) )
             {
                 return NamespaceTools.getRdnValue( comps[ii] );
             }
