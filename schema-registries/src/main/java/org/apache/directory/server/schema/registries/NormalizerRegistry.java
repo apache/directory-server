@@ -85,4 +85,12 @@ public interface NormalizerRegistry
      * @return an Iterator over the set of OID Strings in this registry
      */
     Iterator<String> oidIterator();
+
+    /**
+     * Unregisters a normalizer from this registry by OID.
+     * 
+     * @param oid the numeric OID of the matchingRule the normalizer is for
+     * @throws NamingException if the provided argument is not a numeric OID
+     */
+    void unregister( String oid ) throws NamingException;
 }

@@ -55,6 +55,7 @@ public class SchemaManager
     private final Registries globalRegistries;
     private final AttributeType objectClassAT;
     private final MetaComparatorHandler metaComparatorHandler;
+    private final MetaNormalizerHandler metaNormalizerHandler;
     
 
     public SchemaManager( Registries globalRegistries, PartitionSchemaLoader loader ) throws NamingException
@@ -65,6 +66,7 @@ public class SchemaManager
             .lookup( SystemSchemaConstants.OBJECT_CLASS_AT );
         this.metaSchemaHandler = new MetaSchemaHandler( this.globalRegistries, this.loader );
         this.metaComparatorHandler = new MetaComparatorHandler( globalRegistries, loader );
+        this.metaNormalizerHandler = new MetaNormalizerHandler( globalRegistries, loader );
     }
     
     
@@ -96,6 +98,12 @@ public class SchemaManager
             return;
         }
 
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_NORMALIZER_OC, objectClassAT ) )
+        {
+            metaNormalizerHandler.add( name, entry );
+            return;
+        }
+
         throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
     }
     
@@ -113,6 +121,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_COMPARATOR_OC, objectClassAT ) )
         {
             metaComparatorHandler.delete( name, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_NORMALIZER_OC, objectClassAT ) )
+        {
+            metaNormalizerHandler.delete( name, entry );
             return;
         }
 
@@ -137,6 +151,12 @@ public class SchemaManager
             return;
         }
 
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_NORMALIZER_OC, objectClassAT ) )
+        {
+            metaNormalizerHandler.modify( name, modOp, mods, entry, targetEntry );
+            return;
+        }
+
         throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
     }
 
@@ -155,6 +175,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_COMPARATOR_OC, objectClassAT ) )
         {
             metaComparatorHandler.modify( name, mods, entry, targetEntry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_NORMALIZER_OC, objectClassAT ) )
+        {
+            metaNormalizerHandler.modify( name, mods, entry, targetEntry );
             return;
         }
 
@@ -178,6 +204,12 @@ public class SchemaManager
             return;
         }
 
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_NORMALIZER_OC, objectClassAT ) )
+        {
+            metaNormalizerHandler.rename( name, entry, newRdn );
+            return;
+        }
+
         throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
     }
 
@@ -195,6 +227,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_COMPARATOR_OC, objectClassAT ) )
         {
             metaComparatorHandler.move( oriChildName, newParentName, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_NORMALIZER_OC, objectClassAT ) )
+        {
+            metaNormalizerHandler.move( oriChildName, newParentName, entry );
             return;
         }
 
@@ -216,6 +254,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_COMPARATOR_OC, objectClassAT ) )
         {
             metaComparatorHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_NORMALIZER_OC, objectClassAT ) )
+        {
+            metaNormalizerHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
             return;
         }
 

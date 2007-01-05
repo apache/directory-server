@@ -126,4 +126,16 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     {
         return byOid.keySet().iterator();
     }
+
+
+    public void unregister( String oid ) throws NamingException
+    {
+        if ( ! Character.isDigit( oid.charAt( 0 ) ) )
+        {
+            throw new NamingException( "OID " + oid + " is not a numeric OID" );
+        }
+
+        this.byOid.remove( oid );
+        this.oidToSchema.remove( oid );
+    }
 }

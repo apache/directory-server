@@ -88,7 +88,8 @@ public interface ComparatorRegistry
     /**
      * Removes a registered comparator from this registry.
      * 
-     * @param oid the oid of the comparator to remove.
+     * @param oid the numeric oid of the comparator to remove.
+     * @throws NamingException if the oid is not a numeric id
      */
-    void unregister( String oid );
+    void unregister( String oid ) throws NamingException;
 }

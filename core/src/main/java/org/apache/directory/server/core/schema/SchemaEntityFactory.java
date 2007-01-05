@@ -343,6 +343,8 @@ public class SchemaEntityFactory
         {
             try
             {
+                Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+                classLoader.setAttribute( bytecode );
                 clazz = classLoader.loadClass( className );
             }
             catch ( ClassCastException e )

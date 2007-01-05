@@ -129,8 +129,13 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     }
 
 
-    public void unregister( String oid )
+    public void unregister( String oid ) throws NamingException
     {
+        if ( ! Character.isDigit( oid.charAt( 0 ) ) )
+        {
+            throw new NamingException( "OID " + oid + " is not a numeric OID" );
+        }
+
         this.comparators.remove( oid );
         this.oidToSchema.remove( oid );
     }
