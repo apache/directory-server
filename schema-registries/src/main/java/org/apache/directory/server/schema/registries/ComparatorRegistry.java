@@ -84,4 +84,11 @@ public interface ComparatorRegistry
      * @return Iterator of numeric OID strings 
      */
     Iterator<String> oidIterator();
+
+    /**
+     * Removes a registered comparator from this registry.
+     * 
+     * @param oid the oid of the comparator to remove.
+     */
+    void unregister( String oid );
 }

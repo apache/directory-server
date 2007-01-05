@@ -39,9 +39,11 @@ import javax.naming.ldap.LdapContext;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.configuration.Configuration;
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 
@@ -89,7 +91,7 @@ public abstract class AbstractTestCase extends TestCase
     protected MutableStartupConfiguration configuration = new MutableStartupConfiguration();
 
     /** A testEntries of entries as Attributes to add to the DIT for testing */
-    protected List testEntries = new ArrayList();
+    protected List<Entry> testEntries = new ArrayList<Entry>();
 
     /** An optional LDIF file path if set and present is read to add more test entries */
     private String ldifPath;
@@ -97,8 +99,10 @@ public abstract class AbstractTestCase extends TestCase
     /** Load resources relative to this class */
     private Class loadClass;
 
-    private Hashtable overrides = new Hashtable();
+    private Hashtable<String,Object> overrides = new Hashtable<String,Object>();
 
+    protected Registries registries;
+    
 
     protected AbstractTestCase(String username, String password)
     {
@@ -207,6 +211,7 @@ public abstract class AbstractTestCase extends TestCase
         configuration.setShutdownHookEnabled( false );
         doDelete( configuration.getWorkingDirectory() );
         setContextRoots( username, password, configuration );
+        registries = DirectoryService.getInstance().getConfiguration().getRegistries();
     }
 
 
@@ -241,7 +246,7 @@ public abstract class AbstractTestCase extends TestCase
      */
     protected void setContextRoots( String user, String passwd, Configuration cfg ) throws NamingException
     {
-        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
         env.put( Context.SECURITY_PRINCIPAL, user );
         env.put( Context.SECURITY_CREDENTIALS, passwd );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -258,9 +263,9 @@ public abstract class AbstractTestCase extends TestCase
      * @return the sysRoot context which is also set
      * @throws NamingException if there is a failure of any kind
      */
-    protected void setContextRoots( Hashtable env ) throws NamingException
+    protected void setContextRoots( Hashtable<String,Object> env ) throws NamingException
     {
-        Hashtable envFinal = new Hashtable( env );
+        Hashtable<String,Object> envFinal = new Hashtable<String,Object>( env );
         if ( !envFinal.containsKey( Context.PROVIDER_URL ) )
         {
             envFinal.put( Context.PROVIDER_URL, "ou=system" );
@@ -270,7 +275,7 @@ public abstract class AbstractTestCase extends TestCase
         envFinal.putAll( overrides );
 
         // We have to initiate the first run as an admin at least.
-        Hashtable adminEnv = new Hashtable( envFinal );
+        Hashtable<String,Object> adminEnv = new Hashtable<String,Object>( envFinal );
         adminEnv.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         adminEnv.put( Context.SECURITY_CREDENTIALS, "secret" );
         adminEnv.put( Context.SECURITY_AUTHENTICATION, "simple" );

@@ -797,6 +797,46 @@ public class SchemaService extends BaseInterceptor
         next.modify( name, modOp, mods );
     }
     
+    
+    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+        throws NamingException
+    {
+        Attributes entry = nexus.lookup( oriChildName );
+
+        if ( oriChildName.startsWith( schemaBaseDN ) )
+        {
+            schemaManager.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
+        }
+        
+        next.move( oriChildName, newParentName, newRn, deleteOldRn );
+    }
+
+
+    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    {
+        Attributes entry = nexus.lookup( oriChildName );
+
+        if ( oriChildName.startsWith( schemaBaseDN ) )
+        {
+            schemaManager.move( oriChildName, newParentName, entry );
+        }
+        
+        next.move( oriChildName, newParentName );
+    }
+    
+
+    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
+    {
+        Attributes entry = nexus.lookup( name );
+
+        if ( name.startsWith( schemaBaseDN ) )
+        {
+            schemaManager.modifyRn( name, newRn, deleteOldRn, entry );
+        }
+        
+        next.modifyRn( name, newRn, deleteOldRn );
+    }
+
 
     public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
     {
@@ -1168,10 +1208,27 @@ public class SchemaService extends BaseInterceptor
         alterObjectClasses( attrs.get( "objectClass" ), this.registries.getObjectClassRegistry() );
         assertRequiredAttributesPresent( attrs );
         assertNumberOfAttributeValuesValid( attrs );
+
+        if ( normName.startsWith( schemaBaseDN ) )
+        {
+            schemaManager.add( normName, attrs );
+        }
         next.add(normName, attrs );
     }
     
     
+    public void delete( NextInterceptor next, LdapDN normName ) throws NamingException
+    {
+        Attributes entry = nexus.lookup( normName );
+        
+        if ( normName.startsWith( schemaBaseDN ) )
+        {
+            schemaManager.delete( normName, entry );
+        }
+        next.delete( normName );
+    }
+
+
     /**
      * Checks to see number of values of an attribute conforms to the schema
      */

@@ -28,7 +28,8 @@ package org.apache.directory.server.constants;
  */
 public interface MetaSchemaConstants
 {
-    public static final Object META_SCHEMA_OC = "metaSchema";
+    public static final String META_TOP_OC = "metaTop";
+    public static final String META_SCHEMA_OC = "metaSchema";
     public static final String META_OBJECT_CLASS_OC = "metaObjectClass";
     public static final String META_ATTRIBUTE_TYPE_OC = "metaAttributeType";
     public static final String META_MATCHING_RULE_OC = "metaMatchingRule";
@@ -56,7 +57,6 @@ public interface MetaSchemaConstants
     public static final String M_ORDERING_AT = "m-ordering";
     public static final String M_EQUALITY_AT = "m-equality";
     public static final String M_SYNTAX_AT = "m-syntax";
-    public static final String M_DESC_AT = "m-description";
     public static final String M_MUST_AT = "m-must";
     public static final String M_MAY_AT = "m-may";
     public static final String M_TYPE_OBJECT_CLASS_AT = "m-typeObjectClass";

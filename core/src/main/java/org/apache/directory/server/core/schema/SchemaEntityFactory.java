@@ -38,6 +38,7 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.*;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -59,7 +60,7 @@ public class SchemaEntityFactory
     /** A special ClassLoader that loads a class from the bytecode attribute */
     private final AttributeClassLoader classLoader;
     private final AttributeType oidAT;
-    private AttributeType byteCodeAT;
+    private final AttributeType byteCodeAT;
     
     
     public SchemaEntityFactory( Registries bootstrapRegistries ) throws NamingException
@@ -251,6 +252,8 @@ public class SchemaEntityFactory
         {
             try
             {
+                Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+                classLoader.setAttribute( bytecode );
                 clazz = classLoader.loadClass( className );
             }
             catch ( ClassCastException e )

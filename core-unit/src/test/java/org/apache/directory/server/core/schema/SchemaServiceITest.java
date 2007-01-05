@@ -75,7 +75,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Map persons = new HashMap();
+        Map<String, Attributes> persons = new HashMap<String, Attributes>();
         NamingEnumeration results = sysRoot.search( "", "(objectClass=person)", controls );
         while ( results.hasMore() )
         {
@@ -89,14 +89,14 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         Attributes person = null;
         Attribute ocs = null;
 
-        person = ( Attributes ) persons.get( "cn=person0,ou=system" );
+        person = persons.get( "cn=person0,ou=system" );
         assertNotNull( person );
         ocs = person.get( "objectClass" );
         assertEquals( 2, ocs.size() );
         assertTrue( ocs.contains( "top" ) );
         assertTrue( ocs.contains( "person" ) );
 
-        person = ( Attributes ) persons.get( "cn=person1,ou=system" );
+        person = persons.get( "cn=person1,ou=system" );
         assertNotNull( person );
         ocs = person.get( "objectClass" );
         assertEquals( 3, ocs.size() );
@@ -104,7 +104,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         assertTrue( ocs.contains( "person" ) );
         assertTrue( ocs.contains( "organizationalPerson" ) );
 
-        person = ( Attributes ) persons.get( "cn=person2,ou=system" );
+        person = persons.get( "cn=person2,ou=system" );
         assertNotNull( person );
         ocs = person.get( "objectClass" );
         assertEquals( 4, ocs.size() );
@@ -119,7 +119,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Map orgPersons = new HashMap();
+        Map<String, Attributes> orgPersons = new HashMap<String, Attributes>();
         NamingEnumeration results = sysRoot.search( "", "(objectClass=organizationalPerson)", controls );
         while ( results.hasMore() )
         {
@@ -133,7 +133,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         Attributes orgPerson = null;
         Attribute ocs = null;
 
-        orgPerson = ( Attributes ) orgPersons.get( "cn=person1,ou=system" );
+        orgPerson = orgPersons.get( "cn=person1,ou=system" );
         assertNotNull( orgPerson );
         ocs = orgPerson.get( "objectClass" );
         assertEquals( 3, ocs.size() );
@@ -141,7 +141,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         assertTrue( ocs.contains( "person" ) );
         assertTrue( ocs.contains( "organizationalPerson" ) );
 
-        orgPerson = ( Attributes ) orgPersons.get( "cn=person2,ou=system" );
+        orgPerson = orgPersons.get( "cn=person2,ou=system" );
         assertNotNull( orgPerson );
         ocs = orgPerson.get( "objectClass" );
         assertEquals( 4, ocs.size() );
@@ -156,7 +156,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Map inetOrgPersons = new HashMap();
+        Map<String, Attributes> inetOrgPersons = new HashMap<String, Attributes>();
         NamingEnumeration results = sysRoot.search( "", "(objectClass=inetOrgPerson)", controls );
         while ( results.hasMore() )
         {
@@ -170,7 +170,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         Attributes inetOrgPerson = null;
         Attribute ocs = null;
 
-        inetOrgPerson = ( Attributes ) inetOrgPersons.get( "cn=person2,ou=system" );
+        inetOrgPerson = inetOrgPersons.get( "cn=person2,ou=system" );
         assertNotNull( inetOrgPerson );
         ocs = inetOrgPerson.get( "objectClass" );
         assertEquals( 4, ocs.size() );

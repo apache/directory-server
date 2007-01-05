@@ -51,6 +51,7 @@ import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,7 @@ public class SchemaPartitionDao
 {
     /** static class logger */
     private final static Logger log = LoggerFactory.getLogger( SchemaPartitionDao.class );
+    private final static NumericOidSyntaxChecker NUMERIC_OID_CHECKER = new NumericOidSyntaxChecker();
 
 
     private final Partition partition;
@@ -78,8 +80,10 @@ public class SchemaPartitionDao
     private final String M_NAME_OID;
     private final String CN_OID;
     private final String M_OID_OID;
+    private final String OBJECTCLASS_OID;
     
     private final AttributeType disabledAttributeType;
+    
     
     /**
      * Creates a schema dao object backing information within a schema partition.
@@ -99,6 +103,7 @@ public class SchemaPartitionDao
         this.CN_OID = oidRegistry.getOid( SystemSchemaConstants.CN_AT );
         this.disabledAttributeType = attrRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT );
         this.M_OID_OID = oidRegistry.getOid( MetaSchemaConstants.M_OID_AT );
+        this.OBJECTCLASS_OID = oidRegistry.getOid( SystemSchemaConstants.OBJECT_CLASS_AT );
     }
     
     
@@ -156,21 +161,105 @@ public class SchemaPartitionDao
     }
     
     
+    public boolean hasMatchingRule( String oid ) throws NamingException
+    {
+        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        filter.addNode( new SimpleNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_MATCHING_RULE_OC, AssertionEnum.EQUALITY ) );
+
+        if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
+        {
+            filter.addNode( new SimpleNode( M_OID_OID, oid, AssertionEnum.EQUALITY ) );
+        }
+        else
+        {
+            filter.addNode( new SimpleNode( M_NAME_OID, oid.toLowerCase(), AssertionEnum.EQUALITY ) );
+        }
+        
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+
+        try
+        {
+            ne = partition.search( partition.getSuffix(), new HashMap(), filter, searchControls );
+            
+            if ( ! ne.hasMore() )
+            {
+                return false;
+            }
+            
+            if ( ne.hasMore() )
+            {
+                throw new NamingException( "Got more than one matchingRule for oid of " + oid );
+            }
+
+            return true;
+        }
+        finally
+        {
+            ne.close();
+        }
+    }
+    
+    
     /**
-     * Given the non-normalized name (alias) for a schema entity.  This method 
-     * finds the schema under which that entity is located. 
+     * Given the non-normalized name (alias) or the OID for a schema entity.  This 
+     * method finds the schema under which that entity is located. 
      * 
      * NOTE: this method presumes that all alias names across schemas are unique.  
      * This should be the case for LDAP but this can potentially be violated so 
      * we should make sure this is a unique name.
      * 
-     * @param entityName one of the names of the entity 
+     * @param entityName one of the names of the entity or it's numeric id
      * @return the name of the schema that contains that entity or null if no entity with 
      * that alias name exists
      * @throws NamingException if more than one entity has the name, or if there 
      * are underlying data access problems
      */
     public String findSchema( String entityName ) throws NamingException
+    {
+        LdapDN dn = findDn( entityName );
+        if ( dn == null )
+        {
+            return null;
+        }
+        
+        Rdn rdn = dn.getRdn( 1 );
+        if ( ! rdn.getType().equalsIgnoreCase( CN_OID ) )
+        {
+            throw new NamingException( "Attribute of second rdn in dn '" + dn.toNormName() 
+                + "' expected to be CN oid of " + CN_OID + " but was " + rdn.getType() );
+        }
+        
+        return ( String ) rdn.getValue();
+    }
+
+    
+    public LdapDN findDn( String entityName ) throws NamingException
+    {
+        SearchResult sr = find( entityName );
+        LdapDN dn = new LdapDN( sr.getName() );
+        dn.normalize( attrRegistry.getNormalizerMapping() );
+        return dn;
+    }
+    
+
+    /**
+     * Given the non-normalized name (alias) or the OID for a schema entity.  This 
+     * method finds the entry of the schema entity. 
+     * 
+     * NOTE: this method presumes that all alias names across schemas are unique.  
+     * This should be the case for LDAP but this can potentially be violated so 
+     * we should make sure this is a unique name.
+     * 
+     * @param entityName one of the names of the entity or it's numeric id
+     * @return the search result for the entity or null if no such entity exists with 
+     * that alias or numeric oid
+     * @throws NamingException if more than one entity has the name, or if there 
+     * are underlying data access problems
+     */
+    public SearchResult find( String entityName ) throws NamingException
     {
         BranchNode filter = new BranchNode( AssertionEnum.OR );
         SimpleNode nameAVA = new SimpleNode( M_NAME_OID, entityName.toLowerCase(), AssertionEnum.EQUALITY );
@@ -196,16 +285,7 @@ public class SchemaPartitionDao
                 throw new NamingException( "Got more than one result for the entity name: " + entityName );
             }
 
-            LdapDN dn = new LdapDN( sr.getName() );
-            dn.normalize( attrRegistry.getNormalizerMapping() );
-            Rdn rdn = dn.getRdn( 1 );
-            if ( ! rdn.getType().equalsIgnoreCase( CN_OID ) )
-            {
-                throw new NamingException( "Attribute of second rdn in dn '" + dn.toNormName() 
-                    + "' expected to be CN oid of " + CN_OID + " but was " + rdn.getType() );
-            }
-            
-            return ( String ) rdn.getValue();
+            return sr;
         }
         finally
         {

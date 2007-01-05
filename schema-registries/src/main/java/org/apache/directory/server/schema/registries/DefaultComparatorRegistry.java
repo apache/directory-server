@@ -127,4 +127,11 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     {
         return comparators.keySet().iterator();
     }
+
+
+    public void unregister( String oid )
+    {
+        this.comparators.remove( oid );
+        this.oidToSchema.remove( oid );
+    }
 }

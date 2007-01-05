@@ -64,7 +64,7 @@ public class SchemaManager
         this.objectClassAT = this.globalRegistries.getAttributeTypeRegistry()
             .lookup( SystemSchemaConstants.OBJECT_CLASS_AT );
         this.metaSchemaHandler = new MetaSchemaHandler( this.globalRegistries, this.loader );
-        this.metaComparatorHandler = new MetaComparatorHandler( globalRegistries );
+        this.metaComparatorHandler = new MetaComparatorHandler( globalRegistries, loader );
     }
     
     
@@ -79,9 +79,49 @@ public class SchemaManager
         throw new NotImplementedException();
     }
 
+    
+    public void add( LdapDN name, Attributes entry ) throws NamingException
+    {
+        Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
+        
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
+        {
+            metaSchemaHandler.add( name, entry );
+            return;
+        }
+        
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_COMPARATOR_OC, objectClassAT ) )
+        {
+            metaComparatorHandler.add( name, entry );
+            return;
+        }
 
+        throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
+    }
+    
 
-    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry ) throws NamingException
+    public void delete( LdapDN name, Attributes entry ) throws NamingException
+    {
+        Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
+        
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
+        {
+            metaSchemaHandler.delete( name, entry );
+            return;
+        }
+        
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_COMPARATOR_OC, objectClassAT ) )
+        {
+            metaComparatorHandler.delete( name, entry );
+            return;
+        }
+
+        throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
+    }
+    
+
+    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry ) 
+        throws NamingException
     {
         Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
         
@@ -101,7 +141,8 @@ public class SchemaManager
     }
 
 
-    public void modify( LdapDN name, ModificationItem[] mods, Attributes entry, Attributes targetEntry ) throws NamingException
+    public void modify( LdapDN name, ModificationItem[] mods, Attributes entry, Attributes targetEntry ) 
+        throws NamingException
     {
         Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
         
@@ -114,6 +155,67 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_COMPARATOR_OC, objectClassAT ) )
         {
             metaComparatorHandler.modify( name, mods, entry, targetEntry );
+            return;
+        }
+
+        throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
+    }
+
+
+    public void modifyRn( LdapDN name, String newRdn, boolean deleteOldRn, Attributes entry ) throws NamingException
+    {
+        Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
+        
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
+        {
+            metaSchemaHandler.rename( name, entry, newRdn );
+            return;
+        }
+        
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_COMPARATOR_OC, objectClassAT ) )
+        {
+            metaComparatorHandler.rename( name, entry, newRdn );
+            return;
+        }
+
+        throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
+    }
+
+
+    public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
+    {
+        Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
+        
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
+        {
+            metaSchemaHandler.move( oriChildName, newParentName, entry );
+            return;
+        }
+        
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_COMPARATOR_OC, objectClassAT ) )
+        {
+            metaComparatorHandler.move( oriChildName, newParentName, entry );
+            return;
+        }
+
+        throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
+    }
+
+
+    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry )
+        throws NamingException
+    {
+        Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
+        
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
+        {
+            metaSchemaHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
+            return;
+        }
+        
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_COMPARATOR_OC, objectClassAT ) )
+        {
+            metaComparatorHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
             return;
         }
 

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.schema;
 
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
@@ -35,10 +36,11 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public interface SchemaChangeHandler
 {
-    public void add( LdapDN name, Attributes entry ) throws NamingException;
-    public void delete( LdapDN name, Attributes entry ) throws NamingException;
-    public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException;
-    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry ) throws NamingException;
-    public void modify( LdapDN name, ModificationItem[] mods, Attributes entry, Attributes targetEntry ) throws NamingException;
-//    public void move( LdapDN oldName, Attributes entry, Ldap) throws NamingException;
+    void add( LdapDN name, Attributes entry ) throws NamingException;
+    void delete( LdapDN name, Attributes entry ) throws NamingException;
+    void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException;
+    void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry ) throws NamingException;
+    void modify( LdapDN name, ModificationItem[] mods, Attributes entry, Attributes targetEntry ) throws NamingException;
+    void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry ) throws NamingException;
+    void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException;
 }

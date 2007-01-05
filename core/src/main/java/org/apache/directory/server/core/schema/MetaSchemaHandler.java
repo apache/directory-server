@@ -189,4 +189,17 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     {
         throw new NotImplementedException();
     }
+
+
+    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry ) 
+        throws NamingException
+    {
+        throw new NotImplementedException();
+    }
+
+
+    public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
+    {
+        throw new NotImplementedException();
+    }
 }

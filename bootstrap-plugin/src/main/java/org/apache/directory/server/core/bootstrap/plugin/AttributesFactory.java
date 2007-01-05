@@ -338,7 +338,7 @@ public class AttributesFactory
         
         if ( object.getDescription() != null )
         {
-            entry.put( MetaSchemaConstants.M_DESC_AT, object.getDescription() );
+            entry.put( MetaSchemaConstants.M_DESCRIPTION_AT, object.getDescription() );
         }
     }
     
