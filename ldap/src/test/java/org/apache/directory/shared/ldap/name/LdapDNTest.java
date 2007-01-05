@@ -2767,11 +2767,20 @@ public class LdapDNTest extends TestCase
        assertEquals( "cn=xyz,cn=blah,dc=example,dc=com", ldapDn.toString() );
    }
    
+   
    public void testDNEquals() throws NamingException
    {
        LdapDN dn1 = new LdapDN( "a=b,c=d,e=f" );
        LdapDN dn2 = new LdapDN( "a=b\\,c\\=d,e=f" );
        
        assertFalse( dn1.toString().equals( dn2.toString() ) );
+   }
+   
+   
+   public void testDNAddEmptyString() throws NamingException
+   {
+       LdapDN dn = new LdapDN();
+       assertTrue( dn.size() == 0 );
+       assertTrue( dn.add( "" ).size() == 0 );
    }
 }

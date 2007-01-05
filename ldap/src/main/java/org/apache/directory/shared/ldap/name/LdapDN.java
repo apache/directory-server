@@ -1008,6 +1008,11 @@ public class LdapDN implements Name
     */
    public Name add( String comp ) throws InvalidNameException
    {
+       if ( comp.length() == 0 )
+       {
+           return this;
+       }
+       
        // We have to parse the nameComponent which is given as an argument
        Rdn newRdn = new Rdn( comp );
 
@@ -1423,6 +1428,11 @@ public class LdapDN implements Name
            return;
        }
 
+       if ( size() == 0 )
+       {
+           return;
+       }
+       
        Enumeration<Rdn> localRdns = getAllRdn();
 
        // Loop on all RDNs
