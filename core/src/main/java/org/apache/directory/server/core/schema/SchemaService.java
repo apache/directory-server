@@ -727,13 +727,13 @@ public class SchemaService extends BaseInterceptor
         
         if ( modOp == DirContext.REMOVE_ATTRIBUTE )
         {
-            SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, mods );
+            SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, mods, registries.getOidRegistry() );
             SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, mods, objectClass );
         }
 
         if ( modOp == DirContext.REPLACE_ATTRIBUTE )
         {
-            SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, mods );
+            SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, mods, registries.getOidRegistry() );
             SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, mods );
             assertNumberOfAttributeValuesValid( mods );
         }

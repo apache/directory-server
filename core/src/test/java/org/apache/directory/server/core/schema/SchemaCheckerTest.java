@@ -215,13 +215,13 @@ public class SchemaCheckerTest extends TestCase
         attributes.put( "cn", "does not matter" );
 
         // postive test which should pass
-        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes );
+        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
 
         // test should fail since we are removing the ou attribute
         attributes.put( new BasicAttribute( "ou" ) );
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes );
+            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -233,13 +233,13 @@ public class SchemaCheckerTest extends TestCase
         name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
         attributes = new BasicAttributes( true );
         attributes.put( "sn", "does not matter" );
-        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes );
+        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
 
         // test for failure when modifying Rdn attribute in multi attribute Rdn
         attributes.put( new BasicAttribute( "cn" ) );
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes );
+            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -251,14 +251,14 @@ public class SchemaCheckerTest extends TestCase
         // is not used when composing the Rdn
         attributes = new BasicAttributes( true );
         attributes.put( "ou", "container" );
-        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes );
+        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
 
         // now let's make it fail again just by providing the right value for ou (users)
         attributes = new BasicAttributes( true );
         attributes.put( "ou", "users" );
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes );
+            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -280,13 +280,13 @@ public class SchemaCheckerTest extends TestCase
         attributes.put( "cn", "does not matter" );
 
         // postive test which should pass
-        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes );
+        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
 
         // test should fail since we are removing the ou attribute
         attributes.put( new BasicAttribute( "ou" ) );
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes );
+            SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -298,13 +298,13 @@ public class SchemaCheckerTest extends TestCase
         name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
         attributes = new BasicAttributes( true );
         attributes.put( "sn", "does not matter" );
-        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes );
+        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
 
         // test for failure when modifying Rdn attribute in multi attribute Rdn
         attributes.put( new BasicAttribute( "cn" ) );
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes );
+            SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -317,14 +317,14 @@ public class SchemaCheckerTest extends TestCase
         attributes = new BasicAttributes( true );
         attributes.put( "ou", "container" );
         attributes.put( "ou", "users" );
-        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes );
+        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
 
         // now let's make it fail by not including the old value for ou (users)
         attributes = new BasicAttributes( true );
         attributes.put( "ou", "container" );
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes );
+            SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
