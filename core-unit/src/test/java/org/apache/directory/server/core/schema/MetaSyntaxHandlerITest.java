@@ -58,7 +58,7 @@ public class MetaSyntaxHandlerITest extends AbstractAdminTestCase
      */
     private final LdapDN getSyntaxContainer( String schemaName ) throws NamingException
     {
-        return new LdapDN( "ou=normalizers,cn=" + schemaName );
+        return new LdapDN( "ou=syntaxes,cn=" + schemaName );
     }
     
     

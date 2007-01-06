@@ -303,13 +303,19 @@ public class DefaultOidRegistry implements OidRegistry
     {
         byOid.remove( numericOid );
         Iterator<String> names = byName.keySet().iterator();
+        List<String> namesToRemove = new ArrayList<String>(); 
         while ( names.hasNext() )
         {
             String name = names.next();
             if ( numericOid.equals( byName.get( name ) ) )
             {
-                byName.remove( name );
+                namesToRemove.add( name );
             }
+        }
+        
+        for ( String name : namesToRemove )
+        {
+            byName.remove( name );
         }
     }
 }

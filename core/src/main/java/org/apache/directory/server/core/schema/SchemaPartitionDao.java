@@ -81,6 +81,7 @@ public class SchemaPartitionDao
     private final String CN_OID;
     private final String M_OID_OID;
     private final String OBJECTCLASS_OID;
+    private final String META_SYNTAX_OID;
     
     private final AttributeType disabledAttributeType;
     
@@ -104,6 +105,7 @@ public class SchemaPartitionDao
         this.disabledAttributeType = attrRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT );
         this.M_OID_OID = oidRegistry.getOid( MetaSchemaConstants.M_OID_AT );
         this.OBJECTCLASS_OID = oidRegistry.getOid( SystemSchemaConstants.OBJECT_CLASS_AT );
+        this.META_SYNTAX_OID = oidRegistry.getOid( MetaSchemaConstants.M_SYNTAX_AT );
     }
     
     
@@ -289,7 +291,10 @@ public class SchemaPartitionDao
         }
         finally
         {
-            ne.close();
+            if ( ne != null )
+            {
+                ne.close();
+            }
         }
     }
 
@@ -336,13 +341,13 @@ public class SchemaPartitionDao
         
         // subfilter for (| (objectClass=metaMatchingRule) (objectClass=metaAttributeType))  
         BranchNode or = new BranchNode( AssertionEnum.OR );
-        or.addNode( new SimpleNode( SystemSchemaConstants.OBJECT_CLASS_AT, 
-            MetaSchemaConstants.META_MATCHING_RULE_OC, AssertionEnum.EQUALITY ) );
-        or.addNode( new SimpleNode( SystemSchemaConstants.OBJECT_CLASS_AT, 
-            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC, AssertionEnum.EQUALITY ) );
+        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_MATCHING_RULE_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
+        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
         
         filter.addNode( or );
-        filter.addNode( new SimpleNode( MetaSchemaConstants.M_SYNTAX_AT, 
+        filter.addNode( new SimpleNode( META_SYNTAX_OID, 
             numericOid.toLowerCase(), AssertionEnum.EQUALITY ) );
 
         SearchControls searchControls = new SearchControls();
@@ -359,7 +364,10 @@ public class SchemaPartitionDao
         }
         finally
         {
-            ne.close();
+            if ( ne != null )
+            {
+                ne.close();
+            }
         }
         
         return set;

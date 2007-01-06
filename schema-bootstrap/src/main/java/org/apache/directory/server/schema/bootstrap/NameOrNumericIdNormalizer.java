@@ -27,6 +27,8 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.OidSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -42,7 +44,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class NameOrNumericIdNormalizer implements Normalizer
 {
     private static final long serialVersionUID = 1L;
-
+    private NumericOidSyntaxChecker checker = new NumericOidSyntaxChecker();
     private transient OidRegistry registry;
     
     
@@ -87,12 +89,21 @@ public class NameOrNumericIdNormalizer implements Normalizer
             return "";
         }
         
+        // if value is a numeric id then return it as is
+        if ( checker.isValidSyntax( strValue ) )
+        {
+            return value;
+        }
+        
+        // if it is a name we need to do a lookup
         if ( registry.hasOid( strValue ) )
         {
             return registry.getOid( strValue );
         }
         
-        throw new LdapNamingException( ResultCodeEnum.OTHER );
+        // if all else fails
+        throw new LdapNamingException( "Encountered name based id of " + value 
+            + " which was not found in the OID registry" , ResultCodeEnum.OTHER );
     }
     
     

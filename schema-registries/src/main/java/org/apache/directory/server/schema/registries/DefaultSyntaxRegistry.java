@@ -102,6 +102,10 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
         {
             oidRegistry.register( syntax.getName(), syntax.getOid() );
         }
+        else
+        {
+            oidRegistry.register( syntax.getOid(), syntax.getOid() );
+        }
 
         byOid.put( syntax.getOid(), syntax );
         oidToSchema.put( syntax.getOid(), schema );
