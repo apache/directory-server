@@ -182,7 +182,7 @@ and returns [BranchNode node]
       {
           children.add( child );
       }
-    )+
+    )*
     {
         node = new BranchNode( AssertionEnum.AND, children );
     }
@@ -207,7 +207,7 @@ or returns [BranchNode node]
       {
           children.add( child );
       }
-    )+
+    )*
     {
         node = new BranchNode( AssertionEnum.OR, children );
     }

@@ -74,10 +74,26 @@ public class FilterParserImplTest extends TestCase
     }
 
 
+    public void testAndFilterOneChildOnly() throws IOException, ParseException
+    {
+        BranchNode node = ( BranchNode ) parser.parse( "(& ( ou ~= people ) ) " );
+        assertEquals( 1, node.getChildren().size() );
+        assertEquals( AssertionEnum.AND, node.getOperator() );
+    }
+
+
     public void testOrFilter() throws IOException, ParseException
     {
         BranchNode node = ( BranchNode ) parser.parse( "(| ( ou ~= people ) (age>=30) ) " );
         assertEquals( 2, node.getChildren().size() );
+        assertEquals( AssertionEnum.OR, node.getOperator() );
+    }
+
+
+    public void testOrFilterOneChildOnly() throws IOException, ParseException
+    {
+        BranchNode node = ( BranchNode ) parser.parse( "(| (age>=30) ) " );
+        assertEquals( 1, node.getChildren().size() );
         assertEquals( AssertionEnum.OR, node.getOperator() );
     }
 
@@ -180,11 +196,11 @@ public class FilterParserImplTest extends TestCase
         try
         {
             parser.parse( "ou = people" );
-            
+
             // The parsing should fail
             fail( "should fail with bad filter" );
         }
-        catch( ParseException pe )
+        catch ( ParseException pe )
         {
         }
     }
