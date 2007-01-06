@@ -892,6 +892,7 @@ public abstract class ProtectedItem implements Serializable
             buffer.append( ' ' );
             buffer.append( attributeType );
 
+            buffer.append( ',' );
             buffer.append( ' ' );
             
             buffer.append( "maxCount" );
@@ -965,6 +966,7 @@ public abstract class ProtectedItem implements Serializable
             buffer.append( ' ' );
             buffer.append( attributeType );
 
+            buffer.append( ',' );
             buffer.append( ' ' );
             
             buffer.append( "valuesIn" );
