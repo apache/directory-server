@@ -114,6 +114,24 @@ public class FilterParserImpl implements FilterParser
         {
             filter = StringTools.trimConsecutiveToOne( filter, '*' );
         }
+        
+        // check balanced parenthesis
+        int balanced = 0;
+        for(int i=0; i<filter.length(); i++)
+        {
+            if(filter.charAt( i ) == '(')
+            {
+                balanced++;
+            }
+            else if(filter.charAt( i ) == ')')
+            {
+                balanced--;
+            }
+        }
+        if(balanced != 0)
+        {
+            throw new ParseException( "Unbalanced parenthesis", 0 );
+        }
 
         this.parserPipe.write( filter.getBytes() );
         this.parserPipe.write( '\n' );

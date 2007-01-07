@@ -816,7 +816,13 @@ DESCR // THIS RULE ALSO STANDS FOR AN IDENTIFIER
       "attributeValue"! ( SP! )+ '{'! ( options { greedy = false; } : . )* '}'!
       { $setType( ATTRIBUTE_VALUE_CANDIDATE ); }
     | ( "rangeOfValues" ( SP! )+ '(' ) =>
-      "rangeOfValues"! ( SP! )+ '(' ( options { greedy = false; } : . )* ')'
+      "rangeOfValues"! ( SP! )+ FILTER
       { $setType( RANGE_OF_VALUES_CANDIDATE ); }
     | ALPHA ( ALPHA | DIGIT | HYPHEN )*
     ;
+
+protected FILTER : '(' ( ( '&' (SP)* (FILTER)+ ) | ( '|' (SP)* (FILTER)+ ) | ( '!' (SP)* FILTER ) | FILTER_VALUE ) ')' (SP)* ;
+
+protected FILTER_VALUE : (options{greedy=true;}: ~( ')' | '(' | '&' | '|' | '!' ) ( ~(')') )* ) ;
+
+    

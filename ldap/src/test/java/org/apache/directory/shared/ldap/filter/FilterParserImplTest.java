@@ -57,6 +57,55 @@ public class FilterParserImplTest extends TestCase
     }
 
 
+    /**
+     * Tests to avoid deadlocks for invalid filters. 
+     * 
+     */
+    public void testInvalidFilters() throws IOException, ParseException
+    {
+        try
+        {
+            parser.parse( "(cn=)" );
+            fail( "Invalid filter '(cn=)'" );
+        }
+        catch ( Exception e )
+        {
+            // Expected, invalid filter
+        }
+
+        try
+        {
+            parser.parse( "(cn=test(" );
+            fail( "Invalid filter '(cn=test('" );
+        }
+        catch ( Exception e )
+        {
+            // Expected, invalid filter
+        }
+
+        try
+        {
+            parser.parse( "(cn=aaaaa" );
+            fail( "Invalid filter '(cn=aaaaa'" );
+        }
+        catch ( Exception e )
+        {
+            // Expected, invalid filter
+        }
+
+        try
+        {
+            parser.parse( "(&(cn=abc)" );
+            fail( "Invalid filter '(&(cn=abc)'" );
+        }
+        catch ( Exception e )
+        {
+            // Expected, invalid filter
+        }
+
+    }
+
+
     public void testItemFilter() throws IOException, ParseException
     {
         SimpleNode node = ( SimpleNode ) parser.parse( "( ou ~= people )" );

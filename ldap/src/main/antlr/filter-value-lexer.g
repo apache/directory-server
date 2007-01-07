@@ -53,6 +53,7 @@ options
 	// allow any unicode characters
 	charVocabulary='\u0000'..'\uFFFE';
 	exportVocab=FilterValueLexer;
+	defaultErrorHandler=false;
 }
 
 

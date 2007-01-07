@@ -459,6 +459,6 @@ protected SAFEUTF8CHAR:
     '\u4e00'..'\u9fff' |
     '\uf900'..'\ufaff' ;
 
-FILTER : '(' ( ( '&' (FILTER)+ ) | ( '|' (FILTER)+ ) | ( '!' FILTER ) | FILTER_VALUE ) ')' ;
+FILTER : '(' ( ( '&' (SP)* (FILTER)+ ) | ( '|' (SP)* (FILTER)+ ) | ( '!' (SP)* FILTER ) | FILTER_VALUE ) ')' (SP)* ;
 
 protected FILTER_VALUE : (options{greedy=true;}: ~( ')' | '(' | '&' | '|' | '!' ) ( ~(')') )* ) ;

@@ -49,6 +49,7 @@ options
 	charVocabulary='\u0001'..'\u0127';
 	exportVocab = FilterLexer;
 	importVocab = FilterValueLexer;
+	defaultErrorHandler=false;
 }
 
 

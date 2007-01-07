@@ -57,10 +57,32 @@ public class ACIItemParserTest extends TestCase
     /**
      * Creates a ACIItemParserTest instance.
      */
-    public ACIItemParserTest(String s)
+    public ACIItemParserTest( String s )
     {
         super( s );
         parser = new ACIItemParser( null );
+    }
+
+
+    /**
+     * Tests the parser with a rangeOfValues with a nested filter.
+     */
+    public void testRangeOfValues() throws Exception
+    {
+        String spec = " {  identificationTag  \"id1\" , precedence 114  , authenticationLevel simple  , "
+            + "itemOrUserFirst itemFirst  :{ protectedItems  "
+            + "{ rangeOfValues (&(&(|(|(cn=ccc)(!(cn=ddd))(&(cn=aaa)(cn=bbb)))))) " + "}  , itemPermissions {  } } }";
+
+        parser.parse( spec );
+        
+        
+        spec = " { identificationTag \"id8\", precedence 0, authenticationLevel simple "
+            + ", itemOrUserFirst userFirst: { userClasses { allUsers }, userPermissions { "
+            + " { protectedItems { rangeOfValues (& (cn=test) (sn=test) ) }, grantsAndDenials { grantAdd } }, "
+            + "{ protectedItems { rangeOfValues (| (! (cn=aaa) ) (sn=bbb) ) }, grantsAndDenials { grantAdd } } "
+            + " } } }";
+        
+        parser.parse( spec );
     }
 
 
