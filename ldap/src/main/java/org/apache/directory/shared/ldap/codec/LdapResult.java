@@ -267,7 +267,7 @@ public class LdapResult extends AbstractAsn1Object
         }
         else
         {
-            matchedDNBytes = StringTools.getBytesUtf8( matchedDN.getUpName() );
+            matchedDNBytes = StringTools.getBytesUtf8( StringTools.trimLeft( matchedDN.getUpName() ) );
             ldapResultLength += 1 + TLV.getNbBytes( matchedDNBytes.length ) + matchedDNBytes.length;
         }
 
