@@ -30,6 +30,7 @@ import java.util.ArrayList;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.util.ComponentsMonitor;
 import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
 
@@ -71,6 +72,8 @@ options
     private static final Logger log = LoggerFactory.getLogger( AntlrSubtreeSpecificationChecker.class );
     
     private ComponentsMonitor subtreeSpecificationComponentsMonitor = null;
+    
+    private final FilterParserImpl filterParser = new FilterParserImpl();
 
     /**
      * Does nothing.
@@ -229,8 +232,29 @@ ss_specificationFilter
     log.debug( "entered ss_specificationFilter()" );
 }
     :
-    ID_specificationFilter ( SP )+ refinement
+    ID_specificationFilter 
+    ( SP )+ 
+    (
+        ( refinement )
+        |
+        ( filter )
+    )
     ;
+    
+    
+filter
+{
+	log.debug( "entered filter()" );
+}
+	:
+	( filterToken:FILTER { filterParser.parse( filterToken.getText() ); } )
+	;
+	exception
+    catch [Exception e]
+    {
+        throw new RecognitionException( "filterParser failed. " + e.getMessage() );
+    }
+
     
 distinguishedName
 {
@@ -434,3 +458,7 @@ protected SAFEUTF8CHAR:
     '\u3400'..'\u3d2d' |
     '\u4e00'..'\u9fff' |
     '\uf900'..'\ufaff' ;
+
+FILTER : '(' ( ( '&' (FILTER)+ ) | ( '|' (FILTER)+ ) | ( '!' FILTER ) | FILTER_VALUE ) ')' ;
+
+protected FILTER_VALUE : (options{greedy=true;}: ~( ')' | '(' | '&' | '|' | '!' ) ( ~(')') )* ) ;

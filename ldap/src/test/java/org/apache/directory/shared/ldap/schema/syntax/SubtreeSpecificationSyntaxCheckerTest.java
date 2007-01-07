@@ -99,6 +99,9 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
     /** An invalid specification with completely unrelated content */
     private static final String INVALID_SILLY_THING = "How much wood would a wood chuck chuck if a wood chuck would chuck wood?";
     
+    /** A valid specification with filter expression */
+    private static final String SPEC_WITH_FILTER = "{ base \"ou=system\", specificationFilter (&(cn=test)(sn=test)) }";
+    
     /**
      * Tests the parser with a valid empty specification.
      */
@@ -227,5 +230,14 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
     public void testBadAssertion() throws Exception
     {
         assertFalse( checker.isValidSyntax( INVALID_SILLY_THING ) );
+    }
+    
+    
+    /**
+     * Tests the parser with a valid specification with refinement set.
+     */
+    public void testSpecWithFilter() throws Exception
+    {
+        assertTrue( checker.isValidSyntax( SPEC_WITH_FILTER ) );
     }
 }
