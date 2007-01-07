@@ -858,7 +858,7 @@ public class SearchTest extends AbstractServerTest
 //        subentry.put( "c-l", "Munich" );
 //        subentry.put( "cn", "Collective Subentry" );
 //        subentry.put( "subtreeSpecification", "{ }" );
-//        aaCtx.createSubcontext( "cn=Collective Subentry", aaAttrs );
+//        aaCtx.createSubcontext( "cn=Collective Subentry", subentry );
 //        
 //        // create real enty
 //        Attributes attributes = this.getPersonAttributes( "Bush", "Kate Bush" );
