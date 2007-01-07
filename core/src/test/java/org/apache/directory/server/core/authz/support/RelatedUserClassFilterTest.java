@@ -56,12 +56,22 @@ public class RelatedUserClassFilterTest extends TestCase
     private static final Set USER_NAMES = new HashSet();
     private static final Set GROUP_NAMES = new HashSet();
 
-    private static final SubtreeEvaluator SUBTREE_EVALUATOR = new SubtreeEvaluator( new DummyOidRegistry() );
+    private static final SubtreeEvaluator SUBTREE_EVALUATOR;
 
-    private static final RelatedUserClassFilter filter = new RelatedUserClassFilter( SUBTREE_EVALUATOR );
+    private static final RelatedUserClassFilter filter;
 
     static
     {
+        try
+        {
+            SUBTREE_EVALUATOR = new SubtreeEvaluator( new DummyOidRegistry(), new DummyAttributeTypeRegistry(true) );
+            filter = new RelatedUserClassFilter( SUBTREE_EVALUATOR );
+        }
+        catch ( NamingException e )
+        {
+            throw new Error();
+        }
+        
         try
         {
             GROUP_NAME = new LdapDN( "ou=test,ou=groups,ou=system" );

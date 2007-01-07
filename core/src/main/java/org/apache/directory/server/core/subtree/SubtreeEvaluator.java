@@ -20,15 +20,19 @@
 package org.apache.directory.server.core.subtree;
 
 
+import java.util.Iterator;
+
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+
+import org.apache.directory.server.core.event.Evaluator;
+import org.apache.directory.server.core.event.ExpressionEvaluator;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
-
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import java.util.Iterator;
 
 
 /**
@@ -41,7 +45,7 @@ import java.util.Iterator;
 public class SubtreeEvaluator
 {
     /** A refinement filter evaluator */
-    private final RefinementEvaluator evaluator;
+    private final Evaluator evaluator;
 
 
     /**
@@ -49,11 +53,11 @@ public class SubtreeEvaluator
      * if an entry is included within the collection of a subtree.
      *
      * @param registry a registry used to lookup objectClass names for OIDs
+     * @throws NamingException 
      */
-    public SubtreeEvaluator(OidRegistry registry)
+    public SubtreeEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attrRegistry) throws NamingException
     {
-        RefinementLeafEvaluator leafEvaluator = new RefinementLeafEvaluator( registry );
-        evaluator = new RefinementEvaluator( leafEvaluator );
+        evaluator = new ExpressionEvaluator(oidRegistry, attrRegistry );
     }
 
 
@@ -67,9 +71,12 @@ public class SubtreeEvaluator
      * @return true if the entry is selected by the specification, false if it is not
      * @throws javax.naming.NamingException if errors are encountered while evaluating selection
      */
-    public boolean evaluate( SubtreeSpecification subtree, Name apDn, Name entryDn, Attribute objectClasses )
+    public boolean evaluate( SubtreeSpecification subtree, Name apDn, Name entryDn, Attributes entry )
         throws NamingException
     {
+        // TODO: Try to make this cast unnecessary.
+        LdapDN entryLdapDn = (LdapDN) entryDn;
+        
         /* =====================================================================
          * NOTE: Regarding the overall approach, we try to narrow down the
          * possibilities by slowly pruning relative names off of the entryDn.
@@ -182,7 +189,7 @@ public class SubtreeEvaluator
          */
         if ( subtree.getRefinement() != null )
         {
-            return evaluator.evaluate( subtree.getRefinement(), objectClasses );
+            return evaluator.evaluate( subtree.getRefinement(), entryLdapDn.toNormName(), entry );
         }
 
         /*

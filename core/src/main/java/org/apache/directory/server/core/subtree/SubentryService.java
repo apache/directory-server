@@ -129,7 +129,7 @@ public class SubentryService extends BaseInterceptor
                 return attrRegistry.getNormalizerMapping();
             }
         }, attrRegistry.getNormalizerMapping() );
-        evaluator = new SubtreeEvaluator( factoryCfg.getRegistries().getOidRegistry() );
+        evaluator = new SubtreeEvaluator( factoryCfg.getRegistries().getOidRegistry(), factoryCfg.getRegistries().getAttributeTypeRegistry() );
 
         // prepare to find all subentries in all namingContexts
         Iterator suffixes = this.nexus.listSuffixes();
@@ -299,7 +299,6 @@ public class SubentryService extends BaseInterceptor
     public Attributes getSubentryAttributes( Name dn, Attributes entryAttrs ) throws NamingException
     {
         Attributes subentryAttrs = new LockableAttributesImpl();
-        Attribute objectClasses = entryAttrs.get( "objectClass" );
         Iterator list = subentryCache.nameIterator();
         while ( list.hasNext() )
         {
@@ -310,7 +309,7 @@ public class SubentryService extends BaseInterceptor
             Subentry subentry = subentryCache.getSubentry( subentryDnStr );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
 
-            if ( evaluator.evaluate( ss, apDn, dn, objectClasses ) )
+            if ( evaluator.evaluate( ss, apDn, dn, entryAttrs ) )
             {                
                 Attribute operational;
                 
@@ -441,7 +440,7 @@ public class SubentryService extends BaseInterceptor
                 LdapDN dn = new LdapDN( result.getName() );
                 dn.normalize( attrRegistry.getNormalizerMapping() );
 
-                if ( evaluator.evaluate( ss, apName, dn, candidate.get( "objectClass" ) ) )
+                if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
                     nexus.modify( dn, getOperationalModsForAdd( candidate, operational ) );
                 }
@@ -459,7 +458,7 @@ public class SubentryService extends BaseInterceptor
                 Subentry subentry = subentryCache.getSubentry( subentryDnStr );
                 SubtreeSpecification ss = subentry.getSubtreeSpecification();
 
-                if ( evaluator.evaluate( ss, apDn, normName, objectClasses ) )
+                if ( evaluator.evaluate( ss, apDn, normName, entry ) )
                 {
                     Attribute operational;
                     
@@ -552,7 +551,7 @@ public class SubentryService extends BaseInterceptor
                 LdapDN dn = new LdapDN( result.getName() );
                 dn.normalize( attrRegistry.getNormalizerMapping() );
 
-                if ( evaluator.evaluate( ss, apName, dn, ServerUtils.getAttribute( objectClassType, candidate ) ) )
+                if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
                     nexus.modify( dn, getOperationalModsForRemove( name, candidate ) );
                 }
@@ -597,7 +596,6 @@ public class SubentryService extends BaseInterceptor
     private ModificationItem[] getModsOnEntryRdnChange( Name oldName, Name newName, Attributes entry )
         throws NamingException
     {
-        Attribute objectClasses = entry.get( "objectClass" );
         List modList = new ArrayList();
 
         /*
@@ -620,8 +618,8 @@ public class SubentryService extends BaseInterceptor
             Name apDn = new LdapDN( subentryDn );
             apDn.remove( apDn.size() - 1 );
             SubtreeSpecification ss = subentryCache.getSubentry( subentryDn ).getSubtreeSpecification();
-            boolean isOldNameSelected = evaluator.evaluate( ss, apDn, oldName, objectClasses );
-            boolean isNewNameSelected = evaluator.evaluate( ss, apDn, newName, objectClasses );
+            boolean isOldNameSelected = evaluator.evaluate( ss, apDn, oldName, entry );
+            boolean isNewNameSelected = evaluator.evaluate( ss, apDn, newName, entry );
 
             if ( isOldNameSelected == isNewNameSelected )
             {
@@ -706,7 +704,7 @@ public class SubentryService extends BaseInterceptor
                 LdapDN dn = new LdapDN( result.getName() );
                 dn.normalize( attrRegistry.getNormalizerMapping() );
 
-                if ( evaluator.evaluate( ss, apName, dn, ServerUtils.getAttribute( objectClassType, candidate ) ) )
+                if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
                     nexus.modify( dn, getOperationalModsForReplace( name, newName, subentry, candidate ) );
                 }
@@ -778,7 +776,7 @@ public class SubentryService extends BaseInterceptor
                 LdapDN dn = new LdapDN( result.getName() );
                 dn.normalize( attrRegistry.getNormalizerMapping() );
 
-                if ( evaluator.evaluate( ss, apName, dn, ServerUtils.getAttribute( objectClassType, candidate ) ) )
+                if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
                     nexus.modify( dn, getOperationalModsForReplace( oriChildName, newName, subentry,
                         candidate ) );
@@ -846,7 +844,7 @@ public class SubentryService extends BaseInterceptor
                 LdapDN dn = new LdapDN( result.getName() );
                 dn.normalize( attrRegistry.getNormalizerMapping() );
 
-                if ( evaluator.evaluate( ss, apName, dn, candidate.get( "objectClass" ) ) )
+                if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
                     nexus.modify( dn, getOperationalModsForReplace( oriChildName, newName, subentry,
                         candidate ) );
@@ -995,7 +993,7 @@ public class SubentryService extends BaseInterceptor
                 LdapDN dn = new LdapDN( result.getName() );
                 dn.normalize( attrRegistry.getNormalizerMapping() );
 
-                if ( evaluator.evaluate( ssOld, apName, dn, ServerUtils.getAttribute( objectClassType, candidate ) ) )
+                if ( evaluator.evaluate( ssOld, apName, dn, candidate ) )
                 {
                     nexus.modify( dn, getOperationalModsForRemove( name, candidate ) );
                 }
@@ -1014,7 +1012,7 @@ public class SubentryService extends BaseInterceptor
                 LdapDN dn = new LdapDN( result.getName() );
                 dn.normalize( attrRegistry.getNormalizerMapping() );
 
-                if ( evaluator.evaluate( ssNew, apName, dn, ServerUtils.getAttribute( objectClassType, candidate ) ) )
+                if ( evaluator.evaluate( ssNew, apName, dn, candidate ) )
                 {
                     nexus.modify( dn, getOperationalModsForAdd( candidate, operational ) );
                 }
@@ -1080,7 +1078,7 @@ public class SubentryService extends BaseInterceptor
                 LdapDN dn = new LdapDN( result.getName() );
                 dn.normalize( attrRegistry.getNormalizerMapping() );
 
-                if ( evaluator.evaluate( ssOld, apName, dn, candidate.get( "objectClass" ) ) )
+                if ( evaluator.evaluate( ssOld, apName, dn, candidate ) )
                 {
                     nexus.modify( dn, getOperationalModsForRemove( name, candidate ) );
                 }
@@ -1099,7 +1097,7 @@ public class SubentryService extends BaseInterceptor
                 LdapDN dn = new LdapDN( result.getName() );
                 dn.normalize( attrRegistry.getNormalizerMapping() );
 
-                if ( evaluator.evaluate( ssNew, apName, dn, candidate.get( "objectClass" ) ) )
+                if ( evaluator.evaluate( ssNew, apName, dn, candidate ) )
                 {
                     nexus.modify( dn, getOperationalModsForAdd( candidate, operational ) );
                 }

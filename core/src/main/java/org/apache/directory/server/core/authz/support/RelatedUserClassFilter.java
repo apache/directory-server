@@ -152,7 +152,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
         for ( Iterator i = subtree.getSubtreeSpecifications().iterator(); i.hasNext(); )
         {
             SubtreeSpecification subtreeSpec = ( SubtreeSpecification ) i.next();
-            if ( subtreeEvaluator.evaluate( subtreeSpec, ROOTDSE_NAME, userName, userEntry.get( "userClass" ) ) )
+            if ( subtreeEvaluator.evaluate( subtreeSpec, ROOTDSE_NAME, userName, userEntry ) )
             {
                 return true;
             }

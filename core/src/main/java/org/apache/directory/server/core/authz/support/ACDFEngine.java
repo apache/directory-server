@@ -78,7 +78,7 @@ public class ACDFEngine
     public ACDFEngine(OidRegistry oidRegistry, AttributeTypeRegistry attrTypeRegistry) throws NamingException
     {
         Evaluator entryEvaluator = new ExpressionEvaluator( oidRegistry, attrTypeRegistry );
-        SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( oidRegistry );
+        SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( oidRegistry, attrTypeRegistry );
         RefinementEvaluator refinementEvaluator = new RefinementEvaluator( new RefinementLeafEvaluator( oidRegistry ) );
 
         filters = new ACITupleFilter[]
