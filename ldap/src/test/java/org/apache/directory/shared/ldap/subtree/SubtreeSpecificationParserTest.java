@@ -29,6 +29,8 @@ import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
@@ -89,6 +91,10 @@ public class SubtreeSpecificationParserTest extends TestCase
 
     /** An invalid specification with completely unrelated content */
     private static final String INVALID_SILLY_THING = "How much wood would a wood chuck chuck if a wood chuck would chuck wood?";
+    
+    /** A valid specification with filter expression */
+    private static final String SPEC_WITH_FILTER = "{ base \"ou=system\", specificationFilter (&(cn=test)(sn=test)) }";
+
     
     /** the ss parser wrapper */
     SubtreeSpecificationParser parser;
@@ -334,6 +340,19 @@ public class SubtreeSpecificationParserTest extends TestCase
         {
             assertNotNull( e );
         }
+    }
+    
+    
+    /**
+     * Tests the parser with a valid specification with refinement set.
+     */
+    public void testSpecWithFilter() throws Exception
+    {
+        SubtreeSpecification ss = parser.parse( SPEC_WITH_FILTER );
+
+        ExprNode filter = new FilterParserImpl().parse( "(&(cn=test)(sn=test))" );
+
+        assertEquals( filter, ss.getRefinement() );
     }
 
 

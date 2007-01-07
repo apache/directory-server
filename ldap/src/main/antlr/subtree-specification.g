@@ -33,7 +33,9 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.AbstractExprNode;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
@@ -76,6 +78,8 @@ options
 
 {
     private static final Logger log = LoggerFactory.getLogger( AntlrSubtreeSpecificationParser.class );
+    
+    private final FilterParserImpl filterParser = new FilterParserImpl();
     
     private NormalizerMappingResolver resolver;
     
@@ -292,15 +296,32 @@ ss_maximum
 ss_specificationFilter
 {
     log.debug( "entered ss_specificationFilter()" );
-    ExprNode theRefinement = null;
+    ExprNode filterExpr = null;
 }
     :
-    ID_specificationFilter ( SP )+ theRefinement=refinement
-    {
-    	// TODO need to normalize refinement filter
-        ssModifier.setRefinement( theRefinement );
-    }
+    ID_specificationFilter 
+    ( SP )+ 
+    (
+        ( filterExpr=refinement )
+        |
+        ( filterExpr=filter )
+    )
+    { ssModifier.setRefinement( filterExpr ); }
     ;
+    
+    
+filter returns [ ExprNode filterExpr = null; ]
+{
+	log.debug( "entered filter()" );
+}
+	:
+	( filterToken:FILTER { filterExpr=filterParser.parse( filterToken.getText() ); } )
+	;
+	exception
+    catch [Exception e]
+    {
+        throw new RecognitionException( "filterParser failed. " + e.getMessage() );
+    }
     
 distinguishedName returns [ LdapDN name ] 
 {
@@ -457,7 +478,7 @@ class AntlrSubtreeSpecificationLexer extends Lexer;
 
 options
 {
-    k = 2;
+    k = 5;
 
     charVocabulary = '\u0001'..'\u0127';
 }
@@ -545,3 +566,7 @@ protected SAFEUTF8CHAR:
     '\u3400'..'\u3d2d' |
     '\u4e00'..'\u9fff' |
     '\uf900'..'\ufaff' ;
+
+FILTER : '(' ( ( '&' (FILTER)+ ) | ( '|' (FILTER)+ ) | ( '!' FILTER ) | FILTER_VALUE ) ')' ;
+
+protected FILTER_VALUE : (options{greedy=true;}: ~( ')' | '(' | '&' | '|' | '!' ) ( ~(')') )* ) ;
