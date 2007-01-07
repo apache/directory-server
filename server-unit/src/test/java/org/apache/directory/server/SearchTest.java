@@ -833,4 +833,57 @@ public class SearchTest extends AbstractServerTest
         assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
     }
     
+    
+//  Testcase for DIRSERVER-816
+//    public void testSearchAttrC_L() throws NamingException
+//    {
+//        // create administrative area
+//        Attributes aaAttrs = new BasicAttributes();
+//        Attribute aaObjectClass = new BasicAttribute( "objectClass" );
+//        aaObjectClass.add( "top" );
+//        aaObjectClass.add( "organizationalUnit" );
+//        aaObjectClass.add( "extensibleObject" );
+//        aaAttrs.put( aaObjectClass );
+//        aaAttrs.put( "ou", "Collective Test" );
+//        aaAttrs.put( "administrativeRole", "collectiveAttributeSpecificArea" );
+//        DirContext aaCtx = ctx.createSubcontext( "ou=Collective Area", aaAttrs );
+//        
+//        // create subentry
+//        Attributes subentry = new BasicAttributes();
+//        Attribute objectClass = new BasicAttribute( "objectClass" );
+//        objectClass.add( "top" );
+//        objectClass.add( "subentry" );
+//        objectClass.add( "collectiveAttributeSubentry" );
+//        subentry.put( objectClass );
+//        subentry.put( "c-l", "Munich" );
+//        subentry.put( "cn", "Collective Subentry" );
+//        subentry.put( "subtreeSpecification", "{ }" );
+//        aaCtx.createSubcontext( "cn=Collective Subentry", aaAttrs );
+//        
+//        // create real enty
+//        Attributes attributes = this.getPersonAttributes( "Bush", "Kate Bush" );
+//        aaCtx.createSubcontext( "cn=Kate Bush", attributes );
+//        
+//        // search
+//        SearchControls controls = new SearchControls();
+//        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+//        controls.setReturningAttributes( new String[]{"c-l"} );
+//        
+//        NamingEnumeration res = aaCtx.search( "", "(cn=Kate Bush)", controls );
+//        
+//        assertTrue( res.hasMore() );
+//        
+//        SearchResult result = ( SearchResult ) res.next();
+//        
+//        // ensure that result is not null
+//        assertNotNull( result );
+//        
+//        Attributes attrs = result.getAttributes();
+//        
+//        // ensure the one and only attribute is "c-l"
+//        assertEquals( 1, attrs.size() );
+//        assertNotNull( attrs.get("c-l") );
+//        assertEquals( 1, attrs.get("c-l").size() );
+//        assertEquals( "Munich", (String)attrs.get("c-l").get() );
+//    }
 }
