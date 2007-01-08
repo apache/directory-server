@@ -27,8 +27,6 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.LdapContext;
@@ -36,6 +34,8 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -149,13 +149,13 @@ public abstract class AbstractServerTriggerServiceTest extends AbstractServerTes
         Attribute administrativeRole = ap.get( "administrativeRole" );
         if ( administrativeRole == null || !administrativeRole.contains( SubentryService.TRIGGER_AREA ) )
         {
-            Attributes changes = new BasicAttributes( "administrativeRole", SubentryService.TRIGGER_AREA, true );
+            Attributes changes = new AttributesImpl( "administrativeRole", SubentryService.TRIGGER_AREA, true );
             adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
 
         // now add the Trigger subentry below ou=system
-        Attributes subentry = new BasicAttributes( "cn", cn, true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
+        Attributes subentry = new AttributesImpl( "cn", cn, true );
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         subentry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
@@ -176,7 +176,7 @@ public abstract class AbstractServerTriggerServiceTest extends AbstractServerTes
      */
     public void addEntryTrigger( LdapContext adminCtx, Name rdn, String triggerSpec ) throws NamingException
     {
-        Attributes changes = new BasicAttributes( "entryTriggerSpecification", triggerSpec, true );
+        Attributes changes = new AttributesImpl( "entryTriggerSpecification", triggerSpec, true );
         adminCtx.modifyAttributes( rdn, DirContext.ADD_ATTRIBUTE, changes );
     }
 

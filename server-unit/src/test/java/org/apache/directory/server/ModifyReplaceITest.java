@@ -27,15 +27,15 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
@@ -51,8 +51,8 @@ public class ModifyReplaceITest extends AbstractServerTest
 
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attrs = new BasicAttributes();
-        Attribute ocls = new BasicAttribute( "objectClass" );
+        Attributes attrs = new AttributesImpl();
+        Attribute ocls = new AttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         attrs.put( ocls );
@@ -94,10 +94,10 @@ public class ModifyReplaceITest extends AbstractServerTest
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext( rdn, attrs );
 
-        Attribute attr = new BasicAttribute( "description" );
-        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        Attribute attr = new AttributeImpl( "description" );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
 
-        ctx.modifyAttributes( rdn, new ModificationItem[]
+        ctx.modifyAttributes( rdn, new ModificationItemImpl[]
             { item } );
 
         SearchControls sctls = new SearchControls();
@@ -128,10 +128,10 @@ public class ModifyReplaceITest extends AbstractServerTest
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext( rdn, attrs );
 
-        Attribute attr = new BasicAttribute( "numberOfOctaves" );
-        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        Attribute attr = new AttributeImpl( "numberOfOctaves" );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
 
-        ctx.modifyAttributes( rdn, new ModificationItem[]
+        ctx.modifyAttributes( rdn, new ModificationItemImpl[]
             { item } );
 
         SearchControls sctls = new SearchControls();

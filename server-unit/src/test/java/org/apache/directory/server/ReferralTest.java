@@ -35,16 +35,16 @@ import javax.naming.PartialResultException;
 import javax.naming.ReferralException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
@@ -63,8 +63,8 @@ public class ReferralTest extends AbstractServerTest
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new BasicAttributes();
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl();
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );
@@ -131,7 +131,7 @@ public class ReferralTest extends AbstractServerTest
         // -------------------------------------------------------------------
 
         // Add a referral entry ( should be fine with or without the control )
-        Attributes referral = new BasicAttributes( "objectClass", "top", true );
+        Attributes referral = new AttributesImpl( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "referral" );
         referral.get( "objectClass" ).add( "extensibleObject" );
         referral.put( "ref", ref0 );
@@ -205,7 +205,7 @@ public class ReferralTest extends AbstractServerTest
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
+        Attributes userEntry = new AttributesImpl( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "karasulu" );
         userEntry.put( "cn", "alex karasulu" );
@@ -236,7 +236,7 @@ public class ReferralTest extends AbstractServerTest
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
+        Attributes userEntry = new AttributesImpl( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "karasulu" );
         userEntry.put( "cn", "alex karasulu" );
@@ -324,7 +324,7 @@ public class ReferralTest extends AbstractServerTest
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
-            td.refCtx.modifyAttributes( "cn=alex karasulu", DirContext.ADD_ATTRIBUTE, new BasicAttributes(
+            td.refCtx.modifyAttributes( "cn=alex karasulu", DirContext.ADD_ATTRIBUTE, new AttributesImpl(
                 "description", "just some text", true ) );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -352,7 +352,7 @@ public class ReferralTest extends AbstractServerTest
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
-            td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", DirContext.ADD_ATTRIBUTE, new BasicAttributes(
+            td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", DirContext.ADD_ATTRIBUTE, new AttributesImpl(
                 "description", "just some text", true ) );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -380,8 +380,8 @@ public class ReferralTest extends AbstractServerTest
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
-            ModificationItem[] mods = new ModificationItem[]
-                { new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
+            ModificationItemImpl[] mods = new ModificationItemImpl[]
+                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new AttributeImpl( "description", "just some text" ) ) };
             td.refCtx.modifyAttributes( "cn=alex karasulu", mods );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -409,8 +409,8 @@ public class ReferralTest extends AbstractServerTest
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
-            ModificationItem[] mods = new ModificationItem[]
-                { new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
+            ModificationItemImpl[] mods = new ModificationItemImpl[]
+                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new AttributeImpl( "description", "just some text" ) ) };
             td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", mods );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -728,7 +728,7 @@ public class ReferralTest extends AbstractServerTest
     public void createLocalUser() throws Exception
     {
         LdapContext userCtx = null;
-        Attributes referral = new BasicAttributes( "objectClass", "top", true );
+        Attributes referral = new AttributesImpl( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "person" );
         referral.put( "cn", "akarasulu" );
         referral.put( "sn", "karasulu" );
@@ -757,7 +757,7 @@ public class ReferralTest extends AbstractServerTest
     public void createDeepLocalUser() throws Exception
     {
         LdapContext userCtx = null;
-        Attributes referral = new BasicAttributes( "objectClass", "top", true );
+        Attributes referral = new AttributesImpl( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "person" );
         referral.put( "cn", "akarasulu" );
         referral.put( "sn", "karasulu" );
@@ -778,7 +778,7 @@ public class ReferralTest extends AbstractServerTest
         }
         try
         {
-            Attributes ouAttrs = new BasicAttributes( "objectClass", "top", true );
+            Attributes ouAttrs = new AttributesImpl( "objectClass", "top", true );
             ouAttrs.get( "objectClass" ).add( "organizationalUnit" );
             ouAttrs.put( "ou", "deep" );
             td.rootCtx.createSubcontext( "ou=deep", ouAttrs );

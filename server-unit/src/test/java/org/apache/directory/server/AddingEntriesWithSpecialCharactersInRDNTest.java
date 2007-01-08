@@ -26,14 +26,14 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -74,8 +74,8 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
 
    protected Attributes getPersonAttributes(String sn, String cn) {
 
-       Attributes attrs = new BasicAttributes();
-       Attribute ocls = new BasicAttribute("objectClass");
+       Attributes attrs = new AttributesImpl();
+       Attribute ocls = new AttributeImpl("objectClass");
        ocls.add("top");
        ocls.add("person");
        attrs.put(ocls);
@@ -87,8 +87,8 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
 
    protected Attributes getOrgUnitAttributes(String ou) {
 
-       Attributes attrs = new BasicAttributes();
-       Attribute ocls = new BasicAttribute("objectClass");
+       Attributes attrs = new AttributesImpl();
+       Attribute ocls = new AttributeImpl("objectClass");
        ocls.add("top");
        ocls.add("organizationalUnit");
        attrs.put(ocls);

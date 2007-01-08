@@ -28,6 +28,8 @@ import org.apache.directory.server.core.configuration.MutablePartitionConfigurat
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
@@ -41,7 +43,12 @@ import javax.naming.Context;
 import javax.naming.NoPermissionException;
 import javax.naming.NamingEnumeration;
 import javax.naming.OperationNotSupportedException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 
 
@@ -83,8 +90,8 @@ public class MiscTest extends AbstractServerTest
             partitions.addAll( configuration.getPartitionConfigurations() );
             MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
             partition.setSuffix( "dc=aPache,dc=org" );
-            Attributes entry = new BasicAttributes( "dc", "aPache", true );
-            Attribute oc = new BasicAttribute( "objectClass" );
+            Attributes entry = new AttributesImpl( "dc", "aPache", true );
+            Attribute oc = new AttributeImpl( "objectClass" );
             entry.put( oc );
             oc.add( "top" );
             oc.add( "domain" );
@@ -104,8 +111,8 @@ public class MiscTest extends AbstractServerTest
             partitions.addAll( configuration.getPartitionConfigurations() );
             MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
             partition.setSuffix( "dc=apache,dc=org" );
-            Attributes entry = new BasicAttributes( "dc", "apache", true );
-            Attribute oc = new BasicAttribute( "objectClass" );
+            Attributes entry = new AttributesImpl( "dc", "apache", true );
+            Attribute oc = new AttributeImpl( "objectClass" );
             entry.put( oc );
             oc.add( "top" );
             oc.add( "domain" );
@@ -175,8 +182,8 @@ public class MiscTest extends AbstractServerTest
         {
         }
 
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass" );
+        Attributes attrs = new AttributesImpl( true );
+        Attribute oc = new AttributeImpl( "objectClass" );
         attrs.put( oc );
         oc.add( "top" );
         oc.add( "organizationalUnit" );
@@ -273,8 +280,8 @@ public class MiscTest extends AbstractServerTest
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
-        Attributes attributes = new BasicAttributes();
-        Attribute objectClass = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
         attributes.put( objectClass );
@@ -312,8 +319,8 @@ public class MiscTest extends AbstractServerTest
         Attributes attrs = ctx.getAttributes( "" );
         assertTrue( attrs.get( "dc" ).get().equals( "aPache" ) );
 
-        Attributes user = new BasicAttributes( "cn", "Kate Bush", true );
-        Attribute oc = new BasicAttribute( "objectClass" );
+        Attributes user = new AttributesImpl( "cn", "Kate Bush", true );
+        Attribute oc = new AttributeImpl( "objectClass" );
         oc.add( "top" );
         oc.add( "person" );
         oc.add( "organizationalPerson" );
@@ -425,8 +432,8 @@ public class MiscTest extends AbstractServerTest
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         InitialLdapContext ctx = new InitialLdapContext( env, null );
 
-        Attributes user = new BasicAttributes( "cn", "Kate Bush", true );
-        Attribute oc = new BasicAttribute( "objectClass" );
+        Attributes user = new AttributesImpl( "cn", "Kate Bush", true );
+        Attribute oc = new AttributeImpl( "objectClass" );
         oc.add( "top" );
         oc.add( "person" );
         oc.add( "organizationalPerson" );

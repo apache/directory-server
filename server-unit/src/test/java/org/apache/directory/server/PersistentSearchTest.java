@@ -26,8 +26,6 @@ import java.util.Hashtable;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchResult;
@@ -46,6 +44,8 @@ import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControl;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlDecoder;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,8 +70,8 @@ public class PersistentSearchTest extends AbstractServerTest
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new BasicAttributes();
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl();
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );
@@ -139,7 +139,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
         Thread.sleep( 250 );
 
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "description", PERSON_DESCRIPTION,
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
             true ) );
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
@@ -270,7 +270,7 @@ public class PersistentSearchTest extends AbstractServerTest
         }
         Thread.sleep( 250 );
 
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "description", PERSON_DESCRIPTION,
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
             true ) );
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
@@ -451,7 +451,7 @@ public class PersistentSearchTest extends AbstractServerTest
         assertNull( listener.result );
 
         // thread is still waiting for notifications try a modify
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "description", PERSON_DESCRIPTION,
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
             true ) );
         start = System.currentTimeMillis();
         while ( t.isAlive() )
@@ -593,7 +593,7 @@ public class PersistentSearchTest extends AbstractServerTest
         // assertNull( listener.result );
 
         // thread is still waiting for notifications try a modify
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "description", PERSON_DESCRIPTION,
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
             true ) );
         start = System.currentTimeMillis();
         while ( t.isAlive() )

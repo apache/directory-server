@@ -29,13 +29,13 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -53,7 +53,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
 
     public void setUp() throws Exception
     {
-        BasicAttributes attrs;
+        Attributes attrs;
         Set indexedAttrs;
         Set pcfgs = new HashSet();
 
@@ -69,13 +69,13 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         indexedAttrs.add( "objectClass" );
         pcfg.setIndexedAttributes( indexedAttrs );
 
-        attrs = new BasicAttributes( true );
-        BasicAttribute attr = new BasicAttribute( "objectClass" );
+        attrs = new AttributesImpl( true );
+        Attribute attr = new AttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "organizationalUnit" );
         attr.add( "extensibleObject" );
         attrs.put( attr );
-        attr = new BasicAttribute( "ou" );
+        attr = new AttributeImpl( "ou" );
         attr.add( "testing" );
         attrs.put( attr );
         pcfg.setContextEntry( attrs );
@@ -93,13 +93,13 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         indexedAttrs.add( "objectClass" );
         pcfg.setIndexedAttributes( indexedAttrs );
 
-        attrs = new BasicAttributes( true );
-        attr = new BasicAttribute( "objectClass" );
+        attrs = new AttributesImpl( true );
+        attr = new AttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "domain" );
         attr.add( "extensibleObject" );
         attrs.put( attr );
-        attr = new BasicAttribute( "dc" );
+        attr = new AttributeImpl( "dc" );
         attr.add( "example" );
         attrs.put( attr );
         pcfg.setContextEntry( attrs );
@@ -116,13 +116,13 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         indexedAttrs.add( "objectClass" );
         pcfg.setIndexedAttributes( indexedAttrs );
 
-        attrs = new BasicAttributes( true );
-        attr = new BasicAttribute( "objectClass" );
+        attrs = new AttributesImpl( true );
+        attr = new AttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "domain" );
         attr.add( "extensibleObject" );
         attrs.put( attr );
-        attr = new BasicAttribute( "dc" );
+        attr = new AttributeImpl( "dc" );
         attr.add( "MixedCase" );
         attrs.put( attr );
         pcfg.setContextEntry( attrs );

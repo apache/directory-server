@@ -28,12 +28,12 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcedureUtils;
 
 
@@ -78,8 +78,8 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, BackupUtilities.class );
         
         // Create a container for backing up deleted entries.
-        Attributes backupContext = new BasicAttributes( "ou", "backupContext", true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
+        Attributes backupContext = new AttributesImpl( "ou", "backupContext", true );
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         backupContext.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
@@ -90,8 +90,8 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
             "AFTER Delete CALL \"" + BackupUtilities.class.getName() + ".backupDeleted\" ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry )" );
         
         // Create a test entry which is selected by the Trigger Subentry.
-        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
-        objectClass = new BasicAttribute( "objectClass" );
+        Attributes testEntry = new AttributesImpl( "ou", "testou", true );
+        objectClass = new AttributeImpl( "objectClass" );
         testEntry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
