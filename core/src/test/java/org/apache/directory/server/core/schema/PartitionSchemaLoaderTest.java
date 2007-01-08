@@ -67,19 +67,18 @@ public class PartitionSchemaLoaderTest extends TestCase
     private MutableStartupConfiguration startupConfiguration = new MutableStartupConfiguration();
     private DirectoryServiceConfiguration configuration;
     private JdbmPartition schemaPartition;
-    
-    
+
+
     public void setUp() throws Exception
     {
         super.setUp();
 
         // setup working directory
         File workingDirectory = new File( System.getProperty( "workingDirectory" ) );
-        if ( workingDirectory.exists() )
+        if ( ! workingDirectory.exists() )
         {
-            FileUtils.deleteDirectory( workingDirectory );
+            workingDirectory.mkdirs();
         }
-        workingDirectory.mkdirs();
         startupConfiguration.setWorkingDirectory( workingDirectory );
         
         // --------------------------------------------------------------------
