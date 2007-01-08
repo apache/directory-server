@@ -28,14 +28,14 @@ import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -91,8 +91,8 @@ public class DeletePrincipal implements ContextOperation
         String[] attrIDs =
             { KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION, KerberosAttribute.TYPE, KerberosAttribute.KEY };
 
-        Attributes matchAttrs = new BasicAttributes( true );
-        matchAttrs.put( new BasicAttribute( KerberosAttribute.PRINCIPAL, principal ) );
+        Attributes matchAttrs = new AttributesImpl( true );
+        matchAttrs.put( new AttributeImpl( KerberosAttribute.PRINCIPAL, principal ) );
 
         // Search for objects that have those matching attributes
         NamingEnumeration answer = ctx.search( searchBaseDn, matchAttrs, attrIDs );

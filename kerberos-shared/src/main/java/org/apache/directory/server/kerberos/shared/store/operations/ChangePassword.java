@@ -28,16 +28,16 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
@@ -73,9 +73,9 @@ public class ChangePassword implements ContextOperation
             return null;
         }
 
-        ModificationItem[] mods = new ModificationItem[1];
-        Attribute newKeyAttribute = new BasicAttribute( "krb5key", newKey.getEncoded() );
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, newKeyAttribute );
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        Attribute newKeyAttribute = new AttributeImpl( "krb5key", newKey.getEncoded() );
+        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, newKeyAttribute );
 
         String dn = null;
 
@@ -99,8 +99,8 @@ public class ChangePassword implements ContextOperation
         String[] attrIDs =
             { KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION, KerberosAttribute.TYPE, KerberosAttribute.KEY };
 
-        Attributes matchAttrs = new BasicAttributes( true );
-        matchAttrs.put( new BasicAttribute( KerberosAttribute.PRINCIPAL, principal ) );
+        Attributes matchAttrs = new AttributesImpl( true );
+        matchAttrs.put( new AttributeImpl( KerberosAttribute.PRINCIPAL, principal ) );
 
         NamingEnumeration answer = ctx.search( "", matchAttrs, attrIDs );
 

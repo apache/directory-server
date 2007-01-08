@@ -28,13 +28,13 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.spi.DirStateFactory;
 
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -54,7 +54,7 @@ public class PrincipalStateFactory implements DirStateFactory
             Attributes outAttrs;
             if ( inAttrs == null )
             {
-                outAttrs = new BasicAttributes( true );
+                outAttrs = new AttributesImpl( true );
             }
             else
             {
@@ -66,7 +66,7 @@ public class PrincipalStateFactory implements DirStateFactory
 
             if ( oc == null )
             {
-                oc = new BasicAttribute( "objectClass" );
+                oc = new AttributeImpl( "objectClass" );
                 outAttrs.put( oc );
             }
 

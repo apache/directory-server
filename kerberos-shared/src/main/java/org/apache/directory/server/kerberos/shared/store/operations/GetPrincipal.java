@@ -26,8 +26,6 @@ import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchResult;
@@ -39,6 +37,8 @@ import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -80,8 +80,8 @@ public class GetPrincipal implements ContextOperation
                 KerberosAttribute.SAM_TYPE, KerberosAttribute.ACCOUNT_DISABLED, 
                 KerberosAttribute.ACCOUNT_EXPIRATION_TIME, KerberosAttribute.ACCOUNT_LOCKEDOUT };
 
-        Attributes matchAttrs = new BasicAttributes( true );
-        matchAttrs.put( new BasicAttribute( KerberosAttribute.PRINCIPAL, principal.getName() ) );
+        Attributes matchAttrs = new AttributesImpl( true );
+        matchAttrs.put( new AttributeImpl( KerberosAttribute.PRINCIPAL, principal.getName() ) );
 
         PrincipalStoreEntry entry = null;
 
