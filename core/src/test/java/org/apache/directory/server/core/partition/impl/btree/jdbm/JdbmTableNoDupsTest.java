@@ -90,6 +90,14 @@ public class JdbmTableNoDupsTest extends TestCase implements Serializable
         table.put( new BigInteger( "5" ), BigInteger.ONE );
     }
 
+    protected void tearDown() throws Exception
+    {
+        String tmp = tempFile.getAbsolutePath();
+        new File( tmp ).delete();
+        new File( tmp + ".db" ).delete();
+        new File( tmp + ".lg" ).delete();
+    }
+
     
     public void testCatchAll() throws Exception
     {
