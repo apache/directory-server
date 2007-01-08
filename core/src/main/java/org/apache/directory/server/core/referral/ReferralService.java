@@ -35,7 +35,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -65,6 +64,7 @@ import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -701,7 +701,7 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    private void checkModify( LdapDN name, ModificationItem[] mods ) throws NamingException
+    private void checkModify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
         boolean isTargetReferral = lut.isReferral( name );
 
@@ -765,7 +765,7 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();

@@ -26,7 +26,6 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
@@ -36,7 +35,8 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -115,7 +115,7 @@ public class MetaSyntaxHandler implements SchemaChangeHandler
     }
 
 
-    public void modify( LdapDN name, ModificationItem[] mods, Attributes entry, Attributes targetEntry )
+    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry )
         throws NamingException
     {
         modify( name, entry, targetEntry );
@@ -193,7 +193,7 @@ public class MetaSyntaxHandler implements SchemaChangeHandler
         Schema schema = getSchema( name );
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRdn );
-        targetEntry.put( new LockableAttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
+        targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
         if ( ! schema.isDisabled() )
         {
             Syntax syntax = factory.getSyntax( targetEntry, targetRegistries );
@@ -223,7 +223,7 @@ public class MetaSyntaxHandler implements SchemaChangeHandler
         Schema newSchema = getSchema( newParentName );
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRn );
-        targetEntry.put( new LockableAttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
+        targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
         Syntax syntax = factory.getSyntax( targetEntry, targetRegistries );
 
         if ( ! oldSchema.isDisabled() )

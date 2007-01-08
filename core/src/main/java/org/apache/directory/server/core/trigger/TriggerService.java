@@ -34,7 +34,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
@@ -49,6 +48,7 @@ import org.apache.directory.server.core.sp.LdapClassLoader;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
@@ -327,7 +327,7 @@ public class TriggerService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, LdapDN normName, ModificationItem[] mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN normName, ModificationItemImpl[] mods ) throws NamingException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )

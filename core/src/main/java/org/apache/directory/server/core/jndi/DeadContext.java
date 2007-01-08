@@ -41,6 +41,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.shared.ldap.exception.LdapServiceUnavailableException;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
@@ -113,6 +114,12 @@ public class DeadContext implements LdapContext, EventDirContext
     }
 
 
+    public void modifyAttributes( String name, ModificationItem[] mods ) throws NamingException
+    {
+        throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
+    }
+
+
     public Attributes getAttributes( Name name ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
@@ -124,6 +131,11 @@ public class DeadContext implements LdapContext, EventDirContext
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
+
+    public void modifyAttributes( Name name, ModificationItem[] mods ) throws NamingException
+    {
+        throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
+    }
 
     public DirContext getSchema( String name ) throws NamingException
     {
@@ -149,13 +161,13 @@ public class DeadContext implements LdapContext, EventDirContext
     }
 
 
-    public void modifyAttributes( String name, ModificationItem[] mods ) throws NamingException
+    public void modifyAttributes( String name, ModificationItemImpl[] mods ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public void modifyAttributes( Name name, ModificationItem[] mods ) throws NamingException
+    public void modifyAttributes( Name name, ModificationItemImpl[] mods ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }

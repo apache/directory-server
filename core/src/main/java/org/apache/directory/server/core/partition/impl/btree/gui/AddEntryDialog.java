@@ -40,7 +40,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +71,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
     private JButton m_cancelBut = new JButton();
     private JPopupMenu m_popup;
 
-    private Attributes m_childEntry = new LockableAttributesImpl();
+    private Attributes m_childEntry = new AttributesImpl();
 
 
     /**

@@ -33,7 +33,6 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
@@ -48,6 +47,7 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import org.slf4j.Logger;
@@ -353,7 +353,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
     
-    public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
         if ( IS_DEBUG )
         {

@@ -23,16 +23,20 @@ package org.apache.directory.server.core.subtree;
 import junit.framework.TestCase;
 
 import javax.naming.NamingException;
-import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.Attribute;
 
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
-import org.apache.directory.server.schema.bootstrap.*;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -97,7 +101,7 @@ public class RefinementLeafEvaluatorTest extends TestCase
      */
     public void testForBadArguments() throws Exception
     {
-        BasicAttribute objectClasses = null;
+        Attribute objectClasses = null;
 
         try
         {
@@ -137,7 +141,7 @@ public class RefinementLeafEvaluatorTest extends TestCase
 
         try
         {
-            objectClasses = new BasicAttribute( "incorrectAttrId" );
+            objectClasses = new AttributeImpl( "incorrectAttrId" );
             assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "", AssertionEnum.EQUALITY ), objectClasses ) );
             fail( "should never get here due to an IAE" );
         }
@@ -149,44 +153,44 @@ public class RefinementLeafEvaluatorTest extends TestCase
 
     public void testMatchByName() throws Exception
     {
-        BasicAttribute objectClasses = null;
+        Attribute objectClasses = null;
 
         // positive test
-        objectClasses = new BasicAttribute( "objectClass", "person" );
+        objectClasses = new AttributeImpl( "objectClass", "person" );
         assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", AssertionEnum.EQUALITY ), objectClasses ) );
 
-        objectClasses = new BasicAttribute( "objectClass" );
+        objectClasses = new AttributeImpl( "objectClass" );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
         assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", AssertionEnum.EQUALITY ), objectClasses ) );
 
         // negative tests
-        objectClasses = new BasicAttribute( "objectClass", "person" );
+        objectClasses = new AttributeImpl( "objectClass", "person" );
         assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "blah", AssertionEnum.EQUALITY ), objectClasses ) );
 
-        objectClasses = new BasicAttribute( "objectClass", "blah" );
+        objectClasses = new AttributeImpl( "objectClass", "blah" );
         assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "person", AssertionEnum.EQUALITY ), objectClasses ) );
     }
 
 
     public void testMatchByOID() throws Exception
     {
-        BasicAttribute objectClasses = null;
+        Attribute objectClasses = null;
 
         // positive test
-        objectClasses = new BasicAttribute( "objectClass", "person" );
+        objectClasses = new AttributeImpl( "objectClass", "person" );
         assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", AssertionEnum.EQUALITY ), objectClasses ) );
 
-        objectClasses = new BasicAttribute( "objectClass" );
+        objectClasses = new AttributeImpl( "objectClass" );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
         assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", AssertionEnum.EQUALITY ), objectClasses ) );
 
         // negative tests
-        objectClasses = new BasicAttribute( "objectClass", "person" );
+        objectClasses = new AttributeImpl( "objectClass", "person" );
         assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", AssertionEnum.EQUALITY ), objectClasses ) );
 
-        objectClasses = new BasicAttribute( "objectClass", "blah" );
+        objectClasses = new AttributeImpl( "objectClass", "blah" );
         assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", AssertionEnum.EQUALITY ), objectClasses ) );
     }
 }

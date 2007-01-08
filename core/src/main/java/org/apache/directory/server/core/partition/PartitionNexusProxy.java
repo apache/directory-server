@@ -20,7 +20,13 @@
 package org.apache.directory.server.core.partition;
 
 
-import java.util.*; 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -28,7 +34,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ServiceUnavailableException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
@@ -48,6 +53,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -372,13 +378,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void modify( LdapDN name, ModificationItem[] mods ) throws NamingException
+    public void modify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
         modify( name, mods, null );
     }
 
 
-    public void modify( LdapDN name, ModificationItem[] mods, Collection bypass ) throws NamingException
+    public void modify( LdapDN name, ModificationItemImpl[] mods, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();

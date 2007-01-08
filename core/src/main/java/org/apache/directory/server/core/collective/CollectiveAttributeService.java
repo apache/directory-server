@@ -32,7 +32,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -168,7 +168,7 @@ public class CollectiveAttributeService extends BaseInterceptor
                     // if entry does not have attribute for colattr then create it
                     if ( entryColAttr == null )
                     {
-                        entryColAttr = new LockableAttributeImpl( attrId );
+                        entryColAttr = new AttributeImpl( attrId );
                         entry.put( entryColAttr );
                     }
 

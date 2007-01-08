@@ -50,7 +50,7 @@ import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import junit.framework.TestCase;
 
@@ -137,7 +137,7 @@ public class PartitionSchemaLoaderTest extends TestCase
         pc.setOptimizerEnabled( true );
         pc.setSuffix( "ou=schema" );
         
-        Attributes entry = new LockableAttributesImpl();
+        Attributes entry = new AttributesImpl();
         entry.put( "objectClass", "top" );
         entry.get( "objectClass" ).add( "organizationalUnit" );
         entry.put( "ou", "schema" );

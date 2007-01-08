@@ -30,7 +30,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
@@ -45,7 +44,8 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -408,7 +408,7 @@ public abstract class BTreePartition implements Partition
     public abstract void modify( LdapDN dn, int modOp, Attributes mods ) throws NamingException;
 
 
-    public abstract void modify( LdapDN dn, ModificationItem[] mods ) throws NamingException;
+    public abstract void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException;
 
 
     private static final String[] ENTRY_DELETED_ATTRS = new String[] { "entrydeleted" };
@@ -447,7 +447,7 @@ public abstract class BTreePartition implements Partition
         }
 
         Attributes entry = lookup( dn );
-        Attributes retval = new LockableAttributesImpl();
+        Attributes retval = new AttributesImpl();
 
         for ( int ii = 0; ii < attrIds.length; ii++ )
         {

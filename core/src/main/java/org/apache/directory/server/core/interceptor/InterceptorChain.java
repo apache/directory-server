@@ -20,13 +20,17 @@
 package org.apache.directory.server.core.interceptor;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
 import javax.naming.ConfigurationException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
@@ -38,6 +42,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,7 +126,7 @@ public class InterceptorChain
         }
 
 
-        public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
+        public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
         {
             nexus.modify( name, mods );
         }
@@ -776,7 +781,7 @@ public class InterceptorChain
     }
 
 
-    public void modify( LdapDN name, ModificationItem[] mods ) throws NamingException
+    public void modify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
@@ -1211,7 +1216,7 @@ public class InterceptorChain
                 }
 
 
-                public void modify( LdapDN name, ModificationItem[] mods ) throws NamingException
+                public void modify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();

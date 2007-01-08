@@ -38,7 +38,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -57,9 +56,10 @@ import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.EntryChangeControl;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
@@ -132,38 +132,38 @@ public class DefaultPartitionNexus extends PartitionNexus
     {
         // setup that root DSE
         this.rootDSE = rootDSE;
-        Attribute attr = new LockableAttributeImpl( "subschemaSubentry" );
+        Attribute attr = new AttributeImpl( "subschemaSubentry" );
         attr.add( "cn=schema,ou=system" );
         rootDSE.put( attr );
 
-        attr = new LockableAttributeImpl( "supportedLDAPVersion" );
+        attr = new AttributeImpl( "supportedLDAPVersion" );
         rootDSE.put( attr );
         attr.add( "3" );
 
-        attr = new LockableAttributeImpl( "supportedFeatures" );
+        attr = new AttributeImpl( "supportedFeatures" );
         rootDSE.put( attr );
         attr.add( "1.3.6.1.4.1.4203.1.5.1" );
 
-        attr = new LockableAttributeImpl( "supportedExtension" );
+        attr = new AttributeImpl( "supportedExtension" );
         rootDSE.put( attr );
         attr.add( NoticeOfDisconnect.EXTENSION_OID );
 
-        attr = new LockableAttributeImpl( "supportedControl" );
+        attr = new AttributeImpl( "supportedControl" );
         rootDSE.put( attr );
         attr.add( PersistentSearchControl.CONTROL_OID );
         attr.add( EntryChangeControl.CONTROL_OID );
         attr.add( SubentriesControl.CONTROL_OID );
         attr.add( ManageDsaITControl.CONTROL_OID );
 
-        attr = new LockableAttributeImpl( "objectClass" );
+        attr = new AttributeImpl( "objectClass" );
         rootDSE.put( attr );
         attr.add( "top" );
         attr.add( "extensibleObject" );
 
-        attr = new LockableAttributeImpl( NAMINGCTXS_ATTR );
+        attr = new AttributeImpl( NAMINGCTXS_ATTR );
         rootDSE.put( attr );
 
-        attr = new LockableAttributeImpl( VENDORNAME_ATTR );
+        attr = new AttributeImpl( VENDORNAME_ATTR );
         attr.add( ASF );
         rootDSE.put( attr );
 
@@ -177,7 +177,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             log.error( "failed to log version properties" );
         }
 
-        attr = new LockableAttributeImpl( VENDORVERSION_ATTR );
+        attr = new AttributeImpl( VENDORVERSION_ATTR );
         attr.add( props.getProperty( "apacheds.version", "UNKNOWN" ) );
         rootDSE.put( attr );
     }
@@ -256,7 +256,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             Attribute objectClassAttr = systemEntry.get( "objectClass" );
             if ( objectClassAttr == null )
             {
-                objectClassAttr = new LockableAttributeImpl(  "objectClass" );
+                objectClassAttr = new AttributeImpl(  "objectClass" );
                 systemEntry.put( objectClassAttr );
             }
             objectClassAttr.add( "top" );
@@ -346,8 +346,8 @@ public class DefaultPartitionNexus extends PartitionNexus
             systemCfg.setIndexedAttributes( indexedSystemAttrs );
     
             // Add context entry for system partition
-            Attributes systemEntry = new LockableAttributesImpl();
-            Attribute objectClassAttr = new LockableAttributeImpl( "objectClass" );
+            Attributes systemEntry = new AttributesImpl();
+            Attribute objectClassAttr = new AttributeImpl( "objectClass" );
             objectClassAttr.add( "top" );
             objectClassAttr.add( "organizationalUnit" );
             objectClassAttr.add( "extensibleObject" );
@@ -705,7 +705,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])
      */
-    public void modify( LdapDN dn, ModificationItem[] mods ) throws NamingException
+    public void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException
     {
         Partition backend = getBackend( dn );
         backend.modify( dn, mods );
@@ -794,7 +794,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // return nothing
                 if ( containsOneDotOne )
                 {
-                    SearchResult result = new SearchResult( "", null, new LockableAttributesImpl(), false );
+                    SearchResult result = new SearchResult( "", null, new AttributesImpl(), false );
                     return new SingletonEnumeration( result );
                 }
                 
@@ -805,7 +805,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     return new SingletonEnumeration( result );
                 }
                 
-                Attributes attrs = new LockableAttributesImpl();
+                Attributes attrs = new AttributesImpl();
                 if ( containsAsterisk )
                 {
                     for ( NamingEnumeration ii = getRootDSE().getAll(); ii.hasMore(); /**/ )
@@ -890,7 +890,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     {
         if ( dn.size() == 0 )
         {
-            Attributes retval = new LockableAttributesImpl();
+            Attributes retval = new AttributesImpl();
             NamingEnumeration list = rootDSE.getIDs();
             while ( list.hasMore() )
             {
@@ -1003,7 +1003,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         Attribute supportedExtension = rootDSE.get( "supportedExtension" );
         if ( supportedExtension == null )
         {
-            supportedExtension = new LockableAttributeImpl( "supportedExtension" );
+            supportedExtension = new AttributeImpl( "supportedExtension" );
             rootDSE.put( supportedExtension );
         }
         for ( Iterator oids = extensionOids.iterator(); oids.hasNext(); )

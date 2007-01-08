@@ -32,13 +32,13 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 
 import org.apache.commons.collections.MultiHashMap;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.ldif.LdifComposer;
 import org.apache.directory.shared.ldap.ldif.LdifComposerImpl;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.MultiMap;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -183,7 +183,7 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
         BufferedReader in = new BufferedReader( strIn );
 
         String line = null;
-        Attributes attributes = new BasicAttributes( true );
+        Attributes attributes = new AttributesImpl( true );
 
         try
         {

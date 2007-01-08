@@ -29,7 +29,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -121,7 +121,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
         }
         else if ( attrIdsHasPlus )
         {
-            entry = new LockableAttributesImpl();
+            entry = new AttributesImpl();
 
             // add all listed attributes
             for ( int ii = 0; ii < attrIds.length; ii++ )
@@ -158,7 +158,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
         }
         else if ( attrIdsHasStar )
         {
-            entry = new LockableAttributesImpl();
+            entry = new AttributesImpl();
 
             // add all listed operational attributes
             for ( int ii = 0; ii < attrIds.length; ii++ )
@@ -193,7 +193,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
         }
         else
         {
-            entry = new LockableAttributesImpl();
+            entry = new AttributesImpl();
 
             Attributes attrs = rec.getAttributes();
             

@@ -26,12 +26,12 @@ import java.util.Set;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
@@ -52,7 +52,7 @@ public class PartitionConfiguration
     private int cacheSize = -1;
     private String suffix;
     private Set indexedAttributes; // Set<String> or <IndexConfiguration>
-    private Attributes contextEntry = new BasicAttributes( true );
+    private Attributes contextEntry = new AttributesImpl( true );
     private Partition contextPartition = new JdbmPartition();
 
 

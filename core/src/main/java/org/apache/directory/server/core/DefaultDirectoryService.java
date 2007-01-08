@@ -64,8 +64,8 @@ import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupported
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.Entry;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -450,8 +450,8 @@ class DefaultDirectoryService extends DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new LockableAttributesImpl();
-            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            Attributes attributes = new AttributesImpl();
+            Attribute objectClass = new AttributeImpl( "objectClass" );
             objectClass.add( "top" );
             objectClass.add( "person" );
             objectClass.add( "organizationalPerson" );
@@ -483,8 +483,8 @@ class DefaultDirectoryService extends DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new LockableAttributesImpl();
-            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            Attributes attributes = new AttributesImpl();
+            Attribute objectClass = new AttributeImpl( "objectClass" );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -507,8 +507,8 @@ class DefaultDirectoryService extends DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new LockableAttributesImpl();
-            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            Attributes attributes = new AttributesImpl();
+            Attribute objectClass = new AttributeImpl( "objectClass" );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -532,8 +532,8 @@ class DefaultDirectoryService extends DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new LockableAttributesImpl();
-            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            Attributes attributes = new AttributesImpl();
+            Attribute objectClass = new AttributeImpl( "objectClass" );
             objectClass.add( "top" );
             objectClass.add( "groupOfUniqueNames" );
             attributes.put( objectClass );
@@ -558,8 +558,8 @@ class DefaultDirectoryService extends DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new LockableAttributesImpl();
-            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            Attributes attributes = new AttributesImpl();
+            Attribute objectClass = new AttributeImpl( "objectClass" );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -582,8 +582,8 @@ class DefaultDirectoryService extends DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new LockableAttributesImpl();
-            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            Attributes attributes = new AttributesImpl();
+            Attribute objectClass = new AttributeImpl( "objectClass" );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -606,8 +606,8 @@ class DefaultDirectoryService extends DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new LockableAttributesImpl();
-            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            Attributes attributes = new AttributesImpl();
+            Attribute objectClass = new AttributeImpl( "objectClass" );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -630,8 +630,8 @@ class DefaultDirectoryService extends DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new LockableAttributesImpl();
-            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            Attributes attributes = new AttributesImpl();
+            Attribute objectClass = new AttributeImpl( "objectClass" );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -654,8 +654,8 @@ class DefaultDirectoryService extends DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new LockableAttributesImpl();
-            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            Attributes attributes = new AttributesImpl();
+            Attribute objectClass = new AttributeImpl( "objectClass" );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -806,7 +806,7 @@ class DefaultDirectoryService extends DirectoryService
         schemaPartitionConfig.setOptimizerEnabled( true );
         schemaPartitionConfig.setSuffix( "ou=schema" );
         
-        Attributes entry = new LockableAttributesImpl();
+        Attributes entry = new AttributesImpl();
         entry.put( "objectClass", "top" );
         entry.get( "objectClass" ).add( "organizationalUnit" );
         entry.put( "ou", "schema" );
@@ -939,7 +939,7 @@ class DefaultDirectoryService extends DirectoryService
             log.debug( "binary ids used: " + binaries );
         }
 
-        partitionNexus = new DefaultPartitionNexus( new LockableAttributesImpl() );
+        partitionNexus = new DefaultPartitionNexus( new AttributesImpl() );
         partitionNexus.init( configuration, null );
         partitionNexus.addContextPartition( schemaPartitionConfig );
 

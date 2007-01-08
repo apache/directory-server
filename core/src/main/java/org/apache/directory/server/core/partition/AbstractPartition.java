@@ -29,10 +29,10 @@ import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -222,21 +222,21 @@ public abstract class AbstractPartition implements Partition
 
     /**
      * This method forwards the request to
-     * {@link Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])} after
-     * translating parameters to {@link ModificationItem}<tt>[]</tt> by default.
+     * {@link Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItemImpl[])} after
+     * translating parameters to {@link ModificationItemImpl}<tt>[]</tt> by default.
      * Please override this method if there is more effactive way for your
      * implementation.
      */
     public void modify( LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
-        List<ModificationItem> items = new ArrayList<ModificationItem>( mods.size() );
+        List<ModificationItemImpl> items = new ArrayList<ModificationItemImpl>( mods.size() );
         NamingEnumeration e = mods.getAll();
         while ( e.hasMore() )
         {
-            items.add( new ModificationItem( modOp, ( Attribute ) e.next() ) );
+            items.add( new ModificationItemImpl( modOp, ( Attribute ) e.next() ) );
         }
 
-        ModificationItem[] itemsArray = new ModificationItem[items.size()];
+        ModificationItemImpl[] itemsArray = new ModificationItemImpl[items.size()];
         itemsArray = items.toArray( itemsArray );
         modify( name, itemsArray );
     }

@@ -31,7 +31,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -47,7 +46,8 @@ import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -305,7 +305,7 @@ public class SchemaPartitionDao
         dn.normalize( attrRegistry.getNormalizerMapping() );
         Attributes entry = partition.lookup( dn );
         Attribute disabledAttr = ServerUtils.getAttribute( disabledAttributeType, entry );
-        ModificationItem[] mods = new ModificationItem[1];
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
         
         if ( disabledAttr == null )
         {
@@ -320,8 +320,8 @@ public class SchemaPartitionDao
             return;
         }
         
-        mods[0] = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, 
-            new LockableAttributeImpl( MetaSchemaConstants.M_DISABLED_AT ) );
+        mods[0] = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, 
+            new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT ) );
         
         partition.modify( dn, mods );
     }

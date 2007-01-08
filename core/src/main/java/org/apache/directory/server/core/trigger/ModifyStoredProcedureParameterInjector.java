@@ -26,23 +26,23 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 public class ModifyStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private LdapDN modifiedEntryName;
-    private ModificationItem[] modifications;
+    private ModificationItemImpl[] modifications;
     
     private Attributes oldEntry;
     
     private Map injectors;
     
-    public ModifyStoredProcedureParameterInjector( Invocation invocation, LdapDN modifiedEntryName, ModificationItem[] modifications ) throws NamingException
+    public ModifyStoredProcedureParameterInjector( Invocation invocation, LdapDN modifiedEntryName, ModificationItemImpl[] modifications ) throws NamingException
     {
         super( invocation );
         init( modifiedEntryName, modifications );
@@ -51,19 +51,19 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     public ModifyStoredProcedureParameterInjector( Invocation invocation, LdapDN modifiedEntryName, int modOp, Attributes modifications ) throws NamingException
     {
         super( invocation );
-        ModificationItem[] mods = new ModificationItem[ modifications.size() ];
+        ModificationItemImpl[] mods = new ModificationItemImpl[ modifications.size() ];
         NamingEnumeration modEnum = modifications.getAll();
         int i = 0;
         while ( modEnum.hasMoreElements() )
         {
             Attribute attribute = ( Attribute ) modEnum.nextElement();
-            mods[ i++ ] = new ModificationItem( modOp, attribute ); 
+            mods[ i++ ] = new ModificationItemImpl( modOp, attribute ); 
         }
         
         init( modifiedEntryName, mods );
     }
     
-    private void init( LdapDN modifiedEntryName, ModificationItem[] modifications ) throws NamingException
+    private void init( LdapDN modifiedEntryName, ModificationItemImpl[] modifications ) throws NamingException
     {
         this.modifiedEntryName = modifiedEntryName;
         this.modifications = modifications;

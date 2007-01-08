@@ -22,8 +22,8 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.IOException;
 
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 import junit.framework.TestCase;
@@ -39,13 +39,13 @@ public class AttributesSerializerTest extends TestCase
 {
     public void testFullCycle() throws IOException
     {
-        LockableAttributesImpl attrs = new LockableAttributesImpl();
-        LockableAttributeImpl attr0 = new LockableAttributeImpl( "attr0" );
+        AttributesImpl attrs = new AttributesImpl();
+        AttributeImpl attr0 = new AttributeImpl( "attr0" );
         attr0.add( "value0" );
         attr0.add( "val1" );
         attr0.add( "anything over here!" );
         
-        LockableAttributeImpl attr1 = new LockableAttributeImpl( "attr1" );
+        AttributeImpl attr1 = new AttributeImpl( "attr1" );
         byte[] ba0 = new byte[2];
         ba0[0] = 7;
         ba0[1] = 23;
@@ -60,14 +60,14 @@ public class AttributesSerializerTest extends TestCase
         attrs.put( attr1 );
         AttributesSerializer serializer = new AttributesSerializer();
         byte[] buf = serializer.serialize( attrs );
-        LockableAttributesImpl deserialized = ( LockableAttributesImpl ) serializer.deserialize( buf );
+        AttributesImpl deserialized = ( AttributesImpl ) serializer.deserialize( buf );
 
-        LockableAttributeImpl attrDeserialized0 = ( LockableAttributeImpl ) deserialized.get( "attr0" );
+        AttributeImpl attrDeserialized0 = ( AttributeImpl ) deserialized.get( "attr0" );
         assertEquals( "value0", attrDeserialized0.get() );
         assertEquals( "val1", attrDeserialized0.get( 1 ) );
         assertEquals( "anything over here!", attrDeserialized0.get( 2 ) );
         
-        LockableAttributeImpl attrDeserialized1 = ( LockableAttributeImpl ) deserialized.get( "attr1" );
+        AttributeImpl attrDeserialized1 = ( AttributeImpl ) deserialized.get( "attr1" );
         ArrayUtils.isEquals( ba0, attrDeserialized1.get() );
         ArrayUtils.isEquals( ba1, attrDeserialized1.get( 1 ) );
     }
@@ -79,7 +79,7 @@ public class AttributesSerializerTest extends TestCase
 //        long start = System.currentTimeMillis();
 //        for ( int ii = 0; ii < limit; ii++ )
 //        {
-//            LockableAttributeImpl attr = new LockableAttributeImpl( "testing" );
+//            AttributeImpl attr = new AttributeImpl( "testing" );
 //            AttributeSerializer serializer = new AttributeSerializer();
 //            attr.add( "value0" );
 //            attr.add( "val1" );

@@ -20,6 +20,15 @@
 package org.apache.directory.server.core.event;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -38,6 +47,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 
@@ -48,12 +58,14 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.Binding;
 import javax.naming.NamingEnumeration;
-import javax.naming.event.*;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.Attribute;
-import java.util.*;
+import javax.naming.event.EventContext;
+import javax.naming.event.NamespaceChangeListener;
+import javax.naming.event.NamingEvent;
+import javax.naming.event.NamingListener;
+import javax.naming.event.ObjectChangeListener;
 
 
 /**
@@ -270,7 +282,7 @@ public class EventService extends BaseInterceptor
     }
 
 
-    private void notifyOnModify( LdapDN name, ModificationItem[] mods, Attributes oriEntry ) throws NamingException
+    private void notifyOnModify( LdapDN name, ModificationItemImpl[] mods, Attributes oriEntry ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
         Set selecting = getSelectingSources( name, entry );
@@ -305,17 +317,17 @@ public class EventService extends BaseInterceptor
         super.modify( next, name, modOp, mods );
 
         // package modifications in ModItem format for event delivery
-        ModificationItem[] modItems = new ModificationItem[mods.size()];
+        ModificationItemImpl[] modItems = new ModificationItemImpl[mods.size()];
         NamingEnumeration list = mods.getAll();
         for ( int ii = 0; ii < modItems.length; ii++ )
         {
-            modItems[ii] = new ModificationItem( modOp, ( Attribute ) list.next() );
+            modItems[ii] = new ModificationItemImpl( modOp, ( Attribute ) list.next() );
         }
         notifyOnModify( name, modItems, oriEntry );
     }
 
 
-    public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();

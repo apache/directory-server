@@ -27,7 +27,6 @@ import java.util.Map;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
@@ -36,6 +35,7 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -93,7 +93,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * public void delete( NextInterceptor nextInterceptor, Name name )
  * {
  *     // transform deletion into modification.
- *     Attribute mark = new BasicAttribute( "entryDeleted", "true" );
+ *     Attribute mark = new AttributeImpl( "entryDeleted", "true" );
  *     nextInterceptor.modify( name, DirContext.REPLACE_ATTRIBUTE, mark );
  * }
  * </pre>
@@ -181,7 +181,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])} call.
      */
-    void modify( NextInterceptor next, LdapDN name, ModificationItem[] items ) throws NamingException;
+    void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] items ) throws NamingException;
 
 
     /**

@@ -28,7 +28,6 @@ import java.util.List;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
@@ -40,6 +39,7 @@ import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundExcept
 import org.apache.directory.server.schema.registries.Registries;
 
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -378,7 +378,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void modify( LdapDN dn, ModificationItem[] mods ) throws NamingException
+    public final void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException
     {
         store.modify( dn, mods );
     }

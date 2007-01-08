@@ -20,6 +20,15 @@
 package org.apache.directory.server.core.interceptor;
 
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import org.apache.directory.server.core.DirectoryService;
@@ -33,15 +42,14 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 import javax.naming.Context;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
-import java.util.*;
 
 
 /**
@@ -351,7 +359,7 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void modify( NextInterceptor next, LdapDN name, ModificationItem[] items ) throws NamingException
+        public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] items ) throws NamingException
         {
             interceptors.add( this );
             next.modify( name, items );

@@ -28,8 +28,6 @@ import java.util.Set;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -40,6 +38,8 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -53,16 +53,16 @@ public class RestrictedByFilterTest extends TestCase
     private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
     private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
 
-    private static final Collection PROTECTED_ITEMS = new ArrayList();
-    private static final Attributes ENTRY = new BasicAttributes();
+    private static final Collection<ProtectedItem.RestrictedBy> PROTECTED_ITEMS = new ArrayList<ProtectedItem.RestrictedBy>();
+    private static final Attributes ENTRY = new AttributesImpl();
 
     static
     {
-        Collection mvcItems = new ArrayList();
+        Collection<RestrictedByItem> mvcItems = new ArrayList<RestrictedByItem>();
         mvcItems.add( new RestrictedByItem( "choice", "option" ) );
         PROTECTED_ITEMS.add( new ProtectedItem.RestrictedBy( mvcItems ) );
 
-        Attribute attr = new BasicAttribute( "option" );
+        Attribute attr = new AttributeImpl( "option" );
         attr.add( "1" );
         attr.add( "2" );
 
@@ -73,7 +73,7 @@ public class RestrictedByFilterTest extends TestCase
     public void testWrongScope() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
-        Collection tuples = new ArrayList();
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
@@ -98,7 +98,7 @@ public class RestrictedByFilterTest extends TestCase
     public void testDenialTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
-        Collection tuples = new ArrayList();
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, false, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
@@ -111,7 +111,7 @@ public class RestrictedByFilterTest extends TestCase
     public void testGrantTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
-        Collection tuples = new ArrayList();
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, true, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,

@@ -44,6 +44,7 @@ import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -54,9 +55,18 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.*;
-import java.util.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import java.text.ParseException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -528,7 +538,7 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, LdapDN name, ModificationItem[] mods ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -943,7 +953,7 @@ public class AuthorizationService extends BaseInterceptor
         groupCache.groupRenamed( oriChildName, newName );
     }
 
-    public static final SearchControls DEFUALT_SEARCH_CONTROLS = new SearchControls();
+    public static final SearchControls DEFAULT_SEARCH_CONTROLS = new SearchControls();
 
 
     public NamingEnumeration list( NextInterceptor next, LdapDN base ) throws NamingException
@@ -957,7 +967,7 @@ public class AuthorizationService extends BaseInterceptor
             return e;
         }
         AuthorizationFilter authzFilter = new AuthorizationFilter();
-        return new SearchResultFilteringEnumeration( e, DEFUALT_SEARCH_CONTROLS, invocation, authzFilter );
+        return new SearchResultFilteringEnumeration( e, DEFAULT_SEARCH_CONTROLS, invocation, authzFilter );
     }
 
 

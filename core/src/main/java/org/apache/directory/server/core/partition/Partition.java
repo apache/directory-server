@@ -27,13 +27,13 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -151,7 +151,7 @@ public interface Partition
      * @throws NamingException if there are any problems
      * @see ModificationItem
      */
-    void modify( LdapDN name, ModificationItem[] items ) throws NamingException;
+    void modify( LdapDN name, ModificationItemImpl[] items ) throws NamingException;
 
 
     /**

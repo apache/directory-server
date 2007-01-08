@@ -23,7 +23,6 @@ package org.apache.directory.server.core.schema;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.ServerUtils;
@@ -33,6 +32,7 @@ import org.apache.directory.server.schema.registries.NormalizerRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -110,7 +110,7 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
     }
 
 
-    public void modify( LdapDN name, ModificationItem[] mods, Attributes entry, Attributes targetEntry )
+    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry )
         throws NamingException
     {
         modify( name, entry, targetEntry );

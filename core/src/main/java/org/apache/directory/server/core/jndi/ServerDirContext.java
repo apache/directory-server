@@ -51,6 +51,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -158,12 +159,28 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         getNexusProxy().modify( buildTarget( name ), modOp, attrs );
     }
 
-
     /**
      * @see javax.naming.directory.DirContext#modifyAttributes(java.lang.String,
      *      javax.naming.directory.ModificationItem[])
      */
     public void modifyAttributes( String name, ModificationItem[] mods ) throws NamingException
+    {
+        ModificationItemImpl[] newMods = new ModificationItemImpl[ mods.length ];
+        
+        for ( int i = 0; i < mods.length; i++ )
+        {
+            newMods[i] = new ModificationItemImpl( mods[i] );
+        }
+        
+        modifyAttributes( new LdapDN( name ), newMods );
+    }
+
+
+    /**
+     * @see javax.naming.directory.DirContext#modifyAttributes(java.lang.String,
+     *      javax.naming.directory.ModificationItem[])
+     */
+    public void modifyAttributes( String name, ModificationItemImpl[] mods ) throws NamingException
     {
         modifyAttributes( new LdapDN( name ), mods );
     }
@@ -174,6 +191,23 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * javax.naming.Name, javax.naming.directory.ModificationItem[])
      */
     public void modifyAttributes( Name name, ModificationItem[] mods ) throws NamingException
+    {
+        ModificationItemImpl[] newMods = new ModificationItemImpl[ mods.length ];
+        
+        for ( int i = 0; i < mods.length; i++ )
+        {
+            newMods[i] = new ModificationItemImpl( mods[i] );
+        }
+        
+        getNexusProxy().modify( buildTarget( name ), newMods );
+    }
+
+
+    /**
+     * @see javax.naming.directory.DirContext#modifyAttributes(
+     * javax.naming.Name, javax.naming.directory.ModificationItem[])
+     */
+    public void modifyAttributes( Name name, ModificationItemImpl[] mods ) throws NamingException
     {
         getNexusProxy().modify( buildTarget( name ), mods );
     }

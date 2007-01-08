@@ -27,8 +27,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -46,7 +46,8 @@ import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -63,8 +64,8 @@ public class RelatedProtectedItemFilterTest extends TestCase
 
     private static final LdapDN GROUP_NAME;
     private static final LdapDN USER_NAME;
-    private static final Set USER_NAMES = new HashSet();
-    private static final Set GROUP_NAMES = new HashSet();
+    private static final Set<LdapDN> USER_NAMES = new HashSet<LdapDN>();
+    private static final Set<LdapDN> GROUP_NAMES = new HashSet<LdapDN>();
 
     private static final AttributeTypeRegistry ATTR_TYPE_REGISTRY_A = new DummyAttributeTypeRegistry( false );
     private static final AttributeTypeRegistry ATTR_TYPE_REGISTRY_B = new DummyAttributeTypeRegistry( true );
@@ -160,7 +161,7 @@ public class RelatedProtectedItemFilterTest extends TestCase
 
     public void testAllAttributeValues() throws Exception
     {
-        Collection attrTypes = new ArrayList();
+        Collection<String> attrTypes = new ArrayList<String>();
         attrTypes.add( "attrA" );
         Collection tuples = getTuples( new ProtectedItem.AllAttributeValues( attrTypes ) );
 
@@ -180,7 +181,7 @@ public class RelatedProtectedItemFilterTest extends TestCase
 
     public void testAttributeType() throws Exception
     {
-        Collection attrTypes = new ArrayList();
+        Collection<String> attrTypes = new ArrayList<String>();
         attrTypes.add( "attrA" );
         Collection tuples = getTuples( new ProtectedItem.AttributeType( attrTypes ) );
 
@@ -200,8 +201,8 @@ public class RelatedProtectedItemFilterTest extends TestCase
 
     public void testAttributeValue() throws Exception
     {
-        Collection attributes = new ArrayList();
-        attributes.add( new BasicAttribute( "attrA", "valueA" ) );
+        Collection<Attribute> attributes = new ArrayList<Attribute>();
+        attributes.add( new AttributeImpl( "attrA", "valueA" ) );
         Collection tuples = getTuples( new ProtectedItem.AttributeValue( attributes ) );
 
         // Test wrong scope
@@ -244,7 +245,7 @@ public class RelatedProtectedItemFilterTest extends TestCase
 
     public void testMaxValueCount() throws Exception
     {
-        Collection mvcItems = new ArrayList();
+        Collection<MaxValueCountItem> mvcItems = new ArrayList<MaxValueCountItem>();
         mvcItems.add( new MaxValueCountItem( "attrA", 3 ) );
         Collection tuples = getTuples( new ProtectedItem.MaxValueCount( mvcItems ) );
 
@@ -270,7 +271,7 @@ public class RelatedProtectedItemFilterTest extends TestCase
      * using the registry now in this operation.    
     public void testRangeOfValues() throws Exception
     {
-        Attributes entry = new BasicAttributes( true );
+        Attributes entry = new AttributesImpl( true );
         entry.put( "attrA", "valueA" );
         Collection tuples = getTuples( new ProtectedItem.RangeOfValues( new PresenceNode( "attrA" ) ) );
 
@@ -286,7 +287,7 @@ public class RelatedProtectedItemFilterTest extends TestCase
 
     public void testRestrictedBy() throws Exception
     {
-        Collection rbItems = new ArrayList();
+        Collection<RestrictedByItem> rbItems = new ArrayList<RestrictedByItem>();
         rbItems.add( new RestrictedByItem( "attrA", "attrB" ) );
         Collection tuples = getTuples( new ProtectedItem.RestrictedBy( rbItems ) );
 
@@ -309,11 +310,11 @@ public class RelatedProtectedItemFilterTest extends TestCase
 
     public void testSelfValue() throws Exception
     {
-        Collection attrTypes = new ArrayList();
+        Collection<String> attrTypes = new ArrayList<String>();
         attrTypes.add( "attrA" );
         Collection tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
 
-        Attributes entry = new LockableAttributesImpl();
+        Attributes entry = new AttributesImpl();
         entry.put( "attrA", USER_NAME.toNormName() );
 
         // Test wrong scope
@@ -337,10 +338,10 @@ public class RelatedProtectedItemFilterTest extends TestCase
 
     private static Collection getTuples( ProtectedItem protectedItem )
     {
-        Collection protectedItems = new ArrayList();
+        Collection<ProtectedItem> protectedItems = new ArrayList<ProtectedItem>();
         protectedItems.add( protectedItem );
 
-        Collection tuples = new ArrayList();
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, protectedItems, EMPTY_SET, true, 0 ) );
 
         return tuples;

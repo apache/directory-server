@@ -28,8 +28,6 @@ import java.util.Set;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -40,6 +38,8 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -54,8 +54,8 @@ public class MaxValueCountFilterTest extends TestCase
     private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
 
     private static final Collection PROTECTED_ITEMS = new ArrayList();
-    private static final Attributes ENTRY = new BasicAttributes();
-    private static final Attributes FULL_ENTRY = new BasicAttributes();
+    private static final Attributes ENTRY = new AttributesImpl();
+    private static final Attributes FULL_ENTRY = new AttributesImpl();
 
     static
     {
@@ -65,7 +65,7 @@ public class MaxValueCountFilterTest extends TestCase
 
         ENTRY.put( "testAttr", "1" );
 
-        Attribute attr = new BasicAttribute( "testAttr" );
+        Attribute attr = new AttributeImpl( "testAttr" );
         attr.add( "1" );
         attr.add( "2" );
         FULL_ENTRY.put( attr );
