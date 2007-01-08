@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.LinkedList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -211,6 +212,12 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
     private void loadObjectClasses( Schema schema, Registries targetRegistries ) throws NamingException
     {
+        /**
+         * Sometimes search may return child objectClasses before their superiors have
+         * been registered like with attributeTypes.  To prevent this from bombing out
+         * the loader we will defer the registration of elements until later.
+         */
+        LinkedList<ObjectClass> deferred = new LinkedList<ObjectClass>();
         LdapDN dn = new LdapDN( "ou=objectClasses,cn=" + schema.getSchemaName() + ",ou=schema" );
         dn.normalize( this.attrRegistry.getNormalizerMapping() );
         
@@ -229,13 +236,81 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
             Attributes attrs = partition.lookup( resultDN );
             ObjectClass oc = factory.getObjectClass( attrs, targetRegistries );
-            targetRegistries.getObjectClassRegistry().register( schema.getSchemaName(), oc );
+            
+            try
+            {
+                targetRegistries.getObjectClassRegistry().register( schema.getSchemaName(), oc );
+            }
+            catch ( NamingException ne )
+            {
+                deferred.add( oc );
+            }
+        }
+        
+        log.debug( "Deferred queue size = {}", deferred.size() );
+        if ( log.isDebugEnabled() )
+        {
+            StringBuffer buf = new StringBuffer();
+            buf.append( "Deferred queue contains: " );
+            
+            for ( ObjectClass extra : deferred )
+            {
+                buf.append( extra.getName() );
+                buf.append( '[' );
+                buf.append( extra.getOid() );
+                buf.append( "]" );
+                buf.append( "\n" );
+            }
+        }
+        
+        int lastCount = deferred.size();
+        while ( ! deferred.isEmpty() )
+        {
+            log.debug( "Deferred queue size = {}", deferred.size() );
+            ObjectClass oc = deferred.removeFirst();
+            NamingException lastException = null;
+            
+            try
+            {
+                targetRegistries.getObjectClassRegistry().register( schema.getSchemaName(), oc );
+            }
+            catch ( NamingException ne )
+            {
+                deferred.addLast( oc );
+                lastException = ne;
+            }
+            
+            // if we shrank the deferred list we're doing good and can continue
+            if ( deferred.size() < lastCount )
+            {
+                lastCount = deferred.size();
+            }
+            else
+            {
+                StringBuffer buf = new StringBuffer();
+                buf.append( "A cycle must exist somewhere within the objectClasses of the " );
+                buf.append( schema.getSchemaName() );
+                buf.append( " schema.  We cannot seem to register the following objectClasses:\n" );
+                
+                for ( ObjectClass extra : deferred )
+                {
+                    buf.append( extra.getName() );
+                    buf.append( '[' );
+                    buf.append( extra.getOid() );
+                    buf.append( "]" );
+                    buf.append( "\n" );
+                }
+                
+                NamingException ne = new NamingException( buf.toString() );
+                ne.setRootCause( lastException );
+            }
         }
     }
 
 
     private void loadAttributeTypes( Schema schema, Registries targetRegistries ) throws NamingException
     {
+        LinkedList<AttributeType> deferred = new LinkedList<AttributeType>();
         LdapDN dn = new LdapDN( "ou=attributeTypes,cn=" + schema.getSchemaName() + ",ou=schema" );
         dn.normalize( this.attrRegistry.getNormalizerMapping() );
         
@@ -254,7 +329,73 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
             Attributes attrs = partition.lookup( resultDN );
             AttributeType at = factory.getAttributeType( attrs, targetRegistries );
-            targetRegistries.getAttributeTypeRegistry().register( schema.getSchemaName(), at );
+            try
+            {
+                targetRegistries.getAttributeTypeRegistry().register( schema.getSchemaName(), at );
+            }
+            catch ( NamingException ne )
+            {
+                deferred.add( at );
+            }
+        }
+
+        log.debug( "Deferred queue size = {}", deferred.size() );
+        if ( log.isDebugEnabled() )
+        {
+            StringBuffer buf = new StringBuffer();
+            buf.append( "Deferred queue contains: " );
+            
+            for ( AttributeType extra : deferred )
+            {
+                buf.append( extra.getName() );
+                buf.append( '[' );
+                buf.append( extra.getOid() );
+                buf.append( "]" );
+                buf.append( "\n" );
+            }
+        }
+        
+        int lastCount = deferred.size();
+        while ( ! deferred.isEmpty() )
+        {
+            log.debug( "Deferred queue size = {}", deferred.size() );
+            AttributeType at = deferred.removeFirst();
+            NamingException lastException = null;
+            
+            try
+            {
+                targetRegistries.getAttributeTypeRegistry().register( schema.getSchemaName(), at );
+            }
+            catch ( NamingException ne )
+            {
+                deferred.addLast( at );
+                lastException = ne;
+            }
+            
+            // if we shrank the deferred list we're doing good and can continue
+            if ( deferred.size() < lastCount )
+            {
+                lastCount = deferred.size();
+            }
+            else
+            {
+                StringBuffer buf = new StringBuffer();
+                buf.append( "A cycle must exist somewhere within the attributeTypes of the " );
+                buf.append( schema.getSchemaName() );
+                buf.append( " schema.  We cannot seem to register the following attributeTypes:\n" );
+                
+                for ( AttributeType extra : deferred )
+                {
+                    buf.append( extra.getName() );
+                    buf.append( '[' );
+                    buf.append( extra.getOid() );
+                    buf.append( "]" );
+                    buf.append( "\n" );
+                }
+                
+                NamingException ne = new NamingException( buf.toString() );
+                ne.setRootCause( lastException );
+            }
         }
     }
 
