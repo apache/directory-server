@@ -62,8 +62,8 @@ import org.apache.directory.server.schema.bootstrap.Krb5kdcSchema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -188,8 +188,8 @@ public abstract class AbstractBackingStoreTest extends TestCase
 
         partConfig.setSuffix( "dc=example, dc=com" );
 
-        LockableAttributesImpl attrs = new LockableAttributesImpl();
-        LockableAttributeImpl objectClass = new LockableAttributeImpl( "objectClass" );
+        AttributesImpl attrs = new AttributesImpl();
+        AttributeImpl objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "domain" );
         attrs.put( objectClass );
@@ -215,8 +215,8 @@ public abstract class AbstractBackingStoreTest extends TestCase
 
         partConfig.setSuffix( "dc=apache, dc=org" );
 
-        LockableAttributesImpl attrs = new LockableAttributesImpl();
-        LockableAttributeImpl objectClass = new LockableAttributeImpl( "objectClass" );
+        AttributesImpl attrs = new AttributesImpl();
+        AttributeImpl objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "domain" );
         attrs.put( objectClass );
