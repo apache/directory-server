@@ -27,6 +27,8 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -40,8 +42,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 
 
 /**
@@ -103,7 +103,7 @@ public class SearchResultEntry extends LdapMessage
     public SearchResultEntry()
     {
         super();
-        partialAttributeList = new BasicAttributes( true );
+        partialAttributeList = new AttributesImpl( true );
     }
 
 
@@ -170,7 +170,7 @@ public class SearchResultEntry extends LdapMessage
      */
     public void addAttributeValues( String type )
     {
-        currentAttributeValue = new BasicAttribute( StringTools.lowerCase( type ) );
+        currentAttributeValue = new AttributeImpl( StringTools.lowerCase( type ) );
 
         partialAttributeList.put( currentAttributeValue );
     }

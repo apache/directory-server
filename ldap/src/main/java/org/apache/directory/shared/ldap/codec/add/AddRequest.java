@@ -26,6 +26,8 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -42,8 +44,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 
 
 /**
@@ -127,7 +127,7 @@ public class AddRequest extends LdapMessage
      */
     public void initAttributes()
     {
-        attributes = new BasicAttributes( true );
+        attributes = new AttributesImpl( true );
     }
 
 
@@ -155,8 +155,8 @@ public class AddRequest extends LdapMessage
             return;
         }
         
-        // fix this to use LockableAttributeImpl(type.getString().toLowerCase())
-        currentAttribute = new BasicAttribute( type.toLowerCase() );
+        // fix this to use AttributeImpl(type.getString().toLowerCase())
+        currentAttribute = new AttributeImpl( type.toLowerCase() );
         attributes.put( currentAttribute );
     }
 

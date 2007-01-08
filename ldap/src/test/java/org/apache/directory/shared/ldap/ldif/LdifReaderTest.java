@@ -30,10 +30,10 @@ import junit.framework.TestCase;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.Control;
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
@@ -1217,20 +1217,20 @@ public class LdifReaderTest extends TestCase
 
         // "add: postaladdress"
         // "postaladdress: 123 Anystreet $ Sunnyvale, CA $ 94086"
-        ModificationItem item = (ModificationItem) modifs.get( 0 );
+        ModificationItemImpl item = (ModificationItemImpl) modifs.get( 0 );
         assertEquals( DirContext.ADD_ATTRIBUTE, item.getModificationOp() );
         assertEquals( values[4][1][0], item.getAttribute().getID() );
         assertEquals( values[4][1][1], item.getAttribute().get( 0 ) );
 
         // "delete: description\n" +
-        item = (ModificationItem) modifs.get( 1 );
+        item = (ModificationItemImpl) modifs.get( 1 );
         assertEquals( DirContext.REMOVE_ATTRIBUTE, item.getModificationOp() );
         assertEquals( values[4][2][0], item.getAttribute().getID() );
 
         // "replace: telephonenumber"
         // "telephonenumber: +1 408 555 1234"
         // "telephonenumber: +1 408 555 5678"
-        item = (ModificationItem) modifs.get( 2 );
+        item = (ModificationItemImpl) modifs.get( 2 );
         assertEquals( DirContext.REPLACE_ATTRIBUTE, item.getModificationOp() );
         assertEquals( values[4][3][0], item.getAttribute().getID() );
         assertEquals( values[4][3][1], item.getAttribute().get( 0 ) );
@@ -1238,7 +1238,7 @@ public class LdifReaderTest extends TestCase
 
         // "delete: facsimiletelephonenumber"
         // "facsimiletelephonenumber: +1 408 555 9876"
-        item = (ModificationItem) modifs.get( 3 );
+        item = (ModificationItemImpl) modifs.get( 3 );
         assertEquals( DirContext.REMOVE_ATTRIBUTE, item.getModificationOp() );
         assertEquals( values[4][4][0], item.getAttribute().getID() );
         assertEquals( values[4][4][1], item.getAttribute().get( 0 ) );
@@ -1251,12 +1251,12 @@ public class LdifReaderTest extends TestCase
         assertEquals( values[5][0][1], entry.getDn() );
 
         // "replace: postaladdress"
-        item = (ModificationItem) modifs.get( 0 );
+        item = (ModificationItemImpl) modifs.get( 0 );
         assertEquals( DirContext.REPLACE_ATTRIBUTE, item.getModificationOp() );
         assertEquals( values[5][1][0], item.getAttribute().getID() );
 
         // "delete: description"
-        item = (ModificationItem) modifs.get( 1 );
+        item = (ModificationItemImpl) modifs.get( 1 );
         assertEquals( DirContext.REMOVE_ATTRIBUTE, item.getModificationOp() );
         assertEquals( values[5][2][0], item.getAttribute().getID() );
     }

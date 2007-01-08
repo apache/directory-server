@@ -31,7 +31,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -127,7 +126,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
      * @param mod
      *            a ModificationItem to add.
      */
-    public void addModification( ModificationItem mod )
+    public void addModification( ModificationItemImpl mod )
     {
         mods.add( mod );
     }
@@ -140,7 +139,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
      * @param mod
      *            a ModificationItem to remove.
      */
-    public void removeModification( ModificationItem mod )
+    public void removeModification( ModificationItemImpl mod )
     {
         mods.remove( mod );
     }
@@ -227,9 +226,9 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
 
         for ( int ii = 0; ii < mods.size(); ii++ )
         {
-            ModificationItem item = ( ModificationItem ) list.next();
+            ModificationItemImpl item = ( ModificationItemImpl ) list.next();
 
-            if ( !equals( ( ModificationItem ) mods.get( ii ), item ) )
+            if ( !equals( ( ModificationItemImpl ) mods.get( ii ), item ) )
             {
                 return false;
             }
@@ -249,7 +248,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
      *            the second ModificationItem to compare
      * @return true if the ModificationItems are equal, false otherwise
      */
-    private boolean equals( ModificationItem item0, ModificationItem item1 )
+    private boolean equals( ModificationItemImpl item0, ModificationItemImpl item1 )
     {
         if ( item0 == item1 )
         {
@@ -342,7 +341,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
             for ( int i = 0; i < mods.size(); i++ )
             {
 
-                ModificationItem modification = ( ModificationItem ) mods.get( i );
+                ModificationItemImpl modification = ( ModificationItemImpl ) mods.get( i );
 
                 sb.append( "            Modification[" ).append( i ).append( "]\n" );
                 sb.append( "                Operation : " );

@@ -30,10 +30,10 @@ import java.util.TreeSet;
 import javax.naming.InvalidNameException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 
 import org.apache.commons.collections.MultiHashMap;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -877,7 +877,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
     */
    public Attributes toAttributes()
    {
-       Attributes attributes = new BasicAttributes( true );
+       Attributes attributes = new AttributesImpl( true );
        Attribute attribute = null;
 
        switch ( nbAtavs  )
@@ -886,7 +886,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                break;
 
            case 1 :
-               attribute = new BasicAttribute( atavType, true );
+               attribute = new AttributeImpl( atavType, true );
                attribute.add( atav.getValue() );
                attributes.put( attribute );
                break;
@@ -899,7 +899,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                    String type = ( String ) types.next();
                    List values = ( List ) atavTypes.get( type );
 
-                   attribute = new BasicAttribute( type, true );
+                   attribute = new AttributeImpl( type );
 
                    Iterator iterValues = values.iterator();
 

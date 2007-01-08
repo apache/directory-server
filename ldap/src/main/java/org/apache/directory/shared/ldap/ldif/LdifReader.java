@@ -42,12 +42,12 @@ import java.util.NoSuchElementException;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.primitives.OID;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDnParser;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.Base64;
@@ -833,7 +833,7 @@ public class LdifReader implements Iterator
             Object attributeValue = parseSimpleValue( line, colonIndex );
 
             // Create an attribute
-            return new BasicAttribute( attributeType, attributeValue );
+            return new AttributeImpl( attributeType, attributeValue );
         }
         else
         {

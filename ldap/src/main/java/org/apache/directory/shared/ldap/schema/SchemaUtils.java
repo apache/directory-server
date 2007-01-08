@@ -25,9 +25,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
@@ -47,7 +47,7 @@ public class SchemaUtils
      * @return the resultant entry after the modifications have taken place
      * @throws NamingException if there are problems accessing attributes
      */
-    public static Attributes getTargetEntry( ModificationItem[] mods, Attributes entry ) throws NamingException
+    public static Attributes getTargetEntry( ModificationItemImpl[] mods, Attributes entry ) throws NamingException
     {
         Attributes targetEntry = ( Attributes ) entry.clone();
         for ( int ii = 0; ii < mods.length; ii++ )
@@ -60,7 +60,7 @@ public class SchemaUtils
                     targetEntry.put( mods[ii].getAttribute() );
                     break;
                 case( DirContext.ADD_ATTRIBUTE ):
-                    Attribute combined = new LockableAttributeImpl( id );
+                    Attribute combined = new AttributeImpl( id );
                     Attribute toBeAdded = mods[ii].getAttribute();
                     Attribute existing = entry.get( id );
                     
@@ -156,7 +156,7 @@ public class SchemaUtils
                 while ( list.hasMore() )
                 {
                     String id = list.next();
-                    Attribute combined = new LockableAttributeImpl( id );
+                    Attribute combined = new AttributeImpl( id );
                     Attribute toBeAdded = mods.get( id );
                     Attribute existing = entry.get( id );
                     

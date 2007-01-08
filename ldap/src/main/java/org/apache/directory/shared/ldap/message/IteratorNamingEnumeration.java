@@ -31,10 +31,10 @@ import javax.naming.NamingEnumeration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public class IteratorNamingEnumeration implements NamingEnumeration
+public class IteratorNamingEnumeration<T> implements NamingEnumeration<T>
 {
     /** the iterator to wrap as in the enumeration */
-    private final Iterator m_iterator;
+    private Iterator<T> iterator;
 
 
     /**
@@ -43,9 +43,9 @@ public class IteratorNamingEnumeration implements NamingEnumeration
      * @param a_iterator
      *            the Iterator the NamingEnumeration is based on.
      */
-    public IteratorNamingEnumeration(final Iterator a_iterator)
+    public IteratorNamingEnumeration( Iterator<T> iterator)
     {
-        m_iterator = a_iterator;
+        this.iterator = iterator;
     }
 
 
@@ -58,16 +58,16 @@ public class IteratorNamingEnumeration implements NamingEnumeration
      */
     public boolean hasMoreElements()
     {
-        return m_iterator.hasNext();
+        return iterator.hasNext();
     }
 
 
     /**
      * @see java.util.Enumeration#nextElement()
      */
-    public Object nextElement()
+    public T nextElement()
     {
-        return m_iterator.next();
+        return iterator.next();
     }
 
 
@@ -89,15 +89,15 @@ public class IteratorNamingEnumeration implements NamingEnumeration
      */
     public boolean hasMore()
     {
-        return m_iterator.hasNext();
+        return iterator.hasNext();
     }
 
 
     /**
      * @see javax.naming.NamingEnumeration#next()
      */
-    public Object next()
+    public T next()
     {
-        return m_iterator.next();
+        return iterator.next();
     }
 }

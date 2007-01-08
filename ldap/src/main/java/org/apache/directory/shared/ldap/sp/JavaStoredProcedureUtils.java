@@ -29,10 +29,10 @@ import java.net.URL;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 
@@ -95,7 +95,7 @@ public class JavaStoredProcedureUtils
         byte[] buf = getClassFileAsStream( clazz );
         String fullClassName = clazz.getName();
         
-        Attributes attributes = new BasicAttributes( "objectClass", "top", true );
+        Attributes attributes = new AttributesImpl( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );
         attributes.put( "fullyQualifiedJavaClassName", fullClassName );
         attributes.put( "javaClassByteCode", buf );

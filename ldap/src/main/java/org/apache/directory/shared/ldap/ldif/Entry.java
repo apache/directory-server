@@ -30,12 +30,12 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.Control;
 
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
@@ -52,9 +52,9 @@ public class Entry implements Cloneable
     private int changeType;
 
     /** the modification item list */
-    private List<ModificationItem> modificationList;
+    private List<ModificationItemImpl> modificationList;
 
-    private Map<String, ModificationItem> modificationItems;
+    private Map<String, ModificationItemImpl> modificationItems;
 
     /** the dn of the ldif entry */
     private String dn;
@@ -69,7 +69,7 @@ public class Entry implements Cloneable
     private boolean deleteOldRdn;
 
     /** attributes of the entry */
-    private BasicAttributes attributeList;
+    private Attributes attributeList;
 
     /** The possible change types */
     public final static int ADD = 0;
@@ -91,10 +91,10 @@ public class Entry implements Cloneable
     public Entry()
     {
         changeType = ADD; // Default LDIF content
-        modificationList = new LinkedList<ModificationItem>();
-        modificationItems = new HashMap<String, ModificationItem>();
+        modificationList = new LinkedList<ModificationItemImpl>();
+        modificationItems = new HashMap<String, ModificationItemImpl>();
         dn = null;
-        attributeList = new BasicAttributes( true );
+        attributeList = new AttributesImpl( true );
         control = null;
     }
 
@@ -156,7 +156,7 @@ public class Entry implements Cloneable
      * 
      * @param modification The modification to be added
      */
-    public void addModificationItem( ModificationItem modification )
+    public void addModificationItem( ModificationItemImpl modification )
     {
         if ( changeType == MODIFY )
         {
@@ -181,7 +181,7 @@ public class Entry implements Cloneable
         {
             if ( modificationItems.containsKey( attr.getID() ) )
             {
-                ModificationItem item = modificationItems.get( attr.getID() );
+                ModificationItemImpl item = modificationItems.get( attr.getID() );
                 Attribute attribute = item.getAttribute();
 
                 Enumeration attrs = attr.getAll();
@@ -193,7 +193,7 @@ public class Entry implements Cloneable
             }
             else
             {
-                ModificationItem item = new ModificationItem( modOp, attr );
+                ModificationItemImpl item = new ModificationItemImpl( modOp, attr );
                 modificationList.add( item );
                 modificationItems.put( attr.getID(), item );
             }
@@ -216,11 +216,11 @@ public class Entry implements Cloneable
     {
         if ( changeType == MODIFY )
         {
-            BasicAttribute attr = new BasicAttribute( id, value );
+            Attribute attr = new AttributeImpl( id, value );
 
             if ( modificationItems.containsKey( id ) )
             {
-                ModificationItem item = modificationItems.get( id );
+                ModificationItemImpl item = modificationItems.get( id );
                 
                 if ( item.getModificationOp() != modOp )
                 {
@@ -236,7 +236,7 @@ public class Entry implements Cloneable
             }
             else
             {
-                ModificationItem item = new ModificationItem( modOp, attr );
+                ModificationItemImpl item = new ModificationItemImpl( modOp, attr );
                 modificationList.add( item );
                 modificationItems.put( id, item );
             }
@@ -316,7 +316,7 @@ public class Entry implements Cloneable
     /**
      * @return The list of modification items
      */
-    public List<ModificationItem> getModificationItems()
+    public List<ModificationItemImpl> getModificationItems()
     {
         return modificationList;
     }
@@ -348,7 +348,7 @@ public class Entry implements Cloneable
     {
         if ( "dn".equalsIgnoreCase( attributeId ) )
         {
-            return new BasicAttribute( "dn", dn );
+            return new AttributeImpl( "dn", dn );
         }
 
         return attributeList.get( attributeId );
@@ -501,9 +501,9 @@ public class Entry implements Cloneable
 
         if ( modificationList != null )
         {
-            for ( ModificationItem modif:modificationList )
+            for ( ModificationItemImpl modif:modificationList )
             {
-                ModificationItem modifClone = new ModificationItem( modif.getModificationOp(), (Attribute) modif.getAttribute()
+                ModificationItemImpl modifClone = new ModificationItemImpl( modif.getModificationOp(), (Attribute) modif.getAttribute()
                         .clone() );
                 clone.modificationList.add( modifClone );
             }
@@ -513,8 +513,8 @@ public class Entry implements Cloneable
         {
             for ( String key:modificationItems.keySet() )
             {
-                ModificationItem modif = modificationItems.get( key );
-                ModificationItem modifClone = new ModificationItem( modif.getModificationOp(), (Attribute) modif.getAttribute()
+                ModificationItemImpl modif = modificationItems.get( key );
+                ModificationItemImpl modifClone = new ModificationItemImpl( modif.getModificationOp(), (Attribute) modif.getAttribute()
                         .clone() );
                 clone.modificationItems.put( key, modifClone );
             }
@@ -523,39 +523,7 @@ public class Entry implements Cloneable
 
         if ( attributeList != null )
         {
-            try
-            {
-                NamingEnumeration attrs = attributeList.getAll();
-
-                while ( attrs.hasMore() )
-                {
-                    Attribute attribute = (BasicAttribute) attrs.nextElement();
-                    Attribute attrClone = new BasicAttribute( attribute.getID() );
-
-                    for ( NamingEnumeration iter = attribute.getAll(); iter.hasMoreElements(); )
-                    {
-                        Object value = iter.next();
-
-                        if ( value instanceof String )
-                        {
-                            attrClone.add( value );
-                        }
-                        else if ( value instanceof byte[] )
-                        {
-                            int length = ( (byte[]) value ).length;
-                            byte[] valueClone = new byte[length];
-                            System.arraycopy( value, 0, valueClone, 0, length );
-                            attrClone.add( valueClone );
-                        }
-                    }
-
-                    clone.attributeList.put( attrClone );
-                }
-            }
-            catch (NamingException ne)
-            {
-                throw new CloneNotSupportedException( ne.getMessage() );
-            }
+            clone.attributeList = (Attributes)attributeList.clone();
         }
 
         return clone;
@@ -606,7 +574,7 @@ public class Entry implements Cloneable
     {
         StringBuffer sb = new StringBuffer();
         
-        for ( ModificationItem modif:modificationList )
+        for ( ModificationItemImpl modif:modificationList )
         {
             sb.append( "            Operation: " );
             

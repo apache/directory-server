@@ -30,10 +30,10 @@ import javax.naming.NamingEnumeration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ArrayNamingEnumeration implements NamingEnumeration
+public class ArrayNamingEnumeration<T> implements NamingEnumeration<T>
 {
     /** the objects to enumerate */
-    private final Object[] objects;
+    private final T[] objects;
 
     /** the index pointing into the array */
     private int index = 0;
@@ -45,7 +45,7 @@ public class ArrayNamingEnumeration implements NamingEnumeration
      * @param objects
      *            the objects to enumerate over
      */
-    public ArrayNamingEnumeration(Object[] objects)
+    public ArrayNamingEnumeration( T[] objects )
     {
         this.objects = objects;
     }
@@ -71,14 +71,14 @@ public class ArrayNamingEnumeration implements NamingEnumeration
     }
 
 
-    public Object next()
+    public T next()
     {
         if ( objects == null || objects.length == 0 || index >= objects.length )
         {
             throw new NoSuchElementException();
         }
 
-        Object retval = objects[index];
+        T retval = objects[index];
         index++;
         return retval;
     }
@@ -90,7 +90,7 @@ public class ArrayNamingEnumeration implements NamingEnumeration
     }
 
 
-    public Object nextElement()
+    public T nextElement()
     {
         return next();
     }

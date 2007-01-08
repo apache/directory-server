@@ -24,8 +24,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.ModificationItem;
+import javax.naming.directory.Attribute;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
@@ -38,6 +37,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
 import org.apache.directory.shared.ldap.message.Message;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponseImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -120,20 +120,20 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<ModificationItemImpl> modifications = modifyRequest.getModifications();
 
         assertEquals( 2, modifications.size() );
 
-        ModificationItem modification = ( ModificationItem ) modifications.get( 0 );
-        BasicAttribute attributeValue = ( BasicAttribute ) modification.getAttribute();
+        ModificationItemImpl modification = modifications.get( 0 );
+        Attribute attributeValue =  modification.getAttribute();
 
         assertEquals( "l", attributeValue.getID().toLowerCase() );
 
         String attrValue = ( String ) attributeValue.get( 0 );
         assertEquals( "Paris", attrValue );
 
-        modification = ( ModificationItem ) modifications.get( 1 );
-        attributeValue = ( BasicAttribute ) modification.getAttribute();
+        modification = modifications.get( 1 );
+        attributeValue =  modification.getAttribute();
 
         assertEquals( "attrs", attributeValue.getID().toLowerCase() );
 
@@ -162,7 +162,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest
      */
-    public void testDecodeModifyRequestBadDN() throws NamingException
+    public void testDecodeModifyRequestBadDN()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -293,20 +293,20 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 21, message.getMessageId() );
         assertEquals( "cn=Tori Amos,ou=playground,dc=apache,dc=org", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<ModificationItemImpl> modifications = modifyRequest.getModifications();
 
         assertEquals( 2, modifications.size() );
 
-        ModificationItem modification = ( ModificationItem ) modifications.get( 0 );
-        BasicAttribute attributeValue = ( BasicAttribute ) modification.getAttribute();
+        ModificationItemImpl modification = modifications.get( 0 );
+        Attribute attributeValue = modification.getAttribute();
 
         assertEquals( "telephonenumber", attributeValue.getID().toLowerCase() );
 
         String attrValue = ( String ) attributeValue.get( 0 );
         assertEquals( "1234567890", attrValue );
 
-        modification = ( ModificationItem ) modifications.get( 1 );
-        attributeValue = ( BasicAttribute ) modification.getAttribute();
+        modification = modifications.get( 1 );
+        attributeValue = modification.getAttribute();
 
         assertEquals( "cn", attributeValue.getID().toLowerCase() );
 
@@ -416,18 +416,18 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=Tori Amos,ou=playground,dc=apache,dc=org", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<ModificationItemImpl> modifications = modifyRequest.getModifications();
 
         assertEquals( 3, modifications.size() );
 
-        ModificationItem modification = ( ModificationItem ) modifications.get( 0 );
-        BasicAttribute attributeValue = ( BasicAttribute ) modification.getAttribute();
+        ModificationItemImpl modification = modifications.get( 0 );
+        Attribute attributeValue = modification.getAttribute();
 
         assertEquals( "description", attributeValue.getID().toLowerCase() );
         assertEquals( 0, attributeValue.size() );
 
-        modification = ( ModificationItem ) modifications.get( 1 );
-        attributeValue = ( BasicAttribute ) modification.getAttribute();
+        modification = modifications.get( 1 );
+        attributeValue = modification.getAttribute();
 
         String attrValue = ( String ) attributeValue.get( 0 );
 
@@ -435,8 +435,8 @@ public class ModifyRequestTest extends TestCase
 
         assertEquals( "01234567890", attrValue );
 
-        modification = ( ModificationItem ) modifications.get( 2 );
-        attributeValue = ( BasicAttribute ) modification.getAttribute();
+        modification = modifications.get( 2 );
+        attributeValue = modification.getAttribute();
 
         attrValue = ( String ) attributeValue.get( 0 );
 
@@ -547,12 +547,12 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<ModificationItemImpl> modifications = modifyRequest.getModifications();
 
         assertEquals( 2, modifications.size() );
 
-        ModificationItem modification = ( ModificationItem ) modifications.get( 0 );
-        BasicAttribute attributeValue = ( BasicAttribute ) modification.getAttribute();
+        ModificationItemImpl modification = modifications.get( 0 );
+        Attribute attributeValue = modification.getAttribute();
 
         assertEquals( "l", attributeValue.getID().toLowerCase() );
 
@@ -562,8 +562,8 @@ public class ModifyRequestTest extends TestCase
         attrValue = ( String ) attributeValue.get( 1 );
         assertEquals( "London", attrValue );
 
-        modification = ( ModificationItem ) modifications.get( 1 );
-        attributeValue = ( BasicAttribute ) modification.getAttribute();
+        modification = modifications.get( 1 );
+        attributeValue = modification.getAttribute();
 
         assertEquals( "attrs", attributeValue.getID().toLowerCase() );
 
@@ -942,7 +942,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and a
      * modification with an empty type
      */
-    public void testDecodeModifyRequestAddOperationModificationEmptyType() throws NamingException
+    public void testDecodeModifyRequestAddOperationModificationEmptyType()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1083,12 +1083,12 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<ModificationItemImpl> modifications = modifyRequest.getModifications();
 
         assertEquals( 1, modifications.size() );
 
-        ModificationItem modification = ( ModificationItem ) modifications.get( 0 );
-        BasicAttribute attributeValue = ( BasicAttribute ) modification.getAttribute();
+        ModificationItemImpl modification = modifications.get( 0 );
+        Attribute attributeValue = modification.getAttribute();
 
         assertEquals( "l", attributeValue.getID().toLowerCase() );
         assertEquals( 0, attributeValue.size() );
@@ -1166,12 +1166,12 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<ModificationItemImpl> modifications = modifyRequest.getModifications();
 
         assertEquals( 1, modifications.size() );
 
-        ModificationItem modification = ( ModificationItem ) modifications.get( 0 );
-        BasicAttribute attributeValue = ( BasicAttribute ) modification.getAttribute();
+        ModificationItemImpl modification = modifications.get( 0 );
+        Attribute attributeValue = modification.getAttribute();
 
         assertEquals( "l", attributeValue.getID().toLowerCase() );
         assertEquals( 0, attributeValue.size() );
@@ -1257,12 +1257,12 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<ModificationItemImpl> modifications = modifyRequest.getModifications();
 
         assertEquals( 1, modifications.size() );
 
-        ModificationItem modification = ( ModificationItem ) modifications.get( 0 );
-        BasicAttribute attributeValue = ( BasicAttribute ) modification.getAttribute();
+        ModificationItemImpl modification = modifications.get( 0 );
+        Attribute attributeValue = modification.getAttribute();
 
         assertEquals( "l", attributeValue.getID().toLowerCase() );
         assertEquals( 2, attributeValue.size() );

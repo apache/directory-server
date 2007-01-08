@@ -30,6 +30,8 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ScopeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -40,8 +42,6 @@ import java.nio.ByteBuffer;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 
 
 /**
@@ -114,7 +114,7 @@ public class SearchRequest extends LdapMessage
         super();
 
         currentFilter = null;
-        attributes = new BasicAttributes( true );
+        attributes = new AttributesImpl( true );
     }
 
 
@@ -150,8 +150,7 @@ public class SearchRequest extends LdapMessage
      */
     public void addAttribute( String attribute )
     {
-        //attributes.put( new BasicAttribute( StringTools.lowerCase( attribute ) ) );
-        attributes.put( new BasicAttribute( attribute ) );
+        attributes.put( new AttributeImpl( attribute ) );
     }
 
 
@@ -489,7 +488,7 @@ public class SearchRequest extends LdapMessage
             // Compute the attributes length
             while ( attributeIterator.hasMoreElements() )
             {
-                Attribute attribute = ( BasicAttribute ) attributeIterator.nextElement();
+                Attribute attribute = ( AttributeImpl ) attributeIterator.nextElement();
 
                 // add the attribute length to the attributes length
                 try
@@ -583,7 +582,7 @@ public class SearchRequest extends LdapMessage
                 // encode each attribute
                 while ( attributeIterator.hasMoreElements() )
                 {
-                    Attribute attribute = ( BasicAttribute ) attributeIterator.nextElement();
+                    Attribute attribute = ( AttributeImpl ) attributeIterator.nextElement();
 
                     Value.encode( buffer, attribute.getID() );
                 }
@@ -632,7 +631,7 @@ public class SearchRequest extends LdapMessage
             {
                 while ( attrs.hasMoreElements() )
                 {
-                    Attribute attr = ( BasicAttribute ) attrs.nextElement();
+                    Attribute attr = ( AttributeImpl ) attrs.nextElement();
         
                     if ( isFirst )
                     {

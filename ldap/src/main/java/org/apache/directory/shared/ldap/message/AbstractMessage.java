@@ -19,8 +19,11 @@
  */
 package org.apache.directory.shared.ldap.message;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
-import java.util.*;
 
 
 /**

@@ -20,13 +20,16 @@
 package org.apache.directory.shared.ldap.util;
 
 
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import java.util.Arrays;
+
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
@@ -39,6 +42,139 @@ import javax.naming.NamingException;
  */
 public class AttributeUtils
 {
+    /**
+     * Compare two values and return true if they are equal.
+     * 
+     * @param value1 The first value
+     * @param value2 The second value
+     * @return true if both value are null or if they are equal.
+     */
+    public final static boolean equals( Object value1, Object value2 )
+    {
+        if ( value1 == value2 )
+        {
+            return true;
+        }
+        
+        if ( value1 instanceof byte[] )
+        {
+            if ( value2 instanceof byte[] )
+            {
+                return Arrays.equals( (byte[])value1, (byte[])value2 );
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return value1.equals( value2 );
+        }
+    }
+    
+    /**
+     * Clone the value. An attribute value is supposed to be either a String
+     * or a byte array. If it's a String, then we just return it ( as String
+     * is immutable, we don't need to copy it). If it's a bu=yte array, we
+     * create a new byte array and copy the bytes into it.
+     * 
+     * @param value The value to clone
+     * @return The cloned value
+     */
+    public final static Object cloneValue( Object value )
+    {
+        // First copy the value
+        Object newValue = null;
+        
+        if ( value instanceof byte[] )
+        {
+            newValue = ((byte[])value).clone();
+        }
+        else
+        {
+            newValue = value;
+        }
+        
+        return newValue;
+    }
+
+    /**
+     * Switch from a BasicAttribute to a AttributeImpl. This is
+     * necessary to allow cloning to be correctly handled.
+     * 
+     * @param attribute The attribute to transform
+     * @return A instance of AttributeImpl
+     */
+    public final static Attribute toAttributeImpl( Attribute attribute )
+    {
+        if ( attribute instanceof AttributeImpl )
+        {
+            // Just return the attribute
+            return attribute;
+        }
+        else
+        {
+            // Create a new AttributeImpl from the original attribute
+            AttributeImpl newAttribute = new AttributeImpl( attribute.getID() );
+            
+            try
+            {
+                NamingEnumeration values = attribute.getAll();
+                
+                while ( values.hasMoreElements() )
+                {
+                    newAttribute.add( cloneValue( values.next() ) );
+                }
+                
+                return newAttribute;
+            }
+            catch ( NamingException ne )
+            {
+                return newAttribute;
+            }
+        }
+    }
+    
+    /**
+     * Switch from a BasicAttributes to a AttributesImpl. This is
+     * necessary to allow cloning to be correctly handled.
+     * 
+     * @param attributes The attributes to transform
+     * @return A instance of AttributesImpl
+     */
+    public final static Attributes toAttributesImpl( Attributes attributes )
+    {
+        if ( attributes instanceof AttributesImpl )
+        {
+            // Just return the attribute
+            return attributes;
+        }
+        else
+        {
+            // Create a new AttributesImpl from the original attribute
+            AttributesImpl newAttributes = new AttributesImpl( attributes.isCaseIgnored() );
+            
+            try
+            {
+                NamingEnumeration values = attributes.getAll();
+                
+                while ( values.hasMoreElements() )
+                {
+                    Attribute attribute = (Attribute)values.next();
+                    
+                    newAttributes.put( toAttributeImpl( attribute ) );
+                }
+                
+                return newAttributes;
+            }
+            catch ( NamingException ne )
+            {
+                return newAttributes;
+            }
+        }
+    }
+    
     /**
      * Utility method to extract an attribute from Attributes object using
      * all combinationos of the name including aliases.
@@ -81,7 +217,7 @@ public class AttributeUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the extract Attribute or null if no such attribute exists
      */
-    public final static Attribute getAttribute( ModificationItem[] mods, AttributeType type )
+    public final static Attribute getAttribute( ModificationItemImpl[] mods, AttributeType type )
     {
         // optimization bypass to avoid cost of the loop below
         if ( type.getNames().length == 1 )
@@ -231,7 +367,7 @@ public class AttributeUtils
         }
         else if ( attr0 == null )
         {
-            return new LockableAttributeImpl( attr1.getID() );
+            return new AttributeImpl( attr1.getID() );
         }
         else if ( attr1 == null )
         {
@@ -246,7 +382,7 @@ public class AttributeUtils
             id = attr0.getID();
         }
 
-        Attribute attr = new LockableAttributeImpl( id );
+        Attribute attr = new AttributeImpl( id );
 
         if ( attr0 != null )
         {
@@ -309,7 +445,7 @@ public class AttributeUtils
             id = attr0.getID();
         }
 
-        Attribute attr = new LockableAttributeImpl( id );
+        Attribute attr = new AttributeImpl( id );
 
         if ( attr0 != null )
         {
@@ -341,6 +477,78 @@ public class AttributeUtils
      *            The attributes to print
      * @return A string
      */
+    public static String toString( String tabs, Attribute attribute )
+    {
+        StringBuffer sb = new StringBuffer();
+
+        sb.append( tabs ).append( "Attribute\n" );
+
+        if ( attribute != null )
+        {
+            sb.append( tabs ).append( "    Type : '" ).append( attribute.getID() ).append( "'\n" );
+
+            for ( int j = 0; j < attribute.size(); j++ )
+            {
+
+                try
+                {
+                    Object attr = attribute.get( j );
+
+                    if ( attr != null )
+                    {
+                        if ( attr instanceof String )
+                        {
+                            sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr ).append(
+                                " \n" );
+                        }
+                        else if ( attr instanceof byte[] )
+                        {
+                            String string = StringTools.utf8ToString( ( byte[] ) attr );
+    
+                            sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " );
+                            sb.append( string ).append( '/' );
+                            sb.append( StringTools.dumpBytes( ( byte[] ) attr ) );
+                            sb.append( " \n" );
+                        }
+                        else
+                        {
+                            sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr ).append(
+                                " \n" );
+                        }
+                    }
+                }
+                catch ( NamingException ne )
+                {
+                    sb.append( "Bad attribute : " ).append( ne.getMessage() );
+                }
+            }
+        }
+        
+        return sb.toString();
+    }
+
+    /**
+     * Return a string representing the attributes
+     * 
+     * @param attributes
+     *            The attributes to print
+     * @return A string
+     */
+    public static String toString( Attribute attribute )
+    {
+        return toString( "", attribute );
+    }
+
+    /**
+     * Return a string representing the attributes with tabs in front of the
+     * string
+     * 
+     * @param tabs
+     *            Spaces to be added before the string
+     * @param attributes
+     *            The attributes to print
+     * @return A string
+     */
     public static String toString( String tabs, Attributes attributes )
     {
         StringBuffer sb = new StringBuffer();
@@ -355,46 +563,7 @@ public class AttributeUtils
             {
                 Attribute attribute = ( Attribute ) attributesIterator.nextElement();
     
-                if ( attribute != null )
-                {
-                    sb.append( tabs ).append( "    Type : '" ).append( attribute.getID() ).append( "'\n" );
-        
-                    for ( int j = 0; j < attribute.size(); j++ )
-                    {
-        
-                        try
-                        {
-                            Object attr = attribute.get( j );
-        
-                            if ( attr != null )
-                            {
-                                if ( attr instanceof String )
-                                {
-                                    sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr ).append(
-                                        " \n" );
-                                }
-                                else if ( attr instanceof byte[] )
-                                {
-                                    String string = StringTools.utf8ToString( ( byte[] ) attr );
-            
-                                    sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " );
-                                    sb.append( string ).append( '/' );
-                                    sb.append( StringTools.dumpBytes( ( byte[] ) attr ) );
-                                    sb.append( " \n" );
-                                }
-                                else
-                                {
-                                    sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr ).append(
-                                        " \n" );
-                                }
-                            }
-                        }
-                        catch ( NamingException ne )
-                        {
-                            sb.append( "Bad attribute : " ).append( ne.getMessage() );
-                        }
-                    }
-                }
+                sb.append( tabs ).append( attribute.toString() );
             }
         }
         

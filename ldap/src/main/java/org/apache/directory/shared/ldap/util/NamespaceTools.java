@@ -22,9 +22,13 @@ package org.apache.directory.shared.ldap.util;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.naming.CompositeName;
+import javax.naming.InvalidNameException;
+import javax.naming.Name;
+import javax.naming.NamingException;
 
 
 /**

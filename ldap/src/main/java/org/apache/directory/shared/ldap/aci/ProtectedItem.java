@@ -492,7 +492,7 @@ public abstract class ProtectedItem implements Serializable
                 }
                 catch ( NamingException e )
                 {
-                    // doesn't occur here, it is a BasicAttribute
+                    // doesn't occur here, it is an Attribute
                 }
                 
                 if(it.hasNext()) {

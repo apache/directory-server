@@ -20,13 +20,21 @@
 package org.apache.directory.shared.ldap.util;
 
 
-import java.util.*;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.naming.directory.Attributes;
 import javax.naming.NamingException;
@@ -34,7 +42,7 @@ import javax.naming.NamingException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -689,7 +697,7 @@ public class PropertiesUtils
         {
             if ( values == null )
             {
-                return new LockableAttributesImpl();
+                return new AttributesImpl();
             }
 
             return values;

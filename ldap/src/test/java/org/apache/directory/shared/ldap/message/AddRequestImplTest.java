@@ -32,8 +32,8 @@ import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.Control;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
@@ -49,15 +49,15 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class AddRequestImplTest extends TestCase
 {
     /**
-     * Creates and populates a LockableAttributeImpl with a specific id.
+     * Creates and populates a AttributeImpl with a specific id.
      * 
      * @param id
      *            the id for the attribute
-     * @return the LockableAttributeImpl assembled for testing
+     * @return the AttributeImpl assembled for testing
      */
-    private LockableAttributeImpl getAttribute( String id )
+    private AttributeImpl getAttribute( String id )
     {
-        LockableAttributeImpl attr = new LockableAttributeImpl( id );
+        AttributeImpl attr = new AttributeImpl( id );
         attr.add( "value0" );
         attr.add( "value1" );
         attr.add( "value2" );
@@ -70,9 +70,9 @@ public class AddRequestImplTest extends TestCase
      * 
      * @return
      */
-    private LockableAttributesImpl getAttributes()
+    private AttributesImpl getAttributes()
     {
-        LockableAttributesImpl attrs = new LockableAttributesImpl();
+        AttributesImpl attrs = new AttributesImpl();
         attrs.put( getAttribute( "attr0" ) );
         attrs.put( getAttribute( "attr1" ) );
         attrs.put( getAttribute( "attr2" ) );

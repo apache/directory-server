@@ -25,13 +25,16 @@ import java.io.PipedInputStream;
 import java.io.IOException;
 import java.text.ParseException;
 
-import antlr.*;
-
 import org.apache.directory.shared.ldap.filter.AntlrFilterLexer;
 import org.apache.directory.shared.ldap.filter.AntlrFilterParser;
 import org.apache.directory.shared.ldap.filter.AntlrFilterValueLexer;
 import org.apache.directory.shared.ldap.filter.AntlrFilterValueParser;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import antlr.LexerSharedInputState;
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
+import antlr.TokenStreamSelector;
 
 
 public class FilterParserImpl implements FilterParser

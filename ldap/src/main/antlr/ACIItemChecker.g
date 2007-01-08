@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.Enumeration;
 
 import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.filter.AssertionEnum;

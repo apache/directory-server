@@ -24,11 +24,10 @@ import junit.framework.TestCase;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.Control;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
@@ -70,22 +69,22 @@ public class ModifyRequestImplTest extends TestCase
             // do nothing
         }
 
-        LockableAttributeImpl attr = new LockableAttributeImpl( "attr0" );
+        AttributeImpl attr = new AttributeImpl( "attr0" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         req.addModification( item );
 
-        attr = new LockableAttributeImpl( "attr1" );
+        attr = new AttributeImpl( "attr1" );
         attr.add( "val3" );
-        item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
+        item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
         req.addModification( item );
 
-        attr = new LockableAttributeImpl( "attr2" );
+        attr = new AttributeImpl( "attr2" );
         attr.add( "val4" );
         attr.add( "val5" );
-        item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         req.addModification( item );
 
         return req;
@@ -151,19 +150,19 @@ public class ModifyRequestImplTest extends TestCase
     public void testNotEqualDiffModOps() throws InvalidNameException
     {
         ModifyRequestImpl req0 = getRequest();
-        LockableAttributeImpl attr = new LockableAttributeImpl( "attr3" );
+        AttributeImpl attr = new AttributeImpl( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
-        attr = new LockableAttributeImpl( "attr3" );
+        attr = new AttributeImpl( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
+        item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
         req0.addModification( item );
 
         assertFalse( req0.equals( req1 ) );
@@ -177,11 +176,11 @@ public class ModifyRequestImplTest extends TestCase
     public void testNotEqualDiffModCount() throws InvalidNameException
     {
         ModifyRequestImpl req0 = getRequest();
-        LockableAttributeImpl attr = new LockableAttributeImpl( "attr3" );
+        AttributeImpl attr = new AttributeImpl( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
@@ -197,19 +196,19 @@ public class ModifyRequestImplTest extends TestCase
     public void testNotEqualDiffModIds() throws InvalidNameException
     {
         ModifyRequestImpl req0 = getRequest();
-        LockableAttributeImpl attr = new LockableAttributeImpl( "attr3" );
+        AttributeImpl attr = new AttributeImpl( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
-        attr = new LockableAttributeImpl( "attr4" );
+        attr = new AttributeImpl( "attr4" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         assertFalse( req0.equals( req1 ) );
@@ -223,20 +222,20 @@ public class ModifyRequestImplTest extends TestCase
     public void testNotEqualDiffModValues() throws InvalidNameException
     {
         ModifyRequestImpl req0 = getRequest();
-        LockableAttributeImpl attr = new LockableAttributeImpl( "attr3" );
+        AttributeImpl attr = new AttributeImpl( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
-        attr = new LockableAttributeImpl( "attr3" );
+        attr = new AttributeImpl( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
         attr.add( "val3" );
-        item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         assertFalse( req0.equals( req1 ) );
@@ -253,35 +252,35 @@ public class ModifyRequestImplTest extends TestCase
         {
             public Collection getModificationItems()
             {
-                List<ModificationItem> list = new ArrayList<ModificationItem>();
-                LockableAttributeImpl attr = new LockableAttributeImpl( "attr0" );
+                List<ModificationItemImpl> list = new ArrayList<ModificationItemImpl>();
+                AttributeImpl attr = new AttributeImpl( "attr0" );
                 attr.add( "val0" );
                 attr.add( "val1" );
                 attr.add( "val2" );
-                ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+                ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
                 list.add( item );
 
-                attr = new LockableAttributeImpl( "attr1" );
+                attr = new AttributeImpl( "attr1" );
                 attr.add( "val3" );
-                item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
+                item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
                 list.add( item );
 
-                attr = new LockableAttributeImpl( "attr2" );
+                attr = new AttributeImpl( "attr2" );
                 attr.add( "val4" );
                 attr.add( "val5" );
-                item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+                item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
                 list.add( item );
 
                 return list;
             }
 
 
-            public void addModification( ModificationItem a_mod )
+            public void addModification( ModificationItemImpl a_mod )
             {
             }
 
 
-            public void removeModification( ModificationItem a_mod )
+            public void removeModification( ModificationItemImpl a_mod )
             {
             }
 
