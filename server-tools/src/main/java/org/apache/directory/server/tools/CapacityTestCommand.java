@@ -26,7 +26,6 @@ import java.util.Hashtable;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -35,6 +34,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.directory.daemon.AvailablePortFinder;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 
@@ -130,7 +130,7 @@ public class CapacityTestCommand extends BaseToolCommand
     
     private Attributes generateLdif( int counter )
     {
-        BasicAttributes attrs = new BasicAttributes( "objectClass", "top", true );
+        Attributes attrs = new AttributesImpl( "objectClass", "top", true );
         Attribute oc = attrs.get( "objectClass" );
         oc.add( "person" );
         oc.add( "organizationalPerson" );

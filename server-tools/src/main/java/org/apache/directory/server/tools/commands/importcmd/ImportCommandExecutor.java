@@ -40,7 +40,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.configuration.ServerStartupConfiguration;
 import org.apache.directory.server.tools.ToolCommandListener;
@@ -71,6 +70,7 @@ import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
 import org.apache.directory.shared.ldap.codec.util.LdapResultEnum;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -440,7 +440,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         while ( modifications.hasNext() )
         {
-            ModificationItem modification = ( ModificationItem ) modifications.next();
+            ModificationItemImpl modification = ( ModificationItemImpl ) modifications.next();
 
             switch ( modification.getModificationOp() )
             {
