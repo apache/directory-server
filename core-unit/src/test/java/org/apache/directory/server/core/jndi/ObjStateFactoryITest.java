@@ -27,13 +27,13 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.spi.DirObjectFactory;
 import javax.naming.spi.DirStateFactory;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 
@@ -88,7 +88,7 @@ public class ObjStateFactoryITest extends AbstractAdminTestCase
 
                 if ( inAttrs == null )
                 {
-                    outAttrs = new BasicAttributes( true );
+                    outAttrs = new AttributesImpl( true );
                 }
                 else
                 {
@@ -98,7 +98,7 @@ public class ObjStateFactoryITest extends AbstractAdminTestCase
                 // Set up object class
                 if ( outAttrs.get( "objectclass" ) == null )
                 {
-                    BasicAttribute oc = new BasicAttribute( "objectclass", "person" );
+                    Attribute oc = new AttributeImpl( "objectclass", "person" );
                     oc.add( "top" );
                     outAttrs.put( oc );
                 }

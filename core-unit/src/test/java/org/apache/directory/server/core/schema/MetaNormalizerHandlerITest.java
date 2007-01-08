@@ -28,15 +28,15 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
@@ -75,8 +75,8 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
     
     public void testAddNormalizer() throws NamingException
     {
-        Attributes attrs = new LockableAttributesImpl();
-        Attribute oc = new LockableAttributeImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_NORMALIZER_OC );
         attrs.put( oc );
@@ -104,8 +104,8 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
             out.write( in.read() );
         }
         
-        Attributes attrs = new LockableAttributesImpl();
-        Attribute oc = new LockableAttributeImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_NORMALIZER_OC );
         attrs.put( oc );
@@ -231,9 +231,9 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        ModificationItem[] mods = new ModificationItem[1];
-        Attribute attr = new LockableAttributeImpl( MetaSchemaConstants.M_FQCN_AT, DeepTrimNormalizer.class.getName() );
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        Attribute attr = new AttributeImpl( MetaSchemaConstants.M_FQCN_AT, DeepTrimNormalizer.class.getName() );
+        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         super.schemaRoot.modifyAttributes( dn, mods );
 
         assertTrue( "normalizer OID should still be present", 
@@ -254,7 +254,7 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        Attributes mods = new LockableAttributesImpl();
+        Attributes mods = new AttributesImpl();
         mods.put( MetaSchemaConstants.M_FQCN_AT, DeepTrimNormalizer.class.getName() );
         super.schemaRoot.modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
@@ -430,8 +430,8 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
     
     public void testAddNormalizerToDisabledSchema() throws NamingException
     {
-        Attributes attrs = new LockableAttributesImpl();
-        Attribute oc = new LockableAttributeImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_NORMALIZER_OC );
         attrs.put( oc );

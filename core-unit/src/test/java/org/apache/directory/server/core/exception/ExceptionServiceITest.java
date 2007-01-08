@@ -25,10 +25,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -38,6 +35,9 @@ import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
@@ -85,7 +85,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         {
             SearchResult result = ( SearchResult ) list.next();
             assertNotNull( result.getAttributes() );
-            assertEquals( "uid=akarasulu,ou=users,ou=system", result.getName().toString() );
+            assertEquals( "uid=akarasulu,ou=users,ou=system", result.getName() );
         }
 
         assertFalse( list.hasMore() );
@@ -253,8 +253,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
      */
     public void testFailModifyNoSuchObject() throws NamingException
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute ou = new BasicAttribute( "ou" );
+        Attributes attrs = new AttributesImpl( true );
+        Attribute ou = new AttributeImpl( "ou" );
         ou.add( "users" );
         ou.add( "dummyValue" );
         attrs.put( ou );
@@ -270,8 +270,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
 
-        ModificationItem[] mods = new ModificationItem[]
-            { new ModificationItem( DirContext.ADD_ATTRIBUTE, ou ) };
+        ModificationItemImpl[] mods = new ModificationItemImpl[]
+            { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, ou ) };
 
         try
         {
@@ -292,8 +292,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
      */
     public void testModifyControl() throws NamingException
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute attr = new BasicAttribute( "ou" );
+        Attributes attrs = new AttributesImpl( true );
+        Attribute attr = new AttributeImpl( "ou" );
         attr.add( "dummyValue" );
         attrs.put( attr );
         sysRoot.modifyAttributes( "ou=users", DirContext.ADD_ATTRIBUTE, attrs );
@@ -301,10 +301,10 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         assertTrue( ou.contains( "users" ) );
         assertTrue( ou.contains( "dummyValue" ) );
 
-        attr = new BasicAttribute( "ou" );
+        attr = new AttributeImpl( "ou" );
         attr.add( "another" );
-        ModificationItem[] mods = new ModificationItem[]
-            { new ModificationItem( DirContext.ADD_ATTRIBUTE, attr ) };
+        ModificationItemImpl[] mods = new ModificationItemImpl[]
+            { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr ) };
 
         sysRoot.modifyAttributes( "ou=users", mods );
         ou = sysRoot.getAttributes( "ou=users" ).get( "ou" );
@@ -381,7 +381,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         {
             SearchResult result = ( SearchResult ) list.next();
             assertNotNull( result.getAttributes() );
-            assertEquals( "uid=akarasulu,ou=users,ou=system", result.getName().toString() );
+            assertEquals( "uid=akarasulu,ou=users,ou=system", result.getName() );
         }
 
         assertFalse( list.hasMore() );
@@ -398,8 +398,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
      */
     public void testFailAddOnAlias() throws NamingException
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute attr = new BasicAttribute( "objectClass" );
+        Attributes attrs = new AttributesImpl( true );
+        Attribute attr = new AttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "alias" );
         attrs.put( attr );

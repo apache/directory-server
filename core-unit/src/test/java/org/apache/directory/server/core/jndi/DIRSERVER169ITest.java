@@ -22,11 +22,11 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.SearchResult;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.DirContext;
@@ -47,19 +47,19 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
     protected void setUp() throws Exception
     {
         super.setUp();
-        Attributes people = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes people = new AttributesImpl( true );
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         people.put( attribute );
         people.put( "ou", "people" );
         sysRoot.createSubcontext( "ou=people", people );
 
-        Attributes user = new BasicAttributes( "uid", "bob" );
+        Attributes user = new AttributesImpl( "uid", "bob" );
         user.put( "cn", "Bob Hamilton" );
         user.put( "userPassword", "bobspassword".getBytes( "UTF-8" ) );
 
-        Attribute objectClass = new BasicAttribute( "objectClass" );
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         user.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "person" );

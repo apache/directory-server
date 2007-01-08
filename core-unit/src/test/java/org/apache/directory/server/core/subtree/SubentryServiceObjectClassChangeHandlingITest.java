@@ -29,13 +29,13 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
@@ -49,8 +49,8 @@ public class SubentryServiceObjectClassChangeHandlingITest extends AbstractAdmin
 {
     public Attributes getTestEntry( String cn )
     {
-        Attributes entry = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes entry = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "person" );
         entry.put( objectClass );
@@ -62,8 +62,8 @@ public class SubentryServiceObjectClassChangeHandlingITest extends AbstractAdmin
 
     public Attributes getModsForIntroducingNewOC() throws NamingException
     {
-        Attributes changes = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes changes = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "organizationalPerson" );
         changes.put( objectClass );
         changes.put( "ou", "Test Organizational Unit" );
@@ -73,8 +73,8 @@ public class SubentryServiceObjectClassChangeHandlingITest extends AbstractAdmin
 
     public Attributes getCollectiveAttributeTestSubentry( String cn )
     {
-        Attributes subentry = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes subentry = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -88,11 +88,11 @@ public class SubentryServiceObjectClassChangeHandlingITest extends AbstractAdmin
 
     public void addAdministrativeRoles() throws NamingException
     {
-        Attribute attribute = new LockableAttributeImpl( "administrativeRole" );
+        Attribute attribute = new AttributeImpl( "administrativeRole" );
         attribute.add( "autonomousArea" );
         attribute.add( "collectiveAttributeSpecificArea" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
-        super.sysRoot.modifyAttributes( "", new ModificationItem[]
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
+        super.sysRoot.modifyAttributes( "", new ModificationItemImpl[]
             { item } );
     }
 

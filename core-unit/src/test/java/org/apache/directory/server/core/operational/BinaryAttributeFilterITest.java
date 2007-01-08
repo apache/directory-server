@@ -23,10 +23,10 @@ package org.apache.directory.server.core.operational;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -45,7 +45,7 @@ public class BinaryAttributeFilterITest extends AbstractAdminTestCase
 
     public void testBinaryExtension() throws NamingException
     {
-        Attributes attributes = new BasicAttributes( true );
+        Attributes attributes = new AttributesImpl( true );
         attributes.put( "objectClass", "top" );
         attributes.put( "objectClass", "organizationalUnit" );
         attributes.put( "objectClass", "extensibleObject" );

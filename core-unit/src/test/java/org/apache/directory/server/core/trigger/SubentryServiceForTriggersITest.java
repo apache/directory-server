@@ -29,15 +29,15 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
@@ -50,8 +50,8 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
 {
     public Attributes getTestEntry( String cn )
     {
-        Attributes subentry = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes subentry = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "person" );
         subentry.put( objectClass );
@@ -63,8 +63,8 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
 
     public Attributes getTestSubentry()
     {
-        Attributes subentry = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes subentry = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "triggerExecutionSubentry" );
@@ -77,8 +77,8 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
     
     public Attributes getTestSubentryWithExclusion()
     {
-        Attributes subentry = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes subentry = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "triggerExecutionSubentry" );
@@ -93,11 +93,11 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
 
     public void addTheAdministrativeRole() throws NamingException
     {
-        Attribute attribute = new LockableAttributeImpl( "administrativeRole" );
+        Attribute attribute = new AttributeImpl( "administrativeRole" );
         attribute.add( "autonomousArea" );
         attribute.add( "triggerSpecificArea" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
-        super.sysRoot.modifyAttributes( "", new ModificationItem[] { item } );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
+        super.sysRoot.modifyAttributes( "", new ModificationItemImpl[] { item } );
     }
 
 
@@ -224,10 +224,10 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // Now modify the subentry by introducing an exclusion
         // --------------------------------------------------------------------
 
-        Attribute subtreeSpecification = new LockableAttributeImpl( "subtreeSpecification" );
+        Attribute subtreeSpecification = new AttributeImpl( "subtreeSpecification" );
         subtreeSpecification.add( "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=interceptors\" } }" );
-        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
-        super.sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItem[] { item } );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
+        super.sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItemImpl[] { item } );
         results = getAllEntries();
 
         // --------------------------------------------------------------------

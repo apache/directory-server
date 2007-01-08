@@ -21,12 +21,18 @@ package org.apache.directory.server.core.collective;
 
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import java.util.Map;
 import java.util.HashMap;
 
@@ -41,8 +47,8 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
 {
     public Attributes getTestEntry( String cn )
     {
-        Attributes subentry = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes subentry = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "person" );
         subentry.put( objectClass );
@@ -54,8 +60,8 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
 
     public Attributes getTestSubentry()
     {
-        Attributes subentry = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes subentry = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -69,8 +75,8 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
 
     public Attributes getTestSubentry2()
     {
-        Attributes subentry = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes subentry = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -84,8 +90,8 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
 
     public Attributes getTestSubentry3()
     {
-        Attributes subentry = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes subentry = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -99,10 +105,10 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
 
     public void addAdministrativeRole( String role ) throws NamingException
     {
-        Attribute attribute = new LockableAttributeImpl( "administrativeRole" );
+        Attribute attribute = new AttributeImpl( "administrativeRole" );
         attribute.add( role );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
-        super.sysRoot.modifyAttributes( "", new ModificationItem[]
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
+        super.sysRoot.modifyAttributes( "", new ModificationItemImpl[]
             { item } );
     }
 
@@ -189,9 +195,9 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // now modify entries included by the subentry to have collectiveExclusions
         // -------------------------------------------------------------------
 
-        ModificationItem[] items = new ModificationItem[]
-            { new ModificationItem( DirContext.ADD_ATTRIBUTE,
-                new LockableAttributeImpl( "collectiveExclusions", "c-ou" ) ) };
+        ModificationItemImpl[] items = new ModificationItemImpl[]
+            { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+                new AttributeImpl( "collectiveExclusions", "c-ou" ) ) };
         super.sysRoot.modifyAttributes( "ou=services,ou=configuration", items );
 
         // entry should not show the c-ou collective attribute anymore
@@ -245,8 +251,8 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // now modify an entry to exclude all collective attributes
         // -------------------------------------------------------------------
 
-        items = new ModificationItem[]
-            { new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new LockableAttributeImpl( "collectiveExclusions",
+        items = new ModificationItemImpl[]
+            { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "collectiveExclusions",
                 "excludeAllCollectiveAttributes" ) ) };
         super.sysRoot.modifyAttributes( "ou=interceptors,ou=configuration", items );
 
@@ -310,9 +316,9 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // now modify entries included by the subentry to have collectiveExclusions
         // -------------------------------------------------------------------
 
-        ModificationItem[] items = new ModificationItem[]
-            { new ModificationItem( DirContext.ADD_ATTRIBUTE,
-                new LockableAttributeImpl( "collectiveExclusions", "c-ou" ) ) };
+        ModificationItemImpl[] items = new ModificationItemImpl[]
+            { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+                new AttributeImpl( "collectiveExclusions", "c-ou" ) ) };
         super.sysRoot.modifyAttributes( "ou=services,ou=configuration", items );
         entries = getAllEntries();
 
@@ -369,8 +375,8 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // now modify an entry to exclude all collective attributes
         // -------------------------------------------------------------------
 
-        items = new ModificationItem[]
-            { new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new LockableAttributeImpl( "collectiveExclusions",
+        items = new ModificationItemImpl[]
+            { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "collectiveExclusions",
                 "excludeAllCollectiveAttributes" ) ) };
         super.sysRoot.modifyAttributes( "ou=interceptors,ou=configuration", items );
         entries = getAllEntries();

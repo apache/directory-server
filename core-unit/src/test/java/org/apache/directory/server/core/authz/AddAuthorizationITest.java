@@ -21,10 +21,14 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 
 
 /**
@@ -51,8 +55,8 @@ public class AddAuthorizationITest extends AbstractAuthorizationITest
      */
     public boolean checkCanAddEntryAs( String uid, String password, String entryRdn ) throws NamingException
     {
-        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
+        Attributes testEntry = new AttributesImpl( "ou", "testou", true );
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         testEntry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );

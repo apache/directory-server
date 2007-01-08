@@ -24,11 +24,14 @@ import java.util.HashSet;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractNonAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -83,7 +86,7 @@ public class AuthorizationServiceAsNonAdminITest extends AbstractNonAdminTestCas
      */
     public void testModifyOnAdminByNonAdmin()
     {
-        Attributes attributes = new LockableAttributesImpl();
+        Attributes attributes = new AttributesImpl();
         attributes.put( "userPassword", "replaced" );
 
         try

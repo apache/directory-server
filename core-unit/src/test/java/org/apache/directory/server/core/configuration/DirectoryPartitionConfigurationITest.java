@@ -26,7 +26,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 
 import junit.framework.Assert;
 
@@ -36,6 +35,7 @@ import org.apache.directory.server.core.configuration.RemovePartitionConfigurati
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -57,7 +57,7 @@ public class DirectoryPartitionConfigurationITest extends AbstractAdminTestCase
         MutablePartitionConfiguration partitionCfg = new MutablePartitionConfiguration();
         partitionCfg.setName( "removable" );
         partitionCfg.setSuffix( "ou=removable" );
-        Attributes ctxEntry = new BasicAttributes( true );
+        Attributes ctxEntry = new AttributesImpl( true );
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.put( "ou", "removable" );
         partitionCfg.setContextEntry( ctxEntry );

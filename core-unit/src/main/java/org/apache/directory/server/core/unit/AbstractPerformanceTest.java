@@ -31,7 +31,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 import javax.naming.Context;
-import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -40,6 +40,7 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
@@ -132,6 +133,8 @@ public class AbstractPerformanceTest extends AbstractTestCase
     
     protected void setUp() throws Exception
     {
+        super.setUp();
+        
         if ( ! isExternal )
         {
             // Add indices for ou, uid, and objectClass
@@ -141,7 +144,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
             indexedAttributes.add( "objectClass" );
             
             // Build the root entry for the new partition
-            BasicAttributes attributes = new BasicAttributes( "objectClass", "top", true );
+            Attributes attributes = new AttributesImpl( "objectClass", "top", true );
             attributes.get( "objectClass" ).add( "organizationalUnit" );
             attributes.put( "ou", "test" );
             

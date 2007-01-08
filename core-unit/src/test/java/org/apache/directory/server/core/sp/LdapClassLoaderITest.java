@@ -24,11 +24,11 @@ package org.apache.directory.server.core.sp;
 import javax.naming.Context;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.Base64;
 
 
@@ -66,7 +66,7 @@ public class LdapClassLoaderITest extends AbstractAdminTestCase
         ServerLdapContext defaultContext = ( ServerLdapContext ) sysRoot.lookup( "ou=system" );
 
         // set up
-        Attributes attributes = new BasicAttributes( "objectClass", "top", true );
+        Attributes attributes = new AttributesImpl( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );
         attributes.put( "fullyQualifiedJavaClassName", "HelloWorld" );
         attributes.put( "javaClassByteCode", HELLOWORLD_CLASS_BYTES );
@@ -91,24 +91,24 @@ public class LdapClassLoaderITest extends AbstractAdminTestCase
         ServerLdapContext defaultContext = ( ServerLdapContext ) sysRoot.lookup( "ou=system" );
 
         // create an extensible object for holding custom config data
-        Attributes classLoaderDefaultSearchContextConfig = new BasicAttributes();
-        Attribute objectClass = new BasicAttribute( "objectClass" );
+        Attributes classLoaderDefaultSearchContextConfig = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "extensibleObject" );
 
         // create custom config entry
         classLoaderDefaultSearchContextConfig.put( objectClass );
-        classLoaderDefaultSearchContextConfig.put( new BasicAttribute( "cn", "classLoaderDefaultSearchContext" ) );
+        classLoaderDefaultSearchContextConfig.put( new AttributeImpl( "cn", "classLoaderDefaultSearchContext" ) );
 
         // add a default search context to the configuration
-        classLoaderDefaultSearchContextConfig.put( new BasicAttribute( "classLoaderDefaultSearchContext", "ou=system" ) );
+        classLoaderDefaultSearchContextConfig.put( new AttributeImpl( "classLoaderDefaultSearchContext", "ou=system" ) );
 
         // add the configuration entry to the DIT
         ServerLdapContext configContext = ( ServerLdapContext ) defaultContext.lookup( "ou=configuration" );
         configContext.createSubcontext( "cn=classLoaderDefaultSearchContext", classLoaderDefaultSearchContextConfig );
 
         // create a class holder entry and add it to the DIT
-        Attributes attributes = new BasicAttributes( "objectClass", "top", true );
+        Attributes attributes = new AttributesImpl( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );
         attributes.put( "fullyQualifiedJavaClassName", "HelloWorld" );
         attributes.put( "javaClassByteCode", HELLOWORLD_CLASS_BYTES );

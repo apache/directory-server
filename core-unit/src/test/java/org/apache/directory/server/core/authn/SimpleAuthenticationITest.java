@@ -32,13 +32,13 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 
@@ -347,9 +347,9 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
         
         // now modify the password for akarasulu
-        LockableAttributeImpl userPasswordAttribute = new LockableAttributeImpl( "userPassword", "newpwd" );
-        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItem[] { 
-            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "newpwd" );
+        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
         
         // close and try with old password (should fail)
         ic.close();

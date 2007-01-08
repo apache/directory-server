@@ -27,16 +27,16 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
@@ -49,7 +49,7 @@ public class SearchOpsITest extends AbstractAdminTestCase
 {
     private DirContext addNisPosixGroup( String name, int gid ) throws NamingException
     {
-        Attributes attrs = new BasicAttributes( "objectClass", "top", true );
+        Attributes attrs = new AttributesImpl( "objectClass", "top", true );
         attrs.get( "objectClass" ).add( "posixGroup" );
         attrs.put( "cn", name );
         attrs.put( "gidNumber", String.valueOf( gid ) );
@@ -68,7 +68,7 @@ public class SearchOpsITest extends AbstractAdminTestCase
         {
             MutablePartitionConfiguration sysConf = new MutablePartitionConfiguration();
             sysConf.setName( "system" );
-            Attributes attrs = new BasicAttributes( "objectClass", "top", true );
+            Attributes attrs = new AttributesImpl( "objectClass", "top", true );
             attrs.get( "objectClass" ).add( "organizationalUnit" );
             attrs.put( "ou", "system" );
             sysConf.setContextEntry( attrs );
@@ -99,9 +99,9 @@ public class SearchOpsITest extends AbstractAdminTestCase
         // if nis is disabled then enable it
         if ( isNisDisabled )
         {
-            Attribute disabled = new BasicAttribute( "m-disabled" );
-            ModificationItem[] mods = new ModificationItem[] { 
-                new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
+            Attribute disabled = new AttributeImpl( "m-disabled" );
+            ModificationItemImpl[] mods = new ModificationItemImpl[] { 
+                new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled ) };
             schemaRoot.modifyAttributes( "cn=nis", mods );
         }
         

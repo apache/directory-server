@@ -20,9 +20,14 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 
-import javax.naming.directory.*;
+import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+
 
 
 /**
@@ -35,8 +40,8 @@ public class ExtensibleObjectITest extends AbstractAdminTestCase
 {
     public void testExtensibleObjectModify() throws Exception
     {
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl( true );
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -55,11 +60,11 @@ public class ExtensibleObjectITest extends AbstractAdminTestCase
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
 
-        Attributes newattribs = new BasicAttributes( true );
-        Attribute freeform = new BasicAttribute( "cn" );
+        Attributes newattribs = new AttributesImpl( true );
+        Attribute freeform = new AttributeImpl( "cn" );
         freeform.add( "testing" );
         newattribs.put( freeform );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "extensibleObject" );
         objectClass.add( "organizationalUnit" );
@@ -81,8 +86,8 @@ public class ExtensibleObjectITest extends AbstractAdminTestCase
 
     public void testExtensibleObjectAdd() throws Exception
     {
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl( true );
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "extensibleObject" );
         attribute.add( "organizationalUnit" );
