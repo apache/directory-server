@@ -35,7 +35,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 import jdbm.RecordManager;
 import jdbm.helper.MRU;
@@ -55,8 +54,9 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -1200,7 +1200,7 @@ public class JdbmStore
 
     public Attributes getIndices( BigInteger id ) throws NamingException
     {
-        Attributes attributes = new LockableAttributesImpl();
+        Attributes attributes = new AttributesImpl();
 
         // Get the distinguishedName to id mapping
         attributes.put( "_nDn", getEntryDn( id ) );
@@ -1221,7 +1221,7 @@ public class JdbmStore
                 Attribute attr = attributes.get( attrId );
                 if ( attr == null )
                 {
-                    attr = new LockableAttributeImpl( attrId );
+                    attr = new AttributeImpl( attrId );
                 }
                 attr.add( val );
                 attributes.put( attr );
@@ -1243,7 +1243,7 @@ public class JdbmStore
             Attribute attr = attributes.get( valStr );
             if ( attr == null )
             {
-                attr = new LockableAttributeImpl( valStr );
+                attr = new AttributeImpl( valStr );
             }
             attr.add( rec.getEntryId() );
             attributes.put( attr );
@@ -1253,7 +1253,7 @@ public class JdbmStore
         // Get all parent child mappings for this entry as the parent using the
         // key 'child' with many entries following it.
         list = hierarchyIdx.listIndices( id );
-        Attribute childAttr = new LockableAttributeImpl( "_child" );
+        Attribute childAttr = new AttributeImpl( "_child" );
         attributes.put( childAttr );
         while ( list.hasMore() )
         {
@@ -1298,7 +1298,7 @@ public class JdbmStore
 
         if ( entryAttrToAddTo == null )
         {
-            entryAttrToAddTo = new LockableAttributeImpl( mods.getID() );
+            entryAttrToAddTo = new AttributeImpl( mods.getID() );
             entry.put( entryAttrToAddTo );
         }
 
@@ -1495,7 +1495,7 @@ public class JdbmStore
     }
 
 
-    public void modify( LdapDN dn, ModificationItem[] mods ) throws NamingException
+    public void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException
     {
         BigInteger id = getEntryId( dn.toString() );
         Attributes entry = master.get( id );
@@ -1568,7 +1568,7 @@ public class JdbmStore
         Attribute rdnAttr = ServerUtils.getAttribute( newRdnAttrType, entry );
         if ( rdnAttr == null )
         {
-            rdnAttr = new LockableAttributeImpl( newRdnAttr );
+            rdnAttr = new AttributeImpl( newRdnAttr );
         }
 
         // add the new Rdn value only if it is not already present in the entry
