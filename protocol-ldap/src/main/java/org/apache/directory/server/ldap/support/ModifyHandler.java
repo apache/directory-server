@@ -23,7 +23,6 @@ package org.apache.directory.server.ldap.support;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
-import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.configuration.StartupConfiguration;
@@ -32,6 +31,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 public class ModifyHandler implements LdapMessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( ModifyHandler.class );
-    private static final ModificationItem[] EMPTY = new ModificationItem[0];
+    private static final ModificationItemImpl[] EMPTY = new ModificationItemImpl[0];
     private static Control[] EMPTY_CONTROLS = new Control[0];
 
     /** Speedup for logs */
@@ -77,7 +77,7 @@ public class ModifyHandler implements LdapMessageHandler
             }
             ctx.setRequestControls( ( Control[] ) req.getControls().values().toArray( EMPTY_CONTROLS ) );
             Object[] mods = req.getModificationItems().toArray( EMPTY );
-            ctx.modifyAttributes( req.getName(), ( ModificationItem[] ) mods );
+            ctx.modifyAttributes( req.getName(), ( ModificationItemImpl[] ) mods );
         }
         catch ( ReferralException e )
         {
