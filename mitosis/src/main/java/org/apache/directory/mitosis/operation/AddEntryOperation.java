@@ -88,7 +88,7 @@ public class AddEntryOperation extends Operation
 
         String rdn = normalizedName.get( normalizedName.size() - 1 );
         // Remove the attribute first in case we're using a buggy 
-        // LockableAttributesImpl which doesn't replace old attributes
+        // AttributesImpl which doesn't replace old attributes
         // when we put a new one.
         entry.remove( NamespaceTools.getRdnAttribute( rdn ) );
         entry.put( NamespaceTools.getRdnAttribute( rdn ), NamespaceTools.getRdnValue( rdn ) );

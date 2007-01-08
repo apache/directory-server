@@ -24,10 +24,10 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.mitosis.common.CSN;
@@ -104,7 +104,7 @@ public class EntryUtil
         }
 
         // Create a glue entry.
-        Attributes entry = new BasicAttributes( true );
+        Attributes entry = new AttributesImpl( true );
         
         //// Add RDN attribute. 
         String rdn = name.get( name.size() - 1 );
@@ -113,7 +113,7 @@ public class EntryUtil
         entry.put( rdnAttribute, rdnValue );
         
         //// Add objectClass attribute. 
-        Attribute objectClassAttr = new BasicAttribute( "objectClass" );
+        Attribute objectClassAttr = new AttributeImpl( "objectClass" );
         objectClassAttr.add( "top" );
         objectClassAttr.add( "extensibleObject" );
         entry.put( objectClassAttr );

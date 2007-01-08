@@ -33,7 +33,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -63,6 +62,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.filter.LoggingFilter;
@@ -384,7 +384,7 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, LdapDN name, ModificationItem[] items ) throws NamingException
+    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] items ) throws NamingException
     {
         Operation op = operationFactory.newModify( name, items );
         op.execute( nexus, store, attrRegistry );

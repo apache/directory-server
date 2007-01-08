@@ -21,7 +21,6 @@ package org.apache.directory.mitosis.service.protocol.codec;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.directory.BasicAttribute;
 
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.DefaultCSN;
@@ -30,6 +29,7 @@ import org.apache.directory.mitosis.service.protocol.codec.LogEntryMessageDecode
 import org.apache.directory.mitosis.service.protocol.codec.LogEntryMessageEncoder;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -41,7 +41,7 @@ public class LogEntryMessageCodecTest extends AbstractMessageCodecTest
         super(
             new LogEntryMessage( 1234, new AddAttributeOperation( new DefaultCSN( System.currentTimeMillis(),
                 new ReplicaId( "testReplica0" ), 1234 ), new LdapDN( "ou=system" ),
-                new BasicAttribute( "Hello", "Test" ) ) ), new LogEntryMessageEncoder(), new LogEntryMessageDecoder() );
+                new AttributeImpl( "Hello", "Test" ) ) ), new LogEntryMessageEncoder(), new LogEntryMessageDecoder() );
     }
 
 

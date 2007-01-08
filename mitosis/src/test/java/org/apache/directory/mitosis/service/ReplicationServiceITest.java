@@ -32,7 +32,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -49,6 +48,7 @@ import org.apache.directory.server.core.configuration.MutableInterceptorConfigur
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.mina.util.AvailablePortFinder;
 
 /**
@@ -78,7 +78,7 @@ public class ReplicationServiceITest extends TestCase
         LdapContext ctxB = getReplicaContext( "B" );
         LdapContext ctxC = getReplicaContext( "C" );
 
-        Attributes entry = new BasicAttributes( true );
+        Attributes entry = new AttributesImpl( true );
         entry.put( "cn", "test" );
         entry.put( "objectClass", "top" );
         ctxA.bind( "cn=test,ou=system", entry );
@@ -95,13 +95,13 @@ public class ReplicationServiceITest extends TestCase
         LdapContext ctxB = getReplicaContext( "B" );
         LdapContext ctxC = getReplicaContext( "C" );
 
-        Attributes entryA = new BasicAttributes( true );
+        Attributes entryA = new AttributesImpl( true );
         entryA.put( "cn", "test" );
         entryA.put( "ou", "A" );
         entryA.put( "objectClass", "top" );
         ctxA.bind( "cn=test,ou=system", entryA );
 
-        Attributes entryB = new BasicAttributes( true );
+        Attributes entryB = new AttributesImpl( true );
         entryB.put( "cn", "test" );
         entryB.put( "ou", "B" );
         entryB.put( "objectClass", "top" );

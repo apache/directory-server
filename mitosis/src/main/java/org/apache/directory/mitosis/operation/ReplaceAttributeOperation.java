@@ -23,10 +23,10 @@ package org.apache.directory.mitosis.operation;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 
@@ -60,7 +60,7 @@ public class ReplaceAttributeOperation extends AttributeOperation
 
     protected void execute1( PartitionNexus nexus ) throws NamingException
     {
-        Attributes attrs = new BasicAttributes( true );
+        Attributes attrs = new AttributesImpl( true );
         attrs.put( getAttribute() );
         nexus.modify( getName(), DirContext.REPLACE_ATTRIBUTE, attrs );
     }

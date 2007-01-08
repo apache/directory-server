@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.naming.Name;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 
 import junit.framework.Assert;
@@ -47,6 +45,8 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.SchemaManager;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
@@ -191,20 +191,20 @@ public class DerbyReplicationStoreTest extends TestCase
     {
         CSN csn = csnFactory.newInstance( REPLICA_ID );
         CompositeOperation op1 = new CompositeOperation( csn );
-        op1.add( new AddEntryOperation( csn, new LdapDN( "ou=a" ), new BasicAttributes( true ) ) );
-        op1.add( new AddAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
-        op1.add( new ReplaceAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
-        op1.add( new DeleteAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
+        op1.add( new AddEntryOperation( csn, new LdapDN( "ou=a" ), new AttributesImpl( true ) ) );
+        op1.add( new AddAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
+        op1.add( new ReplaceAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
+        op1.add( new DeleteAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
 
         store.putLog( op1 );
         testGetLogs( csn, op1 );
 
         csn = csnFactory.newInstance( OTHER_REPLICA_ID );
         CompositeOperation op2 = new CompositeOperation( csn );
-        op2.add( new AddEntryOperation( csn, new LdapDN( "ou=a" ), new BasicAttributes( true ) ) );
-        op2.add( new AddAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
-        op2.add( new ReplaceAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
-        op2.add( new DeleteAttributeOperation( csn, new LdapDN( "ou=a" ), new BasicAttribute( "id", "valie" ) ) );
+        op2.add( new AddEntryOperation( csn, new LdapDN( "ou=a" ), new AttributesImpl( true ) ) );
+        op2.add( new AddAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
+        op2.add( new ReplaceAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
+        op2.add( new DeleteAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
 
         store.putLog( op2 );
         testGetLogs( csn, op2 );

@@ -28,15 +28,15 @@ import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.mitosis.common.CSN;
@@ -138,7 +138,7 @@ public class OperationFactory
         CompositeOperation result = new CompositeOperation( csn );
 
         // Transform into replace operation.
-        result.add( new ReplaceAttributeOperation( csn, normalizedName, new BasicAttribute( Constants.ENTRY_DELETED,
+        result.add( new ReplaceAttributeOperation( csn, normalizedName, new AttributeImpl( Constants.ENTRY_DELETED,
             "true" ) ) );
 
         return addDefaultOperations( result, csn, normalizedName );
@@ -166,7 +166,7 @@ public class OperationFactory
         }
 
         // Resurrect the entry in case it is deleted.
-        result.add( new ReplaceAttributeOperation( csn, normalizedName, new BasicAttribute( Constants.ENTRY_DELETED,
+        result.add( new ReplaceAttributeOperation( csn, normalizedName, new AttributeImpl( Constants.ENTRY_DELETED,
             "false" ) ) );
 
         return addDefaultOperations( result, null, normalizedName );
@@ -181,7 +181,7 @@ public class OperationFactory
      * sets {@link Constants#ENTRY_DELETED} to "false" to resurrect the
      * entry the modified attributes belong to.
      */
-    public Operation newModify( LdapDN normalizedName, ModificationItem[] items )
+    public Operation newModify( LdapDN normalizedName, ModificationItemImpl[] items )
     {
         CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
@@ -189,12 +189,12 @@ public class OperationFactory
         // Transform into multiple {@link AttributeOperation}s.
         for ( int i = 0; i < length; i++ )
         {
-            ModificationItem item = items[i];
+            ModificationItemImpl item = items[i];
             result.add( newModify( csn, normalizedName, item.getModificationOp(), item.getAttribute() ) );
         }
 
         // Resurrect the entry in case it is deleted.
-        result.add( new ReplaceAttributeOperation( csn, normalizedName, new BasicAttribute( Constants.ENTRY_DELETED,
+        result.add( new ReplaceAttributeOperation( csn, normalizedName, new AttributeImpl( Constants.ENTRY_DELETED,
             "false" ) ) );
 
         return addDefaultOperations( result, csn, normalizedName );
@@ -283,7 +283,7 @@ public class OperationFactory
             LdapDN oldEntryName = new LdapDN( sr.getName() );
 
             // Delete the old entry
-            result.add( new ReplaceAttributeOperation( csn, oldEntryName, new BasicAttribute( Constants.ENTRY_DELETED,
+            result.add( new ReplaceAttributeOperation( csn, oldEntryName, new AttributeImpl( Constants.ENTRY_DELETED,
                 "true" ) ) );
 
             // Get the old entry attributes and replace RDN if required
@@ -351,7 +351,7 @@ public class OperationFactory
      */
     private CompositeOperation addDefaultOperations( CompositeOperation result, CSN csn, LdapDN normalizedName )
     {
-        result.add( new ReplaceAttributeOperation( csn, normalizedName, new BasicAttribute( Constants.ENTRY_CSN, csn
+        result.add( new ReplaceAttributeOperation( csn, normalizedName, new AttributeImpl( Constants.ENTRY_CSN, csn
             .toOctetString() ) ) );
         return result;
     }
