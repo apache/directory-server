@@ -23,7 +23,7 @@ package org.apache.directory.server.core.subtree;
 import junit.framework.TestCase;
 
 import javax.naming.NamingException;
-import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.Attribute;
 
 import org.apache.directory.server.core.schema.GlobalRegistries;
 import org.apache.directory.server.core.schema.OidRegistry;
@@ -36,6 +36,7 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -106,7 +107,7 @@ public class RefinementEvaluatorTest extends TestCase
     {
         try
         {
-            assertFalse( evaluator.evaluate( null, new BasicAttribute( "objectClass" ) ) );
+            assertFalse( evaluator.evaluate( null, new AttributeImpl( "objectClass" ) ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -124,7 +125,7 @@ public class RefinementEvaluatorTest extends TestCase
 
         try
         {
-            assertFalse( evaluator.evaluate( new SimpleNode( "", "", LeafNode.EQUALITY ), new BasicAttribute( "blah" ) ) );
+            assertFalse( evaluator.evaluate( new SimpleNode( "", "", LeafNode.EQUALITY ), new AttributeImpl( "blah" ) ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -135,44 +136,44 @@ public class RefinementEvaluatorTest extends TestCase
 
     public void testMatchByName() throws Exception
     {
-        BasicAttribute objectClasses = null;
+        Attribute objectClasses = null;
 
         // positive test
-        objectClasses = new BasicAttribute( "objectClass", "person" );
+        objectClasses = new AttributeImpl( "objectClass", "person" );
         assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
 
-        objectClasses = new BasicAttribute( "objectClass" );
+        objectClasses = new AttributeImpl( "objectClass" );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
         assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
 
         // negative tests
-        objectClasses = new BasicAttribute( "objectClass", "person" );
+        objectClasses = new AttributeImpl( "objectClass", "person" );
         assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "blah", LeafNode.EQUALITY ), objectClasses ) );
 
-        objectClasses = new BasicAttribute( "objectClass", "blah" );
+        objectClasses = new AttributeImpl( "objectClass", "blah" );
         assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
     }
 
 
     public void testMatchByOID() throws Exception
     {
-        BasicAttribute objectClasses = null;
+        Attribute objectClasses = null;
 
         // positive test
-        objectClasses = new BasicAttribute( "objectClass", "person" );
+        objectClasses = new AttributeImpl( "objectClass", "person" );
         assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ), objectClasses ) );
 
-        objectClasses = new BasicAttribute( "objectClass" );
+        objectClasses = new AttributeImpl( "objectClass" );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
         assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ), objectClasses ) );
 
         // negative tests
-        objectClasses = new BasicAttribute( "objectClass", "person" );
+        objectClasses = new AttributeImpl( "objectClass", "person" );
         assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ), objectClasses ) );
 
-        objectClasses = new BasicAttribute( "objectClass", "blah" );
+        objectClasses = new AttributeImpl( "objectClass", "blah" );
         assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ), objectClasses ) );
     }
 
@@ -180,15 +181,15 @@ public class RefinementEvaluatorTest extends TestCase
     public void testComplexOrRefinement() throws Exception
     {
         ExprNode refinement = null;
-        BasicAttribute objectClasses = new BasicAttribute( "objectClass", "person" );
+        Attribute objectClasses = new AttributeImpl( "objectClass", "person" );
         FilterParser parser = new FilterParserImpl();
         String refStr = "(| (objectClass=person) (objectClass=organizationalUnit) )";
         refinement = parser.parse( refStr );
 
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
-        objectClasses = new BasicAttribute( "objectClass", "organizationalUnit" );
+        objectClasses = new AttributeImpl( "objectClass", "organizationalUnit" );
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
-        objectClasses = new BasicAttribute( "objectClass", "domain" );
+        objectClasses = new AttributeImpl( "objectClass", "domain" );
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
     }
 
@@ -196,18 +197,18 @@ public class RefinementEvaluatorTest extends TestCase
     public void testComplexAndRefinement() throws Exception
     {
         ExprNode refinement = null;
-        BasicAttribute objectClasses = new BasicAttribute( "objectClass", "person" );
+        Attribute objectClasses = new AttributeImpl( "objectClass", "person" );
         objectClasses.add( "organizationalUnit" );
         FilterParser parser = new FilterParserImpl();
         String refStr = "(& (objectClass=person) (objectClass=organizationalUnit) )";
         refinement = parser.parse( refStr );
 
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
-        objectClasses = new BasicAttribute( "objectClass", "organizationalUnit" );
+        objectClasses = new AttributeImpl( "objectClass", "organizationalUnit" );
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
-        objectClasses = new BasicAttribute( "objectClass", "person" );
+        objectClasses = new AttributeImpl( "objectClass", "person" );
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
-        objectClasses = new BasicAttribute( "objectClass", "domain" );
+        objectClasses = new AttributeImpl( "objectClass", "domain" );
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
     }
 
@@ -215,20 +216,20 @@ public class RefinementEvaluatorTest extends TestCase
     public void testComplexNotRefinement() throws Exception
     {
         ExprNode refinement = null;
-        BasicAttribute objectClasses = new BasicAttribute( "objectClass", "person" );
+        Attribute objectClasses = new AttributeImpl( "objectClass", "person" );
         FilterParser parser = new FilterParserImpl();
         String refStr = "(! (objectClass=person) )";
         refinement = parser.parse( refStr );
 
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
-        objectClasses = new BasicAttribute( "objectClass", "organizationalUnit" );
+        objectClasses = new AttributeImpl( "objectClass", "organizationalUnit" );
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
-        objectClasses = new BasicAttribute( "objectClass", "domain" );
+        objectClasses = new AttributeImpl( "objectClass", "domain" );
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
 
         try
         {
-            assertFalse( evaluator.evaluate( new BranchNode( 1000 ), new BasicAttribute( "objectClass" ) ) );
+            assertFalse( evaluator.evaluate( new BranchNode( 1000 ), new AttributeImpl( "objectClass" ) ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -237,7 +238,7 @@ public class RefinementEvaluatorTest extends TestCase
 
         try
         {
-            assertFalse( evaluator.evaluate( new BranchNode( BranchNode.NOT ), new BasicAttribute( "objectClass" ) ) );
+            assertFalse( evaluator.evaluate( new BranchNode( BranchNode.NOT ), new AttributeImpl( "objectClass" ) ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )

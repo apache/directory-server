@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingException;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.Attribute;
 import java.util.Set;
 import java.util.HashSet;
 

@@ -29,7 +29,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 import junit.framework.TestCase;
 
@@ -38,6 +37,7 @@ import org.apache.directory.server.core.configuration.MutableStartupConfiguratio
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
@@ -349,7 +349,7 @@ public class RootDSEITest extends TestCase
 
         try
         {
-            ctx.modifyAttributes( "", new ModificationItem[]
+            ctx.modifyAttributes( "", new ModificationItemImpl[]
                 {} );
 
             fail( "we should never get here" );

@@ -23,13 +23,18 @@ package org.apache.directory.server.core.subtree;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 
 import java.util.Map;
@@ -46,8 +51,8 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 {
     public Attributes getTestEntry( String cn )
     {
-        Attributes subentry = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes subentry = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "person" );
         subentry.put( objectClass );
@@ -59,8 +64,8 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 
     public Attributes getTestSubentry()
     {
-        Attributes subentry = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes subentry = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -74,8 +79,8 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 
     public Attributes getTestSubentryWithExclusion()
     {
-        Attributes subentry = new LockableAttributesImpl();
-        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+        Attributes subentry = new AttributesImpl();
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -90,10 +95,10 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 
     public void addAdministrativeRole( String role ) throws NamingException
     {
-        Attribute attribute = new LockableAttributeImpl( "administrativeRole" );
+        Attribute attribute = new AttributeImpl( "administrativeRole" );
         attribute.add( role );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
-        super.sysRoot.modifyAttributes( "", new ModificationItem[]
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
+        super.sysRoot.modifyAttributes( "", new ModificationItemImpl[]
             { item } );
     }
 
@@ -267,10 +272,10 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // Now modify the subentry by introducing an exclusion
         // --------------------------------------------------------------------
 
-        Attribute subtreeSpecification = new LockableAttributeImpl( "subtreeSpecification" );
+        Attribute subtreeSpecification = new AttributeImpl( "subtreeSpecification" );
         subtreeSpecification.add( "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
-        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
-        super.sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItem[]
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
+        super.sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItemImpl[]
             { item } );
         results = getAllEntries();
 
@@ -383,7 +388,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // Now modify the subentry by introducing an exclusion
         // --------------------------------------------------------------------
 
-        Attributes changes = new LockableAttributesImpl();
+        Attributes changes = new AttributesImpl();
         changes.put( "subtreeSpecification",
             "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
         super.sysRoot.modifyAttributes( "cn=testsubentry", DirContext.REPLACE_ATTRIBUTE, changes );

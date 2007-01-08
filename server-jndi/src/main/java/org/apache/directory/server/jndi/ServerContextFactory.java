@@ -33,7 +33,6 @@ import java.util.List;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.commons.lang.StringUtils;
@@ -55,6 +54,7 @@ import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.ExecutorThreadModel;
@@ -219,7 +219,7 @@ public class ServerContextFactory extends CoreContextFactory
 
     private void ensureLdifFileBase( DirContext root )
     {
-        Attributes entry = new BasicAttributes( "ou", "loadedLdifFiles", true );
+        Attributes entry = new AttributesImpl( "ou", "loadedLdifFiles", true );
         entry.put( "objectClass", "top" );
         entry.get( "objectClass" ).add( "organizationalUnit" );
         try
@@ -250,7 +250,7 @@ public class ServerContextFactory extends CoreContextFactory
         buf.append( "," );
         buf.append( LDIF_FILES_DN );
 
-        Attributes entry = new BasicAttributes( rdnAttr, getCanonical( ldif ), true );
+        Attributes entry = new AttributesImpl( rdnAttr, getCanonical( ldif ), true );
         entry.put( "objectClass", "top" );
         entry.get( "objectClass" ).add( oc );
         root.createSubcontext( buf.toString(), entry );

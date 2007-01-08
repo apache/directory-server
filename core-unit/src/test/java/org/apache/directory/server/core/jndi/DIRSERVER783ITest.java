@@ -8,18 +8,15 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.InvalidAttributeIdentifierException;
-import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 /**
  * Tries to demonstrate DIRSERVER-783 ("Adding another value to an attribute
@@ -39,12 +36,11 @@ public class DIRSERVER783ITest extends AbstractAdminTestCase
     /**
      * Try to add entry with required attribute missing.
      */
-    /*
     public void testAddAnotherValueToAnAttribute() throws NamingException
     {
         // create a person without sn
-        Attributes attrs = new BasicAttributes();
-        Attribute ocls = new BasicAttribute("objectClass");
+        Attributes attrs = new AttributesImpl();
+        Attribute ocls = new AttributeImpl("objectClass");
 
         ocls.add("top");
         ocls.add("person");
@@ -64,28 +60,28 @@ public class DIRSERVER783ITest extends AbstractAdminTestCase
 
         // Add the first value for description
         String description1 = "an American singer-songwriter";
-        Attribute firstDescr = new BasicAttribute("description", description1);
-        ModificationItem modification = new ModificationItem(DirContext.ADD_ATTRIBUTE, firstDescr);
-        ctx.modifyAttributes(rdn, new ModificationItem[] { modification });
+        Attribute firstDescr = new AttributeImpl("description", description1);
+        ModificationItemImpl modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, firstDescr);
+        ctx.modifyAttributes(rdn, new ModificationItemImpl[] { modification });
 
         // Add a second value to description
         String description2 = "Grammy award winning";
-        Attribute otherDescr = new BasicAttribute("description", description2 );
+        Attribute otherDescr = new AttributeImpl("description", description2 );
 
-        modification = new ModificationItem(DirContext.ADD_ATTRIBUTE, otherDescr );
-        ctx.modifyAttributes(rdn, new ModificationItem[] { modification } );
+        modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, otherDescr );
+        ctx.modifyAttributes(rdn, new ModificationItemImpl[] { modification } );
       
         // Add a third value to description
         String description3 = "MTV Music Award winning";
-        Attribute thirdDescr = new BasicAttribute("description", description3 );
+        Attribute thirdDescr = new AttributeImpl("description", description3 );
 
-        modification = new ModificationItem(DirContext.ADD_ATTRIBUTE, thirdDescr );
-        ctx.modifyAttributes(rdn, new ModificationItem[] { modification });
+        modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, thirdDescr );
+        ctx.modifyAttributes(rdn, new ModificationItemImpl[] { modification });
 
         // Search Entry
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        String filter = rdn;
+        String filter = '(' + rdn + ')';
         String base = "";
 
         // Check entry
@@ -109,6 +105,5 @@ public class DIRSERVER783ITest extends AbstractAdminTestCase
         // Remove the person entry
         ctx.destroySubcontext(rdn);
     }
-    */
 }
 

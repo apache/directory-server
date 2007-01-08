@@ -28,7 +28,6 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -46,7 +45,8 @@ import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -201,7 +201,7 @@ public class RelatedProtectedItemFilterTest extends TestCase
     public void testAttributeValue() throws Exception
     {
         Collection attributes = new ArrayList();
-        attributes.add( new BasicAttribute( "attrA", "valueA" ) );
+        attributes.add( new AttributeImpl( "attrA", "valueA" ) );
         Collection tuples = getTuples( new ProtectedItem.AttributeValue( attributes ) );
 
         // Test wrong scope
@@ -313,7 +313,7 @@ public class RelatedProtectedItemFilterTest extends TestCase
         attrTypes.add( "attrA" );
         Collection tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
 
-        Attributes entry = new LockableAttributesImpl();
+        Attributes entry = new AttributesImpl();
         entry.put( "attrA", USER_NAME.toNormName() );
 
         // Test wrong scope

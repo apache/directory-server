@@ -24,11 +24,14 @@ import java.util.HashSet;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 
@@ -86,7 +89,7 @@ public class AuthorizationServiceAsAdminITest extends AbstractAdminTestCase
      */
     public void testModifyOnAdminByAdmin() throws NamingException
     {
-        Attributes attributes = new LockableAttributesImpl();
+        Attributes attributes = new AttributesImpl();
         attributes.put( "userPassword", "replaced" );
         sysRoot.modifyAttributes( "uid=admin", DirContext.REPLACE_ATTRIBUTE, attributes );
         Attributes newAttrs = sysRoot.getAttributes( "uid=admin" );

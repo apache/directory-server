@@ -26,14 +26,14 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -60,8 +60,8 @@ public class MatchingRuleCompareTest extends AbstractServerTest
 
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new BasicAttributes();
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl();
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );
@@ -74,8 +74,8 @@ public class MatchingRuleCompareTest extends AbstractServerTest
 
     protected Attributes getGroupOfNamesAttributes( String cn, String member )
     {
-        Attributes attributes = new BasicAttributes();
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl();
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "groupOfNames" );
         attributes.put( attribute );

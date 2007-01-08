@@ -23,11 +23,11 @@ package org.apache.directory.server.core.jndi;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -48,8 +48,8 @@ public class ModifyContextITest extends AbstractAdminTestCase
             /*
              * create ou=testing00,ou=system
              */
-            Attributes attributes = new BasicAttributes( true );
-            Attribute attribute = new BasicAttribute( "objectClass" );
+            Attributes attributes = new AttributesImpl( true );
+            Attribute attribute = new AttributeImpl( "objectClass" );
             attribute.add( "top" );
             attribute.add( "organizationalUnit" );
             attributes.put( attribute );
@@ -71,8 +71,8 @@ public class ModifyContextITest extends AbstractAdminTestCase
             /*
              * create ou=testing01,ou=system
              */
-            attributes = new BasicAttributes( true );
-            attribute = new BasicAttribute( "objectClass" );
+            attributes = new AttributesImpl( true );
+            attribute = new AttributeImpl( "objectClass" );
             attribute.add( "top" );
             attribute.add( "organizationalUnit" );
             attributes.put( attribute );
@@ -94,8 +94,8 @@ public class ModifyContextITest extends AbstractAdminTestCase
             /*
              * create ou=testing02,ou=system
              */
-            attributes = new BasicAttributes( true );
-            attribute = new BasicAttribute( "objectClass" );
+            attributes = new AttributesImpl( true );
+            attribute = new AttributeImpl( "objectClass" );
             attribute.add( "top" );
             attribute.add( "organizationalUnit" );
             attributes.put( attribute );
@@ -119,8 +119,8 @@ public class ModifyContextITest extends AbstractAdminTestCase
              */
             ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
 
-            attributes = new BasicAttributes( true );
-            attribute = new BasicAttribute( "objectClass" );
+            attributes = new AttributesImpl( true );
+            attribute = new AttributeImpl( "objectClass" );
             attribute.add( "top" );
             attribute.add( "organizationalUnit" );
             attributes.put( attribute );
@@ -147,7 +147,7 @@ public class ModifyContextITest extends AbstractAdminTestCase
 
     public void testModifyOperation() throws NamingException
     {
-        Attributes attributes = new BasicAttributes( true );
+        Attributes attributes = new AttributesImpl( true );
         attributes.put( "ou", "testCases" );
         sysRoot.modifyAttributes( "ou=testing00", DirContext.ADD_ATTRIBUTE, attributes );
         attributes = null;

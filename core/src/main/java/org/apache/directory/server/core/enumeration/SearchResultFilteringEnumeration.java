@@ -30,9 +30,9 @@ import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.spi.DirectoryManager;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.invocation.Invocation;

@@ -25,11 +25,11 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.protocol.shared.AbstractBackingStoreTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -60,8 +60,8 @@ public class KerberosTest extends AbstractBackingStoreTest
         env.put( Context.PROVIDER_URL, "dc=example,dc=com" );
         DirContext ctx = ( DirContext ) factory.getInitialContext( env );
 
-        Attributes matchAttrs = new BasicAttributes( true );
-        matchAttrs.put( new BasicAttribute( "krb5PrincipalName", "kadmin/changepw@EXAMPLE.COM" ) );
+        Attributes matchAttrs = new AttributesImpl( true );
+        matchAttrs.put( new AttributeImpl( "krb5PrincipalName", "kadmin/changepw@EXAMPLE.COM" ) );
 
         Attributes attributes = ctx.getAttributes( "ou=users" );
         System.out.println( attributes );

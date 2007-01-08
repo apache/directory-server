@@ -24,6 +24,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,12 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import java.util.*;
 
 
@@ -339,7 +345,7 @@ public class GroupCache
      * @param entry the group entry being modified
      * @throws NamingException if there are problems accessing attribute  values
      */
-    public void groupModified( Name name, ModificationItem[] mods, Attributes entry ) throws NamingException
+    public void groupModified( Name name, ModificationItemImpl[] mods, Attributes entry ) throws NamingException
     {
         Attribute members = null;
         String memberAttrId = null;

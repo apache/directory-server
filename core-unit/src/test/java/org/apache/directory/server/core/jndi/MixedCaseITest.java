@@ -23,11 +23,18 @@ package org.apache.directory.server.core.jndi;
 import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -57,8 +64,8 @@ public class MixedCaseITest extends AbstractAdminTestCase
         indexedAttributes.add( "uid" );
         partition.setIndexedAttributes( indexedAttributes );
 
-        Attributes attrs = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
+        Attributes attrs = new AttributesImpl( true );
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "domain" );
         objectClass.add( "extensibleObject" );
@@ -98,8 +105,8 @@ public class MixedCaseITest extends AbstractAdminTestCase
     {
         String dn = "ou=Test";
 
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl( true );
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -128,8 +135,8 @@ public class MixedCaseITest extends AbstractAdminTestCase
         String dn = "ou=Test";
         String description = "New Value";
 
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl( true );
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -139,8 +146,8 @@ public class MixedCaseITest extends AbstractAdminTestCase
         DirContext ctx = sysRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );
 
-        ModificationItem[] mods = new ModificationItem[1];
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "description", description ) );
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "description", description ) );
 
         sysRoot.modifyAttributes( dn, mods );
 
@@ -168,8 +175,8 @@ public class MixedCaseITest extends AbstractAdminTestCase
     {
         String dn = "ou=Test";
 
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl( true );
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );

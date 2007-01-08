@@ -35,9 +35,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -45,8 +43,9 @@ import org.apache.directory.server.core.configuration.MutableStartupConfiguratio
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.util.PreferencesDictionary;
 
 
@@ -61,7 +60,7 @@ import org.apache.directory.shared.ldap.util.PreferencesDictionary;
 public class ServerSystemPreferences extends AbstractPreferences
 {
     /** an empty array of ModificationItems used to get array from list */
-    private static final ModificationItem[] EMPTY_MODS = new ModificationItem[0];
+    private static final ModificationItemImpl[] EMPTY_MODS = new ModificationItemImpl[0];
 
     /** an empty array of Strings used to get array from list */
     private static final String[] EMPTY_STRINGS = new String[0];
@@ -191,13 +190,13 @@ public class ServerSystemPreferences extends AbstractPreferences
      */
     private void setUpNode( String name ) throws NamingException
     {
-        Attributes attrs = new LockableAttributesImpl();
-        Attribute attr = new LockableAttributeImpl( "objectClass" );
+        Attributes attrs = new AttributesImpl();
+        Attribute attr = new AttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "prefNode" );
         attr.add( "extensibleObject" );
         attrs.put( attr );
-        attr = new LockableAttributeImpl( "prefNodeName" );
+        attr = new AttributeImpl( "prefNodeName" );
         attr.add( name );
         attrs.put( attr );
 
@@ -226,7 +225,7 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         try
         {
-            ctx.modifyAttributes( "", ( ModificationItem[] ) changes.toArray( EMPTY_MODS ) );
+            ctx.modifyAttributes( "", ( ModificationItemImpl[] ) changes.toArray( EMPTY_MODS ) );
         }
         catch ( NamingException e )
         {
@@ -269,7 +268,7 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         try
         {
-            ctx.modifyAttributes( "", ( ModificationItem[] ) changes.toArray( EMPTY_MODS ) );
+            ctx.modifyAttributes( "", ( ModificationItemImpl[] ) changes.toArray( EMPTY_MODS ) );
         }
         catch ( NamingException e )
         {
@@ -335,13 +334,13 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     protected void removeSpi( String key )
     {
-        Attribute attr = new BasicAttribute( key );
-        ModificationItem mi = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
+        Attribute attr = new AttributeImpl( key );
+        ModificationItemImpl mi = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
         addDelta( mi );
     }
 
 
-    private void addDelta( ModificationItem mi )
+    private void addDelta( ModificationItemImpl mi )
     {
         String key = mi.getAttribute().getID();
         List deltas = null;
@@ -372,7 +371,7 @@ public class ServerSystemPreferences extends AbstractPreferences
                 List mods = ( List ) keyToChange.get( key );
                 for ( int ii = 0; ii < mods.size(); ii++ )
                 {
-                    ModificationItem mi = ( ModificationItem ) mods.get( ii );
+                    ModificationItemImpl mi = ( ModificationItemImpl ) mods.get( ii );
                     if ( mi.getModificationOp() == DirContext.REMOVE_ATTRIBUTE )
                     {
                         attr = null;
@@ -402,9 +401,9 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     protected void putSpi( String key, String value )
     {
-        Attribute attr = new BasicAttribute( key );
+        Attribute attr = new AttributeImpl( key );
         attr.add( value );
-        ModificationItem mi = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        ModificationItemImpl mi = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         addDelta( mi );
     }
 

@@ -25,8 +25,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 
@@ -37,6 +35,8 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordModifier;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -73,11 +73,11 @@ public class GetFlatRecord implements ContextOperation
             return null;
         }
 
-        Attributes matchAttrs = new BasicAttributes( true );
+        Attributes matchAttrs = new AttributesImpl( true );
 
-        matchAttrs.put( new BasicAttribute( DnsAttribute.NAME, question.getDomainName() ) );
-        matchAttrs.put( new BasicAttribute( DnsAttribute.TYPE, question.getRecordType().getCode() ) );
-        matchAttrs.put( new BasicAttribute( DnsAttribute.CLASS, question.getRecordClass().getCode() ) );
+        matchAttrs.put( new AttributeImpl( DnsAttribute.NAME, question.getDomainName() ) );
+        matchAttrs.put( new AttributeImpl( DnsAttribute.TYPE, question.getRecordType().getCode() ) );
+        matchAttrs.put( new AttributeImpl( DnsAttribute.CLASS, question.getRecordClass().getCode() ) );
 
         ResourceRecord record = null;
 

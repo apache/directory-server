@@ -27,11 +27,9 @@ import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
@@ -40,6 +38,8 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 
 
@@ -109,8 +109,8 @@ public class SearchTest extends AbstractServerTest
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new BasicAttributes();
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl();
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attribute.add( "organizationalPerson" );
@@ -476,13 +476,13 @@ public class SearchTest extends AbstractServerTest
         Attribute administrativeRole = ap.get( "administrativeRole" );
         if ( administrativeRole == null || !administrativeRole.contains( SubentryService.AC_AREA ) )
         {
-            Attributes changes = new BasicAttributes( "administrativeRole", SubentryService.AC_AREA, true );
+            Attributes changes = new AttributesImpl( "administrativeRole", SubentryService.AC_AREA, true );
             adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
 
         // now add the A/C subentry below ou=system
-        Attributes subentry = new BasicAttributes( "cn", cn, true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
+        Attributes subentry = new AttributesImpl( "cn", cn, true );
+        Attribute objectClass = new AttributeImpl( "objectClass" );
         subentry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
@@ -501,8 +501,8 @@ public class SearchTest extends AbstractServerTest
     {
 
         // Create entry
-        Attributes heather = new BasicAttributes();
-        Attribute ocls = new BasicAttribute( "objectClass" );
+        Attributes heather = new AttributesImpl();
+        Attribute ocls = new AttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         heather.put( ocls );
@@ -544,7 +544,7 @@ public class SearchTest extends AbstractServerTest
     {
 
         // Create entry
-        Attributes kate = new BasicAttributes();
+        Attributes kate = new AttributesImpl();
         kate.put( "objectClass", "organizationalperson" );
         kate.put( "cn", "Kate Bush" );
         kate.put( "sn", "Bush" );

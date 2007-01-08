@@ -32,16 +32,16 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 import javax.naming.Name;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchResult;
 import java.util.Map;
 import java.util.Set;
@@ -168,7 +168,7 @@ public class CollectiveAttributeService extends BaseInterceptor
                     // if entry does not have attribute for colattr then create it
                     if ( entryColAttr == null )
                     {
-                        entryColAttr = new LockableAttributeImpl( attrId );
+                        entryColAttr = new AttributeImpl( attrId );
                         entry.put( entryColAttr );
                     }
 

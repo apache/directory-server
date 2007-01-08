@@ -26,7 +26,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-
 /**
  * Test cases for the normalization service.
  *

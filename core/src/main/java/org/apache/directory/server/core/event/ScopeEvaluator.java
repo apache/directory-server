@@ -21,8 +21,8 @@ package org.apache.directory.server.core.event;
 
 
 import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;

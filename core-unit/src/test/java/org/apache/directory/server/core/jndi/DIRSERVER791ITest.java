@@ -7,16 +7,16 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SchemaViolationException;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 /**
  * A test case which demonstrates the three defects described in DIRSERVER-791.
@@ -30,15 +30,15 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
      */
     protected Attributes getTestEntryAttributes() {
 
-        Attributes attrs = new BasicAttributes();
-        Attribute ocls = new BasicAttribute("objectClass");
+        Attributes attrs = new AttributesImpl();
+        Attribute ocls = new AttributeImpl("objectClass");
         ocls.add("top");
         ocls.add("person");
         ocls.add("organizationalPerson");
         ocls.add("inetOrgPerson");
         attrs.put(ocls);
         
-        Attribute cn = new BasicAttribute("cn");
+        Attribute cn = new AttributeImpl("cn");
         cn.add("test");
         cn.add("aaa");
         attrs.put(cn);
@@ -68,9 +68,9 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
         env.put( Context.PROVIDER_URL, "ou=system" );
 
         DirContext ctx = new InitialDirContext( env );
-        Attribute attr = new BasicAttribute("cn", "aaa");
-        ModificationItem modification = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
-        ctx.modifyAttributes( "cn=test", new ModificationItem[] { modification } );
+        Attribute attr = new AttributeImpl("cn", "aaa");
+        ModificationItemImpl modification = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
+        ctx.modifyAttributes( "cn=test", new ModificationItemImpl[] { modification } );
 
         Attributes attrs = ctx.getAttributes("cn=test", new String[] { "cn" });
         Attribute cn = attrs.get("cn");
@@ -92,9 +92,9 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
 
         DirContext ctx = new InitialDirContext( env );
 
-        Attribute attr = new BasicAttribute("cn", "test");
-        ModificationItem modification = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attr);
-        ctx.modifyAttributes("cn=test", new ModificationItem[] { modification });
+        Attribute attr = new AttributeImpl("cn", "test");
+        ModificationItemImpl modification = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, attr);
+        ctx.modifyAttributes("cn=test", new ModificationItemImpl[] { modification });
 
         Attributes attrs = ctx.getAttributes("cn=test", new String[] { "cn" });
         Attribute cn = attrs.get("cn");
@@ -118,12 +118,12 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
         DirContext ctx = new InitialDirContext( env );
 
 
-        Attribute attr = new BasicAttribute( "objectclass", "test" );
-        ModificationItem modification = new ModificationItem(DirContext.ADD_ATTRIBUTE, attr);
+        Attribute attr = new AttributeImpl( "objectclass", "test" );
+        ModificationItemImpl modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, attr);
         
         try 
         {
-            ctx.modifyAttributes("cn=test", new ModificationItem[] { modification });
+            ctx.modifyAttributes("cn=test", new ModificationItemImpl[] { modification });
             fail("Exception expected");
         } 
         catch ( SchemaViolationException sve ) 
@@ -163,12 +163,12 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
         DirContext ctx = new InitialDirContext( env );
 
 
-        Attribute attr = new BasicAttribute("bootParameter", "test");
-        ModificationItem modification = new ModificationItem(DirContext.ADD_ATTRIBUTE, attr);
+        Attribute attr = new AttributeImpl("bootParameter", "test");
+        ModificationItemImpl modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, attr);
     
         try 
         {
-            ctx.modifyAttributes("cn=test", new ModificationItem[] { modification });
+            ctx.modifyAttributes("cn=test", new ModificationItemImpl[] { modification });
             fail("Exception expected");
         } 
         catch (SchemaViolationException sve) 

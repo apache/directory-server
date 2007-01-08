@@ -20,13 +20,19 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchControls;
 
 import junit.framework.Assert;
@@ -41,6 +47,7 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -58,7 +65,7 @@ public class MaxImmSubFilterTest extends TestCase
     private static final LdapDN ROOTDSE_NAME = new LdapDN();
     private static final LdapDN ENTRY_NAME;
     private static final Collection PROTECTED_ITEMS = new ArrayList();
-    private static final Attributes ENTRY = new BasicAttributes();
+    private static final Attributes ENTRY = new AttributesImpl();
 
     static
     {

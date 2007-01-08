@@ -29,10 +29,10 @@ import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -233,11 +233,11 @@ public abstract class AbstractPartition implements Partition
         NamingEnumeration e = mods.getAll();
         while ( e.hasMore() )
         {
-            items.add( new ModificationItem( modOp, ( Attribute ) e.next() ) );
+            items.add( new ModificationItemImpl( modOp, ( Attribute ) e.next() ) );
         }
 
-        ModificationItem[] itemsArray = new ModificationItem[items.size()];
-        itemsArray = ( ModificationItem[] ) items.toArray( itemsArray );
+        ModificationItemImpl[] itemsArray = new ModificationItemImpl[items.size()];
+        itemsArray = ( ModificationItemImpl[] ) items.toArray( itemsArray );
         modify( name, itemsArray );
     }
 

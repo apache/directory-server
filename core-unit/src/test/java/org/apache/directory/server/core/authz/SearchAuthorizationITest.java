@@ -22,14 +22,19 @@ package org.apache.directory.server.core.authz;
 
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -64,12 +69,12 @@ public class SearchAuthorizationITest extends AbstractAuthorizationITest
         Attributes[] attributes = new Attributes[count];
         for ( int ii = 0; ii < count; ii++ )
         {
-            attributes[ii] = new LockableAttributesImpl();
-            Attribute oc = new LockableAttributeImpl( "objectClass" );
+            attributes[ii] = new AttributesImpl();
+            Attribute oc = new AttributeImpl( "objectClass" );
             oc.add( "top" );
             oc.add( "organizationalUnit" );
             attributes[ii].put( oc );
-            Attribute ou = new LockableAttributeImpl( "ou" );
+            Attribute ou = new AttributeImpl( "ou" );
             ou.add( String.valueOf( ii ) );
             ou.add( "testEntry" );
             attributes[ii].put( ou );

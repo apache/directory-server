@@ -27,8 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AnonymousAuthenticator;
 import org.apache.directory.server.core.authn.AuthenticationService;

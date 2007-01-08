@@ -54,7 +54,7 @@ import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -289,7 +289,7 @@ public abstract class ServerContext implements EventContext
      */
     public Context createSubcontext( Name name ) throws NamingException
     {
-        Attributes attributes = new LockableAttributesImpl();
+        Attributes attributes = new AttributesImpl();
         LdapDN target = buildTarget( name );
         injectRdnAttributeValues( target, attributes );
         
@@ -391,7 +391,7 @@ public abstract class ServerContext implements EventContext
         else if ( obj instanceof Serializable )
         {
             // Serialize and add outAttrs
-            Attributes attributes = new LockableAttributesImpl();
+            Attributes attributes = new AttributesImpl();
             if ( outAttrs != null && outAttrs.size() > 0 )
             {
                 NamingEnumeration list = outAttrs.getAll();

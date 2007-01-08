@@ -1,0 +1,18 @@
+=========================================================================
+[START]: org.apache.directory.server.core.TestPTest
+=========================================================================
+[2] - Started LDIF Import: org.apache.directory.server.core.TestPTest.ldif
+[4] - added 1-th entry in 2
+[6] - added 2-th entry in 2
+[7] - added 3-th entry in 1
+[8] - added 4-th entry in 1
+[9] - added 5-th entry in 1
+[10] - added 6-th entry in 1
+[11] - added 7-th entry in 1
+[13] - added 8-th entry in 1
+[14] - added 9-th entry in 1
+[14] - added 10-th entry in 0
+[15] - Completed LDIF Import: 10 entries in 13 milliseconds
+=========================================================================
+[FINISH]: org.apache.directory.server.core.TestPTest
+=========================================================================

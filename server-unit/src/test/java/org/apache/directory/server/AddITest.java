@@ -20,9 +20,16 @@
 package org.apache.directory.server;
 
 
-import javax.naming.directory.*;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.SchemaViolationException;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -31,6 +38,8 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import java.util.Hashtable;
 
@@ -64,8 +73,8 @@ public class AddITest extends AbstractServerTest
         ctx = new InitialDirContext( env );
 
         // Create a person
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl( true );
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );
@@ -125,8 +134,8 @@ public class AddITest extends AbstractServerTest
     {
 
         // modify object classes, add two more
-        Attributes attributes = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl( true );
+        Attribute ocls = new AttributeImpl( "objectClass" );
         ocls.add( "organizationalPerson" );
         ocls.add( "inetOrgPerson" );
         attributes.put( ocls );
@@ -159,8 +168,8 @@ public class AddITest extends AbstractServerTest
         String newDescription = "More info on the user ...";
 
         // modify object classes, add two more
-        Attributes attributes = new BasicAttributes( true );
-        Attribute desc = new BasicAttribute( "description", newDescription );
+        Attributes attributes = new AttributesImpl( true );
+        Attribute desc = new AttributeImpl( "description", newDescription );
         attributes.put( desc );
 
         DirContext person = ( DirContext ) ctx.lookup( RDN );
@@ -181,8 +190,8 @@ public class AddITest extends AbstractServerTest
     public void testAddWithMissingRequiredAttributes() throws NamingException
     {
         // person without sn
-        Attributes attrs = new BasicAttributes();
-        Attribute ocls = new BasicAttribute( "objectClass" );
+        Attributes attrs = new AttributesImpl();
+        Attribute ocls = new AttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         attrs.put( ocls );
@@ -335,14 +344,14 @@ public class AddITest extends AbstractServerTest
     public void testAddWithInvalidNumberOfAttributeValues() throws NamingException
     {
         // add inetOrgPerson with two displayNames
-        Attributes attrs = new BasicAttributes();
-        Attribute ocls = new BasicAttribute( "objectClass" );
+        Attributes attrs = new AttributesImpl();
+        Attribute ocls = new AttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "inetOrgPerson" );
         attrs.put( ocls );
         attrs.put( "cn", "Fiona Apple" );
         attrs.put( "sn", "Apple" );
-        Attribute displayName = new BasicAttribute( "displayName" );
+        Attribute displayName = new AttributeImpl( "displayName" );
         displayName.add( "Fiona" );
         displayName.add( "Fiona A." );
         attrs.put( displayName );
@@ -366,8 +375,8 @@ public class AddITest extends AbstractServerTest
     {
 
         // Create entry
-        Attributes entry = new BasicAttributes();
-        Attribute entryOcls = new BasicAttribute( "objectclass" );
+        Attributes entry = new AttributesImpl();
+        Attribute entryOcls = new AttributeImpl( "objectclass" );
         entryOcls.add( "top" );
         entryOcls.add( "organizationalUnit" );
         entry.put( entryOcls );
@@ -377,8 +386,8 @@ public class AddITest extends AbstractServerTest
 
         // Create Alias
         String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
-        Attributes alias = new BasicAttributes();
-        Attribute aliasOcls = new BasicAttribute( "objectclass" );
+        Attributes alias = new AttributesImpl();
+        Attribute aliasOcls = new AttributeImpl( "objectclass" );
         aliasOcls.add( "top" );
         aliasOcls.add( "alias" );
         alias.put( aliasOcls );
@@ -401,8 +410,8 @@ public class AddITest extends AbstractServerTest
     {
 
         // Create container
-        Attributes container = new BasicAttributes();
-        Attribute containerOcls = new BasicAttribute( "objectclass" );
+        Attributes container = new AttributesImpl();
+        Attribute containerOcls = new AttributeImpl( "objectclass" );
         containerOcls.add( "top" );
         containerOcls.add( "organizationalUnit" );
         container.put( containerOcls );
@@ -411,8 +420,8 @@ public class AddITest extends AbstractServerTest
         DirContext containerCtx = ctx.createSubcontext( containerRdn, container );
 
         // Create entry
-        Attributes entry = new BasicAttributes();
-        Attribute entryOcls = new BasicAttribute( "objectclass" );
+        Attributes entry = new AttributesImpl();
+        Attribute entryOcls = new AttributeImpl( "objectclass" );
         entryOcls.add( "top" );
         entryOcls.add( "organizationalUnit" );
         entry.put( entryOcls );
@@ -422,8 +431,8 @@ public class AddITest extends AbstractServerTest
 
         // Create alias ou=bestFruit,ou=Fruits to entry ou=favorite,ou=Fruits
         String aliasedObjectName = entryRdn + "," + containerCtx.getNameInNamespace();
-        Attributes alias = new BasicAttributes();
-        Attribute aliasOcls = new BasicAttribute( "objectclass" );
+        Attributes alias = new AttributesImpl();
+        Attribute aliasOcls = new AttributeImpl( "objectclass" );
         aliasOcls.add( "top" );
         aliasOcls.add( "alias" );
         alias.put( aliasOcls );

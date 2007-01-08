@@ -25,7 +25,7 @@ import java.io.IOException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 import junit.framework.TestCase;
@@ -190,7 +190,7 @@ public class AttributeSerializerTest extends TestCase
     
     public void testFullCycleNonBinaryAttribute() throws IOException
     {
-        LockableAttributeImpl attr = new LockableAttributeImpl( "testing" );
+        AttributeImpl attr = new AttributeImpl( "testing" );
         AttributeSerializer serializer = new AttributeSerializer();
         attr.add( "value0" );
         attr.add( "val1" );
@@ -204,7 +204,7 @@ public class AttributeSerializerTest extends TestCase
     
     public void testFullCycleBinaryAttribute() throws IOException, NamingException
     {
-        LockableAttributeImpl attr = new LockableAttributeImpl( "testing" );
+        AttributeImpl attr = new AttributeImpl( "testing" );
         AttributeSerializer serializer = new AttributeSerializer();
         byte[] ba0 = new byte[2];
         ba0[0] = 7;
@@ -229,7 +229,7 @@ public class AttributeSerializerTest extends TestCase
         long start = System.currentTimeMillis();
         for ( int ii = 0; ii < limit; ii++ )
         {
-            LockableAttributeImpl attr = new LockableAttributeImpl( "testing" );
+            AttributeImpl attr = new AttributeImpl( "testing" );
             AttributeSerializer serializer = new AttributeSerializer();
             attr.add( "value0" );
             attr.add( "val1" );

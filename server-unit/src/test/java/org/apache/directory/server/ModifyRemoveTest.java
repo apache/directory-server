@@ -26,12 +26,9 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
@@ -40,6 +37,9 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
@@ -62,8 +62,8 @@ public class ModifyRemoveTest extends AbstractServerTest
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new BasicAttributes();
-        Attribute attribute = new BasicAttribute( "objectClass" );
+        Attributes attributes = new AttributesImpl();
+        Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );
@@ -79,8 +79,8 @@ public class ModifyRemoveTest extends AbstractServerTest
      */
     protected Attributes getInetOrgPersonAttributes( String sn, String cn )
     {
-        Attributes attrs = new BasicAttributes();
-        Attribute ocls = new BasicAttribute( "objectClass" );
+        Attributes attrs = new AttributesImpl();
+        Attribute ocls = new AttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         ocls.add( "organizationalPerson" );
@@ -153,8 +153,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemoveNotRequiredAttribute() throws NamingException
     {
         // Remove description Attribute
-        Attribute attr = new BasicAttribute( "description" );
-        Attributes attrs = new BasicAttributes();
+        Attribute attr = new AttributeImpl( "description" );
+        Attributes attrs = new AttributesImpl();
         attrs.put( attr );
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
 
@@ -176,13 +176,13 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemoveTwoNotRequiredAttributes() throws NamingException
     {
         // add telephoneNumber to entry
-        Attributes tn = new BasicAttributes( "telephoneNumber", "12345678" );
+        Attributes tn = new AttributesImpl( "telephoneNumber", "12345678" );
         ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, tn );
 
         // Remove description and telephoneNumber to Attribute
-        Attributes attrs = new BasicAttributes();
-        attrs.put( new BasicAttribute( "description" ) );
-        attrs.put( new BasicAttribute( "telephoneNumber" ) );
+        Attributes attrs = new AttributesImpl();
+        attrs.put( new AttributeImpl( "description" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber" ) );
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
 
         // Verify, that attributes are deleted
@@ -205,8 +205,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemoveRequiredAttribute() throws NamingException
     {
         // Remove sn attribute
-        Attribute attr = new BasicAttribute( "sn" );
-        Attributes attrs = new BasicAttributes();
+        Attribute attr = new AttributeImpl( "sn" );
+        Attributes attrs = new AttributesImpl();
         attrs.put( attr );
 
         try
@@ -231,8 +231,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemovePartOfRdn() throws NamingException
     {
         // Remove sn attribute
-        Attribute attr = new BasicAttribute( "cn" );
-        Attributes attrs = new BasicAttributes();
+        Attribute attr = new AttributeImpl( "cn" );
+        Attributes attrs = new AttributesImpl();
         attrs.put( attr );
 
         try
@@ -262,8 +262,8 @@ public class ModifyRemoveTest extends AbstractServerTest
         ctx.rename( RDN, newRdn );
 
         // Remove description, which is now RDN attribute
-        Attribute attr = new BasicAttribute( "description" );
-        Attributes attrs = new BasicAttributes();
+        Attribute attr = new AttributeImpl( "description" );
+        Attributes attrs = new AttributesImpl();
         attrs.put( attr );
 
         try
@@ -293,8 +293,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemoveAttributeNotPresent() throws NamingException
     {
         // Remove telephoneNumber Attribute
-        Attribute attr = new BasicAttribute( "telephoneNumber" );
-        Attributes attrs = new BasicAttributes();
+        Attribute attr = new AttributeImpl( "telephoneNumber" );
+        Attributes attrs = new AttributesImpl();
         attrs.put( attr );
 
         try
@@ -319,8 +319,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemoveAttributeNotValid() throws NamingException
     {
         // Remove phantasy attribute
-        Attribute attr = new BasicAttribute( "XXX" );
-        Attributes attrs = new BasicAttributes();
+        Attribute attr = new AttributeImpl( "XXX" );
+        Attributes attrs = new AttributesImpl();
         attrs.put( attr );
 
         try
@@ -351,9 +351,9 @@ public class ModifyRemoveTest extends AbstractServerTest
         ctx.createSubcontext( rdn, attrs );
 
         // replace attribute givenName with empty value (=> deletion)
-        Attribute attr = new BasicAttribute( "givenname" );
-        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        ctx.modifyAttributes( rdn, new ModificationItem[] { item } );
+        Attribute attr = new AttributeImpl( "givenname" );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        ctx.modifyAttributes( rdn, new ModificationItemImpl[] { item } );
 
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -394,12 +394,12 @@ public class ModifyRemoveTest extends AbstractServerTest
         ctx.createSubcontext( rdn, attrs );
 
         // replace attribute cn with empty value (=> deletion)
-        Attribute attr = new BasicAttribute( "cn" );
-        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        Attribute attr = new AttributeImpl( "cn" );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
 
         try
         {
-            ctx.modifyAttributes( rdn, new ModificationItem[]
+            ctx.modifyAttributes( rdn, new ModificationItemImpl[]
                 { item } );
             fail( "modify should fail" );
         }
@@ -424,12 +424,12 @@ public class ModifyRemoveTest extends AbstractServerTest
         ctx.createSubcontext( rdn, attrs );
 
         // replace attribute cn with empty value (=> deletion)
-        Attribute attr = new BasicAttribute( "cn" );
-        ModificationItem item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
+        Attribute attr = new AttributeImpl( "cn" );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
 
         try
         {
-            ctx.modifyAttributes( rdn, new ModificationItem[]
+            ctx.modifyAttributes( rdn, new ModificationItemImpl[]
                 { item } );
             fail( "modify should fail" );
         }
@@ -454,12 +454,12 @@ public class ModifyRemoveTest extends AbstractServerTest
         ctx.createSubcontext( rdn, attrs );
 
         // replace attribute cn with empty value (=> deletion)
-        Attribute attr = new BasicAttribute( "cn", "Kate Bush" );
-        ModificationItem item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
+        Attribute attr = new AttributeImpl( "cn", "Kate Bush" );
+        ModificationItemImpl item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
 
         try
         {
-            ctx.modifyAttributes( rdn, new ModificationItem[]
+            ctx.modifyAttributes( rdn, new ModificationItemImpl[]
                 { item } );
             fail( "modify should fail" );
         }
@@ -481,10 +481,10 @@ public class ModifyRemoveTest extends AbstractServerTest
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext(rdn, attrs);
 
-        ModificationItem delModOp = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute("objectclass", ""));
+        ModificationItemImpl delModOp = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, new AttributeImpl("objectclass", ""));
 
         try {
-            ctx.modifyAttributes(rdn, new ModificationItem[] { delModOp });
+            ctx.modifyAttributes(rdn, new ModificationItemImpl[] { delModOp });
             fail("deletion of objectclass should fail");
         } catch (SchemaViolationException e) {
             // expected
@@ -508,10 +508,10 @@ public class ModifyRemoveTest extends AbstractServerTest
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext(rdn, attrs);
 
-        ModificationItem delModOp = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute("objectclass"));
+        ModificationItemImpl delModOp = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, new AttributeImpl("objectclass"));
 
         try {
-            ctx.modifyAttributes(rdn, new ModificationItem[] { delModOp });
+            ctx.modifyAttributes(rdn, new ModificationItemImpl[] { delModOp });
             fail("deletion of objectclass should fail");
         } catch (SchemaViolationException e) {
             // expected
