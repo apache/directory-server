@@ -33,9 +33,7 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
@@ -61,8 +59,9 @@ import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -182,7 +181,7 @@ public class BootstrapPlugin extends AbstractMojo
             
             if ( ! hasEntry( dn ) )
             {
-                Attributes entry = new LockableAttributesImpl();
+                Attributes entry = new AttributesImpl();
                 entry.put( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
                 entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
                 entry.put( CoreSchemaConstants.OU_AT, "schema" );
@@ -527,7 +526,7 @@ public class BootstrapPlugin extends AbstractMojo
         }
         storeConfig.setIndexedAttributes( indexSet );
 
-        BasicAttributes rootEntry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "organizationalUnit", true );
+        Attributes rootEntry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "organizationalUnit", true );
         rootEntry.put( CoreSchemaConstants.OU_AT, "schema" );
         storeConfig.setContextEntry( rootEntry );
         
@@ -628,7 +627,7 @@ public class BootstrapPlugin extends AbstractMojo
             return;
         }
         
-        Attributes entry = new LockableAttributesImpl();
+        Attributes entry = new AttributesImpl();
         entry.put( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
         entry.put( CoreSchemaConstants.OU_AT, dn.getRdn().getValue() );
@@ -659,9 +658,9 @@ public class BootstrapPlugin extends AbstractMojo
         LdapDN dn = new LdapDN( SystemSchemaConstants.CN_AT + "=" + schemaName 
             + "," + CoreSchemaConstants.OU_AT + "=schema" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        ModificationItem mod = new ModificationItem( DirContext.ADD_ATTRIBUTE, 
-            new LockableAttributeImpl( MetaSchemaConstants.M_DISABLED_AT, "TRUE" ) );
-        ModificationItem[] mods = new ModificationItem[] { mod };
+        ModificationItemImpl mod = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, 
+            new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT, "TRUE" ) );
+        ModificationItemImpl[] mods = new ModificationItemImpl[] { mod };
         store.modify( dn, mods );
     }
 

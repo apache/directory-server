@@ -25,13 +25,12 @@ import java.util.Comparator;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -56,7 +55,7 @@ public class AttributesFactory
 {
     public Attributes getAttributes( Schema schema )
     {
-        BasicAttributes entry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SCHEMA_OC );
         entry.put( SystemSchemaConstants.CN_AT, schema.getSchemaName() );
         entry.put( MetaSchemaConstants.M_OWNER_AT, schema.getOwner() );
@@ -69,7 +68,7 @@ public class AttributesFactory
         String[] dependencies = schema.getDependencies();
         if ( dependencies != null && dependencies.length > 0 )
         {
-            Attribute attr = new LockableAttributeImpl( MetaSchemaConstants.M_DEPENDENCIES_AT );
+            Attribute attr = new AttributeImpl( MetaSchemaConstants.M_DEPENDENCIES_AT );
             for ( int ii = 0; ii < dependencies.length; ii++ )
             {
                 attr.add( dependencies[ii] );
@@ -83,7 +82,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( SyntaxChecker syntaxChecker )
     {
-        BasicAttributes entry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, syntaxChecker.getSyntaxOid() );
         entry.put( MetaSchemaConstants.M_FQCN_AT, syntaxChecker.getClass().getName() );
@@ -93,7 +92,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( Syntax syntax )
     {
-        BasicAttributes entry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SYNTAX_OC );
         entry.put( MetaSchemaConstants.X_HUMAN_READIBLE_AT, getBoolean( syntax.isHumanReadible() ) );
         injectCommon( syntax, entry );
@@ -103,7 +102,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( String oid, Normalizer normalizer )
     {
-        BasicAttributes entry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_NORMALIZER_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
         entry.put( MetaSchemaConstants.M_FQCN_AT, normalizer.getClass().getName() );
@@ -113,7 +112,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( String oid, Comparator comparator )
     {
-        BasicAttributes entry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_COMPARATOR_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
         entry.put( MetaSchemaConstants.M_FQCN_AT, comparator.getClass().getName() );
@@ -129,7 +128,7 @@ public class AttributesFactory
      */
     public Attributes getAttributes( MatchingRule matchingRule ) throws NamingException
     {
-        BasicAttributes entry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_MATCHING_RULE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, matchingRule.getSyntax().getOid() );
         injectCommon( matchingRule, entry );
@@ -139,7 +138,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( MatchingRuleUse matchingRuleUse )
     {
-        BasicAttributes entry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "" );
         return entry;
     }
@@ -147,7 +146,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( DITStructureRule dITStructureRule )
     {
-        BasicAttributes entry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "" );
         return entry;
     }
@@ -155,7 +154,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( DITContentRule dITContentRule )
     {
-        BasicAttributes entry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "" );
         return entry;
     }
@@ -163,7 +162,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( NameForm nameForm )
     {
-        BasicAttributes entry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "" );
         return entry;
     }
@@ -189,7 +188,7 @@ public class AttributesFactory
      */
     public Attributes getAttributes( AttributeType attributeType ) throws NamingException
     {
-        BasicAttributes entry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, attributeType.getSyntax().getOid() );
         entry.put( MetaSchemaConstants.M_COLLECTIVE_AT, getBoolean( attributeType.isCollective() ) );
@@ -272,7 +271,7 @@ public class AttributesFactory
      */
     public Attributes getAttributes( ObjectClass objectClass ) throws NamingException
     {
-        BasicAttributes entry = new BasicAttributes( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_OBJECT_CLASS_OC );
         entry.put( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT, objectClass.getType().toString() );
         
@@ -281,7 +280,7 @@ public class AttributesFactory
         // handle the superior objectClasses 
         if ( objectClass.getSuperClasses() != null && objectClass.getSuperClasses().length != 0 )
         {
-            Attribute attr = new BasicAttribute( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
+            Attribute attr = new AttributeImpl( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
             ObjectClass[] superclasses = objectClass.getSuperClasses();
             for ( int ii = 0; ii < superclasses.length; ii++ )
             {
@@ -293,7 +292,7 @@ public class AttributesFactory
         // add the must list
         if ( objectClass.getMustList() != null && objectClass.getMustList().length != 0 )
         {
-            Attribute attr = new BasicAttribute( MetaSchemaConstants.M_MUST_AT );
+            Attribute attr = new AttributeImpl( MetaSchemaConstants.M_MUST_AT );
             AttributeType[] mustList = objectClass.getMustList();
             for ( int ii = 0; ii < mustList.length; ii++ )
             {
@@ -305,7 +304,7 @@ public class AttributesFactory
         // add the may list
         if ( objectClass.getMayList() != null && objectClass.getMayList().length != 0 )
         {
-            Attribute attr = new BasicAttribute( MetaSchemaConstants.M_MAY_AT );
+            Attribute attr = new AttributeImpl( MetaSchemaConstants.M_MAY_AT );
             AttributeType[] mayList = objectClass.getMayList();
             for ( int ii = 0; ii < mayList.length; ii++ )
             {
@@ -350,7 +349,7 @@ public class AttributesFactory
             return;
         }
         
-        Attribute attr = new BasicAttribute( MetaSchemaConstants.M_NAME_AT );
+        Attribute attr = new AttributeImpl( MetaSchemaConstants.M_NAME_AT );
         for ( int ii = 0; ii < names.length; ii++ )
         {
             attr.add( names[ii] );
