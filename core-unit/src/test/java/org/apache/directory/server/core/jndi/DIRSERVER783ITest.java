@@ -50,7 +50,7 @@ public class DIRSERVER783ITest extends AbstractAdminTestCase
 
         String rdn = "cn=Fiona Apple";
 
-        Hashtable env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = configuration.toJndiEnvironment();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 

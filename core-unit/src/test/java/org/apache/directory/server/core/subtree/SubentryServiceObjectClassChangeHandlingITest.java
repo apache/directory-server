@@ -97,9 +97,9 @@ public class SubentryServiceObjectClassChangeHandlingITest extends AbstractAdmin
     }
 
 
-    public Map getAllEntries() throws NamingException
+    public Map<String, Attributes> getAllEntries() throws NamingException
     {
-        Map resultMap = new HashMap();
+        Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]

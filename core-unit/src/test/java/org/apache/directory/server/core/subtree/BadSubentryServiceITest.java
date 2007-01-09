@@ -129,9 +129,9 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
     }
 
 
-    public Map getAllEntries() throws NamingException
+    public Map<String, Attributes> getAllEntries() throws NamingException
     {
-        Map resultMap = new HashMap();
+        Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[] { "+", "*" } );
@@ -158,8 +158,8 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
             getAccessControlTestSubentry( "accessControlTestSubentry" ) );
         super.sysRoot.createSubcontext( "cn=testEntry", getTestEntry( "testEntry" ) );
         
-        Map results = getAllEntries();
-        Attributes testEntry = ( Attributes ) results.get( "cn=testEntry,ou=system" );
+        Map<String, Attributes> results = getAllEntries();
+        Attributes testEntry = results.get( "cn=testEntry,ou=system" );
         
         //----------------------------------------------------------------------
         

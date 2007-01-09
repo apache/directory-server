@@ -41,7 +41,7 @@ public class ListAsAdminITest extends AbstractAdminTestCase
 {
     public void testListSystemAsAdmin() throws NamingException
     {
-        HashSet set = new HashSet();
+        HashSet<String> set = new HashSet<String>();
 
         NamingEnumeration list = sysRoot.list( "" );
 
@@ -62,7 +62,7 @@ public class ListAsAdminITest extends AbstractAdminTestCase
 
     public void testListUsersAsAdmin() throws NamingException
     {
-        HashSet set = new HashSet();
+        HashSet<String> set = new HashSet<String>();
 
         NamingEnumeration list = sysRoot.list( "ou=users" );
 

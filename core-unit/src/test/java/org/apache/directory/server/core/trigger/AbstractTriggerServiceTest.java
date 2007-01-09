@@ -75,9 +75,10 @@ public abstract class AbstractTriggerServiceTest extends AbstractTestCase
      * @return the context for the DN as the admin user
      * @throws NamingException if is a problem initializing or getting the context
      */
+    @SuppressWarnings("unchecked")
     public DirContext getContextAsAdmin( String dn ) throws NamingException
     {
-        Hashtable env = ( Hashtable ) sysRoot.getEnvironment().clone();
+        Hashtable<String,Object> env = ( Hashtable ) sysRoot.getEnvironment().clone();
         env.put( DirContext.PROVIDER_URL, dn );
         env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
         env.put( DirContext.SECURITY_PRINCIPAL, PartitionNexus.ADMIN_PRINCIPAL );
@@ -109,9 +110,10 @@ public abstract class AbstractTriggerServiceTest extends AbstractTestCase
      * @return the context representing the entry at the dn as a specific user
      * @throws NamingException if the does not exist or authx fails
      */
+    @SuppressWarnings("unchecked")
     public DirContext getContextAs( Name user, String password, String dn ) throws NamingException
     {
-        Hashtable env = ( Hashtable ) sysRoot.getEnvironment().clone();
+        Hashtable<String,Object> env = ( Hashtable ) sysRoot.getEnvironment().clone();
         env.put( DirContext.PROVIDER_URL, dn );
         env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
         env.put( DirContext.SECURITY_PRINCIPAL, user.toString() );

@@ -66,7 +66,7 @@ public class DirectoryPartitionConfigurationITest extends AbstractAdminTestCase
         // Test AddContextPartition
         AddPartitionConfiguration addCfg = new AddPartitionConfiguration( partitionCfg );
 
-        Hashtable env = new Hashtable();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.putAll( addCfg.toJndiEnvironment() );
 

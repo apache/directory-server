@@ -163,7 +163,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
-        HashMap map = new HashMap();
+        HashMap<String,Attributes> map = new HashMap<String,Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
         while ( list.hasMore() )
@@ -186,7 +186,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
 
-        HashMap map = new HashMap();
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
         while ( list.hasMore() )
         {
@@ -210,7 +210,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
 
-        HashMap map = new HashMap();
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(objectClass=organ*)", controls );
         while ( list.hasMore() )
         {
@@ -234,7 +234,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
-        HashMap map = new HashMap();
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(| (ou={0}) (ou={1}))", new Object[]
             { "testing00", "testing01" }, controls );
@@ -258,7 +258,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setCountLimit( 7 );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
 
-        HashMap map = new HashMap();
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
 
         try
@@ -285,7 +285,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setTimeLimit( 200 );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
 
-        HashMap map = new HashMap();
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
         SearchResultFilteringEnumeration srfe = ( SearchResultFilteringEnumeration ) list;
         srfe.addResultFilter( new SearchResultFilter()
@@ -328,7 +328,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
         
-        HashMap map = new HashMap();
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(name=testing00)", controls );
         while ( list.hasMore() )
         {
@@ -347,7 +347,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
         
-        HashMap map = new HashMap();
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(name=*)", controls );
         while ( list.hasMore() )
         {
@@ -379,7 +379,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
         
-        HashMap map = new HashMap();
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(| (name=testing00)(name=testing01))", controls );
         while ( list.hasMore() )
         {
@@ -399,7 +399,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
         
-        HashMap map = new HashMap();
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(name=testing*)", controls );
         while ( list.hasMore() )
         {
@@ -420,7 +420,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
         
-        HashMap map = new HashMap();
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         String filter = "(|(2.5.4.11.1=testing*)(2.5.4.54=testing*)(2.5.4.10=testing*)" +
             "(2.5.4.6=testing*)(2.5.4.43=testing*)(2.5.4.7.1=testing*)(2.5.4.10.1=testing*)" +
             "(2.5.4.44=testing*)(2.5.4.11=testing*)(2.5.4.4=testing*)(2.5.4.8.1=testing*)" +
@@ -446,7 +446,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         controls.setReturningAttributes( new String[] { "creatorsName" } );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
-        HashMap map = new HashMap();
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(ou=testing00)", controls );
         while ( list.hasMore() )
@@ -457,7 +457,7 @@ public class SearchContextITest extends AbstractAdminTestCase
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
-        Attributes attrs = ( Attributes ) map.get( "ou=testing00,ou=system" );
+        Attributes attrs = map.get( "ou=testing00,ou=system" );
         assertEquals( "normalized creator's name", "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system", 
             attrs.get( "creatorsName" ).get() );
     }
@@ -470,7 +470,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         controls.setReturningAttributes( new String[] { "creatorsName" } );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
-        HashMap map = new HashMap();
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(ou=testing00)", controls );
         while ( list.hasMore() )
@@ -481,7 +481,7 @@ public class SearchContextITest extends AbstractAdminTestCase
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
-        Attributes attrs = ( Attributes ) map.get( "ou=testing00,ou=system" );
+        Attributes attrs = map.get( "ou=testing00,ou=system" );
         assertEquals( "normalized creator's name", "uid=admin,ou=system", 
             attrs.get( "creatorsName" ).get() );
     }

@@ -113,9 +113,9 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
     }
 
 
-    public Map getAllEntries() throws NamingException
+    public Map<String, Attributes> getAllEntries() throws NamingException
     {
-        Map resultMap = new HashMap();
+        Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
@@ -130,9 +130,9 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
     }
 
 
-    public Map getAllEntriesRestrictAttributes() throws NamingException
+    public Map<String, Attributes> getAllEntriesRestrictAttributes() throws NamingException
     {
-        Map resultMap = new HashMap();
+        Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
@@ -284,8 +284,8 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // test an entry that should show the collective attribute c-ou
         // -------------------------------------------------------------------
 
-        Map entries = getAllEntries();
-        Attributes attributes = ( Attributes ) entries.get( "ou=services,ou=configuration,ou=system" );
+        Map<String, Attributes> entries = getAllEntries();
+        Attributes attributes = entries.get( "ou=services,ou=configuration,ou=system" );
         Attribute c_ou = attributes.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertEquals( "configuration", c_ou.get() );
@@ -308,7 +308,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // test an entry that should not show the collective attribute
         // -------------------------------------------------------------------
 
-        attributes = ( Attributes ) entries.get( "ou=users,ou=system" );
+        attributes = entries.get( "ou=users,ou=system" );
         c_ou = attributes.get( "c-ou" );
         assertNull( "the c-ou collective attribute should not be present", c_ou );
 
@@ -323,7 +323,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         entries = getAllEntries();
 
         // entry should not show the c-ou collective attribute anymore
-        attributes = ( Attributes ) entries.get( "ou=services,ou=configuration,ou=system" );
+        attributes = entries.get( "ou=services,ou=configuration,ou=system" );
         c_ou = attributes.get( "c-ou" );
         if ( c_ou != null )
         {
@@ -334,7 +334,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         super.sysRoot.createSubcontext( "cn=testsubentry2", getTestSubentry2() );
         entries = getAllEntries();
 
-        attributes = ( Attributes ) entries.get( "ou=services,ou=configuration,ou=system" );
+        attributes = entries.get( "ou=services,ou=configuration,ou=system" );
         c_ou = attributes.get( "c-ou" );
         if ( c_ou != null )
         {
@@ -342,7 +342,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         }
 
         // entries without the collectiveExclusion should still show both values of c-ou
-        attributes = ( Attributes ) entries.get( "ou=interceptors,ou=configuration,ou=system" );
+        attributes = entries.get( "ou=interceptors,ou=configuration,ou=system" );
         c_ou = attributes.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
@@ -356,13 +356,13 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         entries = getAllEntries();
 
         // the new attribute c-st should appear in the node with the c-ou exclusion
-        attributes = ( Attributes ) entries.get( "ou=services,ou=configuration,ou=system" );
+        attributes = entries.get( "ou=services,ou=configuration,ou=system" );
         Attribute c_st = attributes.get( "c-st" );
         assertNotNull( "a collective c-st attribute should be present", c_st );
         assertTrue( c_st.contains( "FL" ) );
 
         // in node without exclusions both values of c-ou should appear with c-st value
-        attributes = ( Attributes ) entries.get( "ou=interceptors,ou=configuration,ou=system" );
+        attributes = entries.get( "ou=interceptors,ou=configuration,ou=system" );
         c_ou = attributes.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
@@ -382,7 +382,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         entries = getAllEntries();
 
         // none of the attributes should appear any longer
-        attributes = ( Attributes ) entries.get( "ou=interceptors,ou=configuration,ou=system" );
+        attributes = entries.get( "ou=interceptors,ou=configuration,ou=system" );
         c_ou = attributes.get( "c-ou" );
         if ( c_ou != null )
         {
@@ -401,11 +401,11 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         entries = getAllEntriesRestrictAttributes();
 
         // we should no longer see collective attributes with restricted return attribs
-        attributes = ( Attributes ) entries.get( "ou=services,ou=configuration,ou=system" );
+        attributes = entries.get( "ou=services,ou=configuration,ou=system" );
         c_st = attributes.get( "c-st" );
         assertNull( "a collective c-st attribute should NOT be present", c_st );
 
-        attributes = ( Attributes ) entries.get( "ou=partitions,ou=configuration,ou=system" );
+        attributes = entries.get( "ou=partitions,ou=configuration,ou=system" );
         c_ou = attributes.get( "c-ou" );
         c_st = attributes.get( "c-st" );
         assertNull( c_ou );

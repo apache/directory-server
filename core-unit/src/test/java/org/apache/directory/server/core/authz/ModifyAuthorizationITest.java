@@ -225,7 +225,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
      */
     private ModificationItemImpl[] toItems( int modOp, Attributes changes ) throws NamingException
     {
-        List mods = new ArrayList();
+        List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>();
         NamingEnumeration list = changes.getAll();
         while ( list.hasMore() )
         {

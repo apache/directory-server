@@ -58,7 +58,7 @@ public class MixedCaseITest extends AbstractAdminTestCase
         partition.setName( "apache" );
         partition.setSuffix( suffix );
 
-        Set indexedAttributes = new HashSet();
+        Set<String> indexedAttributes = new HashSet<String>();
         indexedAttributes.add( "objectClass" );
         indexedAttributes.add( "ou" );
         indexedAttributes.add( "uid" );
@@ -74,7 +74,7 @@ public class MixedCaseITest extends AbstractAdminTestCase
 
         partition.setContextEntry( attrs );
 
-        Set partitions = new HashSet();
+        Set<MutablePartitionConfiguration> partitions = new HashSet<MutablePartitionConfiguration>();
         partitions.add( partition );
 
         configuration.setPartitionConfigurations( partitions );

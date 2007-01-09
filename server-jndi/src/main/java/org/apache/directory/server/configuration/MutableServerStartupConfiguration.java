@@ -18,7 +18,7 @@
  *  
  */
 package org.apache.directory.server.configuration;
-
+ 
 
 import java.io.File;
 import java.util.Collection;
@@ -102,7 +102,7 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     }
 
 
-    public void setPartitionConfigurations( Set<PartitionConfiguration> arg0 )
+    public void setPartitionConfigurations( Set<? extends PartitionConfiguration> arg0 )
     {
         super.setPartitionConfigurations( arg0 );
     }

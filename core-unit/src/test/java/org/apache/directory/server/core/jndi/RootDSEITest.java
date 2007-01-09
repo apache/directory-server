@@ -92,16 +92,11 @@ public class RootDSEITest extends TestCase
     {
         super.tearDown();
 
-        Hashtable env = new Hashtable();
-
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( Context.PROVIDER_URL, "ou=system" );
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-
         env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         try
@@ -125,7 +120,7 @@ public class RootDSEITest extends TestCase
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -148,7 +143,7 @@ public class RootDSEITest extends TestCase
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -178,7 +173,7 @@ public class RootDSEITest extends TestCase
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -186,18 +181,13 @@ public class RootDSEITest extends TestCase
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
-
         assertNotNull( initCtx );
-
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
 
         Attributes attributes = ctx.getAttributes( "", new String[]
             { "namingContexts", "vendorName" } );
-
         assertEquals( 2, attributes.size() );
-
         assertEquals( "Apache Software Foundation", attributes.get( "vendorName" ).get() );
-
         assertTrue( attributes.get( "namingContexts" ).contains( "ou=system" ) );
     }
 
@@ -212,7 +202,7 @@ public class RootDSEITest extends TestCase
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -220,17 +210,13 @@ public class RootDSEITest extends TestCase
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
-
         assertNotNull( initCtx );
-
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
-
         LdapNoPermissionException notNull = null;
 
         try
         {
             ctx.destroySubcontext( "" );
-
             fail( "we should never get here" );
         }
         catch ( LdapNoPermissionException e )
@@ -252,7 +238,7 @@ public class RootDSEITest extends TestCase
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -260,17 +246,13 @@ public class RootDSEITest extends TestCase
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
-
         assertNotNull( initCtx );
-
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
-
         LdapNoPermissionException notNull = null;
 
         try
         {
             ctx.rename( "", "ou=system" );
-
             fail( "we should never get here" );
         }
         catch ( LdapNoPermissionException e )
@@ -292,7 +274,7 @@ public class RootDSEITest extends TestCase
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -300,17 +282,13 @@ public class RootDSEITest extends TestCase
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
-
         assertNotNull( initCtx );
-
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
-
         LdapNoPermissionException notNull = null;
 
         try
         {
             ctx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, null );
-
             fail( "we should never get here" );
         }
         catch ( LdapNoPermissionException e )
@@ -332,7 +310,7 @@ public class RootDSEITest extends TestCase
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );

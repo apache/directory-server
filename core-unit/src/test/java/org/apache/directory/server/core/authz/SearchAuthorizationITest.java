@@ -54,7 +54,7 @@ public class SearchAuthorizationITest extends AbstractAuthorizationITest
      * the map is also cleared before each search test.  This allows further inspections
      * of the results for more specific test cases.
      */
-    private Map results = new HashMap();
+    private Map<String, SearchResult> results = new HashMap<String, SearchResult>();
 
 
     /**
@@ -529,10 +529,10 @@ public class SearchAuthorizationITest extends AbstractAuthorizationITest
         assertTrue( checkCanSearchAs( "billyd", "billyd", cons, 4 ) );
 
         // check to make sure the telephoneNumber attribute is not present in results
-        Iterator list = results.values().iterator();
+        Iterator<SearchResult> list = results.values().iterator();
         while ( list.hasNext() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             assertNull( result.getAttributes().get( "telephoneNumber" ) );
         }
 
@@ -555,7 +555,7 @@ public class SearchAuthorizationITest extends AbstractAuthorizationITest
         list = results.values().iterator();
         while ( list.hasNext() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             assertNotNull( result.getAttributes().get( "telephoneNumber" ) );
         }
     }
@@ -595,10 +595,10 @@ public class SearchAuthorizationITest extends AbstractAuthorizationITest
         assertTrue( checkCanSearchAs( "billyd", "billyd", 3 ) );
 
         // check to make sure the ou attribute value "testEntry" is not present in results
-        Iterator list = results.values().iterator();
+        Iterator<SearchResult> list = results.values().iterator();
         while ( list.hasNext() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             assertFalse( result.getAttributes().get( "ou" ).contains( "testEntry" ) );
         }
 
@@ -621,7 +621,7 @@ public class SearchAuthorizationITest extends AbstractAuthorizationITest
         list = results.values().iterator();
         while ( list.hasNext() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             assertTrue( result.getAttributes().get( "ou" ).contains( "testEntry" ) );
         }
     }

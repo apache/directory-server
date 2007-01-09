@@ -138,7 +138,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
 
     public void test3UseAkarasulu() throws NamingException
     {
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
@@ -179,7 +179,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
     {
         // clean out the database
         tearDown();
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
 
         configuration.setAllowAnonymousAccess( false );
@@ -194,7 +194,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         tearDown();
 
         // ok this should start up the system now as admin
-        env = new Hashtable( configuration.toJndiEnvironment() );
+        env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         configuration.setAllowAnonymousAccess( true );
 
@@ -236,7 +236,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         // clean out the database
         tearDown();
         doDelete( new File( "target" + File.separator + "eve" ) );
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
 
@@ -265,7 +265,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         // clean out the database
         tearDown();
         doDelete( new File( "target" + File.separator + "eve" ) );
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
 
@@ -288,7 +288,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
      */
     public void test8PassPrincAuthTypeSimple() throws Exception
     {
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -306,7 +306,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
      */
     public void test10TestNonAdminUser() throws Exception
     {
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
@@ -318,7 +318,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
 
     public void test11InvalidateCredentialCache() throws NamingException
     {
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );

@@ -121,7 +121,7 @@ public class EventServiceITest extends AbstractAdminTestCase
 
     public class TestListener implements ObjectChangeListener, NamespaceChangeListener
     {
-        List events = new ArrayList();
+        List<EventRecord> events = new ArrayList<EventRecord>();
 
 
         public List getEventRecords()

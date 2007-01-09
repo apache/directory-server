@@ -73,7 +73,7 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
 
     public void testSearchResultNameIsRelativeToSearchContext() throws Exception
     {
-        Hashtable env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = configuration.toJndiEnvironment();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -111,7 +111,7 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
      */
     public void testPasswordComparisonSucceeds() throws Exception
     {
-        Hashtable env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = configuration.toJndiEnvironment();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 

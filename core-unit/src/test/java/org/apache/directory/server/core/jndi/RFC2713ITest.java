@@ -37,9 +37,10 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
  */
 public class RFC2713ITest extends AbstractAdminTestCase
 {
+    @SuppressWarnings("unchecked")
     public void testSerialization() throws Exception
     {
-        ArrayList colors = new ArrayList();
+        ArrayList<String> colors = new ArrayList<String>();
         colors.add( "red" );
         colors.add( "white" );
         colors.add( "blue" );
@@ -48,7 +49,7 @@ public class RFC2713ITest extends AbstractAdminTestCase
 
         Object obj = sysRoot.lookup( "cn=colors" );
         assertTrue( obj instanceof ArrayList );
-        colors = ( ArrayList ) obj;
+        colors = ( ArrayList<String> ) obj;
         assertEquals( 3, colors.size() );
         assertTrue( colors.contains( "red" ) );
         assertTrue( colors.contains( "white" ) );

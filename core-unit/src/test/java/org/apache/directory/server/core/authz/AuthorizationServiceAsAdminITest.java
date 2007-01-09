@@ -106,7 +106,7 @@ public class AuthorizationServiceAsAdminITest extends AbstractAdminTestCase
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        HashSet set = new HashSet();
+        HashSet<String> set = new HashSet<String>();
         NamingEnumeration list = sysRoot.search( "", "(objectClass=*)", controls );
 
         while ( list.hasMore() )

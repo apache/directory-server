@@ -116,7 +116,7 @@ public class ReferralITest extends AbstractAdminTestCase
             return sysRoot;
         }
 
-        Hashtable env = new Hashtable();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://hertz.karasulu.homeip.net:10390/ou=system" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
@@ -931,7 +931,7 @@ public class ReferralITest extends AbstractAdminTestCase
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration list = td.rootCtx.search( "", "(objectClass=*)", controls );
-        Map results = new HashMap();
+        Map<String, SearchResult> results = new HashMap<String, SearchResult>();
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();
@@ -946,7 +946,7 @@ public class ReferralITest extends AbstractAdminTestCase
 
         td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
         list = td.rootCtx.search( "", "(objectClass=*)", controls );
-        results = new HashMap();
+        results = new HashMap<String, SearchResult>();
 
         try
         {
@@ -972,7 +972,7 @@ public class ReferralITest extends AbstractAdminTestCase
 
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         list = td.rootCtx.search( "", "(objectClass=*)", controls );
-        results = new HashMap();
+        results = new HashMap<String, SearchResult>();
 
         try
         {

@@ -63,7 +63,7 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
     public void testDefect1a() throws NamingException 
     {
 
-        Hashtable env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = configuration.toJndiEnvironment();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -86,7 +86,7 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
      */
     public void testDefect1b() throws NamingException 
     {
-        Hashtable env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = configuration.toJndiEnvironment();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -111,7 +111,7 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
      */
     public void testDefect2() throws NamingException 
     {
-        Hashtable env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = configuration.toJndiEnvironment();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -156,7 +156,7 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
      */
     public void testDefect3() throws NamingException 
     {
-        Hashtable env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = configuration.toJndiEnvironment();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
