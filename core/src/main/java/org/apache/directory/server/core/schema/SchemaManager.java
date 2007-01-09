@@ -58,6 +58,7 @@ public class SchemaManager
     private final MetaNormalizerHandler metaNormalizerHandler;
     private final MetaSyntaxCheckerHandler metaSyntaxCheckerHandler;
     private final MetaSyntaxHandler metaSyntaxHandler;
+    private final MetaMatchingRuleHandler metaMatchingRuleHandler;
     
 
     public SchemaManager( Registries globalRegistries, PartitionSchemaLoader loader, SchemaPartitionDao dao ) 
@@ -72,6 +73,7 @@ public class SchemaManager
         this.metaNormalizerHandler = new MetaNormalizerHandler( globalRegistries, loader );
         this.metaSyntaxCheckerHandler = new MetaSyntaxCheckerHandler( globalRegistries, loader );
         this.metaSyntaxHandler = new MetaSyntaxHandler( globalRegistries, loader, dao );
+        this.metaMatchingRuleHandler = new MetaMatchingRuleHandler( globalRegistries, loader, dao );
     }
     
     
@@ -121,6 +123,12 @@ public class SchemaManager
             return;
         }
 
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_MATCHING_RULE_OC, objectClassAT ) )
+        {
+            metaMatchingRuleHandler.add( name, entry );
+            return;
+        }
+
         throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
     }
     
@@ -156,6 +164,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_OC, objectClassAT ) )
         {
             metaSyntaxHandler.delete( name, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_MATCHING_RULE_OC, objectClassAT ) )
+        {
+            metaMatchingRuleHandler.delete( name, entry );
             return;
         }
 
@@ -198,6 +212,12 @@ public class SchemaManager
             return;
         }
 
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_MATCHING_RULE_OC, objectClassAT ) )
+        {
+            metaMatchingRuleHandler.modify( name, modOp, mods, entry, targetEntry );
+            return;
+        }
+
         throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
     }
 
@@ -234,6 +254,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_OC, objectClassAT ) )
         {
             metaSyntaxHandler.modify( name, mods, entry, targetEntry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_MATCHING_RULE_OC, objectClassAT ) )
+        {
+            metaMatchingRuleHandler.modify( name, mods, entry, targetEntry );
             return;
         }
 
@@ -275,6 +301,12 @@ public class SchemaManager
             return;
         }
 
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_MATCHING_RULE_OC, objectClassAT ) )
+        {
+            metaMatchingRuleHandler.rename( name, entry, newRdn );
+            return;
+        }
+
         throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
     }
 
@@ -310,6 +342,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_OC, objectClassAT ) )
         {
             metaSyntaxHandler.move( oriChildName, newParentName, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_MATCHING_RULE_OC, objectClassAT ) )
+        {
+            metaMatchingRuleHandler.move( oriChildName, newParentName, entry );
             return;
         }
 
@@ -349,6 +387,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SYNTAX_OC, objectClassAT ) )
         {
             metaSyntaxHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_MATCHING_RULE_OC, objectClassAT ) )
+        {
+            metaMatchingRuleHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
             return;
         }
 

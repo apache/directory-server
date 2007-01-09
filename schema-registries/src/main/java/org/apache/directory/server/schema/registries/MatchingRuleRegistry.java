@@ -84,4 +84,13 @@ public interface MatchingRuleRegistry
      * @return an iterator over all MatchingRules in registry
      */
     Iterator<MatchingRule> iterator();
+    
+    
+    /**
+     * Removes a registered matchingRule from this registry.
+     * 
+     * @param numericOid the numeric object identifier for the matchingRule to remove
+     * @throws NamingException if the numericOid is invalid
+     */
+    void unregister( String numericOid ) throws NamingException;
 }

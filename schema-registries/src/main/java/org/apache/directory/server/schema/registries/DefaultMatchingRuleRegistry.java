@@ -113,6 +113,7 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
         {
             oidRegistry.register( names[ii], matchingRule.getOid() );
         }
+        oidRegistry.register( matchingRule.getOid(), matchingRule.getOid() );
 
         byOid.put( matchingRule.getOid(), matchingRule );
         if ( log.isDebugEnabled() )
@@ -158,5 +159,17 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
     public Iterator<MatchingRule> iterator()
     {
         return byOid.values().iterator();
+    }
+    
+    
+    public void unregister( String numericOid ) throws NamingException
+    {
+        if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
+        {
+            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        }
+
+        byOid.remove( numericOid );
+        oidToSchema.remove( numericOid );
     }
 }

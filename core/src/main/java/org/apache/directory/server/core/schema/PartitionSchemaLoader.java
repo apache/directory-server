@@ -33,9 +33,11 @@ import java.util.Stack;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AbstractSchemaLoader;
@@ -48,6 +50,7 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
     
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +71,8 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private SchemaEntityFactory factory;
     private Partition partition;
     private AttributeTypeRegistry attrRegistry;
+    private final AttributeType mOidAT;
+    private final AttributeType mNameAT;
 
     
     public PartitionSchemaLoader( Partition partition, Registries bootstrapRegistries ) throws NamingException
@@ -77,6 +82,8 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         this.attrRegistry = bootstrapRegistries.getAttributeTypeRegistry();
         
         dao = new SchemaPartitionDao( this.partition, bootstrapRegistries );
+        mOidAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
+        mNameAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_NAME_AT );
     }
     
     
@@ -88,6 +95,41 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
      */
     public void loadEnabled( Registries targetRegistries ) throws NamingException
     {
+        /* 
+         * We need to load all names and oids into the oid registry regardless of
+         * the entity being in an enabled schema.  This is necessary because we 
+         * search for values in the schema partition that represent matchingRules
+         * and other entities that are not loaded.  While searching these values
+         * in disabled schemas normalizers will attempt to equate names with oids
+         * and if there is an unrecognized value by a normalizer then the search 
+         * will fail.
+         * 
+         * For example there is a NameOrNumericOidNormalizer that will reduce a 
+         * numeric OID or a non-numeric OID to it's numeric form using the OID 
+         * registry.  While searching the schema partition for attributeTypes we
+         * might find values of matchingRules in the m-ordering, m-equality, and
+         * m-substr attributes of metaAttributeType definitions.  Now if an entry
+         * references a matchingRule that has not been loaded then the 
+         * NameOrNumericOidNormalizer will bomb out when it tries to resolve 
+         * names of matchingRules in unloaded schemas to OID values using the 
+         * OID registry.  To prevent this we need to load all the OID's in advance
+         * regardless of whether they are used or not.
+         */
+        NamingEnumeration ne = dao.listAllNames();
+        while ( ne.hasMore() )
+        {
+            Attributes attrs = ( ( SearchResult ) ne.next() ).getAttributes();
+            String oid = ( String ) AttributeUtils.getAttribute( attrs, mOidAT ).get();
+            Attribute names = AttributeUtils.getAttribute( attrs, mNameAT );
+            targetRegistries.getOidRegistry().register( oid, oid );
+            for ( int ii = 0; ii < names.size(); ii++ )
+            {
+                targetRegistries.getOidRegistry().register( ( String ) names.get( ii ), oid );
+            }
+        }
+        ne.close();
+        
+        
         Map<String, Schema> allSchemaMap = getSchemas();
         Set<Schema> enabledSchemaSet = new HashSet<Schema>();
 
