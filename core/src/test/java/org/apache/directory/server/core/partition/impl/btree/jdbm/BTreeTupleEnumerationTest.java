@@ -57,6 +57,13 @@ public class BTreeTupleEnumerationTest extends TestCase
         tree = BTree.createInstance( rm, new BigIntegerComparator() );
     }
     
+    protected void tearDown() throws Exception
+    {
+        String tmp = tempFile.getAbsolutePath();
+        new File( tmp ).delete();
+        new File( tmp + ".db" ).delete();
+        new File( tmp + ".lg" ).delete();
+    }
 
     public void testEmptyBTree() throws NamingException
     {
