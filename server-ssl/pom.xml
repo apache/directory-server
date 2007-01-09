@@ -91,6 +91,7 @@ enable performance tests run maven with the -Dperformance switch.
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
+            <forkMode>pertest</forkMode>
             <excludes>
               <exclude>**/*PTest.java</exclude>
             </excludes>
