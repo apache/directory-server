@@ -58,7 +58,9 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
@@ -757,7 +759,8 @@ class DefaultDirectoryService extends DirectoryService
 
         // setup temporary loader and temp registry 
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        registries = new DefaultRegistries( "bootstrap", loader );
+        OidRegistry oidRegistry = new DefaultOidRegistry();
+        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
         
         // load essential bootstrap schemas 
         Set<Schema> bootstrapSchemas = new HashSet<Schema>();
@@ -867,7 +870,7 @@ class DefaultDirectoryService extends DirectoryService
         // --------------------------------------------------------------------
         
         PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
-        Registries globalRegistries = new DefaultRegistries( "global", schemaLoader );
+        Registries globalRegistries = new DefaultRegistries( "global", schemaLoader, oidRegistry );
         schemaLoader.loadEnabled( globalRegistries );
         registries = globalRegistries;
         SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );

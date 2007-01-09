@@ -33,6 +33,7 @@ import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -53,7 +54,7 @@ public class SchemaServiceTest extends TestCase
     public void setUp() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        registries = new DefaultRegistries( "bootstrap", loader );
+        registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
         loader.load( new SystemSchema(), registries );
         loader.load( new ApacheSchema(), registries );
         loader.load( new CoreSchema(), registries );

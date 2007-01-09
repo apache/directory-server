@@ -35,6 +35,7 @@ import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -62,7 +63,7 @@ public class SubtreeEvaluatorTest extends TestCase
     private void init() throws NamingException
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader );
+        DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
         registries = bsRegistries;
         Set<Schema> schemas = new HashSet<Schema>();
         schemas.add( new SystemSchema() );

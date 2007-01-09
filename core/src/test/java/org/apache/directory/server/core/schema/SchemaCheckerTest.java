@@ -33,6 +33,7 @@ import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
@@ -74,7 +75,7 @@ public class SchemaCheckerTest extends TestCase
         super( name );
 
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        registries = new DefaultRegistries( "bootstrap", loader );
+        registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
 
         Set<Schema> schemas = new HashSet<Schema>();
         schemas.add( new SystemSchema() );

@@ -35,6 +35,7 @@ import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -54,7 +55,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     protected void setUp() throws Exception
     {
         super.setUp();
-        registries = new DefaultRegistries( "bootstrap", loader );
+        registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
     }
 
 

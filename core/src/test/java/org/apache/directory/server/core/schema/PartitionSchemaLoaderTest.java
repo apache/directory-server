@@ -30,7 +30,6 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.DirectoryServiceListener;
@@ -48,6 +47,7 @@ import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
+import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -87,7 +87,7 @@ public class PartitionSchemaLoaderTest extends TestCase
 
         // setup temporary loader and temp registry 
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        registries = new DefaultRegistries( "bootstrap", loader );
+        registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
         
         // load essential bootstrap schemas 
         Set<Schema> bootstrapSchemas = new HashSet<Schema>();

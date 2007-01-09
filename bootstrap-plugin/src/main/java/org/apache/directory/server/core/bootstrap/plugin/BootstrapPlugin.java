@@ -52,6 +52,7 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
+import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.server.schema.registries.NormalizerRegistry;
@@ -605,7 +606,7 @@ public class BootstrapPlugin extends AbstractMojo
         getLog().info( "" );
         
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        registries = new DefaultRegistries( "bootstrap", loader );
+        registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
         try
         {
             loader.loadWithDependencies( schemas.values(), registries );

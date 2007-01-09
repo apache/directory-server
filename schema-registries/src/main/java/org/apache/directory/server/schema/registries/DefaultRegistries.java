@@ -53,7 +53,7 @@ public class DefaultRegistries implements Registries
     private DefaultNameFormRegistry nameFormRegistry;
     private DefaultNormalizerRegistry normalizerRegistry;
     private DefaultObjectClassRegistry objectClassRegistry;
-    private DefaultOidRegistry oidRegistry;
+    private OidRegistry oidRegistry;
     private DefaultSyntaxCheckerRegistry syntaxCheckerRegistry;
     private DefaultSyntaxRegistry syntaxRegistry;
     private Map<String,Schema> byName = new HashMap<String, Schema>();
@@ -61,7 +61,7 @@ public class DefaultRegistries implements Registries
     private final String name;
 
 
-    public DefaultRegistries( String name, SchemaLoader schemaLoader )
+    public DefaultRegistries( String name, SchemaLoader schemaLoader, OidRegistry registry )
     {
         this.name = name;
         this.schemaLoader = schemaLoader;
@@ -71,7 +71,7 @@ public class DefaultRegistries implements Registries
                 byName.put( schema.getSchemaName(), schema );
             }
         });
-        oidRegistry = new DefaultOidRegistry();
+        oidRegistry = registry;
         normalizerRegistry = new DefaultNormalizerRegistry();
         comparatorRegistry = new DefaultComparatorRegistry();
         syntaxCheckerRegistry = new DefaultSyntaxCheckerRegistry();

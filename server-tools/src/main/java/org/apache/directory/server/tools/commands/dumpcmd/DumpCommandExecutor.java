@@ -49,6 +49,7 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTabl
 //import org.apache.directory.server.core.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
@@ -76,8 +77,8 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
     public static final String EXCLUDEDATTRIBUTES_PARAMETER = "excluded-attributes";
     public static final String INCLUDEOPERATIONAL_PARAMETER = "include-operational";
 
-    private DefaultRegistries bootstrapRegistries = new DefaultRegistries( "bootstrap", new BootstrapSchemaLoader() );
-    //private BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
+    private DefaultRegistries bootstrapRegistries = new DefaultRegistries( "bootstrap", 
+        new BootstrapSchemaLoader(), new DefaultOidRegistry() );
     private Set<String> exclusions = new HashSet<String>();
     private boolean includeOperational = false;
     private String outputFile;

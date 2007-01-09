@@ -32,6 +32,7 @@ import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -68,7 +69,7 @@ public class RefinementEvaluatorTest extends TestCase
     private void init() throws NamingException
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader );
+        DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
         Set<Schema> schemas = new HashSet<Schema>();
         schemas.add( new SystemSchema() );
         schemas.add( new ApacheSchema() );
