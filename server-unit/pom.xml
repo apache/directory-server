@@ -108,6 +108,17 @@ tests run maven with the -Dintegration switch.
       <activation>
         <property><name>integration</name></property>
       </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <forkMode>pertest</forkMode>
+              <!-- <argLine>-agentlib:yjpagent</argLine> -->
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>
