@@ -218,7 +218,7 @@ public class LdapMessage extends AbstractAsn1Object
             case LdapConstants.COMPARE_REQUEST:
                 return "COMPARE_REQUEST";
             case LdapConstants.COMPARE_RESPONSE:
-                return "COMPARE_REQUEST";
+                return "COMPARE_RESPONSE";
             case LdapConstants.DEL_REQUEST:
                 return "DEL_REQUEST";
             case LdapConstants.DEL_RESPONSE:
