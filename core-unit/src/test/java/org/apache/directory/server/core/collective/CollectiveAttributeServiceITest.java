@@ -224,6 +224,20 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
 
+        // request the collective attribute specifically
+        
+        attributes = super.sysRoot.getAttributes( "ou=interceptors,ou=configuration", new String[] { "c-ou" } );
+        c_ou = attributes.get( "c-ou" );
+        assertNotNull( "a collective c-ou attribute should be present", c_ou );
+        assertTrue( c_ou.contains( "configuration" ) );
+        assertTrue( c_ou.contains( "configuration2" ) );
+        
+        // unspecify the collective attribute in the returning attribute list
+
+        attributes = super.sysRoot.getAttributes( "ou=interceptors,ou=configuration", new String[] { "ou" } );
+        c_ou = attributes.get( "c-ou" );
+        assertNull( "a collective c-ou attribute should not be present", c_ou );
+        
         // -------------------------------------------------------------------
         // now add the subentry for the c-st collective attribute
         // -------------------------------------------------------------------
