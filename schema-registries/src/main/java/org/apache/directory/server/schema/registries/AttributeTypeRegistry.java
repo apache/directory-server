@@ -121,4 +121,13 @@ public interface AttributeTypeRegistry
      * @return Iterator over attributeTypes
      */
     Iterator<AttributeType> iterator();
+
+
+    /**
+     * Removes the AttributeType registered with this registry.
+     * 
+     * @param numericOid the numeric identifier
+     * @throws NamingException if the numeric identifier is invalid
+     */
+    void unregister( String numericOid ) throws NamingException;
 }

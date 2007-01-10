@@ -96,6 +96,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
         {
             oidRegistry.register( names[ii], attributeType.getOid() );
         }
+        oidRegistry.register( attributeType.getOid(), attributeType.getOid() );
 
         registerDescendants( attributeType );
         oidToSchema.put( attributeType.getOid(), schema );
@@ -261,5 +262,18 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     public Iterator<AttributeType> iterator()
     {
         return byOid.values().iterator();
+    }
+    
+    
+    public void unregister( String numericOid ) throws NamingException
+    {
+        if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
+        {
+            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        }
+
+        byOid.remove( numericOid );
+        oidToSchema.remove( numericOid );
+        oidToDescendantSet.remove( numericOid );
     }
 }

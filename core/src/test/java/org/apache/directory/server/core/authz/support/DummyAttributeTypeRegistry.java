@@ -67,6 +67,9 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
         {
             return new AttributeType()
             {
+                private static final long serialVersionUID = 1L;
+
+
                 public boolean isSingleValue()
                 {
                     return false;
@@ -113,6 +116,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 {
                     return new MatchingRule()
                     {
+                        private static final long serialVersionUID = 1L;
 
                         public Syntax getSyntax() throws NamingException
                         {
@@ -128,6 +132,8 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                         {
                             return new Normalizer()
                             {
+                                private static final long serialVersionUID = 1L;
+
                                 public Object normalize( Object value ) throws NamingException
                                 {
                                     return StringTools.deepTrimToLower( value.toString() );
@@ -211,6 +217,8 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
         {
             return new AttributeType()
             {
+                private static final long serialVersionUID = 1L;
+
                 public boolean isSingleValue()
                 {
                     return false;
@@ -245,6 +253,8 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 {
                     return new Syntax()
                     {
+
+                        private static final long serialVersionUID = 1L;
 
                         public boolean isHumanReadible()
                         {
@@ -295,11 +305,14 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 {
                     return new MatchingRule()
                     {
+                        private static final long serialVersionUID = 1L;
 
                         public Syntax getSyntax() throws NamingException
                         {
                             return new Syntax()
                             {
+                                private static final long serialVersionUID = 1L;
+
 
                                 public boolean isHumanReadible()
                                 {
@@ -348,6 +361,8 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                         {
                             return new Normalizer()
                             {
+                                private static final long serialVersionUID = 1L;
+
                                 public Object normalize( Object value ) throws NamingException
                                 {
                                     return StringTools.deepTrimToLower( value.toString() );
@@ -469,5 +484,10 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
     public Iterator<AttributeType> iterator()
     {
         return null;
+    }
+
+
+    public void unregister( String numericOid ) throws NamingException
+    {
     }
 }

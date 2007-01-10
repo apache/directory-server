@@ -87,7 +87,10 @@ public class SchemaPartitionDao
     private final String M_ORDERING_OID;
     private final String M_SUBSTRING_OID;
     private final String M_EQUALITY_OID;
-   
+    private final String M_SUP_ATTRIBUTE_TYPE_OID;
+    private final String M_MUST_OID;
+    private final String M_MAY_OID;
+    
     private final AttributeType disabledAttributeType;
     
     
@@ -114,6 +117,9 @@ public class SchemaPartitionDao
         this.M_ORDERING_OID = oidRegistry.getOid( MetaSchemaConstants.M_ORDERING_AT );
         this.M_EQUALITY_OID = oidRegistry.getOid( MetaSchemaConstants.M_EQUALITY_AT );
         this.M_SUBSTRING_OID = oidRegistry.getOid( MetaSchemaConstants.M_SUBSTR_AT );
+        this.M_SUP_ATTRIBUTE_TYPE_OID = oidRegistry.getOid( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT );
+        this.M_MUST_OID = oidRegistry.getOid( MetaSchemaConstants.M_MUST_AT );
+        this.M_MAY_OID = oidRegistry.getOid( MetaSchemaConstants.M_MAY_AT );
     }
 
 
@@ -441,5 +447,49 @@ public class SchemaPartitionDao
         filter.addNode( new PresenceNode( M_OID_OID ) );
         filter.addNode( new PresenceNode( M_NAME_OID ) );
         return partition.search( partition.getSuffix(), new HashMap(), filter, searchControls );
+    }
+
+
+    public Set<SearchResult> listAttributeTypeDependees( AttributeType at ) throws NamingException
+    {
+        Set<SearchResult> set = new HashSet<SearchResult>( );
+        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        
+        // ( objectClass = metaAttributeType )
+        BranchNode or = new BranchNode( AssertionEnum.OR );
+        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
+        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
+        filter.addNode( or );
+
+        
+        or = new BranchNode( AssertionEnum.OR );
+        or.addNode( new SimpleNode( M_MAY_OID, at.getOid(), AssertionEnum.EQUALITY ) );
+        or.addNode( new SimpleNode( M_MUST_OID, at.getOid(), AssertionEnum.EQUALITY ) );
+        or.addNode( new SimpleNode( M_SUP_ATTRIBUTE_TYPE_OID, at.getOid(), AssertionEnum.EQUALITY ) );
+        filter.addNode( or );
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+        
+        try
+        {
+            ne = partition.search( partition.getSuffix(), new HashMap(), filter, searchControls );
+            while( ne.hasMore() )
+            {
+                set.add( ne.next() );
+            }
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+        
+        return set;
     }
 }
