@@ -286,8 +286,8 @@ public class CollectiveAttributeService extends BaseInterceptor
     
     /*
      * TODO: Add change inducing Interceptor methods to track and prevent
-     *       modification of collective attributes over regular entries which are
-     *       not of type collectiveAttributeSubentry.
+     *       modification of collective attributes over entries/subentries
+     *       which are not of type collectiveAttributeSubentry.
      * 
      * See: http://issues.apache.org/jira/browse/DIRSERVER-821
      * See: http://issues.apache.org/jira/browse/DIRSERVER-822
