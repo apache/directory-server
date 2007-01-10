@@ -12,7 +12,7 @@
 
   <issueManagement>
     <system>jira</system>
-    <url>http://issues.apache.org/jira/browse/DIRLDAP</url>
+    <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
   </issueManagement>
 
   <distributionManagement>
