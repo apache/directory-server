@@ -147,22 +147,21 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
     }
     
     
-//  Testcase for DIRSERVER-816
-//    public Map getAllEntriesCollectiveAttributesOnly() throws NamingException
-//    {
-//        Map resultMap = new HashMap();
-//        SearchControls controls = new SearchControls();
-//        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-//        controls.setReturningAttributes( new String[]
-//                                                    { "c-ou", "c-st" } );
-//        NamingEnumeration results = super.sysRoot.search( "", "(objectClass=*)", controls );
-//        while ( results.hasMore() )
-//        {
-//            SearchResult result = ( SearchResult ) results.next();
-//            resultMap.put( result.getName(), result.getAttributes() );
-//        }
-//        return resultMap;
-//    }
+    public Map getAllEntriesCollectiveAttributesOnly() throws NamingException
+    {
+        Map resultMap = new HashMap();
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setReturningAttributes( new String[]
+                                                    { "c-ou", "c-st" } );
+        NamingEnumeration results = super.sysRoot.search( "", "(objectClass=*)", controls );
+        while ( results.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) results.next();
+            resultMap.put( result.getName(), result.getAttributes() );
+        }
+        return resultMap;
+    }
     
 
     public void testLookup() throws Exception
@@ -291,17 +290,16 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         assertEquals( "configuration", c_ou.get() );
 
         
-//      Testcase for DIRSERVER-816
-//        // ------------------------------------------------------------------
-//        // test an entry that should show the collective attribute c-ou, 
-//        // but restrict returned attributes to c-ou and c-st
-//        // ------------------------------------------------------------------
-//        
-//        entries = getAllEntriesCollectiveAttributesOnly();
-//        attributes = ( Attributes ) entries.get( "ou=services,ou=configuration,ou=system" );
-//        c_ou = attributes.get( "c-ou" );
-//        assertNotNull( "a collective c-ou attribute should be present", c_ou );
-//        assertEquals( "configuration", c_ou.get() );   
+        // ------------------------------------------------------------------
+        // test an entry that should show the collective attribute c-ou, 
+        // but restrict returned attributes to c-ou and c-st
+        // ------------------------------------------------------------------
+        
+        entries = getAllEntriesCollectiveAttributesOnly();
+        attributes = ( Attributes ) entries.get( "ou=services,ou=configuration,ou=system" );
+        c_ou = attributes.get( "c-ou" );
+        assertNotNull( "a collective c-ou attribute should be present", c_ou );
+        assertEquals( "configuration", c_ou.get() );   
         
         
         // -------------------------------------------------------------------

@@ -20,6 +20,19 @@
 package org.apache.directory.server.core.collective;
 
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -35,18 +48,6 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
-import javax.naming.Name;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.SearchResult;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collections;
 
 
 /**
@@ -69,7 +70,10 @@ public class CollectiveAttributeService extends BaseInterceptor
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
             throws NamingException
         {
-            return filter( result.getAttributes() );
+            LdapDN name = new LdapDN(result.getName());
+            filter( name, result.getAttributes() );
+            searchFilter( name, result.getAttributes(), controls.getReturningAttributes() );
+            return true;
         }
     };
 
@@ -90,18 +94,22 @@ public class CollectiveAttributeService extends BaseInterceptor
      * by the entry.  All collective attributes that are not exclused are added
      * to the entry from all subentries.
      *
+     * @param name name of the entry being processed
      * @param entry the entry to have the collective attributes injected
      * @throws NamingException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( Attributes entry ) throws NamingException
+    private void addCollectiveAttributes( Name name, Attributes entry ) throws NamingException
     {
-        Attribute subentries = entry.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        LdapDN normName = LdapDN.normalize( ( LdapDN ) name, registry.getNormalizerMapping() );
+        Attributes entryWithCAS = nexus.lookup( normName, new String[] { "collectiveAttributeSubentries" } );
+        Attribute subentries = entryWithCAS.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
 
         if ( subentries == null )
         {
             return;
         }
-
+        
+        
         /*
          * Before we proceed we need to lookup the exclusions within the
          * entry and build a set of exclusions for rapid lookup.  We use
@@ -186,20 +194,19 @@ public class CollectiveAttributeService extends BaseInterceptor
     /**
      * Filter that injects collective attributes into the entry.
      *
+     * @param name name of the entry being filtered
      * @param attributes the resultant attributes with added collective attributes
      * @return true always
      */
-    private boolean filter( Attributes attributes ) throws NamingException
+    private boolean filter( Name name, Attributes attributes ) throws NamingException
     {
-        addCollectiveAttributes( attributes );
+        addCollectiveAttributes( name, attributes );
         return true;
     }
 
 
     private void filter( Name dn, Attributes entry, String[] ids ) throws NamingException
     {
-        filter( entry );
-
         // still need to return collective attrs when ids is null
         if ( ids == null )
         {
@@ -233,6 +240,49 @@ public class CollectiveAttributeService extends BaseInterceptor
         // attributes to include - backends will automatically populate
         // with right set of attributes using ids array
     }
+    
+    private void searchFilter( Name dn, Attributes entry, String[] ids ) throws NamingException
+    {
+        // still need to return collective attrs when ids is null
+        if ( ids == null )
+        {
+            return;
+        }
+        
+        HashSet idsSet = new HashSet( ids.length );
+
+        for ( int ii = 0; ii < ids.length; ii++ )
+        {
+            idsSet.add( ids[ii].toLowerCase() );
+        }
+        
+        if ( idsSet.contains( "*" ) )
+        {
+            return;
+        }
+
+        NamingEnumeration list = entry.getIDs();
+
+        while ( list.hasMore() )
+        {
+            String attrId = ( ( String ) list.nextElement() ).toLowerCase();
+            
+            AttributeType attrType = registry.lookup( attrId );
+            if ( !attrType.isCollective() )
+            {
+                continue;
+            }
+
+            if ( !idsSet.contains( attrId ) )
+            {
+                entry.remove( attrId );
+            }
+        }
+
+        // do nothing past here since this explicity specifies which
+        // attributes to include - backends will automatically populate
+        // with right set of attributes using ids array
+    }
 
 
     // ------------------------------------------------------------------------
@@ -246,7 +296,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         {
             return null;
         }
-        filter( result );
+        filter( name, result );
         return result;
     }
     
@@ -258,7 +308,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         {
             return null;
         }
-
+        filter( name, result );
         filter( name, result, attrIds );
         return result;
     }
