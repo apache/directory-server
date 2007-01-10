@@ -84,7 +84,9 @@ public class DnComparator implements Comparator
         
         if ( obj instanceof LdapDN )
         {
-            dn = LdapDN.normalize( ( LdapDN ) obj, attrRegistry.getNormalizerMapping() );
+            dn = (LdapDN)obj;
+            
+            dn = ( dn.isNormalized() ? dn : LdapDN.normalize( dn, attrRegistry.getNormalizerMapping() ) );
         }
         else if ( obj instanceof Name )
         {
