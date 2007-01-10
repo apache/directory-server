@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -102,9 +101,15 @@ public class CollectiveAttributeService extends BaseInterceptor
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
      * @throws NamingException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( Name name, Attributes entry, String[] retAttrs ) throws NamingException
+    private void addCollectiveAttributes( LdapDN name, Attributes entry, String[] retAttrs ) throws NamingException
     {
-        LdapDN normName = LdapDN.normalize( ( LdapDN ) name, registry.getNormalizerMapping() );
+        LdapDN normName = name;
+        
+        if ( !name.isNormalized() )
+        {
+            normName = LdapDN.normalize( name, registry.getNormalizerMapping() );
+        }
+
         Attributes entryWithCAS = nexus.lookup( normName, new String[] { COLLECTIVE_ATTRIBUTE_SUBENTRIES } );
         Attribute caSubentries = entryWithCAS.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
 
