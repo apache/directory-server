@@ -42,7 +42,6 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -62,6 +61,8 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  */
 public class CollectiveAttributeService extends BaseInterceptor
 {
+    public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
+    
     /**
      * the search result filter to use for collective attribute injection
      */
@@ -104,8 +105,8 @@ public class CollectiveAttributeService extends BaseInterceptor
     private void addCollectiveAttributes( Name name, Attributes entry, String[] retAttrs ) throws NamingException
     {
         LdapDN normName = LdapDN.normalize( ( LdapDN ) name, registry.getNormalizerMapping() );
-        Attributes entryWithCAS = nexus.lookup( normName, new String[] { SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES } );
-        Attribute caSubentries = entryWithCAS.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        Attributes entryWithCAS = nexus.lookup( normName, new String[] { COLLECTIVE_ATTRIBUTE_SUBENTRIES } );
+        Attribute caSubentries = entryWithCAS.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
 
         /*
          * If there are no collective attribute subentries referenced
@@ -129,6 +130,10 @@ public class CollectiveAttributeService extends BaseInterceptor
             if ( collectiveExclusions.contains( "2.5.18.0" )
                 || collectiveExclusions.contains( "excludeAllCollectiveAttributes" ) )
             {
+                /*
+                 * This entry does not allow any collective attributes
+                 * to be injected in itself.
+                 */
                 return;
             }
 
@@ -141,7 +146,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         }
         else
         {
-            exclusions = Collections.emptySet();
+            exclusions = Collections.EMPTY_SET;
         }
         
         /*
@@ -179,6 +184,11 @@ public class CollectiveAttributeService extends BaseInterceptor
                 String attrId = ( String ) attrIds.next();
                 AttributeType attrType = registry.lookup( attrId );
 
+                if ( !attrType.isCollective() )
+                {
+                    continue;
+                }
+                
                 /*
                  * Skip the addition of this collective attribute if it is excluded
                  * in the 'collectiveAttributes' attribute.
@@ -189,44 +199,40 @@ public class CollectiveAttributeService extends BaseInterceptor
                 }
 
                 /*
-                 * If the attribute type of the subentry attribute is collective
-                 * and if this collective attribute is requested then we need to
-                 * add all the values of the collective attribute to the entry
-                 * making sure we do not overwrite values already existing for the
-                 * collective attribute in case multiple subentries add the same
-                 * collective attributes to this entry.
+                 * If not all attributes or this collective attribute requested specifically
+                 * then bypass the inclusion process.
                  */
-                if ( attrType.isCollective() )
+                if ( !( retIdsSet.contains( "*" ) || retIdsSet.contains( attrId ) ) )
                 {
                     /*
-                     * If not all attributes or this collective attribute requested specifically
-                     * then bypass the inclusion process.
+                     * TODO: Check if the requested attribute types list includes any type
+                     *       that is a supertype of any collective attribute that applies
+                     *       to this entry.
+                     *       
+                     * See: http://issues.apache.org/jira/browse/DIRSERVER-820
                      */
-                    if ( !( retIdsSet.contains( "*" ) || retIdsSet.contains( attrId ) ) )
-                    {
-                        continue;
-                    }
-                    
-                    Attribute subentryColAttr = subentry.get( attrId );
-                    Attribute entryColAttr = entry.get( attrId );
+                    continue;
+                }
+                
+                Attribute subentryColAttr = subentry.get( attrId );
+                Attribute entryColAttr = entry.get( attrId );
 
-                    /*
-                     * If entry does not have attribute for collective attribute then create it.
-                     */
-                    if ( entryColAttr == null )
-                    {
-                        entryColAttr = new AttributeImpl( attrId );
-                        entry.put( entryColAttr );
-                    }
+                /*
+                 * If entry does not have attribute for collective attribute then create it.
+                 */
+                if ( entryColAttr == null )
+                {
+                    entryColAttr = new AttributeImpl( attrId );
+                    entry.put( entryColAttr );
+                }
 
-                    /*
-                     *  Add all the collective attribute values in the subentry
-                     *  to the currently processed collective attribute in the entry.
-                     */
-                    for ( int jj = 0; jj < subentryColAttr.size(); jj++ )
-                    {
-                        entryColAttr.add( subentryColAttr.get( jj ) );
-                    }
+                /*
+                 *  Add all the collective attribute values in the subentry
+                 *  to the currently processed collective attribute in the entry.
+                 */
+                for ( int jj = 0; jj < subentryColAttr.size(); jj++ )
+                {
+                    entryColAttr.add( subentryColAttr.get( jj ) );
                 }
             }
         }
@@ -276,4 +282,14 @@ public class CollectiveAttributeService extends BaseInterceptor
         Invocation invocation = InvocationStack.getInstance().peek();
         return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SEARCH_FILTER );
     }
+    
+    
+    /*
+     * TODO: Add change inducing Interceptor methods to track and prevent
+     *       modification of collective attributes over regular entries which are
+     *       not of type collectiveAttributeSubentry.
+     * 
+     * See: http://issues.apache.org/jira/browse/DIRSERVER-821
+     * See: http://issues.apache.org/jira/browse/DIRSERVER-822
+     */
 }
