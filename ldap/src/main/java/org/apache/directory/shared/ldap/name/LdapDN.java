@@ -77,6 +77,9 @@ public class LdapDN implements Name
 
    /** Value returned by the compareTo method if values are equals */
    public final static int EQUALS = 0;
+   
+   /** A flag used to tell if the DN has been normalized */
+   private boolean normalized;
 
    // ~ Static fields/initializers
    // -----------------------------------------------------------------
@@ -106,6 +109,7 @@ public class LdapDN implements Name
        super();
        upName = "";
        normName = "";
+       normalized = true;
    }
 
 
@@ -124,6 +128,9 @@ public class LdapDN implements Name
                add( nameComponent );
            }
        }
+
+       normalized = false;
+       
    }
 
 
@@ -133,18 +140,18 @@ public class LdapDN implements Name
     *
     * @param list of String name components.
     */
-   LdapDN( List list ) throws InvalidNameException
+   LdapDN( List<String> list ) throws InvalidNameException
    {
        if ( ( list != null ) && ( list.size() != 0 ) )
        {
-           Iterator nameComponents = list.iterator();
-
-           while ( nameComponents.hasNext() )
+           for ( String nameComponent:list )
            {
-               String nameComponent = ( String ) nameComponents.next();
                add( 0, nameComponent );
            }
        }
+
+       normalized = false;
+       
    }
 
 
@@ -164,6 +171,8 @@ public class LdapDN implements Name
                add( 0, nameComponent );
            }
        }
+       
+       normalized = false;
    }
 
 
@@ -181,20 +190,63 @@ public class LdapDN implements Name
     * @exception InvalidNameException is thrown if the buffer does not
     *                contains a valid DN.
     */
-   public LdapDN( String upName ) throws InvalidNameException
-   {
-       if ( upName != null )
-       {
-           LdapDnParser.parseInternal( upName, rdns );
-       }
+    public LdapDN( String upName ) throws InvalidNameException
+    {
+        if ( upName != null )
+        {
+            LdapDnParser.parseInternal( upName, rdns );
+        }
 
-       // Stores the representations of a DN : internal (as a string and as a
-       // byte[]) and external.
-       normalizeInternal();
-       this.upName = upName;
-   }
+        // Stores the representations of a DN : internal (as a string and as a
+        // byte[]) and external.
+        normalizeInternal();
+        normalized = false;
+        
+        this.upName = upName;
+    }
 
+    /**
+     * Static factory which creates a normalized DN from a String and a Map of OIDs.
+     *
+     * @param name The DN as a String
+     * @param oidsMap The OID mapping
+     * @return A valid DN
+     * @throws InvalidNameException If the DN is invalid
+     */
+    public static Name normalize( String name, Map<String, OidNormalizer> oidsMap ) throws InvalidNameException, NamingException
+    {
+        if ( ( name == null ) || ( name.length() == 0 ) || ( oidsMap == null ) || ( oidsMap.size() == 0 ) )
+        {
+            return LdapDN.EMPTY_LDAPDN;
+        }
 
+        try
+        {
+            LdapDN newDn = new LdapDN( name );
+        
+            Enumeration<Rdn> rdns = newDn.getAllRdn();
+        
+            // Loop on all RDNs
+            while ( rdns.hasMoreElements() )
+            {
+                Rdn rdn = rdns.nextElement();
+                String upName = rdn.getUpName();
+                rdnOidToName( rdn, oidsMap );
+                rdn.normalize();
+                rdn.setUpName( upName );
+            }
+        
+            newDn.normalizeInternal();
+            newDn.normalized = true;
+            
+            return newDn;
+        } 
+        catch ( NamingException ne )
+        {
+            throw new InvalidNameException( ne.getMessage() );
+        }
+    }
+    
    /**
     * Parse a buffer and checks that it is a valid DN <br>
     * <p>
@@ -217,6 +269,7 @@ public class LdapDN implements Name
            upName = new String( bytes, "UTF-8" );
            LdapDnParser.parseInternal( upName, rdns );
            this.normName = toNormName();
+           normalized = false;
        }
        catch ( UnsupportedEncodingException uee )
        {
@@ -1238,7 +1291,7 @@ public class LdapDN implements Name
    }
 
 
-   private static AttributeTypeAndValue atavOidToName( AttributeTypeAndValue atav, Map oidsMap )
+   private static AttributeTypeAndValue atavOidToName( AttributeTypeAndValue atav, Map<String, OidNormalizer> oidsMap )
        throws InvalidNameException, NamingException
    {
        String type = StringTools.trim( atav.getType() );
@@ -1256,7 +1309,7 @@ public class LdapDN implements Name
            }
            else
            {
-               OidNormalizer oidNormalizer = ( OidNormalizer ) oidsMap.get( type );
+               OidNormalizer oidNormalizer = oidsMap.get( type );
 
                if ( oidNormalizer != null )
                {
@@ -1293,7 +1346,7 @@ public class LdapDN implements Name
     *             If
     * @throws NamingException
     */
-   private static void rdnOidToName( Rdn rdn, Map oidsMap ) throws InvalidNameException, NamingException
+   private static void rdnOidToName( Rdn rdn, Map<String, OidNormalizer> oidsMap ) throws InvalidNameException, NamingException
    {
        if ( rdn.getNbAtavs() > 1 )
        {
@@ -1329,7 +1382,7 @@ public class LdapDN implements Name
                }
                else
                {
-                   OidNormalizer oidNormalizer = ( OidNormalizer ) oidsMap.get( type );
+                   OidNormalizer oidNormalizer = oidsMap.get( type );
 
                    if ( oidNormalizer != null )
                    {
@@ -1380,7 +1433,7 @@ public class LdapDN implements Name
     * @throws InvalidNameException
     *             If the DN is invalid
     */
-   public static LdapDN normalize( LdapDN dn, Map oidsMap ) throws InvalidNameException, NamingException
+   public static LdapDN normalize( LdapDN dn, Map<String, OidNormalizer> oidsMap ) throws InvalidNameException, NamingException
    {
        if ( ( dn == null ) || ( dn.size() == 0 ) || ( oidsMap == null ) || ( oidsMap.size() == 0 ) )
        {
@@ -1403,6 +1456,7 @@ public class LdapDN implements Name
 
        newDn.normalizeInternal();
 
+       newDn.normalized = true;
        return newDn;
    }
 
@@ -1421,7 +1475,7 @@ public class LdapDN implements Name
     * @throws InvalidNameException
     *             If the DN is invalid
     */
-   public void normalize( Map oidsMap ) throws InvalidNameException, NamingException
+   public void normalize( Map<String, OidNormalizer> oidsMap ) throws InvalidNameException, NamingException
    {
        if ( ( oidsMap == null ) || ( oidsMap.size() == 0 ) )
        {
@@ -1446,6 +1500,7 @@ public class LdapDN implements Name
        }
 
        normalizeInternal();
+       normalized = true;
    }
    
    /**
@@ -1459,4 +1514,10 @@ public class LdapDN implements Name
    {
        return LdapDnParser.validateInternal( dn );
    }
+
+
+public boolean isNormalized()
+{
+    return normalized;
+}
 }
