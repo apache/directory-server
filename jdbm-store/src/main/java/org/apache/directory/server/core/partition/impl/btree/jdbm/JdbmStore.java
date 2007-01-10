@@ -1678,7 +1678,8 @@ public class JdbmStore
         // Now we can handle the appropriate name indices for all cases
         ndnIdx.drop( id );
         
-        LdapDN normalizedDn = LdapDN.normalize( updn, attributeTypeRegistry.getNormalizerMapping() );
+        LdapDN normalizedDn = ( updn.isNormalized() ? updn : LdapDN.normalize( updn, attributeTypeRegistry.getNormalizerMapping() ) );
+        
         ndnIdx.add( ndnIdx.getNormalized( normalizedDn.toNormName() ), id );
 
         updnIdx.drop( id );
