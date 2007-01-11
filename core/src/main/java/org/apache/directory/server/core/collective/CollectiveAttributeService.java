@@ -71,6 +71,7 @@ public class CollectiveAttributeService extends BaseInterceptor
             throws NamingException
         {
             LdapDN name = new LdapDN( result.getName() );
+            name = LdapDN.normalize( name, attrTypeRegistry.getNormalizerMapping() );
             Attributes entry = result.getAttributes();
             String[] retAttrs = controls.getReturningAttributes();
             addCollectiveAttributes( name, entry, retAttrs );
@@ -78,7 +79,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         }
     };
 
-    private AttributeTypeRegistry registry = null;
+    private AttributeTypeRegistry attrTypeRegistry = null;
     private PartitionNexus nexus = null;
 
 
@@ -86,7 +87,7 @@ public class CollectiveAttributeService extends BaseInterceptor
     {
         super.init( factoryCfg, cfg );
         nexus = factoryCfg.getPartitionNexus();
-        registry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+        attrTypeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
     }
 
 
@@ -96,20 +97,13 @@ public class CollectiveAttributeService extends BaseInterceptor
      * attributes that are specified to be excluded via the 'collectiveExclusions'
      * attribute in the entry.
      *
-     * @param name name of the entry being processed
+     * @param normName name of the entry being processed
      * @param entry the entry to have the collective attributes injected
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
      * @throws NamingException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( LdapDN name, Attributes entry, String[] retAttrs ) throws NamingException
+    private void addCollectiveAttributes( LdapDN normName, Attributes entry, String[] retAttrs ) throws NamingException
     {
-        LdapDN normName = name;
-        
-        if ( !name.isNormalized() )
-        {
-            normName = LdapDN.normalize( name, registry.getNormalizerMapping() );
-        }
-
         Attributes entryWithCAS = nexus.lookup( normName, new String[] { COLLECTIVE_ATTRIBUTE_SUBENTRIES } );
         Attribute caSubentries = entryWithCAS.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
 
@@ -137,7 +131,7 @@ public class CollectiveAttributeService extends BaseInterceptor
             {
                 /*
                  * This entry does not allow any collective attributes
-                 * to be injected in itself.
+                 * to be injected into itself.
                  */
                 return;
             }
@@ -145,7 +139,7 @@ public class CollectiveAttributeService extends BaseInterceptor
             exclusions = new HashSet();
             for ( int ii = 0; ii < collectiveExclusions.size(); ii++ )
             {
-                AttributeType attrType = registry.lookup( ( String ) collectiveExclusions.get( ii ) );
+                AttributeType attrType = attrTypeRegistry.lookup( ( String ) collectiveExclusions.get( ii ) );
                 exclusions.add( attrType.getOid() );
             }
         }
@@ -187,7 +181,7 @@ public class CollectiveAttributeService extends BaseInterceptor
             while ( attrIds.hasMore() )
             {
                 String attrId = ( String ) attrIds.next();
-                AttributeType attrType = registry.lookup( attrId );
+                AttributeType attrType = attrTypeRegistry.lookup( attrId );
 
                 if ( !attrType.isCollective() )
                 {
@@ -297,4 +291,5 @@ public class CollectiveAttributeService extends BaseInterceptor
      * See: http://issues.apache.org/jira/browse/DIRSERVER-821
      * See: http://issues.apache.org/jira/browse/DIRSERVER-822
      */
+    
 }
