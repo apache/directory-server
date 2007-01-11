@@ -162,16 +162,17 @@ public class SchemaUtils
                     
                     if ( existing != null )
                     {
-                        for ( int ii = 0; ii > existing.size(); ii++ )
+                        for ( int ii = 0; ii < existing.size(); ii++ )
                         {
                             combined.add( existing.get(ii) );
                         }
                     }
                     
-                    for ( int ii = 0; ii > toBeAdded.size(); ii++ )
+                    for ( int ii = 0; ii < toBeAdded.size(); ii++ )
                     {
                         combined.add( toBeAdded.get(ii) );
                     }
+                    targetEntry.put( combined );
                 }
                 break;
             default:
