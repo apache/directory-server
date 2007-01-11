@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 
 
 /**
@@ -90,7 +91,7 @@ public interface AttributeTypeRegistry
      * Gets an oid/name to normalizer mapping used to normalize distinguished 
      * names.
      */
-    Map getNormalizerMapping() throws NamingException; 
+    Map<String, OidNormalizer> getNormalizerMapping() throws NamingException; 
     
     /**
      * Quick lookup to see if an attribute has descendants.

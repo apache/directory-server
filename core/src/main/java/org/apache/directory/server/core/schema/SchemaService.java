@@ -94,6 +94,7 @@ public class SchemaService extends BaseInterceptor
 {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
+    private static final AttributeType[] EMPTY_ATTRIBUTE_TYPE_ARRAY = new AttributeType[0];
 
     /** The LoggerFactory used by this Interceptor */
     private static Logger log = LoggerFactory.getLogger( SchemaService.class );
@@ -1294,8 +1295,6 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    private static final AttributeType[] EMPTY_ATTRIBUTE_TYPE_ARRAY = new AttributeType[0];
-    
     /**
      * Uses the objectClass registry to ascend super classes and collect 
      * all attributeTypes within must lists until top is reached on each

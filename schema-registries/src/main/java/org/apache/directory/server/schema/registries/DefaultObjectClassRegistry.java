@@ -141,4 +141,16 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     {
         return byOid.values().iterator();
     }
+    
+    
+    public void unregister( String numericOid ) throws NamingException
+    {
+        if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
+        {
+            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        }
+
+        byOid.remove( numericOid );
+        oidToSchema.remove( numericOid );
+    }
 }

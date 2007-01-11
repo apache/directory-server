@@ -200,7 +200,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     }
     
     
-    public Map getNormalizerMapping() throws NamingException
+    public Map<String,OidNormalizer> getNormalizerMapping() throws NamingException
     {
         if ( mapping == null )
         {

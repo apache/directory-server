@@ -60,7 +60,8 @@ public class SchemaManager
     private final MetaSyntaxHandler metaSyntaxHandler;
     private final MetaMatchingRuleHandler metaMatchingRuleHandler;
     private final MetaAttributeTypeHandler metaAttributeTypeHandler;
-    
+    private final MetaObjectClassHandler metaObjectClassHandler;
+
 
     public SchemaManager( Registries globalRegistries, PartitionSchemaLoader loader, SchemaPartitionDao dao ) 
         throws NamingException
@@ -76,6 +77,7 @@ public class SchemaManager
         this.metaSyntaxHandler = new MetaSyntaxHandler( globalRegistries, loader, dao );
         this.metaMatchingRuleHandler = new MetaMatchingRuleHandler( globalRegistries, loader, dao );
         this.metaAttributeTypeHandler = new MetaAttributeTypeHandler( globalRegistries, loader, dao );
+        this.metaObjectClassHandler = new MetaObjectClassHandler( globalRegistries, loader, dao );
     }
     
     
@@ -130,10 +132,16 @@ public class SchemaManager
             metaMatchingRuleHandler.add( name, entry );
             return;
         }
-
+        
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC, objectClassAT ) )
         {
             metaAttributeTypeHandler.add( name, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_OBJECT_CLASS_OC, objectClassAT ) )
+        {
+            metaObjectClassHandler.add( name, entry );
             return;
         }
 
@@ -184,6 +192,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC, objectClassAT ) )
         {
             metaAttributeTypeHandler.delete( name, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_OBJECT_CLASS_OC, objectClassAT ) )
+        {
+            metaObjectClassHandler.delete( name, entry );
             return;
         }
 
@@ -238,6 +252,12 @@ public class SchemaManager
             return;
         }
 
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_OBJECT_CLASS_OC, objectClassAT ) )
+        {
+            metaObjectClassHandler.modify( name, modOp, mods, entry, targetEntry );
+            return;
+        }
+
         throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
     }
 
@@ -286,6 +306,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC, objectClassAT ) )
         {
             metaAttributeTypeHandler.modify( name, mods, entry, targetEntry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_OBJECT_CLASS_OC, objectClassAT ) )
+        {
+            metaObjectClassHandler.modify( name, mods, entry, targetEntry );
             return;
         }
 
@@ -339,6 +365,12 @@ public class SchemaManager
             return;
         }
 
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_OBJECT_CLASS_OC, objectClassAT ) )
+        {
+            metaObjectClassHandler.rename( name, entry, newRdn );
+            return;
+        }
+
         throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
     }
 
@@ -386,6 +418,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC, objectClassAT ) )
         {
             metaAttributeTypeHandler.move( oriChildName, newParentName, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_OBJECT_CLASS_OC, objectClassAT ) )
+        {
+            metaObjectClassHandler.move( oriChildName, newParentName, entry );
             return;
         }
 
@@ -437,6 +475,12 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC, objectClassAT ) )
         {
             metaAttributeTypeHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
+            return;
+        }
+
+        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_OBJECT_CLASS_OC, objectClassAT ) )
+        {
+            metaObjectClassHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
             return;
         }
 

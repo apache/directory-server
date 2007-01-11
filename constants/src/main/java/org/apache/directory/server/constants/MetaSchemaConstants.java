@@ -37,6 +37,8 @@ public interface MetaSchemaConstants
     public static final String META_SYNTAX_OC = "metaSyntax";
     public static final String META_SYNTAX_CHECKER_OC = "metaSyntaxChecker";
     public static final String META_COMPARATOR_OC = "metaComparator";
+    public static final String META_NAME_FORM_OC = "metaNameForm";
+    public static final String META_DIT_CONTENT_RULE_OC = "metaDITContentRule";
 
     public static final String M_SUP_OBJECT_CLASS_AT = "m-supObjectClass";
     public static final String M_BYTECODE_AT = "m-bytecode";
@@ -48,6 +50,8 @@ public interface MetaSchemaConstants
     public static final String M_OBSOLETE_AT = "m-obsolete";
     public static final String M_NAME_AT = "m-name";
     public static final String M_OID_AT = "m-oid";
+    public static final String M_OC_AT = "m-oc";
+    public static final String M_AUX_AT = "m-aux";
     public static final String M_USAGE_AT = "m-usage";
     public static final String M_NO_USER_MODIFICATION_AT = "m-noUserModification";
     public static final String M_SINGLE_VALUE_AT = "m-singleValue";
@@ -60,5 +64,6 @@ public interface MetaSchemaConstants
     public static final String M_MUST_AT = "m-must";
     public static final String M_MAY_AT = "m-may";
     public static final String M_TYPE_OBJECT_CLASS_AT = "m-typeObjectClass";
+    
     public static final String X_HUMAN_READIBLE_AT = "x-humanReadible";
 }

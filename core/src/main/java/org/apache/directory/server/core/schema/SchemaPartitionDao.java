@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
 
 import org.slf4j.Logger;
@@ -90,6 +91,9 @@ public class SchemaPartitionDao
     private final String M_SUP_ATTRIBUTE_TYPE_OID;
     private final String M_MUST_OID;
     private final String M_MAY_OID;
+    private final String M_AUX_OID;
+    private final String M_OC_OID;
+    private final String M_SUP_OBJECT_CLASS_OID;
     
     private final AttributeType disabledAttributeType;
     
@@ -120,6 +124,9 @@ public class SchemaPartitionDao
         this.M_SUP_ATTRIBUTE_TYPE_OID = oidRegistry.getOid( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT );
         this.M_MUST_OID = oidRegistry.getOid( MetaSchemaConstants.M_MUST_AT );
         this.M_MAY_OID = oidRegistry.getOid( MetaSchemaConstants.M_MAY_AT );
+        this.M_AUX_OID = oidRegistry.getOid( MetaSchemaConstants.M_AUX_AT );
+        this.M_OC_OID = oidRegistry.getOid( MetaSchemaConstants.M_OC_AT );
+        this.M_SUP_OBJECT_CLASS_OID = oidRegistry.getOid( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
     }
 
 
@@ -452,6 +459,24 @@ public class SchemaPartitionDao
 
     public Set<SearchResult> listAttributeTypeDependees( AttributeType at ) throws NamingException
     {
+        /*
+         * Right now the following inefficient filter is being used:
+         * 
+         * ( & 
+         *      ( | ( objectClass = metaAttributeType ) ( objectClass = metaObjectClass ) )
+         *      ( | ( m-oid = $oid ) ( m-must = $oid ) ( m-supAttributeType = $oid ) )
+         * )
+         * 
+         * the reason why this is inefficient is because the or terms have large scan counts
+         * and several loops are going to be required.  The following search is better because
+         * it constrains the results better:
+         * 
+         * ( |
+         *      ( & ( objectClass = metaAttributeType ) ( m-supAttributeType = $oid ) )
+         *      ( & ( objectClass = metaObjectClass ) ( | ( m-may = $oid ) ( m-must = $oid ) ) )
+         * )
+         */
+        
         Set<SearchResult> set = new HashSet<SearchResult>( );
         BranchNode filter = new BranchNode( AssertionEnum.AND );
         
@@ -468,6 +493,75 @@ public class SchemaPartitionDao
         or.addNode( new SimpleNode( M_MAY_OID, at.getOid(), AssertionEnum.EQUALITY ) );
         or.addNode( new SimpleNode( M_MUST_OID, at.getOid(), AssertionEnum.EQUALITY ) );
         or.addNode( new SimpleNode( M_SUP_ATTRIBUTE_TYPE_OID, at.getOid(), AssertionEnum.EQUALITY ) );
+        filter.addNode( or );
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+        
+        try
+        {
+            ne = partition.search( partition.getSuffix(), new HashMap(), filter, searchControls );
+            while( ne.hasMore() )
+            {
+                set.add( ne.next() );
+            }
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+        
+        return set;
+    }
+
+
+    public Set<SearchResult> listObjectClassDependees( ObjectClass oc ) throws NamingException
+    {
+        /*
+         * Right now the following inefficient filter is being used:
+         * 
+         * ( & 
+         *      ( | ( objectClass = metaObjectClass ) ( objectClass = metaDITContentRule ) 
+         *          ( objectClass = metaNameForm ) )
+         *      ( | ( m-oc = $oid ) ( m-aux = $oid ) ( m-supObjectClass = $oid ) )
+         * )
+         * 
+         * The reason why this is inefficient is because the or terms have large scan counts
+         * and several loops are going to be required.  For example all the objectClasses and 
+         * all the metaDITContentRules and all the metaNameForm candidates will be a massive 
+         * number.  This is probably going to be bigger than the 2nd term where a candidate 
+         * satisfies one of the terms.
+         * 
+         * The following search is better because it constrains the results better:
+         * 
+         * ( |
+         *      ( & ( objectClass = metaNameForm ) ( m-oc = $oid ) )
+         *      ( & ( objectClass = metaObjectClass ) ( m-supObjectClass = $oid ) )
+         *      ( & ( objectClass = metaDITContentRule ) ( m-aux = $oid ) )
+         * )
+         */
+        
+        Set<SearchResult> set = new HashSet<SearchResult>( );
+        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        
+        BranchNode or = new BranchNode( AssertionEnum.OR );
+        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_NAME_FORM_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
+        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
+        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_DIT_CONTENT_RULE_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
+        filter.addNode( or );
+
+        
+        or = new BranchNode( AssertionEnum.OR );
+        or.addNode( new SimpleNode( M_AUX_OID, oc.getOid(), AssertionEnum.EQUALITY ) );
+        or.addNode( new SimpleNode( M_OC_OID, oc.getOid(), AssertionEnum.EQUALITY ) );
+        or.addNode( new SimpleNode( M_SUP_OBJECT_CLASS_OID, oc.getOid(), AssertionEnum.EQUALITY ) );
         filter.addNode( or );
 
         SearchControls searchControls = new SearchControls();

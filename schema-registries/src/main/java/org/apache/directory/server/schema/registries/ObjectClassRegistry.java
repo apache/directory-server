@@ -82,4 +82,13 @@ public interface ObjectClassRegistry
      * @return an iterator over all ObjectClasses in registry
      */
     Iterator<ObjectClass> iterator();
+
+
+    /**
+     * Removes the ObjectClass corresponding to the numeric identifier form this registry.
+     * 
+     * @param numericOid the numeric identifier for the ObjectClass to remove
+     * @throws NamingException if the numeric identifier is not valid
+     */
+    void unregister( String numericOid ) throws NamingException;
 }
