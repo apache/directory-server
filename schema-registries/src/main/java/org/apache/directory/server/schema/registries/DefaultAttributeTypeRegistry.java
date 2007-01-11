@@ -129,7 +129,12 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     protected void onRegisterAddToAncestorDescendants( AttributeType newType, AttributeType ancestor ) 
         throws NamingException
     {
-        if ( ancestor == null || ancestor.getName().equals( "top" ) )
+        if ( ancestor == null )
+        {
+            return;
+        }
+        
+        if ( ancestor.getName() != null && ancestor.getName().equals( "top" ) )
         {
             return;
         }
