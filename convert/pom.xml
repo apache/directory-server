@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.shared</groupId>
+    <artifactId>build</artifactId>
+    <version>0.9.6-SNAPSHOT</version>
+  </parent>
+  <artifactId>shared-converter</artifactId>
+  <name>Apache Directory Protocol Ldap Converters</name>
+  <inceptionYear>2007</inceptionYear>
+
+  <issueManagement>
+    <system>jira</system>
+    <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
+  </issueManagement>
+
+  <distributionManagement>
+    <site>
+      <id>apache.websites</id>
+      <url>scp://minotaur.apache.org/www/directory.apache.org/subprojects/ldap/common</url>
+    </site>
+  </distributionManagement>
+
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared/convert</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/trunks/shared/convert</developerConnection>
+  </scm>
+
+  <ciManagement>
+    <notifiers>
+      <notifier>
+        <type>mail</type>
+        <address>dev@directory.apache.org</address>
+      </notifier>
+    </notifiers>
+  </ciManagement>
+
+  <description>
+    Common LDAP converters : LDIF, DSML, CSV, etc
+  </description>
+
+  <mailingLists>
+    <mailingList>
+      <name>Apache Directory Project</name>
+      <subscribe>dev-subscribe@directory.apache.org</subscribe>
+      <unsubscribe>dev-unsubscribe@directory.apache.org</unsubscribe>
+      <archive>http://mail-archives.apache.org/mod_mbox/dev/</archive>
+      <otherArchives>
+        <otherArchive>http://www.archivum.info/dev@directory.apache.org/</otherArchive>
+      </otherArchives>
+    </mailingList>
+  </mailingLists>
+
+  <licenses>
+    <license>
+      <name>Apache 2.0 License</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <version>1.2.25</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>antlr</groupId>
+      <artifactId>antlr</artifactId>
+      <version>2.7.6</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <configuration/>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antlr-plugin</artifactId>
+        <configuration>
+          <grammars>schema.g</grammars>
+        </configuration>
+        <executions>
+           <execution>
+              <goals>
+                 <goal>generate</goal>
+              </goals>
+           </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+          <debug>true</debug>
+          <optimize>true</optimize>
+          <showDeprecations>true</showDeprecations>
+          <encoding>ISO-8859-1</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/Abstract*</exclude>
+            <exclude>**/*RegressionTest*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clover-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jxr-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>surefire-report-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+</project>
+
