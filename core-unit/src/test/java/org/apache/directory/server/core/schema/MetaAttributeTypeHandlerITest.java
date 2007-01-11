@@ -29,6 +29,7 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -54,6 +55,7 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
     
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.2.100000";
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.2.100001";
+    private static final String DEPENDEE_OID = "1.3.6.1.4.1.18060.0.4.0.2.100002";
 
     
     /**
@@ -247,112 +249,127 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
     // ----------------------------------------------------------------------
 
     
-//    public void testDeleteSyntaxWhenInUse() throws NamingException
-//    {
-//        LdapDN dn = getSyntaxContainer( "apachemeta" );
-//        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-//        testAddSyntax();
-//        addDependeeMatchingRule();
-//        
-//        try
-//        {
-//            super.schemaRoot.destroySubcontext( dn );
-//            fail( "should not be able to delete a syntax in use" );
-//        }
-//        catch( LdapOperationNotSupportedException e ) 
-//        {
-//            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
-//
-//        assertTrue( "syntax should still be in the registry after delete failure", 
-//            registries.getSyntaxRegistry().hasSyntax( OID ) );
-//    }
-//    
-//    
-//    public void testMoveSyntaxWhenInUse() throws NamingException
-//    {
-//        testAddSyntax();
-//        addDependeeMatchingRule();
-//        
-//        LdapDN dn = getSyntaxContainer( "apachemeta" );
-//        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-//
-//        LdapDN newdn = getSyntaxContainer( "apache" );
-//        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-//        
-//        try
-//        {
-//            super.schemaRoot.rename( dn, newdn );
-//            fail( "should not be able to move a syntax in use" );
-//        }
-//        catch( LdapOperationNotSupportedException e ) 
-//        {
-//            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
-//
-//        assertTrue( "syntax should still be in the registry after move failure", 
-//            registries.getSyntaxRegistry().hasSyntax( OID ) );
-//    }
-//
-//
-//    public void testMoveSyntaxAndChangeRdnWhenInUse() throws NamingException
-//    {
-//        testAddSyntax();
-//        addDependeeMatchingRule()
-//        
-//        LdapDN dn = getSyntaxContainer( "apachemeta" );
-//        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-//
-//        LdapDN newdn = getSyntaxContainer( "apache" );
-//        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
-//        
-//        try
-//        {
-//            super.schemaRoot.rename( dn, newdn );
-//            fail( "should not be able to move a syntax in use" );
-//        }
-//        catch( LdapOperationNotSupportedException e ) 
-//        {
-//            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
-//
-//        assertTrue( "syntax should still be in the registry after move failure", 
-//            registries.getSyntaxRegistry().hasSyntax( OID ) );
-//    }
-//
-//    
+    private void addDependeeAttributeType() throws NamingException
+    {
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
+        oc.add( MetaSchemaConstants.META_TOP_OC );
+        oc.add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
+        attrs.put( oc );
+        attrs.put( MetaSchemaConstants.M_OID_AT, DEPENDEE_OID );
+        attrs.put( MetaSchemaConstants.M_SYNTAX_AT, INTEGER_SYNTAX_OID );
+        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
+        attrs.put( MetaSchemaConstants.M_EQUALITY_AT, "caseIgnoreMatch" );
+        attrs.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, "FALSE" );
+        attrs.put( MetaSchemaConstants.M_USAGE_AT, "directoryOperation" );
+        attrs.put( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT, OID );
+        
+        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        dn.add( MetaSchemaConstants.M_OID_AT + "=" + DEPENDEE_OID );
+        super.schemaRoot.createSubcontext( dn, attrs );
+        
+        assertTrue( registries.getAttributeTypeRegistry().hasAttributeType( DEPENDEE_OID ) );
+        assertEquals( registries.getAttributeTypeRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
+    }
 
-    // Need to add body to this method which creates a new matchingRule after 
-    // the matchingRule addition code has been added.
+
+    public void testDeleteAttributeTypeWhenInUse() throws NamingException
+    {
+        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        testAddAttributeType();
+        addDependeeAttributeType();
+        
+        try
+        {
+            super.schemaRoot.destroySubcontext( dn );
+            fail( "should not be able to delete a attributeType in use" );
+        }
+        catch( LdapOperationNotSupportedException e ) 
+        {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        assertTrue( "attributeType should still be in the registry after delete failure", 
+            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+    }
     
-//    private void addDependeeMatchingRule()
-//    {
-//        throw new NotImplementedException();
-//    }
-//    
-//    public void testRenameNormalizerWhenInUse() throws NamingException
-//    {
-//        LdapDN dn = getSyntaxContainer( "apachemeta" );
-//        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-//        testAddSyntax();
-//        addDependeeMatchingRule();
-//        
-//        LdapDN newdn = getSyntaxContainer( "apachemeta" );
-//        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
-//        
-//        try
-//        {
-//            super.schemaRoot.rename( dn, newdn );
-//            fail( "should not be able to rename a syntax in use" );
-//        }
-//        catch( LdapOperationNotSupportedException e ) 
-//        {
-//            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
-//
-//        assertTrue( "syntax should still be in the registry after rename failure", 
-//            registries.getSyntaxRegistry().hasSyntax( OID ) );
-//    }
+    
+    public void testMoveAttributeTypeWhenInUse() throws NamingException
+    {
+        testAddAttributeType();
+        addDependeeAttributeType();
+        
+        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+
+        LdapDN newdn = getAttributeTypeContainer( "apache" );
+        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        
+        try
+        {
+            super.schemaRoot.rename( dn, newdn );
+            fail( "should not be able to move a attributeType in use" );
+        }
+        catch( LdapOperationNotSupportedException e ) 
+        {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        assertTrue( "attributeType should still be in the registry after move failure", 
+            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+    }
+
+
+    public void testMoveAttributeTypeAndChangeRdnWhenInUse() throws NamingException
+    {
+        testAddAttributeType();
+        addDependeeAttributeType();
+        
+        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+
+        LdapDN newdn = getAttributeTypeContainer( "apache" );
+        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        
+        try
+        {
+            super.schemaRoot.rename( dn, newdn );
+            fail( "should not be able to move a attributeType in use" );
+        }
+        catch( LdapOperationNotSupportedException e ) 
+        {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        assertTrue( "attributeType should still be in the registry after move failure", 
+            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+    }
+
+    
+    public void testRenameAttributeTypeWhenInUse() throws NamingException
+    {
+        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        testAddAttributeType();
+        addDependeeAttributeType();
+        
+        LdapDN newdn = getAttributeTypeContainer( "apachemeta" );
+        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        
+        try
+        {
+            super.schemaRoot.rename( dn, newdn );
+            fail( "should not be able to rename a attributeType in use" );
+        }
+        catch( LdapOperationNotSupportedException e ) 
+        {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        assertTrue( "attributeType should still be in the registry after rename failure", 
+            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+    }
 
 
     // ----------------------------------------------------------------------
