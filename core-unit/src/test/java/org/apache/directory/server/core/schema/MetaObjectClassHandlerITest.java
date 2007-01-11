@@ -29,6 +29,7 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -48,12 +49,14 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
 {
     private static final String NAME = "testObjectClass";
     private static final String NEW_NAME = "alternateName";
+    private static final String DEPENDEE_NAME = "dependeeName";
 
     private static final String DESCRIPTION0 = "A test objectClass";
     private static final String DESCRIPTION1 = "An alternate description";
     
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.3.100000";
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.3.100001";
+    private static final String DEPENDEE_OID = "1.3.6.1.4.1.18060.0.4.0.3.100002";
 
     
     /**
@@ -243,116 +246,131 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
     
 
     // ----------------------------------------------------------------------
-    // Test move, rename, and delete when a MR exists and uses the Normalizer
+    // Test move, rename, and delete when a OC exists and uses the OC as sup
     // ----------------------------------------------------------------------
 
     
-//    public void testDeleteSyntaxWhenInUse() throws NamingException
-//    {
-//        LdapDN dn = getSyntaxContainer( "apachemeta" );
-//        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-//        testAddSyntax();
-//        addDependeeMatchingRule();
-//        
-//        try
-//        {
-//            super.schemaRoot.destroySubcontext( dn );
-//            fail( "should not be able to delete a syntax in use" );
-//        }
-//        catch( LdapOperationNotSupportedException e ) 
-//        {
-//            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
-//
-//        assertTrue( "syntax should still be in the registry after delete failure", 
-//            registries.getSyntaxRegistry().hasSyntax( OID ) );
-//    }
-//    
-//    
-//    public void testMoveSyntaxWhenInUse() throws NamingException
-//    {
-//        testAddSyntax();
-//        addDependeeMatchingRule();
-//        
-//        LdapDN dn = getSyntaxContainer( "apachemeta" );
-//        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-//
-//        LdapDN newdn = getSyntaxContainer( "apache" );
-//        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-//        
-//        try
-//        {
-//            super.schemaRoot.rename( dn, newdn );
-//            fail( "should not be able to move a syntax in use" );
-//        }
-//        catch( LdapOperationNotSupportedException e ) 
-//        {
-//            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
-//
-//        assertTrue( "syntax should still be in the registry after move failure", 
-//            registries.getSyntaxRegistry().hasSyntax( OID ) );
-//    }
-//
-//
-//    public void testMoveSyntaxAndChangeRdnWhenInUse() throws NamingException
-//    {
-//        testAddSyntax();
-//        addDependeeMatchingRule()
-//        
-//        LdapDN dn = getSyntaxContainer( "apachemeta" );
-//        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-//
-//        LdapDN newdn = getSyntaxContainer( "apache" );
-//        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
-//        
-//        try
-//        {
-//            super.schemaRoot.rename( dn, newdn );
-//            fail( "should not be able to move a syntax in use" );
-//        }
-//        catch( LdapOperationNotSupportedException e ) 
-//        {
-//            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
-//
-//        assertTrue( "syntax should still be in the registry after move failure", 
-//            registries.getSyntaxRegistry().hasSyntax( OID ) );
-//    }
-//
-//    
+    private void addDependeeObjectClass() throws NamingException
+    {
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
+        oc.add( MetaSchemaConstants.META_TOP_OC );
+        oc.add( MetaSchemaConstants.META_OBJECT_CLASS_OC );
+        attrs.put( oc );
+        attrs.put( MetaSchemaConstants.M_OID_AT, DEPENDEE_OID );
+        attrs.put( MetaSchemaConstants.M_NAME_AT, DEPENDEE_NAME );
+        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
+        attrs.put( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT, "AUXILIARY" );
+        attrs.put( MetaSchemaConstants.M_MUST_AT, "cn" );
+        attrs.put( MetaSchemaConstants.M_MAY_AT, "ou" );
+        attrs.put( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT, OID );
+        
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( MetaSchemaConstants.M_OID_AT + "=" + DEPENDEE_OID );
+        super.schemaRoot.createSubcontext( dn, attrs );
+        
+        assertTrue( registries.getObjectClassRegistry().hasObjectClass( DEPENDEE_OID ) );
+        assertEquals( registries.getObjectClassRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
+    }
 
-    // Need to add body to this method which creates a new matchingRule after 
-    // the matchingRule addition code has been added.
     
-//    private void addDependeeMatchingRule()
-//    {
-//        throw new NotImplementedException();
-//    }
-//    
-//    public void testRenameNormalizerWhenInUse() throws NamingException
-//    {
-//        LdapDN dn = getSyntaxContainer( "apachemeta" );
-//        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-//        testAddSyntax();
-//        addDependeeMatchingRule();
-//        
-//        LdapDN newdn = getSyntaxContainer( "apachemeta" );
-//        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
-//        
-//        try
-//        {
-//            super.schemaRoot.rename( dn, newdn );
-//            fail( "should not be able to rename a syntax in use" );
-//        }
-//        catch( LdapOperationNotSupportedException e ) 
-//        {
-//            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
-//
-//        assertTrue( "syntax should still be in the registry after rename failure", 
-//            registries.getSyntaxRegistry().hasSyntax( OID ) );
-//    }
+    public void testDeleteObjectClassWhenInUse() throws NamingException
+    {
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        testAddObjectClass();
+        addDependeeObjectClass();
+        
+        try
+        {
+            super.schemaRoot.destroySubcontext( dn );
+            fail( "should not be able to delete a objectClass in use" );
+        }
+        catch( LdapOperationNotSupportedException e ) 
+        {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        assertTrue( "objectClass should still be in the registry after delete failure", 
+            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+    }
+    
+    
+    public void testMoveObjectClassWhenInUse() throws NamingException
+    {
+        testAddObjectClass();
+        addDependeeObjectClass();
+        
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+
+        LdapDN newdn = getObjectClassContainer( "apache" );
+        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        
+        try
+        {
+            super.schemaRoot.rename( dn, newdn );
+            fail( "should not be able to move a objectClass in use" );
+        }
+        catch( LdapOperationNotSupportedException e ) 
+        {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        assertTrue( "objectClass should still be in the registry after move failure", 
+            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+    }
+
+
+    public void testMoveObjectClassAndChangeRdnWhenInUse() throws NamingException
+    {
+        testAddObjectClass();
+        addDependeeObjectClass();
+        
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+
+        LdapDN newdn = getObjectClassContainer( "apache" );
+        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        
+        try
+        {
+            super.schemaRoot.rename( dn, newdn );
+            fail( "should not be able to move an objectClass in use" );
+        }
+        catch( LdapOperationNotSupportedException e ) 
+        {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        assertTrue( "ObjectClass should still be in the registry after move failure", 
+            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+    }
+
+    
+    public void testRenameObjectClassWhenInUse() throws NamingException
+    {
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        testAddObjectClass();
+        addDependeeObjectClass();
+        
+        LdapDN newdn = getObjectClassContainer( "apachemeta" );
+        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        
+        try
+        {
+            super.schemaRoot.rename( dn, newdn );
+            fail( "should not be able to rename an objectClass in use" );
+        }
+        catch( LdapOperationNotSupportedException e ) 
+        {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        assertTrue( "objectClass should still be in the registry after rename failure", 
+            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+    }
 
 
     // ----------------------------------------------------------------------
