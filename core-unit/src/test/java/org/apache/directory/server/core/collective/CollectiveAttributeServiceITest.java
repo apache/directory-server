@@ -20,21 +20,21 @@
 package org.apache.directory.server.core.collective;
 
 
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import java.util.Map;
-import java.util.HashMap;
+import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
@@ -423,4 +423,5 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         assertNull( c_ou );
         assertNull( c_st );
     }
+    
 }
