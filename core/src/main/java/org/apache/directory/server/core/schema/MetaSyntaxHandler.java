@@ -20,27 +20,22 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
@@ -52,49 +47,23 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MetaSyntaxHandler implements SchemaChangeHandler
+public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
 {
-    private static final String OU_OID = "2.5.4.11";
-
-    private final PartitionSchemaLoader loader;
     private final SchemaPartitionDao dao;
-    private final SchemaEntityFactory factory;
-    private final Registries targetRegistries;
     private final SyntaxRegistry syntaxRegistry;
-    private final AttributeType m_oidAT;
 
     
-
     public MetaSyntaxHandler( Registries targetRegistries, PartitionSchemaLoader loader, SchemaPartitionDao dao ) 
         throws NamingException
     {
-        this.targetRegistries = targetRegistries;
+        super( targetRegistries, loader );
+
         this.dao = dao;
-        this.loader = loader;
         this.syntaxRegistry = targetRegistries.getSyntaxRegistry();
-        this.factory = new SchemaEntityFactory( targetRegistries );
-        this.m_oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
     }
 
-
-    private String getOid( Attributes entry ) throws NamingException
-    {
-        Attribute oid = ServerUtils.getAttribute( m_oidAT, entry );
-        if ( oid == null )
-        {
-            return null;
-        }
-        return ( String ) oid.get();
-    }
     
-    
-    private Schema getSchema( LdapDN name ) throws NamingException
-    {
-        return loader.getSchema( MetaSchemaUtils.getSchemaName( name ) );
-    }
-    
-    
-    private void modify( LdapDN name, Attributes entry, Attributes targetEntry ) throws NamingException
+    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry ) throws NamingException
     {
         String oldOid = getOid( entry );
         Syntax syntax = factory.getSyntax( targetEntry, targetRegistries );
@@ -107,21 +76,7 @@ public class MetaSyntaxHandler implements SchemaChangeHandler
         }
     }
 
-
-    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry )
-        throws NamingException
-    {
-        modify( name, entry, targetEntry );
-    }
-
-
-    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry )
-        throws NamingException
-    {
-        modify( name, entry, targetEntry );
-    }
-
-
+    
     public void add( LdapDN name, Attributes entry ) throws NamingException
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
@@ -135,24 +90,14 @@ public class MetaSyntaxHandler implements SchemaChangeHandler
         {
             syntaxRegistry.register( schema.getSchemaName(), syntax );
         }
-    }
-
-
-    private Set<String> getOids( Set<SearchResult> results ) throws NamingException
-    {
-        Set<String> oids = new HashSet<String>( results.size() );
-        
-        for ( SearchResult result : results )
+        else
         {
-            LdapDN dn = new LdapDN( result.getName() );
-            dn.normalize( this.targetRegistries.getAttributeTypeRegistry().getNormalizerMapping() );
-            oids.add( ( String ) dn.getRdn().getValue() );
+            // even for disabled schemas add OIDs
+            registerOids( syntax );
         }
-        
-        return oids;
     }
-    
-    
+
+
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
         String oid = getOid( entry );
@@ -168,11 +113,13 @@ public class MetaSyntaxHandler implements SchemaChangeHandler
         }
         
         Schema schema = getSchema( name );
-        
         if ( ! schema.isDisabled() )
         {
-            syntaxRegistry.unregister( getOid( entry ) );
+            syntaxRegistry.unregister( oid );
         }
+
+        // no matter what we remove OID for deleted syntaxes
+        unregisterOids( oid );
     }
 
 
@@ -194,12 +141,21 @@ public class MetaSyntaxHandler implements SchemaChangeHandler
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRdn );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
+        Syntax syntax = factory.getSyntax( targetEntry, targetRegistries );
+        
         if ( ! schema.isDisabled() )
         {
-            Syntax syntax = factory.getSyntax( targetEntry, targetRegistries );
             syntaxRegistry.unregister( oldOid );
             syntaxRegistry.register( schema.getSchemaName(), syntax );
         }
+        else
+        {
+            // even for disabled schemas add OIDs
+            registerOids( syntax );
+        }
+        
+        // always remove old OIDs that are not in schema anymore
+        unregisterOids( oldOid );
     }
 
 
@@ -230,10 +186,17 @@ public class MetaSyntaxHandler implements SchemaChangeHandler
         {
             syntaxRegistry.unregister( oldOid );
         }
+        // always remove old OIDs that are not in schema anymore
+        unregisterOids( oldOid );
 
         if ( ! newSchema.isDisabled() )
         {
             syntaxRegistry.register( newSchema.getSchemaName(), syntax );
+        }
+        else
+        {
+            // register new syntax OIDs even if schema is disabled 
+            registerOids( syntax );
         }
     }
 
