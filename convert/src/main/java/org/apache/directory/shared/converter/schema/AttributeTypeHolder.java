@@ -21,7 +21,6 @@ package org.apache.directory.shared.converter.schema;
 
 
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 
 /**
@@ -31,15 +30,12 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 476875 $
  */
-public class AttributeTypeHolder
+public class AttributeTypeHolder extends SchemaElementImpl
 {
-    private boolean obsolete = false;
     private boolean singleValue = false;
     private boolean collective = false;
     private boolean noUserModification = false;
 
-    private String oid;
-    private String description;
     private String superior;
     private String equality;
     private String ordering;
@@ -47,8 +43,6 @@ public class AttributeTypeHolder
     private String syntax;
 
     private UsageEnum usage = UsageEnum.USER_APPLICATIONS;
-
-    private String[] names = ArrayUtils.EMPTY_STRING_ARRAY;
 
     private int length = -1;
 
@@ -204,18 +198,12 @@ public class AttributeTypeHolder
         this.usage = usage;
     }
 
-
-    public String[] getNames()
-    {
-        return names;
-    }
-
-
+    /**
     public void setNames( String[] names )
     {
         this.names = names;
     }
-
+    */
 
     public int getLength()
     {

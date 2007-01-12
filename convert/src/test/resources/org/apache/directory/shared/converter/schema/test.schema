@@ -153,3 +153,10 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.11
 	DESC 'A non-authoritative referral or glue address record'
 	SUP apacheDnsAbstractRecord 
 	MUST ( apacheDnsDomainName $ apacheDnsIpAddress ) )
+	
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.12
+	NAME 'lecharny'
+	DESC 'A non-authoritative referral or glue address record'
+	SUP apacheDnsAbstractRecord 
+	MUST ( apacheDnsDomainName $ apacheDnsIpAddress ) )
+	

@@ -15,7 +15,7 @@ public class TestSchemaToLdif extends TestCase
         
         List<Schema> schemas = new ArrayList<Schema>();
         Schema schema = new Schema();
-        schema.setName( "test.schema" );
+        schema.setName( "test" );
         schema.setInput( getClass().getResourceAsStream( "test.schema" ) );
         schema.setOutput( new OutputStreamWriter( System.out ) );
         schemas.add( schema );

@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.Writer;
@@ -54,6 +53,11 @@ public class SchemaParser
     /** A pipe into the parser */
     private PipedOutputStream parserIn = null;
 
+    byte[] buf = new byte[128];
+
+    private InputStream schemaIn;
+    
+    private Thread producerThread;
 
     /**
      * Creates a reusable instance of an SchemaParser.
@@ -86,26 +90,12 @@ public class SchemaParser
         parser.clear();
     }
 
-
-    public List getAttributeTypes()
-    {
-        return parser.getAttributeTypes();
-    }
-
-
-    public List getObjectClassTypes()
-    {
-        return parser.getObjectClasses();
-    }
-
-
-    
     /**
      * Thread safe method parses an OpenLDAP schemaObject element/object.
      *
      * @param schemaObject the String image of a complete schema object
      */
-    public synchronized void parse( String schemaObject ) throws IOException, ParseException
+    public synchronized List<SchemaElement> parse( String schemaObject ) throws IOException, ParseException
     {
         if ( schemaObject == null || schemaObject.trim().equals( "" ) )
         {
@@ -120,17 +110,17 @@ public class SchemaParser
         }
 
         producerThread.start();
-        invokeParser( schemaObject );
+        return invokeParser( schemaObject );
     }
 
 
-    private void invokeParser( String subject ) throws IOException, ParseException
+    private List<SchemaElement> invokeParser( String subject ) throws IOException, ParseException
     {
         try
         {
-            parser.setOutput( schemaOut );
-
             parser.parseSchema();
+            
+            return parser.getSchemaElements();
         }
         catch ( RecognitionException e )
         {
@@ -148,21 +138,14 @@ public class SchemaParser
         }
     }
 
-    byte[] buf = new byte[128];
-    private InputStream schemaIn;
-    private Writer schemaOut;
-    private Thread producerThread;
-
-
     /**
      * Thread safe method parses a stream of OpenLDAP schemaObject elements/objects.
      *
      * @param schemaIn a stream of schema objects
      */
-    public synchronized void parse( InputStream schemaIn, Writer out ) throws IOException, ParseException
+    public synchronized List<SchemaElement> parse( InputStream schemaIn, Writer out ) throws IOException, ParseException
     {
         this.schemaIn = schemaIn;
-        this.schemaOut = out;
 
         if ( producerThread == null )
         {
@@ -171,8 +154,7 @@ public class SchemaParser
 
         producerThread.start();
 
-        invokeParser( "schema input stream ==> " + schemaIn.toString() );
-        out.flush();
+        return invokeParser( "schema input stream ==> " + schemaIn.toString() );
     }
 
 

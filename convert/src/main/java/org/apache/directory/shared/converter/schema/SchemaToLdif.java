@@ -5,7 +5,14 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.util.List;
 
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+
 import org.apache.directory.shared.converter.schema.Schema;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +78,7 @@ public class SchemaToLdif
             }
             catch ( Exception e )
             {
+                e.printStackTrace();
                 throw new ParserException( "Failed while generating sources for " + schema.getName() );
             }
         }
@@ -88,6 +96,61 @@ public class SchemaToLdif
         Writer out = schema.getOutput();
         
         SchemaParser parser = new SchemaParser();
-        parser.parse( in, out );
+        List<SchemaElement> elements = parser.parse( in, out );
+        
+        out.write( HEADER );
+        
+        for ( SchemaElement element:elements )
+        {
+            Attributes attributes = new AttributesImpl();
+            
+            StringBuilder sb = new StringBuilder();
+            String dn = "m-name=" + Rdn.escapeValue( element.getShortAlias() ) + ", ou=" + Rdn.escapeValue( schema.getName() ) + ", ou=schema";
+            
+            // First dump the DN only
+            Attribute attribute = new AttributeImpl( "dn", dn );
+            attributes.put( attribute );
+            sb.append( LdifUtils.convertToLdif( attributes ) );
+            
+            if ( element instanceof ObjectClassHolder )
+            {
+                sb.append( "objectclass: MetaObjectClass\n" );
+            }
+            else
+            {
+                sb.append( "objectclass: MetaAttribute\n" );
+            }
+            
+            sb.append( "objectclass: MetaTop\n" );
+            sb.append( "objectClass: top\n" );
+            
+            sb.append( "m-oid: " ).append( element.getOid() ).append( '\n' );
+            sb.append( "m-name: " ).append( element.getShortAlias() ).append( '\n' );
+            
+            attributes = new AttributesImpl();
+            attribute = new AttributeImpl( "m-desc" );
+            attribute.add( element.getDescription() );
+            attributes.put( attribute );
+            
+            if ( element.isObsolete() )
+            {
+                sb.append( "m-obsolete: true\n" );
+            }
+            
+            sb.append( LdifUtils.convertToLdif( attributes ) ).append( '\n' );
+
+            if ( element instanceof ObjectClassHolder )
+            {
+                ObjectClassHolder objectClass = (ObjectClassHolder)element; 
+            }
+            else
+            {
+                AttributeTypeHolder attributeType = (AttributeTypeHolder)element; 
+            }
+
+            out.write(  sb.toString() );
+        }
+        
+        out.flush();
     }
 }

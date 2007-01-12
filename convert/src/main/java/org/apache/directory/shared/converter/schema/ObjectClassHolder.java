@@ -31,14 +31,9 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 437016 $
  */
-public class ObjectClassHolder
+public class ObjectClassHolder extends SchemaElementImpl
 {
-    private boolean obsolete = false;
 
-    private String oid;
-    private String description;
-
-    private String[] names = ArrayUtils.EMPTY_STRING_ARRAY;
     private String[] superiors = ArrayUtils.EMPTY_STRING_ARRAY;
     private String[] must = ArrayUtils.EMPTY_STRING_ARRAY;
     private String[] may = ArrayUtils.EMPTY_STRING_ARRAY;
@@ -93,18 +88,6 @@ public class ObjectClassHolder
     public void setDescription( String description )
     {
         this.description = description;
-    }
-
-
-    public String[] getNames()
-    {
-        return names;
-    }
-
-
-    public void setNames( String[] names )
-    {
-        this.names = names;
     }
 
 

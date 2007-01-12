@@ -37,12 +37,10 @@ package org.apache.directory.shared.converter.schema;
 import java.util.List ;
 import java.util.ArrayList ;
 import java.util.Collections;
-import java.io.Writer;
 import java.io.IOException;
 
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.converter.schema.ObjectClassHolder;
-import org.apache.directory.shared.converter.schema.AttributeTypeHolder;
+import org.apache.directory.shared.converter.schema.SchemaElement;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 }
 
@@ -123,36 +121,20 @@ options    {
 	
     public static final String[] EMPTY = new String[0];
 
-    private List<AttributeTypeHolder> attributeTypes = new ArrayList<AttributeTypeHolder>();
-    private List<ObjectClassHolder> objectClasses = new ArrayList<ObjectClassHolder>();
-    private Writer schemaOut;
-
+    private List<SchemaElement> schemaElements = new ArrayList<SchemaElement>();
 
     // ------------------------------------------------------------------------
     // Public Methods
     // ------------------------------------------------------------------------
-    public void setOutput( Writer out )
-    {
-        schemaOut = out;
-    }
-
-
     public void clear()
     {
-        attributeTypes.clear();
-        objectClasses.clear();
+        schemaElements.clear();
     }
 
 
-    public List<AttributeTypeHolder> getAttributeTypes()
+    public List<SchemaElement> getSchemaElements()
     {
-        return Collections.unmodifiableList( attributeTypes );
-    }
-
-
-    public List<ObjectClassHolder> getObjectClasses()
-    {
-        return Collections.unmodifiableList( objectClasses );
+        return Collections.unmodifiableList( schemaElements );
     }
 }
 
@@ -196,7 +178,7 @@ objectClass
     ( may[objectClass] )?
     CLOSE_PAREN
     {
-        objectClasses.add( objectClass );
+        schemaElements.add( objectClass );
     }
     ;
 
@@ -323,7 +305,7 @@ objectClassNames [ObjectClassHolder objectClass]
         )
     )
     {
-        objectClass.setNames( ( String[] ) list.toArray( EMPTY ) );
+        objectClass.setNames( list );
     }
     ;
 
@@ -358,7 +340,7 @@ attributeType
 
     CLOSE_PAREN
     {
-        attributeTypes.add( type );
+        schemaElements.add( type );
     }
     ;
 
@@ -461,7 +443,11 @@ names [AttributeTypeHolder type]
     :
         "NAME"
     (
-        QUOTE id0:IDENTIFIER QUOTE { list.add( id0.getText() ); } |
+        QUOTE id0:IDENTIFIER QUOTE 
+        { 
+            list.add( id0.getText() ); 
+        } 
+        |
         ( OPEN_PAREN
             ( QUOTE id1:IDENTIFIER
                 {
@@ -472,7 +458,7 @@ names [AttributeTypeHolder type]
         CLOSE_PAREN )
     )
     {
-        type.setNames( ( String[] ) list.toArray( EMPTY ) );
+        type.setNames( list );
     }
     ;
 
