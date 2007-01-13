@@ -186,4 +186,43 @@ public class LdifUtilsTest extends TestCase
     {		
 		assertTrue( LdifUtils.isLDIFSafe( testString ) );
     }
+    
+    public void testStripLineToNChars()
+    {
+        String line = "abc";
+        
+        try
+        {
+            LdifUtils.stripLineToNChars( line, 1 );
+            fail();
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // This is correct
+        }
+        
+        String res = LdifUtils.stripLineToNChars( line, 2 );
+        assertEquals( "ab\n c", res );
+        assertEquals( "abc", LdifUtils.stripLineToNChars( line, 3 ) );
+    }
+
+    public void testStripLineTo5Chars()
+    {
+        assertEquals( "a", LdifUtils.stripLineToNChars( "a", 5 ) );
+        assertEquals( "ab", LdifUtils.stripLineToNChars( "ab", 5 ) );
+        assertEquals( "abc", LdifUtils.stripLineToNChars( "abc", 5 ) );
+        assertEquals( "abcd", LdifUtils.stripLineToNChars( "abcd", 5 ) );
+        assertEquals( "abcde", LdifUtils.stripLineToNChars( "abcde", 5 ) );
+        assertEquals( "abcde\n f", LdifUtils.stripLineToNChars( "abcdef", 5 ) );
+        assertEquals( "abcde\n fg", LdifUtils.stripLineToNChars( "abcdefg", 5 ) );
+        assertEquals( "abcde\n fgh", LdifUtils.stripLineToNChars( "abcdefgh", 5 ) );
+        assertEquals( "abcde\n fghi", LdifUtils.stripLineToNChars( "abcdefghi", 5 ) );
+        assertEquals( "abcde\n fghi\n j", LdifUtils.stripLineToNChars( "abcdefghij", 5 ) );
+        assertEquals( "abcde\n fghi\n jk", LdifUtils.stripLineToNChars( "abcdefghijk", 5 ) );
+        assertEquals( "abcde\n fghi\n jkl", LdifUtils.stripLineToNChars( "abcdefghijkl", 5 ) );
+        assertEquals( "abcde\n fghi\n jklm", LdifUtils.stripLineToNChars( "abcdefghijklm", 5 ) );
+        assertEquals( "abcde\n fghi\n jklm\n n", LdifUtils.stripLineToNChars( "abcdefghijklmn", 5 ) );
+        assertEquals( "abcde\n fghi\n jklm\n no", LdifUtils.stripLineToNChars( "abcdefghijklmno", 5 ) );
+        assertEquals( "abcde\n fghi\n jklm\n nop", LdifUtils.stripLineToNChars( "abcdefghijklmnop", 5 ) );
+    }
 }

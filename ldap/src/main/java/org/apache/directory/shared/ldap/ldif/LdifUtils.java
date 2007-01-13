@@ -191,39 +191,56 @@ public class LdifUtils
 	 * @param nbChars the number of characters
 	 * @return the stripped String
 	 */
-	private static String stripLineToNChars( String str, int nbChars)
+	public static String stripLineToNChars( String str, int nbChars)
 	{
-		if ( str.length() <= nbChars )
+        int strLength = str.length();
+
+        if ( strLength <= nbChars )
 		{
 			return str;
 		}
+        
+        if ( nbChars < 2 )
+        {
+            throw new IllegalArgumentException( "The length of each line must be at least 2 chars long" );
+        }
 		
-		StringBuffer sb = new StringBuffer();
-		String substr;
-		int i = 0;
-		boolean firstPass = true;
-		
-		while ( i < (str.length() - nbChars) ) {
-			if ( firstPass )
-			{
-				substr = str.substring( i, i + nbChars);
-				firstPass = false;
-				// Since we add a space at the beginning of the next line,
-				// we need to update nbChars
-				nbChars--;
-			}
-			else
-			{
-				substr = str.substring( i, i + nbChars );
-			}
-			
-			sb.append( substr + "\n " );
-			i = i + nbChars;
-		}
-		// Adding the last characters
-		sb.append( str.substring(i, str.length() ) );
-		
-		return sb.toString();
+        // We will first compute the new size of the LDIF result
+        // It's at least nbChars chars plus one for \n
+        int charsPerLine = nbChars - 1;
+
+        int remaining = ( strLength - nbChars ) % charsPerLine;
+
+        int nbLines = 1 + ( ( strLength - nbChars ) / charsPerLine ) +
+                        ( remaining == 0 ? 0 : 1 );
+
+        int nbCharsTotal = strLength + nbLines + nbLines - 2;
+
+        char[] buffer = new char[ nbCharsTotal ];
+        char[] orig = str.toCharArray();
+        
+        int posSrc = 0;
+        int posDst = 0;
+        
+        System.arraycopy( orig, posSrc, buffer, posDst, nbChars );
+        posSrc += nbChars;
+        posDst += nbChars;
+        
+        for ( int i = 0; i < nbLines - 2; i ++ )
+        {
+            buffer[posDst++] = '\n';
+            buffer[posDst++] = ' ';
+            
+            System.arraycopy( orig, posSrc, buffer, posDst, charsPerLine );
+            posSrc += charsPerLine;
+            posDst += charsPerLine;
+        }
+
+        buffer[posDst++] = '\n';
+        buffer[posDst++] = ' ';
+        System.arraycopy( orig, posSrc, buffer, posDst, remaining == 0 ? charsPerLine : remaining );
+        
+        return new String( buffer );
 	}
 }
 
