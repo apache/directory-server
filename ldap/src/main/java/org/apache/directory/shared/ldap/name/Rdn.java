@@ -1067,19 +1067,16 @@ public class Rdn implements Cloneable, Comparable, Serializable
    /**
     * Transform a value in a String, accordingly to RFC 2253
     *
-    * @param attrValue
-    *            The attribute value to be escaped
+    * @param value The attribute value to be escaped
     * @return The escaped string value.
     */
-   public static String escapeValue( Object attrValue )
+   public static String escapeValue( String value )
    {
-       if ( StringTools.isEmpty( ( byte[] ) attrValue ) )
+       if ( StringTools.isEmpty( value ) )
        {
            return "";
        }
-
-       String value = StringTools.utf8ToString( ( byte[] ) attrValue );
-
+       
        char[] chars = value.toCharArray();
        char[] newChars = new char[chars.length * 3];
        int pos = 0;
@@ -1157,6 +1154,25 @@ public class Rdn implements Cloneable, Comparable, Serializable
        }
 
        return new String( newChars, 0, pos );
+   }
+   
+   /**
+    * Transform a value in a String, accordingly to RFC 2253
+    *
+    * @param attrValue
+    *            The attribute value to be escaped
+    * @return The escaped string value.
+    */
+   public static String escapeValue( byte[] attrValue )
+   {
+       if ( StringTools.isEmpty( attrValue ) )
+       {
+           return "";
+       }
+
+       String value = StringTools.utf8ToString( attrValue );
+       
+       return escapeValue( value );
    }
 
    /**
