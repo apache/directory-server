@@ -248,7 +248,7 @@ public abstract class SchemaElementImpl implements SchemaElement
         // ObjectClasses
         sb.append( "objectclass: " ).append( type ).append( '\n' );
         sb.append( "objectclass: metaTop\n" );
-        sb.append( "objectClass: top\n" );
+        sb.append( "objectclass: top\n" );
 
         // The oid
         sb.append( oidToLdif() );
