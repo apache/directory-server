@@ -99,6 +99,11 @@ IDENTIFIER options { testLiterals=true; }
         ( 'a' .. 'z') ( 'a' .. 'z' | '0' .. '9' | '-' | ';' )*
     ;
 
+//XSTRING 
+//	: 
+//		"x-" ( 'a' .. 'z' ) ( 'a' .. 'z' | '-' | '_' )*
+//	;
+
 DESC
     :
         "desc" WS QUOTE ( ~'\'' )+ QUOTE
@@ -118,9 +123,6 @@ options    {
 
 
 {
-	
-    public static final String[] EMPTY = new String[0];
-
     private List<SchemaElement> schemaElements = new ArrayList<SchemaElement>();
 
     // ------------------------------------------------------------------------
@@ -176,6 +178,7 @@ objectClass
     )?
     ( must[objectClass] )?
     ( may[objectClass] )?
+    // @TODO : add ( extension[type] )*
     CLOSE_PAREN
     {
         schemaElements.add( objectClass );
@@ -185,33 +188,33 @@ objectClass
 
 may [ObjectClassHolder objectClass]
 {
-    ArrayList list = null;
+    List<String> list = null;
 }
     : "MAY" list=woidlist
     {
-        objectClass.setMay( ( String[] ) list.toArray( EMPTY ) );
+        objectClass.setMay( list );
     }
     ;
 
 
 must [ObjectClassHolder objectClass]
 {
-    ArrayList list = null;
+    List<String> list = null;
 }
     : "MUST" list=woidlist
     {
-        objectClass.setMust( ( String[] ) list.toArray( EMPTY ) );
+        objectClass.setMust( list );
     }
     ;
 
 
 objectClassSuperiors [ObjectClassHolder objectClass]
 {
-    ArrayList list = null;
+    List<String> list = null;
 }
     : "SUP" list=woidlist
     {
-        objectClass.setSuperiors( ( String[] ) list.toArray( EMPTY ) );
+        objectClass.setSuperiors( list );
     }
     ;
 
@@ -235,9 +238,9 @@ woid returns [String oid]
     ;
 
 
-woidlist returns [ArrayList list]
+woidlist returns [List<String> list]
 {
-    list = new ArrayList( 2 );
+    list = new ArrayList<String>( 2 );
     String oid = null;
 }
     :
@@ -284,7 +287,7 @@ objectClassDesc [ObjectClassHolder objectClass]
 
 objectClassNames [ObjectClassHolder objectClass]
 {
-    ArrayList list = new ArrayList();
+    List<String> list = new ArrayList<String>();
 }
     :
     (
@@ -337,6 +340,7 @@ attributeType
         ( "COLLECTIVE" { type.setCollective( true ); } )?
         ( "NO-USER-MODIFICATION" { type.setNoUserModification( true ); } )?
         ( usage[type] )?
+        // @TODO : add ( extension[type] )*
 
     CLOSE_PAREN
     {
@@ -438,7 +442,7 @@ ordering [AttributeTypeHolder type]
 
 names [AttributeTypeHolder type]
 {
-    ArrayList list = new ArrayList();
+    List<String> list = new ArrayList<String>();
 }
     :
         "NAME"
@@ -479,7 +483,7 @@ syntax [AttributeTypeHolder type]
         String length = comps[1].substring( index + 1, comps[1].length() - 1 );
 
         type.setSyntax( oid );
-        type.setLength( Integer.parseInt( length ) );
+        type.setOidLen( Integer.parseInt( length ) );
     }
     ;
 
