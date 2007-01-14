@@ -31,7 +31,7 @@
   </bean>
   
   <bean id="configuration" class="org.apache.directory.server.configuration.MutableServerStartupConfiguration">
-    <property name="workingDirectory"><value>example.com</value></property>
+    <property name="workingDirectory" value="example.com" />
 
     <!-- Uncomment below to have the server load entries on startup!        -->
     <!-- ldifDirectory property can point to a relative file, directory or  -->
@@ -57,21 +57,21 @@
     <!-- together simply set this value to <= 0.  Make sure you turn on     -->
     <!-- synchOnWrite for all partitions if you do choose to do this or else-->
     <!-- writes may never persist to disk.                                  -->
-    <property name="synchPeriodMillis"><value>15000</value></property>
+    <property name="synchPeriodMillis" value="15000" />
 
     <!-- limits searches by non-admin users to a max time of 15000          -->
     <!-- milliseconds and has a default value of 10000                      -->
-    <property name="maxTimeLimit"><value>15000</value></property>
+    <property name="maxTimeLimit" value="15000" />
     <!-- limits searches to max size of 1000 entries: default value is 100  -->
-    <property name="maxSizeLimit"><value>1000</value></property>
+    <property name="maxSizeLimit" value="1000" />
     <!-- maximum number of threads used by mina is set to 8: default is 4   -->
-    <property name="maxThreads"><value>8</value></property>
+    <property name="maxThreads" value="8" />
 
-    <property name="allowAnonymousAccess"><value>false</value></property>
-    <property name="accessControlEnabled"><value>false</value></property>
-    <property name="enableNtp"><value>false</value></property>
-    <property name="enableKerberos"><value>false</value></property>
-    <property name="enableChangePassword"><value>false</value></property>
+    <property name="allowAnonymousAccess" value="false" />
+    <property name="accessControlEnabled" value="false" />
+    <property name="enableNtp" value="false" />
+    <property name="enableKerberos" value="false" />
+    <property name="enableChangePassword" value="false" />
 
     <!--
        It's more efficient to keep this feature turned off but you may not like
@@ -87,13 +87,11 @@
 
        then set this property to true.
     -->
-    <property name="denormalizeOpAttrsEnabled"><value>false</value></property>
+    <property name="denormalizeOpAttrsEnabled" value="false" />
 
-    <property name="ldapPort"><value>10389</value></property>
+    <property name="ldapPort" value="10389" />
 
-    <property name="systemPartitionConfiguration">
-      <ref bean="systemPartitionConfiguration"/>
-    </property>
+    <property name="systemPartitionConfiguration" ref="systemPartitionConfiguration" />
 
     <property name="partitionConfigurations">
       <set>
@@ -111,73 +109,73 @@
     <property name="interceptorConfigurations">
       <list>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>normalizationService</value></property>
+          <property name="name" value="normalizationService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.normalization.NormalizationService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>authenticationService</value></property>
+          <property name="name" value="authenticationService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.authn.AuthenticationService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>referralService</value></property>
+          <property name="name" value="referralService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.referral.ReferralService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>authorizationService</value></property>
+          <property name="name" value="authorizationService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.authz.AuthorizationService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>defaultAuthorizationService</value></property>
+          <property name="name" value="defaultAuthorizationService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.authz.DefaultAuthorizationService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>exceptionService</value></property>
+          <property name="name" value="exceptionService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.exception.ExceptionService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>schemaService</value></property>
+          <property name="name" value="schemaService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.schema.SchemaService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>subentryService</value></property>
+          <property name="name" value="subentryService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.subtree.SubentryService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>operationalAttributeService</value></property>
+          <property name="name" value="operationalAttributeService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.operational.OperationalAttributeService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>collectiveAttributeService</value></property>
+          <property name="name" value="collectiveAttributeService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.collective.CollectiveAttributeService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>eventService</value></property>
+          <property name="name" value="eventService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.event.EventService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>triggerService</value></property>
+          <property name="name" value="triggerService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.trigger.TriggerService" />
           </property>
@@ -185,14 +183,14 @@
 
         <!-- Uncomment to enable replication service
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>replicationService</value></property>
+          <property name="name" value="replicationService" />
           <property name="interceptor">
             <bean class="org.apache.directory.mitosis.service.ReplicationService">
               <property name="configuration">
                 <bean class="org.apache.directory.mitosis.configuration.ReplicationConfiguration">
-                  <property name="replicaId"><value>instance_a</value></property>
-                  <property name="serverPort"><value>10390</value></property>
-                  <property name="peerReplicas"><value>instance_b@localhost:10392</value></property>
+                  <property name="replicaId" value="instance_a" />
+                  <property name="serverPort" value="10390" />
+                  <property name="peerReplicas" value="instance_b@localhost:10392" />
                 </bean>
               </property>
             </bean>
@@ -206,13 +204,13 @@
   <!-- use the following partitionConfiguration to override defaults for  -->
   <!-- the system partition                                               --> 
   <bean id="systemPartitionConfiguration" class="org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration">
-    <property name="name"><value>system</value></property>
-    <property name="cacheSize"><value>100</value></property>
-    <property name="suffix"><value>ou=system</value></property>
+    <property name="name" value="system" />
+    <property name="cacheSize" value="100" />
+    <property name="suffix" value="ou=system" />
 
     <!-- the optimizer is enabled by default but may not always be what     -->
     <!-- you want if your queries are really simple                         -->
-    <property name="optimizerEnabled"><value>true</value></property>
+    <property name="optimizerEnabled" value="true" />
 
     <!--
       Synchronization on writes does not wait for synch operations
@@ -221,49 +219,49 @@
       the periodic synch operation will flush dirty pages using the
       synchPeriodMillis parameter in the main configuration.
     -->
-    <property name="synchOnWrite"><value>true</value></property>
+    <property name="synchOnWrite" value="true" />
     <property name="indexedAttributes">
       <set>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.1</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.1" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.2</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.2" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.3</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.3" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.4</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.4" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.5</value></property>
-          <property name="cacheSize"><value>10</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.5" />
+          <property name="cacheSize" value="10" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.6</value></property>
-          <property name="cacheSize"><value>10</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.6" />
+          <property name="cacheSize" value="10" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.7</value></property>
-          <property name="cacheSize"><value>10</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.7" />
+          <property name="cacheSize" value="10" />
         </bean>
 
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>ou</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="ou" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>uid</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="uid" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>objectClass</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="objectClass" />
+          <property name="cacheSize" value="100" />
         </bean>
       </set>
     </property>
@@ -279,13 +277,13 @@
 
 
   <bean id="examplePartitionConfiguration" class="org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration">
-    <property name="name"><value>example</value></property>
-    <property name="cacheSize"><value>100</value></property>
-    <property name="suffix"><value>dc=example,dc=com</value></property>
+    <property name="name" value="example" />
+    <property name="cacheSize" value="100" />
+    <property name="suffix" value="dc=example,dc=com" />
 
     <!-- the optimizer is enabled by default but may not always be what     -->
     <!-- you want if your queries are really simple                         -->
-    <property name="optimizerEnabled"><value>true</value></property>
+    <property name="optimizerEnabled" value="true" />
 
     <!--
       Synchronization on writes does not wait for synch operations
@@ -294,57 +292,57 @@
       the periodic synch operation will flush dirty pages using the
       synchPeriodMillis parameter in the main configuration.
     -->
-    <property name="synchOnWrite"><value>true</value></property>
+    <property name="synchOnWrite" value="true" />
     <property name="indexedAttributes">
       <set>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.1</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.1" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.2</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.2" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.3</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.3" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.4</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.4" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.5</value></property>
-          <property name="cacheSize"><value>10</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.5" />
+          <property name="cacheSize" value="10" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.6</value></property>
-          <property name="cacheSize"><value>10</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.6" />
+          <property name="cacheSize" value="10" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>1.3.6.1.4.1.18060.0.4.1.2.7</value></property>
-          <property name="cacheSize"><value>10</value></property>
+          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.7" />
+          <property name="cacheSize" value="10" />
         </bean>
 
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>dc</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="dc" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>ou</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="ou" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>krb5PrincipalName</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="krb5PrincipalName" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>uid</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="uid" />
+          <property name="cacheSize" value="100" />
         </bean>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId"><value>objectClass</value></property>
-          <property name="cacheSize"><value>100</value></property>
+          <property name="attributeId" value="objectClass" />
+          <property name="cacheSize" value="100" />
         </bean>
       </set>
     </property>
