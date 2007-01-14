@@ -160,3 +160,15 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.12
 	SUP apacheDnsAbstractRecord 
 	MUST ( apacheDnsDomainName $ apacheDnsIpAddress ) )
 	
+	
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.13
+	DESC 'An objectClass without name'
+	SUP apacheDnsAbstractRecord 
+	MUST ( apacheDnsDomainName $ apacheDnsIpAddress ) )
+
+objectclass ( 1.3.6.1.4.1.18060.0.4.2.3.14
+	NAME 'long-desc'
+	DESC 'An objectClass with a long description. This is lonnnnnnnnnnnnnnabnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnng'
+	SUP apacheDnsAbstractRecord 
+	MUST ( apacheDnsDomainName $ apacheDnsIpAddress ) )
+	
