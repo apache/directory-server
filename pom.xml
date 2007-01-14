@@ -15,6 +15,7 @@
     <module>asn1</module>
     <module>ldap</module>
     <module>asn1-codec</module>
+    <module>convert</module>
   </modules>
 
   <scm>
