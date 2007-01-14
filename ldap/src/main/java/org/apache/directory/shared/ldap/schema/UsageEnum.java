@@ -131,4 +131,14 @@ public enum UsageEnum
             default : return "";
         }
     }
+
+    /**
+     * Get the string representation for UsageEnum, which will be
+     * used by the AttributeType rendering 
+     * @return The rendering stringe
+     */
+    public String render()
+    {
+        return render( this );
+    }
 }
