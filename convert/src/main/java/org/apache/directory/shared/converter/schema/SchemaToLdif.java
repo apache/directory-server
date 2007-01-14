@@ -1,21 +1,38 @@
-
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
 package org.apache.directory.shared.converter.schema;
 
 import java.io.InputStream;
 import java.io.Writer;
 import java.util.List;
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.shared.converter.schema.Schema;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.name.Rdn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A class used to translate a OpenLdap schema file to a Ldif file compatible
+ * with the Apache DS meta schema format
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class SchemaToLdif
 {
     private static final String HEADER = 
@@ -43,11 +60,16 @@ public class SchemaToLdif
     /** The logger */
     private static Logger log = LoggerFactory.getLogger( SchemaToLdif.class );
 
-
-    public void transform( List<Schema> schemas ) throws ParserException
+    /**
+     * This method takes a list of schema and transform them to Ldif files 
+     * 
+     * @param schemas The list of schema to be transformed
+     * @throws ParserException If we get an error while converting the schemas
+     */
+    public static void transform( List<Schema> schemas ) throws ParserException
     {
         // Bypass if no schemas have yet been defined 
-        if ( schemas == null || schemas.size() == 0 )
+        if ( ( schemas == null ) || ( schemas.size() == 0 ) )
         {
             log.warn( "No schemas defined!" );
             return;
@@ -61,7 +83,7 @@ public class SchemaToLdif
         {
             if ( schema.getName() == null )
             {
-                String msg = i + "th schema configuration element must specify a name.";
+                String msg = i + "the schema configuration element must specify a name.";
                 log.error( msg );
                 throw new ParserException( msg );
             }
@@ -73,7 +95,7 @@ public class SchemaToLdif
         {
             try
             {
-                log.info( "Generating " + schema.getName() + " schema." );
+                log.info( "Generating {} schema.", schema.getName() );
                 generate( schema );
             }
             catch ( Exception e )
@@ -84,7 +106,14 @@ public class SchemaToLdif
         }
     }
     
-    private void generate( Schema schema ) throws Exception
+    /**
+     * Generate the ldif from a schema. The schema contains the inputStream
+     * and Writer.
+     * 
+     * @param schema The schema to transfom
+     * @throws Exception If the conversion fails
+     */
+    private static void generate( Schema schema ) throws Exception
     {
         if ( schema == null )
         {
@@ -95,62 +124,25 @@ public class SchemaToLdif
         InputStream in = schema.getInput();
         Writer out = schema.getOutput();
         
+        // First parse the schema
         SchemaParser parser = new SchemaParser();
         List<SchemaElement> elements = parser.parse( in, out );
         
+        // Start with the header (apache licence)
         out.write( HEADER );
         
+        // Iterate through each schema elemnts
         for ( SchemaElement element:elements )
         {
-            Attributes attributes = new AttributesImpl();
+            out.write(  element.toLdif( schema.getName() ) );
             
-            StringBuilder sb = new StringBuilder();
-            String dn = "m-name=" + Rdn.escapeValue( element.getShortAlias() ) + ", ou=" + Rdn.escapeValue( schema.getName() ) + ", ou=schema";
-            
-            // First dump the DN only
-            Attribute attribute = new AttributeImpl( "dn", dn );
-            attributes.put( attribute );
-            sb.append( LdifUtils.convertToLdif( attributes ) );
-            
-            if ( element instanceof ObjectClassHolder )
-            {
-                sb.append( "objectclass: MetaObjectClass\n" );
-            }
-            else
-            {
-                sb.append( "objectclass: MetaAttribute\n" );
-            }
-            
-            sb.append( "objectclass: MetaTop\n" );
-            sb.append( "objectClass: top\n" );
-            
-            sb.append( "m-oid: " ).append( element.getOid() ).append( '\n' );
-            sb.append( "m-name: " ).append( element.getShortAlias() ).append( '\n' );
-            
-            attributes = new AttributesImpl();
-            attribute = new AttributeImpl( "m-desc" );
-            attribute.add( element.getDescription() );
-            attributes.put( attribute );
-            
-            if ( element.isObsolete() )
-            {
-                sb.append( "m-obsolete: true\n" );
-            }
-            
-            sb.append( LdifUtils.convertToLdif( attributes ) ).append( '\n' );
-
-            if ( element instanceof ObjectClassHolder )
-            {
-                ObjectClassHolder objectClass = (ObjectClassHolder)element; 
-            }
-            else
-            {
-                AttributeTypeHolder attributeType = (AttributeTypeHolder)element; 
-            }
-
-            out.write(  sb.toString() );
+            out.write( '\n' );
         }
         
+        // Done. Flush the result and close the reader and writer
         out.flush();
+        
+        out.close();
+        in.close();
     }
 }

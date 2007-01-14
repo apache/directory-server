@@ -20,8 +20,12 @@
 package org.apache.directory.shared.converter.schema;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 
 /**
@@ -33,138 +37,152 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
  */
 public class ObjectClassHolder extends SchemaElementImpl
 {
+    /** The list of superiors */
+    private List<String> superiors = new ArrayList<String>();
+    
+    /** The list of mandatory attributes */
+    private List<String> must = new ArrayList<String>();
+    
+    /** The list of optional attributes */
+    private List<String> may = new ArrayList<String>();
 
-    private String[] superiors = ArrayUtils.EMPTY_STRING_ARRAY;
-    private String[] must = ArrayUtils.EMPTY_STRING_ARRAY;
-    private String[] may = ArrayUtils.EMPTY_STRING_ARRAY;
-
+    /** The ObjectClass type */
     private ObjectClassTypeEnum classType = ObjectClassTypeEnum.STRUCTURAL;
 
-
-    // ------------------------------------------------------------------------
-    // C O N S T R U C T O R S
-    // ------------------------------------------------------------------------
-
-    public ObjectClassHolder(String oid)
+    /**
+     * Create an instance of ObjectClass element
+     */
+    public ObjectClassHolder( String oid )
     {
         this.oid = oid;
     }
 
-
-    // ------------------------------------------------------------------------
-    // Accessors and mutators
-    // ------------------------------------------------------------------------
-
-    public boolean isObsolete()
-    {
-        return obsolete;
-    }
-
-
-    public void setObsolete( boolean obsolete )
-    {
-        this.obsolete = obsolete;
-    }
-
-
-    public String getOid()
-    {
-        return oid;
-    }
-
-
-    public void setOid( String oid )
-    {
-        this.oid = oid;
-    }
-
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-
-    public void setDescription( String description )
-    {
-        this.description = description;
-    }
-
-
-    public String[] getSuperiors()
+    /**
+     * Get the list of superior for this objectClass
+     * @return A list of all inherited objectClasses 
+     */
+    public List<String> getSuperiors()
     {
         return superiors;
     }
 
-
-    public void setSuperiors( String[] superiors )
+    /**
+     * Set the list of inherited objectClasses
+     * @param superiors The list of inherited objectClasses
+     */
+    public void setSuperiors( List<String> superiors )
     {
         this.superiors = superiors;
     }
 
-
-    public String[] getMust()
+    /**
+     * @return The list of mandatory attributes
+     */
+    public List<String> getMust()
     {
         return must;
     }
 
-
-    public void setMust( String[] must )
+    /**
+     * Set the list of mandatory attributes
+     * @param must The list of mandatory attributes
+     */
+    public void setMust( List<String> must )
     {
         this.must = must;
     }
 
-
-    public String[] getMay()
+    /**
+     * @return The list of optional attributes
+     */
+    public List<String> getMay()
     {
         return may;
     }
 
-
-    public void setMay( String[] may )
+    /**
+     * Set the list of optional attributes
+     * @param must The list of optional attributes
+     */
+    public void setMay( List<String> may )
     {
         this.may = may;
     }
 
-
+    /**
+     * @return The objectClass type
+     */
     public ObjectClassTypeEnum getClassType()
     {
         return classType;
     }
 
-
+    /**
+     * Set the objectClass type. 
+     * @param classType The objectClass type. 
+     */
     public void setClassType( ObjectClassTypeEnum classType )
     {
         this.classType = classType;
     }
 
-
-    // ------------------------------------------------------------------------
-    // Object overrides
-    // ------------------------------------------------------------------------
-
-    public int hashCode()
+    /**
+     * Convert this objectClass to a Ldif string
+     * 
+     * @param schemaName The name of the schema file containing this objectClass
+     * @return A ldif formatted string
+     */
+    public String toLdif( String schemaName ) throws NamingException
     {
-        return getOid().hashCode();
-    }
-
-
-    public boolean equals( Object obj )
-    {
-        if ( this == obj )
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( schemaToLdif( schemaName, "metaObjectclass" ) );
+        
+        // The superiors
+        if ( superiors.size() != 0 )
         {
-            return true;
+            for ( String superior:superiors )
+            {
+                sb.append( "m-supObjectClass: " ).append( superior ).append( '\n' );
+            }
+        }
+        
+        // The kind of class
+        if ( classType != ObjectClassTypeEnum.STRUCTURAL )
+        {
+            sb.append( "m-typeObjectClass: " ).append( classType ).append( '\n' );
+        }
+        
+        // The 'must'
+        if ( must.size() != 0 )
+        {
+            for ( String attr:must )
+            {
+                sb.append( "m-must: " ).append( attr ).append( '\n' );
+            }
         }
 
-        if ( !( obj instanceof ObjectClassHolder ) )
+        // The 'may'
+        if ( may.size() != 0 )
         {
-            return false;
+            for ( String attr:may )
+            {
+                sb.append( "m-may: " ).append( attr ).append( '\n' );
+            }
+        }
+        
+        // The extensions
+        if ( extensions.size() != 0 )
+        {
+            extensionsToLdif( "m-extensionObjectClass" );
         }
 
-        return getOid().equals( ( ( ObjectClassHolder ) obj ).getOid() );
+        return sb.toString();
     }
 
-
+    /**
+     * Return a String representing this ObjectClass.
+     */
     public String toString()
     {
         return getOid();

@@ -43,7 +43,6 @@ import antlr.TokenStreamException;
  * A reusable wrapper for antlr generated schema parsers.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 494164 $
  */
 public class SchemaParser
 {
@@ -53,10 +52,13 @@ public class SchemaParser
     /** A pipe into the parser */
     private PipedOutputStream parserIn = null;
 
+    /** A temporary buffer storing the read schema bytes */
     byte[] buf = new byte[128];
 
+    /** The inputStream mapped over the schema file to parse */
     private InputStream schemaIn;
     
+    /** The thread used to read the schema */
     private Thread producerThread;
 
     /**
@@ -68,7 +70,6 @@ public class SchemaParser
     {
         init();
     }
-
 
     /**
      * Initializes a parser and its plumbing.
@@ -84,7 +85,9 @@ public class SchemaParser
         parser = new antlrSchemaParser( lexer );
     }
 
-
+    /**
+     * Clear the parser.
+     */
     public synchronized void clear()
     {
         parser.clear();
@@ -97,12 +100,12 @@ public class SchemaParser
      */
     public synchronized List<SchemaElement> parse( String schemaObject ) throws IOException, ParseException
     {
-        if ( schemaObject == null || schemaObject.trim().equals( "" ) )
+        if ( ( schemaObject == null ) || ( schemaObject.trim().equals( "" ) ) )
         {
-            throw new ParseException( "The schemaObject is either null or is " + "the empty String!", 0 );
+            throw new ParseException( "The schemaObject is either null or is empty!", 0 );
         }
 
-        this.schemaIn = new ByteArrayInputStream( schemaObject.getBytes() );
+        schemaIn = new ByteArrayInputStream( schemaObject.getBytes() );
 
         if ( producerThread == null )
         {
@@ -113,8 +116,15 @@ public class SchemaParser
         return invokeParser( schemaObject );
     }
 
-
-    private List<SchemaElement> invokeParser( String subject ) throws IOException, ParseException
+    /**
+     * Invoke the parser
+     * @param schemaName The schema to be parsed
+     * @return A list of schema elements 
+     * 
+     * @throws IOException If the inputStream can't be read
+     * @throws ParseException If the parser encounter an error
+     */
+    private List<SchemaElement> invokeParser( String schemaName ) throws IOException, ParseException
     {
         try
         {
@@ -122,17 +132,17 @@ public class SchemaParser
             
             return parser.getSchemaElements();
         }
-        catch ( RecognitionException e )
+        catch ( RecognitionException re )
         {
-            String msg = "Parser failure on:\n\t" + subject;
-            msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( e );
+            String msg = "Parser failure on:\n\t" + schemaName;
+            msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( re );
             init();
-            throw new ParseException( msg, e.getColumn() );
+            throw new ParseException( msg, re.getColumn() );
         }
-        catch ( TokenStreamException e2 )
+        catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on:\n\t" + subject;
-            msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( e2 );
+            String msg = "Parser failure on:\n\t" + schemaName;
+            msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( tse );
             init();
             throw new ParseException( msg, 0 );
         }
@@ -176,7 +186,10 @@ public class SchemaParser
         invokeParser( "schema file ==> " + schemaFile.getAbsolutePath() );
     }
 
-
+    /**
+     * The thread which read the schema files and fill the
+     * temporaru buffer used by the lexical analyzer.
+     */
     class DataProducer implements Runnable
     {
         public void run()
