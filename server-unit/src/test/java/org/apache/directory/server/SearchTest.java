@@ -884,4 +884,89 @@ public class SearchTest extends AbstractServerTest
         assertEquals( 1, attrs.get("c-l").size() );
         assertEquals( "Munich", (String)attrs.get("c-l").get() );
     }
+
+    public void testSearchUsersAttrs() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]{"*"} );
+        
+        NamingEnumeration res = ctx.search( "", "(commonName=Tori Amos)", controls );
+        
+        assertTrue( res.hasMore() );
+        
+        SearchResult result = ( SearchResult ) res.next();
+        
+        // ensure that result is not null
+        assertNotNull( result );
+        
+        Attributes attrs = result.getAttributes();
+        
+        // ensure that all user attributes are returned
+        assertEquals( 5, attrs.size() );
+        assertNotNull( attrs.get( "cn" ) );
+        assertNotNull( attrs.get( "sn" ) );
+        assertNotNull( attrs.get( "objectClass" ) );
+        assertNotNull( attrs.get( "jpegPhoto" ) );
+        assertNotNull( attrs.get( "description" ) );
+        assertNull( attrs.get( "createtimestamp" ) );
+        assertNull( attrs.get( "creatorsname" ) );
+    }
+
+    public void testSearchOperationalAttrs() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]{"+"} );
+        
+        NamingEnumeration res = ctx.search( "", "(commonName=Tori Amos)", controls );
+        
+        assertTrue( res.hasMore() );
+        
+        SearchResult result = ( SearchResult ) res.next();
+        
+        // ensure that result is not null
+        assertNotNull( result );
+        
+        Attributes attrs = result.getAttributes();
+        
+        // ensure that all operational attributes are returned
+        // and no user attributes
+        assertEquals( 2, attrs.size() );
+        assertNull( attrs.get( "cn" ) );
+        assertNull( attrs.get( "sn" ) );
+        assertNull( attrs.get( "objectClass" ) );
+        assertNull( attrs.get( "jpegPhoto" ) );
+        assertNull( attrs.get( "description" ) );
+        assertNotNull( attrs.get( "createtimestamp" ) );
+        assertNotNull( attrs.get( "creatorsname" ) );
+    }
+    
+    public void testSearchAllAttrs() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]{"+", "*"} );
+        
+        NamingEnumeration res = ctx.search( "", "(commonName=Tori Amos)", controls );
+        
+        assertTrue( res.hasMore() );
+        
+        SearchResult result = ( SearchResult ) res.next();
+        
+        // ensure that result is not null
+        assertNotNull( result );
+        
+        Attributes attrs = result.getAttributes();
+        
+        // ensure that all user attributes are returned
+        assertEquals( 7, attrs.size() );
+        assertNotNull( attrs.get( "cn" ) );
+        assertNotNull( attrs.get( "sn" ) );
+        assertNotNull( attrs.get( "objectClass" ) );
+        assertNotNull( attrs.get( "jpegPhoto" ) );
+        assertNotNull( attrs.get( "description" ) );
+        assertNotNull( attrs.get( "createtimestamp" ) );
+        assertNotNull( attrs.get( "creatorsname" ) );
+    }
 }
