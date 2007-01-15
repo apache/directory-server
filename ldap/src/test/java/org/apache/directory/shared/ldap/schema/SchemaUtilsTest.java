@@ -170,19 +170,15 @@ public class SchemaUtilsTest extends TestCase
         StringBuffer buf = new StringBuffer();
         assertEquals( "", SchemaUtils.render( buf, ( String[] ) null ).toString() );
 
-        buf = new StringBuffer();
         assertEquals( "", SchemaUtils.render( new String[]
             {} ).toString() );
 
-        buf = new StringBuffer();
         assertEquals( "'name1'", SchemaUtils.render( new String[]
             { "name1" } ).toString() );
 
-        buf = new StringBuffer();
         assertEquals( "( 'name1' 'name2' )", SchemaUtils.render( new String[]
             { "name1", "name2" } ).toString() );
 
-        buf = new StringBuffer();
         assertEquals( "( 'name1' 'name2' 'name3' )", SchemaUtils.render( new String[]
             { "name1", "name2", "name3" } ).toString() );
     }

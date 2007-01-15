@@ -405,7 +405,7 @@ public class SchemaParserDITStructureRuleDescriptionTest extends TestCase
         value = "( 1 )";
         try
         {
-            dsrd = parser.parseDITStructureRuleDescription( value );
+            parser.parseDITStructureRuleDescription( value );
             fail( "Exception expected, FORM is required" );
         }
         catch ( ParseException pe )

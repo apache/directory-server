@@ -202,7 +202,7 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
         value = "( 1.2.3.4.5.6.7.8.9.0 )";
         try
         {
-            mrd = parser.parseMatchingRuleDescription( value );
+            parser.parseMatchingRuleDescription( value );
             fail( "Exception expected, SYNTAX is required" );
         }
         catch ( ParseException pe )
