@@ -78,7 +78,7 @@ public class ModifyRequest extends LdapMessage
     // -----------------------------------------------------------------
 
     /** The logger */
-    private static final transient Logger log = LoggerFactory.getLogger( ModifyRequest.class );
+    private static final Logger log = LoggerFactory.getLogger( ModifyRequest.class );
 
     // ~ Instance fields
     // ----------------------------------------------------------------------------

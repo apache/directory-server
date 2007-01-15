@@ -41,7 +41,7 @@ public class ExtensibleMatchFilter extends Filter
     // ----------------------------------------------------------------------------
 
     /** The expected lenth of the Matching Rule Assertion */
-    private transient int expectedMatchingRuleLength;
+    private int expectedMatchingRuleLength;
 
     /** Matching rule */
     private String matchingRule;

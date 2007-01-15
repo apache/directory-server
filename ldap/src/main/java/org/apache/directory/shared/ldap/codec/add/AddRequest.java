@@ -66,7 +66,7 @@ public class AddRequest extends LdapMessage
     // -----------------------------------------------------------------
 
     /** The logger */
-    private transient static final Logger log = LoggerFactory.getLogger( AddRequest.class );
+    private static final Logger log = LoggerFactory.getLogger( AddRequest.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
