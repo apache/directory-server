@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -968,5 +969,20 @@ public class SearchTest extends AbstractServerTest
         assertNotNull( attrs.get( "description" ) );
         assertNotNull( attrs.get( "createtimestamp" ) );
         assertNotNull( attrs.get( "creatorsname" ) );
+    }
+
+    public void testSearchBadDN() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        
+        try
+        {
+            ctx.search( "cn=admin", "(objectClass=*)", controls );
+        }
+        catch ( NameNotFoundException nnfe )
+        {
+            assertTrue( true );
+        }
     }
 }
