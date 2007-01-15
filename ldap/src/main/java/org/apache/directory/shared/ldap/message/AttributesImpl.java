@@ -353,7 +353,10 @@ public class AttributesImpl implements Attributes
     {
         if ( attrId != null )
         {
-            Holder holder = keyMap.get( StringTools.toLowerCase( attrId ) );
+            String key = idToLowerCase( attrId );
+            
+            Holder holder = (Holder)keyMap.get( key );
+
             return holder != null ? holder.attribute : null;
         }
         else
@@ -424,7 +427,8 @@ public class AttributesImpl implements Attributes
         Attribute attr = new AttributeImpl( attrId );
         attr.add( val );
         
-        String key = StringTools.toLowerCase( attrId );
+        String key = idToLowerCase( attrId );
+        
         keyMap.put( key, new Holder( attrId, attr) );
         return attr;
     }
@@ -444,7 +448,9 @@ public class AttributesImpl implements Attributes
      */
     public Attribute put( Attribute attr )
     {
-        String key = StringTools.toLowerCase( attr.getID() );
+        String id = attr.getID();
+        String key = idToLowerCase( id );
+
         Attribute old = null;
         Attribute newAttr = attr;
         
@@ -463,7 +469,7 @@ public class AttributesImpl implements Attributes
         }
         else if ( attr instanceof BasicAttribute )
         {
-            newAttr = new AttributeImpl( attr.getID() );
+            newAttr = new AttributeImpl( id );
              
             try
             {
@@ -480,7 +486,7 @@ public class AttributesImpl implements Attributes
             }
         }
         
-        keyMap.put( key, new Holder( attr.getID(), newAttr ) );
+        keyMap.put( key, new Holder( id, newAttr ) );
         return old;
     }
 
@@ -498,7 +504,7 @@ public class AttributesImpl implements Attributes
      */
     public Attribute remove( String attrId )
     {
-        String key = StringTools.toLowerCase( attrId );
+        String key = idToLowerCase( attrId );
         
         if ( keyMap.containsKey( key ) )
         {
@@ -519,6 +525,25 @@ public class AttributesImpl implements Attributes
         }
     }
 
+    /**
+     * Private method to allow '*' and '+' attribute ID to be 
+     * accepted as a key.
+     */
+    private String idToLowerCase( String id )
+    {
+        String key = null;
+        
+        if ( "+".equals( id ) || "*".equals(  id  ) )
+        {
+            key = id;
+        }
+        else
+        {
+            key = StringTools.toLowerCase( id );
+        }
+
+        return key;
+    }
 
     /**
      * Makes a shallow copy of the attribute set. The new set contains the same
