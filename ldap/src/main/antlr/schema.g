@@ -587,7 +587,6 @@ nameFormDescription returns [NameFormDescription nfd = new NameFormDescription()
 
 noidlen [String s] returns [NoidLen noidlen]
     {
-        noidlen = new NoidLen();
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         noidlen = parser.noidlen();
@@ -598,7 +597,6 @@ noidlen [String s] returns [NoidLen noidlen]
 
 extension [String s] returns [Extension extension]
     {
-        extension = new Extension();
         AntlrSchemaExtensionLexer lexer = new AntlrSchemaExtensionLexer(new StringReader(s));
         AntlrSchemaExtensionParser parser = new AntlrSchemaExtensionParser(lexer);
         extension = parser.extension();
