@@ -4682,20 +4682,6 @@ public class PrepareString
 
     /**
      * 
-     * The 6 possible states for the insignifiant state machine
-     */
-    private enum State 
-    {
-        START,
-        START_SPACE,
-        INNER_START_SPACE,
-        CHAR,
-        COMBINING,
-        INNER_SPACE
-    }
-
-    /**
-     * 
      * Remove all insignifiant spaces in a string.
      * 
      * This method use a finite state machine to parse
@@ -4720,8 +4706,6 @@ public class PrepareString
         // TODO : we have to find a way to prevent this waste of space.
         char[] target = new char[ str.length() * 3 + 2 ];
         
-        // Initialise the starting state
-        State state = State.START;
         int pos = 0;
         char lowerCase = (char)( caseSensitive ? 0x00 : 0x20 );
         
@@ -4846,120 +4830,6 @@ public class PrepareString
                 target[pos++] = c;
             }
         }
-                
-
-            /*
-            switch ( state )
-            {
-                case START :
-                    if ( c == ' ' )
-                    {
-                        state = State.START_SPACE;
-                    }
-                    else if ( isCombiningMark( c ) )
-                    {
-                        // The first char can't be a combining char
-                        throw new InvalidCharacterException( c );
-                    }
-                    else
-                    {
-                        target[pos++] = 0x0020;
-                        target[pos++] = c;
-                        
-                        state = State.CHAR;
-                    }
-
-                    break;
-                    
-                case START_SPACE :
-                    if ( isCombiningMark( c ) )
-                    {
-                        state = State.COMBINING;
-                        target[pos++] = 0x0020;
-                        target[pos++] = 0x0020;
-                        target[pos++] = c;
-                    }
-                    else if ( c != ' ' )
-                    {
-                        state = State.CHAR;
-                        target[pos++] = 0x0020;
-                        target[pos++] = c;
-                    }
-
-                    break;
-                     
-                case CHAR :
-                    if ( c == ' ' )
-                    {
-                        state = State.INNER_START_SPACE;
-                    }
-                    else if ( isCombiningMark( c ) )
-                    {
-                        state = State.COMBINING;
-                        target[pos++] = c;
-                    }
-                    else
-                    {
-                        target[pos++] = c;
-                    }
-                    
-                    break;
-                    
-                case COMBINING :
-                    if ( c == ' ' )
-                    {
-                        state = State.INNER_START_SPACE;
-                    }
-                    else if ( !isCombiningMark( c ) )
-                    {
-                        state = State.CHAR;
-                        target[pos++] = c;
-                    }
-                    else
-                    {
-                        target[pos++] = c;
-                    }
-                    
-                    break;
-                    
-                case INNER_START_SPACE :
-                    if ( isCombiningMark( c ) )
-                    {
-                        state = State.COMBINING;
-                        target[pos++] = 0x0020;
-                        target[pos++] = c;
-                    }
-                    else if ( c == ' ' )
-                    {
-                        state = State.INNER_SPACE;
-                    }
-                    else
-                    {
-                        state = State.CHAR;
-                        target[pos++] = 0x0020;
-                        target[pos++] = c;
-                    }
-                    
-                    break;
-
-                case INNER_SPACE :
-                    if ( isCombiningMark( c ) )
-                    {
-                        state = State.COMBINING;
-                        target[pos++] = 0x0020;
-                        target[pos++] = 0x0020;
-                        target[pos++] = c;
-                    }
-                    else if ( c != ' ' )
-                    {
-                        state = State.CHAR;
-                        target[pos++] = 0x0020;
-                        target[pos++] = c;
-                    }
-                    
-                    break;
-            }
-            */
         
         return new String( target, 0, pos );
     }

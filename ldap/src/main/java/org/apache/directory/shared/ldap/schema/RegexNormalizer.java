@@ -38,7 +38,7 @@ public class RegexNormalizer implements Normalizer
     private final Pattern[] regexes;
 
     /** the set of regular expressions used to transform values */
-    private final transient Matcher[] matchers;
+    private final Matcher[] matchers;
 
 
     /**
