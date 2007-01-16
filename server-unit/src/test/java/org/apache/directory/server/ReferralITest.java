@@ -69,7 +69,10 @@ public class ReferralITest extends AbstractServerTest
     public void setUp() throws Exception
     {
         super.setUp();
-        addReferralEntry();
+        addReferralEntries();
+        addCountries();
+        addCities();
+        addUsers();
     }
 
 
@@ -107,7 +110,7 @@ public class ReferralITest extends AbstractServerTest
         return ctx;
     }
 
-    class TestData
+    private class TestData
     {
         LdapContext ctx;
         Name ctxDn;
@@ -116,11 +119,16 @@ public class ReferralITest extends AbstractServerTest
         List refs;
     }
 
-
-    public void addReferralEntry() throws NamingException
+    /**
+     * Create entries 
+     * c=europ, ou=system 
+     * and
+     * c=america, ou=system 
+     */
+    private void addReferralEntries() throws NamingException
     {
-        String europ = "ldap://france:10389/c=france,ou=system";
-        String america = "ldap://usa:10389/c=usa,ou=system";
+        String europURL = "ldap://france:10389/c=france,ou=system";
+        String americaURL = "ldap://usa:10389/c=usa,ou=system";
 
         td.ctx = getSystemRoot();
 
@@ -129,36 +137,141 @@ public class ReferralITest extends AbstractServerTest
         // -------------------------------------------------------------------
 
         // Add a referral entry for europ
-        Attributes france = new AttributesImpl( "objectClass", "top", true );
-        france.get( "objectClass" ).add( "referral" );
-        france.get( "objectClass" ).add( "extensibleObject" );
-        france.put( "ref", europ );
-        france.put( "c", "europ" );
+        Attributes europ = new AttributesImpl( "objectClass", "top", true );
+        europ.get( "objectClass" ).add( "referral" );
+        europ.get( "objectClass" ).add( "extensibleObject" );
+        europ.put( "ref", europURL );
+        europ.put( "c", "europ" );
 
         // Add a referral entry for america
-        Attributes usa = new AttributesImpl( "objectClass", "top", true );
-        usa.get( "objectClass" ).add( "referral" );
-        usa.get( "objectClass" ).add( "extensibleObject" );
-        usa.put( "ref", america );
-        usa.put( "c", "america" );
+        Attributes america = new AttributesImpl( "objectClass", "top", true );
+        america.get( "objectClass" ).add( "referral" );
+        america.get( "objectClass" ).add( "extensibleObject" );
+        america.put( "ref", americaURL );
+        america.put( "c", "america" );
 
         // Just in case if server is a remote server destroy remaing referral
         td.ctx.addToEnvironment( Context.REFERRAL, "ignore" );
         
         try
         {
-            td.refFrance = ( LdapContext ) td.ctx.createSubcontext( "c=europ", france );
-            td.refUsa = ( LdapContext ) td.ctx.createSubcontext( "c=america", usa );
+            td.refFrance = ( LdapContext ) td.ctx.createSubcontext( "c=europ", europ );
+            td.refUsa = ( LdapContext ) td.ctx.createSubcontext( "c=america", america );
         }
         catch ( NameAlreadyBoundException e )
         {
-            td.refFrance = ( LdapContext ) td.ctx.lookup( "c=europ" );
-            td.refUsa = ( LdapContext ) td.ctx.lookup( "c=america" );
         }
     }
 
+    /**
+     * Create entries 
+     * c=france, ou=system 
+     * and
+     * c=usa, ou=system 
+     */
+    private void addCountries() throws NamingException
+    {
+        td.ctx = getSystemRoot();
 
-    public void checkAncestorReferrals( ReferralException e ) throws Exception
+        // -------------------------------------------------------------------
+        // Adds a referral entry regardless of referral handling settings
+        // -------------------------------------------------------------------
+
+        // Add a referral entry for europ
+        Attributes france = new AttributesImpl( "objectClass", "top", true );
+        france.get( "objectClass" ).add( "country" );
+        france.put( "c", "France" );
+
+        // Add a referral entry for america
+        Attributes usa = new AttributesImpl( "objectClass", "top", true );
+        france.get( "objectClass" ).add( "country" );
+        usa.put( "c", "USA" );
+
+        try
+        {
+            td.ctx.createSubcontext( "c=france", france );
+            td.ctx.createSubcontext( "c=usa", usa );
+        }
+        catch ( NameAlreadyBoundException e )
+        {
+        }
+    }
+
+    /**
+     * Create cities 
+     * l=paris, c=france, ou=system 
+     * and
+     * l=jacksonville, c=usa, ou=system 
+     */
+    private void addCities() throws NamingException
+    {
+        td.ctx = getSystemRoot();
+
+        // -------------------------------------------------------------------
+        // Adds a referral entry regardless of referral handling settings
+        // -------------------------------------------------------------------
+
+        // Add a referral entry for europ
+        Attributes paris = new AttributesImpl( "objectClass", "top", true );
+        paris.get( "objectClass" ).add( "locality" );
+        paris.put( "l", "Paris" );
+
+        // Add a referral entry for america
+        Attributes jacksonville = new AttributesImpl( "objectClass", "top", true );
+        jacksonville.get( "objectClass" ).add( "locality" );
+        jacksonville.put( "l", "jacksonville" );
+
+        try
+        {
+            td.ctx.createSubcontext( "l=paris, c=france", paris );
+            td.ctx.createSubcontext( "l=jacksonville, c=america", jacksonville );
+        }
+        catch ( NameAlreadyBoundException e )
+        {
+        }
+    }
+
+    /**
+     * Create users 
+     * cn=emmanuel lecharny, l=paris, c=france, ou=system 
+     * and
+     * cn=alex karasulu, l=jacksonville, c=usa, ou=system 
+     */
+    private void addUsers() throws NamingException
+    {
+        td.ctx = getSystemRoot();
+
+        // -------------------------------------------------------------------
+        // Adds a referral entry regardless of referral handling settings
+        // -------------------------------------------------------------------
+
+        // Add a referral entry for europ
+        Attributes emmanuel = new AttributesImpl( "objectClass", "top", true );
+        emmanuel.get( "objectClass" ).add( "person" );
+        emmanuel.get( "objectClass" ).add( "residentialperson" );
+        emmanuel.put( "cn", "emmanuel lecharny" );
+        emmanuel.put( "sn", "elecharny" );
+        emmanuel.put( "l", "Paris" );
+
+        // Add a referral entry for america
+        Attributes alex = new AttributesImpl( "objectClass", "top", true );
+        alex.get( "objectClass" ).add( "person" );
+        alex.get( "objectClass" ).add( "residentialperson" );
+        alex.put( "cn", "alex karasulu" );
+        alex.put( "sn", "akarasulu" );
+        alex.put( "l", "Jacksonville" );
+
+        try
+        {
+            td.ctx.createSubcontext( "cn=emmanuel", emmanuel );
+            td.ctx.createSubcontext( "cn=alex", alex );
+        }
+        catch ( NameAlreadyBoundException e )
+        {
+        }
+    }
+    
+    private void checkAncestorReferrals( ReferralException e ) throws Exception
     {
         String referral = (String)e.getReferralInfo();
         assertTrue( "ldap://france:10389/c=france,ou=system".equals( referral ) ||
@@ -166,7 +279,7 @@ public class ReferralITest extends AbstractServerTest
     }
 
 
-    public void checkParentReferrals( ReferralException e ) throws Exception
+    private void checkParentReferrals( ReferralException e ) throws Exception
     {
         String referral = (String)e.getReferralInfo();
         assertTrue( referral.startsWith( "ldap://france:10389/" ) ||
