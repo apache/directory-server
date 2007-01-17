@@ -186,9 +186,11 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
-        if ( parentDn.toNormName().equals( OU_OID + "=schema" ) )
+        parentDn.normalize( globalRegistries.getAttributeTypeRegistry().getNormalizerMapping() );
+        if ( ! parentDn.toNormName().equals( OU_OID + "=schema" ) )
         {
-            throw new LdapInvalidNameException( "The parent dn of a schema should be ou=schema.", 
+            throw new LdapInvalidNameException( "The parent dn of a schema should be " + OU_OID 
+                + "=schema and not: " + parentDn.toNormName(), 
                 ResultCodeEnum.NAMING_VIOLATION );
         }
     }
