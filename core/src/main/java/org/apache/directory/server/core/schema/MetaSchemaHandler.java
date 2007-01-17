@@ -25,13 +25,17 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
+import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -47,6 +51,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     private final PartitionSchemaLoader loader;
     private final Registries globalRegistries;
     private final AttributeType disabledAT;
+    private final String OU_OID;
     
 
     public MetaSchemaHandler( Registries globalRegistries, PartitionSchemaLoader loader ) 
@@ -56,6 +61,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         this.disabledAT = globalRegistries.getAttributeTypeRegistry()
             .lookup( MetaSchemaConstants.M_DISABLED_AT );
         this.loader = loader;
+        this.OU_OID = globalRegistries.getOidRegistry().getOid( CoreSchemaConstants.OU_AT );
     }
 
     
@@ -66,7 +72,10 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         if ( disabledInMods != null )
         {
             disable( name, modOp, disabledInMods, ServerUtils.getAttribute( disabledAT, entry ) );
+            return;
         }
+        
+        throw new NotImplementedException();
     }
 
 
@@ -175,13 +184,18 @@ public class MetaSchemaHandler implements SchemaChangeHandler
 
     public void add( LdapDN name, Attributes entry ) throws NamingException
     {
-        throw new NotImplementedException();
+        LdapDN parentDn = ( LdapDN ) name.clone();
+        parentDn.remove( parentDn.size() - 1 );
+        if ( parentDn.toNormName().equals( OU_OID + "=schema" ) )
+        {
+            throw new LdapInvalidNameException( "The parent dn of a schema should be ou=schema.", 
+                ResultCodeEnum.NAMING_VIOLATION );
+        }
     }
 
 
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
-        throw new NotImplementedException();
     }
 
 
@@ -194,12 +208,14 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry ) 
         throws NamingException
     {
-        throw new NotImplementedException();
+        throw new LdapOperationNotSupportedException( "Moving around schemas is not allowed.", 
+            ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
     {
-        throw new NotImplementedException();
+        throw new LdapOperationNotSupportedException( "Moving around schemas is not allowed.", 
+            ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 }

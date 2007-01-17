@@ -20,16 +20,23 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -50,6 +57,8 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  */
 public class SchemaManager
 {
+    private static final Set<String> VALID_OU_VALUES = new HashSet<String>();
+
     private final PartitionSchemaLoader loader;
     private final MetaSchemaHandler metaSchemaHandler;
     private final Registries globalRegistries;
@@ -61,6 +70,21 @@ public class SchemaManager
     private final MetaMatchingRuleHandler metaMatchingRuleHandler;
     private final MetaAttributeTypeHandler metaAttributeTypeHandler;
     private final MetaObjectClassHandler metaObjectClassHandler;
+    
+    
+    static 
+    {
+        VALID_OU_VALUES.add( "normalizers" );
+        VALID_OU_VALUES.add( "comparators" );
+        VALID_OU_VALUES.add( "syntaxcheckers" );
+        VALID_OU_VALUES.add( "syntaxes" );
+        VALID_OU_VALUES.add( "matchingrules" );
+        VALID_OU_VALUES.add( "attributetypes" );
+        VALID_OU_VALUES.add( "objectclasses" );
+        VALID_OU_VALUES.add( "nameforms" );
+        VALID_OU_VALUES.add( "ditcontentrules" );
+        VALID_OU_VALUES.add( "ditstructurerules" );
+    }
 
 
     public SchemaManager( Registries globalRegistries, PartitionSchemaLoader loader, SchemaPartitionDao dao ) 
@@ -92,7 +116,7 @@ public class SchemaManager
         throw new NotImplementedException();
     }
 
-    
+
     public void add( LdapDN name, Attributes entry ) throws NamingException
     {
         Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
@@ -145,7 +169,27 @@ public class SchemaManager
             return;
         }
 
-        throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
+        if ( AttributeUtils.containsValue( oc, CoreSchemaConstants.ORGANIZATIONAL_UNIT_OC, objectClassAT ) )
+        {
+            if ( name.size() != 3 )
+            {
+                throw new LdapInvalidNameException( 
+                    "Schema entity containers of objectClass organizationalUnit should be 3 name components in length.", 
+                    ResultCodeEnum.NAMING_VIOLATION );
+            }
+            
+            String ouValue = ( String ) name.getRdn().getValue();
+            ouValue = ouValue.trim().toLowerCase();
+            if ( ! VALID_OU_VALUES.contains( ouValue ) )
+            {
+                throw new LdapInvalidNameException( 
+                    "Expecting organizationalUnit with one of the following names: " + VALID_OU_VALUES, 
+                    ResultCodeEnum.NAMING_VIOLATION );
+            }
+            return;
+        }
+
+        throw new LdapNamingException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
     
 
@@ -201,7 +245,27 @@ public class SchemaManager
             return;
         }
 
-        throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
+        if ( AttributeUtils.containsValue( oc, CoreSchemaConstants.ORGANIZATIONAL_UNIT_OC, objectClassAT ) )
+        {
+            if ( name.size() != 3 )
+            {
+                throw new LdapNamingException( 
+                    "Only schema entity containers of objectClass organizationalUnit with 3 name components in length" +
+                    " can be deleted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+            
+            String ouValue = ( String ) name.getRdn().getValue();
+            ouValue = ouValue.trim().toLowerCase();
+            if ( ! VALID_OU_VALUES.contains( ouValue ) )
+            {
+                throw new LdapInvalidNameException( 
+                    "Can only delete organizationalUnit entity containers with one of the following names: " 
+                    + VALID_OU_VALUES, ResultCodeEnum.NAMING_VIOLATION );
+            }
+            return;
+        }
+
+        throw new LdapNamingException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
     
 
@@ -258,7 +322,7 @@ public class SchemaManager
             return;
         }
 
-        throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
+        throw new LdapNamingException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
 
@@ -315,7 +379,7 @@ public class SchemaManager
             return;
         }
 
-        throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
+        throw new LdapNamingException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
 
@@ -371,7 +435,7 @@ public class SchemaManager
             return;
         }
 
-        throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
+        throw new LdapNamingException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
 
@@ -427,7 +491,7 @@ public class SchemaManager
             return;
         }
 
-        throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
+        throw new LdapNamingException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
 
@@ -484,6 +548,6 @@ public class SchemaManager
             return;
         }
 
-        throw new NotImplementedException( "only changes to metaSchema objects are managed at this time" );
+        throw new LdapNamingException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 }
