@@ -1253,16 +1253,31 @@ public class SchemaService extends BaseInterceptor
      */
     private void assertAllAttributesAllowed( Attributes attributes ) throws NamingException
     {
+        // Never check the attributes if the extensibleObject objectClass is
+        // declared for this entry
+        Attribute objectClass = attributes.get( "objectClass" );
+        
+        if ( objectClass.contains( "extensibleObject" ) )
+        {
+            return;
+        }
+        
         Set allowed = getAllowedAttributes( attributes.get( "objectClass" ), 
             globalRegistries.getObjectClassRegistry() );
+
+        // Add the 'ObjectClass' attribute ID
+        allowed.add( globalRegistries.getOidRegistry().getOid( "ObjectClass" ) );
+        
 
         NamingEnumeration attrs = attributes.getAll();
         
         while ( attrs.hasMoreElements() )
         {
             Attribute attribute = (Attribute)attrs.nextElement();
+            String attrId = attribute.getID();
+            String attrOid = globalRegistries.getOidRegistry().getOid( attrId );
             
-            if ( !allowed.contains( attribute.getID() ) )
+            if ( !allowed.contains( attrOid ) )
             {
                 throw new LdapSchemaViolationException( "Attribute " + 
                     attribute.getID() + " not declared in entry's objectClasses.", 
@@ -1309,8 +1324,8 @@ public class SchemaService extends BaseInterceptor
         {
             String ocString = ( String ) objectClass.get( ii );
             ObjectClass oc = registry.lookup( ocString );
-            infuseMustList( set, oc );
-            infuseMayList( set, oc );
+            infuseMustOidList( set, oc );
+            infuseMayOidList( set, oc );
         }
         
         return set;
@@ -1367,7 +1382,51 @@ public class SchemaService extends BaseInterceptor
      * @param set set to infuse attributeTypes into
      * @param oc the objectClass to ascent the polymorphic inheritance tree of 
      */
-    private static final void infuseMayList( Set set, ObjectClass oc ) throws NamingException
+    private static final void infuseMustOidList( Set set, ObjectClass oc ) throws NamingException
+    {
+        // ignore top
+        if ( oc.getName().equalsIgnoreCase( "top" ) )
+        {
+            return;
+        }
+        
+        // add all the required attributes for this objectClass 
+        AttributeType[] attributeTypes = oc.getMustList(); 
+        
+        for (int i = 0; i < attributeTypes.length; i++ )
+        {
+            set.add( attributeTypes[i].getOid() );
+        }
+        
+        // don't bother ascending if no parents exist
+        ObjectClass[] parents = oc.getSuperClasses();
+
+        if ( parents == null || parents.length == 0 )
+        {
+            return;
+        }
+        
+        // save on a for loop
+        if ( parents.length == 1 ) 
+        {
+            infuseMustOidList( set, parents[0] );
+            return;
+        }
+        
+        for ( int ii = 0; ii < parents.length; ii++ )
+        {
+            infuseMustOidList( set, parents[ii] );
+        }
+    }
+
+    /**
+     * Recursive method that finds all the required attributes for an 
+     * objectClass and infuses them into the provided non-null set.
+     * 
+     * @param set set to infuse attributeTypes into
+     * @param oc the objectClass to ascent the polymorphic inheritance tree of 
+     */
+    private static final void infuseMayOidList( Set set, ObjectClass oc ) throws NamingException
     {
         // ignore top
         if ( oc.getName().equalsIgnoreCase( "top" ) )
@@ -1380,7 +1439,7 @@ public class SchemaService extends BaseInterceptor
         
         for (int i = 0; i < attributeTypes.length; i++ )
         {
-            set.add( attributeTypes[i] );
+            set.add( attributeTypes[i].getOid() );
         }
         
         // don't bother ascending if no parents exist
@@ -1394,13 +1453,13 @@ public class SchemaService extends BaseInterceptor
         // save on a for loop
         if ( parents.length == 1 ) 
         {
-            infuseMayList( set, parents[0] );
+            infuseMayOidList( set, parents[0] );
             return;
         }
         
         for ( int ii = 0; ii < parents.length; ii++ )
         {
-            infuseMayList( set, parents[ii] );
+            infuseMayOidList( set, parents[ii] );
         }
     }
 }
