@@ -63,6 +63,8 @@ public abstract class AbstractTestCase extends TestCase
         "objectclass: person\n" +
         "objectclass: organizationalPerson\n" + 
         "objectclass: inetOrgPerson\n" + 
+        "objectclass: organizationalUnit\n" + 
+        "objectclass: uidObject\n" + 
         "ou: Engineering\n" + 
         "ou: People\n" +
         "l: Bogusville\n" + 
