@@ -518,8 +518,7 @@ public class ReferralITest extends AbstractServerTest
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            // @TODO : the returned LDAPURL must be escaped !!!
-            assertEquals( "ldap://localhost:" + port + "/cn=pierre-arnaud marcelot,l=paris,c=france,ou=system", referral );
+            assertEquals( "ldap://localhost:" + port + "/cn=pierre-arnaud%20marcelot,l=paris,c=france,ou=system", referral );
         }
     }
 
