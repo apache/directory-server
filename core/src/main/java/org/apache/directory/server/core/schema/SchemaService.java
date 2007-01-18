@@ -1303,7 +1303,6 @@ public class SchemaService extends BaseInterceptor
     private static final Set getAllowedAttributes( Attribute objectClass, 
         ObjectClassRegistry registry ) throws NamingException
     {
-        AttributeType[] attributeTypes;
         Set set = new HashSet();
         
         for ( int ii = 0; ii < objectClass.size(); ii++ )
