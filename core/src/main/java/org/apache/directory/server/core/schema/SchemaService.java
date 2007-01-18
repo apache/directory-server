@@ -505,7 +505,6 @@ public class SchemaService extends BaseInterceptor
         return false;
     }
 
-
     /**
      * Checks to see if removing a set of attributes from an entry completely removes
      * that attribute's values.  If change has zero size then all attributes are
@@ -1180,6 +1179,7 @@ public class SchemaService extends BaseInterceptor
         alterObjectClasses( attrs.get( "objectClass" ), this.globalRegistries.getObjectClassRegistry() );
         assertRequiredAttributesPresent( attrs );
         assertNumberOfAttributeValuesValid( attrs );
+        assertAllAttributesAllowed( attrs );
         next.add(normName, attrs );
     }
     
@@ -1241,7 +1241,35 @@ public class SchemaService extends BaseInterceptor
             }
         }
     }
+    
+    /**
+     * Checks to see if an attribute is required by as determined from an entry's
+     * set of objectClass attribute values.
+     *
+     * @param attrId the attribute to test if required by a set of objectClass values
+     * @param objectClass the objectClass values
+     * @return true if the objectClass values require the attribute, false otherwise
+     * @throws NamingException if the attribute is not recognized
+     */
+    private void assertAllAttributesAllowed( Attributes attributes ) throws NamingException
+    {
+        Set allowed = getAllowedAttributes( attributes.get( "objectClass" ), 
+            globalRegistries.getObjectClassRegistry() );
 
+        NamingEnumeration attrs = attributes.getAll();
+        
+        while ( attrs.hasMoreElements() )
+        {
+            Attribute attribute = (Attribute)attrs.nextElement();
+            
+            if ( !allowed.contains( attribute.getID() ) )
+            {
+                throw new LdapSchemaViolationException( "Attribute " + 
+                    attribute.getID() + " not declared in entry's objectClasses.", 
+                    ResultCodeEnum.OBJECTCLASSVIOLATION );
+            }
+        }
+    }
 
     private static final AttributeType[] EMPTY_ATTRIBUTE_TYPE_ARRAY = new AttributeType[0];
     
@@ -1265,6 +1293,28 @@ public class SchemaService extends BaseInterceptor
         
         attributeTypes = ( AttributeType[] ) set.toArray( EMPTY_ATTRIBUTE_TYPE_ARRAY );
         return attributeTypes;
+    }
+
+    /**
+     * Uses the objectClass registry to ascend super classes and collect 
+     * all attributeTypes within must lists until top is reached on each
+     * parent.
+     */
+    private static final Set getAllowedAttributes( Attribute objectClass, 
+        ObjectClassRegistry registry ) throws NamingException
+    {
+        AttributeType[] attributeTypes;
+        Set set = new HashSet();
+        
+        for ( int ii = 0; ii < objectClass.size(); ii++ )
+        {
+            String ocString = ( String ) objectClass.get( ii );
+            ObjectClass oc = registry.lookup( ocString );
+            infuseMustList( set, oc );
+            infuseMayList( set, oc );
+        }
+        
+        return set;
     }
 
     
@@ -1308,6 +1358,50 @@ public class SchemaService extends BaseInterceptor
         for ( int ii = 0; ii < parents.length; ii++ )
         {
             infuseMustList( set, parents[ii] );
+        }
+    }
+
+    /**
+     * Recursive method that finds all the required attributes for an 
+     * objectClass and infuses them into the provided non-null set.
+     * 
+     * @param set set to infuse attributeTypes into
+     * @param oc the objectClass to ascent the polymorphic inheritance tree of 
+     */
+    private static final void infuseMayList( Set set, ObjectClass oc ) throws NamingException
+    {
+        // ignore top
+        if ( oc.getName().equalsIgnoreCase( "top" ) )
+        {
+            return;
+        }
+        
+        // add all the required attributes for this objectClass 
+        AttributeType[] attributeTypes = oc.getMayList(); 
+        
+        for (int i = 0; i < attributeTypes.length; i++ )
+        {
+            set.add( attributeTypes[i] );
+        }
+        
+        // don't bother ascending if no parents exist
+        ObjectClass[] parents = oc.getSuperClasses();
+        
+        if ( parents == null || parents.length == 0 )
+        {
+            return;
+        }
+        
+        // save on a for loop
+        if ( parents.length == 1 ) 
+        {
+            infuseMayList( set, parents[0] );
+            return;
+        }
+        
+        for ( int ii = 0; ii < parents.length; ii++ )
+        {
+            infuseMayList( set, parents[ii] );
         }
     }
 }
