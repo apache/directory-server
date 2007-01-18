@@ -20,16 +20,21 @@
 package org.apache.directory.server;
 
 
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameAlreadyBoundException;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -78,14 +83,14 @@ public class ReferralITest extends AbstractServerTest
 
     public void tearDown() throws Exception
     {
-        if ( td.refFrance != null )
+        if ( td.refEurop != null )
         {
-            td.refFrance.close();
+            td.refEurop.close();
         }
 
-        if ( td.refUsa != null )
+        if ( td.refAmerica != null )
         {
-            td.refUsa.close();
+            td.refAmerica.close();
         }
 
         td.ctx.close();
@@ -114,21 +119,21 @@ public class ReferralITest extends AbstractServerTest
     {
         LdapContext ctx;
         Name ctxDn;
-        LdapContext refFrance;
-        LdapContext refUsa;
+        LdapContext refEurop;
+        LdapContext refAmerica;
         List refs;
     }
 
     /**
-     * Create entries 
+     * Create entries  
      * c=europ, ou=system 
      * and
      * c=america, ou=system 
      */
     private void addReferralEntries() throws NamingException
     {
-        String europURL = "ldap://france:10389/c=france,ou=system";
-        String americaURL = "ldap://usa:10389/c=usa,ou=system";
+        String europURL = "ldap://localhost:" + port + "/c=france,ou=system";
+        String americaURL = "ldap://localhost:" + port + "/c=usa,ou=system";
 
         td.ctx = getSystemRoot();
 
@@ -155,11 +160,12 @@ public class ReferralITest extends AbstractServerTest
         
         try
         {
-            td.refFrance = ( LdapContext ) td.ctx.createSubcontext( "c=europ", europ );
-            td.refUsa = ( LdapContext ) td.ctx.createSubcontext( "c=america", america );
+            td.refEurop = ( LdapContext ) td.ctx.createSubcontext( "c=europ", europ );
+            td.refAmerica = ( LdapContext ) td.ctx.createSubcontext( "c=america", america );
         }
         catch ( NameAlreadyBoundException e )
         {
+            System.out.println( e.getMessage() );
         }
     }
 
@@ -194,6 +200,7 @@ public class ReferralITest extends AbstractServerTest
         }
         catch ( NameAlreadyBoundException e )
         {
+            System.out.println( e.getMessage() );
         }
     }
 
@@ -224,10 +231,11 @@ public class ReferralITest extends AbstractServerTest
         try
         {
             td.ctx.createSubcontext( "l=paris, c=france", paris );
-            td.ctx.createSubcontext( "l=jacksonville, c=america", jacksonville );
+            td.ctx.createSubcontext( "l=jacksonville, c=usa", jacksonville );
         }
         catch ( NameAlreadyBoundException e )
         {
+            System.out.println( e.getMessage() );
         }
     }
 
@@ -263,59 +271,287 @@ public class ReferralITest extends AbstractServerTest
 
         try
         {
-            td.ctx.createSubcontext( "cn=emmanuel", emmanuel );
-            td.ctx.createSubcontext( "cn=alex", alex );
+            td.ctx.createSubcontext( "cn=emmanuel lecharny, l=paris, c=france", emmanuel );
+            td.ctx.createSubcontext( "cn=alex karasulu, l=jacksonville, c=usa", alex );
         }
         catch ( NameAlreadyBoundException e )
         {
+            System.out.println( e.getMessage() );
         }
     }
     
-    private void checkAncestorReferrals( ReferralException e ) throws Exception
+    /**
+     * Performs a search from a base and 
+     * check that the expected result is found
+     */
+    private boolean exist( LdapContext ctx, String filter, String expected ) throws NamingException
     {
-        String referral = (String)e.getReferralInfo();
-        assertTrue( "ldap://france:10389/c=france,ou=system".equals( referral ) ||
-            "ldap://usa:10389/c=usa,ou=system".equals( referral ) );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        return exist( ctx, filter, expected, controls );
     }
-
-
-    private void checkParentReferrals( ReferralException e ) throws Exception
+    
+    /**
+     * Performs a search from a base and 
+     * check that the expected result is found
+     */
+    private boolean exist( LdapContext ctx, String filter, String expected, 
+        SearchControls controls ) throws NamingException
     {
-        String referral = (String)e.getReferralInfo();
-        assertTrue( referral.startsWith( "ldap://france:10389/" ) ||
-            referral.startsWith( "ldap://usa:10389/" ) );
+        NamingEnumeration ii = ctx.search( "", filter, controls );
+        
+        // collect all results 
+        Set results = new HashSet();
+        
+        while ( ii.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) ii.next();
+            results.add( result.getName() );
+        }
+        
+        if ( results.size() == 1 )
+        {
+            return results.contains( expected );
+        }
+        
+        return false;
     }
+    
+    /**
+     * Performs a single level search from a contect base and 
+     * return the result as a Set, or throws an exception 
+     */
+    private Set search( LdapContext ctx, String filter ) throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
+        return search( ctx, filter, controls );
+    }
+    
+    /**
+     * Performs a single level search from a contect base and 
+     * return the result as a Set, or throws an exception 
+     */
+    private Set search( LdapContext ctx, String filter, SearchControls controls ) throws NamingException
+    {
+        NamingEnumeration ii = ctx.search( "", filter, controls );
+        
+        // collect all results 
+        Set results = new HashSet();
+        
+        while ( ii.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) ii.next();
+            results.add( result.getName() );
+        }
+        
+        return results;
+    }
+    
+    //-------------------------------------------------------------------------
+    //
+    // Search operations
+    //
+    //-------------------------------------------------------------------------
+    /**
+     * Test of an search operation with a referral
+     * 
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    public void testSearchWithReferralThrow() throws Exception
+    {
+        td.refAmerica.addToEnvironment( Context.REFERRAL, "throw" );
+        
+        try
+        {
+            search( td.refAmerica, "(cn=alex karasulu)" );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch ( ReferralException re )
+        {
+            String referral = (String)re.getReferralInfo();
+            assertEquals( "ldap://localhost:" + port + "/c=usa,ou=system??sub", referral );
+        }
+    }
 
     /**
-     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
-     * for an add operation with the parent context being a referral.
+     * Test of an search operation with a referral
      * 
-     * @throws Exception if something goes wrong.
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
      */
-    public void testAddWithReferralParent() throws Exception
+    public void testSearchBaseWithReferralThrow() throws Exception
+    {
+        td.refAmerica.addToEnvironment( Context.REFERRAL, "throw" );
+        
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        
+        try
+        {
+            search( td.refAmerica, "(cn=alex karasulu)", controls );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch ( ReferralException re )
+        {
+            String referral = (String)re.getReferralInfo();
+            assertEquals( "ldap://localhost:" + port + "/c=usa,ou=system??base", referral );
+        }
+    }
+
+    /**
+     * Test of an search operation with a referral
+     * 
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    public void testSearchOneLevelWithReferralThrow() throws Exception
+    {
+        td.refAmerica.addToEnvironment( Context.REFERRAL, "throw" );
+        
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        
+        try
+        {
+            search( td.refAmerica, "(cn=alex karasulu)", controls );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch ( ReferralException re )
+        {
+            String referral = (String)re.getReferralInfo();
+            assertEquals( "ldap://localhost:" + port + "/c=usa,ou=system??one", referral );
+        }
+    }
+
+    /**
+     * Test of an search operation with a referral
+     * 
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    public void testSearchWithReferralContinuation() throws Exception
+    {
+        assertTrue( exist( td.ctx, "(cn=alex karasulu)",
+        "cn=alex karasulu,l=jacksonville,c=usa" ) );
+
+        td.refAmerica.addToEnvironment( Context.REFERRAL, "follow" );
+        
+        assertTrue( exist( td.refAmerica, "(cn=alex karasulu)",
+            "ldap://localhost:" + port + "/cn=alex%20karasulu,l=jacksonville,c=usa,ou=system" ) );
+    }
+
+    /**
+     * Test of an search operation with a referral
+     * 
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    public void testSearchBaseWithReferralContinuation() throws Exception
+    {
+        td.refAmerica.addToEnvironment( Context.REFERRAL, "follow" );
+        
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        
+        assertFalse( exist( td.refAmerica, "(cn=alex karasulu)",
+            "cn=alex karasulu,l=jacksonville,c=usa", controls ) );
+    }
+
+    /**
+     * Test of an search operation with a referral
+     * 
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    public void testSearchOneLevelWithReferralContinuation() throws Exception
+    {
+        td.refAmerica.addToEnvironment( Context.REFERRAL, "follow" );
+        
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        
+        assertFalse( exist( td.refAmerica, "(cn=alex karasulu)",
+            "cn=alex karasulu,l=jacksonville,c=usa", controls ) );
+    }
+
+    //-------------------------------------------------------------------------
+    //
+    // Add operations
+    //
+    //-------------------------------------------------------------------------
+
+    /**
+     * Test of an add operation with a referral
+     * 
+     * "cn=pierre-arnaud marcelot,l=paris" is added to "c=france,ou=system"
+     * we should get a referral URL thrown
+     */
+    public void testAddWithReferralThrow() throws Exception
     {
         // -------------------------------------------------------------------
         // Attempt to add a normal entry below the referral parent. We should
         // encounter referral errors with referral setting set to throw.
         // -------------------------------------------------------------------
 
-        td.refUsa.addToEnvironment( Context.REFERRAL, "throw" );
+        td.refEurop.addToEnvironment( Context.REFERRAL, "throw" );
         
         Attributes userEntry = new AttributesImpl( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
-        userEntry.put( "sn", "karasulu" );
-        userEntry.put( "cn", "alex karasulu" );
+        userEntry.put( "sn", "marcelot" );
+        userEntry.put( "cn", "pierre-arnaud marcelot" );
 
         try
         {
-            td.refUsa.createSubcontext( "cn=alex karasulu", userEntry );
+            td.refEurop.createSubcontext( "cn=pierre-arnaud marcelot,l=paris", userEntry );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch ( ReferralException e )
+        catch ( ReferralException re )
         {
-            checkParentReferrals( e );
+            String referral = (String)re.getReferralInfo();
+            // @TODO : the returned LDAPURL must be escaped !!!
+            assertEquals( "ldap://localhost:" + port + "/cn=pierre-arnaud marcelot,l=paris,c=france,ou=system", referral );
         }
+    }
+
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for an add operation with the parent context being a referral.
+     * 
+     * Test an add operation with a continuation
+     * 
+     * "cn=pierre-arnaud marcelot,l=paris" is added to "c=europ,ou=system"
+     * 
+     * The entry should be added to "l=paris,c=france,ou=system"
+     */
+    public void testAddWithReferralContinuation() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to add a normal entry below the referral parent. We should
+        // encounter referral errors with referral setting set to throw.
+        // -------------------------------------------------------------------
+
+        td.refEurop.addToEnvironment( Context.REFERRAL, "follow" );
+        
+        Attributes userEntry = new AttributesImpl( "objectClass", "top", true );
+        userEntry.get( "objectClass" ).add( "person" );
+        userEntry.put( "sn", "marcelot" );
+        userEntry.put( "cn", "pierre-arnaud marcelot" );
+
+        td.refEurop.createSubcontext( "cn=pierre-arnaud marcelot,l=paris", userEntry );
+        
+        assertTrue( exist( td.ctx, "(cn=pierre-arnaud marcelot)", "cn=pierre-arnaud marcelot,l=paris,c=france" ) );
+
+        td.refEurop.destroySubcontext( "cn=pierre-arnaud marcelot,l=paris" );
     }
 
 
