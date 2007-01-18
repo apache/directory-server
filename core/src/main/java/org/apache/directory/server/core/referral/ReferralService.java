@@ -67,6 +67,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import org.slf4j.Logger;
@@ -181,36 +182,42 @@ public class ReferralService extends BaseInterceptor
     {
         // handle referral here
         List list = new ArrayList( refs.size() );
+        
         for ( int ii = 0; ii < refs.size(); ii++ )
         {
-            String val = ( String ) refs.get( ii );
+            String url = ( String ) refs.get( ii );
 
             // need to add non-ldap URLs as-is
-            if ( !val.startsWith( "ldap" ) )
+            if ( !url.startsWith( "ldap" ) )
             {
-                list.add( val );
+                list.add( url );
                 continue;
             }
 
             // parse the ref value and normalize the DN according to schema 
-            LdapURL ldapUrl = new LdapURL();
+            LdapURL ldapUrl = null;
+            
             try
             {
-                ldapUrl.parse( val.toCharArray() );
+                ldapUrl = new LdapURL( url );;
             }
             catch ( LdapURLEncodingException e )
             {
-                log.error( "Bad URL (" + val + ") for ref in " + farthest + ".  Reference will be ignored." );
+                log.error( "Bad URL (" + url + ") for ref in " + farthest + ".  Reference will be ignored." );
+                list.add( url );
+                continue;
             }
 
-            LdapDN urlDn = new LdapDN( ldapUrl.getDn().toNormName() );
+            LdapDN urlDn = ldapUrl.getDn();
             urlDn.normalize( attrRegistry.getNormalizerMapping() );
+            
             if ( urlDn.equals( farthest ) )
             {
                 // according to the protocol there is no need for the dn since it is the same as this request
                 StringBuffer buf = new StringBuffer();
                 buf.append( ldapUrl.getScheme() );
                 buf.append( ldapUrl.getHost() );
+                
                 if ( ldapUrl.getPort() > 0 )
                 {
                     buf.append( ":" );
@@ -228,24 +235,30 @@ public class ReferralService extends BaseInterceptor
              */
             int diff = targetUpdn.size() - farthest.size();
             LdapDN extra = new LdapDN();
+            
             for ( int jj = 0; jj < diff; jj++ )
             {
-                extra.add( targetUpdn.get( farthest.size() + jj ) );
+                Rdn rdn = targetUpdn.getRdn( farthest.size() + jj );
+                
+                extra.add( rdn );
             }
 
             urlDn.addAll( extra );
             StringBuffer buf = new StringBuffer();
             buf.append( ldapUrl.getScheme() );
             buf.append( ldapUrl.getHost() );
+            
             if ( ldapUrl.getPort() > 0 )
             {
                 buf.append( ":" );
                 buf.append( ldapUrl.getPort() );
             }
+            
             buf.append( "/" );
-            buf.append( urlDn.getUpName() );
+            buf.append( LdapURL.urlEncode( urlDn.getUpName(), false ) );
             list.add( buf.toString() );
         }
+        
         LdapReferralException lre = new LdapReferralException( list );
         throw lre;
     }
@@ -284,7 +297,7 @@ public class ReferralService extends BaseInterceptor
             Attributes referral = invocation.getProxy().lookup( farthest, PartitionNexusProxy.LOOKUP_BYPASS );
             AttributeType refsType = attrRegistry.lookup( oidRegistry.getOid( REF_ATTR ) );
             Attribute refs = ServerUtils.getAttribute( refsType, referral );
-            doReferralException( farthest, new LdapDN( normName.getUpName() ), refs );
+            doReferralException( farthest, (LdapDN)normName.clone(), refs );
         }
         else if ( refval.equals( FOLLOW ) )
         {
