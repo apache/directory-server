@@ -20,22 +20,13 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -52,43 +43,9 @@ public class DIRSERVER758ITest extends AbstractAdminTestCase
     }
 
     /**
-     * Performs a search from a base and 
-     * check that the expected result is found
+     * Test that we can't add an entry with an attribute type not within
+     * any of the MUST or MAY of any of its objectClasses
      */
-    private boolean exist( LdapContext ctx, String filter, String expected ) throws NamingException
-    {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        return exist( ctx, filter, expected, controls );
-    }
-    
-    /**
-     * Performs a search from a base and 
-     * check that the expected result is found
-     */
-    private boolean exist( LdapContext ctx, String filter, String expected, 
-        SearchControls controls ) throws NamingException
-    {
-        NamingEnumeration ii = ctx.search( "", filter, controls );
-        
-        // collect all results 
-        Set results = new HashSet();
-        
-        while ( ii.hasMore() )
-        {
-            SearchResult result = ( SearchResult ) ii.next();
-            results.add( result.getName() );
-        }
-        
-        if ( results.size() == 1 )
-        {
-            return results.contains( expected );
-        }
-        
-        return false;
-    }
-
     public void testAddAttributesNotInObjectClasses() throws Exception
     {
         Attributes attrs = new AttributesImpl( true );
