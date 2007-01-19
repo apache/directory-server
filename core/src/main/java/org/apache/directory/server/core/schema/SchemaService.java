@@ -577,7 +577,119 @@ public class SchemaService extends BaseInterceptor
                 throw new InternalError( "" );
         }
     }
+    
+    private boolean getObjectClasses( Attribute objectClasses, List result ) throws NamingException
+    {
+        Set ocSeen = new HashSet();
+        ObjectClassRegistry registry = globalRegistries.getObjectClassRegistry();
+        
+        // We must select all the ObjectClasses, except 'top',
+        // but including all the inherited ObjectClasses
+        NamingEnumeration ocs = objectClasses.getAll();
+        boolean hasExtensibleObject = false;
 
+        
+        while ( ocs.hasMoreElements() )
+        {
+            String objectClassName = (String)ocs.nextElement();
+
+            if ( "top".equals( objectClassName ) )
+            {
+                continue;
+            }
+            
+            if ( "extensibleObject".equalsIgnoreCase( objectClassName ) )
+            {
+                hasExtensibleObject = true;
+            }
+            
+            ObjectClass oc = registry.lookup( objectClassName );
+            
+            // Add all unseen objectclasses to the list, except 'top'
+            if ( !ocSeen.contains( oc.getOid() ) )
+            {
+                ocSeen.add( oc.getOid() );
+                result.add( oc );
+            }
+            
+            // Loop on all the current OC parents
+            ObjectClass[] superiors = oc.getSuperClasses();
+            
+            for ( int i = 0; i < superiors.length; i++ )
+            {
+                ObjectClass parent = superiors[i];
+                
+                // Skip 'top'
+                if ( "top".equals( parent.getName() ) )
+                {
+                    continue;
+                }
+                
+                if ( !ocSeen.contains( parent.getOid() ) )
+                {
+                    ocSeen.add( parent.getOid() );
+                    result.add( parent );
+                }
+            }
+        }
+        
+        return hasExtensibleObject;
+    }
+
+    private Set getAllMust( List objectClasses ) throws NamingException
+    {
+        Set must = new HashSet();
+        
+        // Loop on all objectclasses
+        for ( int i = 0; i < objectClasses.size(); i++ )
+        {
+            ObjectClass oc = (ObjectClass)objectClasses.get( i );
+            
+            AttributeType[] types = oc.getMustList();
+            
+            // For each objectClass, loop on all MUST attributeTypes, if any
+            if ( ( types != null ) && ( types.length > 0 ) )
+            {
+                for ( int j = 0; j < types.length; j++ )
+                {
+                    String oid = types[j].getOid();
+                    
+                    must.add( oid );
+                }
+            }
+        }
+        
+        return must;
+    }
+
+    private Set getAllAllowed( List objectClasses, Set must ) throws NamingException
+    {
+        Set allowed = new HashSet( must );
+        
+        // Add the 'ObjectClass' attribute ID
+        allowed.add( globalRegistries.getOidRegistry().getOid( "ObjectClass" ) );
+        
+        // Loop on all objectclasses
+        for ( int i = 0; i < objectClasses.size(); i++ )
+        {
+            ObjectClass oc = (ObjectClass)objectClasses.get( i );
+            
+            AttributeType[] types = oc.getMayList();
+            
+            // For each objectClass, loop on all MUST attributeTypes, if any
+            if ( ( types != null ) && ( types.length > 0 ) )
+            {
+                for ( int j = 0; j < types.length; j++ )
+                {
+                    String oid = types[j].getOid();
+                    
+                    allowed.add( oid );
+                }
+            }
+        }
+        
+        return allowed;
+    }
 
     /**
      * Given the objectClasses for an entry, this method adds missing ancestors 
@@ -1176,10 +1288,29 @@ public class SchemaService extends BaseInterceptor
             }
         }
 
-        alterObjectClasses( attrs.get( "objectClass" ), this.globalRegistries.getObjectClassRegistry() );
-        assertRequiredAttributesPresent( attrs );
+        // We will check some elements :
+        // 1) the entry must have all the MUST attributes of all its ObjectClass
+        // 2) The SingleValued attributes must be SingleValued
+        // 3) No attributes should be used if they are not part of MUST and MAY
+        // 3-1) Except if the extensibleObject ObjectClass is used
+        // 3-2) or if the AttributeType is COLLECTIVE
+        //
+        // First, create the Set of all Must and May attributes
+        Attribute objectClassAttr = attrs.get( "objectClass" );
+        List ocs = new ArrayList();
+        boolean hasExtensibleObject = getObjectClasses( objectClassAttr, ocs );
+        Set must = getAllMust( ocs );
+        Set allowed = getAllAllowed( ocs, must );
+        
+        //alterObjectClasses( attrs.get( "objectClass" ), this.globalRegistries.getObjectClassRegistry() );
+        assertRequiredAttributesPresent( attrs, must );
         assertNumberOfAttributeValuesValid( attrs );
-        assertAllAttributesAllowed( attrs );
+
+        if ( !hasExtensibleObject )
+        {
+            assertAllAttributesAllowed( attrs, allowed );
+        }
+        
         next.add(normName, attrs );
     }
     
@@ -1215,30 +1346,25 @@ public class SchemaService extends BaseInterceptor
     /**
      * Checks to see the presence of all required attributes within an entry.
      */
-    private void assertRequiredAttributesPresent( Attributes entry ) 
+    private void assertRequiredAttributesPresent( Attributes entry, Set must ) 
         throws NamingException
     {
-        AttributeType[] required = getRequiredAttributes( entry.get( "objectClass" ), 
-            this.globalRegistries.getObjectClassRegistry() );
-        for ( int ii = 0; ii < required.length; ii++ )
+        NamingEnumeration attributes = entry.getAll();
+        
+        while ( attributes.hasMoreElements() )
         {
-            boolean aliasFound = false;
-            String[] aliases = required[ii].getNames();
-            for ( int jj = 0; jj < aliases.length; jj++ )
-            {
-                if ( entry.get( aliases[jj] ) != null )
-                {
-                    aliasFound = true;
-                    break;
-                }
-            }
+            Attribute attribute = (Attribute)attributes.nextElement();
             
-            if ( ! aliasFound )
-            {
-                throw new LdapSchemaViolationException( "Required attribute " + 
-                    required[ii].getName() + " not found within entry.", 
-                    ResultCodeEnum.OBJECTCLASSVIOLATION );
-            }
+            String oid = globalRegistries.getOidRegistry().getOid( attribute.getID() );
+            
+            must.remove( oid );
+        }
+        
+        if ( must.size() != 0 )
+        {
+            throw new LdapSchemaViolationException( "Required attributes " + 
+                must.toArray() + " not found within entry.", 
+                ResultCodeEnum.OBJECTCLASSVIOLATION );
         }
     }
     
@@ -1251,7 +1377,7 @@ public class SchemaService extends BaseInterceptor
      * @return true if the objectClass values require the attribute, false otherwise
      * @throws NamingException if the attribute is not recognized
      */
-    private void assertAllAttributesAllowed( Attributes attributes ) throws NamingException
+    private void assertAllAttributesAllowed( Attributes attributes, Set allowed ) throws NamingException
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
@@ -1262,13 +1388,6 @@ public class SchemaService extends BaseInterceptor
             return;
         }
         
-        Set allowed = getAllowedAttributes( attributes.get( "objectClass" ), 
-            globalRegistries.getObjectClassRegistry() );
-
-        // Add the 'ObjectClass' attribute ID
-        allowed.add( globalRegistries.getOidRegistry().getOid( "ObjectClass" ) );
-        
-
         NamingEnumeration attrs = attributes.getAll();
         
         while ( attrs.hasMoreElements() )
@@ -1277,11 +1396,16 @@ public class SchemaService extends BaseInterceptor
             String attrId = attribute.getID();
             String attrOid = globalRegistries.getOidRegistry().getOid( attrId );
             
-            if ( !allowed.contains( attrOid ) )
+            AttributeType attributeType = globalRegistries.getAttributeTypeRegistry().lookup( attrOid );
+            
+            if ( !attributeType.isCollective() )
             {
-                throw new LdapSchemaViolationException( "Attribute " + 
-                    attribute.getID() + " not declared in entry's objectClasses.", 
-                    ResultCodeEnum.OBJECTCLASSVIOLATION );
+                if ( !allowed.contains( attrOid ) )
+                {
+                    throw new LdapSchemaViolationException( "Attribute " + 
+                        attribute.getID() + " not declared in entry's objectClasses.", 
+                        ResultCodeEnum.OBJECTCLASSVIOLATION );
+                }
             }
         }
     }

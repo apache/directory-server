@@ -574,6 +574,9 @@ public class SearchContextITest extends AbstractAdminTestCase
         
         // First let's add a some binary data representing a userCertificate
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
+        Attribute objectClasses = attrs.get( "objectClass" );
+        objectClasses.add( "strongAuthenticationUser" );
+
         attrs.put( "userCertificate", certData );
         sysRoot.createSubcontext( "cn=Kate Bush", attrs );
         
