@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
  * Test cases for the collective attribute service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev:$
  */
 public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
 {
@@ -422,6 +422,58 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         c_st = attributes.get( "c-st" );
         assertNull( c_ou );
         assertNull( c_st );
+    }
+    
+    
+    public void testAddRegularEntryWithCollectiveAttribute()
+    {
+        Attributes entry = getTestEntry( "Ersin Er" );
+        entry.put( "c-l", "Turkiye" );
+        try
+        {
+            super.sysRoot.createSubcontext( "cn=Ersin Er", entry );
+            fail( "Entry addition with collective attribute should have failed." );
+        }
+        catch ( NamingException e )
+        {
+            // Intended execution point
+        }
+    }
+    
+    
+    public void testModifyRegularEntryAddingCollectiveAttribute() throws NamingException
+    {
+        Attributes entry = getTestEntry( "Ersin Er" );
+        super.sysRoot.createSubcontext( "cn=Ersin Er", entry );
+        Attributes changeSet = new AttributesImpl( "c-l", "Turkiye", true );
+        try
+        {
+            
+            super.sysRoot.modifyAttributes( "cn=Ersin Er", DirContext.ADD_ATTRIBUTE, changeSet );
+            fail( "Collective attribute addition to non-collectiveAttributeSubentry should have failed." );
+        }
+        catch ( NamingException e )
+        {
+            // Intended execution point
+        }
+    }
+    
+    
+    public void testModifyRegularEntryAddingCollectiveAttribute2() throws NamingException
+    {
+        Attributes entry = getTestEntry( "Ersin Er" );
+        super.sysRoot.createSubcontext( "cn=Ersin Er", entry );
+        Attribute change = new AttributeImpl( "c-l", "Turkiye");
+        ModificationItemImpl mod = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, change);
+        try
+        {
+            super.sysRoot.modifyAttributes( "cn=Ersin Er", new ModificationItemImpl[] { mod } );
+            fail( "Collective attribute addition to non-collectiveAttributeSubentry should have failed." );
+        }
+        catch ( NamingException e )
+        {
+            // Intended execution point
+        }
     }
     
 }

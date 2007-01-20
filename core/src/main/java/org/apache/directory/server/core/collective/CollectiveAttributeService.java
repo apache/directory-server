@@ -44,6 +44,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -56,7 +57,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * collectiveAttributeInnerAreas.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev:$
  */
 public class CollectiveAttributeService extends BaseInterceptor
 {
@@ -81,6 +82,8 @@ public class CollectiveAttributeService extends BaseInterceptor
 
     private AttributeTypeRegistry attrTypeRegistry = null;
     private PartitionNexus nexus = null;
+    
+    private CollectiveAttributesSchemaChecker collectiveAttributesSchemaChecker = null;
 
 
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
@@ -88,6 +91,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         super.init( factoryCfg, cfg );
         nexus = factoryCfg.getPartitionNexus();
         attrTypeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+        collectiveAttributesSchemaChecker = new CollectiveAttributesSchemaChecker(nexus, attrTypeRegistry);
     }
 
 
@@ -282,14 +286,29 @@ public class CollectiveAttributeService extends BaseInterceptor
         return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SEARCH_FILTER );
     }
     
+    // ------------------------------------------------------------------------
+    // Partial Schema Checking
+    // ------------------------------------------------------------------------
     
-    /*
-     * TODO: Add change inducing Interceptor methods to track and prevent
-     *       modification of collective attributes over entries/subentries
-     *       which are not of type collectiveAttributeSubentry.
-     * 
-     * See: http://issues.apache.org/jira/browse/DIRSERVER-821
-     * See: http://issues.apache.org/jira/browse/DIRSERVER-822
-     */
+    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
+    {
+        collectiveAttributesSchemaChecker.checkAdd( normName, entry );
+        super.add( next, normName, entry );
+    }
+
+
+    public void modify( NextInterceptor next, LdapDN normName, int modOp, Attributes mods ) throws NamingException
+    {
+        collectiveAttributesSchemaChecker.checkModify( normName, modOp, mods );
+        super.modify( next, normName, modOp, mods );
+    }
+
+
+    public void modify( NextInterceptor next, LdapDN normName, ModificationItemImpl[] mods ) throws NamingException
+    {
+        collectiveAttributesSchemaChecker.checkModify( normName, mods );
+        super.modify( next, normName, mods );
+    }
     
+
 }
