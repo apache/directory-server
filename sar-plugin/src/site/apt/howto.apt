@@ -1,0 +1,25 @@
+ ------
+ Maven 2 Sar Plugin: configuration examples
+ ------
+ Frank Mena 
+ <frankm.os@gmail.com>
+ ------
+ October 14, 2005
+
+Introduction
+
+  The Sar plugin allows the packaging of a JBoss service sar in 3 different modes:
+
+   * sar (default): generates the sar artifact
+
+   * inplace: package the sar in the source tree
+
+   * exploded : package an exploded sar application
+
+  Each mode is materialized by a goal. For instance, to generate an exploded
+  sar from the current project, one would type
+
++--------
+  mvn sar:exploded
++---------
+

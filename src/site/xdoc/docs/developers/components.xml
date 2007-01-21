@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>ApacheDS - Components</title> 
+  </properties>
+  
+  <body>
+    <section name="Resources">
+        <p>
+          If the following sections sound a little cryptic you might want 
+          to read a little about the IoC pattern. Below are some documents you
+          might find useful when translating some of this babble:
+        </p>
+        
+        <ul>
+          <li><a href="http://wiki.apache.org/avalon/WhatIsIoC">
+          Inversion of Control Pattern</a></li>
+          
+          <li><a href="http://wiki.apache.org/avalon/AvalonNoLogging?highlight=%28NoLogging%29">
+             Paul Hammant's use of Monitors instead of Loggers</a> is a technique we use.
+          </li>
+        </ul>
+    </section>
+    
+    <section name="Components and Services">
+      <p>
+        The server is designed as a system of highly granular components.
+        Some components are a collection of other components with a facade to 
+        form a subsystem of the server.  Subsystems can contain other 
+        subsystems and one component can depend on zero or more other
+        components.
+      </p>
+      
+      <p>
+        A micro kernel or component container is required to run the server.  By
+        default the server uses its oun glue rather than a container with all the
+        bells and whistles.  However it can run in any micro kernel using
+        service wrappers.  A micro kernel is a peice of code operating as a
+        component container providing services for that component and running
+        the component through a set of life-cycles.  The server is designed to run
+        on any micro kernel using component wrappers.  The subsystems and
+        components are designed as Plain Old Java Interfaces and Objects (POJIs
+        and POJOs) that can be wrapped to make them interoperate within
+        different containers.
+      </p>
+      
+      <p>
+        Each component within the server has a public service interface which
+        declares what that component can do for its clients.  It is always good
+        to keep the interfaces separate from any specific implementations.  You
+        can have many implementations for the same service interface.  Secondly
+        the classloader heirarchy in containers often puts implementation
+        classloaders under a classloader containing the service interface. 
+        This allows containers to manage multiple implementations for the
+        same service without having conflicts.  Also implementations can be
+        created and destroyed in separate classloaders without affecting one
+        another.
+      </p>
+    </section>
+    
+    <section name="Container Independence">
+      <p>
+        One of the biggest impediments we've had to deal with while developing
+        the server and its precursors was having containers go in and out of
+        fashion.  We lost several months of development time while switching
+        from Pheonix to Merlin for example.  Today we use some custom glue
+        instead.
+      </p>
+      
+      <p>
+        The server has been designed this time from the ground up to be
+        independent of any container.  We are doing this by making the default
+        implementation of a service a Plain Old Java Object (POJO).  Wrapper
+        implementation projects, one for each supported container, are used to
+        wrap these POJO components to introduce container specific lifecycles
+        and to encapsulate container idiosyncrasies.
+      </p>
+      
+      <p>
+        This approach we have found has several advantagous side-effects.  One 
+        benefit was a nice separation of concerns.  By separating out the 
+        container specific code, configuration and build aspects, developers
+        no longer need to be aware of container details.  They can focus on the
+        core implemenation as a simple class implementing an interface.  Those
+        interested in making the server run in one container as opposed to
+        another can focus on their container wrapper without the clutter of
+        another container getting in the way.  This reduces the complexity and
+        learning curve for all those involved in developing the directory
+        server's components and subsystems.
+      </p>
+    </section>
+    
+    <section name="Monitors Verse Loggers">
+      <p>
+        Above we provided a link to Paul Hammant's concept of using Monitors
+        in place of Logging.  Briefly without restating his wiki we'd like to
+        review how we use Monitors instead of Loggers alone.
+      </p>
+      
+      <p>
+        Like any other server we need to log what goes on.  But rather than log
+        we need to monitor.  Logging is a specific type of monitoring for the 
+        sake of archiving what we monitor.  Paul proposed that every service
+        should propose a very specific Monitor interface.  This is a good idea 
+        because it is the responsibility of the service to announce those 
+        interesting, and monitoring worthy events.  The interface forces 
+        signatures to explicitly describe what information is involved in the
+        monitoring of an event.
+      </p>
+      
+      <p>
+        This makes the component implementation logging system independent
+        which is provided by a container implementation.  Each wrapper
+        implementation can provide its own Monitor implementation
+        to interface with the Logging system of the target container.
+      </p>
+      
+      <p>
+        We gain by becoming more container independent but more importantly we
+        are forced to consider what events in a service constitutes a
+        noteworthy event.  This throught provoking aspect is perhaps the most
+        beneficial.
+      </p>
+    </section>
+    
+    <section name="Configuration Beans">
+      <p>
+        Containers are neat because they give component developers a lot of 
+        nice features out of the box and that's what they should do.  The key
+        to maintaining container independence is to abstract away from these
+        features while still taking advantage of them.  This usually translates
+        into a few extra interfaces and classes.
+      </p>
+      
+      <p>
+        One benefit of containers is to provide a means to associate a 
+        configuration with a component.  Most allow for configurations to be 
+        stored in properties files and/or XML files.  Containers read and load
+        the configuration as a part of processing the lifecycles of components.
+      </p>
+      
+      <p>
+        Rather than have POJO component implementations depend directly on 
+        configuration interfaces specific to a container we explicitly define
+        configuration beans.  POJO implementations are then designed to take 
+        configuration beans as constructor arguments if the number of parameters
+        is large and putting so many parameters into a constructor would be
+        too cumbersome.
+      </p>
+    </section>
+  </body>
+</document>

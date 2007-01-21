@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>1.5.0-SNAPSHOT</version>
+  </parent>
+  <groupId>org.apache.directory.server</groupId>
+  <artifactId>apacheds-protocol-shared</artifactId>
+  <description>
+    Shared library that is used by all protocol providers in ApacheDS
+  </description>
+  <name>ApacheDS Protocol Shared</name>
+  <packaging>jar</packaging>  
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- 
+         protocol-common seems to have abstract test cases that need
+         junit on the source class path os we cannot make junit dep
+         have test scope.
+    -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-schema-extras</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/Abstract*</exclude>
+            <exclude>**/CatalogTest.java</exclude>
+            <exclude>**/TestUtils.java</exclude>
+            <exclude>**/KerberosTest.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+

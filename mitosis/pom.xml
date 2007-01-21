@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>1.5.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>mitosis</artifactId>
+  <name>ApacheDS replication</name>
+  <packaging>jar</packaging>
+  <description>
+     Mitosis is the multi-master replications service included into Apache
+     Directory Server
+  </description>
+  
+  <repositories>
+    <repository>
+      <id>safehauS-m1-repository</id>
+      <name>SafeHaus.org Maven 1.x Repository</name>
+      <url>http://maven.safehaus.org/</url>
+      <layout>legacy</layout>
+    </repository>
+  </repositories>
+
+  <!-- =======  Dependencies are declared here  ======= -->
+  <dependencies>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-pool</groupId>
+      <artifactId>commons-pool</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>jug</groupId>
+      <artifactId>jug-asl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-shared</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <!--scope>test</scope-->
+    </dependency>
+
+    <dependency>
+      <groupId>quartz</groupId>
+      <artifactId>quartz</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+    <id>no-integration-or-perf-tests</id>
+    <activation>
+      <activeByDefault>true</activeByDefault>
+    </activation>
+    <build>
+      <plugins>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <excludes>
+              <exclude>**/*ITest.java</exclude>
+              <exclude>**/*PTest.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <configuration>
+                  <tasks>
+                    <echo>
+=================================================================
+                          W A R N I N G
+                          -------------
+
+Integration and performance tests have been disabled.  To enable
+integration tests run maven with the -Dintegration switch.  To
+enable performance tests run maven with the -Dperformance switch.
+=================================================================
+                    </echo>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+            </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>integration</id>
+      <activation>
+        <property><name>integration</name></property>
+      </activation>
+    <build>
+      <plugins>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <forkMode>pertest</forkMode>
+            <excludes>
+              <exclude>**/*PTest.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <configuration>
+                  <tasks>
+                    <echo>
+=================================================================
+                   I N T E G R A T I O N
+                   ---------------------
+
+Performance tests have been disabled.  To enable
+performance tests run maven with the -Dperformance switch.
+=================================================================
+                    </echo>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+            </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>performance</id>
+      <activation>
+        <property><name>performance</name></property>
+      </activation>
+    <build>
+      <plugins>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <systemProperties>
+              <property>
+                <name>outputDirectory</name>
+                <value>${basedir}/target</value>
+              </property>
+            </systemProperties>
+            <excludes>
+              <exclude>**/*ITest.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <configuration>
+                  <tasks>
+                    <echo>
+=================================================================
+                   P E R F O R M A N C E
+                   ---------------------
+
+Integration tests have been disabled.  To enable integration
+tests run maven with the -Dintegration switch.
+=================================================================
+                    </echo>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+            </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
+

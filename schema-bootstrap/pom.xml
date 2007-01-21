@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>1.5.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-schema-bootstrap</artifactId>
+  <name>ApacheDS Bootstrap Schemas</name>
+  <description>
+    The minimal set of schemas needed to bootstrap the server's special schema
+    partition which is used to store all the schemas for the server.
+  </description>
+  <packaging>jar</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-schema-registries</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-shared</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jdbm</groupId>
+      <artifactId>jdbm</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.directory.server</groupId>
+        <artifactId>apacheds-core-plugin</artifactId>
+        <configuration>
+          <schemaSourcesDir>src/main/schema</schemaSourcesDir>
+          <schemas>
+            <schema>
+              <name>apache</name>
+              <dependencies>
+                <dependency>system</dependency>
+              </dependencies>
+            </schema>
+            <schema>
+              <name>apachemeta</name>
+              <dependencies>
+                <dependency>system</dependency>
+              </dependencies>
+            </schema>
+             <schema>
+              <name>core</name>
+              <dependencies>
+                <dependency>system</dependency>
+              </dependencies>
+            </schema>
+            <schema>
+              <name>system</name>
+            </schema>
+           </schemas>
+        </configuration>
+         <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+

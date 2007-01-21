@@ -1,0 +1,83 @@
+#
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#  
+#    http://www.apache.org/licenses/LICENSE-2.0
+#  
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License. 
+#
+#   EXAMPLE.COM is reserved for testing according to this RFC:
+#
+#   http://www.rfc-editor.org/rfc/rfc2606.txt
+#
+
+version: 1
+dn: ou=configuration,ou=system
+objectClass: top
+objectClass: organizationalUnit
+ou: configuration
+
+dn: ou=services,ou=configuration,ou=system
+objectClass: top
+objectClass: organizationalUnit
+ou: services
+
+dn: cn=dns,ou=services,ou=configuration,ou=system
+objectClass: top
+objectClass: apacheFactoryConfiguration
+cn: dns
+apacheServicePid: org.apache.dns.factory
+
+dn: cn=org.apache.dns.1,cn=dns,ou=services,ou=configuration,ou=system
+objectClass: apacheServiceConfiguration
+objectClass: extensibleObject
+cn: org.apache.dns.1
+ipAddress: 192.168.0.1
+ipPort: 53
+baseDn: dc=example,dc=com
+apacheServicePid: org.apache.dns.1
+apacheServiceFactoryPid: org.apache.dns.factory
+
+dn: ou=catalog,cn=org.apache.dns.1,cn=dns,ou=services,ou=configuration,ou=system
+objectClass: top
+objectClass: organizationalUnit
+ou: catalog
+
+dn: cn=example.com,ou=catalog,cn=org.apache.dns.1,cn=dns,ou=services,ou=configuration,ou=system
+objectClass: top
+objectClass: apacheCatalogEntry
+cn: example.com
+apacheCatalogEntryName: example.com
+apacheCatalogEntryBaseDn: ou=zones,dc=example,dc=com
+
+dn: cn=org.apache.dns.2,cn=dns,ou=services,ou=configuration,ou=system
+objectClass: apacheServiceConfiguration
+objectClass: extensibleObject
+cn: org.apache.dns.2
+ipAddress:  10.0.0.1
+ipPort: 10000
+baseDn: dc=apache,dc=org
+apacheServicePid: org.apache.dns.2
+apacheServiceFactoryPid: org.apache.dns.factory
+
+dn: ou=catalog,cn=org.apache.dns.2,cn=dns,ou=services,ou=configuration,ou=system
+objectClass: top
+objectClass: organizationalUnit
+ou: catalog
+
+dn: cn=apache.org,ou=catalog,cn=org.apache.dns.2,cn=dns,ou=services,ou=configuration,ou=system
+objectClass: top
+objectClass: apacheCatalogEntry
+cn: apache.org
+apacheCatalogEntryName: apache.org
+apacheCatalogEntryBaseDn: ou=zones,dc=apache,dc=org

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>1.5.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-core-shared</artifactId>
+  <name>ApacheDS Core Shared</name>
+  <description>
+    Shared classes between the core plugin and the core to prevent cyclic
+    dependencies since the core uses the core plugin.
+  </description>
+  <packaging>jar</packaging>
+</project>
+

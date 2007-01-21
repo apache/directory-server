@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+  <properties>
+    <author email="akarasulu">akarasulu</author>
+    <title>ApacheDS - Interceptor Mechanism</title>
+  </properties>
+  <body>
+    <section heading="h2" name="What is it?">
+      <p>
+The mechanism is a means for injecting and isolating orthogonal services into
+calls against the nexus.  The nexus is the hub used to route calls to partitions
+to perform CRUD operations upon entries.  By injecting these services at this
+level, partition implementators need not duplicate fuctionality.  Services such
+as authentication, authorization, schema checking, normalization, operational
+attribute maintenance and more are introduced using Interceptors.  By using
+interceptors partition implementors need not be concerned with these aspects and
+can focus on raw CRUD operations against their backing stores what ever they may
+be.</p>
+    </section>
+    <section heading="h2" name="How does it work?">
+      <p>
+Before we talk more about interceptors we must quickly cover the JNDI provider
+implementation since it is somewhat
+related.</p>
+      <subsection heading="h3" name="JNDI Implementation">
+        <p>
+The JNDI implementation is composed of a set of JNDI Context implementations, a
+ContextFactory implementation and a set of helper
+classes.</p>
+        <ul nesting="1">
+          <li>
+DeadContext</li>
+          <li>
+JavaLdapSupport</li>
+          <li>
+ServerContext</li>
+          <li>
+ServerDirContext</li>
+          <li>
+ServerLdapContext</li>
+          <li>
+AbstractContextFactory</li>
+          <li>
+CoreContextFactory</li>
+          <li>
+ServerDirObjectFactory</li>
+          <li>
+ServerDirStateFactory</li>
+        </ul>
+        <p>
+Every JNDI Context implementation in the provider holds a dedicated reference to
+a nexus proxy object.  This proxy contains all the operations that the nexus
+contains.  The proxy  object is at the heart of the mechanism.  We will disuss
+it more after covering the rest of the JNDI
+provider.</p>
+        <p>
+Calls made against JNDI Contexts take relative names as arguments.  These names
+are relative to the distinguished name of the JNDI Context.  Within the Context
+implementations these relative names are transformed into absolute distinguished
+names.  The transformed names are used to make calls against the
+proxy.</p>
+        <p>
+Additional processing may occur before or after a call is made by a context on
+its proxy to manage JNDI provider specific functions.  One such example is the
+handling of Java objects for serialization and the use of object and state
+factories.</p>
+      </subsection>
+      <subsection heading="h3" name="The nexus proxy object">
+        <p>
+As mentioned above, each Context that is created has a nexus proxy.  The proxy
+maintains a handle on the context as
+well.</p>
+        <p>
+The primary job of the proxy is to inject Interceptor based services.  It does
+so by invoking a chain of Interceptors managed by the system.  Interceptors
+mirror the methods that are intercepted on the nexus interface.  When an
+intercepted method is invoked on the proxy, the proxy pushes an Invocation
+object on to the InvocationStack associated with the current executing Thread. 
+The proxy then calls the same method on a chain of Interceptors.  The results of
+the call are returned after the InvocationStack is
+popped.</p>
+        <p>
+The InvocationStack is used to track the calls being intercepted.  Invocation
+objects pushed onto the stack track the context making the call to the proxy,
+the name of the intercepted call and its arguments.  A stack is used because in
+the case of Triggers, stored procedures may be invoked which operate against the
+DIT using JNDI.  These JNDI calls will also be intercepted.  Their Invocation
+object will be stacked on top of the Invocation which raised the Trigger.  This
+way identities and context of operations can be tracked and used by the Trigger
+management system to prevent runnaway cascades or to limit the cascade depth. 
+There are other areas besides just triggers where this stack will serve a
+purpose.</p>
+        <p>
+The InterceptorChain is a container of Interceptors which has the same or
+analogous methods as do Interceptors.  These are for the interceptable methods. 
+A call against the chain invokes the first Interceptor which then usually
+invokes the next interceptor in the chain.  An Interceptor need not call the
+next interceptor however.  It can raise an exception before making the call to
+the next interceptor or it can completely bypass the rest of the chain by just
+returning before calling the next Interceptor.  Interceptors can preprocess the
+arguments, or perform other tasks before they invoke the next Interceptor.  They
+can also catch exceptions raised by other downstream interceptors and respond to
+them to handle errors.  Finally they can perform post processing operations on
+the results of returned values from downstream
+Interceptors.</p>
+        <p>
+One might ask when is the call made against the actual nexus.  This happens
+using a special Interceptor which resides at the end of the chain.  It actually
+makes the call against the nexus and returns the
+results.</p>
+      </subsection>
+    </section>
+  </body>
+</document>

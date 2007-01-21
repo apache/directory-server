@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>ApacheDS - Partitions</title>  
+  </properties>
+  
+  <body>
+    <section name="Default Partition Design">
+    </section>
+
+    <section name="How does alias dereferencing while searching work?">
+      <p>You're going to want to read these documents here:</p>
+
+      <ul>
+        <li><a href="./xldbm.pdf">Paper LDAP database design by Tim Howes</a></li>
+        <li><a href="./alias-dereferencing.pdf">Paper on alias dereferencing mechanism by Alex Karasulu</a></li>
+      </ul>
+    </section>
+  </body>
+</document>

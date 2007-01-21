@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>ApacheDS - Networking</title>    
+  </properties>
+  
+  <body>
+    <section name="Networking">
+      <p>
+        We wanted to keep the networking code as independent as possible to
+        prevent it's concerns from creeping into the LDAP protocol handling
+        code.  Furthermore we wanted it to be independent of the LDAP protocol
+        so it can be reused as much as possible with other protocols.
+      </p>
+
+      <p>
+        This lead to the creation of a newtorking framework or two.  These
+        frameworks use different approaches and models to provide the network
+        plumbing needed by internet protocol servers.  A common protocol
+        provider API is used to implement protocols enabling the provider on
+        all network frameworks.
+      </p>
+
+      <p>
+        Each network framework at the directory project has its own project so
+        its best to delegate a description of each framework to the appropriate
+        project documentation:
+      </p>
+
+      <table>
+        <tr>
+          <th>Framework</th>  <th>Description</th>
+        </tr>
+
+        <tr>
+          <td><a href="../../seda/index.html">seda</a></td>
+
+          <td>
+            A simple framework for implementing staged event driven internet
+            protocol servers.
+          </td>
+        </tr>
+
+        <tr>
+          <td><a href="../../seda/index.html">sedang</a></td>
+
+          <td>
+            The next generation seda framework based on d-haven event packages.
+          </td>
+        </tr>
+
+        <tr>
+          <td><a href="../../mina/index.html">mina</a></td>
+
+          <td>
+            Multipurpose Infrastrusture for Network Applications based on ACE.
+          </td>
+        </tr>
+      </table>
+    </section>
+
+  </body>
+</document>

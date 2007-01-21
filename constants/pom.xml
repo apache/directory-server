@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>1.5.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-constants</artifactId>
+  <name>ApacheDS Constants</name>
+  <packaging>jar</packaging>
+  <description>
+    Contains classes that store interfaces with various constants in ApacheDS.
+  </description>
+</project>
+

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE server>
+
+<server>
+	<mbean code="org.apache.directory.server.sar.DirectoryService"
+		name="apacheds.system:service=Directory">
+
+		<attribute name="EmbeddedServerEnabled">true</attribute>
+		<attribute name="ContextFactory">
+			org.apache.directory.server.jndi.ServerContextFactory
+		</attribute>
+		<attribute name="ContextProviderURL">
+			uid=admin,ou=system
+		</attribute>
+		<attribute name="ContextSecurityAuthentication">
+			simple
+		</attribute>
+		<attribute name="ContextSecurityCredentials">secret</attribute>
+		<attribute name="ContextSecurityPrincipal">
+			uid=admin,ou=system
+		</attribute>
+
+		<!-- ###################################################################
+			Embedded Apache Directory
+			################################################################### -->
+
+		<attribute name="EmbeddedWkdir">
+			${reims.jboss.dir}/conf/apacheds-store
+		</attribute>
+
+		<attribute name="EmbeddedLDIFdir">
+			${reims.jboss.dir}/conf/apacheds-ldif
+		</attribute>
+
+		<attribute name="EmbeddedLDIFFilters">
+			<!--
+				Entries will optionally be filtered using LdifLoadFilters in the
+				order specified.  The example included Krb5KdcEntryFilter will filter
+				kerberos principals creating keys for them using their
+				userPassword attribute if present.
+			-->
+			<xml-properties>
+				<config-property name="Krb5KdcEntryFilter">
+					org.apache.directory.server.protocol.common.store.Krb5KdcEntryFilter
+				</config-property>
+			</xml-properties>
+		</attribute>
+
+		<!-- Access control                    -->
+
+		<attribute name="EmbeddedAccessControlEnabled">false</attribute>
+		<attribute name="EmbeddedAnonymousAccess">false</attribute>
+
+		<!-- Wire protocols                    -->
+		<attribute name="EmbeddedEnableNtp">false</attribute>
+		<attribute name="EmbeddedEnableKerberos">false</attribute>
+		<attribute name="EmbeddedEnableChangePassword">false</attribute>
+		<attribute name="EmbeddedLDAPNetworkingSupport">true</attribute>
+		<attribute name="EmbeddedLDAPPort">389</attribute>
+		<attribute name="EmbeddedLDAPSPort">636</attribute>
+
+	</mbean>
+</server>
+
