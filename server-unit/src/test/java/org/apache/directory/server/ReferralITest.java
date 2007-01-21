@@ -190,7 +190,7 @@ public class ReferralITest extends AbstractServerTest
 
         // Add a referral entry for america
         Attributes usa = new AttributesImpl( "objectClass", "top", true );
-        france.get( "objectClass" ).add( "country" );
+        usa.get( "objectClass" ).add( "country" );
         usa.put( "c", "USA" );
 
         try

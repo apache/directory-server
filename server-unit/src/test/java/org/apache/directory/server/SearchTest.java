@@ -566,7 +566,7 @@ public class SearchTest extends AbstractServerTest
             assertNotNull( loadedOcls );
             assertTrue( loadedOcls.contains( "top" ) );
             assertTrue( loadedOcls.contains( "person" ) );
-            assertTrue( loadedOcls.contains( "organizationalperson" ) );
+            assertTrue( loadedOcls.contains( "organizationalPerson" ) );
 
         }
         else

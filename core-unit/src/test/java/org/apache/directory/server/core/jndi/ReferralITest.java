@@ -32,6 +32,7 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
@@ -831,6 +832,7 @@ public class ReferralITest extends AbstractAdminTestCase
         referral.get( "objectClass" ).add( "organizationalUnit" );
         referral.put( "cn", "akarasulu" );
         referral.put( "sn", "karasulu" );
+        referral.put( "ou", "deep" );
 
         try
         {
@@ -848,7 +850,13 @@ public class ReferralITest extends AbstractAdminTestCase
         }
         try
         {
-            td.rootCtx.createSubcontext( "ou=deep" );
+            Attributes attrs = new AttributesImpl( "ou", "deep" );
+            Attribute oc = new AttributeImpl( "ObjectClass" );
+            oc.add( "top" );
+            oc.add( "organizationalUnit" );
+            attrs.put( oc );
+            
+            td.rootCtx.createSubcontext( "ou=deep", attrs );
             userCtx = ( LdapContext ) td.rootCtx.createSubcontext( "cn=akarasulu,ou=deep", referral );
         }
         catch ( NameAlreadyBoundException e )

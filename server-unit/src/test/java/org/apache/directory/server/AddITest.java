@@ -389,6 +389,7 @@ public class AddITest extends AbstractServerTest
         Attributes alias = new AttributesImpl();
         Attribute aliasOcls = new AttributeImpl( "objectclass" );
         aliasOcls.add( "top" );
+        aliasOcls.add( "organizationalUnit" );
         aliasOcls.add( "alias" );
         alias.put( aliasOcls );
         alias.put( "ou", "bestFruit" );
@@ -434,6 +435,7 @@ public class AddITest extends AbstractServerTest
         Attributes alias = new AttributesImpl();
         Attribute aliasOcls = new AttributeImpl( "objectclass" );
         aliasOcls.add( "top" );
+        aliasOcls.add( "organizationalUnit" );
         aliasOcls.add( "alias" );
         alias.put( aliasOcls );
         alias.put( "ou", "bestFruit" );

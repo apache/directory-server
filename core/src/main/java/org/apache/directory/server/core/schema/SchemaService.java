@@ -21,6 +21,7 @@ package org.apache.directory.server.core.schema;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -49,7 +50,6 @@ import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -69,6 +69,7 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
@@ -126,6 +127,17 @@ public class SchemaService extends BaseInterceptor
      */
     private String startUpTimeStamp;
 
+    /** A map used to store all the objectClasses superiors */
+    private Map superiors;
+
+    /** A map used to store all the objectClasses may attributes */
+    private Map allMay;
+
+    /** A map used to store all the objectClasses must */
+    private Map allMust;
+
+    /** A map used to store all the objectClasses allowed attributes (may + must) */
+    private Map allowed;
 
     /**
      * Creates a schema service interceptor.
@@ -145,6 +157,11 @@ public class SchemaService extends BaseInterceptor
      */
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
+        if ( IS_DEBUG )
+        {
+            log.debug( "Initializing SchemaService..." );
+        }
+        
         nexus = factoryCfg.getPartitionNexus();
         globalRegistries = factoryCfg.getGlobalRegistries();
         binaryAttributeFilter = new BinaryAttributeFilter();
@@ -157,8 +174,173 @@ public class SchemaService extends BaseInterceptor
         String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
         subschemaSubentryDn = new LdapDN( subschemaSubentry );
         subschemaSubentryDn.normalize( globalRegistries.getAttributeTypeRegistry().getNormalizerMapping() );
+        
+        computeSuperiors();
+
+        if ( IS_DEBUG )
+        {
+            log.debug( "SchemaService Initialized !" );
+        }
     }
 
+    /**
+     * Compute the MUST attributes for an objectClass. This method gather all the
+     * MUST from all the objectClass and its superors.
+     */
+    private void computeMustAttributes( ObjectClass objectClass, Set atSeen ) throws NamingException
+    {
+        List parents = (List)superiors.get( objectClass.getOid() );
+        
+        List mustList = new ArrayList();
+        List allowedList = new ArrayList();
+        Set mustSeen = new HashSet();
+        
+        allMust.put( objectClass.getOid(), mustList );
+        allowed.put( objectClass.getOid(), allowedList );
+
+        Iterator objectClasses = parents.iterator();
+        
+        while ( objectClasses.hasNext() )
+        {
+            ObjectClass parent = (ObjectClass)objectClasses.next();
+            
+            AttributeType[] mustParent = parent.getMustList();
+            
+            if ( ( mustParent != null ) && ( mustParent.length != 0 ) )
+            {
+                for ( int i = 0; i < mustParent.length; i++ )
+                {
+                    AttributeType attributeType = mustParent[i];
+                    String oid = attributeType.getOid(); 
+                    
+                    if ( !mustSeen.contains( oid ) )
+                    {
+                        mustSeen.add(  oid  );
+                        mustList.add( attributeType );
+                        allowedList.add( attributeType );
+                        atSeen.add( attributeType.getOid() );
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Compute the MAY attributes for an objectClass. This method gather all the
+     * MAY from all the objectClass and its superors.
+     * 
+     * The allowed attributes is also computed, it's the union of MUST and MAY
+     */
+    private void computeMayAttributes( ObjectClass objectClass, Set atSeen ) throws NamingException
+    {
+        List parents = (List)superiors.get( objectClass.getOid() );
+        
+        List mayList = new ArrayList();
+        Set maySeen = new HashSet();
+        List allowedList = (List)allowed.get( objectClass.getOid() );
+
+        
+        allMay.put( objectClass.getOid(), mayList );
+
+        Iterator objectClasses = parents.iterator();
+        
+        while ( objectClasses.hasNext() )
+        {
+            ObjectClass parent = (ObjectClass)objectClasses.next();
+            
+            AttributeType[] mustParent = parent.getMustList();
+            
+            if ( ( mustParent != null ) && ( mustParent.length != 0 ) )
+            {
+                for ( int i = 0; i < mustParent.length; i++ )
+                {
+                    AttributeType attributeType = mustParent[i];
+                    String oid = attributeType.getOid(); 
+                    
+                    if ( !maySeen.contains( oid ) )
+                    {
+                        maySeen.add(  oid  );
+                        mayList.add( attributeType );
+                        
+                        if ( !atSeen.contains( oid ) )
+                        {
+                            allowedList.add( attributeType );
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Recursively compute all the superiors of an object class. For instance, considering
+     * 'inetOrgPerson', it's direct superior is 'organizationalPerson', which direct superior
+     * is 'Person', which direct superior is 'top'.
+     * 
+     * As a result, we will gather all of these three ObjectClasses in 'inetOrgPerson' ObjectClasse
+     * superiors.
+     */
+    private void computeOCSuperiors( ObjectClass objectClass, List superiors, Set ocSeen ) throws NamingException
+    {
+        ObjectClass[] parents = objectClass.getSuperClasses();
+        
+        // Loop on all the objectClass superiors
+        if ( ( parents != null ) && ( parents.length != 0 ) )
+        {
+            for ( int i = 0; i < parents.length; i++ )
+            {
+                ObjectClass parent = parents[i];
+                
+                // Top is not added
+                if ( "top".equals( parent.getName() ) )
+                {
+                    continue;
+                }
+                
+                // For each one, recurse
+                computeOCSuperiors( parent, superiors, ocSeen );
+                
+                String oid = parents[i].getOid();
+                
+                if ( !ocSeen.contains( oid ) )
+                {
+                    superiors.add( parent );
+                    ocSeen.add( oid );
+                }
+            }
+        }
+        
+        return;
+    }
+    
+    /**
+     * Compute all ObjectClasses superiors, MAY and MUST attributes.
+     * @throws NamingException
+     */
+    private void computeSuperiors() throws NamingException
+    {
+        Iterator objectClasses = globalRegistries.getObjectClassRegistry().list();
+        superiors = new HashMap();
+        allMust = new HashMap();
+        allMay = new HashMap();
+        allowed = new HashMap();
+        
+        while ( objectClasses.hasNext() )
+        {
+            List ocSuperiors = new ArrayList();
+            
+            ObjectClass objectClass = (ObjectClass)objectClasses.next();
+            superiors.put( objectClass.getOid(), ocSuperiors );
+            
+            computeOCSuperiors( objectClass, ocSuperiors, new HashSet() );
+            
+            Set atSeen = new HashSet();
+            computeMustAttributes( objectClass, atSeen );
+            computeMayAttributes( objectClass, atSeen );
+            
+            superiors.put( objectClass.getName(), ocSuperiors );
+        }
+    }
 
     /**
      * Check if an attribute stores binary values.
@@ -442,13 +624,13 @@ public class SchemaService extends BaseInterceptor
 
 
     /**
-     * 
+     * Search for an entry, using its DN. Binary attributes and ObjectClass attribute are removed.
      */
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name );
         filterBinaryAttributes( result );
-        filterTop( result );
+        filterObjectClass( result );
         return result;
     }
 
@@ -464,7 +646,9 @@ public class SchemaService extends BaseInterceptor
         }
 
         filterBinaryAttributes( result );
-        filterTop( result );
+        // filterTop( result );
+        filterObjectClass( result );
+        
         return result;
     }
 
@@ -578,6 +762,32 @@ public class SchemaService extends BaseInterceptor
         }
     }
     
+    private void getSuperiors( ObjectClass oc, Set ocSeen, List result ) throws NamingException
+    {
+        ObjectClass[] superiors = oc.getSuperClasses();
+        
+        for ( int i = 0; i < superiors.length; i++ )
+        {
+            ObjectClass parent = superiors[i];
+            
+            // Skip 'top'
+            if ( "top".equals( parent.getName() ) )
+            {
+                continue;
+            }
+            
+            if ( !ocSeen.contains( parent.getOid() ) )
+            {
+                ocSeen.add( parent.getOid() );
+                result.add( parent );
+            }
+            
+            // Recurse on the parent
+            getSuperiors( parent, ocSeen, result );
+        }
+
+    }
+    
     private boolean getObjectClasses( Attribute objectClasses, List result ) throws NamingException
     {
         Set ocSeen = new HashSet();
@@ -612,38 +822,22 @@ public class SchemaService extends BaseInterceptor
                 result.add( oc );
             }
             
-            // Loop on all the current OC parents
-            ObjectClass[] superiors = oc.getSuperClasses();
-            
-            for ( int i = 0; i < superiors.length; i++ )
-            {
-                ObjectClass parent = superiors[i];
-                
-                // Skip 'top'
-                if ( "top".equals( parent.getName() ) )
-                {
-                    continue;
-                }
-                
-                if ( !ocSeen.contains( parent.getOid() ) )
-                {
-                    ocSeen.add( parent.getOid() );
-                    result.add( parent );
-                }
-            }
+            // Find all current OC parents
+            getSuperiors( oc, ocSeen, result );
         }
         
         return hasExtensibleObject;
     }
 
-    private Set getAllMust( List objectClasses ) throws NamingException
+    private Set getAllMust( NamingEnumeration objectClasses ) throws NamingException
     {
         Set must = new HashSet();
         
         // Loop on all objectclasses
-        for ( int i = 0; i < objectClasses.size(); i++ )
+        while ( objectClasses.hasMoreElements() )
         {
-            ObjectClass oc = (ObjectClass)objectClasses.get( i );
+            String ocName = (String)objectClasses.nextElement();
+            ObjectClass oc = globalRegistries.getObjectClassRegistry().lookup( ocName );
             
             AttributeType[] types = oc.getMustList();
             
@@ -662,7 +856,7 @@ public class SchemaService extends BaseInterceptor
         return must;
     }
 
-    private Set getAllAllowed( List objectClasses, Set must ) throws NamingException
+    private Set getAllAllowed( NamingEnumeration objectClasses, Set must ) throws NamingException
     {
         Set allowed = new HashSet( must );
         
@@ -670,9 +864,10 @@ public class SchemaService extends BaseInterceptor
         allowed.add( globalRegistries.getOidRegistry().getOid( "ObjectClass" ) );
         
         // Loop on all objectclasses
-        for ( int i = 0; i < objectClasses.size(); i++ )
+        while ( objectClasses.hasMoreElements() )
         {
-            ObjectClass oc = (ObjectClass)objectClasses.get( i );
+            String ocName = (String)objectClasses.nextElement();
+            ObjectClass oc = globalRegistries.getObjectClassRegistry().lookup( ocName );
             
             AttributeType[] types = oc.getMayList();
             
@@ -700,45 +895,59 @@ public class SchemaService extends BaseInterceptor
      * @param objectClassAttr the objectClass attribute to modify
      * @throws NamingException if there are problems 
      */
-    public static void alterObjectClasses( Attribute objectClassAttr, ObjectClassRegistry registry )
+    private void alterObjectClasses( Attribute objectClassAttr )
         throws NamingException
     {
-        if ( !objectClassAttr.getID().equalsIgnoreCase( "objectClass" ) )
-        {
-            throw new LdapNamingException( "Expecting an objectClass attribute but got " + objectClassAttr.getID(),
-                ResultCodeEnum.OPERATIONSERROR );
-        }
-
         Set objectClasses = new HashSet();
-        for ( int ii = 0; ii < objectClassAttr.size(); ii++ )
+        
+        // Init the objectClass list with 'top'
+        objectClasses.add( "top" );
+
+        // Construct the new list of ObjectClasses
+        NamingEnumeration ocList = objectClassAttr.getAll();
+        
+        while ( ocList.hasMoreElements() )
         {
-            String val = ( String ) objectClassAttr.get( ii );
-            if ( !val.equalsIgnoreCase( "top" ) )
+            String ocName = ( String ) ocList.nextElement();
+            
+            if ( !ocName.equalsIgnoreCase( "top" ) )
             {
-                objectClasses.add( val.toLowerCase() );
-            }
-        }
-
-        for ( int ii = 0; ii < objectClassAttr.size(); ii++ )
-        {
-            String val = ( String ) objectClassAttr.get( ii );
-            if ( val.equalsIgnoreCase( "top" ) )
-            {
-                objectClassAttr.remove( val );
-            }
-
-            ObjectClass objectClass = registry.lookup( val );
-
-            // cannot use Collections.addAll(Collection, Object[]) since it's 1.5
-            ObjectClass top = registry.lookup( "top" );
-            ObjectClass[] superiors = objectClass.getSuperClasses();
-            for ( int jj = 0; jj < superiors.length; jj++ )
-            {
-                if ( superiors[jj] != top && !objectClasses.contains( superiors[jj].getName().toLowerCase() ) )
+                String ocLowerName = ocName.toLowerCase();
+                
+                ObjectClass objectClass = globalRegistries.getObjectClassRegistry().lookup( ocLowerName );
+                
+                if ( !objectClasses.contains( ocLowerName ) )
                 {
-                    objectClassAttr.add( superiors[jj].getName() );
+                    objectClasses.add( ocLowerName );
+                }
+                
+                List ocSuperiors = (List)superiors.get( objectClass.getOid() );
+                
+                if ( ocSuperiors != null )
+                {
+                    Iterator iter = ocSuperiors.iterator();
+                    
+                    while ( iter.hasNext() )
+                    {
+                        ObjectClass oc = (ObjectClass)iter.next();
+                        
+                        if ( !objectClasses.contains( oc.getName().toLowerCase() ) )
+                        {
+                            objectClasses.add( oc.getName() );
+                        }
+                    }
                 }
             }
+        }
+        
+        // Now, reset the ObjectClass attribute and put the new list into it
+        objectClassAttr.clear();
+        
+        Iterator iter = objectClasses.iterator();
+        
+        while ( iter.hasNext() )
+        {
+            objectClassAttr.add( iter.next() );
         }
     }
 
@@ -842,7 +1051,7 @@ public class SchemaService extends BaseInterceptor
         if ( mods.get( "objectClass" ) != null )
         {
             Attribute alteredObjectClass = ( Attribute ) objectClass.clone();
-            alterObjectClasses( alteredObjectClass, ocRegistry );
+            alterObjectClasses( alteredObjectClass );
 
             if ( !alteredObjectClass.equals( objectClass ) )
             {
@@ -911,7 +1120,7 @@ public class SchemaService extends BaseInterceptor
         ModificationItemImpl objectClassMod = null;
         
         // Check that we don't have two times the same modification.
-        // This is somehow useless, has modification operations are supposed to
+        // This is somehow useless, as modification operations are supposed to
         // be atomic, so we may have a sucession of Add, DEL, ADD operations
         // for the same attribute, and this will be legal.
         // @TODO : check if we can remove this test.
@@ -1105,12 +1314,14 @@ public class SchemaService extends BaseInterceptor
             }
         }
 
+        check( tmpEntry );
+        
         // let's figure out if we need to add or take away from mods to maintain 
         // the objectClass attribute with it's hierarchy of ancestors 
         if ( objectClassMod != null )
         {
             Attribute alteredObjectClass = ( Attribute ) objectClass.clone();
-            alterObjectClasses( alteredObjectClass, ocRegistry );
+            alterObjectClasses( alteredObjectClass );
 
             if ( !alteredObjectClass.equals( objectClass ) )
             {
@@ -1154,41 +1365,53 @@ public class SchemaService extends BaseInterceptor
             }
         }
         
-        assertNumberOfAttributeValuesValid( tmpEntry );
+        //assertNumberOfAttributeValuesValid( tmpEntry );
 
         next.modify( name, mods );
     }
 
 
-    private void filterTop( Attributes entry ) throws NamingException
+    private void filterObjectClass( Attributes entry ) throws NamingException
     {
-        // add top if objectClass is included and missing top
+        List objectClasses = new ArrayList();
         Attribute oc = entry.get( "objectClass" );
+        
         if ( oc != null )
         {
-            if ( !oc.contains( "top" ) )
+            getObjectClasses( oc, objectClasses );
+
+            entry.remove( "objectClass" );
+            
+            Attribute newOc = new AttributeImpl( "ObjectClass" );
+            
+            for ( int i = 0; i < objectClasses.size(); i++ )
             {
-                oc.add( "top" );
+                Object currentOC = objectClasses.get(i);
+                
+                if ( currentOC instanceof String )
+                {
+                    newOc.add( currentOC );
+                }
+                else
+                {
+                    newOc.add( ( (ObjectClass)currentOC ).getName() );
+                }
             }
+            
+            newOc.add( "top" );
+            entry.put( newOc );
         }
     }
 
 
     private void filterBinaryAttributes( Attributes entry ) throws NamingException
     {
-        long t0 = -1;
-
-        if ( IS_DEBUG )
-        {
-            t0 = System.currentTimeMillis();
-            log.debug( "Filtering entry " + AttributeUtils.toString( entry ) );
-        }
-
         /*
          * start converting values of attributes to byte[]s which are not
          * human readable and those that are in the binaries set
          */
         NamingEnumeration list = entry.getIDs();
+        
         while ( list.hasMore() )
         {
             String id = ( String ) list.next();
@@ -1199,20 +1422,23 @@ public class SchemaService extends BaseInterceptor
             {
                 type = globalRegistries.getAttributeTypeRegistry().lookup( id );
             }
-
-            if ( type != null )
+            else
             {
-                asBinary = !type.getSyntax().isHumanReadible();
-                asBinary = asBinary || binaries.contains( type );
+                continue;
             }
+
+            asBinary = !type.getSyntax().isHumanReadible();
+            asBinary = asBinary || binaries.contains( type );
 
             if ( asBinary )
             {
                 Attribute attribute = entry.get( id );
                 Attribute binary = new AttributeImpl( id );
+
                 for ( int i = 0; i < attribute.size(); i++ )
                 {
                     Object value = attribute.get( i );
+                
                     if ( value instanceof String )
                     {
                         binary.add( i, StringTools.getBytesUtf8( ( String ) value ) );
@@ -1226,12 +1452,6 @@ public class SchemaService extends BaseInterceptor
                 entry.remove( id );
                 entry.put( binary );
             }
-        }
-
-        if ( log.isDebugEnabled() )
-        {
-            long t1 = System.currentTimeMillis();
-            log.debug( "Time to filter entry = " + ( t1 - t0 ) + " ms" );
         }
     }
 
@@ -1261,28 +1481,26 @@ public class SchemaService extends BaseInterceptor
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
             throws NamingException
         {
-            filterTop( result.getAttributes() );
+            //filterTop( result.getAttributes() );
+            filterObjectClass( result.getAttributes() );
+            
             return true;
         }
     }
 
-
-    /**
-     * Check that all the attributes exist in the schema for this entry.
-     */
-    public void add( NextInterceptor next, LdapDN normName, Attributes attrs ) throws NamingException
+    private void check( Attributes entry ) throws NamingException
     {
-        AttributeTypeRegistry atRegistry = this.globalRegistries.getAttributeTypeRegistry();
-        NamingEnumeration attrEnum = attrs.getIDs();
+        NamingEnumeration attrEnum = entry.getIDs();
+        
+        // ---------------------------------------------------------------
+        // First, make sure all attributes are valid schema defined attributes
+        // ---------------------------------------------------------------
+
         while ( attrEnum.hasMoreElements() )
         {
             String name = ( String ) attrEnum.nextElement();
             
-            // ---------------------------------------------------------------
-            // make sure all attributes are valid schema defined attributes
-            // ---------------------------------------------------------------
-
-            if ( !atRegistry.hasAttributeType( name ) )
+            if ( !globalRegistries.getAttributeTypeRegistry().hasAttributeType( name ) )
             {
                 throw new LdapInvalidAttributeIdentifierException( name + " not found in attribute registry!" );
             }
@@ -1294,23 +1512,31 @@ public class SchemaService extends BaseInterceptor
         // 3) No attributes should be used if they are not part of MUST and MAY
         // 3-1) Except if the extensibleObject ObjectClass is used
         // 3-2) or if the AttributeType is COLLECTIVE
-        //
-        // First, create the Set of all Must and May attributes
-        Attribute objectClassAttr = attrs.get( "objectClass" );
+        Attribute objectClassAttr = entry.get( "objectClass" );
         List ocs = new ArrayList();
-        boolean hasExtensibleObject = getObjectClasses( objectClassAttr, ocs );
-        Set must = getAllMust( ocs );
-        Set allowed = getAllAllowed( ocs, must );
         
-        //alterObjectClasses( attrs.get( "objectClass" ), this.globalRegistries.getObjectClassRegistry() );
-        assertRequiredAttributesPresent( attrs, must );
-        assertNumberOfAttributeValuesValid( attrs );
+        alterObjectClasses( objectClassAttr );
+
+        Set must = getAllMust( objectClassAttr.getAll() );
+        Set allowed = getAllAllowed( objectClassAttr.getAll(), must );
+
+        boolean hasExtensibleObject = getObjectClasses( objectClassAttr, ocs );
+        
+        assertRequiredAttributesPresent( entry, must );
+        assertNumberOfAttributeValuesValid( entry );
 
         if ( !hasExtensibleObject )
         {
-            assertAllAttributesAllowed( attrs, allowed );
+            assertAllAttributesAllowed( entry, allowed );
         }
-        
+    }
+    
+    /**
+     * Check that all the attributes exist in the schema for this entry.
+     */
+    public void add( NextInterceptor next, LdapDN normName, Attributes attrs ) throws NamingException
+    {
+        check( attrs );
         next.add(normName, attrs );
     }
     
@@ -1351,7 +1577,7 @@ public class SchemaService extends BaseInterceptor
     {
         NamingEnumeration attributes = entry.getAll();
         
-        while ( attributes.hasMoreElements() )
+        while ( attributes.hasMoreElements() && ( must.size() > 0 ) )
         {
             Attribute attribute = (Attribute)attributes.nextElement();
             
@@ -1381,9 +1607,9 @@ public class SchemaService extends BaseInterceptor
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
-        Attribute objectClass = attributes.get( "objectClass" );
+        Attribute objectClass = attributes.get( "objectclass" );
         
-        if ( objectClass.contains( "extensibleObject" ) )
+        if ( objectClass.contains( "extensibleobject" ) )
         {
             return;
         }
@@ -1398,7 +1624,7 @@ public class SchemaService extends BaseInterceptor
             
             AttributeType attributeType = globalRegistries.getAttributeTypeRegistry().lookup( attrOid );
             
-            if ( !attributeType.isCollective() )
+            if ( !attributeType.isCollective() && ( attributeType.getUsage() == UsageEnum.USERAPPLICATIONS ) )
             {
                 if ( !allowed.contains( attrOid ) )
                 {
@@ -1407,183 +1633,6 @@ public class SchemaService extends BaseInterceptor
                         ResultCodeEnum.OBJECTCLASSVIOLATION );
                 }
             }
-        }
-    }
-
-    private static final AttributeType[] EMPTY_ATTRIBUTE_TYPE_ARRAY = new AttributeType[0];
-    
-    /**
-     * Uses the objectClass registry to ascend super classes and collect 
-     * all attributeTypes within must lists until top is reached on each
-     * parent.
-     */
-    private static final AttributeType[] getRequiredAttributes( Attribute objectClass, 
-        ObjectClassRegistry registry ) throws NamingException
-    {
-        AttributeType[] attributeTypes;
-        Set set = new HashSet();
-        
-        for ( int ii = 0; ii < objectClass.size(); ii++ )
-        {
-            String ocString = ( String ) objectClass.get( ii );
-            ObjectClass oc = registry.lookup( ocString );
-            infuseMustList( set, oc );
-        }
-        
-        attributeTypes = ( AttributeType[] ) set.toArray( EMPTY_ATTRIBUTE_TYPE_ARRAY );
-        return attributeTypes;
-    }
-
-    /**
-     * Uses the objectClass registry to ascend super classes and collect 
-     * all attributeTypes within must lists until top is reached on each
-     * parent.
-     */
-    private static final Set getAllowedAttributes( Attribute objectClass, 
-        ObjectClassRegistry registry ) throws NamingException
-    {
-        Set set = new HashSet();
-        
-        for ( int ii = 0; ii < objectClass.size(); ii++ )
-        {
-            String ocString = ( String ) objectClass.get( ii );
-            ObjectClass oc = registry.lookup( ocString );
-            infuseMustOidList( set, oc );
-            infuseMayOidList( set, oc );
-        }
-        
-        return set;
-    }
-
-    
-    /**
-     * Recursive method that finds all the required attributes for an 
-     * objectClass and infuses them into the provided non-null set.
-     * 
-     * @param set set to infuse attributeTypes into
-     * @param oc the objectClass to ascent the polymorphic inheritance tree of 
-     */
-    private static final void infuseMustList( Set set, ObjectClass oc ) throws NamingException
-    {
-        // ignore top
-        if ( oc.getName().equalsIgnoreCase( "top" ) )
-        {
-            return;
-        }
-        
-        // add all the required attributes for this objectClass 
-        AttributeType[] attributeTypes = oc.getMustList(); 
-        
-        for (int i = 0; i < attributeTypes.length; i++ )
-        {
-        	set.add( attributeTypes[i] );
-        }
-        
-        // don't bother ascending if no parents exist
-        ObjectClass[] parents = oc.getSuperClasses();
-        if ( parents == null || parents.length == 0 )
-        {
-            return;
-        }
-        
-        // save on a for loop
-        if ( parents.length == 1 ) 
-        {
-            infuseMustList( set, parents[0] );
-            return;
-        }
-        
-        for ( int ii = 0; ii < parents.length; ii++ )
-        {
-            infuseMustList( set, parents[ii] );
-        }
-    }
-
-    /**
-     * Recursive method that finds all the required attributes for an 
-     * objectClass and infuses them into the provided non-null set.
-     * 
-     * @param set set to infuse attributeTypes into
-     * @param oc the objectClass to ascent the polymorphic inheritance tree of 
-     */
-    private static final void infuseMustOidList( Set set, ObjectClass oc ) throws NamingException
-    {
-        // ignore top
-        if ( oc.getName().equalsIgnoreCase( "top" ) )
-        {
-            return;
-        }
-        
-        // add all the required attributes for this objectClass 
-        AttributeType[] attributeTypes = oc.getMustList(); 
-        
-        for (int i = 0; i < attributeTypes.length; i++ )
-        {
-            set.add( attributeTypes[i].getOid() );
-        }
-        
-        // don't bother ascending if no parents exist
-        ObjectClass[] parents = oc.getSuperClasses();
-
-        if ( parents == null || parents.length == 0 )
-        {
-            return;
-        }
-        
-        // save on a for loop
-        if ( parents.length == 1 ) 
-        {
-            infuseMustOidList( set, parents[0] );
-            return;
-        }
-        
-        for ( int ii = 0; ii < parents.length; ii++ )
-        {
-            infuseMustOidList( set, parents[ii] );
-        }
-    }
-
-    /**
-     * Recursive method that finds all the required attributes for an 
-     * objectClass and infuses them into the provided non-null set.
-     * 
-     * @param set set to infuse attributeTypes into
-     * @param oc the objectClass to ascent the polymorphic inheritance tree of 
-     */
-    private static final void infuseMayOidList( Set set, ObjectClass oc ) throws NamingException
-    {
-        // ignore top
-        if ( oc.getName().equalsIgnoreCase( "top" ) )
-        {
-            return;
-        }
-        
-        // add all the required attributes for this objectClass 
-        AttributeType[] attributeTypes = oc.getMayList(); 
-        
-        for (int i = 0; i < attributeTypes.length; i++ )
-        {
-            set.add( attributeTypes[i].getOid() );
-        }
-        
-        // don't bother ascending if no parents exist
-        ObjectClass[] parents = oc.getSuperClasses();
-        
-        if ( parents == null || parents.length == 0 )
-        {
-            return;
-        }
-        
-        // save on a for loop
-        if ( parents.length == 1 ) 
-        {
-            infuseMayOidList( set, parents[0] );
-            return;
-        }
-        
-        for ( int ii = 0; ii < parents.length; ii++ )
-        {
-            infuseMayOidList( set, parents[ii] );
         }
     }
 }

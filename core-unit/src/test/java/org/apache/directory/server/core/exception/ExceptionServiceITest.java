@@ -49,6 +49,26 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
  */
 public class ExceptionServiceITest extends AbstractAdminTestCase
 {
+    private DirContext createSubContext( String type, String value ) throws NamingException
+    {
+        return createSubContext( sysRoot, type, value );
+    }
+    
+    private DirContext createSubContext( DirContext ctx, String type, String value ) throws NamingException
+    {
+        Attributes attrs = new AttributesImpl( type, value );
+        Attribute attr = new AttributeImpl( "ObjectClass" );
+        attr.add( "top"  );
+        attr.add( "person" );
+        attr.add( "OrganizationalPerson" );
+        attrs.put( attr );
+        
+        attrs.put( "sn", value );
+        attrs.put( "cn", value );
+        
+        return ctx.createSubcontext( type + "=" + value, attrs );
+    }
+    
     // ------------------------------------------------------------------------
     // Search Operation Tests
     // ------------------------------------------------------------------------
@@ -103,7 +123,13 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     {
         try
         {
-            sysRoot.createSubcontext( "ou=users,ou=groups" );
+            Attributes attrs = new AttributesImpl( "ou", "users" );
+            Attribute attr = new AttributeImpl( "ObjectClass" );
+            attr.add( "top"  );
+            attr.add( "OrganizationalUnit" );
+            attrs.put( attr );
+
+            sysRoot.createSubcontext( "ou=users,ou=groups", attrs );
             sysRoot.rename( "ou=users", "ou=users,ou=groups" );
             fail( "Execution should never get here due to exception!" );
         }
@@ -115,7 +141,13 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
 
         try
         {
-            sysRoot.createSubcontext( "ou=uzerz,ou=groups" );
+            Attributes attrs = new AttributesImpl( "ou", "uzerz" );
+            Attribute attr = new AttributeImpl( "ObjectClass" );
+            attr.add( "top"  );
+            attr.add( "OrganizationalUnit" );
+            attrs.put( attr );
+
+            sysRoot.createSubcontext( "ou=uzerz,ou=groups", attrs );
             sysRoot.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
             sysRoot.rename( "ou=users", "ou=uzerz,ou=groups" );
             sysRoot.removeFromEnvironment( "java.naming.ldap.deleteRDN" );
@@ -402,7 +434,9 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         Attribute attr = new AttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "alias" );
+        attr.add( "person" );
         attrs.put( attr );
+        attrs.put( "sn", "test" );
         attrs.put( "aliasedObjectName", "ou=users,ou=system" );
 
         sysRoot.createSubcontext( "cn=toanother", attrs );
@@ -444,11 +478,11 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
      */
     public void testFailAddEntryAlreadyExists() throws NamingException
     {
-        sysRoot.createSubcontext( "ou=blah" );
+        createSubContext( "ou", "blah");
 
         try
         {
-            sysRoot.createSubcontext( "ou=blah" );
+            createSubContext( "ou", "blah");
             fail( "Execution should never get here due to exception!" );
         }
         catch ( LdapNameAlreadyBoundException e )
@@ -464,8 +498,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
      */
     public void testAddControl() throws NamingException
     {
-        Context ctx = sysRoot.createSubcontext( "ou=blah" );
-        ctx.createSubcontext( "ou=subctx" );
+        DirContext ctx = createSubContext( "ou", "blah");
+        createSubContext( ctx, "ou", "subctx");
         Object obj = sysRoot.lookup( "ou=subctx,ou=blah" );
         assertNotNull( obj );
     }
@@ -480,8 +514,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
      */
     public void testFailDeleteNotAllowedOnNonLeaf() throws NamingException
     {
-        Context ctx = sysRoot.createSubcontext( "ou=blah" );
-        ctx.createSubcontext( "ou=subctx" );
+        DirContext ctx = createSubContext( "ou", "blah" );
+        createSubContext( ctx,  "ou", "subctx" );
 
         try
         {
@@ -520,7 +554,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
      */
     public void testDeleteControl() throws NamingException
     {
-        sysRoot.createSubcontext( "ou=blah" );
+        createSubContext( "ou", "blah" );
+        
         Object obj = sysRoot.lookup( "ou=blah" );
         assertNotNull( obj );
         sysRoot.destroySubcontext( "ou=blah" );

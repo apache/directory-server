@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,17 +186,17 @@ public class SubentryService extends BaseInterceptor
                 ResultCodeEnum.OBJECTCLASSVIOLATION );
         }
         
-        if ( oc.contains( "accessControlSubentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( oc, "accessControlSubentry" ) )
         {
             types |= Subentry.ACCESS_CONTROL_SUBENTRY;
         }
         
-        if ( oc.contains( "subschema" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( oc, "subschema" ) )
         {
             types |= Subentry.SCHEMA_SUBENTRY;
         }
         
-        if ( oc.contains( "collectiveAttributeSubentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( oc, "collectiveAttributeSubentry" ) )
         {
             types |= Subentry.COLLECTIVE_SUBENTRY;
         }
@@ -352,7 +353,7 @@ public class SubentryService extends BaseInterceptor
     {
         Attribute objectClasses = entry.get( "objectClass" );
 
-        if ( objectClasses.contains( "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
         {
             // get the name of the administrative point and its administrativeRole attributes
             LdapDN apName = ( LdapDN ) normName.clone();
@@ -497,7 +498,7 @@ public class SubentryService extends BaseInterceptor
         Attributes entry = nexus.lookup( name );
         Attribute objectClasses = ServerUtils.getAttribute( objectClassType, entry );
 
-        if ( objectClasses.contains( "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
         {
             SubtreeSpecification ss = subentryCache.removeSubentry( name.toNormName() ).getSubtreeSpecification();
             next.delete( name );
@@ -650,7 +651,7 @@ public class SubentryService extends BaseInterceptor
         Attributes entry = nexus.lookup( name );
         Attribute objectClasses = ServerUtils.getAttribute( objectClassType, entry );
 
-        if ( objectClasses.contains( "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
         {
             Subentry subentry = subentryCache.getSubentry( name.toNormName() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
@@ -721,7 +722,7 @@ public class SubentryService extends BaseInterceptor
         Attributes entry = nexus.lookup( oriChildName );
         Attribute objectClasses = ServerUtils.getAttribute( objectClassType, entry );
 
-        if ( objectClasses.contains( "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
         {
             Subentry subentry = subentryCache.getSubentry( oriChildName.toNormName() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
@@ -792,7 +793,7 @@ public class SubentryService extends BaseInterceptor
         Attributes entry = nexus.lookup( oriChildName );
         Attribute objectClasses = entry.get( "objectClass" );
 
-        if ( objectClasses.contains( "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
         {
             Subentry subentry = subentryCache.getSubentry( oriChildName.toString() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
@@ -935,7 +936,7 @@ public class SubentryService extends BaseInterceptor
         Attributes entry = nexus.lookup( name );
         Attribute objectClasses = ServerUtils.getAttribute( objectClassType, entry );
 
-        if ( objectClasses.contains( "subentry" ) && mods.get( "subtreeSpecification" ) != null )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) && mods.get( "subtreeSpecification" ) != null )
         {
             SubtreeSpecification ssOld = subentryCache.removeSubentry( name.toNormName() ).getSubtreeSpecification();
             SubtreeSpecification ssNew;
@@ -1020,7 +1021,7 @@ public class SubentryService extends BaseInterceptor
             }
         }
 
-        if ( objectClasses.contains( "subentry" ) && isSubtreeSpecificationModification )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) && isSubtreeSpecificationModification )
         {
             SubtreeSpecification ssOld = subentryCache.removeSubentry( name.toString() ).getSubtreeSpecification();
             SubtreeSpecification ssNew;
@@ -1312,12 +1313,12 @@ public class SubentryService extends BaseInterceptor
             Attribute objectClasses = result.getAttributes().get( "objectClass" );
             if ( objectClasses != null )
             {
-                if ( objectClasses.contains( SUBENTRY_OBJECTCLASS ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SUBENTRY_OBJECTCLASS ) )
                 {
                     return false;
                 }
 
-                if ( objectClasses.contains( SUBENTRY_OBJECTCLASS_OID ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SUBENTRY_OBJECTCLASS_OID ) )
                 {
                     return false;
                 }
@@ -1373,12 +1374,12 @@ public class SubentryService extends BaseInterceptor
             Attribute objectClasses = result.getAttributes().get( "objectClass" );
             if ( objectClasses != null )
             {
-                if ( objectClasses.contains( SUBENTRY_OBJECTCLASS ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SUBENTRY_OBJECTCLASS ) )
                 {
                     return true;
                 }
 
-                if ( objectClasses.contains( SUBENTRY_OBJECTCLASS_OID ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SUBENTRY_OBJECTCLASS_OID ) )
                 {
                     return true;
                 }

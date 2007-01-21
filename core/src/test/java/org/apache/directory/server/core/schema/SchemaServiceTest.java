@@ -89,7 +89,7 @@ public class SchemaServiceTest extends TestCase
         assertTrue( nameAttrs.contains( "givenName" ) );
     }
     
-
+/*
     public void testAlterObjectClassesBogusAttr() throws NamingException
     {
         Attribute attr = new AttributeImpl( "blah", "blah" );
@@ -164,4 +164,5 @@ public class SchemaServiceTest extends TestCase
         assertTrue( attr.contains( "dSA" ) );
         assertTrue( attr.contains( "applicationEntity" ) );
     }
+    */
 }

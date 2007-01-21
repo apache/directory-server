@@ -153,6 +153,7 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
         Attribute objectClass = new AttributeImpl( "objectClass" );
         user.put( objectClass );
         objectClass.add( "top" );
+        objectClass.add( "uidObject" );
         objectClass.add( "person" );
         objectClass.add( "organizationalPerson" );
         objectClass.add( "inetOrgPerson" );
