@@ -22,8 +22,11 @@
 
 <project>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.directory.server</groupId>
-  <version>1.5.0-SNAPSHOT</version>
+  <parent>
+    <groupId>org.apache.directory</groupId>
+    <artifactId>build</artifactId>
+    <version>1.0.6-SNAPSHOT</version>
+  </parent>
   <artifactId>build-with-dependencies</artifactId>
   <name>ApacheDS With Dependencies</name>
   <packaging>pom</packaging>
