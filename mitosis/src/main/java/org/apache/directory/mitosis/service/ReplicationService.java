@@ -33,14 +33,15 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.Constants;
+import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationFactory;
@@ -62,6 +63,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoAcceptor;
@@ -478,7 +480,12 @@ public class ReplicationService extends BaseInterceptor
 
     public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN baseName ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( baseName );
+        DirContext ctx = ( DirContext ) InvocationStack.getInstance().peek().getCaller();
+        NamingEnumeration e = nextInterceptor.search(
+                baseName, ctx.getEnvironment(),
+                new PresenceNode( Constants.OBJECT_CLASS_OID ),
+                new SearchControls() );
+
         return new SearchResultFilteringEnumeration( e, new SearchControls(), InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER );
     }
