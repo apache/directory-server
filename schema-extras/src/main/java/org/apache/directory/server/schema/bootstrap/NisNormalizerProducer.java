@@ -32,10 +32,8 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
 /**
- * A producer of Normalizer objects for the nis schema.  This code has been
- * automatically generated using schema files in the OpenLDAP format along with
- * the eve schema plugin for maven.  This has been done to facilitate
- * Eve<->OpenLDAP schema interoperability.
+ * A producer of Normalizer objects for the nis schema.
+ * Modified by hand from generated code
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.util.BigIntegerComparator;
 
 /**
  * A producer of Comparator objects for the eve schema.
+ * Probably modified by hand from generated code
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

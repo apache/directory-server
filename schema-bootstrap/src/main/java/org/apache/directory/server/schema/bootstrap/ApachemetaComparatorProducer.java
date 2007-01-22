@@ -36,10 +36,8 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A producer of Comparator objects for the apachemeta schema.  This code has been
- * automatically generated using schema files in the OpenLDAP format along with
- * the directory plugin for maven.  This has been done to facilitate
- * OpenLDAP schema interoperability.
+ * A producer of Comparator objects for the apachemeta schema.
+ * Modified by hand from generated code
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

@@ -28,6 +28,7 @@ import org.apache.directory.server.schema.registries.Registries;
 
 /**
  * A producer of MatchingRule objects for the eve schema. 
+ * Probably modified by hand from generated code
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
