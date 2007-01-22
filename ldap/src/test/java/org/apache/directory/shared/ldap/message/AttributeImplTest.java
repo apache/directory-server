@@ -185,7 +185,77 @@ public class AttributeImplTest extends TestCase
     }
     
     // Test the clone operation
-    public void testCloneAttribute() throws NamingException
+    public void testCloneAttribute1Value() throws NamingException
+    {
+        Attribute attr = new AttributeImpl( "test" );
+
+        byte[] zero = StringTools.getBytesUtf8( "zero" );
+        attr.add( zero );
+
+        Object[] allValues = new Object[] { zero };
+
+        Attribute clone = (Attribute)attr.clone();
+        
+        // Test the atomic elements
+        assertTrue( clone instanceof AttributeImpl );
+        assertEquals( 1, clone.size() );
+        assertEquals( "test", clone.getID() );
+        
+        // Now test the values
+        NamingEnumeration values = clone.getAll();
+        
+        int i = 0;
+        
+        while ( values.hasMoreElements() )
+        {
+            Object value = values.next();
+            
+            if ( value instanceof String )
+            {
+                assertEquals( allValues[i++], value );
+            }
+            else
+            {
+                byte[] v = (byte[])value;
+                
+                // The content should be equal
+                assertTrue( ArrayUtils.isEquals( allValues[i], v ) );
+                
+                // but not the container
+                assertNotSame( allValues[i++], value );
+            }
+        }
+        
+        // Check that if we change the content, the cloned attribute
+        // is still the same.
+        zero[1] = 'o';
+        attr.set( 0, zero );
+        
+        // The initial attribute should be modified
+        Object attrZero = attr.get( 0 );
+        assertNotSame( zero, attrZero );
+        assertTrue( ArrayUtils.isEquals( zero, attrZero ) );
+        
+        // but the cloned attribute should remain the same
+        Object clonedZero = clone.get( 0 );
+        assertNotSame( zero, clonedZero );
+        assertFalse( ArrayUtils.isEquals( zero, clonedZero ) );
+        
+        // Remove a value from the original attribute
+        zero = (byte[])attr.remove( 0 );
+        
+        // Check that it does not have modified the cloned attribute
+        assertEquals( 1, clone.size() );
+        
+        // The content should be equal
+        assertTrue( ArrayUtils.isEquals( StringTools.getBytesUtf8( "zero" ), clone.get( 0 ) ) );
+        
+        // but not the container
+        assertNotSame( zero, clone.get( 0 ) );
+    }
+    
+    // Test the clone operation
+    public void testCloneAttributeNValues() throws NamingException
     {
         Attribute attr = new AttributeImpl( "test" );
 
@@ -263,6 +333,155 @@ public class AttributeImplTest extends TestCase
         assertNotSame( three, clone.get( 3 ) );
     }
     
+    // Test the copy operation
+    public void testCopyAttributeImpl1Value() throws NamingException
+    {
+        Attribute attr = new AttributeImpl( "test" );
+
+        byte[] zero = StringTools.getBytesUtf8( "zero" );
+        attr.add( zero );
+
+        Object[] allValues = new Object[] { zero };
+
+        Attribute copy = new AttributeImpl( attr );
+        
+        // Test the atomic elements
+        assertTrue( copy instanceof AttributeImpl );
+        assertEquals( 1, copy.size() );
+        assertEquals( "test", copy.getID() );
+        
+        // Now test the values
+        NamingEnumeration values = copy.getAll();
+        
+        int i = 0;
+        
+        while ( values.hasMoreElements() )
+        {
+            Object value = values.next();
+            
+            if ( value instanceof String )
+            {
+                assertEquals( allValues[i++], value );
+            }
+            else
+            {
+                byte[] v = (byte[])value;
+                
+                // The content should be equal
+                assertTrue( ArrayUtils.isEquals( allValues[i], v ) );
+                
+                // but not the container
+                assertNotSame( allValues[i++], value );
+            }
+        }
+        
+        // Check that if we change the content, the copied attribute
+        // is still the same.
+        zero[1] = 'o';
+        attr.set( 0, zero );
+        
+        // The initial attribute should be modified
+        Object attrZero = attr.get( 0 );
+        assertNotSame( zero, attrZero );
+        assertTrue( ArrayUtils.isEquals( zero, attrZero ) );
+        
+        // but the copied attribute should remain the same
+        Object copied = copy.get( 0 );
+        assertNotSame( zero, copied );
+        assertFalse( ArrayUtils.isEquals( zero, copied ) );
+        
+        // Remove a value from the original attribute
+        zero = (byte[])attr.remove( 0 );
+        
+        // Check that it does not have modified the copied attribute
+        assertEquals( 1, copy.size() );
+        
+        // The content should be equal
+        assertTrue( ArrayUtils.isEquals( StringTools.getBytesUtf8( "zero" ), copy.get( 0 ) ) );
+        
+        // but not the container
+        assertNotSame( zero, copy.get( 0 ) );
+    }
+    
+    // Test the copy operation with more than one value
+    public void testCopyAttributeImplNValues() throws NamingException
+    {
+        Attribute attr = new AttributeImpl( "test" );
+
+        String zero = "zero";
+        attr.add( zero );
+
+        String one = "one";
+        attr.add( one );
+        
+        byte[] two = StringTools.getBytesUtf8( "two" );
+        attr.add( two );
+
+        byte[] three = StringTools.getBytesUtf8( "three" );
+        attr.add( three );
+        
+        Object[] allValues = new Object[] { zero, one, two, three };
+
+        Attribute copy = new AttributeImpl( attr );
+        
+        // Test the atomic elements
+        assertTrue( copy instanceof AttributeImpl );
+        assertEquals( 4, copy.size() );
+        assertEquals( "test", copy.getID() );
+        
+        // Now test the values
+        NamingEnumeration values = copy.getAll();
+        
+        int i = 0;
+        
+        while ( values.hasMoreElements() )
+        {
+            Object value = values.next();
+            
+            if ( value instanceof String )
+            {
+                assertEquals( allValues[i++], value );
+            }
+            else
+            {
+                byte[] v = (byte[])value;
+                
+                // The content should be equal
+                assertTrue( ArrayUtils.isEquals( allValues[i], v ) );
+                
+                // but not the container
+                assertNotSame( allValues[i++], value );
+            }
+        }
+        
+        // Check that if we change the content, the copied attribute
+        // is still the same.
+        two[1] = 'o';
+        attr.set( 2, two );
+        
+        // The initial attribute should be modified
+        Object attrTwo = attr.get( 2 );
+        assertNotSame( two, attrTwo );
+        assertTrue( ArrayUtils.isEquals( two, attrTwo ) );
+        
+        // but the copied attribute should remain the same
+        Object copied = copy.get( 2 );
+        assertNotSame( two, copied );
+        assertFalse( ArrayUtils.isEquals( two, copied ) );
+        
+        // Remove a value from the original attribute
+        three = (byte[])attr.remove( 3 );
+        
+        // Check that it does not have modified the copied attribute
+        assertEquals( 4, copy.size() );
+        
+        // The content should be equal
+        assertTrue( ArrayUtils.isEquals( three, copy.get( 3 ) ) );
+        
+        // but not the container
+        assertNotSame( three, copy.get( 3 ) );
+    }
+
     public void testEquals()
     {
         Attribute attr = new AttributeImpl( "test" );

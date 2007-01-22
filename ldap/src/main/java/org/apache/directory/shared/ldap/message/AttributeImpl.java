@@ -116,6 +116,45 @@ public class AttributeImpl implements Attribute
         size = 1;
     }
 
+    /**
+     * Create a copy of an Attribute, be it an AttributeImpl
+     * instance of a BasicAttribute instance
+     * 
+     * @param attribute the Attribute instace to copy
+     * @throws
+     */
+    public AttributeImpl( Attribute attribute ) throws NamingException
+    {
+        if ( attribute == null )
+        {
+            throw new NamingException( "Null attribute is not allowed" );
+        }
+        else if ( attribute instanceof AttributeImpl )
+        {
+            AttributeImpl clone = (AttributeImpl)attribute.clone();
+            
+            upId  = clone.upId;
+            list = clone.list;
+            size = clone.size;
+            value = clone.value;
+        }
+        else if ( attribute instanceof AttributeImpl )
+        {
+            upId = attribute.getID();
+            
+            NamingEnumeration values = attribute.getAll();
+            
+            while ( values.hasMoreElements() )
+            {
+                add( values.nextElement() );
+            }
+        }
+        else
+        {
+            throw new NamingException( "Attribute must be an instance of BasicAttribute or AttributeImpl" );
+        }
+    }
+
     // ------------------------------------------------------------------------
     // javax.naming.directory.Attribute Interface Method Implementations
     // ------------------------------------------------------------------------

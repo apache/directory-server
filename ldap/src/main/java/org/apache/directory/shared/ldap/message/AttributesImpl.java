@@ -30,6 +30,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -227,6 +228,60 @@ public class AttributesImpl implements Attributes
         put( id, value );
         this.ignoreCase = ignoreCase;
     }
+
+    /**
+     * Copies an Attributes
+     */
+    public AttributesImpl( Attributes attributes ) throws NamingException
+    {
+        if ( attributes == null )
+        {
+            throw new NamingException( "Cannot  create a copy of a null element" );
+        }
+        else if ( attributes instanceof BasicAttributes )
+        {
+            ignoreCase = attributes.isCaseIgnored();
+            
+            NamingEnumeration attrs = attributes.getAll();
+            
+            while ( attrs.hasMoreElements() )
+            {
+                Attribute attribute = new AttributeImpl( (Attribute)attrs.nextElement() );
+                
+                put( attribute );
+            }
+        }
+        else if ( attributes instanceof AttributesImpl )
+        {
+            try
+            {
+                AttributesImpl clone = (AttributesImpl)attributes.clone();
+                
+                keyMap = new HashMap<String, Holder>( clone.keyMap.size() );
+                
+                Iterator keys = clone.keyMap.keySet().iterator();
+        
+                while ( keys.hasNext() )
+                {
+                    String key = (String)keys.next();
+                    Holder holder = clone.keyMap.get( key );
+                    keyMap.put( key, (Holder)holder.clone() );
+                }
+                
+                ignoreCase = clone.ignoreCase;
+            }
+            catch ( CloneNotSupportedException cnse )
+            {
+                throw new NamingException( "Cannot copy a value inro the new atributes element" );
+            }
+        }
+        else
+        {
+            throw new NamingException( "Cannot create a copy of a object which is not an" + 
+                " instance of AttributesImpl or of BasicAttributes" );
+        }
+    }
+
 
     // ------------------------------------------------------------------------
     // Serialization methods
