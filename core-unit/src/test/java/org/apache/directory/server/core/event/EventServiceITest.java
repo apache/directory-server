@@ -21,8 +21,8 @@ package org.apache.directory.server.core.event;
 
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -51,8 +51,8 @@ public class EventServiceITest extends AbstractAdminTestCase
         TestListener listener = new TestListener();
         EventDirContext ctx = ( EventDirContext ) super.sysRoot.lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
-        Attributes testEntry = new AttributesImpl( "ou", "testentry", true );
-        Attribute objectClass = new AttributeImpl( "objectClass", "top" );
+        Attributes testEntry = new LockableAttributesImpl( "ou", "testentry", true );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass", "top" );
         objectClass.add( "organizationalUnit" );
         testEntry.put( objectClass );
         ctx.createSubcontext( "ou=testentry", testEntry );
@@ -88,8 +88,8 @@ public class EventServiceITest extends AbstractAdminTestCase
         TestListener listener = new TestListener();
         EventDirContext ctx = ( EventDirContext ) super.sysRoot.lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
-        Attributes testEntry = new AttributesImpl( "ou", "testentry", true );
-        Attribute objectClass = new AttributeImpl( "objectClass", "top" );
+        Attributes testEntry = new LockableAttributesImpl( "ou", "testentry", true );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass", "top" );
         objectClass.add( "organizationalUnit" );
         testEntry.put( objectClass );
         ctx.createSubcontext( "ou=testentry", testEntry );

@@ -31,7 +31,7 @@ import org.apache.directory.server.core.schema.bootstrap.*;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -139,7 +139,7 @@ public class RefinementLeafEvaluatorTest extends TestCase
 
         try
         {
-            objectClasses = new AttributeImpl( "incorrectAttrId" );
+            objectClasses = new LockableAttributeImpl( "incorrectAttrId" );
             assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "", LeafNode.EQUALITY ), objectClasses ) );
             fail( "should never get here due to an IAE" );
         }
@@ -154,19 +154,19 @@ public class RefinementLeafEvaluatorTest extends TestCase
         Attribute objectClasses = null;
 
         // positive test
-        objectClasses = new AttributeImpl( "objectClass", "person" );
+        objectClasses = new LockableAttributeImpl( "objectClass", "person" );
         assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
 
-        objectClasses = new AttributeImpl( "objectClass" );
+        objectClasses = new LockableAttributeImpl( "objectClass" );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
         assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
 
         // negative tests
-        objectClasses = new AttributeImpl( "objectClass", "person" );
+        objectClasses = new LockableAttributeImpl( "objectClass", "person" );
         assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "blah", LeafNode.EQUALITY ), objectClasses ) );
 
-        objectClasses = new AttributeImpl( "objectClass", "blah" );
+        objectClasses = new LockableAttributeImpl( "objectClass", "blah" );
         assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "person", LeafNode.EQUALITY ), objectClasses ) );
     }
 
@@ -176,19 +176,19 @@ public class RefinementLeafEvaluatorTest extends TestCase
         Attribute objectClasses = null;
 
         // positive test
-        objectClasses = new AttributeImpl( "objectClass", "person" );
+        objectClasses = new LockableAttributeImpl( "objectClass", "person" );
         assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ), objectClasses ) );
 
-        objectClasses = new AttributeImpl( "objectClass" );
+        objectClasses = new LockableAttributeImpl( "objectClass" );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
         assertTrue( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.6", LeafNode.EQUALITY ), objectClasses ) );
 
         // negative tests
-        objectClasses = new AttributeImpl( "objectClass", "person" );
+        objectClasses = new LockableAttributeImpl( "objectClass", "person" );
         assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ), objectClasses ) );
 
-        objectClasses = new AttributeImpl( "objectClass", "blah" );
+        objectClasses = new LockableAttributeImpl( "objectClass", "blah" );
         assertFalse( evaluator.evaluate( new SimpleNode( "objectClass", "2.5.6.5", LeafNode.EQUALITY ), objectClasses ) );
     }
 }

@@ -34,8 +34,8 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -91,8 +91,8 @@ public class DeletePrincipal implements ContextOperation
         String[] attrIDs =
             { KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION, KerberosAttribute.TYPE, KerberosAttribute.KEY };
 
-        Attributes matchAttrs = new AttributesImpl( false ); // case-sensitive
-        matchAttrs.put( new AttributeImpl( KerberosAttribute.PRINCIPAL, principal ) );
+        Attributes matchAttrs = new LockableAttributesImpl( false ); // case-sensitive
+        matchAttrs.put( new LockableAttributeImpl( KerberosAttribute.PRINCIPAL, principal ) );
 
         // Search for objects that have those matching attributes
         NamingEnumeration answer = ctx.search( searchBaseDn, matchAttrs, attrIDs );

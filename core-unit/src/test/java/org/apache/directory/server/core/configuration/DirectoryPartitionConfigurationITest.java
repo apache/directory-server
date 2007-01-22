@@ -35,7 +35,7 @@ import org.apache.directory.server.core.configuration.RemovePartitionConfigurati
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -57,7 +57,7 @@ public class DirectoryPartitionConfigurationITest extends AbstractAdminTestCase
         MutablePartitionConfiguration partitionCfg = new MutablePartitionConfiguration();
         partitionCfg.setName( "removable" );
         partitionCfg.setSuffix( "ou=removable" );
-        Attributes ctxEntry = new AttributesImpl( true );
+        Attributes ctxEntry = new LockableAttributesImpl( true );
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.put( "ou", "removable" );
         partitionCfg.setContextEntry( ctxEntry );

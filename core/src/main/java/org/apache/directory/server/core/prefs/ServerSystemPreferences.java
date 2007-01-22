@@ -43,8 +43,8 @@ import org.apache.directory.server.core.configuration.MutableStartupConfiguratio
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.util.PreferencesDictionary;
 
@@ -190,13 +190,13 @@ public class ServerSystemPreferences extends AbstractPreferences
      */
     private void setUpNode( String name ) throws NamingException
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute attr = new AttributeImpl( "objectClass" );
+        Attributes attrs = new LockableAttributesImpl();
+        Attribute attr = new LockableAttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "prefNode" );
         attr.add( "extensibleObject" );
         attrs.put( attr );
-        attr = new AttributeImpl( "prefNodeName" );
+        attr = new LockableAttributeImpl( "prefNodeName" );
         attr.add( name );
         attrs.put( attr );
 
@@ -334,7 +334,7 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     protected void removeSpi( String key )
     {
-        Attribute attr = new AttributeImpl( key );
+        Attribute attr = new LockableAttributeImpl( key );
         ModificationItemImpl mi = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
         addDelta( mi );
     }
@@ -401,7 +401,7 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     protected void putSpi( String key, String value )
     {
-        Attribute attr = new AttributeImpl( key );
+        Attribute attr = new LockableAttributeImpl( key );
         attr.add( value );
         ModificationItemImpl mi = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         addDelta( mi );

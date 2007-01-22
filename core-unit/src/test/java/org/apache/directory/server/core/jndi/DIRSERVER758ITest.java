@@ -22,8 +22,8 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
@@ -48,10 +48,10 @@ public class DIRSERVER758ITest extends AbstractAdminTestCase
      */
     public void testAddAttributesNotInObjectClasses() throws Exception
     {
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
-        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
-        Attribute dc = new AttributeImpl( "dc", "ke" );
+        Attributes attrs = new LockableAttributesImpl( true );
+        Attribute oc = new LockableAttributeImpl( "ObjectClass", "top" );
+        Attribute cn = new LockableAttributeImpl( "cn", "kevin Spacey" );
+        Attribute dc = new LockableAttributeImpl( "dc", "ke" );
         attrs.put( oc );
         attrs.put( cn );
         attrs.put( dc);

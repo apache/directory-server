@@ -31,8 +31,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 
 
@@ -56,8 +56,8 @@ public class DIRSERVER826ITest extends AbstractAdminTestCase
         /*
          * create ou=testing00,ou=system
          */
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -79,8 +79,8 @@ public class DIRSERVER826ITest extends AbstractAdminTestCase
         /*
          * create ou=testing01,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new LockableAttributesImpl( true );
+        attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -102,8 +102,8 @@ public class DIRSERVER826ITest extends AbstractAdminTestCase
         /*
          * create ou=testing02,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new LockableAttributesImpl( true );
+        attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -128,8 +128,8 @@ public class DIRSERVER826ITest extends AbstractAdminTestCase
          */
         ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
 
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new LockableAttributesImpl( true );
+        attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );

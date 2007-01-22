@@ -23,8 +23,8 @@ package org.apache.directory.server.core.subtree;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 
@@ -51,8 +51,8 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 {
     public Attributes getTestEntry( String cn )
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new LockableAttributesImpl();
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "person" );
         subentry.put( objectClass );
@@ -64,8 +64,8 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 
     public Attributes getTestSubentry()
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new LockableAttributesImpl();
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -79,8 +79,8 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 
     public Attributes getTestSubentryWithExclusion()
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new LockableAttributesImpl();
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -95,7 +95,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 
     public void addAdministrativeRole( String role ) throws NamingException
     {
-        Attribute attribute = new AttributeImpl( "administrativeRole" );
+        Attribute attribute = new LockableAttributeImpl( "administrativeRole" );
         attribute.add( role );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
         super.sysRoot.modifyAttributes( "", new ModificationItemImpl[]
@@ -272,7 +272,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // Now modify the subentry by introducing an exclusion
         // --------------------------------------------------------------------
 
-        Attribute subtreeSpecification = new AttributeImpl( "subtreeSpecification" );
+        Attribute subtreeSpecification = new LockableAttributeImpl( "subtreeSpecification" );
         subtreeSpecification.add( "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
         super.sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItemImpl[]
@@ -388,7 +388,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // Now modify the subentry by introducing an exclusion
         // --------------------------------------------------------------------
 
-        Attributes changes = new AttributesImpl();
+        Attributes changes = new LockableAttributesImpl();
         changes.put( "subtreeSpecification",
             "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
         super.sysRoot.modifyAttributes( "cn=testsubentry", DirContext.REPLACE_ATTRIBUTE, changes );

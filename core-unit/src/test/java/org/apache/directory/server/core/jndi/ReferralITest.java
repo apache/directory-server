@@ -43,8 +43,8 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -147,7 +147,7 @@ public class ReferralITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         // Add a referral entry ( should be fine with or without the control )
-        Attributes referral = new AttributesImpl( "objectClass", "top", true );
+        Attributes referral = new LockableAttributesImpl( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "referral" );
         referral.get( "objectClass" ).add( "extensibleObject" );
         referral.put( "ref", ref0 );
@@ -223,7 +223,7 @@ public class ReferralITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        Attributes userEntry = new AttributesImpl( "objectClass", "top", true );
+        Attributes userEntry = new LockableAttributesImpl( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "karasulu" );
         userEntry.put( "cn", "alex karasulu" );
@@ -254,7 +254,7 @@ public class ReferralITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        Attributes userEntry = new AttributesImpl( "objectClass", "top", true );
+        Attributes userEntry = new LockableAttributesImpl( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "karasulu" );
         userEntry.put( "cn", "alex karasulu" );
@@ -414,7 +414,7 @@ public class ReferralITest extends AbstractAdminTestCase
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
-            td.refCtx.modifyAttributes( "cn=alex karasulu", DirContext.ADD_ATTRIBUTE, new AttributesImpl(
+            td.refCtx.modifyAttributes( "cn=alex karasulu", DirContext.ADD_ATTRIBUTE, new LockableAttributesImpl(
                 "description", "just some text", true ) );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -442,7 +442,7 @@ public class ReferralITest extends AbstractAdminTestCase
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
-            td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", DirContext.ADD_ATTRIBUTE, new AttributesImpl(
+            td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", DirContext.ADD_ATTRIBUTE, new LockableAttributesImpl(
                 "description", "just some text", true ) );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -471,7 +471,7 @@ public class ReferralITest extends AbstractAdminTestCase
         try
         {
             ModificationItemImpl[] mods = new ModificationItemImpl[]
-                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new AttributeImpl( "description", "just some text" ) ) };
+                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new LockableAttributeImpl( "description", "just some text" ) ) };
             td.refCtx.modifyAttributes( "cn=alex karasulu", mods );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -500,7 +500,7 @@ public class ReferralITest extends AbstractAdminTestCase
         try
         {
             ModificationItemImpl[] mods = new ModificationItemImpl[]
-                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new AttributeImpl( "description", "just some text" ) ) };
+                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new LockableAttributeImpl( "description", "just some text" ) ) };
             td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", mods );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -798,7 +798,7 @@ public class ReferralITest extends AbstractAdminTestCase
     public void createLocalUser() throws Exception
     {
         LdapContext userCtx = null;
-        Attributes referral = new AttributesImpl( "objectClass", "top", true );
+        Attributes referral = new LockableAttributesImpl( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "person" );
         referral.put( "cn", "akarasulu" );
         referral.put( "sn", "karasulu" );
@@ -827,7 +827,7 @@ public class ReferralITest extends AbstractAdminTestCase
     public void createDeepLocalUser() throws Exception
     {
         LdapContext userCtx = null;
-        Attributes referral = new AttributesImpl( "objectClass", "top", true );
+        Attributes referral = new LockableAttributesImpl( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "person" );
         referral.get( "objectClass" ).add( "organizationalUnit" );
         referral.put( "cn", "akarasulu" );
@@ -850,8 +850,8 @@ public class ReferralITest extends AbstractAdminTestCase
         }
         try
         {
-            Attributes attrs = new AttributesImpl( "ou", "deep" );
-            Attribute oc = new AttributeImpl( "ObjectClass" );
+            Attributes attrs = new LockableAttributesImpl( "ou", "deep" );
+            Attribute oc = new LockableAttributeImpl( "ObjectClass" );
             oc.add( "top" );
             oc.add( "organizationalUnit" );
             attrs.put( oc );

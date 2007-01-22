@@ -27,8 +27,8 @@ import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -45,8 +45,8 @@ public class IllegalModifyAddITest extends AbstractAdminTestCase
      */
     public void testIllegalModifyAdd() throws NamingException
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute attr = new AttributeImpl( "description" );
+        Attributes attrs = new LockableAttributesImpl();
+        Attribute attr = new LockableAttributeImpl( "description" );
         attrs.put( attr );
 
         try

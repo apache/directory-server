@@ -32,8 +32,8 @@ import org.apache.directory.server.core.schema.ObjectClassRegistry;
 import org.apache.directory.server.core.schema.SchemaChecker;
 import org.apache.directory.server.core.schema.bootstrap.*;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -124,8 +124,8 @@ public class SchemaCheckerTest extends TestCase
     {
         LdapDN name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         int mod = DirContext.REPLACE_ATTRIBUTE;
-        Attributes modifyAttributes = new AttributesImpl( true );
-        modifyAttributes.put( new AttributeImpl( "cn" ) );
+        Attributes modifyAttributes = new LockableAttributesImpl( true );
+        modifyAttributes.put( new LockableAttributeImpl( "cn" ) );
 
         ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
 
@@ -134,14 +134,14 @@ public class SchemaCheckerTest extends TestCase
 
         // this should succeed since person is still in replaced set and is structural
         modifyAttributes.remove( "cn" );
-        Attribute objectClassesReplaced = new AttributeImpl( "objectClass" );
+        Attribute objectClassesReplaced = new LockableAttributeImpl( "objectClass" );
         objectClassesReplaced.add( "top" );
         objectClassesReplaced.add( "person" );
         modifyAttributes.put( objectClassesReplaced );
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, modifyAttributes );
 
         // this should fail since only top is left
-        objectClassesReplaced = new AttributeImpl( "objectClass" );
+        objectClassesReplaced = new LockableAttributeImpl( "objectClass" );
         objectClassesReplaced.add( "top" );
         modifyAttributes.put( objectClassesReplaced );
         try
@@ -157,7 +157,7 @@ public class SchemaCheckerTest extends TestCase
         // this should fail since the modify operation tries to delete all
         // objectClass attribute values
         modifyAttributes.remove( "cn" );
-        objectClassesReplaced = new AttributeImpl( "objectClass" );
+        objectClassesReplaced = new LockableAttributeImpl( "objectClass" );
         modifyAttributes.put( objectClassesReplaced );
         try
         {
@@ -179,12 +179,12 @@ public class SchemaCheckerTest extends TestCase
     {
         LdapDN name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         int mod = DirContext.REMOVE_ATTRIBUTE;
-        Attributes modifyAttributes = new AttributesImpl( true );
-        Attribute entryObjectClasses = new AttributeImpl( "objectClass" );
+        Attributes modifyAttributes = new LockableAttributesImpl( true );
+        Attribute entryObjectClasses = new LockableAttributeImpl( "objectClass" );
         entryObjectClasses.add( "top" );
         entryObjectClasses.add( "person" );
         entryObjectClasses.add( "organizationalPerson" );
-        modifyAttributes.put( new AttributeImpl( "cn" ) );
+        modifyAttributes.put( new LockableAttributeImpl( "cn" ) );
 
         ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
 
@@ -194,7 +194,7 @@ public class SchemaCheckerTest extends TestCase
 
         // this should succeed since person is left and is structural
         modifyAttributes.remove( "cn" );
-        Attribute objectClassesRemoved = new AttributeImpl( "objectClass" );
+        Attribute objectClassesRemoved = new LockableAttributeImpl( "objectClass" );
         objectClassesRemoved.add( "person" );
         modifyAttributes.put( objectClassesRemoved );
         SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, modifyAttributes,
@@ -202,7 +202,7 @@ public class SchemaCheckerTest extends TestCase
 
         // this should fail since only top is left
         modifyAttributes.remove( "cn" );
-        objectClassesRemoved = new AttributeImpl( "objectClass" );
+        objectClassesRemoved = new LockableAttributeImpl( "objectClass" );
         objectClassesRemoved.add( "person" );
         objectClassesRemoved.add( "organizationalPerson" );
         modifyAttributes.put( objectClassesRemoved );
@@ -220,7 +220,7 @@ public class SchemaCheckerTest extends TestCase
         // this should fail since the modify operation tries to delete all
         // objectClass attribute values
         modifyAttributes.remove( "cn" );
-        objectClassesRemoved = new AttributeImpl( "objectClass" );
+        objectClassesRemoved = new LockableAttributeImpl( "objectClass" );
         modifyAttributes.put( objectClassesRemoved );
         try
         {
@@ -243,14 +243,14 @@ public class SchemaCheckerTest extends TestCase
     {
         int mod = DirContext.REMOVE_ATTRIBUTE;
         LdapDN name = new LdapDN( "ou=user,dc=example,dc=com" );
-        Attributes attributes = new AttributesImpl( true );
+        Attributes attributes = new LockableAttributesImpl( true );
         attributes.put( "cn", "does not matter" );
 
         // postive test which should pass
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
 
         // test should fail since we are removing the ou attribute
-        attributes.put( new AttributeImpl( "ou" ) );
+        attributes.put( new LockableAttributeImpl( "ou" ) );
         try
         {
             SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
@@ -263,12 +263,12 @@ public class SchemaCheckerTest extends TestCase
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
         name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
-        attributes = new AttributesImpl( true );
+        attributes = new LockableAttributesImpl( true );
         attributes.put( "sn", "does not matter" );
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
 
         // test for failure when modifying Rdn attribute in multi attribute Rdn
-        attributes.put( new AttributeImpl( "cn" ) );
+        attributes.put( new LockableAttributeImpl( "cn" ) );
         try
         {
             SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
@@ -281,12 +281,12 @@ public class SchemaCheckerTest extends TestCase
 
         // should succeed since the value being deleted from the rdn attribute is
         // is not used when composing the Rdn
-        attributes = new AttributesImpl( true );
+        attributes = new LockableAttributesImpl( true );
         attributes.put( "ou", "container" );
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
 
         // now let's make it fail again just by providing the right value for ou (users)
-        attributes = new AttributesImpl( true );
+        attributes = new LockableAttributesImpl( true );
         attributes.put( "ou", "users" );
         try
         {
@@ -308,14 +308,14 @@ public class SchemaCheckerTest extends TestCase
     {
         int mod = DirContext.REPLACE_ATTRIBUTE;
         LdapDN name = new LdapDN( "ou=user,dc=example,dc=com" );
-        Attributes attributes = new AttributesImpl( true );
+        Attributes attributes = new LockableAttributesImpl( true );
         attributes.put( "cn", "does not matter" );
 
         // postive test which should pass
         SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
 
         // test should fail since we are removing the ou attribute
-        attributes.put( new AttributeImpl( "ou" ) );
+        attributes.put( new LockableAttributeImpl( "ou" ) );
         try
         {
             SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
@@ -328,12 +328,12 @@ public class SchemaCheckerTest extends TestCase
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
         name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
-        attributes = new AttributesImpl( true );
+        attributes = new LockableAttributesImpl( true );
         attributes.put( "sn", "does not matter" );
         SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
 
         // test for failure when modifying Rdn attribute in multi attribute Rdn
-        attributes.put( new AttributeImpl( "cn" ) );
+        attributes.put( new LockableAttributeImpl( "cn" ) );
         try
         {
             SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
@@ -346,13 +346,13 @@ public class SchemaCheckerTest extends TestCase
 
         // should succeed since the values being replaced from the rdn attribute is
         // is includes the old Rdn attribute value
-        attributes = new AttributesImpl( true );
+        attributes = new LockableAttributesImpl( true );
         attributes.put( "ou", "container" );
         attributes.put( "ou", "users" );
         SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
 
         // now let's make it fail by not including the old value for ou (users)
-        attributes = new AttributesImpl( true );
+        attributes = new LockableAttributesImpl( true );
         attributes.put( "ou", "container" );
         try
         {
@@ -381,16 +381,16 @@ public class SchemaCheckerTest extends TestCase
         // this should pass
         LdapDN name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         int mod = DirContext.REPLACE_ATTRIBUTE;
-        SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, new AttributeImpl( "cn" ) );
+        SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, new LockableAttributeImpl( "cn" ) );
 
         // this should succeed since person is still in replaced set and is structural
-        Attribute objectClassesReplaced = new AttributeImpl( "objectClass" );
+        Attribute objectClassesReplaced = new LockableAttributeImpl( "objectClass" );
         objectClassesReplaced.add( "top" );
         objectClassesReplaced.add( "person" );
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, objectClassesReplaced );
 
         // this should fail since only top is left
-        objectClassesReplaced = new AttributeImpl( "objectClass" );
+        objectClassesReplaced = new LockableAttributeImpl( "objectClass" );
         objectClassesReplaced.add( "top" );
         try
         {
@@ -404,7 +404,7 @@ public class SchemaCheckerTest extends TestCase
 
         // this should fail since the modify operation tries to delete all
         // objectClass attribute values
-        objectClassesReplaced = new AttributeImpl( "objectClass" );
+        objectClassesReplaced = new LockableAttributeImpl( "objectClass" );
         try
         {
             SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, objectClassesReplaced );
@@ -425,7 +425,7 @@ public class SchemaCheckerTest extends TestCase
     {
         LdapDN name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         int mod = DirContext.REMOVE_ATTRIBUTE;
-        Attribute entryObjectClasses = new AttributeImpl( "objectClass" );
+        Attribute entryObjectClasses = new LockableAttributeImpl( "objectClass" );
         entryObjectClasses.add( "top" );
         entryObjectClasses.add( "person" );
         entryObjectClasses.add( "organizationalPerson" );
@@ -433,17 +433,17 @@ public class SchemaCheckerTest extends TestCase
         ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
 
         // this should pass
-        SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, new AttributeImpl( "cn" ),
+        SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, new LockableAttributeImpl( "cn" ),
             entryObjectClasses );
 
         // this should succeed since person is left and is structural
-        Attribute objectClassesRemoved = new AttributeImpl( "objectClass" );
+        Attribute objectClassesRemoved = new LockableAttributeImpl( "objectClass" );
         objectClassesRemoved.add( "person" );
         SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, objectClassesRemoved,
             entryObjectClasses );
 
         // this should fail since only top is left
-        objectClassesRemoved = new AttributeImpl( "objectClass" );
+        objectClassesRemoved = new LockableAttributeImpl( "objectClass" );
         objectClassesRemoved.add( "person" );
         objectClassesRemoved.add( "organizationalPerson" );
         try
@@ -459,7 +459,7 @@ public class SchemaCheckerTest extends TestCase
 
         // this should fail since the modify operation tries to delete all
         // objectClass attribute values
-        objectClassesRemoved = new AttributeImpl( "objectClass" );
+        objectClassesRemoved = new LockableAttributeImpl( "objectClass" );
         try
         {
             SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, objectClassesRemoved,
@@ -485,12 +485,12 @@ public class SchemaCheckerTest extends TestCase
 
         // postive test which should pass
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-            new AttributeImpl( "cn", "does not matter" ), registry );
+            new LockableAttributeImpl( "cn", "does not matter" ), registry );
 
         // test should fail since we are removing the ou attribute
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, new AttributeImpl( "ou" ), registry );
+            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, new LockableAttributeImpl( "ou" ), registry );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -501,12 +501,12 @@ public class SchemaCheckerTest extends TestCase
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
         name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-            new AttributeImpl( "sn", "does not matter" ), registry );
+            new LockableAttributeImpl( "sn", "does not matter" ), registry );
 
         // test for failure when modifying Rdn attribute in multi attribute Rdn
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, new AttributeImpl( "cn" ), registry );
+            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, new LockableAttributeImpl( "cn" ), registry );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -516,12 +516,12 @@ public class SchemaCheckerTest extends TestCase
 
         // should succeed since the value being deleted from the rdn attribute is
         // is not used when composing the Rdn
-        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, new AttributeImpl( "ou", "container" ), registry );
+        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, new LockableAttributeImpl( "ou", "container" ), registry );
 
         // now let's make it fail again just by providing the right value for ou (users)
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, new AttributeImpl( "ou", "users" ), registry );
+            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, new LockableAttributeImpl( "ou", "users" ), registry );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )

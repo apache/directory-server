@@ -14,8 +14,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 /**
@@ -39,8 +39,8 @@ public class DIRSERVER783ITest extends AbstractAdminTestCase
     public void testAddAnotherValueToAnAttribute() throws NamingException
     {
         // create a person without sn
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl("objectClass");
+        Attributes attrs = new LockableAttributesImpl();
+        Attribute ocls = new LockableAttributeImpl("objectClass");
 
         ocls.add("top");
         ocls.add("person");
@@ -60,20 +60,20 @@ public class DIRSERVER783ITest extends AbstractAdminTestCase
 
         // Add the first value for description
         String description1 = "an American singer-songwriter";
-        Attribute firstDescr = new AttributeImpl("description", description1);
+        Attribute firstDescr = new LockableAttributeImpl("description", description1);
         ModificationItemImpl modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, firstDescr);
         ctx.modifyAttributes(rdn, new ModificationItemImpl[] { modification });
 
         // Add a second value to description
         String description2 = "Grammy award winning";
-        Attribute otherDescr = new AttributeImpl("description", description2 );
+        Attribute otherDescr = new LockableAttributeImpl("description", description2 );
 
         modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, otherDescr );
         ctx.modifyAttributes(rdn, new ModificationItemImpl[] { modification } );
       
         // Add a third value to description
         String description3 = "MTV Music Award winning";
-        Attribute thirdDescr = new AttributeImpl("description", description3 );
+        Attribute thirdDescr = new LockableAttributeImpl("description", description3 );
 
         modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, thirdDescr );
         ctx.modifyAttributes(rdn, new ModificationItemImpl[] { modification });

@@ -36,7 +36,7 @@ import org.apache.directory.server.core.schema.bootstrap.CosineSchema;
 import org.apache.directory.server.core.schema.bootstrap.InetorgpersonSchema;
 import org.apache.directory.server.core.schema.bootstrap.SystemSchema;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -92,7 +92,7 @@ public class SchemaServiceTest extends TestCase
 /*
     public void testAlterObjectClassesBogusAttr() throws NamingException
     {
-        Attribute attr = new AttributeImpl( "blah", "blah" );
+        Attribute attr = new LockableAttributeImpl( "blah", "blah" );
 
         try
         {
@@ -104,7 +104,7 @@ public class SchemaServiceTest extends TestCase
             assertEquals( ResultCodeEnum.OPERATIONSERROR, e.getResultCode() );
         }
 
-        attr = new AttributeImpl( "objectClass" );
+        attr = new LockableAttributeImpl( "objectClass" );
         SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
         assertEquals( 0, attr.size() );
     }
@@ -112,7 +112,7 @@ public class SchemaServiceTest extends TestCase
 
     public void testAlterObjectClassesNoAttrValue() throws NamingException
     {
-        Attribute attr = new AttributeImpl( "objectClass" );
+        Attribute attr = new LockableAttributeImpl( "objectClass" );
         SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
         assertEquals( 0, attr.size() );
     }
@@ -120,7 +120,7 @@ public class SchemaServiceTest extends TestCase
 
     public void testAlterObjectClassesTopAttrValue() throws NamingException
     {
-        Attribute attr = new AttributeImpl( "objectClass", "top" );
+        Attribute attr = new LockableAttributeImpl( "objectClass", "top" );
         SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
         assertEquals( 0, attr.size() );
     }
@@ -128,7 +128,7 @@ public class SchemaServiceTest extends TestCase
 
     public void testAlterObjectClassesInetOrgPersonAttrValue() throws NamingException
     {
-        Attribute attr = new AttributeImpl( "objectClass", "inetOrgPerson" );
+        Attribute attr = new LockableAttributeImpl( "objectClass", "inetOrgPerson" );
         SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
         assertEquals( 3, attr.size() );
         assertTrue( attr.contains( "person" ) );
@@ -139,7 +139,7 @@ public class SchemaServiceTest extends TestCase
 
     public void testAlterObjectClassesOverlapping() throws NamingException
     {
-        Attribute attr = new AttributeImpl( "objectClass", "inetOrgPerson" );
+        Attribute attr = new LockableAttributeImpl( "objectClass", "inetOrgPerson" );
         attr.add( "residentialPerson" );
         SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
         assertEquals( 4, attr.size() );
@@ -152,7 +152,7 @@ public class SchemaServiceTest extends TestCase
 
     public void testAlterObjectClassesOverlappingAndDsa() throws NamingException
     {
-        Attribute attr = new AttributeImpl( "objectClass", "inetOrgPerson" );
+        Attribute attr = new LockableAttributeImpl( "objectClass", "inetOrgPerson" );
         attr.add( "residentialPerson" );
         attr.add( "dSA" );
         SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );

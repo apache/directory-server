@@ -31,7 +31,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.schema.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
@@ -52,7 +52,7 @@ public class PartitionConfiguration
     private int cacheSize = -1;
     private String suffix;
     private Set indexedAttributes; // Set<String> or <IndexConfiguration>
-    private Attributes contextEntry = new AttributesImpl( true );
+    private Attributes contextEntry = new LockableAttributesImpl( true );
     private Partition contextPartition = new JdbmPartition();
 
 

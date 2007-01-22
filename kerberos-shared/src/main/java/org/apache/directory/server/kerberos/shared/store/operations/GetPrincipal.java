@@ -37,8 +37,8 @@ import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -80,8 +80,8 @@ public class GetPrincipal implements ContextOperation
                 KerberosAttribute.SAM_TYPE, KerberosAttribute.ACCOUNT_DISABLED, 
                 KerberosAttribute.ACCOUNT_EXPIRATION_TIME, KerberosAttribute.ACCOUNT_LOCKEDOUT };
 
-        Attributes matchAttrs = new AttributesImpl( false ); // case-sensitive
-        matchAttrs.put( new AttributeImpl( KerberosAttribute.PRINCIPAL, principal.getName() ) );
+        Attributes matchAttrs = new LockableAttributesImpl( false ); // case-sensitive
+        matchAttrs.put( new LockableAttributeImpl( KerberosAttribute.PRINCIPAL, principal.getName() ) );
 
         PrincipalStoreEntry entry = null;
 

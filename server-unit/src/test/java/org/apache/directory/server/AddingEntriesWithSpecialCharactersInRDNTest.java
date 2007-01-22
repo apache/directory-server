@@ -32,8 +32,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -74,8 +74,8 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
 
    protected Attributes getPersonAttributes(String sn, String cn) {
 
-       Attributes attrs = new AttributesImpl();
-       Attribute ocls = new AttributeImpl("objectClass");
+       Attributes attrs = new LockableAttributesImpl();
+       Attribute ocls = new LockableAttributeImpl("objectClass");
        ocls.add("top");
        ocls.add("person");
        attrs.put(ocls);
@@ -87,8 +87,8 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
 
    protected Attributes getOrgUnitAttributes(String ou) {
 
-       Attributes attrs = new AttributesImpl();
-       Attribute ocls = new AttributeImpl("objectClass");
+       Attributes attrs = new LockableAttributesImpl();
+       Attribute ocls = new LockableAttributeImpl("objectClass");
        ocls.add("top");
        ocls.add("organizationalUnit");
        attrs.put(ocls);

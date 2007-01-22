@@ -40,8 +40,8 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
@@ -296,7 +296,7 @@ public class SubentryService extends BaseInterceptor
      */
     public Attributes getSubentryAttributes( Name dn, Attributes entryAttrs ) throws NamingException
     {
-        Attributes subentryAttrs = new AttributesImpl();
+        Attributes subentryAttrs = new LockableAttributesImpl();
         Attribute objectClasses = entryAttrs.get( "objectClass" );
         Iterator list = subentryCache.nameIterator();
         while ( list.hasNext() )
@@ -317,7 +317,7 @@ public class SubentryService extends BaseInterceptor
                     operational = subentryAttrs.get( AC_SUBENTRIES );
                     if ( operational == null )
                     {
-                        operational = new AttributeImpl( AC_SUBENTRIES );
+                        operational = new LockableAttributeImpl( AC_SUBENTRIES );
                         subentryAttrs.put( operational );
                     }
                     operational.add( subentryDn.toString() );
@@ -327,7 +327,7 @@ public class SubentryService extends BaseInterceptor
                     operational = subentryAttrs.get( SCHEMA_SUBENTRY );
                     if ( operational == null )
                     {
-                        operational = new AttributeImpl( SCHEMA_SUBENTRY );
+                        operational = new LockableAttributeImpl( SCHEMA_SUBENTRY );
                         subentryAttrs.put( operational );
                     }
                     operational.add( subentryDn.toString() );
@@ -337,7 +337,7 @@ public class SubentryService extends BaseInterceptor
                     operational = subentryAttrs.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                     if ( operational == null )
                     {
-                        operational = new AttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+                        operational = new LockableAttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                         subentryAttrs.put( operational );
                     }
                     operational.add( subentryDn.toString() );
@@ -456,7 +456,7 @@ public class SubentryService extends BaseInterceptor
                         operational = entry.get( AC_SUBENTRIES );
                         if ( operational == null )
                         {
-                            operational = new AttributeImpl( AC_SUBENTRIES );
+                            operational = new LockableAttributeImpl( AC_SUBENTRIES );
                             entry.put( operational );
                         }
                         operational.add( subentryDn.toString() );
@@ -466,7 +466,7 @@ public class SubentryService extends BaseInterceptor
                         operational = entry.get( SCHEMA_SUBENTRY );
                         if ( operational == null )
                         {
-                            operational = new AttributeImpl( SCHEMA_SUBENTRY );
+                            operational = new LockableAttributeImpl( SCHEMA_SUBENTRY );
                             entry.put( operational );
                         }
                         operational.add( subentryDn.toString() );
@@ -476,7 +476,7 @@ public class SubentryService extends BaseInterceptor
                         operational = entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                         if ( operational == null )
                         {
-                            operational = new AttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+                            operational = new LockableAttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                             entry.put( operational );
                         }
                         operational.add( subentryDn.toString() );
@@ -633,7 +633,7 @@ public class SubentryService extends BaseInterceptor
                 for ( int ii = 0; ii < SUBENTRY_OPATTRS.length; ii++ )
                 {
                     int op = DirContext.ADD_ATTRIBUTE;
-                    Attribute opAttr = new AttributeImpl( SUBENTRY_OPATTRS[ii] );
+                    Attribute opAttr = new LockableAttributeImpl( SUBENTRY_OPATTRS[ii] );
                     opAttr.add( subentryDn );
                     modList.add( new ModificationItemImpl( op, opAttr ) );
                 }
@@ -891,7 +891,7 @@ public class SubentryService extends BaseInterceptor
             }
         }
         
-        Attributes attrs = new AttributesImpl();
+        Attributes attrs = new LockableAttributesImpl();
         attrs.put( ocFinalState );
         return getSubentryTypes( attrs );
     }
@@ -925,7 +925,7 @@ public class SubentryService extends BaseInterceptor
             }
         }
         
-        Attributes attrs = new AttributesImpl();
+        Attributes attrs = new LockableAttributesImpl();
         attrs.put( ocFinalState );
         return getSubentryTypes( attrs );
     }
@@ -1106,7 +1106,7 @@ public class SubentryService extends BaseInterceptor
             operational = ( Attribute ) entry.get( AC_SUBENTRIES ).clone();
             if ( operational == null )
             {
-                operational = new AttributeImpl( AC_SUBENTRIES );
+                operational = new LockableAttributeImpl( AC_SUBENTRIES );
                 operational.add( newName.toString() );
             }
             else
@@ -1121,7 +1121,7 @@ public class SubentryService extends BaseInterceptor
             operational = ( Attribute ) entry.get( SCHEMA_SUBENTRY ).clone();
             if ( operational == null )
             {
-                operational = new AttributeImpl( SCHEMA_SUBENTRY );
+                operational = new LockableAttributeImpl( SCHEMA_SUBENTRY );
                 operational.add( newName.toString() );
             }
             else
@@ -1136,7 +1136,7 @@ public class SubentryService extends BaseInterceptor
             operational = ( Attribute ) entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES ).clone();
             if ( operational == null )
             {
-                operational = new AttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+                operational = new LockableAttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                 operational.add( newName.toString() );
             }
             else
@@ -1164,7 +1164,7 @@ public class SubentryService extends BaseInterceptor
     private Attributes getSubentryOperatationalAttributes( Name name, Subentry subentry )
         throws NamingException
     {
-        Attributes operational = new AttributesImpl();
+        Attributes operational = new LockableAttributesImpl();
         
         if ( subentry.isAccessControlSubentry() )
         {
@@ -1229,7 +1229,7 @@ public class SubentryService extends BaseInterceptor
 
             if ( opAttr != null && opAttr.contains( dn ) )
             {
-                Attribute attr = new AttributeImpl( SUBENTRY_OPATTRS[ii] );
+                Attribute attr = new LockableAttributeImpl( SUBENTRY_OPATTRS[ii] );
                 attr.add( dn );
                 modList.add( new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr ) );
             }
@@ -1264,7 +1264,7 @@ public class SubentryService extends BaseInterceptor
         {
             int op = DirContext.REPLACE_ATTRIBUTE;
             String opAttrId = ( String ) opAttrIds.next();
-            Attribute result = new AttributeImpl( opAttrId );
+            Attribute result = new LockableAttributeImpl( opAttrId );
             Attribute opAttrAdditions = operational.get( opAttrId );
             Attribute opAttrInEntry = entry.get( opAttrId );
 

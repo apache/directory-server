@@ -22,8 +22,8 @@ package org.apache.directory.server.core.authz;
 
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
@@ -69,12 +69,12 @@ public class SearchAuthorizationITest extends AbstractAuthorizationITest
         Attributes[] attributes = new Attributes[count];
         for ( int ii = 0; ii < count; ii++ )
         {
-            attributes[ii] = new AttributesImpl();
-            Attribute oc = new AttributeImpl( "objectClass" );
+            attributes[ii] = new LockableAttributesImpl();
+            Attribute oc = new LockableAttributeImpl( "objectClass" );
             oc.add( "top" );
             oc.add( "organizationalUnit" );
             attributes[ii].put( oc );
-            Attribute ou = new AttributeImpl( "ou" );
+            Attribute ou = new LockableAttributeImpl( "ou" );
             ou.add( String.valueOf( ii ) );
             ou.add( "testEntry" );
             attributes[ii].put( ou );

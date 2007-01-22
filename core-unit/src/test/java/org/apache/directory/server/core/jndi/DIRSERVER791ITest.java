@@ -14,8 +14,8 @@ import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SchemaViolationException;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 /**
@@ -30,15 +30,15 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
      */
     protected Attributes getTestEntryAttributes() {
 
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl("objectClass");
+        Attributes attrs = new LockableAttributesImpl();
+        Attribute ocls = new LockableAttributeImpl("objectClass");
         ocls.add("top");
         ocls.add("person");
         ocls.add("organizationalPerson");
         ocls.add("inetOrgPerson");
         attrs.put(ocls);
         
-        Attribute cn = new AttributeImpl("cn");
+        Attribute cn = new LockableAttributeImpl("cn");
         cn.add("test");
         cn.add("aaa");
         attrs.put(cn);
@@ -68,7 +68,7 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
         env.put( Context.PROVIDER_URL, "ou=system" );
 
         DirContext ctx = new InitialDirContext( env );
-        Attribute attr = new AttributeImpl("cn", "aaa");
+        Attribute attr = new LockableAttributeImpl("cn", "aaa");
         ModificationItemImpl modification = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
         ctx.modifyAttributes( "cn=test", new ModificationItemImpl[] { modification } );
 
@@ -92,7 +92,7 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
 
         DirContext ctx = new InitialDirContext( env );
 
-        Attribute attr = new AttributeImpl("cn", "test");
+        Attribute attr = new LockableAttributeImpl("cn", "test");
         ModificationItemImpl modification = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, attr);
         ctx.modifyAttributes("cn=test", new ModificationItemImpl[] { modification });
 
@@ -118,7 +118,7 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
         DirContext ctx = new InitialDirContext( env );
 
 
-        Attribute attr = new AttributeImpl( "objectclass", "test" );
+        Attribute attr = new LockableAttributeImpl( "objectclass", "test" );
         ModificationItemImpl modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, attr);
         
         try 
@@ -163,7 +163,7 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
         DirContext ctx = new InitialDirContext( env );
 
 
-        Attribute attr = new AttributeImpl("bootParameter", "test");
+        Attribute attr = new LockableAttributeImpl("bootParameter", "test");
         ModificationItemImpl modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, attr);
     
         try 

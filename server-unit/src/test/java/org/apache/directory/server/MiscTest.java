@@ -27,8 +27,8 @@ import netscape.ldap.LDAPException;
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
@@ -89,8 +89,8 @@ public class MiscTest extends AbstractServerTest
             partitions.addAll( configuration.getContextPartitionConfigurations() );
             MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
             partition.setSuffix( "dc=aPache,dc=org" );
-            Attributes entry = new AttributesImpl( "dc", "aPache", true );
-            Attribute oc = new AttributeImpl( "objectClass" );
+            Attributes entry = new LockableAttributesImpl( "dc", "aPache", true );
+            Attribute oc = new LockableAttributeImpl( "objectClass" );
             entry.put( oc );
             oc.add( "top" );
             oc.add( "domain" );
@@ -110,8 +110,8 @@ public class MiscTest extends AbstractServerTest
             partitions.addAll( configuration.getContextPartitionConfigurations() );
             MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
             partition.setSuffix( "dc=apache,dc=org" );
-            Attributes entry = new AttributesImpl( "dc", "apache", true );
-            Attribute oc = new AttributeImpl( "objectClass" );
+            Attributes entry = new LockableAttributesImpl( "dc", "apache", true );
+            Attribute oc = new LockableAttributeImpl( "objectClass" );
             entry.put( oc );
             oc.add( "top" );
             oc.add( "domain" );
@@ -181,8 +181,8 @@ public class MiscTest extends AbstractServerTest
         {
         }
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "objectClass" );
+        Attributes attrs = new LockableAttributesImpl( true );
+        Attribute oc = new LockableAttributeImpl( "objectClass" );
         attrs.put( oc );
         oc.add( "top" );
         oc.add( "organizationalUnit" );
@@ -279,8 +279,8 @@ public class MiscTest extends AbstractServerTest
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
-        Attributes attributes = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl();
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
         attributes.put( objectClass );
@@ -318,8 +318,8 @@ public class MiscTest extends AbstractServerTest
         Attributes attrs = ctx.getAttributes( "" );
         assertTrue( attrs.get( "dc" ).get().equals( "aPache" ) );
 
-        Attributes user = new AttributesImpl( "cn", "Kate Bush", true );
-        Attribute oc = new AttributeImpl( "objectClass" );
+        Attributes user = new LockableAttributesImpl( "cn", "Kate Bush", true );
+        Attribute oc = new LockableAttributeImpl( "objectClass" );
         oc.add( "top" );
         oc.add( "person" );
         oc.add( "organizationalPerson" );
@@ -431,8 +431,8 @@ public class MiscTest extends AbstractServerTest
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         InitialLdapContext ctx = new InitialLdapContext( env, null );
 
-        Attributes user = new AttributesImpl( "cn", "Kate Bush", true );
-        Attribute oc = new AttributeImpl( "objectClass" );
+        Attributes user = new LockableAttributesImpl( "cn", "Kate Bush", true );
+        Attribute oc = new LockableAttributeImpl( "objectClass" );
         oc.add( "top" );
         oc.add( "person" );
         oc.add( "organizationalPerson" );

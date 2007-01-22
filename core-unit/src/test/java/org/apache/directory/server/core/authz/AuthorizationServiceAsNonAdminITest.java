@@ -31,7 +31,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractNonAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -86,7 +86,7 @@ public class AuthorizationServiceAsNonAdminITest extends AbstractNonAdminTestCas
      */
     public void testModifyOnAdminByNonAdmin()
     {
-        Attributes attributes = new AttributesImpl();
+        Attributes attributes = new LockableAttributesImpl();
         attributes.put( "userPassword", "replaced" );
 
         try

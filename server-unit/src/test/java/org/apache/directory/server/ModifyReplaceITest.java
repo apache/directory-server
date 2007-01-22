@@ -33,8 +33,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
@@ -51,8 +51,8 @@ public class ModifyReplaceITest extends AbstractServerTest
 
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new LockableAttributesImpl();
+        Attribute ocls = new LockableAttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         attrs.put( ocls );
@@ -94,7 +94,7 @@ public class ModifyReplaceITest extends AbstractServerTest
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext( rdn, attrs );
 
-        Attribute attr = new AttributeImpl( "description" );
+        Attribute attr = new LockableAttributeImpl( "description" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
 
         ctx.modifyAttributes( rdn, new ModificationItemImpl[]
@@ -128,7 +128,7 @@ public class ModifyReplaceITest extends AbstractServerTest
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext( rdn, attrs );
 
-        Attribute attr = new AttributeImpl( "numberOfOctaves" );
+        Attribute attr = new LockableAttributeImpl( "numberOfOctaves" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
 
         ctx.modifyAttributes( rdn, new ModificationItemImpl[]

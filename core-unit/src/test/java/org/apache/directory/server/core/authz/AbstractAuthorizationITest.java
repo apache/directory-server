@@ -23,8 +23,8 @@ package org.apache.directory.server.core.authz;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.unit.AbstractTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
@@ -110,8 +110,8 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
     public Name createGroup( String cn, String firstMemberDn ) throws NamingException
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes group = new AttributesImpl( "cn", cn, true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes group = new LockableAttributesImpl( "cn", cn, true );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         group.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "groupOfUniqueNames" );
@@ -148,9 +148,9 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
     public Name createUser( String uid, String password ) throws NamingException
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes user = new AttributesImpl( "uid", uid, true );
+        Attributes user = new LockableAttributesImpl( "uid", uid, true );
         user.put( "userPassword", password );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         user.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "uidObject" );
@@ -172,8 +172,8 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
     public Name createGroup( String groupName ) throws NamingException
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes group = new AttributesImpl( true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes group = new LockableAttributesImpl( true );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         group.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "groupOfUniqueNames" );
@@ -194,7 +194,7 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
     public void addUserToGroup( String userUid, String groupCn ) throws NamingException
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes changes = new AttributesImpl( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
+        Attributes changes = new LockableAttributesImpl( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
         adminCtx.modifyAttributes( "cn=" + groupCn + ",ou=groups", DirContext.ADD_ATTRIBUTE, changes );
     }
 
@@ -209,7 +209,7 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
     public void removeUserFromGroup( String userUid, String groupCn ) throws NamingException
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes changes = new AttributesImpl( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
+        Attributes changes = new LockableAttributesImpl( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
         adminCtx.modifyAttributes( "cn=" + groupCn + ",ou=groups", DirContext.REMOVE_ATTRIBUTE, changes );
     }
 
@@ -288,13 +288,13 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
         Attribute administrativeRole = ap.get( "administrativeRole" );
         if ( administrativeRole == null || !administrativeRole.contains( SubentryService.AC_AREA ) )
         {
-            Attributes changes = new AttributesImpl( "administrativeRole", SubentryService.AC_AREA, true );
+            Attributes changes = new LockableAttributesImpl( "administrativeRole", SubentryService.AC_AREA, true );
             adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
 
         // now add the A/C subentry below ou=system
-        Attributes subentry = new AttributesImpl( "cn", cn, true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new LockableAttributesImpl( "cn", cn, true );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         subentry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
@@ -318,7 +318,7 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
         DirContext adminCtx = getContextAsAdmin();
 
         // modify the entry relative to ou=system to include the aciItem
-        Attributes changes = new AttributesImpl( "entryACI", aciItem, true );
+        Attributes changes = new LockableAttributesImpl( "entryACI", aciItem, true );
         adminCtx.modifyAttributes( rdn, DirContext.ADD_ATTRIBUTE, changes );
     }
 
@@ -334,7 +334,7 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
         DirContext adminCtx = getContextAsAdmin();
 
         // modify the entry relative to ou=system to include the aciItem
-        Attributes changes = new AttributesImpl( "subentryACI", aciItem, true );
+        Attributes changes = new LockableAttributesImpl( "subentryACI", aciItem, true );
         adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
     }
 }

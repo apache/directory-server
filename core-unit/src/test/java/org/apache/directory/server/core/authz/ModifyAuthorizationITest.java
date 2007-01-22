@@ -21,8 +21,8 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -67,8 +67,8 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         throws NamingException
     {
         // create the entry with the telephoneNumber attribute to modify
-        Attributes testEntry = new AttributesImpl( "ou", "testou", true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes testEntry = new LockableAttributesImpl( "ou", "testou", true );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         testEntry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
@@ -123,8 +123,8 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         throws NamingException
     {
         // create the entry with the telephoneNumber attribute to modify
-        Attributes testEntry = new AttributesImpl( "ou", "testou", true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes testEntry = new LockableAttributesImpl( "ou", "testou", true );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         testEntry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
@@ -247,7 +247,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         createUser( "billyd", "billyd" );
 
         // create the password modification
-        ModificationItemImpl[] mods = toItems( DirContext.REPLACE_ATTRIBUTE, new AttributesImpl( "userPassword",
+        ModificationItemImpl[] mods = toItems( DirContext.REPLACE_ATTRIBUTE, new LockableAttributesImpl( "userPassword",
             "williams", true ) );
 
         // try a modify operation which should fail without any ACI
@@ -280,7 +280,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         // ----------------------------------------------------------------------------------
 
         // create the add modifications
-        ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE, new AttributesImpl( "registeredAddress",
+        ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE, new LockableAttributesImpl( "registeredAddress",
             "100 Park Ave.", true ) );
 
         // create the non-admin user
@@ -315,7 +315,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        mods = toItems( DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "telephoneNumber", "867-5309", true ) );
+        mods = toItems( DirContext.REMOVE_ATTRIBUTE, new LockableAttributesImpl( "telephoneNumber", "867-5309", true ) );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -337,7 +337,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        mods = toItems( DirContext.REPLACE_ATTRIBUTE, new AttributesImpl( "telephoneNumber", "867-5309", true ) );
+        mods = toItems( DirContext.REPLACE_ATTRIBUTE, new LockableAttributesImpl( "telephoneNumber", "867-5309", true ) );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -363,7 +363,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         // Modify with Attribute Addition
         // ----------------------------------------------------------------------------------
         // create the add modifications
-        Attributes changes = new AttributesImpl( "registeredAddress", "100 Park Ave.", true );
+        Attributes changes = new LockableAttributesImpl( "registeredAddress", "100 Park Ave.", true );
 
         // try a modify operation which should fail without any ACI
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.ADD_ATTRIBUTE, changes ) );
@@ -385,7 +385,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        changes = new AttributesImpl( "telephoneNumber", "867-5309", true );
+        changes = new LockableAttributesImpl( "telephoneNumber", "867-5309", true );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REMOVE_ATTRIBUTE, changes ) );
@@ -407,7 +407,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        changes = new AttributesImpl( "telephoneNumber", "867-5309", true );
+        changes = new LockableAttributesImpl( "telephoneNumber", "867-5309", true );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REPLACE_ATTRIBUTE, changes ) );

@@ -27,8 +27,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 import jdbm.helper.Serializer;
 
@@ -51,15 +51,15 @@ public class AttributesSerializer implements Serializer
     {
         if ( buf.length == 0 )
         {
-            return new AttributesImpl();
+            return new LockableAttributesImpl();
         }
 
         int pos = 0;
-        AttributesImpl attrs = new AttributesImpl();
+        LockableAttributesImpl attrs = new LockableAttributesImpl();
         while ( pos < buf.length )
         {
             String id = AttributeSerializer.readString( buf, pos );
-            AttributeImpl attr = new AttributeImpl( id );
+            LockableAttributeImpl attr = new LockableAttributeImpl( id );
             pos += ( id.length() << 1 ) + 4;
 
             // read the type of the objects stored in this attribute

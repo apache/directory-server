@@ -42,7 +42,7 @@ import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
@@ -384,7 +384,7 @@ public abstract class BTreePartition implements Partition
         }
 
         Attributes entry = lookup( dn );
-        Attributes retval = new AttributesImpl();
+        Attributes retval = new LockableAttributesImpl();
 
         for ( int ii = 0; ii < attrIds.length; ii++ )
         {

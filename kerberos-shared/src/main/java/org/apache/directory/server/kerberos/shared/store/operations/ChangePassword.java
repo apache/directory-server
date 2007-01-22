@@ -35,8 +35,8 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
@@ -74,7 +74,7 @@ public class ChangePassword implements ContextOperation
         }
 
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute newKeyAttribute = new AttributeImpl( "krb5key", newKey.getEncoded() );
+        Attribute newKeyAttribute = new LockableAttributeImpl( "krb5key", newKey.getEncoded() );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, newKeyAttribute );
 
         String dn = null;
@@ -99,8 +99,8 @@ public class ChangePassword implements ContextOperation
         String[] attrIDs =
             { KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION, KerberosAttribute.TYPE, KerberosAttribute.KEY };
 
-        Attributes matchAttrs = new AttributesImpl( false ); // case-sensitive
-        matchAttrs.put( new AttributeImpl( KerberosAttribute.PRINCIPAL, principal ) );
+        Attributes matchAttrs = new LockableAttributesImpl( false ); // case-sensitive
+        matchAttrs.put( new LockableAttributeImpl( KerberosAttribute.PRINCIPAL, principal ) );
 
         NamingEnumeration answer = ctx.search( "", matchAttrs, attrIDs );
 

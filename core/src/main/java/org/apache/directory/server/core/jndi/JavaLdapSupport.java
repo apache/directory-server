@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -167,7 +167,7 @@ class JavaLdapSupport
          * objectClass: javaContainer
          * objectClass: javaSerializedObject
          */
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( TOP_ATTR );
         objectClass.add( JOBJECT_ATTR );
         objectClass.add( JCONTAINER_ATTR );
@@ -180,7 +180,7 @@ class JavaLdapSupport
 
         // Add all the class names this object can be cast to:
         Class[] classes = obj.getClass().getClasses();
-        Attribute javaClassNames = new AttributeImpl( JCLASSNAMES_ATTR );
+        Attribute javaClassNames = new LockableAttributeImpl( JCLASSNAMES_ATTR );
 
         for ( int ii = 0; ii < classes.length; ii++ )
         {

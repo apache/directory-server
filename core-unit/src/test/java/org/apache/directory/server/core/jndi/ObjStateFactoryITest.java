@@ -32,8 +32,8 @@ import javax.naming.spi.DirObjectFactory;
 import javax.naming.spi.DirStateFactory;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 
@@ -88,7 +88,7 @@ public class ObjStateFactoryITest extends AbstractAdminTestCase
 
                 if ( inAttrs == null )
                 {
-                    outAttrs = new AttributesImpl( true );
+                    outAttrs = new LockableAttributesImpl( true );
                 }
                 else
                 {
@@ -98,7 +98,7 @@ public class ObjStateFactoryITest extends AbstractAdminTestCase
                 // Set up object class
                 if ( outAttrs.get( "objectclass" ) == null )
                 {
-                    Attribute oc = new AttributeImpl( "objectclass", "person" );
+                    Attribute oc = new LockableAttributeImpl( "objectclass", "person" );
                     oc.add( "top" );
                     outAttrs.put( oc );
                 }

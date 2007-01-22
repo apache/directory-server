@@ -39,8 +39,8 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -59,8 +59,8 @@ public class ReferralITest extends AbstractServerTest
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl();
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );
@@ -142,14 +142,14 @@ public class ReferralITest extends AbstractServerTest
         // -------------------------------------------------------------------
 
         // Add a referral entry for europ
-        Attributes europ = new AttributesImpl( "objectClass", "top", true );
+        Attributes europ = new LockableAttributesImpl( "objectClass", "top", true );
         europ.get( "objectClass" ).add( "referral" );
         europ.get( "objectClass" ).add( "extensibleObject" );
         europ.put( "ref", europURL );
         europ.put( "c", "europ" );
 
         // Add a referral entry for america
-        Attributes america = new AttributesImpl( "objectClass", "top", true );
+        Attributes america = new LockableAttributesImpl( "objectClass", "top", true );
         america.get( "objectClass" ).add( "referral" );
         america.get( "objectClass" ).add( "extensibleObject" );
         america.put( "ref", americaURL );
@@ -184,12 +184,12 @@ public class ReferralITest extends AbstractServerTest
         // -------------------------------------------------------------------
 
         // Add a referral entry for europ
-        Attributes france = new AttributesImpl( "objectClass", "top", true );
+        Attributes france = new LockableAttributesImpl( "objectClass", "top", true );
         france.get( "objectClass" ).add( "country" );
         france.put( "c", "France" );
 
         // Add a referral entry for america
-        Attributes usa = new AttributesImpl( "objectClass", "top", true );
+        Attributes usa = new LockableAttributesImpl( "objectClass", "top", true );
         usa.get( "objectClass" ).add( "country" );
         usa.put( "c", "USA" );
 
@@ -219,12 +219,12 @@ public class ReferralITest extends AbstractServerTest
         // -------------------------------------------------------------------
 
         // Add a referral entry for europ
-        Attributes paris = new AttributesImpl( "objectClass", "top", true );
+        Attributes paris = new LockableAttributesImpl( "objectClass", "top", true );
         paris.get( "objectClass" ).add( "locality" );
         paris.put( "l", "Paris" );
 
         // Add a referral entry for america
-        Attributes jacksonville = new AttributesImpl( "objectClass", "top", true );
+        Attributes jacksonville = new LockableAttributesImpl( "objectClass", "top", true );
         jacksonville.get( "objectClass" ).add( "locality" );
         jacksonville.put( "l", "jacksonville" );
 
@@ -254,7 +254,7 @@ public class ReferralITest extends AbstractServerTest
         // -------------------------------------------------------------------
 
         // Add a referral entry for europ
-        Attributes emmanuel = new AttributesImpl( "objectClass", "top", true );
+        Attributes emmanuel = new LockableAttributesImpl( "objectClass", "top", true );
         emmanuel.get( "objectClass" ).add( "person" );
         emmanuel.get( "objectClass" ).add( "residentialperson" );
         emmanuel.put( "cn", "emmanuel lecharny" );
@@ -262,7 +262,7 @@ public class ReferralITest extends AbstractServerTest
         emmanuel.put( "l", "Paris" );
 
         // Add a referral entry for america
-        Attributes alex = new AttributesImpl( "objectClass", "top", true );
+        Attributes alex = new LockableAttributesImpl( "objectClass", "top", true );
         alex.get( "objectClass" ).add( "person" );
         alex.get( "objectClass" ).add( "residentialperson" );
         alex.put( "cn", "alex karasulu" );
@@ -505,7 +505,7 @@ public class ReferralITest extends AbstractServerTest
 
         td.refEurop.addToEnvironment( Context.REFERRAL, "throw" );
         
-        Attributes userEntry = new AttributesImpl( "objectClass", "top", true );
+        Attributes userEntry = new LockableAttributesImpl( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "marcelot" );
         userEntry.put( "cn", "pierre-arnaud marcelot" );
@@ -541,7 +541,7 @@ public class ReferralITest extends AbstractServerTest
 
         td.refEurop.addToEnvironment( Context.REFERRAL, "follow" );
         
-        Attributes userEntry = new AttributesImpl( "objectClass", "top", true );
+        Attributes userEntry = new LockableAttributesImpl( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "marcelot" );
         userEntry.put( "cn", "pierre-arnaud marcelot" );
@@ -568,7 +568,7 @@ public class ReferralITest extends AbstractServerTest
         // -------------------------------------------------------------------
 
         td.refUsa.addToEnvironment( Context.REFERRAL, "throw" );
-        Attributes userEntry = new AttributesImpl( "objectClass", "top", true );
+        Attributes userEntry = new LockableAttributesImpl( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "karasulu" );
         userEntry.put( "cn", "alex karasulu" );
@@ -656,7 +656,7 @@ public class ReferralITest extends AbstractServerTest
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
-            td.refCtx.modifyAttributes( "cn=alex karasulu", DirContext.ADD_ATTRIBUTE, new AttributesImpl(
+            td.refCtx.modifyAttributes( "cn=alex karasulu", DirContext.ADD_ATTRIBUTE, new LockableAttributesImpl(
                 "description", "just some text", true ) );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -684,7 +684,7 @@ public class ReferralITest extends AbstractServerTest
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
-            td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", DirContext.ADD_ATTRIBUTE, new AttributesImpl(
+            td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", DirContext.ADD_ATTRIBUTE, new LockableAttributesImpl(
                 "description", "just some text", true ) );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -713,7 +713,7 @@ public class ReferralITest extends AbstractServerTest
         try
         {
             ModificationItemImpl[] mods = new ModificationItemImpl[]
-                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new AttributeImpl( "description", "just some text" ) ) };
+                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new LockableAttributeImpl( "description", "just some text" ) ) };
             td.refCtx.modifyAttributes( "cn=alex karasulu", mods );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -742,7 +742,7 @@ public class ReferralITest extends AbstractServerTest
         try
         {
             ModificationItemImpl[] mods = new ModificationItemImpl[]
-                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new AttributeImpl( "description", "just some text" ) ) };
+                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new LockableAttributeImpl( "description", "just some text" ) ) };
             td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", mods );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -1060,7 +1060,7 @@ public class ReferralITest extends AbstractServerTest
     public void createLocalUser() throws Exception
     {
         LdapContext userCtx = null;
-        Attributes referral = new AttributesImpl( "objectClass", "top", true );
+        Attributes referral = new LockableAttributesImpl( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "person" );
         referral.put( "cn", "akarasulu" );
         referral.put( "sn", "karasulu" );
@@ -1089,7 +1089,7 @@ public class ReferralITest extends AbstractServerTest
     public void createDeepLocalUser() throws Exception
     {
         LdapContext userCtx = null;
-        Attributes referral = new AttributesImpl( "objectClass", "top", true );
+        Attributes referral = new LockableAttributesImpl( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "person" );
         referral.put( "cn", "akarasulu" );
         referral.put( "sn", "karasulu" );
@@ -1110,7 +1110,7 @@ public class ReferralITest extends AbstractServerTest
         }
         try
         {
-            Attributes ouAttrs = new AttributesImpl( "objectClass", "top", true );
+            Attributes ouAttrs = new LockableAttributesImpl( "objectClass", "top", true );
             ouAttrs.get( "objectClass" ).add( "organizationalUnit" );
             ouAttrs.put( "ou", "deep" );
             td.rootCtx.createSubcontext( "ou=deep", ouAttrs );

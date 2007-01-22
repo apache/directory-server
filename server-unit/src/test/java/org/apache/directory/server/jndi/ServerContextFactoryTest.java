@@ -34,8 +34,8 @@ import javax.naming.directory.DirContext;
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -69,13 +69,13 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         indexedAttrs.add( "objectClass" );
         pcfg.setIndexedAttributes( indexedAttrs );
 
-        attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "objectClass" );
+        attrs = new LockableAttributesImpl( true );
+        Attribute attr = new LockableAttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "organizationalUnit" );
         attr.add( "extensibleObject" );
         attrs.put( attr );
-        attr = new AttributeImpl( "ou" );
+        attr = new LockableAttributeImpl( "ou" );
         attr.add( "testing" );
         attrs.put( attr );
         pcfg.setContextEntry( attrs );
@@ -93,13 +93,13 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         indexedAttrs.add( "objectClass" );
         pcfg.setIndexedAttributes( indexedAttrs );
 
-        attrs = new AttributesImpl( true );
-        attr = new AttributeImpl( "objectClass" );
+        attrs = new LockableAttributesImpl( true );
+        attr = new LockableAttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "domain" );
         attr.add( "extensibleObject" );
         attrs.put( attr );
-        attr = new AttributeImpl( "dc" );
+        attr = new LockableAttributeImpl( "dc" );
         attr.add( "example" );
         attrs.put( attr );
         pcfg.setContextEntry( attrs );
@@ -116,13 +116,13 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         indexedAttrs.add( "objectClass" );
         pcfg.setIndexedAttributes( indexedAttrs );
 
-        attrs = new AttributesImpl( true );
-        attr = new AttributeImpl( "objectClass" );
+        attrs = new LockableAttributesImpl( true );
+        attr = new LockableAttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "domain" );
         attr.add( "extensibleObject" );
         attrs.put( attr );
-        attr = new AttributeImpl( "dc" );
+        attr = new LockableAttributeImpl( "dc" );
         attr.add( "MixedCase" );
         attrs.put( attr );
         pcfg.setContextEntry( attrs );

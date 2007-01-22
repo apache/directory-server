@@ -26,8 +26,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -48,8 +48,8 @@ public class ModifyContextITest extends AbstractAdminTestCase
             /*
              * create ou=testing00,ou=system
              */
-            Attributes attributes = new AttributesImpl( true );
-            Attribute attribute = new AttributeImpl( "objectClass" );
+            Attributes attributes = new LockableAttributesImpl( true );
+            Attribute attribute = new LockableAttributeImpl( "objectClass" );
             attribute.add( "top" );
             attribute.add( "organizationalUnit" );
             attributes.put( attribute );
@@ -71,8 +71,8 @@ public class ModifyContextITest extends AbstractAdminTestCase
             /*
              * create ou=testing01,ou=system
              */
-            attributes = new AttributesImpl( true );
-            attribute = new AttributeImpl( "objectClass" );
+            attributes = new LockableAttributesImpl( true );
+            attribute = new LockableAttributeImpl( "objectClass" );
             attribute.add( "top" );
             attribute.add( "organizationalUnit" );
             attributes.put( attribute );
@@ -94,8 +94,8 @@ public class ModifyContextITest extends AbstractAdminTestCase
             /*
              * create ou=testing02,ou=system
              */
-            attributes = new AttributesImpl( true );
-            attribute = new AttributeImpl( "objectClass" );
+            attributes = new LockableAttributesImpl( true );
+            attribute = new LockableAttributeImpl( "objectClass" );
             attribute.add( "top" );
             attribute.add( "organizationalUnit" );
             attributes.put( attribute );
@@ -119,8 +119,8 @@ public class ModifyContextITest extends AbstractAdminTestCase
              */
             ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
 
-            attributes = new AttributesImpl( true );
-            attribute = new AttributeImpl( "objectClass" );
+            attributes = new LockableAttributesImpl( true );
+            attribute = new LockableAttributeImpl( "objectClass" );
             attribute.add( "top" );
             attribute.add( "organizationalUnit" );
             attributes.put( attribute );
@@ -147,7 +147,7 @@ public class ModifyContextITest extends AbstractAdminTestCase
 
     public void testModifyOperation() throws NamingException
     {
-        Attributes attributes = new AttributesImpl( true );
+        Attributes attributes = new LockableAttributesImpl( true );
         attributes.put( "ou", "testCases" );
         sysRoot.modifyAttributes( "ou=testing00", DirContext.ADD_ATTRIBUTE, attributes );
         attributes = null;

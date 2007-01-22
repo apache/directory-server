@@ -33,8 +33,8 @@ import javax.naming.spi.DirStateFactory;
 
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -54,7 +54,7 @@ public class PrincipalStateFactory implements DirStateFactory
             Attributes outAttrs;
             if ( inAttrs == null )
             {
-                outAttrs = new AttributesImpl( true );
+                outAttrs = new LockableAttributesImpl( true );
             }
             else
             {
@@ -66,7 +66,7 @@ public class PrincipalStateFactory implements DirStateFactory
 
             if ( oc == null )
             {
-                oc = new AttributeImpl( "objectClass" );
+                oc = new LockableAttributeImpl( "objectClass" );
                 outAttrs.put( oc );
             }
 

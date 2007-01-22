@@ -37,7 +37,7 @@ import javax.naming.ldap.InitialLdapContext;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 
@@ -347,7 +347,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
         
         // now modify the password for akarasulu
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "newpwd" );
+        LockableAttributeImpl userPasswordAttribute = new LockableAttributeImpl( "userPassword", "newpwd" );
         ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
             new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
         

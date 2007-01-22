@@ -22,8 +22,8 @@ package org.apache.directory.server.core.authz;
 
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
@@ -63,8 +63,8 @@ public class CompareAuthorizationITest extends AbstractAuthorizationITest
         throws NamingException
     {
         // create the entry with the telephoneNumber attribute to compare
-        Attributes testEntry = new AttributesImpl( "ou", "testou", true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes testEntry = new LockableAttributesImpl( "ou", "testou", true );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         testEntry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
@@ -209,9 +209,9 @@ public class CompareAuthorizationITest extends AbstractAuthorizationITest
     public void testPasswordCompare() throws NamingException
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes user = new AttributesImpl( "uid", "bob", true );
+        Attributes user = new LockableAttributesImpl( "uid", "bob", true );
         user.put( "userPassword", "bobspassword".getBytes() );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         user.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "person" );

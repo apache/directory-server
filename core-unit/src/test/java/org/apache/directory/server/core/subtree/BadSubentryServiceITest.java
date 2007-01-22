@@ -33,8 +33,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
@@ -48,8 +48,8 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
 {
     public Attributes getTestEntry( String cn )
     {
-        Attributes entry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes entry = new LockableAttributesImpl();
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "person" );
         entry.put( objectClass );
@@ -61,8 +61,8 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
 
     public Attributes getCollectiveAttributeTestSubentry( String cn )
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new LockableAttributesImpl();
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -76,8 +76,8 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
     
     public Attributes getAccessControlTestSubentry( String cn )
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new LockableAttributesImpl();
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "accessControlSubentry" );
@@ -120,7 +120,7 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
 
     public void addAdministrativeRoles() throws NamingException
     {
-        Attribute attribute = new AttributeImpl( "administrativeRole" );
+        Attribute attribute = new LockableAttributeImpl( "administrativeRole" );
         attribute.add( "autonomousArea" );
         attribute.add( "collectiveAttributeSpecificArea" );
         attribute.add( "accessControlSpecificArea" );

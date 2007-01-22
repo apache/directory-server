@@ -36,8 +36,8 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
@@ -61,8 +61,8 @@ public class ModifyAddTest extends AbstractServerTest
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl();
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );
@@ -119,7 +119,7 @@ public class ModifyAddTest extends AbstractServerTest
     {
         // Add telephoneNumber attribute
         String newValue = "1234567890";
-        Attributes attrs = new AttributesImpl( "telephoneNumber", newValue );
+        Attributes attrs = new LockableAttributesImpl( "telephoneNumber", newValue );
         ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
 
         // Verify, that attribute value is added
@@ -141,10 +141,10 @@ public class ModifyAddTest extends AbstractServerTest
         // Add telephoneNumber attribute
         String[] newValues =
             { "1234567890", "999999999" };
-        Attribute attr = new AttributeImpl( "telephoneNumber" );
+        Attribute attr = new LockableAttributeImpl( "telephoneNumber" );
         attr.add( newValues[0] );
         attr.add( newValues[1] );
-        Attributes attrs = new AttributesImpl();
+        Attributes attrs = new LockableAttributesImpl();
         attrs.put( attr );
         ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
 
@@ -168,7 +168,7 @@ public class ModifyAddTest extends AbstractServerTest
         // A new description attribute value
         String newValue = "A new description for this person";
         assertFalse( newValue.equals( PERSON_DESCRIPTION ) );
-        Attributes attrs = new AttributesImpl( "description", newValue );
+        Attributes attrs = new LockableAttributesImpl( "description", newValue );
 
         ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
 
@@ -195,7 +195,7 @@ public class ModifyAddTest extends AbstractServerTest
     public void testAddExistingAttributeValue() throws NamingException
     {
         // Change description attribute
-        Attributes attrs = new AttributesImpl( "description", PERSON_DESCRIPTION );
+        Attributes attrs = new LockableAttributesImpl( "description", PERSON_DESCRIPTION );
         
         try
         {
@@ -230,23 +230,23 @@ public class ModifyAddTest extends AbstractServerTest
     public void testAddExistingNthAttributesDirServer664() throws NamingException
     {
         // Change description attribute
-        Attributes attrs = new AttributesImpl( true );
-        attrs.put( new AttributeImpl( "attr1", "attr 1" ) );
-        attrs.put( new AttributeImpl( "attr2", "attr 2" ) );
-        attrs.put( new AttributeImpl( "attr3", "attr 3" ) );
-        attrs.put( new AttributeImpl( "attr4", "attr 4" ) );
-        attrs.put( new AttributeImpl( "attr5", "attr 5" ) );
-        attrs.put( new AttributeImpl( "attr6", "attr 6" ) );
-        attrs.put( new AttributeImpl( "attr7", "attr 7" ) );
-        attrs.put( new AttributeImpl( "attr8", "attr 8" ) );
-        attrs.put( new AttributeImpl( "attr9", "attr 9" ) );
-        attrs.put( new AttributeImpl( "attr10", "attr 10" ) );
-        attrs.put( new AttributeImpl( "attr11", "attr 11" ) );
-        attrs.put( new AttributeImpl( "attr12", "attr 12" ) );
-        attrs.put( new AttributeImpl( "attr13", "attr 13" ) );
-        attrs.put( new AttributeImpl( "attr14", "attr 14" ) );
+        Attributes attrs = new LockableAttributesImpl( true );
+        attrs.put( new LockableAttributeImpl( "attr1", "attr 1" ) );
+        attrs.put( new LockableAttributeImpl( "attr2", "attr 2" ) );
+        attrs.put( new LockableAttributeImpl( "attr3", "attr 3" ) );
+        attrs.put( new LockableAttributeImpl( "attr4", "attr 4" ) );
+        attrs.put( new LockableAttributeImpl( "attr5", "attr 5" ) );
+        attrs.put( new LockableAttributeImpl( "attr6", "attr 6" ) );
+        attrs.put( new LockableAttributeImpl( "attr7", "attr 7" ) );
+        attrs.put( new LockableAttributeImpl( "attr8", "attr 8" ) );
+        attrs.put( new LockableAttributeImpl( "attr9", "attr 9" ) );
+        attrs.put( new LockableAttributeImpl( "attr10", "attr 10" ) );
+        attrs.put( new LockableAttributeImpl( "attr11", "attr 11" ) );
+        attrs.put( new LockableAttributeImpl( "attr12", "attr 12" ) );
+        attrs.put( new LockableAttributeImpl( "attr13", "attr 13" ) );
+        attrs.put( new LockableAttributeImpl( "attr14", "attr 14" ) );
         
-        Attribute attr = new AttributeImpl( "description", PERSON_DESCRIPTION );
+        Attribute attr = new LockableAttributeImpl( "description", PERSON_DESCRIPTION );
 
         attrs.put( attr );
         
@@ -276,8 +276,8 @@ public class ModifyAddTest extends AbstractServerTest
     public void testTwoDescriptionDirServer643() throws NamingException
     {
         // Change description attribute
-        Attributes attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "description", "a British singer-songwriter with an expressive four-octave voice" );
+        Attributes attrs = new LockableAttributesImpl( true );
+        Attribute attr = new LockableAttributeImpl( "description", "a British singer-songwriter with an expressive four-octave voice" );
         attr.add( "one of the most influential female artists of the twentieth century" );
         attrs.put( attr );
         
@@ -304,7 +304,7 @@ public class ModifyAddTest extends AbstractServerTest
     public void testAddDuplicateValueToExistingAttribute() throws NamingException
     {
         // modify object classes, add a new value twice
-        Attribute ocls = new AttributeImpl( "objectClass", "organizationalPerson" );
+        Attribute ocls = new LockableAttributeImpl( "objectClass", "organizationalPerson" );
         ModificationItemImpl[] modItems = new ModificationItemImpl[2];
         modItems[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, ocls );
         modItems[1] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, ocls );
@@ -336,7 +336,7 @@ public class ModifyAddTest extends AbstractServerTest
     public void testAddDuplicateValueToNewAttribute() throws NamingException
     {
         // add the same description value twice
-        Attribute desc = new AttributeImpl( "description", "another description value besides songwriter" );
+        Attribute desc = new LockableAttributeImpl( "description", "another description value besides songwriter" );
         ModificationItemImpl[] modItems = new ModificationItemImpl[2];
         modItems[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, desc );
         modItems[1] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, desc );
@@ -399,7 +399,7 @@ public class ModifyAddTest extends AbstractServerTest
     {
         // Add a not existing attribute
         String newValue = "unbelievable";
-        Attributes attrs = new AttributesImpl( "voice", newValue );
+        Attributes attrs = new LockableAttributesImpl( "voice", newValue );
 
         try
         {
@@ -431,14 +431,14 @@ public class ModifyAddTest extends AbstractServerTest
         String[] descriptions = {
                 "Kate Bush is a British singer-songwriter.",
                 "She has become one of the most influential female artists of the twentieth century." };
-        Attribute desc1 = new AttributeImpl("description");
+        Attribute desc1 = new LockableAttributeImpl("description");
         desc1.add(descriptions[0]);
         desc1.add(descriptions[1]);
 
         ModificationItemImpl addModOp = new ModificationItemImpl(
                 DirContext.ADD_ATTRIBUTE, desc1);
 
-        Attribute desc2 = new AttributeImpl("description");
+        Attribute desc2 = new LockableAttributeImpl("description");
         desc2.add(descriptions[1]);
         ModificationItemImpl delModOp = new ModificationItemImpl(
                 DirContext.REMOVE_ATTRIBUTE, desc2);
@@ -518,8 +518,8 @@ public class ModifyAddTest extends AbstractServerTest
      */
     public void testModifyAddWithInvalidNumberOfAttributeValues() throws NamingException
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new LockableAttributesImpl();
+        Attribute ocls = new LockableAttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "inetOrgPerson" );
         attrs.put( ocls );
@@ -528,8 +528,8 @@ public class ModifyAddTest extends AbstractServerTest
         ctx.createSubcontext( "cn=Fiona Apple", attrs );
         
         // add two displayNames to an inetOrgPerson
-        attrs = new AttributesImpl();
-        Attribute displayName = new AttributeImpl( "displayName" );
+        attrs = new LockableAttributesImpl();
+        Attribute displayName = new LockableAttributeImpl( "displayName" );
         displayName.add( "Fiona" );
         displayName.add( "Fiona A." );
         attrs.put( displayName );

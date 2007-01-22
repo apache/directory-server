@@ -38,8 +38,8 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 
 import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 import java.util.Hashtable;
 
@@ -73,8 +73,8 @@ public class AddITest extends AbstractServerTest
         ctx = new InitialDirContext( env );
 
         // Create a person
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );
@@ -134,8 +134,8 @@ public class AddITest extends AbstractServerTest
     {
 
         // modify object classes, add two more
-        Attributes attributes = new AttributesImpl( true );
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute ocls = new LockableAttributeImpl( "objectClass" );
         ocls.add( "organizationalPerson" );
         ocls.add( "inetOrgPerson" );
         attributes.put( ocls );
@@ -168,8 +168,8 @@ public class AddITest extends AbstractServerTest
         String newDescription = "More info on the user ...";
 
         // modify object classes, add two more
-        Attributes attributes = new AttributesImpl( true );
-        Attribute desc = new AttributeImpl( "description", newDescription );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute desc = new LockableAttributeImpl( "description", newDescription );
         attributes.put( desc );
 
         DirContext person = ( DirContext ) ctx.lookup( RDN );
@@ -190,8 +190,8 @@ public class AddITest extends AbstractServerTest
     public void testAddWithMissingRequiredAttributes() throws NamingException
     {
         // person without sn
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new LockableAttributesImpl();
+        Attribute ocls = new LockableAttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         attrs.put( ocls );
@@ -344,14 +344,14 @@ public class AddITest extends AbstractServerTest
     public void testAddWithInvalidNumberOfAttributeValues() throws NamingException
     {
         // add inetOrgPerson with two displayNames
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new LockableAttributesImpl();
+        Attribute ocls = new LockableAttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "inetOrgPerson" );
         attrs.put( ocls );
         attrs.put( "cn", "Fiona Apple" );
         attrs.put( "sn", "Apple" );
-        Attribute displayName = new AttributeImpl( "displayName" );
+        Attribute displayName = new LockableAttributeImpl( "displayName" );
         displayName.add( "Fiona" );
         displayName.add( "Fiona A." );
         attrs.put( displayName );
@@ -375,8 +375,8 @@ public class AddITest extends AbstractServerTest
     {
 
         // Create entry
-        Attributes entry = new AttributesImpl();
-        Attribute entryOcls = new AttributeImpl( "objectclass" );
+        Attributes entry = new LockableAttributesImpl();
+        Attribute entryOcls = new LockableAttributeImpl( "objectclass" );
         entryOcls.add( "top" );
         entryOcls.add( "organizationalUnit" );
         entry.put( entryOcls );
@@ -386,8 +386,8 @@ public class AddITest extends AbstractServerTest
 
         // Create Alias
         String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
-        Attributes alias = new AttributesImpl();
-        Attribute aliasOcls = new AttributeImpl( "objectclass" );
+        Attributes alias = new LockableAttributesImpl();
+        Attribute aliasOcls = new LockableAttributeImpl( "objectclass" );
         aliasOcls.add( "top" );
         aliasOcls.add( "organizationalUnit" );
         aliasOcls.add( "alias" );
@@ -411,8 +411,8 @@ public class AddITest extends AbstractServerTest
     {
 
         // Create container
-        Attributes container = new AttributesImpl();
-        Attribute containerOcls = new AttributeImpl( "objectclass" );
+        Attributes container = new LockableAttributesImpl();
+        Attribute containerOcls = new LockableAttributeImpl( "objectclass" );
         containerOcls.add( "top" );
         containerOcls.add( "organizationalUnit" );
         container.put( containerOcls );
@@ -421,8 +421,8 @@ public class AddITest extends AbstractServerTest
         DirContext containerCtx = ctx.createSubcontext( containerRdn, container );
 
         // Create entry
-        Attributes entry = new AttributesImpl();
-        Attribute entryOcls = new AttributeImpl( "objectclass" );
+        Attributes entry = new LockableAttributesImpl();
+        Attribute entryOcls = new LockableAttributeImpl( "objectclass" );
         entryOcls.add( "top" );
         entryOcls.add( "organizationalUnit" );
         entry.put( entryOcls );
@@ -432,8 +432,8 @@ public class AddITest extends AbstractServerTest
 
         // Create alias ou=bestFruit,ou=Fruits to entry ou=favorite,ou=Fruits
         String aliasedObjectName = entryRdn + "," + containerCtx.getNameInNamespace();
-        Attributes alias = new AttributesImpl();
-        Attribute aliasOcls = new AttributeImpl( "objectclass" );
+        Attributes alias = new LockableAttributesImpl();
+        Attribute aliasOcls = new LockableAttributeImpl( "objectclass" );
         aliasOcls.add( "top" );
         aliasOcls.add( "organizationalUnit" );
         aliasOcls.add( "alias" );

@@ -32,8 +32,8 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 import java.util.HashSet;
@@ -64,8 +64,8 @@ public class MixedCaseITest extends AbstractAdminTestCase
         indexedAttributes.add( "uid" );
         partition.setIndexedAttributes( indexedAttributes );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes attrs = new LockableAttributesImpl( true );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "domain" );
         objectClass.add( "extensibleObject" );
@@ -105,8 +105,8 @@ public class MixedCaseITest extends AbstractAdminTestCase
     {
         String dn = "ou=Test";
 
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -135,8 +135,8 @@ public class MixedCaseITest extends AbstractAdminTestCase
         String dn = "ou=Test";
         String description = "New Value";
 
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -147,7 +147,7 @@ public class MixedCaseITest extends AbstractAdminTestCase
         assertNotNull( ctx );
 
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "description", description ) );
+        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new LockableAttributeImpl( "description", description ) );
 
         sysRoot.modifyAttributes( dn, mods );
 
@@ -175,8 +175,8 @@ public class MixedCaseITest extends AbstractAdminTestCase
     {
         String dn = "ou=Test";
 
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );

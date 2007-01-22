@@ -57,8 +57,8 @@ import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -989,7 +989,7 @@ public class JdbmPartition extends BTreePartition
 
     public Attributes getIndices( BigInteger id ) throws NamingException
     {
-        Attributes attributes = new AttributesImpl();
+        Attributes attributes = new LockableAttributesImpl();
 
         // Get the distinguishedName to id mapping
         attributes.put( "_nDn", getEntryDn( id ) );
@@ -1010,7 +1010,7 @@ public class JdbmPartition extends BTreePartition
                 Attribute attr = attributes.get( attrId );
                 if ( attr == null )
                 {
-                    attr = new AttributeImpl( attrId );
+                    attr = new LockableAttributeImpl( attrId );
                 }
                 attr.add( val );
                 attributes.put( attr );
@@ -1032,7 +1032,7 @@ public class JdbmPartition extends BTreePartition
             Attribute attr = attributes.get( valStr );
             if ( attr == null )
             {
-                attr = new AttributeImpl( valStr );
+                attr = new LockableAttributeImpl( valStr );
             }
             attr.add( rec.getEntryId() );
             attributes.put( attr );
@@ -1042,7 +1042,7 @@ public class JdbmPartition extends BTreePartition
         // Get all parent child mappings for this entry as the parent using the
         // key 'child' with many entries following it.
         list = hierarchyIdx.listIndices( id );
-        Attribute childAttr = new AttributeImpl( "_child" );
+        Attribute childAttr = new LockableAttributeImpl( "_child" );
         attributes.put( childAttr );
         while ( list.hasMore() )
         {
@@ -1087,7 +1087,7 @@ public class JdbmPartition extends BTreePartition
 
         if ( entryAttrToAddTo == null )
         {
-            entryAttrToAddTo = new AttributeImpl( mods.getID() );
+            entryAttrToAddTo = new LockableAttributeImpl( mods.getID() );
             entry.put( entryAttrToAddTo );
         }
 
@@ -1357,7 +1357,7 @@ public class JdbmPartition extends BTreePartition
         Attribute rdnAttr = ServerUtils.getAttribute( newRdnAttrType, entry );
         if ( rdnAttr == null )
         {
-            rdnAttr = new AttributeImpl( newRdnAttr );
+            rdnAttr = new LockableAttributeImpl( newRdnAttr );
         }
 
         // add the new Rdn value only if it is not already present in the entry

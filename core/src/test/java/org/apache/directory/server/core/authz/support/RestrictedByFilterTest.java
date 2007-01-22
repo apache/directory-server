@@ -38,8 +38,8 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -54,7 +54,7 @@ public class RestrictedByFilterTest extends TestCase
     private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
 
     private static final Collection PROTECTED_ITEMS = new ArrayList();
-    private static final Attributes ENTRY = new AttributesImpl();
+    private static final Attributes ENTRY = new LockableAttributesImpl();
 
     static
     {
@@ -62,7 +62,7 @@ public class RestrictedByFilterTest extends TestCase
         mvcItems.add( new RestrictedByItem( "choice", "option" ) );
         PROTECTED_ITEMS.add( new ProtectedItem.RestrictedBy( mvcItems ) );
 
-        Attribute attr = new AttributeImpl( "option" );
+        Attribute attr = new LockableAttributeImpl( "option" );
         attr.add( "1" );
         attr.add( "2" );
 

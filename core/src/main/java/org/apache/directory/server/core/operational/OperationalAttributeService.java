@@ -49,8 +49,8 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -138,11 +138,11 @@ public class OperationalAttributeService extends BaseInterceptor
     {
         String principal = getPrincipal().getName();
 
-        Attribute attribute = new AttributeImpl( "creatorsName" );
+        Attribute attribute = new LockableAttributeImpl( "creatorsName" );
         attribute.add( principal );
         entry.put( attribute );
 
-        attribute = new AttributeImpl( "createTimestamp" );
+        attribute = new LockableAttributeImpl( "createTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         entry.put( attribute );
 
@@ -156,12 +156,12 @@ public class OperationalAttributeService extends BaseInterceptor
         nextInterceptor.modify( name, modOp, attrs );
 
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "modifiersName" );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new LockableAttributeImpl( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
@@ -174,12 +174,12 @@ public class OperationalAttributeService extends BaseInterceptor
         nextInterceptor.modify( name, items );
 
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "modifiersName" );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new LockableAttributeImpl( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
@@ -193,12 +193,12 @@ public class OperationalAttributeService extends BaseInterceptor
         nextInterceptor.modifyRn( name, newRn, deleteOldRn );
 
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "modifiersName" );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new LockableAttributeImpl( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
@@ -215,12 +215,12 @@ public class OperationalAttributeService extends BaseInterceptor
         nextInterceptor.move( name, newParentName );
 
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "modifiersName" );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new LockableAttributeImpl( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
@@ -234,12 +234,12 @@ public class OperationalAttributeService extends BaseInterceptor
         nextInterceptor.move( name, newParentName, newRn, deleteOldRn );
 
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "modifiersName" );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new LockableAttributeImpl( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 

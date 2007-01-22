@@ -25,8 +25,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 /**
  * Tests the use of extensible objects.
@@ -38,8 +38,8 @@ public class ExtensibleObjectITest extends AbstractAdminTestCase
 {
     public void testExtensibleObjectModify() throws Exception
     {
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -58,11 +58,11 @@ public class ExtensibleObjectITest extends AbstractAdminTestCase
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
 
-        Attributes newattribs = new AttributesImpl( true );
-        Attribute freeform = new AttributeImpl( "cn" );
+        Attributes newattribs = new LockableAttributesImpl( true );
+        Attribute freeform = new LockableAttributeImpl( "cn" );
         freeform.add( "testing" );
         newattribs.put( freeform );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "extensibleObject" );
         objectClass.add( "organizationalUnit" );
@@ -84,8 +84,8 @@ public class ExtensibleObjectITest extends AbstractAdminTestCase
 
     public void testExtensibleObjectAdd() throws Exception
     {
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "extensibleObject" );
         attribute.add( "organizationalUnit" );

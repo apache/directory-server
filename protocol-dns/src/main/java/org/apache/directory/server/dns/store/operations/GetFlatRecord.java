@@ -35,8 +35,8 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordModifier;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -73,11 +73,11 @@ public class GetFlatRecord implements ContextOperation
             return null;
         }
 
-        Attributes matchAttrs = new AttributesImpl( true );
+        Attributes matchAttrs = new LockableAttributesImpl( true );
 
-        matchAttrs.put( new AttributeImpl( DnsAttribute.NAME, question.getDomainName() ) );
-        matchAttrs.put( new AttributeImpl( DnsAttribute.TYPE, question.getRecordType().getCode() ) );
-        matchAttrs.put( new AttributeImpl( DnsAttribute.CLASS, question.getRecordClass().getCode() ) );
+        matchAttrs.put( new LockableAttributeImpl( DnsAttribute.NAME, question.getDomainName() ) );
+        matchAttrs.put( new LockableAttributeImpl( DnsAttribute.TYPE, question.getRecordType().getCode() ) );
+        matchAttrs.put( new LockableAttributeImpl( DnsAttribute.CLASS, question.getRecordClass().getCode() ) );
 
         ResourceRecord record = null;
 

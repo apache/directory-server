@@ -37,8 +37,8 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
@@ -62,8 +62,8 @@ public class ModifyRemoveTest extends AbstractServerTest
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl();
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );
@@ -79,8 +79,8 @@ public class ModifyRemoveTest extends AbstractServerTest
      */
     protected Attributes getInetOrgPersonAttributes( String sn, String cn )
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new LockableAttributesImpl();
+        Attribute ocls = new LockableAttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         ocls.add( "organizationalPerson" );
@@ -153,8 +153,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemoveNotRequiredAttribute() throws NamingException
     {
         // Remove description Attribute
-        Attribute attr = new AttributeImpl( "description" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new LockableAttributeImpl( "description" );
+        Attributes attrs = new LockableAttributesImpl();
         attrs.put( attr );
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
 
@@ -176,13 +176,13 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemoveTwoNotRequiredAttributes() throws NamingException
     {
         // add telephoneNumber to entry
-        Attributes tn = new AttributesImpl( "telephoneNumber", "12345678" );
+        Attributes tn = new LockableAttributesImpl( "telephoneNumber", "12345678" );
         ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, tn );
 
         // Remove description and telephoneNumber to Attribute
-        Attributes attrs = new AttributesImpl();
-        attrs.put( new AttributeImpl( "description" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber" ) );
+        Attributes attrs = new LockableAttributesImpl();
+        attrs.put( new LockableAttributeImpl( "description" ) );
+        attrs.put( new LockableAttributeImpl( "telephoneNumber" ) );
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
 
         // Verify, that attributes are deleted
@@ -205,8 +205,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemoveRequiredAttribute() throws NamingException
     {
         // Remove sn attribute
-        Attribute attr = new AttributeImpl( "sn" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new LockableAttributeImpl( "sn" );
+        Attributes attrs = new LockableAttributesImpl();
         attrs.put( attr );
 
         try
@@ -231,8 +231,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemovePartOfRdn() throws NamingException
     {
         // Remove sn attribute
-        Attribute attr = new AttributeImpl( "cn" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new LockableAttributeImpl( "cn" );
+        Attributes attrs = new LockableAttributesImpl();
         attrs.put( attr );
 
         try
@@ -262,8 +262,8 @@ public class ModifyRemoveTest extends AbstractServerTest
         ctx.rename( RDN, newRdn );
 
         // Remove description, which is now RDN attribute
-        Attribute attr = new AttributeImpl( "description" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new LockableAttributeImpl( "description" );
+        Attributes attrs = new LockableAttributesImpl();
         attrs.put( attr );
 
         try
@@ -293,8 +293,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemoveAttributeNotPresent() throws NamingException
     {
         // Remove telephoneNumber Attribute
-        Attribute attr = new AttributeImpl( "telephoneNumber" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new LockableAttributeImpl( "telephoneNumber" );
+        Attributes attrs = new LockableAttributesImpl();
         attrs.put( attr );
 
         try
@@ -319,8 +319,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     public void testRemoveAttributeNotValid() throws NamingException
     {
         // Remove phantasy attribute
-        Attribute attr = new AttributeImpl( "XXX" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new LockableAttributeImpl( "XXX" );
+        Attributes attrs = new LockableAttributesImpl();
         attrs.put( attr );
 
         try
@@ -351,7 +351,7 @@ public class ModifyRemoveTest extends AbstractServerTest
         ctx.createSubcontext( rdn, attrs );
 
         // replace attribute givenName with empty value (=> deletion)
-        Attribute attr = new AttributeImpl( "givenname" );
+        Attribute attr = new LockableAttributeImpl( "givenname" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         ctx.modifyAttributes( rdn, new ModificationItemImpl[] { item } );
 
@@ -394,7 +394,7 @@ public class ModifyRemoveTest extends AbstractServerTest
         ctx.createSubcontext( rdn, attrs );
 
         // replace attribute cn with empty value (=> deletion)
-        Attribute attr = new AttributeImpl( "cn" );
+        Attribute attr = new LockableAttributeImpl( "cn" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
 
         try
@@ -424,7 +424,7 @@ public class ModifyRemoveTest extends AbstractServerTest
         ctx.createSubcontext( rdn, attrs );
 
         // replace attribute cn with empty value (=> deletion)
-        Attribute attr = new AttributeImpl( "cn" );
+        Attribute attr = new LockableAttributeImpl( "cn" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
 
         try
@@ -454,7 +454,7 @@ public class ModifyRemoveTest extends AbstractServerTest
         ctx.createSubcontext( rdn, attrs );
 
         // replace attribute cn with empty value (=> deletion)
-        Attribute attr = new AttributeImpl( "cn", "Kate Bush" );
+        Attribute attr = new LockableAttributeImpl( "cn", "Kate Bush" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
 
         try
@@ -481,7 +481,7 @@ public class ModifyRemoveTest extends AbstractServerTest
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext(rdn, attrs);
 
-        ModificationItemImpl delModOp = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, new AttributeImpl("objectclass", ""));
+        ModificationItemImpl delModOp = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, new LockableAttributeImpl("objectclass", ""));
 
         try {
             ctx.modifyAttributes(rdn, new ModificationItemImpl[] { delModOp });
@@ -508,7 +508,7 @@ public class ModifyRemoveTest extends AbstractServerTest
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext(rdn, attrs);
 
-        ModificationItemImpl delModOp = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, new AttributeImpl("objectclass"));
+        ModificationItemImpl delModOp = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, new LockableAttributeImpl("objectclass"));
 
         try {
             ctx.modifyAttributes(rdn, new ModificationItemImpl[] { delModOp });

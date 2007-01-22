@@ -28,8 +28,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.protocol.shared.AbstractBackingStoreTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -60,8 +60,8 @@ public class KerberosTest extends AbstractBackingStoreTest
         env.put( Context.PROVIDER_URL, "dc=example,dc=com" );
         DirContext ctx = ( DirContext ) factory.getInitialContext( env );
 
-        Attributes matchAttrs = new AttributesImpl( true );
-        matchAttrs.put( new AttributeImpl( "krb5PrincipalName", "kadmin/changepw@EXAMPLE.COM" ) );
+        Attributes matchAttrs = new LockableAttributesImpl( true );
+        matchAttrs.put( new LockableAttributeImpl( "krb5PrincipalName", "kadmin/changepw@EXAMPLE.COM" ) );
 
         Attributes attributes = ctx.getAttributes( "ou=users" );
         System.out.println( attributes );

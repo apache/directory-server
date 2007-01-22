@@ -36,8 +36,8 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 
 
@@ -61,8 +61,8 @@ public class SearchContextITest extends AbstractAdminTestCase
         /*
          * create ou=testing00,ou=system
          */
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -84,8 +84,8 @@ public class SearchContextITest extends AbstractAdminTestCase
         /*
          * create ou=testing01,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new LockableAttributesImpl( true );
+        attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -107,8 +107,8 @@ public class SearchContextITest extends AbstractAdminTestCase
         /*
          * create ou=testing02,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new LockableAttributesImpl( true );
+        attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -133,8 +133,8 @@ public class SearchContextITest extends AbstractAdminTestCase
          */
         ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
 
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new LockableAttributesImpl( true );
+        attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -556,8 +556,8 @@ public class SearchContextITest extends AbstractAdminTestCase
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl();
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );

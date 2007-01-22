@@ -38,8 +38,8 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 
 
@@ -109,8 +109,8 @@ public class SearchTest extends AbstractServerTest
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl();
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attribute.add( "organizationalPerson" );
@@ -476,13 +476,13 @@ public class SearchTest extends AbstractServerTest
         Attribute administrativeRole = ap.get( "administrativeRole" );
         if ( administrativeRole == null || !administrativeRole.contains( SubentryService.AC_AREA ) )
         {
-            Attributes changes = new AttributesImpl( "administrativeRole", SubentryService.AC_AREA, true );
+            Attributes changes = new LockableAttributesImpl( "administrativeRole", SubentryService.AC_AREA, true );
             adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
 
         // now add the A/C subentry below ou=system
-        Attributes subentry = new AttributesImpl( "cn", cn, true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new LockableAttributesImpl( "cn", cn, true );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         subentry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
@@ -501,8 +501,8 @@ public class SearchTest extends AbstractServerTest
     {
 
         // Create entry
-        Attributes heather = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes heather = new LockableAttributesImpl();
+        Attribute ocls = new LockableAttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         heather.put( ocls );
@@ -544,7 +544,7 @@ public class SearchTest extends AbstractServerTest
     {
 
         // Create entry
-        Attributes kate = new AttributesImpl();
+        Attributes kate = new LockableAttributesImpl();
         kate.put( "objectClass", "organizationalperson" );
         kate.put( "cn", "Kate Bush" );
         kate.put( "sn", "Bush" );

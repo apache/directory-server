@@ -36,7 +36,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.directory.daemon.AvailablePortFinder;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 
@@ -135,7 +135,7 @@ public class CapacityTestCommand extends ToolCommand
     
     private boolean createBase( LdapContext ctx ) throws NamingException
     {
-        Attributes attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        Attributes attrs = new LockableAttributesImpl( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "users" );
         
         try
@@ -152,7 +152,7 @@ public class CapacityTestCommand extends ToolCommand
 
     private Attributes generateLdif( int counter )
     {
-        Attributes attrs = new AttributesImpl( "objectClass", "top", true );
+        Attributes attrs = new LockableAttributesImpl( "objectClass", "top", true );
         Attribute oc = attrs.get( "objectClass" );
         oc.add( "person" );
         oc.add( "organizationalPerson" );

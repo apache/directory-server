@@ -31,8 +31,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -45,8 +45,8 @@ public class CreateContextITest extends AbstractAdminTestCase
 {
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new LockableAttributesImpl();
+        Attribute ocls = new LockableAttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         attrs.put( ocls );
@@ -98,8 +98,8 @@ public class CreateContextITest extends AbstractAdminTestCase
         /*
          * create ou=testing00,ou=system
          */
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -121,8 +121,8 @@ public class CreateContextITest extends AbstractAdminTestCase
         /*
          * create ou=testing01,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new LockableAttributesImpl( true );
+        attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -144,8 +144,8 @@ public class CreateContextITest extends AbstractAdminTestCase
         /*
          * create ou=testing02,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new LockableAttributesImpl( true );
+        attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -169,8 +169,8 @@ public class CreateContextITest extends AbstractAdminTestCase
          */
         ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
 
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new LockableAttributesImpl( true );
+        attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -200,8 +200,8 @@ public class CreateContextITest extends AbstractAdminTestCase
         /*
          * create ou=testing00,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new LockableAttributesImpl( true );
+        attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -223,8 +223,8 @@ public class CreateContextITest extends AbstractAdminTestCase
         /*
          * fail on recreate attempt for ou=testing00,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new LockableAttributesImpl( true );
+        attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -247,8 +247,8 @@ public class CreateContextITest extends AbstractAdminTestCase
     
     public void testCreateContextWithCompositeName() throws Exception
     {
-        Attributes attrs = new AttributesImpl( true );
-        Attribute objclass = new AttributeImpl( "objectClass" );
+        Attributes attrs = new LockableAttributesImpl( true );
+        Attribute objclass = new LockableAttributeImpl( "objectClass" );
         objclass.add( "top" );
         objclass.add( "extensibleObject" );
         attrs.put( objclass );

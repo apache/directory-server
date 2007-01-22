@@ -35,8 +35,8 @@ import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
@@ -56,8 +56,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     
     private DirContext createSubContext( DirContext ctx, String type, String value ) throws NamingException
     {
-        Attributes attrs = new AttributesImpl( type, value );
-        Attribute attr = new AttributeImpl( "ObjectClass" );
+        Attributes attrs = new LockableAttributesImpl( type, value );
+        Attribute attr = new LockableAttributeImpl( "ObjectClass" );
         attr.add( "top"  );
         attr.add( "person" );
         attr.add( "OrganizationalPerson" );
@@ -123,8 +123,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     {
         try
         {
-            Attributes attrs = new AttributesImpl( "ou", "users" );
-            Attribute attr = new AttributeImpl( "ObjectClass" );
+            Attributes attrs = new LockableAttributesImpl( "ou", "users" );
+            Attribute attr = new LockableAttributeImpl( "ObjectClass" );
             attr.add( "top"  );
             attr.add( "OrganizationalUnit" );
             attrs.put( attr );
@@ -141,8 +141,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
 
         try
         {
-            Attributes attrs = new AttributesImpl( "ou", "uzerz" );
-            Attribute attr = new AttributeImpl( "ObjectClass" );
+            Attributes attrs = new LockableAttributesImpl( "ou", "uzerz" );
+            Attribute attr = new LockableAttributeImpl( "ObjectClass" );
             attr.add( "top"  );
             attr.add( "OrganizationalUnit" );
             attrs.put( attr );
@@ -285,8 +285,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
      */
     public void testFailModifyNoSuchObject() throws NamingException
     {
-        Attributes attrs = new AttributesImpl( true );
-        Attribute ou = new AttributeImpl( "ou" );
+        Attributes attrs = new LockableAttributesImpl( true );
+        Attribute ou = new LockableAttributeImpl( "ou" );
         ou.add( "users" );
         ou.add( "dummyValue" );
         attrs.put( ou );
@@ -324,8 +324,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
      */
     public void testModifyControl() throws NamingException
     {
-        Attributes attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "ou" );
+        Attributes attrs = new LockableAttributesImpl( true );
+        Attribute attr = new LockableAttributeImpl( "ou" );
         attr.add( "dummyValue" );
         attrs.put( attr );
         sysRoot.modifyAttributes( "ou=users", DirContext.ADD_ATTRIBUTE, attrs );
@@ -333,7 +333,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         assertTrue( ou.contains( "users" ) );
         assertTrue( ou.contains( "dummyValue" ) );
 
-        attr = new AttributeImpl( "ou" );
+        attr = new LockableAttributeImpl( "ou" );
         attr.add( "another" );
         ModificationItemImpl[] mods = new ModificationItemImpl[]
             { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr ) };
@@ -430,8 +430,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
      */
     public void testFailAddOnAlias() throws NamingException
     {
-        Attributes attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "objectClass" );
+        Attributes attrs = new LockableAttributesImpl( true );
+        Attribute attr = new LockableAttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "alias" );
         attr.add( "person" );

@@ -39,7 +39,7 @@ import org.apache.directory.server.core.configuration.MutablePartitionConfigurat
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
@@ -141,7 +141,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
             indexedAttributes.add( "objectClass" );
             
             // Build the root entry for the new partition
-            Attributes attributes = new AttributesImpl( "objectClass", "top", true );
+            Attributes attributes = new LockableAttributesImpl( "objectClass", "top", true );
             attributes.get( "objectClass" ).add( "organizationalUnit" );
             attributes.put( "ou", "test" );
             

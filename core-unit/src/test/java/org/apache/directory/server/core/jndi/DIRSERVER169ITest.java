@@ -22,8 +22,8 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -47,19 +47,19 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
     protected void setUp() throws Exception
     {
         super.setUp();
-        Attributes people = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes people = new LockableAttributesImpl( true );
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         people.put( attribute );
         people.put( "ou", "people" );
         sysRoot.createSubcontext( "ou=people", people );
 
-        Attributes user = new AttributesImpl( "uid", "bob" );
+        Attributes user = new LockableAttributesImpl( "uid", "bob" );
         user.put( "cn", "Bob Hamilton" );
         user.put( "userPassword", "bobspassword".getBytes( "UTF-8" ) );
 
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attribute objectClass = new LockableAttributeImpl( "objectClass" );
         user.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "person" );

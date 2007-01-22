@@ -38,8 +38,8 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -54,8 +54,8 @@ public class MaxValueCountFilterTest extends TestCase
     private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
 
     private static final Collection PROTECTED_ITEMS = new ArrayList();
-    private static final Attributes ENTRY = new AttributesImpl();
-    private static final Attributes FULL_ENTRY = new AttributesImpl();
+    private static final Attributes ENTRY = new LockableAttributesImpl();
+    private static final Attributes FULL_ENTRY = new LockableAttributesImpl();
 
     static
     {
@@ -65,7 +65,7 @@ public class MaxValueCountFilterTest extends TestCase
 
         ENTRY.put( "testAttr", "1" );
 
-        Attribute attr = new AttributeImpl( "testAttr" );
+        Attribute attr = new LockableAttributeImpl( "testAttr" );
         attr.add( "1" );
         attr.add( "2" );
         FULL_ENTRY.put( attr );

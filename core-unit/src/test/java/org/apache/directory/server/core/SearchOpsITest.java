@@ -34,7 +34,7 @@ import org.apache.directory.server.core.configuration.MutablePartitionConfigurat
 import org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration;
 import org.apache.directory.server.core.schema.bootstrap.NisSchema;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
 
 /**
@@ -47,7 +47,7 @@ public class SearchOpsITest extends AbstractAdminTestCase
 {
     private DirContext addNisPosixGroup( String name, int gid ) throws NamingException
     {
-        Attributes attrs = new AttributesImpl( "objectClass", "top", true );
+        Attributes attrs = new LockableAttributesImpl( "objectClass", "top", true );
         attrs.get( "objectClass" ).add( "posixGroup" );
         attrs.put( "cn", name );
         attrs.put( "gidNumber", String.valueOf( gid ) );
@@ -74,7 +74,7 @@ public class SearchOpsITest extends AbstractAdminTestCase
         {
             MutablePartitionConfiguration sysConf = new MutablePartitionConfiguration();
             sysConf.setName( "system" );
-            Attributes attrs = new AttributesImpl( "objectClass", "top", true );
+            Attributes attrs = new LockableAttributesImpl( "objectClass", "top", true );
             attrs.get( "objectClass" ).add( "organizationalUnit" );
             attrs.put( "ou", "system" );
             sysConf.setContextEntry( attrs );

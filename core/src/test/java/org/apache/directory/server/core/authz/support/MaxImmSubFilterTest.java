@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -65,7 +65,7 @@ public class MaxImmSubFilterTest extends TestCase
     private static final LdapDN ROOTDSE_NAME = new LdapDN();
     private static final LdapDN ENTRY_NAME;
     private static final Collection PROTECTED_ITEMS = new ArrayList();
-    private static final Attributes ENTRY = new AttributesImpl();
+    private static final Attributes ENTRY = new LockableAttributesImpl();
 
     static
     {

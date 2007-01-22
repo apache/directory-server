@@ -29,7 +29,7 @@ import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
@@ -91,7 +91,7 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         Name apDn = new LdapDN( "ou=system" );
         Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass" );
+        Attribute objectClasses = new LockableAttributeImpl( "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
@@ -110,7 +110,7 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         Name apDn = new LdapDN( "ou=system" );
         Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass" );
+        Attribute objectClasses = new LockableAttributeImpl( "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
@@ -131,7 +131,7 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         Name apDn = new LdapDN( "ou=system" );
         Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass" );
+        Attribute objectClasses = new LockableAttributeImpl( "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
@@ -165,7 +165,7 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         Name apDn = new LdapDN( "ou=system" );
         Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass" );
+        Attribute objectClasses = new LockableAttributeImpl( "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
@@ -199,7 +199,7 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         Name apDn = new LdapDN( "ou=system" );
         Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass" );
+        Attribute objectClasses = new LockableAttributeImpl( "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
@@ -233,7 +233,7 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         Name apDn = new LdapDN( "ou=system" );
         Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass", "person" );
+        Attribute objectClasses = new LockableAttributeImpl( "objectClass", "person" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
@@ -253,7 +253,7 @@ public class SubtreeEvaluatorTest extends TestCase
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
         // now change the refinement so the entry is rejected
-        objectClasses = new AttributeImpl( "objectClass", "organizationalUnit" );
+        objectClasses = new LockableAttributeImpl( "objectClass", "organizationalUnit" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, objectClasses ) );
 
