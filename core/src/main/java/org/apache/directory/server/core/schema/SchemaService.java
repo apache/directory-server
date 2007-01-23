@@ -1314,7 +1314,7 @@ public class SchemaService extends BaseInterceptor
             }
         }
 
-        check( tmpEntry );
+        check( name, tmpEntry );
         
         // let's figure out if we need to add or take away from mods to maintain 
         // the objectClass attribute with it's hierarchy of ancestors 
@@ -1488,7 +1488,7 @@ public class SchemaService extends BaseInterceptor
         }
     }
 
-    private void check( Attributes entry ) throws NamingException
+    private void check( LdapDN dn, Attributes entry ) throws NamingException
     {
         NamingEnumeration attrEnum = entry.getIDs();
         
@@ -1522,12 +1522,12 @@ public class SchemaService extends BaseInterceptor
 
         boolean hasExtensibleObject = getObjectClasses( objectClassAttr, ocs );
         
-        assertRequiredAttributesPresent( entry, must );
+        assertRequiredAttributesPresent( dn, entry, must );
         assertNumberOfAttributeValuesValid( entry );
 
         if ( !hasExtensibleObject )
         {
-            assertAllAttributesAllowed( entry, allowed );
+            assertAllAttributesAllowed( dn, entry, allowed );
         }
     }
     
@@ -1536,7 +1536,7 @@ public class SchemaService extends BaseInterceptor
      */
     public void add( NextInterceptor next, LdapDN normName, Attributes attrs ) throws NamingException
     {
-        check( attrs );
+        check( normName, attrs );
         next.add(normName, attrs );
     }
     
@@ -1572,27 +1572,26 @@ public class SchemaService extends BaseInterceptor
     /**
      * Checks to see the presence of all required attributes within an entry.
      */
-    private void assertRequiredAttributesPresent( Attributes entry, Set must ) 
+    private void assertRequiredAttributesPresent( LdapDN dn, Attributes entry, Set must ) 
         throws NamingException
     {
         NamingEnumeration attributes = entry.getAll();
         
         while ( attributes.hasMoreElements() && ( must.size() > 0 ) )
         {
-            Attribute attribute = (Attribute)attributes.nextElement();
-            
+            Attribute attribute = ( Attribute ) attributes.nextElement();
             String oid = globalRegistries.getOidRegistry().getOid( attribute.getID() );
-            
             must.remove( oid );
         }
         
         if ( must.size() != 0 )
         {
             throw new LdapSchemaViolationException( "Required attributes " + 
-                must.toArray() + " not found within entry.", 
+                must + " not found within entry " + dn.getUpName(), 
                 ResultCodeEnum.OBJECTCLASSVIOLATION );
         }
     }
+    
     
     /**
      * Checks to see if an attribute is required by as determined from an entry's
@@ -1603,7 +1602,7 @@ public class SchemaService extends BaseInterceptor
      * @return true if the objectClass values require the attribute, false otherwise
      * @throws NamingException if the attribute is not recognized
      */
-    private void assertAllAttributesAllowed( Attributes attributes, Set allowed ) throws NamingException
+    private void assertAllAttributesAllowed( LdapDN dn, Attributes attributes, Set allowed ) throws NamingException
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
@@ -1629,7 +1628,7 @@ public class SchemaService extends BaseInterceptor
                 if ( !allowed.contains( attrOid ) )
                 {
                     throw new LdapSchemaViolationException( "Attribute " + 
-                        attribute.getID() + " not declared in entry's objectClasses.", 
+                        attribute.getID() + " not declared in objectClasses of entry " + dn.getUpName(), 
                         ResultCodeEnum.OBJECTCLASSVIOLATION );
                 }
             }
