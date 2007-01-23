@@ -20,7 +20,10 @@
 package org.apache.directory.shared.ldap.message;
 
 
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 
 import junit.framework.TestCase;
 
@@ -156,15 +159,95 @@ public class AttributesImplTest extends TestCase
         AttributesImpl attrs0 = new AttributesImpl();
         attrs0.put( "attr0", "value0" );
         attrs0.put( "attr1", "value1" );
-        attrs0.put( "attr2", "value2" );
-        attrs0.put( "attr2", "value3" );
+
+        Attribute attr0 = new AttributeImpl( "attr2" );
+        attr0.add( "value2" );
+        attr0.add( "value3" );
+        attrs0.put( attr0 );
 
         Attributes attrs1 = new AttributesImpl( true );
         attrs1.put( "attr0", "value0" );
         attrs1.put( "attr1", "value1" );
-        attrs1.put( "attr2", "value2" );
-        attrs1.put( "attr2", "value3" );
+
+        Attribute attr1 = new AttributeImpl( "attr2" );
+        attr1.add( "value2" );
+        attr1.add( "value3" );
+        attrs1.put( attr1 );
 
         assertTrue( "both implementations should produce the same outcome", attrs0.equals( attrs1 ) );
+    }
+    
+    public void testCloneAttributes() throws NamingException
+    {
+        AttributesImpl attrs = new AttributesImpl();
+        attrs.put( "attr0", "value0" );
+        attrs.put( "attr1", "value1" );
+        
+        Attribute attr = new AttributeImpl( "attr2" );
+        attr.add( "value2" );
+        attr.add( "value3" );
+        attrs.put( attr );
+        
+        AttributesImpl clone = (AttributesImpl)attrs.clone();
+        
+        // Both attributes should be equals
+        assertEquals( attrs, clone );
+        assertEquals( 3, clone.size() );
+        
+        Attribute attr0 = clone.get( "attr0" );
+        assertEquals( 1, attr0.size() );
+        assertEquals( "value0", attr0.get() );
+        
+        Attribute attr1 = clone.get( "attr1" );
+        assertEquals( 1, attr1.size() );
+        assertEquals( "value1", attr1.get() );
+        
+        Attribute attr2 = clone.get( "attr2" );
+        assertEquals( 2, attr2.size() );
+        assertTrue( attr2.contains( "value2" ) );
+        assertTrue( attr2.contains( "value3" ) );
+        
+        // Remove an element
+        attrs.remove( "attr1" );
+        assertNotSame( attrs, clone );
+        assertEquals( 2, attrs.size() );
+        assertEquals( 3, clone.size() );
+    }
+
+    public void testCopyBasicAttributes() throws NamingException
+    {
+        BasicAttributes attrs = new BasicAttributes();
+        attrs.put( "attr0", "value0" );
+        attrs.put( "attr1", "value1" );
+
+        Attribute attr = new AttributeImpl( "attr2" );
+        attr.add( "value2" );
+        attr.add( "value3" );
+        attrs.put( attr );
+        
+        AttributesImpl copy = new AttributesImpl( attrs );
+        
+        // Both attributes should be internally equals
+        assertNotSame( copy, attrs );
+        assertEquals( 3, copy.size() );
+        
+        Attribute attr0 = copy.get( "attr0" );
+        assertEquals( 1, attr0.size() );
+        assertEquals( "value0", attr0.get() );
+        
+        Attribute attr1 = copy.get( "attr1" );
+        assertEquals( 1, attr1.size() );
+        assertEquals( "value1", attr1.get() );
+        
+        Attribute attr2 = copy.get( "attr2" );
+        assertEquals( 2, attr2.size() );
+        assertTrue( attr2.contains( "value2" ) );
+        assertTrue( attr2.contains( "value3" ) );
+        
+        // Remove an element
+        attrs.remove( "attr1" );
+        assertNotSame( copy, attrs );
+        assertEquals( 2, attrs.size() );
+        assertEquals( 3, copy.size() );
     }
 }

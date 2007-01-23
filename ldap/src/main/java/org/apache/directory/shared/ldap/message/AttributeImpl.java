@@ -31,6 +31,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -138,7 +139,7 @@ public class AttributeImpl implements Attribute
             size = clone.size;
             value = clone.value;
         }
-        else if ( attribute instanceof AttributeImpl )
+        else if ( attribute instanceof BasicAttribute )
         {
             upId = attribute.getID();
             

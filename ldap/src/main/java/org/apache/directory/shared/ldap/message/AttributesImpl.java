@@ -243,7 +243,8 @@ public class AttributesImpl implements Attributes
             ignoreCase = attributes.isCaseIgnored();
             
             NamingEnumeration attrs = attributes.getAll();
-            
+            keyMap = new HashMap<String, Holder>();
+
             while ( attrs.hasMoreElements() )
             {
                 Attribute attribute = new AttributeImpl( (Attribute)attrs.nextElement() );
