@@ -202,6 +202,30 @@ public class SearchContextITest extends AbstractAdminTestCase
         assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
     }
 
+    public void testSearchSubTreeLevelNoAttributes() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[]{ "1.1" } );
+        
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+        NamingEnumeration list = sysRoot.search( "", "(ou=testing02)", controls );
+        
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
+        assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
+        Attributes attrs = map.get( "ou=testing02,ou=system" );
+        
+        assertEquals( 0, attrs.size() );
+    }
 
     public void testSearchSubstringSubTreeLevel() throws NamingException
     {
