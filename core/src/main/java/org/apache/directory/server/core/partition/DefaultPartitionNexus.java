@@ -278,9 +278,10 @@ public class DefaultPartitionNexus extends PartitionNexus
             }
             
             // add all attribute oids of index configs to a hashset
-            Set indices = systemCfg.getIndexedAttributes();
+            Set<String> indices = systemCfg.getIndexedAttributes();
             Set<String> indexOids = new HashSet<String>();
             OidRegistry registry = factoryCfg.getRegistries().getOidRegistry();
+            
             for ( Object index : indices )
             {
                 indexOids.add( registry.getOid( index.toString() ) );
@@ -290,26 +291,32 @@ public class DefaultPartitionNexus extends PartitionNexus
             {
                 indices.add( Oid.ALIAS );
             }
+            
             if ( ! indexOids.contains( Oid.EXISTANCE ) )
             {
                 indices.add( Oid.EXISTANCE );
             }
+            
             if ( ! indexOids.contains( Oid.HIERARCHY ) )
             {
                 indices.add( Oid.HIERARCHY );
             }
+            
             if ( ! indexOids.contains( Oid.NDN ) )
             {
                 indices.add( Oid.NDN );
             }
+            
             if ( ! indexOids.contains( Oid.ONEALIAS ) )
             {
                 indices.add( Oid.ONEALIAS );
             }
+            
             if ( ! indexOids.contains( Oid.SUBALIAS ) )
             {
                 indices.add( Oid.SUBALIAS );
             }
+            
             if ( ! indexOids.contains( Oid.UPDN ) )
             {
                 indices.add( Oid.UPDN );
@@ -652,7 +659,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     // DirectoryPartition Interface Method Implementations
     // ------------------------------------------------------------------------
 
-    public void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+    public void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException
     {
         Partition partition = getBackend( bindDn );
         partition.bind( bindDn, credentials, mechanisms, saslAuthId );

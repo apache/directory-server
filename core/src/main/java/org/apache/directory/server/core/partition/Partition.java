@@ -296,7 +296,7 @@ public interface Partition
      * @param saslAuthId the SASL authentication (may be null)
      * @throws NamingException if something goes wrong
      */
-    void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException;
+    void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException;
 
 
     /**

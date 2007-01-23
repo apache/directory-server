@@ -49,7 +49,7 @@ public class LdapJndiProperties
     private LdapDN bindDn;
     private String saslAuthId;
     private AuthenticationLevel level;
-    private List mechanisms = new ArrayList();
+    private List<String> mechanisms = new ArrayList<String>();
     private byte[] credentials;
 
 
@@ -291,7 +291,7 @@ public class LdapJndiProperties
     }
 
 
-    public List getAuthenticationMechanisms()
+    public List<String> getAuthenticationMechanisms()
     {
         return Collections.unmodifiableList( mechanisms );
     }

@@ -71,18 +71,25 @@ public class PartitionNexusProxy extends PartitionNexus
 {
     /** safe to use set of bypass instructions to lookup raw entries */
     public static final Collection LOOKUP_BYPASS;
+    
     /** safe to use set of bypass instructions to getMatchedDn */
     public static final Collection GETMATCHEDDN_BYPASS;
+    
     /** safe to use set of bypass instructions to lookup raw entries excluding operational attributes */
     public static final Collection LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS;
+    
     /** Bypass String to use when ALL interceptors should be skipped */
     public static final String BYPASS_ALL = "*";
+    
     /** Bypass String to use when ALL interceptors should be skipped */
     public static final Collection BYPASS_ALL_COLLECTION = Collections.singleton( BYPASS_ALL );
+    
     /** Integer const for DirContext.ADD_ATTRIBUTE */
     private static final Integer ADD_MODOP = new Integer( DirContext.ADD_ATTRIBUTE );
+    
     /** Integer const for DirContext.REMOVE_ATTRIBUTE */
     private static final Integer REMOVE_MODOP = new Integer( DirContext.REMOVE_ATTRIBUTE );
+    
     /** Integer const for DirContext.REPLACE_ATTRIBUTE */
     private static final Integer REPLACE_MODOP = new Integer( DirContext.REPLACE_ATTRIBUTE );
 
@@ -664,14 +671,16 @@ public class PartitionNexusProxy extends PartitionNexus
      * @param bypass
      * @throws NamingException
      */
-    public void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId, Collection bypass )
+    public void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId, Collection bypass )
         throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         Object[] args = new Object[]
             { bindDn, credentials, mechanisms, saslAuthId };
+        
         stack.push( new Invocation( this, caller, "bind", args, bypass ) );
+        
         try
         {
             this.configuration.getInterceptorChain().bind( bindDn, credentials, mechanisms, saslAuthId );
@@ -701,7 +710,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+    public void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException
     {
         bind( bindDn, credentials, mechanisms, saslAuthId, null );
     }

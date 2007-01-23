@@ -202,7 +202,7 @@ public class InterceptorChain
         }
 
 
-        public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+        public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
             throws NamingException
         {
             nexus.bind( bindDn, credentials, mechanisms, saslAuthId );

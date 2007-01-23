@@ -49,14 +49,19 @@ public abstract class PartitionNexus implements Partition
 {
     /** the default user principal or DN */
     public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
+    
     /** the normalized user principal or DN */
     public final static String ADMIN_PRINCIPAL_NORMALIZED = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
+    
     /** the admin super user uid */
     public final static String ADMIN_UID = "admin";
+    
     /** the initial admin passwd set on startup */
     public static final String ADMIN_PASSWORD = "secret";
+    
     /** the base dn under which all users reside */
     public final static String USERS_BASE_NAME = "ou=users,ou=system";
+    
     /** the base dn under which all groups reside */
     public final static String GROUPS_BASE_NAME = "ou=groups,ou=system";
 
@@ -81,6 +86,7 @@ public abstract class PartitionNexus implements Partition
 
     /**
      * Gets the DN for the admin user.
+     * 
      * @return the admin user DN
      */
     public static final LdapDN getAdminName()
