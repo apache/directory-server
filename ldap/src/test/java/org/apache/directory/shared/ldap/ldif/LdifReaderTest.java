@@ -1472,4 +1472,65 @@ public class LdifReaderTest extends TestCase
         attr = entry.get( "ou" );
         assertTrue( attr.contains( "Users" ) );
     }
+
+    
+    public void testLdifParserCommentsEmptyLines() throws NamingException, Exception
+    {
+        String ldif = 
+            "#\n" +
+            "#  Licensed to the Apache Software Foundation (ASF) under one\n" +
+            "#  or more contributor license agreements.  See the NOTICE file\n" +
+            "#  distributed with this work for additional information\n" +
+            "#  regarding copyright ownership.  The ASF licenses this file\n" +
+            "#  to you under the Apache License, Version 2.0 (the\n" +
+            "#  \"License\"); you may not use this file except in compliance\n" +
+            "#  with the License.  You may obtain a copy of the License at\n" +
+            "#  \n" +
+            "#    http://www.apache.org/licenses/LICENSE-2.0\n" +
+            "#  \n" +
+            "#  Unless required by applicable law or agreed to in writing,\n" +
+            "#  software distributed under the License is distributed on an\n" +
+            "#  \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n" +
+            "#  KIND, either express or implied.  See the License for the\n" +
+            "#  specific language governing permissions and limitations\n" +
+            "#  under the License. \n" +
+            "#  \n" +
+            "#\n" +
+            "#\n" +
+            "#   EXAMPLE.COM is freely and reserved for testing according to this RFC:\n" +
+            "#\n" +
+            "#   http://www.rfc-editor.org/rfc/rfc2606.txt\n" +
+            "#\n" +
+            "#\n" +
+            "\n" +
+            "#\n" +
+            "# This ACI allows brouse access to the root suffix and one level below that to anyone.\n" +
+            "# At this level there is nothing critical exposed.  Everything that matters is one or\n" +
+            "# more levels below this.\n" +
+            "#\n" +
+            "\n" +
+            "dn: cn=browseRootAci,dc=example,dc=com\n" +
+            "objectClass: top\n" +
+            "objectClass: subentry\n" +
+            "objectClass: accessControlSubentry\n" +
+            "subtreeSpecification: { maximum 1 }\n" +
+            "prescriptiveACI: { identificationTag \"browseRoot\", precedence 100, authenticationLevel none, itemOrUserFirst userFirst: { userClasses { allUsers }, userPermissions { { protectedItems {entry}, grantsAndDenials { grantReturnDN, grantBrowse } } } } }\n";
+
+        LdifReader reader = new LdifReader();
+        List entries = reader.parseLdif( ldif );
+
+        Entry entry = (Entry) entries.get( 0 );
+
+        assertEquals( "cn=browseRootAci,dc=example,dc=com", entry.getDn() );
+        Attribute attr = entry.get( "objectClass" );
+        assertTrue( attr.contains( "top" ) );
+        assertTrue( attr.contains( "subentry" ) );
+        assertTrue( attr.contains( "accessControlSubentry" ) );
+
+        attr = entry.get( "subtreeSpecification" );
+        assertTrue( attr.contains( "{ maximum 1 }" ) );
+
+        attr = entry.get( "prescriptiveACI" );
+        assertTrue( attr.contains( "{ identificationTag \"browseRoot\", precedence 100, authenticationLevel none, itemOrUserFirst userFirst: { userClasses { allUsers }, userPermissions { { protectedItems {entry}, grantsAndDenials { grantReturnDN, grantBrowse } } } } }" ) );
+    }
 }
