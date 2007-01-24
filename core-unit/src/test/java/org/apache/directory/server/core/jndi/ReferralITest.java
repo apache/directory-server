@@ -32,6 +32,7 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
@@ -59,7 +60,7 @@ public class ReferralITest extends AbstractAdminTestCase
 {
     private static final boolean SUNJNDI = false;
     private boolean sunjndi = System.getProperty( "sunjndi" ) != null || SUNJNDI;
-    TestData td = new TestData();
+    private TestData td = new TestData();
 
 
     public void setUp() throws Exception
@@ -125,7 +126,7 @@ public class ReferralITest extends AbstractAdminTestCase
         return new InitialLdapContext( env, null );
     }
 
-    class TestData
+    private class TestData
     {
         LdapContext rootCtx;
         Name ctxDn;
@@ -134,7 +135,7 @@ public class ReferralITest extends AbstractAdminTestCase
     }
 
 
-    public void addReferralEntry() throws NamingException
+    private void addReferralEntry() throws NamingException
     {
         String ref0 = "ldap://fermi:10389/ou=users,ou=system";
         String ref1 = "ldap://hertz:10389/ou=users,dc=example,dc=com";
@@ -186,22 +187,22 @@ public class ReferralITest extends AbstractAdminTestCase
     }
 
 
-    public void checkAncestorReferrals( ReferralException e ) throws Exception
+    private void checkAncestorReferrals( ReferralException e ) throws Exception
     {
         assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
-        assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com", e.getReferralInfo() );
+        assertEquals( "ldap://hertz:10389/cn=alex%20karasulu,ou=apache,ou=users,dc=example,dc=com", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
         assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
         assertFalse( e.skipReferral() );
     }
 
 
-    public void checkParentReferrals( ReferralException e ) throws Exception
+    private void checkParentReferrals( ReferralException e ) throws Exception
     {
         assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
-        assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=users,dc=example,dc=com", e.getReferralInfo() );
+        assertEquals( "ldap://hertz:10389/cn=alex%20karasulu,ou=users,dc=example,dc=com", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
         assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
         assertFalse( e.skipReferral() );
@@ -794,7 +795,7 @@ public class ReferralITest extends AbstractAdminTestCase
     }
 
 
-    public void createLocalUser() throws Exception
+    private void createLocalUser() throws Exception
     {
         LdapContext userCtx = null;
         Attributes referral = new AttributesImpl( "objectClass", "top", true );
@@ -809,27 +810,31 @@ public class ReferralITest extends AbstractAdminTestCase
         catch ( NameNotFoundException e )
         {
         }
+        
         try
         {
             userCtx = ( LdapContext ) td.rootCtx.createSubcontext( "cn=akarasulu", referral );
         }
         catch ( NameAlreadyBoundException e )
         {
-            td.refCtx = ( LdapContext ) td.rootCtx.lookup( "cn=akarasulu" );
+            userCtx = ( LdapContext ) td.rootCtx.lookup( "cn=akarasulu" );
         }
+        
         referral = userCtx.getAttributes( "" );
         assertTrue( referral.get( "cn" ).contains( "akarasulu" ) );
         assertTrue( referral.get( "sn" ).contains( "karasulu" ) );
     }
 
 
-    public void createDeepLocalUser() throws Exception
+    private void createDeepLocalUser() throws Exception
     {
         LdapContext userCtx = null;
         Attributes referral = new AttributesImpl( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "person" );
+        referral.get( "objectClass" ).add( "organizationalUnit" );
         referral.put( "cn", "akarasulu" );
         referral.put( "sn", "karasulu" );
+        referral.put( "ou", "deep" );
 
         try
         {
@@ -847,7 +852,13 @@ public class ReferralITest extends AbstractAdminTestCase
         }
         try
         {
-            td.rootCtx.createSubcontext( "ou=deep" );
+            Attributes attrs = new AttributesImpl( "ou", "deep" );
+            Attribute oc = new AttributeImpl( "ObjectClass" );
+            oc.add( "top" );
+            oc.add( "organizationalUnit" );
+            attrs.put( oc );
+
+            td.rootCtx.createSubcontext( "ou=deep", attrs );
             userCtx = ( LdapContext ) td.rootCtx.createSubcontext( "cn=akarasulu,ou=deep", referral );
         }
         catch ( NameAlreadyBoundException e )
@@ -893,11 +904,11 @@ public class ReferralITest extends AbstractAdminTestCase
         }
         catch ( ReferralException e )
         {
-            assertEquals( "ldap://fermi:10389/cn=alex karasulu,ou=users,ou=system??base", e.getReferralInfo() );
+            assertEquals( "ldap://fermi:10389/cn=alex%20karasulu,ou=users,ou=system??base", e.getReferralInfo() );
             assertTrue( e.skipReferral() );
-            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=users,dc=example,dc=com??base", e.getReferralInfo() );
+            assertEquals( "ldap://hertz:10389/cn=alex%20karasulu,ou=users,dc=example,dc=com??base", e.getReferralInfo() );
             assertTrue( e.skipReferral() );
-            assertEquals( "ldap://maxwell:10389/cn=alex karasulu,ou=users,ou=system??base", e.getReferralInfo() );
+            assertEquals( "ldap://maxwell:10389/cn=alex%20karasulu,ou=users,ou=system??base", e.getReferralInfo() );
             assertFalse( e.skipReferral() );
         }
     }
@@ -914,12 +925,12 @@ public class ReferralITest extends AbstractAdminTestCase
         }
         catch ( ReferralException e )
         {
-            assertEquals( "ldap://fermi:10389/cn=alex karasulu,ou=apache,ou=users,ou=system??base", e.getReferralInfo() );
+            assertEquals( "ldap://fermi:10389/cn=alex%20karasulu,ou=apache,ou=users,ou=system??base", e.getReferralInfo() );
             assertTrue( e.skipReferral() );
-            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com??base", e
+            assertEquals( "ldap://hertz:10389/cn=alex%20karasulu,ou=apache,ou=users,dc=example,dc=com??base", e
                 .getReferralInfo() );
             assertTrue( e.skipReferral() );
-            assertEquals( "ldap://maxwell:10389/cn=alex karasulu,ou=apache,ou=users,ou=system??base", e
+            assertEquals( "ldap://maxwell:10389/cn=alex%20karasulu,ou=apache,ou=users,ou=system??base", e
                 .getReferralInfo() );
             assertFalse( e.skipReferral() );
         }

@@ -73,12 +73,16 @@ public class SearchOpsITest extends AbstractAdminTestCase
             attrs.put( "ou", "system" );
             sysConf.setContextEntry( attrs );
             sysConf.setSuffix( "ou=system" );
-            Set indices = new HashSet();
+            
+            Set<String> indices = new HashSet<String>();
             indices.addAll( sysConf.getIndexedAttributes() );
+            
             MutableIndexConfiguration idxConfig = new MutableIndexConfiguration();
             idxConfig.setAttributeId( "gidNumber" );
-            indices.add( idxConfig );
+            indices.add( "gidNumber" );
+            
             sysConf.setIndexedAttributes( indices );
+            
             configuration.setSystemPartitionConfiguration( sysConf );
         }
         
