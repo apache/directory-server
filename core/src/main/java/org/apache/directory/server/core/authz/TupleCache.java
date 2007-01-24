@@ -52,6 +52,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,17 +154,22 @@ public class TupleCache
     {
         // only do something if the entry contains prescriptiveACI
         Attribute aci = entry.get( ACI_ATTR );
-        if ( aci == null && entry.get( OC_ATTR ).contains( ACSUBENTRY_OC ) )
+
+        if ( aci == null )
         {
-            // should not be necessary because of schema interceptor but schema checking
-            // can be turned off and in this case we must protect against being able to
-            // add access control information to anything other than an AC subentry
-            throw new LdapSchemaViolationException( "", ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            if ( AttributeUtils.containsValueCaseIgnore( entry.get( OC_ATTR ), ACSUBENTRY_OC ) )
+            {
+                // should not be necessary because of schema interceptor but schema checking
+                // can be turned off and in this case we must protect against being able to
+                // add access control information to anything other than an AC subentry
+                throw new LdapSchemaViolationException( "", ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            }
+            else
+            {
+                return false;
+            }
         }
-        else if ( aci == null )
-        {
-            return false;
-        }
+        
         return true;
     }
 

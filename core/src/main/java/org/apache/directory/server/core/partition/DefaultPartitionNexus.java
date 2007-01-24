@@ -282,9 +282,9 @@ public class DefaultPartitionNexus extends PartitionNexus
             Set<String> indexOids = new HashSet<String>();
             OidRegistry registry = factoryCfg.getRegistries().getOidRegistry();
             
-            for ( Object index : indices )
+            for ( String index : indices )
             {
-                indexOids.add( registry.getOid( index.toString() ) );
+                indexOids.add( registry.getOid( index ) );
             }
             
             if ( ! indexOids.contains( Oid.ALIAS ) )

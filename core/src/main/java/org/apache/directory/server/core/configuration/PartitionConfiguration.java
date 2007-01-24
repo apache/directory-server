@@ -61,7 +61,7 @@ public class PartitionConfiguration
      */
     protected PartitionConfiguration()
     {
-        setIndexedAttributes( new HashSet() );
+        setIndexedAttributes( new HashSet<String>() );
     }
 
 
@@ -99,7 +99,7 @@ public class PartitionConfiguration
     /**
      * Sets the set of attribute type strings to create an index on.
      */
-    protected void setIndexedAttributes( Set indexedAttributes )
+    protected void setIndexedAttributes( Set<String> indexedAttributes )
     {
         this.indexedAttributes = indexedAttributes;
     }

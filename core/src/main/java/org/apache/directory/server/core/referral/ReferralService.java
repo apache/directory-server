@@ -181,7 +181,8 @@ public class ReferralService extends BaseInterceptor
     public void doReferralException( LdapDN farthest, LdapDN targetUpdn, Attribute refs ) throws NamingException
     {
         // handle referral here
-        List list = new ArrayList( refs.size() );
+        List<String> list = new ArrayList<String>( refs.size() );
+        
         for ( int ii = 0; ii < refs.size(); ii++ )
         {
             String val = ( String ) refs.get( ii );
@@ -244,9 +245,10 @@ public class ReferralService extends BaseInterceptor
                 buf.append( ldapUrl.getPort() );
             }
             buf.append( "/" );
-            buf.append( urlDn.getUpName() );
+            buf.append( LdapURL.urlEncode( urlDn.getUpName(), false ) );
             list.add( buf.toString() );
         }
+        
         LdapReferralException lre = new LdapReferralException( list );
         throw lre;
     }
@@ -1007,7 +1009,7 @@ public class ReferralService extends BaseInterceptor
                 buf.append( ldapUrl.getPort() );
             }
             buf.append( "/" );
-            buf.append( ldapUrl.getDn() );
+            buf.append( LdapURL.urlEncode( ldapUrl.getDn().getUpName(), false ) );
             buf.append( "??" );
 
             switch ( scope )
@@ -1078,7 +1080,7 @@ public class ReferralService extends BaseInterceptor
                 buf.append( ldapUrl.getPort() );
             }
             buf.append( "/" );
-            buf.append( urlDn.getUpName() );
+            buf.append( LdapURL.urlEncode( urlDn.getUpName(), false ) );
             buf.append( "??" );
 
             switch ( scope )

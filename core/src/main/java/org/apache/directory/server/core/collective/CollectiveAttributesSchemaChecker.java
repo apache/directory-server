@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -56,7 +57,8 @@ public class CollectiveAttributesSchemaChecker
     public void checkAdd( LdapDN normName, Attributes entry ) throws LdapSchemaViolationException, NamingException
     {
         Attribute objectClass = entry.get( "objectClass" );
-        if ( objectClass.contains( "collectiveAttributeSubentry" ) )
+        
+        if ( AttributeUtils.containsValueCaseIgnore( objectClass, "collectiveAttributeSubentry" ) )
         {
             return;
         }
@@ -94,7 +96,7 @@ public class CollectiveAttributesSchemaChecker
         Attributes targetEntry = SchemaUtils.getTargetEntry( mods, originalEntry );
         Attribute targetObjectClasses = targetEntry.get( "objectClass" );
         
-        if ( targetObjectClasses.contains( "collectiveAttributeSubentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( targetObjectClasses, "collectiveAttributeSubentry" ) )
         {
             return;
         }

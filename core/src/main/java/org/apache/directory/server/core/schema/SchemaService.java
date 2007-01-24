@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
@@ -54,7 +55,6 @@ import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
@@ -75,6 +75,7 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
@@ -94,7 +95,6 @@ public class SchemaService extends BaseInterceptor
 {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
-    private static final AttributeType[] EMPTY_ATTRIBUTE_TYPE_ARRAY = new AttributeType[0];
 
     /** The LoggerFactory used by this Interceptor */
     private static Logger log = LoggerFactory.getLogger( SchemaService.class );
@@ -138,6 +138,17 @@ public class SchemaService extends BaseInterceptor
     // the base DN (normalized) of the schema partition
     private LdapDN schemaBaseDN;
     
+    /** A map used to store all the objectClasses superiors */
+    private Map superiors;
+
+    /** A map used to store all the objectClasses may attributes */
+    private Map allMay;
+
+    /** A map used to store all the objectClasses must */
+    private Map allMust;
+
+    /** A map used to store all the objectClasses allowed attributes (may + must) */
+    private Map allowed;
 
     /**
      * Creates a schema service interceptor.
@@ -175,8 +186,173 @@ public class SchemaService extends BaseInterceptor
         String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
         subschemaSubentryDn = new LdapDN( subschemaSubentry );
         subschemaSubentryDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+
+        computeSuperiors();
+
+        if ( IS_DEBUG )
+        {
+            log.debug( "SchemaService Initialized !" );
+        }
     }
 
+    /**
+     * Compute the MUST attributes for an objectClass. This method gather all the
+     * MUST from all the objectClass and its superors.
+     */
+    private void computeMustAttributes( ObjectClass objectClass, Set atSeen ) throws NamingException
+    {
+        List parents = (List)superiors.get( objectClass.getOid() );
+
+        List mustList = new ArrayList();
+        List allowedList = new ArrayList();
+        Set mustSeen = new HashSet();
+
+        allMust.put( objectClass.getOid(), mustList );
+        allowed.put( objectClass.getOid(), allowedList );
+
+        Iterator objectClasses = parents.iterator();
+
+        while ( objectClasses.hasNext() )
+        {
+            ObjectClass parent = (ObjectClass)objectClasses.next();
+
+            AttributeType[] mustParent = parent.getMustList();
+
+            if ( ( mustParent != null ) && ( mustParent.length != 0 ) )
+            {
+                for ( int i = 0; i < mustParent.length; i++ )
+                {
+                    AttributeType attributeType = mustParent[i];
+                    String oid = attributeType.getOid();
+
+                    if ( !mustSeen.contains( oid ) )
+                    {
+                        mustSeen.add(  oid  );
+                        mustList.add( attributeType );
+                        allowedList.add( attributeType );
+                        atSeen.add( attributeType.getOid() );
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Compute the MAY attributes for an objectClass. This method gather all the
+     * MAY from all the objectClass and its superors.
+     *
+     * The allowed attributes is also computed, it's the union of MUST and MAY
+     */
+    private void computeMayAttributes( ObjectClass objectClass, Set atSeen ) throws NamingException
+    {
+        List parents = (List)superiors.get( objectClass.getOid() );
+
+        List mayList = new ArrayList();
+        Set maySeen = new HashSet();
+        List allowedList = (List)allowed.get( objectClass.getOid() );
+
+
+        allMay.put( objectClass.getOid(), mayList );
+
+        Iterator objectClasses = parents.iterator();
+
+        while ( objectClasses.hasNext() )
+        {
+            ObjectClass parent = (ObjectClass)objectClasses.next();
+
+            AttributeType[] mustParent = parent.getMustList();
+
+            if ( ( mustParent != null ) && ( mustParent.length != 0 ) )
+            {
+                for ( int i = 0; i < mustParent.length; i++ )
+                {
+                    AttributeType attributeType = mustParent[i];
+                    String oid = attributeType.getOid();
+
+                    if ( !maySeen.contains( oid ) )
+                    {
+                        maySeen.add(  oid  );
+                        mayList.add( attributeType );
+
+                        if ( !atSeen.contains( oid ) )
+                        {
+                            allowedList.add( attributeType );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Recursively compute all the superiors of an object class. For instance, considering
+     * 'inetOrgPerson', it's direct superior is 'organizationalPerson', which direct superior
+     * is 'Person', which direct superior is 'top'.
+     *
+     * As a result, we will gather all of these three ObjectClasses in 'inetOrgPerson' ObjectClasse
+     * superiors.
+     */
+    private void computeOCSuperiors( ObjectClass objectClass, List superiors, Set ocSeen ) throws NamingException
+    {
+        ObjectClass[] parents = objectClass.getSuperClasses();
+
+        // Loop on all the objectClass superiors
+        if ( ( parents != null ) && ( parents.length != 0 ) )
+        {
+            for ( int i = 0; i < parents.length; i++ )
+            {
+                ObjectClass parent = parents[i];
+
+                // Top is not added
+                if ( "top".equals( parent.getName() ) )
+                {
+                    continue;
+                }
+
+                // For each one, recurse
+                computeOCSuperiors( parent, superiors, ocSeen );
+
+                String oid = parents[i].getOid();
+
+                if ( !ocSeen.contains( oid ) )
+                {
+                    superiors.add( parent );
+                    ocSeen.add( oid );
+                }
+            }
+        }
+
+        return;
+    }
+
+    /**
+     * Compute all ObjectClasses superiors, MAY and MUST attributes.
+     * @throws NamingException
+     */
+    private void computeSuperiors() throws NamingException
+    {
+        Iterator objectClasses = registries.getObjectClassRegistry().iterator();
+        superiors = new HashMap();
+        allMust = new HashMap();
+        allMay = new HashMap();
+        allowed = new HashMap();
+
+        while ( objectClasses.hasNext() )
+        {
+            List ocSuperiors = new ArrayList();
+
+            ObjectClass objectClass = (ObjectClass)objectClasses.next();
+            superiors.put( objectClass.getOid(), ocSuperiors );
+
+            computeOCSuperiors( objectClass, ocSuperiors, new HashSet() );
+
+            Set atSeen = new HashSet();
+            computeMustAttributes( objectClass, atSeen );
+            computeMayAttributes( objectClass, atSeen );
+
+            superiors.put( objectClass.getName(), ocSuperiors );
+        }
+    }
 
     /**
      * Check if an attribute stores binary values.
@@ -460,13 +636,13 @@ public class SchemaService extends BaseInterceptor
 
 
     /**
-     * 
+     * Search for an entry, using its DN. Binary attributes and ObjectClass attribute are removed.
      */
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name );
         filterBinaryAttributes( result );
-        filterTop( result );
+        filterObjectClass( result );
         return result;
     }
 
@@ -482,10 +658,38 @@ public class SchemaService extends BaseInterceptor
         }
 
         filterBinaryAttributes( result );
-        filterTop( result );
+        // filterTop( result );
+        filterObjectClass( result );
+
         return result;
     }
 
+
+    private void getSuperiors( ObjectClass oc, Set ocSeen, List result ) throws NamingException
+    {
+        ObjectClass[] superiors = oc.getSuperClasses();
+
+        for ( int i = 0; i < superiors.length; i++ )
+        {
+            ObjectClass parent = superiors[i];
+
+            // Skip 'top'
+            if ( "top".equals( parent.getName() ) )
+            {
+                continue;
+            }
+
+            if ( !ocSeen.contains( parent.getOid() ) )
+            {
+                ocSeen.add( parent.getOid() );
+                result.add( parent );
+            }
+
+            // Recurse on the parent
+            getSuperiors( parent, ocSeen, result );
+        }
+
+    }
 
     /**
      * Checks to see if an attribute is required by as determined from an entry's
@@ -523,7 +727,6 @@ public class SchemaService extends BaseInterceptor
         return false;
     }
 
-
     /**
      * Checks to see if removing a set of attributes from an entry completely removes
      * that attribute's values.  If change has zero size then all attributes are
@@ -555,6 +758,7 @@ public class SchemaService extends BaseInterceptor
         return changedEntryAttr.size() == 0;
     }
 
+    
     /**
      * 
      * @param modOp
@@ -598,6 +802,104 @@ public class SchemaService extends BaseInterceptor
     }
 
 
+    private boolean getObjectClasses( Attribute objectClasses, List result ) throws NamingException
+    {
+        Set ocSeen = new HashSet();
+        ObjectClassRegistry registry = registries.getObjectClassRegistry();
+
+        // We must select all the ObjectClasses, except 'top',
+        // but including all the inherited ObjectClasses
+        NamingEnumeration ocs = objectClasses.getAll();
+        boolean hasExtensibleObject = false;
+
+
+        while ( ocs.hasMoreElements() )
+        {
+            String objectClassName = (String)ocs.nextElement();
+
+            if ( "top".equals( objectClassName ) )
+            {
+                continue;
+            }
+
+            if ( "extensibleObject".equalsIgnoreCase( objectClassName ) )
+            {
+                hasExtensibleObject = true;
+            }
+
+            ObjectClass oc = registry.lookup( objectClassName );
+
+            // Add all unseen objectclasses to the list, except 'top'
+            if ( !ocSeen.contains( oc.getOid() ) )
+            {
+                ocSeen.add( oc.getOid() );
+                result.add( oc );
+            }
+
+            // Find all current OC parents
+            getSuperiors( oc, ocSeen, result );
+        }
+
+        return hasExtensibleObject;
+    }
+
+    private Set getAllMust( NamingEnumeration objectClasses ) throws NamingException
+    {
+        Set must = new HashSet();
+
+        // Loop on all objectclasses
+        while ( objectClasses.hasMoreElements() )
+        {
+            String ocName = (String)objectClasses.nextElement();
+            ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
+
+            AttributeType[] types = oc.getMustList();
+
+            // For each objectClass, loop on all MUST attributeTypes, if any
+            if ( ( types != null ) && ( types.length > 0 ) )
+            {
+                for ( int j = 0; j < types.length; j++ )
+                {
+                    String oid = types[j].getOid();
+
+                    must.add( oid );
+                }
+            }
+        }
+
+        return must;
+    }
+
+    private Set getAllAllowed( NamingEnumeration objectClasses, Set must ) throws NamingException
+    {
+        Set allowed = new HashSet( must );
+
+        // Add the 'ObjectClass' attribute ID
+        allowed.add( registries.getOidRegistry().getOid( "ObjectClass" ) );
+
+        // Loop on all objectclasses
+        while ( objectClasses.hasMoreElements() )
+        {
+            String ocName = (String)objectClasses.nextElement();
+            ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
+
+            AttributeType[] types = oc.getMayList();
+
+            // For each objectClass, loop on all MUST attributeTypes, if any
+            if ( ( types != null ) && ( types.length > 0 ) )
+            {
+                for ( int j = 0; j < types.length; j++ )
+                {
+                    String oid = types[j].getOid();
+
+                    allowed.add( oid );
+                }
+            }
+        }
+
+        return allowed;
+    }
+
     /**
      * Given the objectClasses for an entry, this method adds missing ancestors 
      * in the hierarchy except for top which it removes.  This is used for this
@@ -607,45 +909,58 @@ public class SchemaService extends BaseInterceptor
      * @param objectClassAttr the objectClass attribute to modify
      * @throws NamingException if there are problems 
      */
-    public static void alterObjectClasses( Attribute objectClassAttr, ObjectClassRegistry registry )
-        throws NamingException
+    private void alterObjectClasses( Attribute objectClassAttr ) throws NamingException
     {
-        if ( !objectClassAttr.getID().equalsIgnoreCase( "objectClass" ) )
-        {
-            throw new LdapNamingException( "Expecting an objectClass attribute but got " + objectClassAttr.getID(),
-                ResultCodeEnum.OPERATIONS_ERROR );
-        }
-
         Set<String> objectClasses = new HashSet<String>();
-        for ( int ii = 0; ii < objectClassAttr.size(); ii++ )
+
+        // Init the objectClass list with 'top'
+        objectClasses.add( "top" );
+        
+        // Construct the new list of ObjectClasses
+        NamingEnumeration ocList = objectClassAttr.getAll();
+
+        while ( ocList.hasMoreElements() )
         {
-            String val = ( String ) objectClassAttr.get( ii );
-            if ( !val.equalsIgnoreCase( "top" ) )
-            {
-                objectClasses.add( val.toLowerCase() );
-            }
-        }
+            String ocName = ( String ) ocList.nextElement();
 
-        for ( int ii = 0; ii < objectClassAttr.size(); ii++ )
-        {
-            String val = ( String ) objectClassAttr.get( ii );
-            if ( val.equalsIgnoreCase( "top" ) )
+            if ( !ocName.equalsIgnoreCase( "top" ) )
             {
-                objectClassAttr.remove( val );
-            }
+                String ocLowerName = ocName.toLowerCase();
 
-            ObjectClass objectClass = registry.lookup( val );
+                ObjectClass objectClass = registries.getObjectClassRegistry().lookup( ocLowerName );
 
-            // cannot use Collections.addAll(Collection, Object[]) since it's 1.5
-            ObjectClass top = registry.lookup( "top" );
-            ObjectClass[] superiors = objectClass.getSuperClasses();
-            for ( int jj = 0; jj < superiors.length; jj++ )
-            {
-                if ( superiors[jj] != top && !objectClasses.contains( superiors[jj].getName().toLowerCase() ) )
+                if ( !objectClasses.contains( ocLowerName ) )
                 {
-                    objectClassAttr.add( superiors[jj].getName() );
+                    objectClasses.add( ocLowerName );
+                }
+
+                List ocSuperiors = (List)superiors.get( objectClass.getOid() );
+
+                if ( ocSuperiors != null )
+                {
+                    Iterator iter = ocSuperiors.iterator();
+
+                    while ( iter.hasNext() )
+                    {
+                        ObjectClass oc = (ObjectClass)iter.next();
+
+                        if ( !objectClasses.contains( oc.getName().toLowerCase() ) )
+                        {
+                            objectClasses.add( oc.getName() );
+                        }
+                    }
                 }
             }
+        }
+
+        // Now, reset the ObjectClass attribute and put the new list into it
+        objectClassAttr.clear();
+
+        Iterator iter = objectClasses.iterator();
+
+        while ( iter.hasNext() )
+        {
+            objectClassAttr.add( iter.next() );
         }
     }
 
@@ -750,7 +1065,7 @@ public class SchemaService extends BaseInterceptor
         if ( mods.get( "objectClass" ) != null )
         {
             Attribute alteredObjectClass = ( Attribute ) objectClass.clone();
-            alterObjectClasses( alteredObjectClass, ocRegistry );
+            alterObjectClasses( alteredObjectClass );
 
             if ( !alteredObjectClass.equals( objectClass ) )
             {
@@ -865,7 +1180,7 @@ public class SchemaService extends BaseInterceptor
         ModificationItemImpl objectClassMod = null;
         
         // Check that we don't have two times the same modification.
-        // This is somehow useless, has modification operations are supposed to
+        // This is somehow useless, as modification operations are supposed to
         // be atomic, so we may have a sucession of Add, DEL, ADD operations
         // for the same attribute, and this will be legal.
         // @TODO : check if we can remove this test.
@@ -898,8 +1213,8 @@ public class SchemaService extends BaseInterceptor
             
             if ( !modset.add( keybuf.toString() ) && mods[ii].getModificationOp() == DirContext.ADD_ATTRIBUTE )
             {
-                throw new LdapAttributeInUseException( "found two copies of the following modification item: "
-                    + mods[ii] );
+                throw new LdapAttributeInUseException( "found two copies of the following modification item: " +
+                 mods[ii] );
             }
         }
         
@@ -980,15 +1295,49 @@ public class SchemaService extends BaseInterceptor
                         throw new LdapNoSuchAttributeException();
                     }
 
-                    // for required attributes we need to check if all values are removed
-                    // if so then we have a schema violation that must be thrown
-                    if ( isRequired( change.getID(), objectClass ) && isCompleteRemoval( change, entry ) )
+                    // We may have to remove the attribute or only some values
+                    if ( change.size() == 0 )
                     {
-                        log.error( "Trying to remove a required attribute: " + change.getID() );
-                        throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                        // No value : we have to remove the entire attribute
+                        // Check that we aren't removing a MUST attribute
+                        if ( isRequired( change.getID(), objectClass ) )
+                        {
+                            log.error( "Trying to remove a required attribute: " + change.getID() );
+                            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                        }
                     }
-                    
-                    tmpEntry.remove( change.getID() );
+                    else
+                    {
+                        // for required attributes we need to check if all values are removed
+                        // if so then we have a schema violation that must be thrown
+                        if ( isRequired( change.getID(), objectClass ) && isCompleteRemoval( change, entry ) )
+                        {
+                            log.error( "Trying to remove a required attribute: " + change.getID() );
+                            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                        }
+
+                        // Now remove the attribute and all its values
+                        Attribute modified = tmpEntry.remove( change.getID() );
+                        
+                        // And inject back the values except the ones to remove
+                        NamingEnumeration values = change.getAll();
+                        
+                        while ( values.hasMoreElements() )
+                        {
+                            modified.remove( values.next() );
+                        }
+                        
+                        // ok, done. Last check : if the attribute does not content any more value;
+                        // and if it's a MUST one, we should thow an exception
+                        if ( ( modified.size() == 0 ) && isRequired( change.getID(), objectClass ) )
+                        {
+                            log.error( "Trying to remove a required attribute: " + change.getID() );
+                            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                        }
+                        
+                        // Put back the attribute in the entry
+                        tmpEntry.put( modified );
+                    }
                     
                     SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, change, 
                         this.registries.getOidRegistry() ); 
@@ -1024,13 +1373,15 @@ public class SchemaService extends BaseInterceptor
                     break;
             }
         }
+        
+        check( tmpEntry );
 
         // let's figure out if we need to add or take away from mods to maintain 
         // the objectClass attribute with it's hierarchy of ancestors 
         if ( objectClassMod != null )
         {
             Attribute alteredObjectClass = ( Attribute ) objectClass.clone();
-            alterObjectClasses( alteredObjectClass, ocRegistry );
+            alterObjectClasses( alteredObjectClass );
 
             if ( !alteredObjectClass.equals( objectClass ) )
             {
@@ -1074,8 +1425,6 @@ public class SchemaService extends BaseInterceptor
             }
         }
         
-        assertNumberOfAttributeValuesValid( tmpEntry );
-
         if ( name.startsWith( schemaBaseDN ) )
         {
             schemaManager.modify( name, mods, entry, targetEntry );
@@ -1084,35 +1433,47 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    private void filterTop( Attributes entry ) throws NamingException
+    private void filterObjectClass( Attributes entry ) throws NamingException
     {
-        // add top if objectClass is included and missing top
+        List objectClasses = new ArrayList();
         Attribute oc = entry.get( "objectClass" );
+        
         if ( oc != null )
         {
-            if ( !oc.contains( "top" ) )
+            getObjectClasses( oc, objectClasses );
+
+            entry.remove( "objectClass" );
+
+            Attribute newOc = new AttributeImpl( "ObjectClass" );
+
+            for ( int i = 0; i < objectClasses.size(); i++ )
             {
-                oc.add( "top" );
+                Object currentOC = objectClasses.get(i);
+
+                if ( currentOC instanceof String )
+                {
+                    newOc.add( currentOC );
+                }
+                else
+                {
+                    newOc.add( ( (ObjectClass)currentOC ).getName() );
+                }
             }
+
+            newOc.add( "top" );
+            entry.put( newOc );
         }
     }
 
 
     private void filterBinaryAttributes( Attributes entry ) throws NamingException
     {
-        long t0 = -1;
-
-        if ( IS_DEBUG )
-        {
-            t0 = System.currentTimeMillis();
-            log.debug( "Filtering entry " + AttributeUtils.toString( entry ) );
-        }
-
         /*
          * start converting values of attributes to byte[]s which are not
          * human readable and those that are in the binaries set
          */
         NamingEnumeration list = entry.getIDs();
+
         while ( list.hasMore() )
         {
             String id = ( String ) list.next();
@@ -1123,20 +1484,23 @@ public class SchemaService extends BaseInterceptor
             {
                 type = registries.getAttributeTypeRegistry().lookup( id );
             }
-
-            if ( type != null )
+            else
             {
-                asBinary = !type.getSyntax().isHumanReadible();
-                asBinary = asBinary || binaries.contains( type );
+                continue;
             }
+
+            asBinary = !type.getSyntax().isHumanReadible();
+            asBinary = asBinary || binaries.contains( type );
 
             if ( asBinary )
             {
                 Attribute attribute = entry.get( id );
                 Attribute binary = new AttributeImpl( id );
+
                 for ( int i = 0; i < attribute.size(); i++ )
                 {
                     Object value = attribute.get( i );
+                
                     if ( value instanceof String )
                     {
                         binary.add( i, StringTools.getBytesUtf8( ( String ) value ) );
@@ -1150,12 +1514,6 @@ public class SchemaService extends BaseInterceptor
                 entry.remove( id );
                 entry.put( binary );
             }
-        }
-
-        if ( log.isDebugEnabled() )
-        {
-            long t1 = System.currentTimeMillis();
-            log.debug( "Time to filter entry = " + ( t1 - t0 ) + " ms" );
         }
     }
 
@@ -1185,7 +1543,7 @@ public class SchemaService extends BaseInterceptor
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
             throws NamingException
         {
-            filterTop( result.getAttributes() );
+            filterObjectClass( result.getAttributes() );
             return true;
         }
     }
@@ -1194,35 +1552,107 @@ public class SchemaService extends BaseInterceptor
     /**
      * Check that all the attributes exist in the schema for this entry.
      */
-    public void add( NextInterceptor next, LdapDN normName, Attributes attrs ) throws NamingException
+    private void check( Attributes entry ) throws NamingException
     {
-        AttributeTypeRegistry atRegistry = this.registries.getAttributeTypeRegistry();
-        NamingEnumeration attrEnum = attrs.getIDs();
+        NamingEnumeration attrEnum = entry.getIDs();
+
+        // ---------------------------------------------------------------
+        // First, make sure all attributes are valid schema defined attributes
+        // ---------------------------------------------------------------
+
         while ( attrEnum.hasMoreElements() )
         {
             String name = ( String ) attrEnum.nextElement();
             
-            // ---------------------------------------------------------------
-            // make sure all attributes are valid schema defined attributes
-            // ---------------------------------------------------------------
-
-            if ( !atRegistry.hasAttributeType( name ) )
+            if ( !registries.getAttributeTypeRegistry().hasAttributeType( name ) )
             {
                 throw new LdapInvalidAttributeIdentifierException( name + " not found in attribute registry!" );
             }
         }
 
-        alterObjectClasses( attrs.get( "objectClass" ), this.registries.getObjectClassRegistry() );
-        assertRequiredAttributesPresent( attrs );
-        assertNumberOfAttributeValuesValid( attrs );
+        // We will check some elements :
+        // 1) the entry must have all the MUST attributes of all its ObjectClass
+        // 2) The SingleValued attributes must be SingleValued
+        // 3) No attributes should be used if they are not part of MUST and MAY
+        // 3-1) Except if the extensibleObject ObjectClass is used
+        // 3-2) or if the AttributeType is COLLECTIVE
+        Attribute objectClassAttr = entry.get( "objectClass" );
+        List ocs = new ArrayList();
+
+        alterObjectClasses( objectClassAttr );
+
+        Set must = getAllMust( objectClassAttr.getAll() );
+        Set allowed = getAllAllowed( objectClassAttr.getAll(), must );
+
+        boolean hasExtensibleObject = getObjectClasses( objectClassAttr, ocs );
+
+        assertRequiredAttributesPresent( entry, must );
+        assertNumberOfAttributeValuesValid( entry );
+
+        if ( !hasExtensibleObject )
+        {
+            assertAllAttributesAllowed( entry, allowed );
+        }
+    }
+
+    /**
+     * Check that all the attributes exist in the schema for this entry.
+     */
+    public void add( NextInterceptor next, LdapDN normName, Attributes attrs ) throws NamingException
+    {
+        check( attrs );
 
         if ( normName.startsWith( schemaBaseDN ) )
         {
             schemaManager.add( normName, attrs );
         }
-        next.add(normName, attrs );
+
+        next.add( normName, attrs );
     }
     
+
+    /**
+     * Checks to see if an attribute is required by as determined from an entry's
+     * set of objectClass attribute values.
+     *
+     * @param attrId the attribute to test if required by a set of objectClass values
+     * @param objectClass the objectClass values
+     * @return true if the objectClass values require the attribute, false otherwise
+     * @throws NamingException if the attribute is not recognized
+     */
+    private void assertAllAttributesAllowed( Attributes attributes, Set allowed ) throws NamingException
+    {
+        // Never check the attributes if the extensibleObject objectClass is
+        // declared for this entry
+        Attribute objectClass = attributes.get( "objectClass" );
+
+        if ( AttributeUtils.containsValueCaseIgnore( objectClass, "extensibleObject" ) )
+        {
+            return;
+        }
+
+
+        NamingEnumeration attrs = attributes.getAll();
+
+        while ( attrs.hasMoreElements() )
+        {
+            Attribute attribute = (Attribute)attrs.nextElement();
+            String attrId = attribute.getID();
+            String attrOid = registries.getOidRegistry().getOid( attrId );
+
+            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attrOid );
+
+            if ( !attributeType.isCollective() && ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) )
+            {
+                if ( !allowed.contains( attrOid ) )
+                {
+                    throw new LdapSchemaViolationException( "Attribute " +
+                        attribute.getID() + " not declared in entry's objectClasses.",
+                        ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                }
+            }
+        }
+    }
     
     public void delete( NextInterceptor next, LdapDN normName ) throws NamingException
     {
@@ -1267,92 +1697,25 @@ public class SchemaService extends BaseInterceptor
     /**
      * Checks to see the presence of all required attributes within an entry.
      */
-    private void assertRequiredAttributesPresent( Attributes entry ) 
+    private void assertRequiredAttributesPresent( Attributes entry, Set must )
         throws NamingException
     {
-        AttributeType[] required = getRequiredAttributes( entry.get( "objectClass" ), 
-            this.registries.getObjectClassRegistry() );
-        for ( int ii = 0; ii < required.length; ii++ )
+        NamingEnumeration attributes = entry.getAll();
+
+        while ( attributes.hasMoreElements() && ( must.size() > 0 ) )
         {
-            boolean aliasFound = false;
-            String[] aliases = required[ii].getNames();
-            for ( int jj = 0; jj < aliases.length; jj++ )
-            {
-                if ( entry.get( aliases[jj] ) != null )
-                {
-                    aliasFound = true;
-                    break;
-                }
-            }
+            Attribute attribute = (Attribute)attributes.nextElement();
             
-            if ( ! aliasFound )
-            {
-                throw new LdapSchemaViolationException( "Required attribute " + 
-                    required[ii].getName() + " not found within entry.", 
-                    ResultCodeEnum.OBJECT_CLASS_VIOLATION );
-            }
-        }
-    }
+            String oid = registries.getOidRegistry().getOid( attribute.getID() );
 
+            must.remove( oid );
+        }
 
-    /**
-     * Uses the objectClass registry to ascend super classes and collect 
-     * all attributeTypes within must lists until top is reached on each
-     * parent.
-     */
-    private static final AttributeType[] getRequiredAttributes( Attribute objectClass, 
-        ObjectClassRegistry registry ) throws NamingException
-    {
-        AttributeType[] attributeTypes;
-        Set<AttributeType> set = new HashSet<AttributeType>();
-        
-        for ( int ii = 0; ii < objectClass.size(); ii++ )
+        if ( must.size() != 0 )
         {
-            String ocString = ( String ) objectClass.get( ii );
-            ObjectClass oc = registry.lookup( ocString );
-            infuseMustList( set, oc );
-        }
-        
-        attributeTypes = set.toArray( EMPTY_ATTRIBUTE_TYPE_ARRAY );
-        return attributeTypes;
-    }
-
-    
-    /**
-     * Recursive method that finds all the required attributes for an 
-     * objectClass and infuses them into the provided non-null set.
-     * 
-     * @param set set to infuse attributeTypes into
-     * @param oc the objectClass to ascent the polymorphic inheritance tree of 
-     */
-    private static final void infuseMustList( Set<AttributeType> set, ObjectClass oc ) throws NamingException
-    {
-        // ignore top
-        if ( oc.getName().equalsIgnoreCase( "top" ) )
-        {
-            return;
-        }
-        
-        // add all the required attributes for this objectClass 
-        Collections.addAll( set, oc.getMustList() );
-        
-        // don't bother ascending if no parents exist
-        ObjectClass[] parents = oc.getSuperClasses();
-        if ( parents == null || parents.length == 0 )
-        {
-            return;
-        }
-        
-        // save on a for loop
-        if ( parents.length == 1 ) 
-        {
-            infuseMustList( set, parents[0] );
-            return;
-        }
-        
-        for ( int ii = 0; ii < parents.length; ii++ )
-        {
-            infuseMustList( set, parents[ii] );
+            throw new LdapSchemaViolationException( "Required attributes " +
+                must.toArray() + " not found within entry.",
+                ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
     }
 }

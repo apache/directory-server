@@ -35,6 +35,7 @@ import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,12 +187,12 @@ public class GroupCache
             return null;
         }
 
-        if ( oc.contains( GROUPOFNAMES_OC ) )
+        if ( AttributeUtils.containsValueCaseIgnore( oc, GROUPOFNAMES_OC ) )
         {
             return entry.get( MEMBER_ATTR );
         }
 
-        if ( oc.contains( GROUPOFUNIQUENAMES_OC ) )
+        if ( AttributeUtils.containsValueCaseIgnore( oc, GROUPOFUNIQUENAMES_OC ) )
         {
             return entry.get( UNIQUEMEMBER_ATTR );
         }
@@ -358,13 +359,13 @@ public class GroupCache
         String memberAttrId = null;
         Attribute oc = entry.get( OC_ATTR );
 
-        if ( oc.contains( GROUPOFNAMES_OC ) )
+        if ( AttributeUtils.containsValueCaseIgnore( oc, GROUPOFNAMES_OC ) )
         {
             members = entry.get( MEMBER_ATTR );
             memberAttrId = MEMBER_ATTR;
         }
 
-        if ( oc.contains( GROUPOFUNIQUENAMES_OC ) )
+        if ( AttributeUtils.containsValueCaseIgnore( oc, GROUPOFUNIQUENAMES_OC ) )
         {
             members = entry.get( UNIQUEMEMBER_ATTR );
             memberAttrId = UNIQUEMEMBER_ATTR;
