@@ -105,6 +105,9 @@ public class BinarySearchTest extends AbstractServerTest
         
         // First let's add a some binary data representing a userCertificate
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
+        Attribute objectClasses = attrs.get( "objectClass" );
+        objectClasses.add( "strongAuthenticationUser" );
+
         attrs.put( "userCertificate", certData );
         ctx.createSubcontext( "cn=Kate Bush", attrs );
         

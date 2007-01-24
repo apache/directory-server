@@ -173,7 +173,7 @@ public class ReferralTest extends AbstractServerTest
     {
         assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
-        assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com", e.getReferralInfo() );
+        assertEquals( "ldap://hertz:10389/cn=alex%20karasulu,ou=apache,ou=users,dc=example,dc=com", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
         assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
         assertFalse( e.skipReferral() );
@@ -184,7 +184,7 @@ public class ReferralTest extends AbstractServerTest
     {
         assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
-        assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=users,dc=example,dc=com", e.getReferralInfo() );
+        assertEquals( "ldap://hertz:10389/cn=alex%20karasulu,ou=users,dc=example,dc=com", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
         assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
         assertFalse( e.skipReferral() );
@@ -827,11 +827,11 @@ public class ReferralTest extends AbstractServerTest
         }
         catch ( ReferralException e )
         {
-            assertEquals( "ldap://fermi:10389/cn=alex karasulu,ou=users,ou=system??base", e.getReferralInfo() );
+            assertEquals( "ldap://fermi:10389/cn=alex%20karasulu,ou=users,ou=system??base", e.getReferralInfo() );
             assertTrue( e.skipReferral() );
-            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=users,dc=example,dc=com??base", e.getReferralInfo() );
+            assertEquals( "ldap://hertz:10389/cn=alex%20karasulu,ou=users,dc=example,dc=com??base", e.getReferralInfo() );
             assertTrue( e.skipReferral() );
-            assertEquals( "ldap://maxwell:10389/cn=alex karasulu,ou=users,ou=system??base", e.getReferralInfo() );
+            assertEquals( "ldap://maxwell:10389/cn=alex%20karasulu,ou=users,ou=system??base", e.getReferralInfo() );
             assertFalse( e.skipReferral() );
         }
     }
@@ -848,12 +848,12 @@ public class ReferralTest extends AbstractServerTest
         }
         catch ( ReferralException e )
         {
-            assertEquals( "ldap://fermi:10389/cn=alex karasulu,ou=apache,ou=users,ou=system??base", e.getReferralInfo() );
+            assertEquals( "ldap://fermi:10389/cn=alex%20karasulu,ou=apache,ou=users,ou=system??base", e.getReferralInfo() );
             assertTrue( e.skipReferral() );
-            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com??base", e
+            assertEquals( "ldap://hertz:10389/cn=alex%20karasulu,ou=apache,ou=users,dc=example,dc=com??base", e
                 .getReferralInfo() );
             assertTrue( e.skipReferral() );
-            assertEquals( "ldap://maxwell:10389/cn=alex karasulu,ou=apache,ou=users,ou=system??base", e
+            assertEquals( "ldap://maxwell:10389/cn=alex%20karasulu,ou=apache,ou=users,ou=system??base", e
                 .getReferralInfo() );
             assertFalse( e.skipReferral() );
         }

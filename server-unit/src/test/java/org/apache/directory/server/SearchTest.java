@@ -116,6 +116,8 @@ public class SearchTest extends AbstractServerTest
         Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
+        attribute.add( "organizationalPerson" );
+        attribute.add( "inetOrgPerson" );
         attributes.put( attribute );
         attributes.put( "cn", cn );
         attributes.put( "sn", sn );
@@ -567,7 +569,7 @@ public class SearchTest extends AbstractServerTest
             assertNotNull( loadedOcls );
             assertTrue( loadedOcls.contains( "top" ) );
             assertTrue( loadedOcls.contains( "person" ) );
-            assertTrue( loadedOcls.contains( "organizationalperson" ) );
+            assertTrue( loadedOcls.contains( "organizationalPerson" ) );
 
         }
         else
