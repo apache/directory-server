@@ -1153,7 +1153,7 @@ public class LdapURL
      * @param doubleEncode Set if we need to encode the comma
      * @return An encoded string
      */
-    private String urlEncode( String url, boolean doubleEncode )
+    public static String urlEncode( String url, boolean doubleEncode )
     {
         StringBuffer sb = new StringBuffer();
 

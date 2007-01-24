@@ -293,6 +293,74 @@ public class AttributeUtils
         return false;
     }
 
+    /**
+     * Check if an attribute contains a value. The test is case insensitive,
+     * and the value is supposed to be a String. If the value is a byte[],
+     * then the case sensitivity is useless.
+     *
+     * @param attr The attribute to check
+     * @param value The value to look for
+     * @return true if the value is present in the attribute
+     * @throws NamingException
+     */
+    public final static boolean containsValueCaseIgnore( Attribute attr, Object value )
+    {
+        // quick bypass test
+        if ( attr.contains( value ) )
+        {
+            return true;
+        }
+
+        try
+        {
+            if ( value instanceof String )
+            {
+                String strVal = (String)value;
+
+                NamingEnumeration attrVals = attr.getAll();
+
+                while ( attrVals.hasMoreElements() )
+                {
+                    Object attrVal = attrVals.nextElement();
+
+                    if ( attrVal instanceof String )
+                    {
+                        if ( strVal.equalsIgnoreCase( (String)attrVal ) )
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                byte[] valueBytes = ( byte[] )value;
+
+                NamingEnumeration attrVals = attr.getAll();
+
+                while ( attrVals.hasMoreElements() )
+                {
+                    Object attrVal = attrVals.nextElement();
+
+                    if ( attrVal instanceof byte[] )
+                    {
+                        if ( Arrays.equals( (byte[])attrVal, valueBytes ) )
+                        {
+                            return true;
+                        }
+
+                    }
+                }
+            }
+        }
+        catch (NamingException ne )
+        {
+            return false;
+        }
+
+        return false;
+    }
+
 
     public static boolean containsAnyValues( Attribute attr, Object[] compared, AttributeType type )
         throws NamingException
