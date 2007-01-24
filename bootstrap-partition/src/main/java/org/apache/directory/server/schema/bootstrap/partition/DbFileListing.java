@@ -112,14 +112,17 @@ public class DbFileListing
     {
         Set<String> attributes = new HashSet<String>();
         Iterator<String> ii = iterator();
+        
         while( ii.hasNext() )
         {
             String name = ii.next();
+            
             if ( name2type.get( name ) == DbFileType.USER_INDEX )
             {
                 attributes.add( getIndexAttributeName( name ) );
             }
         }
+        
         return attributes;
     }
 }
