@@ -31,6 +31,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -45,7 +46,7 @@ public class PrincipalObjectFactory implements DirObjectFactory
         throws Exception
     {
         if ( attrs == null || attrs.get( "objectClass" ) == null
-            || !attrs.get( "objectClass" ).contains( "krb5KDCEntry" ) )
+            || !AttributeUtils.containsValueCaseIgnore( attrs.get( "objectClass" ), "krb5KDCEntry" ) )
         {
             return null;
         }
