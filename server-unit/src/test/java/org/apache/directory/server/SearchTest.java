@@ -58,6 +58,9 @@ public class SearchTest extends AbstractServerTest
     public static final String RDN = "cn=Tori Amos";
     public static final String RDN2 = "cn=Rolling-Stones";
     public static final String PERSON_DESCRIPTION = "an American singer-songwriter";
+    private static final String HEATHER_RDN = "cn=Heather Graham";
+    private static final String filter = "(objectclass=*)";
+
 
     private static final byte[] jpeg = new byte[]
         {
@@ -125,6 +128,16 @@ public class SearchTest extends AbstractServerTest
 
         return attributes;
     }
+    
+    protected void checkForAttributes( Attributes attrs, String[] attrNames )
+    {
+        for ( int i = 0; i < attrNames.length; i++ )
+        {
+            String attrName = attrNames[i];
+
+            assertNotNull( "Check if attr " + attrName + " is present", attrs.get( attrNames[i] ) );
+        }
+    }
 
 
     /**
@@ -153,6 +166,18 @@ public class SearchTest extends AbstractServerTest
         attributes = this.getPersonAttributes( "Jagger", "Rolling-Stones" );
         attributes.put( "description", "an English singer-songwriter" );
         ctx.createSubcontext( RDN2, attributes );
+        
+        // Create entry for Heather Graham
+        Attributes heather = new AttributesImpl();
+        Attribute ocls = new AttributeImpl( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        heather.put( ocls );
+        heather.put( "cn", "Heather Nova" );
+        heather.put( "sn", "Nova" );
+
+        ctx.createSubcontext( HEATHER_RDN, heather );
+
         
     }
 
@@ -986,5 +1011,64 @@ public class SearchTest extends AbstractServerTest
         {
             assertTrue( true );
         }
+    }
+    
+    /**
+     * Check if user and operational attributes are present, if both "*" and "+" are requested.
+     */
+    public void testSearchOperationalAndUserAttributes() throws NamingException
+    {
+        SearchControls ctls = new SearchControls();
+ 
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "+", "*" } );
+
+        String[] userAttrNames =
+            { "objectClass", "sn", "cn" };
+
+        String[] opAttrNames =
+            { "creatorsName", "createTimestamp" };
+
+        NamingEnumeration result = ctx.search( HEATHER_RDN, filter, ctls );
+
+        if ( result.hasMore() )
+        {
+            SearchResult entry = ( SearchResult ) result.next();
+            Attributes attrs = entry.getAttributes();
+
+            assertNotNull( attrs );
+
+            checkForAttributes( attrs, userAttrNames );
+            checkForAttributes( attrs, opAttrNames );
+        }
+        else
+        {
+            fail( "entry " + HEATHER_RDN + " not found" );
+        }
+
+        result.close();
+
+        ctls.setReturningAttributes( new String[]
+            { "*", "+" } );
+
+        result = ctx.search( HEATHER_RDN, filter, ctls );
+
+        if ( result.hasMore() )
+        {
+            SearchResult entry = ( SearchResult ) result.next();
+            Attributes attrs = entry.getAttributes();
+
+            assertNotNull( attrs );
+            
+            checkForAttributes( attrs, userAttrNames );
+            checkForAttributes( attrs, opAttrNames );
+        }
+        else
+        {
+            fail( "entry " + HEATHER_RDN + " not found" );
+        }
+
+        result.close();
     }
 }
