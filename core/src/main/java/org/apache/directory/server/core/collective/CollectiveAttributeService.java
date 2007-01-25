@@ -35,6 +35,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
@@ -113,7 +114,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         if ( collectiveExclusions != null )
         {
             if ( collectiveExclusions.contains( "2.5.18.0" )
-                || collectiveExclusions.contains( "excludeAllCollectiveAttributes" ) )
+                || AttributeUtils.containsValueCaseIgnore( collectiveExclusions, "excludeAllCollectiveAttributes" ) )
             {
                 return;
             }
