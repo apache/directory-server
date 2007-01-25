@@ -370,6 +370,73 @@ public class SchemaService extends BaseInterceptor
         return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, binaryAttributeFilter );
     }
 
+    /**
+     * Remove all unknown attributes from the searchControls, to avoid an exception.
+     * 
+     * RFC 2251 states that :
+     * " Attributes MUST be named at most once in the list, and are returned "
+     * " at most once in an entry. "
+     * " If there are attribute descriptions in "
+     * " the list which are not recognized, they are ignored by the server."
+     *
+     * @param searchCtls The SearchControls we will filter
+     */
+    private void filterAttributesToReturn( SearchControls searchCtls ) throws NamingException
+    {
+        String[] attributes = searchCtls.getReturningAttributes();
+
+        if ( ( attributes == null ) || ( attributes.length == 0 ) )
+        {
+            return;
+        }
+        
+        Map filteredAttrs = new HashMap(); 
+        
+        for ( int i = 0; i < attributes.length; i++ )
+        {
+            String attribute = attributes[i];
+            
+            // Skip special attributes
+            if ( ( "*".equals( attribute ) ) || ( "+".equals( attribute ) ) || ( "1.1".equals( attribute ) ) )
+            {
+                if ( !filteredAttrs.containsKey( attribute ) )
+                {
+                    filteredAttrs.put( attribute, attribute );
+                }
+
+                continue;
+            }
+            
+            if ( globalRegistries.getAttributeTypeRegistry().hasAttributeType( attribute ) )
+            {
+                String oid = globalRegistries.getOidRegistry().getOid( attribute );
+                
+                if ( !filteredAttrs.containsKey( oid ) )
+                {
+                    filteredAttrs.put( oid, attribute );
+                }
+            }
+        }
+        
+        // If we still have the same attribute number, then we can just get out the method
+        if ( filteredAttrs.size() == attributes.length )
+        {
+            return;
+        }
+        
+        // Some attributes have been removed. let's modify the searchControl
+        String[] newAttributesList = new String[filteredAttrs.size()];
+        
+        int pos = 0;
+        Iterator keys = filteredAttrs.keySet().iterator();
+        
+        while ( keys.hasNext() )
+        {
+            newAttributesList[pos++] = (String)filteredAttrs.get( keys.next() );
+        }
+        
+        searchCtls.setReturningAttributes( newAttributesList );
+    }
 
     /**
      * 
@@ -379,6 +446,12 @@ public class SchemaService extends BaseInterceptor
     {
         // check to make sure the DN searched for is a subentry
         Invocation invocation = InvocationStack.getInstance().peek();
+
+        // We have to eliminate bad attributes from the request, accordingly
+        // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
+        // from the list
+        filterAttributesToReturn( searchCtls );
+        
         if ( !subschemaSubentryDn.toNormName().equals( base.toNormName() ) )
         {
             NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
