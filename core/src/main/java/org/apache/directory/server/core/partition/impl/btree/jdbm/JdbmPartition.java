@@ -63,6 +63,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 import org.slf4j.Logger;
@@ -834,7 +835,7 @@ public class JdbmPartition extends BTreePartition
         // Start adding the system indices
         // Why bother doing a lookup if this is not an alias.
 
-        if ( objectClass.contains( Partition.ALIAS_OBJECT ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClass, Partition.ALIAS_OBJECT ) )
         {
             AttributeType aliasType = attrRegistry.lookup( Partition.ALIAS_ATTRIBUTE );
             Attribute aliasAttr = ServerUtils.getAttribute( aliasType, entry );
@@ -893,7 +894,7 @@ public class JdbmPartition extends BTreePartition
 
         AttributeType octype = attrRegistry.lookup( "objectClass" );
         Attribute objectClass = ServerUtils.getAttribute( octype, entry );
-        if ( objectClass.contains( Partition.ALIAS_OBJECT ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClass, Partition.ALIAS_OBJECT ) )
         {
             dropAliasIndices( id );
         }
