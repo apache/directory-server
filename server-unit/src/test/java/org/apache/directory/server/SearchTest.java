@@ -1014,6 +1014,66 @@ public class SearchTest extends AbstractServerTest
     }
     
     /**
+     * Check if operational attributes are present, if "+" is requested.
+     */
+    public void testSearchOperationalAttributes() throws NamingException
+    {
+        SearchControls ctls = new SearchControls();
+
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "+" } );
+
+        NamingEnumeration result = ctx.search( HEATHER_RDN, filter, ctls );
+
+        if ( result.hasMore() )
+        {
+            SearchResult entry = ( SearchResult ) result.next();
+
+            String[] opAttrNames =
+                { "creatorsName", "createTimestamp" };
+
+            checkForAttributes( entry.getAttributes(), opAttrNames );
+        }
+        else
+        {
+            fail( "entry " + HEATHER_RDN + " not found" );
+        }
+
+        result.close();
+    }
+
+    /**
+     * Check if user attributes are present, if "*" is requested.
+     */
+    public void testSearchUserAttributes() throws NamingException
+    {
+        SearchControls ctls = new SearchControls();
+
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "*" } );
+
+        NamingEnumeration result = ctx.search( HEATHER_RDN, filter, ctls );
+
+        if ( result.hasMore() )
+        {
+            SearchResult entry = ( SearchResult ) result.next();
+
+            String[] userAttrNames =
+                { "objectClass", "sn", "cn" };
+
+            checkForAttributes( entry.getAttributes(), userAttrNames );
+        }
+        else
+        {
+            fail( "entry " + HEATHER_RDN + " not found" );
+        }
+
+        result.close();
+    }
+    
+    /**
      * Check if user and operational attributes are present, if both "*" and "+" are requested.
      */
     public void testSearchOperationalAndUserAttributes() throws NamingException
