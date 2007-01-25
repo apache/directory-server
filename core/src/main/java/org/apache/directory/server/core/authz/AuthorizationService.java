@@ -231,7 +231,8 @@ public class AuthorizationService extends BaseInterceptor
          * to be in the same naming context as their access point so the subentries
          * effecting their parent entry applies to them as well.
          */
-        if ( AttributeUtils.containsValue( oc, "subentry", objectClassType ) || oc.contains( subentryOid ) )
+        if ( AttributeUtils.containsValue( oc, "subentry", objectClassType ) || 
+            AttributeUtils.containsValueCaseIgnore( oc, subentryOid ) )
         {
             LdapDN parentDn = ( LdapDN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
@@ -301,7 +302,7 @@ public class AuthorizationService extends BaseInterceptor
         throws NamingException
     {
         // only perform this for subentries
-        if ( !entry.get( "objectClass" ).contains( "subentry" ) )
+        if ( !AttributeUtils.containsValueCaseIgnore( entry.get( "objectClass" ), "subentry" ) )
         {
             return;
         }
