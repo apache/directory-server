@@ -49,6 +49,7 @@ import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 
 
 /**
@@ -87,7 +88,8 @@ public class DefaultAuthorizationService extends BaseInterceptor
     
     private Set administrators = new HashSet(2);
     
-    private Map normalizerMapping;
+    /** The normalizer mapping containing a relation between an OID and a normalizer */
+    private Map<String, OidNormalizer> normalizerMapping;
     
     private PartitionNexus nexus;
 
@@ -123,7 +125,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
     private void loadAdministrators() throws NamingException
     {
         // read in the administrators and cache their normalized names
-        Set newAdministrators = new HashSet( 2 );
+        Set<String> newAdministrators = new HashSet<String>( 2 );
         Attributes adminGroup = nexus.lookup( ADMIN_GROUP_DN_NORMALIZED );
         
         if ( adminGroup == null )
