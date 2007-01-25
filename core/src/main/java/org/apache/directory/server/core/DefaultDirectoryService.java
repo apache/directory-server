@@ -35,6 +35,7 @@ import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.configuration.Configuration;
 import org.apache.directory.server.core.configuration.ConfigurationException;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
 import org.apache.directory.server.core.jndi.DeadContext;
@@ -525,7 +526,24 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             partitionNexus.add(normName, attributes );
-            AuthorizationService authzSrvc = ( AuthorizationService ) interceptorChain.get( "authorizationService" );
+            
+            Interceptor authzInterceptor = interceptorChain.get( "authorizationService" );
+            
+            if ( authzInterceptor == null )
+            {
+                log.error( "The Authorization service is null : this is not allowed" );
+                throw new NamingException( "The Authorization service is null" );
+            }
+            
+            if ( !( authzInterceptor instanceof AuthorizationService) )
+            {
+                log.error( "The Authorization service is not set correctly : '{}' is an incorect interceptor", 
+                    authzInterceptor.getClass().getName() );
+                throw new NamingException( "The Authorization service is incorrectly set" );
+                
+            }
+
+            AuthorizationService authzSrvc = ( AuthorizationService ) authzInterceptor;
             authzSrvc.cacheNewGroup( upName, normName, attributes );
         }
 
