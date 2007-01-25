@@ -28,6 +28,7 @@ import javax.naming.directory.DirContext;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,7 @@ public class Krb5KdcEntryFilter implements LdifLoadFilter
      */
     public boolean filter( File file, String dn, Attributes entry, DirContext ctx ) throws NamingException
     {
-        if ( entry.get( OBJECTCLASS_ATTR ).contains( KRB5KDCENTRY_OC ) )
+        if ( AttributeUtils.containsValueCaseIgnore( entry.get( OBJECTCLASS_ATTR ), KRB5KDCENTRY_OC ) )
         {
             String krbPrincipal = null;
             try
