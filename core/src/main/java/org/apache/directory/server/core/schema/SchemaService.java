@@ -1071,7 +1071,7 @@ public class SchemaService extends BaseInterceptor
             String id = ( String ) changes.next();
             Attribute change = mods.get( id );
 
-            if ( !atRegistry.hasAttributeType( change.getID() ) && !objectClass.contains( "extensibleObject" ) )
+            if ( !atRegistry.hasAttributeType( change.getID() ) && !AttributeUtils.containsValueCaseIgnore( objectClass, "extensibleObject" ) )
             {
                 throw new LdapInvalidAttributeIdentifierException( "unrecognized attributeID " + change.getID() );
             }
@@ -1132,13 +1132,13 @@ public class SchemaService extends BaseInterceptor
                 switch ( modOp )
                 {
                     case ( DirContext.ADD_ATTRIBUTE  ):
-                        if ( ocMods.contains( "top" ) )
+                        if ( AttributeUtils.containsValueCaseIgnore( ocMods, "top" ) )
                         {
                             ocMods.remove( "top" );
                         }
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
-                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !AttributeUtils.containsValueCaseIgnore( objectClass, alteredObjectClass.get( ii ) ) )
                             {
                                 ocMods.add( alteredObjectClass.get( ii ) );
                             }
@@ -1148,7 +1148,7 @@ public class SchemaService extends BaseInterceptor
                     case ( DirContext.REMOVE_ATTRIBUTE  ):
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
-                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !AttributeUtils.containsValueCaseIgnore( objectClass, alteredObjectClass.get( ii ) ) )
                             {
                                 ocMods.remove( alteredObjectClass.get( ii ) );
                             }
@@ -1158,7 +1158,7 @@ public class SchemaService extends BaseInterceptor
                     case ( DirContext.REPLACE_ATTRIBUTE  ):
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
-                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !AttributeUtils.containsValueCaseIgnore( objectClass, alteredObjectClass.get( ii ) ) )
                             {
                                 ocMods.add( alteredObjectClass.get( ii ) );
                             }
@@ -1267,7 +1267,7 @@ public class SchemaService extends BaseInterceptor
             int modOp = mods[ii].getModificationOp();
             Attribute change = mods[ii].getAttribute();
 
-            if ( !atRegistry.hasAttributeType( change.getID() ) && !objectClass.contains( "extensibleObject" ) )
+            if ( !atRegistry.hasAttributeType( change.getID() ) && !AttributeUtils.containsValueCaseIgnore( objectClass, "extensibleObject" ) )
             {
                 throw new LdapInvalidAttributeIdentifierException();
             }
@@ -1403,13 +1403,13 @@ public class SchemaService extends BaseInterceptor
                 switch ( objectClassMod.getModificationOp() )
                 {
                     case ( DirContext.ADD_ATTRIBUTE  ):
-                        if ( ocMods.contains( "top" ) )
+                        if ( AttributeUtils.containsValueCaseIgnore( ocMods, "top" ) )
                         {
                             ocMods.remove( "top" );
                         }
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
-                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !AttributeUtils.containsValueCaseIgnore( objectClass, alteredObjectClass.get( ii ) ) )
                             {
                                 ocMods.add( alteredObjectClass.get( ii ) );
                             }
@@ -1418,7 +1418,7 @@ public class SchemaService extends BaseInterceptor
                     case ( DirContext.REMOVE_ATTRIBUTE  ):
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
-                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !AttributeUtils.containsValueCaseIgnore( objectClass, alteredObjectClass.get( ii ) ) )
                             {
                                 ocMods.remove( alteredObjectClass.get( ii ) );
                             }
@@ -1427,7 +1427,7 @@ public class SchemaService extends BaseInterceptor
                     case ( DirContext.REPLACE_ATTRIBUTE  ):
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
                         {
-                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !AttributeUtils.containsValueCaseIgnore( objectClass, alteredObjectClass.get( ii ) ) )
                             {
                                 ocMods.add( alteredObjectClass.get( ii ) );
                             }
@@ -1681,7 +1681,7 @@ public class SchemaService extends BaseInterceptor
         // declared for this entry
         Attribute objectClass = attributes.get( "objectclass" );
         
-        if ( objectClass.contains( "extensibleobject" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClass, "extensibleobject" ) )
         {
             return;
         }
