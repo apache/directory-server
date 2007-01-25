@@ -43,6 +43,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -121,7 +122,7 @@ public class ExceptionService extends BaseInterceptor
         }
         
         Attribute objectClass = attrs.get( "objectClass" );
-        if ( objectClass.contains( "alias" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClass, "alias" ) )
         {
             String msg = "Attempt to add entry to alias '" + normName.getUpName() + "' not allowed.";
             ResultCodeEnum rc = ResultCodeEnum.ALIASPROBLEM;
