@@ -218,7 +218,7 @@ public class TupleCache
         boolean isAciModified = false;
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            isAciModified |= mods[ii].getAttribute().contains( ACI_ATTR );
+            isAciModified |= AttributeUtils.containsValueCaseIgnore( mods[ii].getAttribute(), ACI_ATTR );
         }
         if ( isAciModified )
         {
