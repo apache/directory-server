@@ -435,7 +435,7 @@ public abstract class BTreePartition implements Partition
 
     public Attributes lookup( LdapDN dn ) throws NamingException
     {
-        return lookup( getEntryId( dn.toString() ) );
+        return lookup( getEntryId( dn.getNormName() ) );
     }
 
 
