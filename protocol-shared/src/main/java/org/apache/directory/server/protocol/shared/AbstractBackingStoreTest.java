@@ -64,6 +64,7 @@ import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -310,7 +311,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
                 String dn = entry.getDn();
                 Attributes attributes = entry.getAttributes();
 
-                if ( attributes.get( "objectClass" ).contains( "krb5KDCEntry" ) )
+                if ( AttributeUtils.containsValueCaseIgnore( attributes.get( "objectClass" ), "krb5KDCEntry" ) )
                 {
                     String pw = ( String ) attributes.get( "userpassword" ).get();
                     String krbPrincipal = ( String ) attributes.get( KerberosAttribute.PRINCIPAL ).get();
