@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 493916 $
  */
-public class DIRSERVER826ITest extends AbstractAdminTestCase
+public class SearchITest extends AbstractAdminTestCase
 {
     protected void setUp() throws Exception
     {
