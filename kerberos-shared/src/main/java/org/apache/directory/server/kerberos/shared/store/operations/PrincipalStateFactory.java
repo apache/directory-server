@@ -35,6 +35,7 @@ import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -70,14 +71,14 @@ public class PrincipalStateFactory implements DirStateFactory
                 outAttrs.put( oc );
             }
 
-            if ( !oc.contains( "top" ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( oc, "top" ) )
             {
                 oc.add( "top" );
             }
 
             PrincipalStoreEntry p = ( PrincipalStoreEntry ) obj;
 
-            if ( !oc.contains( "uidObject" ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( oc, "uidObject" ) )
             {
                 oc.add( "uidObject" );
                 if ( p.getUserId() != null )
@@ -90,13 +91,13 @@ public class PrincipalStateFactory implements DirStateFactory
                 }
             }
 
-            if ( !oc.contains( "extensibleObject" ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( oc, "extensibleObject" ) )
             {
                 oc.add( "extensibleObject" );
                 outAttrs.put( "apacheSamType", "7" );
             }
 
-            if ( !oc.contains( "person" ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( oc, "person" ) )
             {
                 oc.add( "person" );
 
@@ -105,22 +106,22 @@ public class PrincipalStateFactory implements DirStateFactory
                 outAttrs.put( "cn", p.getCommonName() );
             }
 
-            if ( !oc.contains( "organizationalPerson" ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( oc, "organizationalPerson" ) )
             {
                 oc.add( "organizationalPerson" );
             }
 
-            if ( !oc.contains( "inetOrgPerson" ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( oc, "inetOrgPerson" ) )
             {
                 oc.add( "inetOrgPerson" );
             }
 
-            if ( !oc.contains( "krb5Principal" ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( oc, "krb5Principal" ) )
             {
                 oc.add( "krb5Principal" );
             }
 
-            if ( !oc.contains( "krb5KDCEntry" ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( oc, "krb5KDCEntry" ) )
             {
                 oc.add( "krb5KDCEntry" );
 
