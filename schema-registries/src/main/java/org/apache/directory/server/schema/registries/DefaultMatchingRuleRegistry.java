@@ -44,8 +44,6 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
     private final static Logger log = LoggerFactory.getLogger( DefaultMatchingRuleRegistry.class );
     /** a map using an OID for the key and a MatchingRule for the value */
     private final Map<String,MatchingRule> byOid;
-    /** maps an OID to a schema name*/
-    private final Map<String,String> oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
 
@@ -62,7 +60,6 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
      */
     public DefaultMatchingRuleRegistry(OidRegistry oidRegistry)
     {
-        this.oidToSchema = new HashMap<String,String>();
         this.oidRegistry = oidRegistry;
         this.byOid = new HashMap<String,MatchingRule>();
     }
@@ -97,7 +94,7 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
     /**
      * @see MatchingRuleRegistry#register(String, MatchingRule)
      */
-    public void register( String schema, MatchingRule matchingRule ) throws NamingException
+    public void register( MatchingRule matchingRule ) throws NamingException
     {
         if ( byOid.containsKey( matchingRule.getOid() ) )
         {
@@ -105,8 +102,6 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
                 + " has already been registered!" );
             throw e;
         }
-
-        oidToSchema.put( matchingRule.getOid(), schema );
 
         String[] names = matchingRule.getNames();
         for ( int ii = 0; ii < names.length; ii++ )
@@ -147,12 +142,13 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
     public String getSchemaName( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
-        if ( oidToSchema.containsKey( id ) )
+        MatchingRule mr = byOid.get( id );
+        if ( mr != null )
         {
-            return ( String ) oidToSchema.get( id );
+            return mr.getSchema();
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "MatchingRule name map!" );
     }
 
 
@@ -170,6 +166,5 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
         }
 
         byOid.remove( numericOid );
-        oidToSchema.remove( numericOid );
     }
 }

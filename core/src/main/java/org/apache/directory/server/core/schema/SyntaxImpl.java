@@ -56,4 +56,10 @@ class SyntaxImpl extends AbstractSyntax
     {
         super.setHumanReadible( humanReadible );
     }
+    
+    
+    public void setSchema( String schema )
+    {
+        super.setSchema( schema );
+    }
 }

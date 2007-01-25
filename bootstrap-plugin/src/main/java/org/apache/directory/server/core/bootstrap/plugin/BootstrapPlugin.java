@@ -459,9 +459,8 @@ public class BootstrapPlugin extends AbstractMojo
         while ( ii.hasNext() )
         {
             Syntax syntax = ( Syntax ) ii.next();
-            String schemaName = syntaxRegistry.getSchemaName( syntax.getOid() );
-            getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( syntax ) );
-            LdapDN dn = checkCreateSchema( schemaName );
+            getLog().info( "\t\t o [" + syntax.getSchema() + "] - " + getNameOrNumericoid( syntax ) );
+            LdapDN dn = checkCreateSchema( syntax.getSchema() );
             dn.add( CoreSchemaConstants.OU_AT + "=syntaxes" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );

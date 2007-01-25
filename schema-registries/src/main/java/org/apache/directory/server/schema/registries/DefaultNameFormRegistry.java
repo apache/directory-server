@@ -43,8 +43,6 @@ public class DefaultNameFormRegistry implements NameFormRegistry
     private final static Logger log = LoggerFactory.getLogger( DefaultNameFormRegistry.class );
     /** maps an OID to an NameForm */
     private final Map<String,NameForm> byOid;
-    /** maps an OID to a schema name*/
-    private final Map<String,String> oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
 
@@ -59,7 +57,6 @@ public class DefaultNameFormRegistry implements NameFormRegistry
     public DefaultNameFormRegistry(OidRegistry oidRegistry)
     {
         this.byOid = new HashMap<String,NameForm>();
-        this.oidToSchema = new HashMap<String,String>();
         this.oidRegistry = oidRegistry;
     }
 
@@ -68,7 +65,7 @@ public class DefaultNameFormRegistry implements NameFormRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-    public void register( String schema, NameForm nameForm ) throws NamingException
+    public void register( NameForm nameForm ) throws NamingException
     {
         if ( byOid.containsKey( nameForm.getOid() ) )
         {
@@ -77,7 +74,6 @@ public class DefaultNameFormRegistry implements NameFormRegistry
             throw e;
         }
 
-        oidToSchema.put( nameForm.getOid(), schema );
         oidRegistry.register( nameForm.getName(), nameForm.getOid() );
         byOid.put( nameForm.getOid(), nameForm );
         if ( log.isDebugEnabled() )
@@ -127,12 +123,13 @@ public class DefaultNameFormRegistry implements NameFormRegistry
     public String getSchemaName( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
-        if ( oidToSchema.containsKey( id ) )
+        NameForm nf = byOid.get( id );
+        if ( nf != null )
         {
-            return ( String ) oidToSchema.get( id );
+            return nf.getSchema();
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "NameForm map!" );
     }
 
 

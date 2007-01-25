@@ -38,12 +38,11 @@ public interface DITStructureRuleRegistry
     /**
      * Registers a DITStructureRule with this registry.
      * 
-     * @param schema the name of the schema the DITStructureRule is associated with
      * @param dITStructureRule the dITStructureRule to register
      * @throws NamingException if the DITStructureRule is already registered
      * or the registration operation is not supported
      */
-    void register( String schema, DITStructureRule dITStructureRule ) throws NamingException;
+    void register( DITStructureRule dITStructureRule ) throws NamingException;
 
 
     /**

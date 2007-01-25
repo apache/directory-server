@@ -518,10 +518,11 @@ public class SchemaEntityFactory
     }
 
 
-    public Syntax getSyntax( Attributes entry, Registries targetRegistries ) throws NamingException
+    public Syntax getSyntax( Attributes entry, Registries targetRegistries, String schema ) throws NamingException
     {
         String oid = ( String ) entry.get( MetaSchemaConstants.M_OID_AT ).get();
         SyntaxImpl syntax = new SyntaxImpl( oid, targetRegistries.getSyntaxCheckerRegistry() );
+        syntax.setSchema( schema );
         
         if ( entry.get( MetaSchemaConstants.X_HUMAN_READIBLE_AT ) != null )
         {
@@ -538,11 +539,12 @@ public class SchemaEntityFactory
     }
 
     
-    public MatchingRule getMatchingRule( Attributes entry, Registries targetRegistries ) throws NamingException
+    public MatchingRule getMatchingRule( Attributes entry, Registries targetRegistries, String schema ) throws NamingException
     {
         String oid = ( String ) entry.get( MetaSchemaConstants.M_OID_AT ).get();
         String syntaxOid = ( String ) entry.get( MetaSchemaConstants.M_SYNTAX_AT ).get();
         MatchingRuleImpl mr = new MatchingRuleImpl( oid, syntaxOid, targetRegistries );
+        mr.setSchema( schema );
         setSchemaObjectProperties( mr, entry );
         return mr;
     }
@@ -564,10 +566,11 @@ public class SchemaEntityFactory
     }
     
     
-    public ObjectClass getObjectClass( Attributes entry, Registries targetRegistries ) throws NamingException
+    public ObjectClass getObjectClass( Attributes entry, Registries targetRegistries, String schema ) throws NamingException
     {
         String oid = ( String ) entry.get( MetaSchemaConstants.M_OID_AT ).get();
         ObjectClassImpl oc = new ObjectClassImpl( oid, targetRegistries );
+        oc.setSchema( schema );
         
         if ( entry.get( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) != null )
         {
@@ -600,10 +603,11 @@ public class SchemaEntityFactory
     }
     
     
-    public AttributeType getAttributeType( Attributes entry, Registries targetRegistries ) throws NamingException
+    public AttributeType getAttributeType( Attributes entry, Registries targetRegistries, String schema ) throws NamingException
     {
         String oid = ( String ) entry.get( MetaSchemaConstants.M_OID_AT ).get();
         AttributeTypeImpl at = new AttributeTypeImpl( oid, targetRegistries );
+        at.setSchema( schema );
         setSchemaObjectProperties( at, entry );
         
         if ( entry.get( MetaSchemaConstants.M_SYNTAX_AT ) != null )

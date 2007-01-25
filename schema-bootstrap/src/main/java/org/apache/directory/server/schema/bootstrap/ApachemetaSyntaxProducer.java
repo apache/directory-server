@@ -22,6 +22,7 @@ package org.apache.directory.server.schema.bootstrap;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
@@ -114,6 +115,11 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
         {
             return false;
         }
+
+        public String getSchema()
+        {
+            return MetaSchemaConstants.SCHEMA_NAME;
+        }
     }
 
 
@@ -157,6 +163,11 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
         public final boolean isObsolete()
         {
             return false;
+        }
+
+        public String getSchema()
+        {
+            return MetaSchemaConstants.SCHEMA_NAME;
         }
     }
 
@@ -202,6 +213,11 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
         {
             return false;
         }
+
+        public String getSchema()
+        {
+            return MetaSchemaConstants.SCHEMA_NAME;
+        }
     }
 
 
@@ -245,6 +261,11 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
         public final boolean isObsolete()
         {
             return false;
+        }
+
+        public String getSchema()
+        {
+            return MetaSchemaConstants.SCHEMA_NAME;
         }
     }
 }

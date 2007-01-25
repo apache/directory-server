@@ -44,8 +44,6 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     private final static Logger log = LoggerFactory.getLogger( DefaultMatchingRuleUseRegistry.class );
     /** maps a name to an MatchingRuleUse */
     private final Map<String,MatchingRuleUse> byName;
-    /** maps a MatchingRuleUse name to a schema name*/
-    private final Map<String,String> nameToSchema;
 
 
     // ------------------------------------------------------------------------
@@ -59,7 +57,6 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     public DefaultMatchingRuleUseRegistry()
     {
         this.byName = new HashMap<String,MatchingRuleUse>();
-        this.nameToSchema = new HashMap<String,String>();
     }
 
 
@@ -68,7 +65,7 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     // ------------------------------------------------------------------------
 
     
-    public void register( String schema, MatchingRuleUse matchingRuleUse ) throws NamingException
+    public void register( MatchingRuleUse matchingRuleUse ) throws NamingException
     {
         if ( byName.containsKey( matchingRuleUse.getName() ) )
         {
@@ -77,7 +74,6 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
             throw e;
         }
 
-        nameToSchema.put( matchingRuleUse.getName(), schema );
         byName.put( matchingRuleUse.getName(), matchingRuleUse );
         if ( log.isDebugEnabled() )
         {
@@ -111,12 +107,13 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
 
     public String getSchemaName( String id ) throws NamingException
     {
-        if ( nameToSchema.containsKey( id ) )
+        MatchingRuleUse mru = byName.get( id );
+        if ( mru != null )
         {
-            return ( String ) nameToSchema.get( id );
+            return mru.getSchema();
         }
 
-        throw new NamingException( "Name " + id + " not found in name to " + "schema name map!" );
+        throw new NamingException( "Name " + id + " not found in name to " + "MatchingRuleUse map!" );
     }
 
 

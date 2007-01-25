@@ -66,13 +66,13 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     protected void modify( LdapDN name, Attributes entry, Attributes targetEntry ) throws NamingException
     {
         String oldOid = getOid( entry );
-        Syntax syntax = factory.getSyntax( targetEntry, targetRegistries );
         Schema schema = getSchema( name );
+        Syntax syntax = factory.getSyntax( targetEntry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
             syntaxRegistry.unregister( oldOid );
-            syntaxRegistry.register( schema.getSchemaName(), syntax );
+            syntaxRegistry.register( syntax );
         }
     }
 
@@ -83,12 +83,12 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         
-        Syntax syntax = factory.getSyntax( entry, targetRegistries );
         Schema schema = getSchema( name );
+        Syntax syntax = factory.getSyntax( entry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
-            syntaxRegistry.register( schema.getSchemaName(), syntax );
+            syntaxRegistry.register( syntax );
         }
         else
         {
@@ -141,12 +141,12 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRdn );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
-        Syntax syntax = factory.getSyntax( targetEntry, targetRegistries );
+        Syntax syntax = factory.getSyntax( targetEntry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
             syntaxRegistry.unregister( oldOid );
-            syntaxRegistry.register( schema.getSchemaName(), syntax );
+            syntaxRegistry.register( syntax );
         }
         else
         {
@@ -180,7 +180,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRn );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
-        Syntax syntax = factory.getSyntax( targetEntry, targetRegistries );
+        Syntax syntax = factory.getSyntax( targetEntry, targetRegistries, newSchema.getSchemaName() );
 
         if ( ! oldSchema.isDisabled() )
         {
@@ -191,7 +191,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
 
         if ( ! newSchema.isDisabled() )
         {
-            syntaxRegistry.register( newSchema.getSchemaName(), syntax );
+            syntaxRegistry.register( syntax );
         }
         else
         {
@@ -220,7 +220,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
         
-        Syntax syntax = factory.getSyntax( entry, targetRegistries );
+        Syntax syntax = factory.getSyntax( entry, targetRegistries, newSchema.getSchemaName() );
         
         if ( ! oldSchema.isDisabled() )
         {
@@ -229,7 +229,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         
         if ( ! newSchema.isDisabled() )
         {
-            syntaxRegistry.register( newSchema.getSchemaName(), syntax );
+            syntaxRegistry.register( syntax );
         }
     }
     

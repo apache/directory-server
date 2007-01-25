@@ -276,7 +276,7 @@ public class MetaSyntaxCheckerHandlerITest extends AbstractAdminTestCase
         LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddSyntaxChecker();
-        registries.getSyntaxRegistry().register( "apachemeta", new DummySyntax() );
+        registries.getSyntaxRegistry().register( new DummySyntax() );
         
         try
         {
@@ -296,7 +296,7 @@ public class MetaSyntaxCheckerHandlerITest extends AbstractAdminTestCase
     public void testMoveSyntaxCheckerWhenInUse() throws NamingException
     {
         testAddSyntaxChecker();
-        registries.getSyntaxRegistry().register( "apachemeta", new DummySyntax() );
+        registries.getSyntaxRegistry().register( new DummySyntax() );
         
         LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -322,7 +322,7 @@ public class MetaSyntaxCheckerHandlerITest extends AbstractAdminTestCase
     public void testMoveSyntaxCheckerAndChangeRdnWhenInUse() throws NamingException
     {
         testAddSyntaxChecker();
-        registries.getSyntaxRegistry().register( "apachemeta", new DummySyntax() );
+        registries.getSyntaxRegistry().register( new DummySyntax() );
         
         LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -350,7 +350,7 @@ public class MetaSyntaxCheckerHandlerITest extends AbstractAdminTestCase
         LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddSyntaxChecker();
-        registries.getSyntaxRegistry().register( "apachemeta", new DummySyntax() );
+        registries.getSyntaxRegistry().register( new DummySyntax() );
         
         LdapDN newdn = getSyntaxCheckerContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
@@ -548,6 +548,11 @@ public class MetaSyntaxCheckerHandlerITest extends AbstractAdminTestCase
         public boolean isHumanReadible()
         {
             return false;
+        }
+
+        public String getSchema()
+        {
+            return null;
         }
     }
 }

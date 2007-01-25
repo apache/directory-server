@@ -67,13 +67,13 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     protected void modify( LdapDN name, Attributes entry, Attributes targetEntry ) throws NamingException
     {
         String oldOid = getOid( entry );
-        AttributeType at = factory.getAttributeType( targetEntry, targetRegistries );
         Schema schema = getSchema( name );
+        AttributeType at = factory.getAttributeType( targetEntry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
             attributeTypeRegistry.unregister( oldOid );
-            attributeTypeRegistry.register( schema.getSchemaName(), at );
+            attributeTypeRegistry.register( at );
         }
     }
 
@@ -84,12 +84,12 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         
-        AttributeType at = factory.getAttributeType( entry, targetRegistries );
         Schema schema = getSchema( name );
+        AttributeType at = factory.getAttributeType( entry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
-            attributeTypeRegistry.register( schema.getSchemaName(), at );
+            attributeTypeRegistry.register( at );
         }
         else
         {
@@ -100,7 +100,8 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
-        AttributeType at = factory.getAttributeType( entry, targetRegistries );
+        Schema schema = getSchema( name );
+        AttributeType at = factory.getAttributeType( entry, targetRegistries, schema.getSchemaName() );
         Set<SearchResult> dependees = dao.listAttributeTypeDependees( at );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -110,8 +111,6 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
                 + getOids( dependees ), 
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
-        
-        Schema schema = getSchema( name );
         
         if ( ! schema.isDisabled() )
         {
@@ -123,7 +122,8 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 
     public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
     {
-        AttributeType oldAt = factory.getAttributeType( entry, targetRegistries );
+        Schema schema = getSchema( name );
+        AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, schema.getSchemaName() );
         Set<SearchResult> dependees = dao.listAttributeTypeDependees( oldAt );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -134,16 +134,15 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        Schema schema = getSchema( name );
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRdn );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
-        AttributeType at = factory.getAttributeType( targetEntry, targetRegistries );
+        AttributeType at = factory.getAttributeType( targetEntry, targetRegistries, schema.getSchemaName() );
 
         if ( ! schema.isDisabled() )
         {
             attributeTypeRegistry.unregister( oldAt.getOid() );
-            attributeTypeRegistry.register( schema.getSchemaName(), at );
+            attributeTypeRegistry.register( at );
         }
         else
         {
@@ -158,7 +157,8 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         throws NamingException
     {
         checkNewParent( newParentName );
-        AttributeType oldAt = factory.getAttributeType( entry, targetRegistries );
+        Schema oldSchema = getSchema( oriChildName );
+        AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, oldSchema.getSchemaName() );
         Set<SearchResult> dependees = dao.listAttributeTypeDependees( oldAt );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -169,12 +169,11 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRn );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
-        AttributeType at = factory.getAttributeType( targetEntry, targetRegistries );
+        AttributeType at = factory.getAttributeType( targetEntry, targetRegistries, newSchema.getSchemaName() );
 
         if ( ! oldSchema.isDisabled() )
         {
@@ -184,7 +183,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 
         if ( ! newSchema.isDisabled() )
         {
-            attributeTypeRegistry.register( newSchema.getSchemaName(), at );
+            attributeTypeRegistry.register( at );
         }
         else
         {
@@ -197,7 +196,8 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         throws NamingException
     {
         checkNewParent( newParentName );
-        AttributeType oldAt = factory.getAttributeType( entry, targetRegistries );
+        Schema oldSchema = getSchema( oriChildName );
+        AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, oldSchema.getSchemaName() );
         Set<SearchResult> dependees = dao.listAttributeTypeDependees( oldAt );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -208,10 +208,8 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
-        
-        AttributeType at = factory.getAttributeType( entry, targetRegistries );
+        AttributeType at = factory.getAttributeType( entry, targetRegistries, newSchema.getSchemaName() );
         
         if ( ! oldSchema.isDisabled() )
         {
@@ -220,7 +218,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         
         if ( ! newSchema.isDisabled() )
         {
-            attributeTypeRegistry.register( newSchema.getSchemaName(), at );
+            attributeTypeRegistry.register( at );
         }
     }
     

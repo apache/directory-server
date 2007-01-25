@@ -25,6 +25,11 @@
       <version>${pom.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-constants</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>

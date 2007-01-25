@@ -44,8 +44,6 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     private final static Logger log = LoggerFactory.getLogger( DefaultSyntaxRegistry.class );
     /** a map of entries using an OID for the key and a Syntax for the value */
     private final Map<String,Syntax> byOid;
-    /** maps an OID to a schema name*/
-    private final Map<String,String> oidToSchema;
     /** the OID oidRegistry this oidRegistry uses to register new syntax OIDs */
     private final OidRegistry oidRegistry;
 
@@ -61,7 +59,6 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     {
         this.oidRegistry = registry;
         this.byOid = new HashMap<String,Syntax>();
-        this.oidToSchema = new HashMap<String,String>();
     }
 
 
@@ -89,7 +86,7 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     }
 
 
-    public void register( String schema, Syntax syntax ) throws NamingException
+    public void register( Syntax syntax ) throws NamingException
     {
         if ( byOid.containsKey( syntax.getOid() ) )
         {
@@ -108,7 +105,6 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
         }
 
         byOid.put( syntax.getOid(), syntax );
-        oidToSchema.put( syntax.getOid(), schema );
         if ( log.isDebugEnabled() )
         {
             log.debug( "registered syntax: " + syntax );
@@ -142,12 +138,13 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
         }
 
         id = oidRegistry.getOid( id );
-        if ( oidToSchema.containsKey( id ) )
+        Syntax syntax = byOid.get( id );
+        if ( syntax != null )
         {
-            return ( String ) oidToSchema.get( id );
+            return syntax.getSchema();
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "Syntax map!" );
     }
 
 
@@ -165,7 +162,6 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
         }
 
         byOid.remove( numericOid );
-        oidToSchema.remove( numericOid );
         oidRegistry.unregister( numericOid );
     }
 }

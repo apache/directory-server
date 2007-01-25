@@ -114,6 +114,12 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             super( oid );
             this.registry = registry;
         }
+        
+        
+        public void setSchema( String schema )
+        {
+            super.setSchema( schema );
+        }
 
 
         public void setDescription( String description )
@@ -167,6 +173,12 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         public void setNames( String[] names )
         {
             super.setNames( names );
+        }
+
+
+        public void setSchema( String schema )
+        {
+            super.setSchema( schema );
         }
 
 
@@ -239,6 +251,12 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         public void setSuperiorId( String superiorId )
         {
             this.superiorId = superiorId;
+        }
+
+
+        public void setSchema( String schema )
+        {
+            super.setSchema( schema );
         }
 
 
@@ -454,6 +472,12 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         public ObjectClassTypeEnum getType()
         {
             return type;
+        }
+
+
+        public void setSchema( String schema )
+        {
+            super.setSchema( schema );
         }
 
 

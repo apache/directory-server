@@ -27,6 +27,7 @@ import javax.naming.NamingException;
 import jdbm.helper.StringComparator;
 
 import org.apache.commons.collections.comparators.ComparableComparator;
+import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
@@ -47,6 +48,8 @@ import org.apache.directory.shared.ldap.schema.Syntax;
  */
 public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
 {
+    
+    
     public ApachemetaMatchingRuleProducer()
     {
         super( ProducerTypeEnum.MATCHING_RULE_PRODUCER );
@@ -66,7 +69,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
     {
         MatchingRule matchingRule = null;
         
-        matchingRule = new NameOrNumericIdMatch( registries.getOidRegistry() );
+        matchingRule = new NameOrNumericIdMatch( registries.getOidRegistry(), MetaSchemaConstants.SCHEMA_NAME );
         cb.schemaObjectProduced( this, matchingRule.getOid(), matchingRule );
         
         matchingRule = new ObjectClassTypeMatch();
@@ -89,7 +92,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         private final String OID = "1.3.6.1.4.1.18060.0.4.0.1.4";
         private final Syntax syntax;
         private final String[] NAMES = new String[] { "ruleIdMatch" };
-
+        
         
         RuleIdMatch( SyntaxRegistry registry ) throws NamingException
         {
@@ -134,6 +137,11 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         public boolean isObsolete()
         {
             return false;
+        }
+
+        public String getSchema()
+        {
+            return MetaSchemaConstants.SCHEMA_NAME;
         }
     }
     
@@ -191,6 +199,11 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         {
             return false;
         }
+
+        public String getSchema()
+        {
+            return MetaSchemaConstants.SCHEMA_NAME;
+        }
     }
     
     
@@ -247,6 +260,11 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         {
             return false;
         }
+
+        public String getSchema()
+        {
+            return MetaSchemaConstants.SCHEMA_NAME;
+        }
     }
 
     
@@ -299,6 +317,11 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         public boolean isObsolete()
         {
             return false;
+        }
+
+        public String getSchema()
+        {
+            return MetaSchemaConstants.SCHEMA_NAME;
         }
     }
 }

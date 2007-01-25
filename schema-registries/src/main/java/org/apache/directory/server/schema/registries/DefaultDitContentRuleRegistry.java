@@ -43,8 +43,6 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
     private final static Logger log = LoggerFactory.getLogger( DefaultDitContentRuleRegistry.class );
     /** maps an OID to an DITContentRule */
     private final Map<String,DITContentRule> byOid;
-    /** maps an OID to a schema name*/
-    private final Map<String,String> oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
 
@@ -59,7 +57,6 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
     public DefaultDitContentRuleRegistry(OidRegistry oidRegistry)
     {
         this.byOid = new HashMap<String,DITContentRule>();
-        this.oidToSchema = new HashMap<String,String>();
         this.oidRegistry = oidRegistry;
     }
 
@@ -69,7 +66,7 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
     // ------------------------------------------------------------------------
 
     
-    public void register( String schema, DITContentRule dITContentRule ) throws NamingException
+    public void register( DITContentRule dITContentRule ) throws NamingException
     {
         if ( byOid.containsKey( dITContentRule.getOid() ) )
         {
@@ -80,7 +77,6 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
 
         oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() );
         byOid.put( dITContentRule.getOid(), dITContentRule );
-        oidToSchema.put( dITContentRule.getOid(), schema );
         if ( log.isDebugEnabled() )
         {
             log.debug( "registed dITContentRule: " + dITContentRule );
@@ -128,12 +124,13 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
     public String getSchemaName( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
-        if ( oidToSchema.containsKey( id ) )
+        DITContentRule dcr = byOid.get( id );
+        if ( dcr != null )
         {
-            return ( String ) oidToSchema.get( id );
+            return dcr.getSchema();
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "DITContentRule map!" );
     }
 
 

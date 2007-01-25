@@ -66,13 +66,13 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     protected void modify( LdapDN name, Attributes entry, Attributes targetEntry ) throws NamingException
     {
         String oldOid = getOid( entry );
-        MatchingRule mr = factory.getMatchingRule( targetEntry, targetRegistries );
         Schema schema = getSchema( name );
+        MatchingRule mr = factory.getMatchingRule( targetEntry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
             matchingRuleRegistry.unregister( oldOid );
-            matchingRuleRegistry.register( schema.getSchemaName(), mr );
+            matchingRuleRegistry.register( mr );
         }
     }
 
@@ -83,12 +83,12 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         
-        MatchingRule mr = factory.getMatchingRule( entry, targetRegistries );
         Schema schema = getSchema( name );
+        MatchingRule mr = factory.getMatchingRule( entry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
-            matchingRuleRegistry.register( schema.getSchemaName(), mr );
+            matchingRuleRegistry.register( mr );
         }
         else
         {
@@ -99,7 +99,8 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
 
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
-        MatchingRule mr = factory.getMatchingRule( entry, targetRegistries );
+        Schema schema = getSchema( name );
+        MatchingRule mr = factory.getMatchingRule( entry, targetRegistries, schema.getSchemaName() );
         Set<SearchResult> dependees = dao.listMatchingRuleDependees( mr );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -109,8 +110,6 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
                 + getOids( dependees ), 
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
-        
-        Schema schema = getSchema( name );
         
         if ( ! schema.isDisabled() )
         {
@@ -122,7 +121,8 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
 
     public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
     {
-        MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries );
+        Schema schema = getSchema( name );
+        MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries, schema.getSchemaName() );
         Set<SearchResult> dependees = dao.listMatchingRuleDependees( oldMr );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -133,16 +133,15 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        Schema schema = getSchema( name );
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRdn );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
-        MatchingRule mr = factory.getMatchingRule( targetEntry, targetRegistries );
+        MatchingRule mr = factory.getMatchingRule( targetEntry, targetRegistries, schema.getSchemaName() );
 
         if ( ! schema.isDisabled() )
         {
             matchingRuleRegistry.unregister( oldMr.getOid() );
-            matchingRuleRegistry.register( schema.getSchemaName(), mr );
+            matchingRuleRegistry.register( mr );
         }
         else
         {
@@ -157,7 +156,8 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
         throws NamingException
     {
         checkNewParent( newParentName );
-        MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries );
+        Schema oldSchema = getSchema( oriChildName );
+        MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries, oldSchema.getSchemaName() );
         Set<SearchResult> dependees = dao.listMatchingRuleDependees( oldMr );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -168,12 +168,11 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRn );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
-        MatchingRule mr = factory.getMatchingRule( targetEntry, targetRegistries );
+        MatchingRule mr = factory.getMatchingRule( targetEntry, targetRegistries, newSchema.getSchemaName() );
 
         if ( ! oldSchema.isDisabled() )
         {
@@ -183,7 +182,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
 
         if ( ! newSchema.isDisabled() )
         {
-            matchingRuleRegistry.register( newSchema.getSchemaName(), mr );
+            matchingRuleRegistry.register( mr );
         }
         else
         {
@@ -196,7 +195,8 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
         throws NamingException
     {
         checkNewParent( newParentName );
-        MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries );
+        Schema oldSchema = getSchema( oriChildName );
+        MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries, oldSchema.getSchemaName() );
         Set<SearchResult> dependees = dao.listMatchingRuleDependees( oldMr );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -207,10 +207,8 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
-        
-        MatchingRule mr = factory.getMatchingRule( entry, targetRegistries );
+        MatchingRule mr = factory.getMatchingRule( entry, targetRegistries, newSchema.getSchemaName() );
         
         if ( ! oldSchema.isDisabled() )
         {
@@ -219,7 +217,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
         
         if ( ! newSchema.isDisabled() )
         {
-            matchingRuleRegistry.register( newSchema.getSchemaName(), mr );
+            matchingRuleRegistry.register( mr );
         }
     }
     

@@ -66,13 +66,13 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     protected void modify( LdapDN name, Attributes entry, Attributes targetEntry ) throws NamingException
     {
         String oldOid = getOid( entry );
-        ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries );
         Schema schema = getSchema( name );
+        ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries, schema.getSchemaName() );
 
         if ( ! schema.isDisabled() )
         {
             objectClassRegistry.unregister( oldOid );
-            objectClassRegistry.register( schema.getSchemaName(), oc );
+            objectClassRegistry.register( oc );
         }
     }
 
@@ -83,12 +83,12 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         
-        ObjectClass oc = factory.getObjectClass( entry, targetRegistries );
         Schema schema = getSchema( name );
+        ObjectClass oc = factory.getObjectClass( entry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
-            objectClassRegistry.register( schema.getSchemaName(), oc );
+            objectClassRegistry.register( oc );
         }
         else
         {
@@ -99,7 +99,8 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
 
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
-        ObjectClass oc = factory.getObjectClass( entry, targetRegistries );
+        Schema schema = getSchema( name );
+        ObjectClass oc = factory.getObjectClass( entry, targetRegistries, schema.getSchemaName() );
         Set<SearchResult> dependees = dao.listObjectClassDependees( oc );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -109,8 +110,6 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
                 + getOids( dependees ), 
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
-        
-        Schema schema = getSchema( name );
         
         if ( ! schema.isDisabled() )
         {
@@ -123,7 +122,8 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
 
     public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
     {
-        ObjectClass oldOc = factory.getObjectClass( entry, targetRegistries );
+        Schema schema = getSchema( name );
+        ObjectClass oldOc = factory.getObjectClass( entry, targetRegistries, schema.getSchemaName() );
         Set<SearchResult> dependees = dao.listObjectClassDependees( oldOc );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -134,16 +134,15 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        Schema schema = getSchema( name );
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRdn );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
-        ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries );
+        ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries, schema.getSchemaName() );
 
         if ( ! schema.isDisabled() )
         {
             objectClassRegistry.unregister( oldOc.getOid() );
-            objectClassRegistry.register( schema.getSchemaName(), oc );
+            objectClassRegistry.register( oc );
         }
         else
         {
@@ -158,7 +157,8 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         throws NamingException
     {
         checkNewParent( newParentName );
-        ObjectClass oldOc = factory.getObjectClass( entry, targetRegistries );
+        Schema oldSchema = getSchema( oriChildName );
+        ObjectClass oldOc = factory.getObjectClass( entry, targetRegistries, oldSchema.getSchemaName() );
         Set<SearchResult> dependees = dao.listObjectClassDependees( oldOc );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -169,12 +169,11 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRn );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
-        ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries );
+        ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries, newSchema.getSchemaName() );
 
         if ( ! oldSchema.isDisabled() )
         {
@@ -184,7 +183,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         
         if ( ! newSchema.isDisabled() )
         {
-            objectClassRegistry.register( newSchema.getSchemaName(), oc );
+            objectClassRegistry.register( oc );
         }
         else
         {
@@ -197,7 +196,8 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         throws NamingException
     {
         checkNewParent( newParentName );
-        ObjectClass oldAt = factory.getObjectClass( entry, targetRegistries );
+        Schema oldSchema = getSchema( oriChildName );
+        ObjectClass oldAt = factory.getObjectClass( entry, targetRegistries, oldSchema.getSchemaName() );
         Set<SearchResult> dependees = dao.listObjectClassDependees( oldAt );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -208,10 +208,8 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
-        
-        ObjectClass oc = factory.getObjectClass( entry, targetRegistries );
+        ObjectClass oc = factory.getObjectClass( entry, targetRegistries, newSchema.getSchemaName() );
         
         if ( ! oldSchema.isDisabled() )
         {
@@ -220,7 +218,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         
         if ( ! newSchema.isDisabled() )
         {
-            objectClassRegistry.register( newSchema.getSchemaName(), oc );
+            objectClassRegistry.register( oc );
         }
     }
     

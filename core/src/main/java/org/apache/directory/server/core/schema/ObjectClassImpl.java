@@ -79,6 +79,12 @@ class ObjectClassImpl extends AbstractSchemaObject implements MutableSchemaObjec
     }
 
     
+    public void setSchema( String schema )
+    {
+        super.setSchema( schema );
+    }
+    
+    
     public AttributeType[] getMayList() throws NamingException
     {
         if ( this.mayListOids == null )

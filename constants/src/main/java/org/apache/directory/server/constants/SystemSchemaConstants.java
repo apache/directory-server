@@ -28,6 +28,7 @@ package org.apache.directory.server.constants;
  */
 public interface SystemSchemaConstants
 {
+    public static final String SCHEMA_NAME = "system";
 
     public static final String CN_AT = "cn";
     public static final String OBJECT_CLASS_AT = "objectClass";

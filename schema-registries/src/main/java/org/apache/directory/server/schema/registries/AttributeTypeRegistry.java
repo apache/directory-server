@@ -40,12 +40,11 @@ public interface AttributeTypeRegistry
     /**
      * Registers a new AttributeType with this registry.
      *
-     * @param schema the name of the schema the AttributeType is associated with
      * @param attributeType the AttributeType to register
      * @throws NamingException if the AttributeType is already registered or
      * the registration operation is not supported
      */
-    void register( String schema, AttributeType attributeType ) throws NamingException;
+    void register( AttributeType attributeType ) throws NamingException;
 
 
     /**

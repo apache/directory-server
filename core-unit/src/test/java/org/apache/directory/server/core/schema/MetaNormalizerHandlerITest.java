@@ -279,7 +279,7 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddNormalizer();
-        registries.getMatchingRuleRegistry().register( "apachemeta", new DummyMR() );
+        registries.getMatchingRuleRegistry().register( new DummyMR() );
         
         try
         {
@@ -299,7 +299,7 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
     public void testMoveNormalizerWhenInUse() throws NamingException
     {
         testAddNormalizer();
-        registries.getMatchingRuleRegistry().register( "apachemeta", new DummyMR() );
+        registries.getMatchingRuleRegistry().register( new DummyMR() );
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -325,7 +325,7 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
     public void testMoveNormalizerAndChangeRdnWhenInUse() throws NamingException
     {
         testAddNormalizer();
-        registries.getMatchingRuleRegistry().register( "apachemeta", new DummyMR() );
+        registries.getMatchingRuleRegistry().register( new DummyMR() );
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -353,7 +353,7 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddNormalizer();
-        registries.getMatchingRuleRegistry().register( "apachemeta", new DummyMR() );
+        registries.getMatchingRuleRegistry().register( new DummyMR() );
         
         LdapDN newdn = getNormalizerContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
@@ -534,6 +534,10 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         {
             return false;
         }
-        
+
+        public String getSchema()
+        {
+            return null;
+        }
     }
 }

@@ -133,6 +133,12 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
     }
     
     
+    public void setSchema( String schema )
+    {
+        super.setSchema( schema );
+    }
+    
+    
     public void setSuperiorOid( String superiorOid )
     {
         this.superiorOid = superiorOid;

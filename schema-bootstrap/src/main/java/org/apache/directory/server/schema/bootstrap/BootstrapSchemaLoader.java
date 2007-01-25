@@ -33,26 +33,22 @@ import javax.naming.NamingException;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchema;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
+import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapAttributeType;
+import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapMatchingRule;
+import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapObjectClass;
+import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapSyntax;
 import org.apache.directory.server.schema.registries.AbstractSchemaLoader;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
-import org.apache.directory.server.schema.registries.DITContentRuleRegistry;
-import org.apache.directory.server.schema.registries.DITStructureRuleRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
-import org.apache.directory.server.schema.registries.MatchingRuleUseRegistry;
-import org.apache.directory.server.schema.registries.NameFormRegistry;
 import org.apache.directory.server.schema.registries.NormalizerRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.DITContentRule;
-import org.apache.directory.shared.ldap.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
-import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.Syntax;
@@ -228,61 +224,57 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
                 
             case SYNTAX_PRODUCER :
                 Syntax syntax = ( Syntax ) schemaObject;
+                
+                if ( schemaObject instanceof BootstrapSyntax )
+                {
+                    ( ( BootstrapSyntax ) syntax ).setSchema( schema.getSchemaName() );
+                }
+
                 SyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();
-                syntaxRegistry.register( schema.getSchemaName(), syntax );
+                syntaxRegistry.register( syntax );
                 break;
                 
             case MATCHING_RULE_PRODUCER :
                 MatchingRule matchingRule = ( MatchingRule ) schemaObject;
+                
+                if ( schemaObject instanceof BootstrapMatchingRule )
+                {
+                    ( ( BootstrapMatchingRule ) matchingRule ).setSchema( schema.getSchemaName() );
+                }
+
                 MatchingRuleRegistry matchingRuleRegistry;
                 matchingRuleRegistry = registries.getMatchingRuleRegistry();
-                matchingRuleRegistry.register( schema.getSchemaName(), matchingRule );
+                matchingRuleRegistry.register( matchingRule );
                 break;
                 
             case ATTRIBUTE_TYPE_PRODUCER :
                 AttributeType attributeType = ( AttributeType ) schemaObject;
+                
+                if ( attributeType instanceof BootstrapAttributeType )
+                {
+                    ( ( BootstrapAttributeType ) attributeType ).setSchema( schema.getSchemaName() );
+                }
+                
                 AttributeTypeRegistry attributeTypeRegistry;
                 attributeTypeRegistry = registries.getAttributeTypeRegistry();
-                attributeTypeRegistry.register( schema.getSchemaName(), attributeType );
+                attributeTypeRegistry.register( attributeType );
                 break;
                 
             case OBJECT_CLASS_PRODUCER :
                 ObjectClass objectClass = ( ObjectClass ) schemaObject;
+                
+                if ( objectClass instanceof BootstrapObjectClass )
+                {
+                    ( ( BootstrapObjectClass ) objectClass ).setSchema( schema.getSchemaName() );
+                }
+                
                 ObjectClassRegistry objectClassRegistry;
                 objectClassRegistry = registries.getObjectClassRegistry();
-                objectClassRegistry.register( schema.getSchemaName(), objectClass );
-                break;
-                
-            case MATCHING_RULE_USE_PRODUCER :
-                MatchingRuleUse matchingRuleUse = ( MatchingRuleUse ) schemaObject;
-                MatchingRuleUseRegistry matchingRuleUseRegistry;
-                matchingRuleUseRegistry = registries.getMatchingRuleUseRegistry();
-                matchingRuleUseRegistry.register( schema.getSchemaName(), matchingRuleUse );
-                break;
-                
-            case DIT_CONTENT_RULE_PRODUCER :
-                DITContentRule ditContentRule = ( DITContentRule ) schemaObject;
-                DITContentRuleRegistry ditContentRuleRegistry;
-                ditContentRuleRegistry = registries.getDitContentRuleRegistry();
-                ditContentRuleRegistry.register( schema.getSchemaName(), ditContentRule );
-                break;
-                
-            case NAME_FORM_PRODUCER :
-                NameForm nameForm = ( NameForm ) schemaObject;
-                NameFormRegistry nameFormRegistry;
-                nameFormRegistry = registries.getNameFormRegistry();
-                nameFormRegistry.register( schema.getSchemaName(), nameForm );
-                break;
-                
-            case DIT_STRUCTURE_RULE_PRODUCER :
-                DITStructureRule ditStructureRule = ( DITStructureRule ) schemaObject;
-                DITStructureRuleRegistry ditStructureRuleRegistry;
-                ditStructureRuleRegistry = registries.getDitStructureRuleRegistry();
-                ditStructureRuleRegistry.register( schema.getSchemaName(), ditStructureRule );
+                objectClassRegistry.register( objectClass );
                 break;
                 
             default:
-                throw new IllegalStateException( "ProducerTypeEnum is broke!" );
+                throw new IllegalStateException( "ProducerTypeEnum value is invalid: " + type );
         }
     }
 

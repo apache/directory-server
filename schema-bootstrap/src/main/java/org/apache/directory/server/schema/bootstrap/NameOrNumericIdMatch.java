@@ -44,19 +44,22 @@ public class NameOrNumericIdMatch implements MatchingRule
     private transient Normalizer normalizer;
     private transient Comparator comparator;
     private transient Syntax syntax;
+    private final String schema;
     
     
-    public NameOrNumericIdMatch()
+    public NameOrNumericIdMatch( String schema )
     {
         this.syntax = new ApachemetaSyntaxProducer.NameOrNumericIdSyntax();
+        this.schema = schema;
     }
 
     
-    public NameOrNumericIdMatch( OidRegistry registry )
+    public NameOrNumericIdMatch( OidRegistry registry, String schema )
     {
         this.normalizer = new NameOrNumericIdNormalizer( registry );
         this.comparator = new NameOrNumericIdComparator( registry );
         this.syntax = new ApachemetaSyntaxProducer.NameOrNumericIdSyntax();
+        this.schema = schema;
     }
     
 
@@ -137,5 +140,11 @@ public class NameOrNumericIdMatch implements MatchingRule
     public boolean isObsolete()
     {
         return false;
+    }
+
+
+    public String getSchema()
+    {
+        return schema;
     }
 }

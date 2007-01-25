@@ -43,8 +43,6 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
     private final static Logger log = LoggerFactory.getLogger( DefaultDitStructureRuleRegistry.class );
     /** maps an OID to an DITStructureRule */
     private final Map<String,DITStructureRule> byOid;
-    /** maps an OID to a schema name*/
-    private final Map<String,String> oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
 
@@ -60,7 +58,6 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
     public DefaultDitStructureRuleRegistry(OidRegistry oidRegistry)
     {
         this.byOid = new HashMap<String,DITStructureRule>();
-        this.oidToSchema = new HashMap<String,String>();
         this.oidRegistry = oidRegistry;
     }
 
@@ -69,7 +66,7 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
     // Service Methods
     // ------------------------------------------------------------------------
 
-    public void register( String schema, DITStructureRule dITStructureRule ) throws NamingException
+    public void register( DITStructureRule dITStructureRule ) throws NamingException
     {
         if ( byOid.containsKey( dITStructureRule.getOid() ) )
         {
@@ -78,7 +75,6 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
             throw e;
         }
 
-        oidToSchema.put( dITStructureRule.getOid(), schema );
         oidRegistry.register( dITStructureRule.getName(), dITStructureRule.getOid() );
         byOid.put( dITStructureRule.getOid(), dITStructureRule );
         if ( log.isDebugEnabled() )
@@ -128,12 +124,13 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
     public String getSchemaName( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
-        if ( oidToSchema.containsKey( id ) )
+        DITStructureRule dsr = byOid.get( id );
+        if ( dsr != null )
         {
-            return ( String ) oidToSchema.get( id );
+            return dsr.getSchema();
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "DITStructureRule map!" );
     }
 
 

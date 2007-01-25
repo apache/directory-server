@@ -28,6 +28,8 @@ package org.apache.directory.server.constants;
  */
 public interface MetaSchemaConstants
 {
+    public static final String SCHEMA_NAME = "apachemeta";
+
     public static final String META_TOP_OC = "metaTop";
     public static final String META_SCHEMA_OC = "metaSchema";
     public static final String META_OBJECT_CLASS_OC = "metaObjectClass";

@@ -40,12 +40,11 @@ public interface MatchingRuleUseRegistry
     /**
      * Registers a MatchingRuleUse with this registry.
      *
-     * @param schema the name of the schema the MatchingRuleUse is associated with
      * @param matchingRuleUse the matchingRuleUse to register
      * @throws NamingException if the MatchingRuleUse is already registered or
      * the registration operation is not supported
      */
-    void register( String schema, MatchingRuleUse matchingRuleUse ) throws NamingException;
+    void register( MatchingRuleUse matchingRuleUse ) throws NamingException;
 
 
     /**

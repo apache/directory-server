@@ -32,6 +32,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
@@ -53,11 +54,6 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
     public DummyAttributeTypeRegistry(boolean returnOperational)
     {
         this.returnOperational = returnOperational;
-    }
-
-
-    public void register( String schema, AttributeType attributeType ) throws NamingException
-    {
     }
 
 
@@ -165,6 +161,11 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                         {
                             return null;
                         }
+
+                        public String getSchema()
+                        {
+                            return null;
+                        }
                         
                     };
                 }
@@ -210,6 +211,12 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 public String getDescription()
                 {
                     return id;
+                }
+
+
+                public String getSchema()
+                {
+                    return null;
                 }
             };
         }
@@ -290,6 +297,11 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                         {
                             return null;
                         }
+
+                        public String getSchema()
+                        {
+                            return null;
+                        }
                         
                     };
                 }
@@ -348,6 +360,11 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                                 {
                                     return null;
                                 }
+
+                                public String getSchema()
+                                {
+                                    return null;
+                                }
                                 
                             };
                         }
@@ -391,6 +408,11 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                         }
 
                         public String getDescription()
+                        {
+                            return null;
+                        }
+
+                        public String getSchema()
                         {
                             return null;
                         }
@@ -440,6 +462,12 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 {
                     return id;
                 }
+
+
+                public String getSchema()
+                {
+                    return null;
+                }
             };
         }
     }
@@ -463,7 +491,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
     }
 
 
-    public Map getNormalizerMapping() throws NamingException
+    public Map<String,OidNormalizer> getNormalizerMapping() throws NamingException
     {
         return null;
     }
@@ -488,6 +516,11 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 
 
     public void unregister( String numericOid ) throws NamingException
+    {
+    }
+
+
+    public void register( AttributeType attributeType ) throws NamingException
     {
     }
 }

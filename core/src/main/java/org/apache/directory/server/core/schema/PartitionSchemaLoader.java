@@ -277,11 +277,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
             Attributes attrs = partition.lookup( resultDN );
-            ObjectClass oc = factory.getObjectClass( attrs, targetRegistries );
+            ObjectClass oc = factory.getObjectClass( attrs, targetRegistries, schema.getSchemaName() );
             
             try
             {
-                targetRegistries.getObjectClassRegistry().register( schema.getSchemaName(), oc );
+                targetRegistries.getObjectClassRegistry().register( oc );
             }
             catch ( NamingException ne )
             {
@@ -314,7 +314,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             
             try
             {
-                targetRegistries.getObjectClassRegistry().register( schema.getSchemaName(), oc );
+                targetRegistries.getObjectClassRegistry().register( oc );
             }
             catch ( NamingException ne )
             {
@@ -370,10 +370,10 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
             Attributes attrs = partition.lookup( resultDN );
-            AttributeType at = factory.getAttributeType( attrs, targetRegistries );
+            AttributeType at = factory.getAttributeType( attrs, targetRegistries, schema.getSchemaName() );
             try
             {
-                targetRegistries.getAttributeTypeRegistry().register( schema.getSchemaName(), at );
+                targetRegistries.getAttributeTypeRegistry().register( at );
             }
             catch ( NamingException ne )
             {
@@ -406,7 +406,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             
             try
             {
-                targetRegistries.getAttributeTypeRegistry().register( schema.getSchemaName(), at );
+                targetRegistries.getAttributeTypeRegistry().register( at );
             }
             catch ( NamingException ne )
             {
@@ -461,8 +461,8 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
             Attributes attrs = partition.lookup( resultDN );
-            MatchingRule mrule = factory.getMatchingRule( attrs, targetRegistries );
-            targetRegistries.getMatchingRuleRegistry().register( schema.getSchemaName(), mrule );
+            MatchingRule mrule = factory.getMatchingRule( attrs, targetRegistries, schema.getSchemaName() );
+            targetRegistries.getMatchingRuleRegistry().register( mrule );
 
         }
     }
@@ -487,8 +487,8 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
             Attributes attrs = partition.lookup( resultDN );
-            Syntax syntax = factory.getSyntax( attrs, targetRegistries );
-            targetRegistries.getSyntaxRegistry().register( schema.getSchemaName(), syntax );
+            Syntax syntax = factory.getSyntax( attrs, targetRegistries, schema.getSchemaName() );
+            targetRegistries.getSyntaxRegistry().register( syntax );
         }
     }
 

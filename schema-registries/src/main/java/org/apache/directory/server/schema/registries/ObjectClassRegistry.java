@@ -38,12 +38,11 @@ public interface ObjectClassRegistry
     /**
      * Registers an ObjectClass with this registry.
      *
-     * @param schema the name of the schema the ObjectClass is associated with
      * @param objectClass the objectClass to register
      * @throws NamingException if the ObjectClass is already registered or the
      * registration operation is not supported
      */
-    void register( String schema, ObjectClass objectClass ) throws NamingException;
+    void register( ObjectClass objectClass ) throws NamingException;
 
 
     /**

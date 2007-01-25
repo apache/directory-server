@@ -51,8 +51,6 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
 
     /** maps an OID to an AttributeType */
     private final Map<String,AttributeType> byOid;
-    /** maps an OID to a schema name*/
-    private final Map<String,String> oidToSchema;
     /** maps OIDs to a Set of descendants for that OID */
     private final Map<String,Set<AttributeType>> oidToDescendantSet;
     /** the registry used to resolve names to OIDs */
@@ -71,7 +69,6 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     public DefaultAttributeTypeRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap<String,AttributeType>();
-        this.oidToSchema = new HashMap<String,String>();
         this.oidToDescendantSet= new HashMap<String,Set<AttributeType>>();
         this.oidRegistry = oidRegistry;
     }
@@ -82,7 +79,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     // ------------------------------------------------------------------------
 
     
-    public void register( String schema, AttributeType attributeType ) throws NamingException
+    public void register( AttributeType attributeType ) throws NamingException
     {
         if ( byOid.containsKey( attributeType.getOid() ) )
         {
@@ -99,7 +96,6 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
         oidRegistry.register( attributeType.getOid(), attributeType.getOid() );
 
         registerDescendants( attributeType );
-        oidToSchema.put( attributeType.getOid(), schema );
         byOid.put( attributeType.getOid(), attributeType );
         if ( log.isDebugEnabled() )
         {
@@ -190,12 +186,14 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     public String getSchemaName( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
-        if ( oidToSchema.containsKey( id ) )
+        AttributeType at = byOid.get( id );
+        
+        if ( at != null )
         {
-            return ( String ) oidToSchema.get( id );
+            return at.getSchema();
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "AttributeType map!" );
     }
 
 
@@ -278,7 +276,6 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
         }
 
         byOid.remove( numericOid );
-        oidToSchema.remove( numericOid );
         oidToDescendantSet.remove( numericOid );
     }
 }

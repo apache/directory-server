@@ -74,6 +74,12 @@ class MatchingRuleImpl extends AbstractMatchingRule implements MutableSchemaObje
         return normalizerRegistry.lookup( oid );
     }
     
+    
+    public void setSchema( String schema )
+    {
+        super.setSchema( schema );
+    }
+    
 
     public void setDescription( String description )
     {

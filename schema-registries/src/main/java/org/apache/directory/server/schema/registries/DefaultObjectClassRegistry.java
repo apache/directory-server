@@ -43,8 +43,6 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     private final static Logger log = LoggerFactory.getLogger( DefaultObjectClassRegistry.class );
     /** maps an OID to an ObjectClass */
     private final Map<String,ObjectClass> byOid;
-    /** maps an OID to a schema name*/
-    private final Map<String,String> oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
 
@@ -59,7 +57,6 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     public DefaultObjectClassRegistry(OidRegistry oidRegistry)
     {
         this.byOid = new HashMap<String,ObjectClass>();
-        this.oidToSchema = new HashMap<String,String>();
         this.oidRegistry = oidRegistry;
     }
 
@@ -69,7 +66,7 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     // ------------------------------------------------------------------------
 
     
-    public void register( String schema, ObjectClass objectClass ) throws NamingException
+    public void register( ObjectClass objectClass ) throws NamingException
     {
         if ( byOid.containsKey( objectClass.getOid() ) )
         {
@@ -80,7 +77,6 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
 
         oidRegistry.register( objectClass.getName(), objectClass.getOid() );
         byOid.put( objectClass.getOid(), objectClass );
-        oidToSchema.put( objectClass.getOid(), schema );
         if ( log.isDebugEnabled() )
         {
             log.debug( "registered objectClass: " + objectClass );
@@ -128,12 +124,13 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     public String getSchemaName( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
-        if ( oidToSchema.containsKey( id ) )
+        ObjectClass oc = byOid.get( id );
+        if ( oc != null )
         {
-            return ( String ) oidToSchema.get( id );
+            return oc.getSchema();
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " + "schema name map!" );
+        throw new NamingException( "OID " + id + " not found in oid to " + "ObjectClass map!" );
     }
 
 
@@ -151,6 +148,5 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
         }
 
         byOid.remove( numericOid );
-        oidToSchema.remove( numericOid );
     }
 }
