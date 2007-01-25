@@ -43,6 +43,8 @@ public abstract class AbstractSchemaObject implements SchemaObject
     /** a short description of this SchemaObject */
     protected String description;
 
+    /** the name of the schema this object is associated with */
+    protected String schema;
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -58,7 +60,7 @@ public abstract class AbstractSchemaObject implements SchemaObject
      * @throws NullPointerException
      *             if oid is null
      */
-    protected AbstractSchemaObject(String oid)
+    protected AbstractSchemaObject( String oid )
     {
         this( oid, ArrayUtils.EMPTY_STRING_ARRAY, false, null );
     }
@@ -67,14 +69,11 @@ public abstract class AbstractSchemaObject implements SchemaObject
     /**
      * Creates an abstract SchemaObject.
      * 
-     * @param oid
-     *            the numeric object identifier (OID)
-     * @param names
-     *            the human readable names for this SchemaObject
-     * @throws NullPointerException
-     *             if oid is null
+     * @param oid the numeric object identifier (OID)
+     * @param names the human readable names for this SchemaObject
+     * @throws NullPointerException if oid is null
      */
-    protected AbstractSchemaObject(String oid, String[] names)
+    protected AbstractSchemaObject( String oid, String[] names )
     {
         this( oid, names, false, null );
     }
@@ -83,16 +82,12 @@ public abstract class AbstractSchemaObject implements SchemaObject
     /**
      * Creates an abstract SchemaObject.
      * 
-     * @param oid
-     *            the numeric object identifier (OID)
-     * @param names
-     *            the human readable names for this SchemaObject
-     * @param isObsolete
-     *            true if this object is inactive, false if active
-     * @throws NullPointerException
-     *             if oid is null
+     * @param oid the numeric object identifier (OID)
+     * @param names the human readable names for this SchemaObject
+     * @param isObsolete true if this object is inactive, false if active
+     * @throws NullPointerException if oid is null
      */
-    protected AbstractSchemaObject(String oid, String[] names, boolean isObsolete)
+    protected AbstractSchemaObject( String oid, String[] names, boolean isObsolete )
     {
         this( oid, names, isObsolete, null );
     }
@@ -101,16 +96,12 @@ public abstract class AbstractSchemaObject implements SchemaObject
     /**
      * Creates an abstract SchemaObject.
      * 
-     * @param oid
-     *            the numeric object identifier (OID)
-     * @param name
-     *            the first human readable name for this SchemaObject
-     * @param isObsolete
-     *            true if this object is inactive, false if active
-     * @throws NullPointerException
-     *             if oid is null
+     * @param oid the numeric object identifier (OID)
+     * @param name the first human readable name for this SchemaObject
+     * @param isObsolete true if this object is inactive, false if active
+     * @throws NullPointerException if oid is null
      */
-    protected AbstractSchemaObject(String oid, String name, boolean isObsolete)
+    protected AbstractSchemaObject( String oid, String name, boolean isObsolete )
     {
         this( oid, new String[]
             { name }, isObsolete, null );
@@ -120,14 +111,11 @@ public abstract class AbstractSchemaObject implements SchemaObject
     /**
      * Creates an abstract SchemaObject.
      * 
-     * @param oid
-     *            the numeric object identifier (OID)
-     * @param isObsolete
-     *            true if this object is inactive, false if active
-     * @throws NullPointerException
-     *             if oid is null
+     * @param oid the numeric object identifier (OID)
+     * @param isObsolete true if this object is inactive, false if active
+     * @throws NullPointerException if oid is null
      */
-    protected AbstractSchemaObject(String oid, boolean isObsolete)
+    protected AbstractSchemaObject( String oid, boolean isObsolete )
     {
         this( oid, null, isObsolete, null );
     }
@@ -136,14 +124,11 @@ public abstract class AbstractSchemaObject implements SchemaObject
     /**
      * Creates an abstract SchemaObject.
      * 
-     * @param oid
-     *            the numeric object identifier (OID)
-     * @param description
-     *            a brief description for the SchemaObject
-     * @throws NullPointerException
-     *             if oid is null
+     * @param oid the numeric object identifier (OID)
+     * @param description a brief description for the SchemaObject
+     * @throws NullPointerException if oid is null
      */
-    protected AbstractSchemaObject(String oid, String description)
+    protected AbstractSchemaObject( String oid, String description )
     {
         this( oid, null, false, description );
     }
@@ -152,18 +137,13 @@ public abstract class AbstractSchemaObject implements SchemaObject
     /**
      * Creates an abstract SchemaObject.
      * 
-     * @param oid
-     *            the numeric object identifier (OID)
-     * @param names
-     *            the human readable names for this SchemaObject
-     * @param isObsolete
-     *            true if this object is inactive, false if active
-     * @param description
-     *            a brief description for the SchemaObject
-     * @throws NullPointerException
-     *             if oid is null
+     * @param oid the numeric object identifier (OID)
+     * @param names the human readable names for this SchemaObject
+     * @param isObsolete true if this object is inactive, false if active
+     * @param description a brief description for the SchemaObject
+     * @throws NullPointerException if oid is null
      */
-    protected AbstractSchemaObject(String oid, String[] names, boolean isObsolete, String description)
+    protected AbstractSchemaObject( String oid, String[] names, boolean isObsolete, String description )
     {
         if ( oid == null )
         {
@@ -213,6 +193,15 @@ public abstract class AbstractSchemaObject implements SchemaObject
 
 
     /**
+     * @see SchemaObject#getSchema()
+     */
+    public String getSchema()
+    {
+        return schema;
+    }
+    
+    
+    /**
      * @see SchemaObject#getName()
      */
     public String getName()
@@ -234,6 +223,7 @@ public abstract class AbstractSchemaObject implements SchemaObject
     // P R O T E C T E D M U T A T O R S
     // ------------------------------------------------------------------------
 
+    
     /**
      * Sets whether or not this SchemaObject is inactived.
      * 
@@ -243,6 +233,17 @@ public abstract class AbstractSchemaObject implements SchemaObject
     protected void setObsolete( boolean obsolete )
     {
         isObsolete = obsolete;
+    }
+
+
+    /**
+     * Sets schema name this schema object is associated with.
+     * 
+     * @param schema the name of the schema this object is associated with
+     */
+    protected void setSchema( String schema )
+    {
+        this.schema = schema;
     }
 
 

@@ -79,4 +79,12 @@ public interface SchemaObject extends Serializable
      * @return a short description about this SchemaObject
      */
     String getDescription();
+    
+    
+    /**
+     * Gets the name of the schema this SchemaObject is associated with.
+     *
+     * @return the name of the schema associated with this schemaObject
+     */
+    String getSchema();
 }
