@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.schema.DITContentRule;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface DITContentRuleRegistry
+public interface DITContentRuleRegistry extends SchemaObjectRegistry
 {
     /**
      * Registers a DITContentRule with this registry.
@@ -56,16 +56,6 @@ public interface DITContentRuleRegistry
 
 
     /**
-     * Gets the name of the schema this schema object is associated with.
-     *
-     * @param id the object identifier or the name
-     * @return the schema name
-     * @throws NamingException if the schema object does not exist
-     */
-    String getSchemaName( String id ) throws NamingException;
-
-
-    /**
      * Checks to see if a DITContentRule exists.
      * 
      * @param id the object identifier or name of the DITContentRule
@@ -73,12 +63,11 @@ public interface DITContentRuleRegistry
      * otherwise
      */
     boolean hasDITContentRule( String id );
-
-
+    
     /**
-     * Lists all the DITContentRules within this registry.
+     * Lists the DITContentRules registered in this registry.
      *
-     * @return Iterator over all the DITContentRules within this registry
+     * @return an Iterator of DITContentRules
      */
-    Iterator list();
+    Iterator<DITContentRule> iterator();
 }

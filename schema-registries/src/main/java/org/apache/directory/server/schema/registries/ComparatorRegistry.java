@@ -85,6 +85,7 @@ public interface ComparatorRegistry
      */
     Iterator<String> oidIterator();
 
+    
     /**
      * Removes a registered comparator from this registry.
      * 
@@ -92,4 +93,13 @@ public interface ComparatorRegistry
      * @throws NamingException if the oid is not a numeric id
      */
     void unregister( String oid ) throws NamingException;
+    
+    
+    /**
+     * Unregisters comparators from this registry associated with a schema.
+     *
+     * @param schemaName the name of the schema whose comparators are removed 
+     * from this registry
+     */
+    void unregisterSchemaElements( String schemaName );
 }

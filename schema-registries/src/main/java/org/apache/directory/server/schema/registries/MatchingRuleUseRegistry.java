@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface MatchingRuleUseRegistry
+public interface MatchingRuleUseRegistry extends SchemaObjectRegistry
 {
     /**
      * Registers a MatchingRuleUse with this registry.
@@ -56,17 +56,7 @@ public interface MatchingRuleUseRegistry
      */
     MatchingRuleUse lookup( String name ) throws NamingException;
 
-
-    /**
-     * Gets the name of the schema this schema object is associated with.
-     *
-     * @param name the name String
-     * @return the schema name
-     * @throws NamingException if the schema object does not exist
-     */
-    String getSchemaName( String name ) throws NamingException;
-
-
+    
     /**
      * Checks to see if an matchingRuleUse exists.
      * 
@@ -82,5 +72,5 @@ public interface MatchingRuleUseRegistry
      *
      * @return an Iterator over all the MatchingRuleUses within this registry
      */
-    Iterator list();
+    Iterator<MatchingRuleUse> iterator();
 }

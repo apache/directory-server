@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.schema.NameForm;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface NameFormRegistry
+public interface NameFormRegistry extends SchemaObjectRegistry
 {
     /**
      * Registers a NameForm with this registry.
@@ -56,16 +56,6 @@ public interface NameFormRegistry
 
 
     /**
-     * Gets the name of the schema this schema object is associated with.
-     *
-     * @param id the object identifier or the name
-     * @return the schema name
-     * @throws NamingException if the schema object does not exist
-     */
-    String getSchemaName( String id ) throws NamingException;
-
-
-    /**
      * Checks to see if an nameForm exists.
      * 
      * @param id the object identifier or name
@@ -80,5 +70,5 @@ public interface NameFormRegistry
      *
      * @return an Iterator over all the NameForms within this registry
      */
-    Iterator list();
+    Iterator<NameForm> iterator();
 }

@@ -134,8 +134,19 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
     }
 
 
-    public Iterator list()
+    public Iterator<DITStructureRule> iterator()
     {
         return byOid.values().iterator();
+    }
+    
+    
+    public void unregister( String numericOid ) throws NamingException
+    {
+        if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
+        {
+            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        }
+
+        byOid.remove( numericOid );
     }
 }

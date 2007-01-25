@@ -20,8 +20,10 @@
 package org.apache.directory.server.schema.registries;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
@@ -138,5 +140,20 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
 
         byOid.remove( numericOid );
         oidToSchema.remove( numericOid );
+    }
+    
+    
+    public void unregisterSchemaElements( String schemaName )
+    {
+        List<String> oids = new ArrayList<String>( byOid.keySet() );
+        for ( String oid : oids )
+        {
+            String schemaNameForOid = oidToSchema.get( oid );
+            if ( schemaNameForOid.equalsIgnoreCase( schemaName ) )
+            {
+                byOid.remove( oid );
+                oidToSchema.remove( oid );
+            }
+        }
     }
 }

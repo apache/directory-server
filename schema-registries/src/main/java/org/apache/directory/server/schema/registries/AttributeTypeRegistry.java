@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface AttributeTypeRegistry
+public interface AttributeTypeRegistry extends SchemaObjectRegistry
 {
     /**
      * Registers a new AttributeType with this registry.
@@ -59,16 +59,6 @@ public interface AttributeTypeRegistry
 
 
     /**
-     * Gets the name of the schema this schema object is associated with.
-     *
-     * @param id the object identifier or the name
-     * @return the schema name
-     * @throws NamingException if the schema object does not exist
-     */
-    String getSchemaName( String id ) throws NamingException;
-
-
-    /**
      * Checks to see if an AttributeType exists.
      * 
      * @param id the object identifier or name of the AttributeType
@@ -83,7 +73,7 @@ public interface AttributeTypeRegistry
      *
      * @return an iterator over all AttributeTypes in registry
      */
-    Iterator list();
+    Iterator<AttributeType> iterator();
     
     
     /**
@@ -114,20 +104,4 @@ public interface AttributeTypeRegistry
      * discerned from the ancestorId supplied
      */
     Iterator descendants( String ancestorId ) throws NamingException;
-
-    /**
-     * Gets an Iterator over the attributeTypes in this registry.
-     * 
-     * @return Iterator over attributeTypes
-     */
-    Iterator<AttributeType> iterator();
-
-
-    /**
-     * Removes the AttributeType registered with this registry.
-     * 
-     * @param numericOid the numeric identifier
-     * @throws NamingException if the numeric identifier is invalid
-     */
-    void unregister( String numericOid ) throws NamingException;
 }

@@ -117,8 +117,14 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     }
 
 
-    public Iterator list()
+    public Iterator<MatchingRuleUse> iterator()
     {
         return byName.values().iterator();
+    }
+    
+    
+    public void unregister( String name ) throws NamingException
+    {
+        byName.remove( name );
     }
 }

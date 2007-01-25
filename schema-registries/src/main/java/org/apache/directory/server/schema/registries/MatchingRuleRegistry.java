@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface MatchingRuleRegistry
+public interface MatchingRuleRegistry extends SchemaObjectRegistry
 {
     /**
      * Registers a MatchingRule with this registry.
@@ -57,16 +57,6 @@ public interface MatchingRuleRegistry
 
 
     /**
-     * Gets the name of the schema this schema object is associated with.
-     *
-     * @param id the object identifier or the name
-     * @return the schema name
-     * @throws NamingException if the schema object does not exist
-     */
-    String getSchemaName( String id ) throws NamingException;
-
-
-    /**
      * Checks to see if a MatchingRule exists.  Backing store failures simply 
      * return false.
      * 
@@ -83,13 +73,4 @@ public interface MatchingRuleRegistry
      * @return an iterator over all MatchingRules in registry
      */
     Iterator<MatchingRule> iterator();
-    
-    
-    /**
-     * Removes a registered matchingRule from this registry.
-     * 
-     * @param numericOid the numeric object identifier for the matchingRule to remove
-     * @throws NamingException if the numericOid is invalid
-     */
-    void unregister( String numericOid ) throws NamingException;
 }

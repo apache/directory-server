@@ -72,6 +72,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -478,7 +479,7 @@ class DefaultDirectoryService extends DirectoryService
         // create system users area
         // -------------------------------------------------------------------
 
-        Map oidsMap = configuration.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        Map<String,OidNormalizer> oidsMap = configuration.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         LdapDN userDn = new LdapDN( "ou=users,ou=system" );
         userDn.normalize( oidsMap );
         
@@ -936,10 +937,10 @@ class DefaultDirectoryService extends DirectoryService
 
         // now get all the attributeTypes that are binary from the registry
         AttributeTypeRegistry registry = registries.getAttributeTypeRegistry();
-        Iterator list = registry.list();
+        Iterator<AttributeType> list = registry.iterator();
         while ( list.hasNext() )
         {
-            AttributeType type = ( AttributeType ) list.next();
+            AttributeType type = list.next();
             
             if ( !type.getSyntax().isHumanReadible() )
             {

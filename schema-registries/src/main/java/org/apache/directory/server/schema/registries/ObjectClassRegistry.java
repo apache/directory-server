@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ObjectClassRegistry
+public interface ObjectClassRegistry extends SchemaObjectRegistry
 {
     /**
      * Registers an ObjectClass with this registry.
@@ -56,16 +56,6 @@ public interface ObjectClassRegistry
 
 
     /**
-     * Gets the name of the schema this schema object is associated with.
-     *
-     * @param id the object identifier or the name
-     * @return the schema name
-     * @throws NamingException if the schema object does not exist
-     */
-    String getSchemaName( String id ) throws NamingException;
-
-
-    /**
      * Checks to see if an objectClass exists.
      *
      * @param id the object identifier or name
@@ -81,13 +71,4 @@ public interface ObjectClassRegistry
      * @return an iterator over all ObjectClasses in registry
      */
     Iterator<ObjectClass> iterator();
-
-
-    /**
-     * Removes the ObjectClass corresponding to the numeric identifier form this registry.
-     * 
-     * @param numericOid the numeric identifier for the ObjectClass to remove
-     * @throws NamingException if the numeric identifier is not valid
-     */
-    void unregister( String numericOid ) throws NamingException;
 }

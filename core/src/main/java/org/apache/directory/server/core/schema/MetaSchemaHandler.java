@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.Iterator;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -31,6 +33,7 @@ import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.schema.registries.SchemaObjectRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -38,6 +41,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaObject;
 
 
 /**
@@ -141,11 +145,36 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     }
     
 
-    private void disableSchema( String schemaName )
+    private void disableSchema( String schemaName ) throws NamingException
     {
-        throw new NotImplementedException();
+        disableSchema( globalRegistries.getDitStructureRuleRegistry(), schemaName );
+        disableSchema( globalRegistries.getDitContentRuleRegistry(), schemaName );
+        disableSchema( globalRegistries.getMatchingRuleUseRegistry(), schemaName );
+        disableSchema( globalRegistries.getNameFormRegistry(), schemaName );
+        disableSchema( globalRegistries.getObjectClassRegistry(), schemaName );
+        disableSchema( globalRegistries.getAttributeTypeRegistry(), schemaName );
+        disableSchema( globalRegistries.getMatchingRuleRegistry(), schemaName );
+        disableSchema( globalRegistries.getSyntaxRegistry(), schemaName );
+
+        globalRegistries.getNormalizerRegistry().unregisterSchemaElements( schemaName );
+        globalRegistries.getComparatorRegistry().unregisterSchemaElements( schemaName );
+        globalRegistries.getSyntaxCheckerRegistry().unregisterSchemaElements( schemaName );
     }
 
+    
+    private void disableSchema( SchemaObjectRegistry registry, String schemaName ) throws NamingException
+    {
+        Iterator<? extends SchemaObject> objects = registry.iterator();
+        while ( objects.hasNext() )
+        {
+            SchemaObject obj = objects.next();
+            if ( obj.getSchema().equalsIgnoreCase( schemaName ) )
+            {
+                registry.unregister( obj.getOid() );
+            }
+        }
+    }
+    
 
     /**
      * TODO - for now we're just going to add the schema to the global 

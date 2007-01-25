@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.schema.DITStructureRule;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface DITStructureRuleRegistry
+public interface DITStructureRuleRegistry extends SchemaObjectRegistry
 {
     /**
      * Registers a DITStructureRule with this registry.
@@ -57,16 +57,6 @@ public interface DITStructureRuleRegistry
 
 
     /**
-     * Gets the name of the schema this schema object is associated with.
-     *
-     * @param id the object identifier or the name
-     * @return the schema name
-     * @throws NamingException if the schema object does not exist
-     */
-    String getSchemaName( String id ) throws NamingException;
-
-
-    /**
      * Checks to see if an dITStructureRule exists.
      * 
      * @param id the object identifier, or the name
@@ -81,5 +71,5 @@ public interface DITStructureRuleRegistry
      *
      * @return an Iterator over all the DITStructureRules within this registry
      */
-    Iterator list();
+    Iterator<DITStructureRule> iterator();
 }

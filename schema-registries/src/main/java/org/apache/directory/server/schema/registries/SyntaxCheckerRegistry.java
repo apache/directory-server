@@ -93,4 +93,13 @@ public interface SyntaxCheckerRegistry
      * @throws NamingException if the numericOid is not valid
      */
     void unregister( String numericOid ) throws NamingException;
+    
+    
+    /**
+     * Unregisters all syntaxCheckers defined for a specific schema from
+     * this registry.
+     * 
+     * @param schemaName the name of the schema whose syntaxCheckers will be removed
+     */
+    void unregisterSchemaElements( String schemaName );
 }

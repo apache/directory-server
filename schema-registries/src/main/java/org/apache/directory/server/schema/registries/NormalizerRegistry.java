@@ -93,4 +93,12 @@ public interface NormalizerRegistry
      * @throws NamingException if the provided argument is not a numeric OID
      */
     void unregister( String oid ) throws NamingException;
+    
+    /**
+     * Unregisters normalizers from this registry associated with a schema.
+     *
+     * @param schemaName the name of the schema whose normalizers are 
+     * removed from this registry
+     */
+    void unregisterSchemaElements( String schemaName );
 }

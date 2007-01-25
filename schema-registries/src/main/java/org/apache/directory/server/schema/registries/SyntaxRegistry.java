@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.schema.Syntax;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SyntaxRegistry
+public interface SyntaxRegistry extends SchemaObjectRegistry
 {
     /**
      * Looks up a Syntax by its unique Object Identifier or by name.
@@ -57,16 +57,6 @@ public interface SyntaxRegistry
 
 
     /**
-     * Gets the name of the schema this schema object is associated with.
-     *
-     * @param id the object identifier or the name
-     * @return the schema name
-     * @throws NamingException if the schema object does not exist
-     */
-    String getSchemaName( String id ) throws NamingException;
-
-
-    /**
      * Checks to see if a Syntax exists.  Backing store failures simply return
      * false.
      * 
@@ -82,13 +72,4 @@ public interface SyntaxRegistry
      * @return an Iterator over all the Syntaxes within this registry
      */
     Iterator<Syntax> iterator();
-
-
-    /**
-     * Removes a registered syntax from this registry.
-     *
-     * @param numericOid the numerid id of the syntax being removed
-     * @throws NamingException if the id is not numeric
-     */
-    void unregister( String numericOid ) throws NamingException;
 }

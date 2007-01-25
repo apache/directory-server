@@ -21,7 +21,6 @@ package org.apache.directory.server.core.schema;
 
  
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -139,16 +138,16 @@ public class SchemaService extends BaseInterceptor
     private LdapDN schemaBaseDN;
     
     /** A map used to store all the objectClasses superiors */
-    private Map superiors;
+    private Map<String, List<ObjectClass>> superiors;
 
     /** A map used to store all the objectClasses may attributes */
-    private Map allMay;
+    private Map<String, List<AttributeType>> allMay;
 
     /** A map used to store all the objectClasses must */
-    private Map allMust;
+    private Map<String, List<AttributeType>> allMust;
 
     /** A map used to store all the objectClasses allowed attributes (may + must) */
-    private Map allowed;
+    private Map<String, List<AttributeType>> allowed;
 
     /**
      * Creates a schema service interceptor.
@@ -199,13 +198,13 @@ public class SchemaService extends BaseInterceptor
      * Compute the MUST attributes for an objectClass. This method gather all the
      * MUST from all the objectClass and its superors.
      */
-    private void computeMustAttributes( ObjectClass objectClass, Set atSeen ) throws NamingException
+    private void computeMustAttributes( ObjectClass objectClass, Set<String> atSeen ) throws NamingException
     {
-        List parents = (List)superiors.get( objectClass.getOid() );
+        List parents = superiors.get( objectClass.getOid() );
 
-        List mustList = new ArrayList();
-        List allowedList = new ArrayList();
-        Set mustSeen = new HashSet();
+        List<AttributeType> mustList = new ArrayList<AttributeType>();
+        List<AttributeType> allowedList = new ArrayList<AttributeType>();
+        Set<String> mustSeen = new HashSet<String>();
 
         allMust.put( objectClass.getOid(), mustList );
         allowed.put( objectClass.getOid(), allowedList );
@@ -243,13 +242,13 @@ public class SchemaService extends BaseInterceptor
      *
      * The allowed attributes is also computed, it's the union of MUST and MAY
      */
-    private void computeMayAttributes( ObjectClass objectClass, Set atSeen ) throws NamingException
+    private void computeMayAttributes( ObjectClass objectClass, Set<String> atSeen ) throws NamingException
     {
-        List parents = (List)superiors.get( objectClass.getOid() );
+        List parents = superiors.get( objectClass.getOid() );
 
-        List mayList = new ArrayList();
-        Set maySeen = new HashSet();
-        List allowedList = (List)allowed.get( objectClass.getOid() );
+        List<AttributeType> mayList = new ArrayList<AttributeType>();
+        Set<String> maySeen = new HashSet<String>();
+        List<AttributeType> allowedList = allowed.get( objectClass.getOid() );
 
 
         allMay.put( objectClass.getOid(), mayList );
@@ -292,7 +291,7 @@ public class SchemaService extends BaseInterceptor
      * As a result, we will gather all of these three ObjectClasses in 'inetOrgPerson' ObjectClasse
      * superiors.
      */
-    private void computeOCSuperiors( ObjectClass objectClass, List superiors, Set ocSeen ) throws NamingException
+    private void computeOCSuperiors( ObjectClass objectClass, List<ObjectClass> superiors, Set<String> ocSeen ) throws NamingException
     {
         ObjectClass[] parents = objectClass.getSuperClasses();
 
@@ -332,21 +331,21 @@ public class SchemaService extends BaseInterceptor
     private void computeSuperiors() throws NamingException
     {
         Iterator objectClasses = registries.getObjectClassRegistry().iterator();
-        superiors = new HashMap();
-        allMust = new HashMap();
-        allMay = new HashMap();
-        allowed = new HashMap();
+        superiors = new HashMap<String, List<ObjectClass>>();
+        allMust = new HashMap<String, List<AttributeType>>();
+        allMay = new HashMap<String, List<AttributeType>>();
+        allowed = new HashMap<String, List<AttributeType>>();
 
         while ( objectClasses.hasNext() )
         {
-            List ocSuperiors = new ArrayList();
+            List<ObjectClass> ocSuperiors = new ArrayList<ObjectClass>();
 
             ObjectClass objectClass = (ObjectClass)objectClasses.next();
             superiors.put( objectClass.getOid(), ocSuperiors );
 
-            computeOCSuperiors( objectClass, ocSuperiors, new HashSet() );
+            computeOCSuperiors( objectClass, ocSuperiors, new HashSet<String>() );
 
-            Set atSeen = new HashSet();
+            Set<String> atSeen = new HashSet<String>();
             computeMustAttributes( objectClass, atSeen );
             computeMayAttributes( objectClass, atSeen );
 
@@ -563,10 +562,10 @@ public class SchemaService extends BaseInterceptor
         if ( returnAllOperationalAttributes || set.contains( "attributetypes" ) )
         {
             attr = new AttributeImpl( "attributeTypes" );
-            Iterator list = registries.getAttributeTypeRegistry().list();
+            Iterator<AttributeType> list = registries.getAttributeTypeRegistry().iterator();
             while ( list.hasNext() )
             {
-                AttributeType at = ( AttributeType ) list.next();
+                AttributeType at = list.next();
                 attr.add( SchemaUtils.render( at ).toString() );
             }
             attrs.put( attr );
@@ -587,7 +586,7 @@ public class SchemaService extends BaseInterceptor
         if ( returnAllOperationalAttributes || set.contains( "matchingruleuse" ) )
         {
             attr = new AttributeImpl( "matchingRuleUse" );
-            Iterator list = registries.getMatchingRuleUseRegistry().list();
+            Iterator list = registries.getMatchingRuleUseRegistry().iterator();
             while ( list.hasNext() )
             {
                 MatchingRuleUse mru = ( MatchingRuleUse ) list.next();
@@ -611,10 +610,10 @@ public class SchemaService extends BaseInterceptor
         if ( returnAllOperationalAttributes || set.contains( "ditcontentrules" ) )
         {
             attr = new AttributeImpl( "dITContentRules" );
-            Iterator list = registries.getDitContentRuleRegistry().list();
+            Iterator<DITContentRule> list = registries.getDitContentRuleRegistry().iterator();
             while ( list.hasNext() )
             {
-                DITContentRule dcr = ( DITContentRule ) list.next();
+                DITContentRule dcr = list.next();
                 attr.add( SchemaUtils.render( dcr ).toString() );
             }
             attrs.put( attr );
@@ -623,7 +622,7 @@ public class SchemaService extends BaseInterceptor
         if ( returnAllOperationalAttributes || set.contains( "ditstructurerules" ) )
         {
             attr = new AttributeImpl( "dITStructureRules" );
-            Iterator list = registries.getDitStructureRuleRegistry().list();
+            Iterator list = registries.getDitStructureRuleRegistry().iterator();
             while ( list.hasNext() )
             {
                 DITStructureRule dsr = ( DITStructureRule ) list.next();
@@ -635,7 +634,7 @@ public class SchemaService extends BaseInterceptor
         if ( returnAllOperationalAttributes || set.contains( "nameforms" ) )
         {
             attr = new AttributeImpl( "nameForms" );
-            Iterator list = registries.getNameFormRegistry().list();
+            Iterator list = registries.getNameFormRegistry().iterator();
             while ( list.hasNext() )
             {
                 NameForm nf = ( NameForm ) list.next();
@@ -738,7 +737,7 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    private void getSuperiors( ObjectClass oc, Set ocSeen, List result ) throws NamingException
+    private void getSuperiors( ObjectClass oc, Set<String> ocSeen, List<ObjectClass> result ) throws NamingException
     {
         ObjectClass[] superiors = oc.getSuperClasses();
 
@@ -875,9 +874,9 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    private boolean getObjectClasses( Attribute objectClasses, List result ) throws NamingException
+    private boolean getObjectClasses( Attribute objectClasses, List<ObjectClass> result ) throws NamingException
     {
-        Set ocSeen = new HashSet();
+        Set<String> ocSeen = new HashSet<String>();
         ObjectClassRegistry registry = registries.getObjectClassRegistry();
 
         // We must select all the ObjectClasses, except 'top',
@@ -916,9 +915,9 @@ public class SchemaService extends BaseInterceptor
         return hasExtensibleObject;
     }
 
-    private Set getAllMust( NamingEnumeration objectClasses ) throws NamingException
+    private Set<String> getAllMust( NamingEnumeration objectClasses ) throws NamingException
     {
-        Set must = new HashSet();
+        Set<String> must = new HashSet<String>();
 
         // Loop on all objectclasses
         while ( objectClasses.hasMoreElements() )
@@ -943,9 +942,9 @@ public class SchemaService extends BaseInterceptor
         return must;
     }
 
-    private Set getAllAllowed( NamingEnumeration objectClasses, Set must ) throws NamingException
+    private Set<String> getAllAllowed( NamingEnumeration objectClasses, Set<String> must ) throws NamingException
     {
-        Set allowed = new HashSet( must );
+        Set<String> allowed = new HashSet<String>( must );
 
         // Add the 'ObjectClass' attribute ID
         allowed.add( registries.getOidRegistry().getOid( "ObjectClass" ) );
@@ -1007,7 +1006,7 @@ public class SchemaService extends BaseInterceptor
                     objectClasses.add( ocLowerName );
                 }
 
-                List ocSuperiors = (List)superiors.get( objectClass.getOid() );
+                List ocSuperiors = superiors.get( objectClass.getOid() );
 
                 if ( ocSuperiors != null )
                 {
@@ -1029,7 +1028,7 @@ public class SchemaService extends BaseInterceptor
         // Now, reset the ObjectClass attribute and put the new list into it
         objectClassAttr.clear();
 
-        Iterator iter = objectClasses.iterator();
+        Iterator<String> iter = objectClasses.iterator();
 
         while ( iter.hasNext() )
         {
@@ -1508,7 +1507,7 @@ public class SchemaService extends BaseInterceptor
 
     private void filterObjectClass( Attributes entry ) throws NamingException
     {
-        List objectClasses = new ArrayList();
+        List<ObjectClass> objectClasses = new ArrayList<ObjectClass>();
         Attribute oc = entry.get( "objectClass" );
         
         if ( oc != null )
@@ -1650,12 +1649,12 @@ public class SchemaService extends BaseInterceptor
         // 3-1) Except if the extensibleObject ObjectClass is used
         // 3-2) or if the AttributeType is COLLECTIVE
         Attribute objectClassAttr = entry.get( "objectClass" );
-        List ocs = new ArrayList();
+        List<ObjectClass> ocs = new ArrayList<ObjectClass>();
 
         alterObjectClasses( objectClassAttr );
 
-        Set must = getAllMust( objectClassAttr.getAll() );
-        Set allowed = getAllAllowed( objectClassAttr.getAll(), must );
+        Set<String> must = getAllMust( objectClassAttr.getAll() );
+        Set<String> allowed = getAllAllowed( objectClassAttr.getAll(), must );
 
         boolean hasExtensibleObject = getObjectClasses( objectClassAttr, ocs );
 
@@ -1693,7 +1692,7 @@ public class SchemaService extends BaseInterceptor
      * @return true if the objectClass values require the attribute, false otherwise
      * @throws NamingException if the attribute is not recognized
      */
-    private void assertAllAttributesAllowed( Attributes attributes, Set allowed ) throws NamingException
+    private void assertAllAttributesAllowed( Attributes attributes, Set<String> allowed ) throws NamingException
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
@@ -1770,7 +1769,7 @@ public class SchemaService extends BaseInterceptor
     /**
      * Checks to see the presence of all required attributes within an entry.
      */
-    private void assertRequiredAttributesPresent( Attributes entry, Set must )
+    private void assertRequiredAttributesPresent( Attributes entry, Set<String> must )
         throws NamingException
     {
         NamingEnumeration attributes = entry.getAll();
