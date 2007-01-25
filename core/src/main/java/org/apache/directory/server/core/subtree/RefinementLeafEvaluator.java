@@ -23,6 +23,7 @@ package org.apache.directory.server.core.subtree;
 import org.apache.directory.server.core.schema.OidRegistry;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import javax.naming.NamingException;
@@ -91,7 +92,7 @@ public class RefinementLeafEvaluator
         }
 
         // check if AVA value exists in attribute
-        if ( objectClasses.contains( node.getValue() ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, node.getValue() ) )
         {
             return true;
         }
@@ -117,7 +118,7 @@ public class RefinementLeafEvaluator
             while ( list.hasNext() )
             {
                 String objectClass = ( String ) list.next();
-                if ( objectClasses.contains( objectClass ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, objectClass ) )
                 {
                     return true;
                 }
