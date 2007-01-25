@@ -44,6 +44,10 @@ import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
  */
 public class SearchITest extends AbstractAdminTestCase
 {
+    private static final String rdn = "cn=Heather Nova";
+    private static final String filter = "(objectclass=*)";
+
+
     protected void setUp() throws Exception
     {
         if ( this.getName().equals( "testOpAttrDenormalizationOn" ) )
@@ -149,6 +153,20 @@ public class SearchITest extends AbstractAdminTestCase
         assertNotNull( attribute );
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
+        
+        // Create entry cn=Heather Nova, ou=system
+        Attributes heather = new LockableAttributesImpl();
+        Attribute ocls = new LockableAttributeImpl( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        heather.put( ocls );
+        heather.put( "cn", "Heather Nova" );
+        heather.put( "sn", "Nova" );
+        ctx = ( DirContext ) sysRoot.createSubcontext( rdn, heather );
+        assertNotNull( ctx );
+
+        ctx = ( DirContext ) sysRoot.lookup( rdn );
+        assertNotNull( ctx );
     }
 
 
@@ -230,5 +248,97 @@ public class SearchITest extends AbstractAdminTestCase
         assertNotNull( attrs.get( "creatorsName" ) );
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "ou" ) );
+    }
+    
+
+    /**
+     * Search an entry and fetch an unknown attribute
+     */
+    public void testSearchFetchNonExistingAttribute() throws NamingException
+    {
+        SearchControls ctls = new SearchControls();
+
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "cn", "unknownAttribute" } );
+
+        NamingEnumeration result = sysRoot.search( rdn, filter, ctls );
+
+        if ( result.hasMore() )
+        {
+            SearchResult entry = ( SearchResult ) result.next();
+            Attributes attrs = entry.getAttributes();
+            Attribute cn = attrs.get( "cn" );
+
+            assertNotNull( cn );
+            assertEquals( "Heather Nova", cn.get().toString() );
+        }
+        else
+        {
+            fail( "entry " + rdn + " not found" );
+        }
+
+        result.close();
+    }
+
+    /**
+     * Search an entry and fetch an attribute with unknown option
+     */
+    public void testSearchFetchNonExistingAttributeOption() throws NamingException
+    {
+        SearchControls ctls = new SearchControls();
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "cn", "sn;unknownOption" } );
+
+        NamingEnumeration result = sysRoot.search( rdn, filter, ctls );
+
+        if ( result.hasMore() )
+        {
+            SearchResult entry = ( SearchResult ) result.next();
+            Attributes attrs = entry.getAttributes();
+            Attribute cn = attrs.get( "cn" );
+
+            assertNotNull( cn );
+            assertEquals( "Heather Nova", cn.get().toString() );
+
+            Attribute sn = attrs.get( "sn" );
+            assertNull( sn );
+        }
+        else
+        {
+            fail( "entry " + rdn + " not found" );
+        }
+
+        result.close();
+    }
+
+    /**
+     * Search an entry and fetch an attribute with twice the same attributeType
+     */
+    public void testSearchFetchTwiceSameAttribute() throws NamingException
+    {
+        SearchControls ctls = new SearchControls();
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "cn", "cn" } );
+
+        NamingEnumeration result = sysRoot.search( rdn, filter, ctls );
+
+        if ( result.hasMore() )
+        {
+            SearchResult entry = ( SearchResult ) result.next();
+            Attributes attrs = entry.getAttributes();
+            Attribute cn = attrs.get( "cn" );
+
+            assertNotNull( cn );
+            assertEquals( "Heather Nova", cn.get().toString() );
+        }
+        else
+        {
+            fail( "entry " + rdn + " not found" );
+        }
+
+        result.close();
     }
 }
