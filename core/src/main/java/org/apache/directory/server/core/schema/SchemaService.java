@@ -30,6 +30,7 @@ import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -1270,6 +1271,16 @@ public class SchemaService extends BaseInterceptor
             if ( !atRegistry.hasAttributeType( change.getID() ) && !AttributeUtils.containsValueCaseIgnore( objectClass, "extensibleObject" ) )
             {
                 throw new LdapInvalidAttributeIdentifierException();
+            }
+            
+            // We will forbid modification of operationnal attributes which are not
+            // user modifiable.
+            AttributeType attributeType = atRegistry.lookup( change.getID() );
+            
+            if ( ( attributeType.getUsage() == UsageEnum.DIRECTORYOPERATION ) &&
+                 ( !attributeType.isCanUserModify() ) )
+            {
+                throw new NoPermissionException( "Cannot modify the operational attribute '" + change.getID() + "'" );
             }
 
             switch ( modOp )
