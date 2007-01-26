@@ -1277,10 +1277,10 @@ public class SchemaService extends BaseInterceptor
             // user modifiable.
             AttributeType attributeType = atRegistry.lookup( change.getID() );
             
-            if ( ( attributeType.getUsage() == UsageEnum.DIRECTORYOPERATION ) &&
-                 ( !attributeType.isCanUserModify() ) )
+            if //( ( attributeType.getUsage() == UsageEnum.DIRECTORYOPERATION ) &&
+                 ( !attributeType.isCanUserModify() ) //)
             {
-                throw new NoPermissionException( "Cannot modify the operational attribute '" + change.getID() + "'" );
+                throw new NoPermissionException( "Cannot modify the attribute '" + change.getID() + "'" );
             }
 
             switch ( modOp )
