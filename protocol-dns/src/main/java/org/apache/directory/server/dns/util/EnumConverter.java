@@ -18,36 +18,10 @@
  *  
  */
 
-package org.apache.directory.server.dns.messages;
+package org.apache.directory.server.dns.util;
 
 
-import org.apache.directory.server.dns.util.EnumConverter;
-import org.apache.directory.server.dns.util.ReverseEnumMap;
-
-
-public enum MessageType implements EnumConverter<Byte>
+public interface EnumConverter<K>
 {
-    QUERY(0), RESPONSE(1);
-
-    private static ReverseEnumMap<Byte, MessageType> map = new ReverseEnumMap<Byte, MessageType>( MessageType.class );
-
-    private final byte value;
-
-
-    private MessageType( int value )
-    {
-        this.value = ( byte ) value;
-    }
-
-
-    public Byte convert()
-    {
-        return this.value;
-    }
-
-
-    public static MessageType convert( byte value )
-    {
-        return map.get( value );
-    }
+    K convert();
 }

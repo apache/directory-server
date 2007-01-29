@@ -56,7 +56,7 @@ public class GetFlatRecord implements ContextOperation
     /**
      * Creates the action to be used against the embedded JNDI provider.
      */
-    public GetFlatRecord(QuestionRecord question)
+    public GetFlatRecord( QuestionRecord question )
     {
         this.question = question;
     }
@@ -76,8 +76,8 @@ public class GetFlatRecord implements ContextOperation
         Attributes matchAttrs = new AttributesImpl( true );
 
         matchAttrs.put( new AttributeImpl( DnsAttribute.NAME, question.getDomainName() ) );
-        matchAttrs.put( new AttributeImpl( DnsAttribute.TYPE, question.getRecordType().getCode() ) );
-        matchAttrs.put( new AttributeImpl( DnsAttribute.CLASS, question.getRecordClass().getCode() ) );
+        matchAttrs.put( new AttributeImpl( DnsAttribute.TYPE, question.getRecordType().name() ) );
+        matchAttrs.put( new AttributeImpl( DnsAttribute.CLASS, question.getRecordClass().name() ) );
 
         ResourceRecord record = null;
 
@@ -120,8 +120,8 @@ public class GetFlatRecord implements ContextOperation
         String dnsTtl = ( attr = attrs.get( DnsAttribute.TTL ) ) != null ? ( String ) attr.get() : null;
 
         modifier.setDnsName( dnsName );
-        modifier.setDnsType( RecordType.getTypeByName( dnsType ) );
-        modifier.setDnsClass( RecordClass.getTypeByName( dnsClass ) );
+        modifier.setDnsType( RecordType.valueOf( dnsType ) );
+        modifier.setDnsClass( RecordClass.valueOf( dnsClass ) );
         modifier.setDnsTtl( Integer.parseInt( dnsTtl ) );
 
         NamingEnumeration ids = attrs.getIDs();

@@ -18,36 +18,39 @@
  *  
  */
 
-package org.apache.directory.server.dns.messages;
+package org.apache.directory.server.dns.util;
 
 
-import org.apache.directory.server.dns.util.EnumConverter;
-import org.apache.directory.server.dns.util.ReverseEnumMap;
+import java.util.HashMap;
+import java.util.Map;
 
 
-public enum MessageType implements EnumConverter<Byte>
+/**
+ * A map to easily get the actual Enum instance from it's value as seen in the
+ * <a href="http://www.javaspecialists.co.za/archive/newsletter.do?issue=113">
+ * The JavaSpecialists newsletter</a>.
+ */
+public class ReverseEnumMap<K, E extends Enum<E> & EnumConverter<K>>
 {
-    QUERY(0), RESPONSE(1);
-
-    private static ReverseEnumMap<Byte, MessageType> map = new ReverseEnumMap<Byte, MessageType>( MessageType.class );
-
-    private final byte value;
+    private Map<K, E> reverseMap = new HashMap<K, E>();
 
 
-    private MessageType( int value )
+    public ReverseEnumMap( Class<E> enumType )
     {
-        this.value = ( byte ) value;
+        for ( E e : enumType.getEnumConstants() )
+        {
+            reverseMap.put( e.convert(), e );
+        }
     }
 
 
-    public Byte convert()
+    public E get( K value )
     {
-        return this.value;
-    }
-
-
-    public static MessageType convert( byte value )
-    {
-        return map.get( value );
+        E e = reverseMap.get( value );
+        if ( e == null )
+        {
+            throw new IllegalArgumentException( "Invalid enum value: " + value );
+        }
+        return e;
     }
 }

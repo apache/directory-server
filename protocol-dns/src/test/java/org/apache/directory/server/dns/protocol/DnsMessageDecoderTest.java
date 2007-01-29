@@ -21,41 +21,36 @@
 package org.apache.directory.server.dns.protocol;
 
 
+import java.io.IOException;
+
 import org.apache.directory.server.dns.AbstractDnsTestCase;
-import org.apache.directory.server.dns.messages.DnsMessage;
-import org.apache.directory.server.dns.protocol.DnsDecoder;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.directory.server.dns.io.decoder.DnsMessageDecoder;
 
 
 public class DnsMessageDecoderTest extends AbstractDnsTestCase
 {
-    private ByteBuffer requestByteBuffer;
-
-
-    public DnsMessageDecoderTest()
-    {
-        super( DnsMessageDecoderTest.class );
-    }
+    private DnsMessageDecoder decoder = new DnsMessageDecoder();
 
 
     public void testParseQuery() throws Exception
     {
-        requestByteBuffer = getByteBufferFromFile( "DNS-QUERY.pdu" );
-
-        DnsDecoder decoder = new DnsDecoder();
-        DnsMessage dnsRequest = decoder.decode( requestByteBuffer );
-
-        print( dnsRequest );
+        assertEquals( getTestQuery(), decoder.decode( getTestQueryByteBuffer() ) );
     }
-
+    
 
     public void testParseResponse() throws Exception
     {
-        requestByteBuffer = getByteBufferFromFile( "DNS-RESPONSE.pdu" );
-
-        DnsDecoder decoder = new DnsDecoder();
-        DnsMessage dnsRequest = decoder.decode( requestByteBuffer );
-
-        print( dnsRequest );
+        //assertEquals( getTestResponse(), decoder.decode( getTestResponseByteBuffer() ) );
+    }
+    
+    
+    public void testParseMxQuery() throws Exception
+    {
+        //assertEquals( getTestMxQuery(), decoder.decode( getTestMxQueryByteBuffer() ) );
+    }
+    
+    public void testParseMxResponse() throws IOException
+    {
+        //assertEquals( getTestMxResponse(), decoder.decode( getTestMxResponseByteBuffer() ) );
     }
 }

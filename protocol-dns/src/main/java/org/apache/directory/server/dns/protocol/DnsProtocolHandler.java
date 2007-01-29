@@ -21,13 +21,15 @@
 package org.apache.directory.server.dns.protocol;
 
 
+import java.util.ArrayList;
+
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.messages.DnsMessageModifier;
 import org.apache.directory.server.dns.messages.MessageType;
 import org.apache.directory.server.dns.messages.OpCode;
-import org.apache.directory.server.dns.messages.ResourceRecords;
+import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.service.DnsContext;
 import org.apache.directory.server.dns.service.DomainNameServiceChain;
@@ -51,7 +53,7 @@ public class DnsProtocolHandler implements IoHandler
     private String contextKey = "context";
 
 
-    public DnsProtocolHandler(DnsConfiguration config, RecordStore store)
+    public DnsProtocolHandler( DnsConfiguration config, RecordStore store )
     {
         this.config = config;
         this.store = store;
@@ -114,8 +116,8 @@ public class DnsProtocolHandler implements IoHandler
         {
             log.error( e.getMessage(), e );
 
-            DnsMessage request = (DnsMessage) message;
-            DnsException de = (DnsException) e;
+            DnsMessage request = ( DnsMessage ) message;
+            DnsException de = ( DnsException ) e;
 
             DnsMessageModifier modifier = new DnsMessageModifier();
 
@@ -128,11 +130,11 @@ public class DnsProtocolHandler implements IoHandler
             modifier.setRecursionAvailable( false );
             modifier.setReserved( false );
             modifier.setAcceptNonAuthenticatedData( false );
-            modifier.setResponseCode( ResponseCode.getTypeByOrdinal( de.getResponseCode() ) );
+            modifier.setResponseCode( ResponseCode.convert( ( byte ) de.getResponseCode() ) );
             modifier.setQuestionRecords( request.getQuestionRecords() );
-            modifier.setAnswerRecords( new ResourceRecords() );
-            modifier.setAuthorityRecords( new ResourceRecords() );
-            modifier.setAdditionalRecords( new ResourceRecords() );
+            modifier.setAnswerRecords( new ArrayList<ResourceRecord>() );
+            modifier.setAuthorityRecords( new ArrayList<ResourceRecord>() );
+            modifier.setAdditionalRecords( new ArrayList<ResourceRecord>() );
 
             session.write( modifier.getDnsMessage() );
         }

@@ -21,6 +21,11 @@
 package org.apache.directory.server.dns.messages;
 
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+
 /**
  * The question section is used to carry the "question" in most queries,
  * i.e., the parameters that define what is being asked.  The section
@@ -62,7 +67,7 @@ public class QuestionRecord
     private RecordClass recordClass;
 
 
-    public QuestionRecord(String domainName, RecordType recordType, RecordClass recordClass)
+    public QuestionRecord( String domainName, RecordType recordType, RecordClass recordClass )
     {
         this.domainName = domainName;
         this.recordType = recordType;
@@ -100,8 +105,42 @@ public class QuestionRecord
     }
 
 
+    /**
+     * @see java.lang.Object#equals(Object)
+     */
+    public boolean equals( Object object )
+    {
+        if ( object == this )
+        {
+            return true;
+        }
+        if ( !( object instanceof QuestionRecord ) )
+        {
+            return false;
+        }
+        QuestionRecord rhs = ( QuestionRecord ) object;
+        return new EqualsBuilder().append( this.domainName, rhs.domainName ).append( this.recordClass, rhs.recordClass )
+            .append( this.recordType, rhs.recordType ).isEquals();
+    }
+
+
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode()
+    {
+        return new HashCodeBuilder( 1493545107, 315848479 ).append( this.domainName ).append( this.recordClass )
+            .append( this.recordType ).toHashCode();
+    }
+
+
+    /**
+     * @see java.lang.Object#toString()
+     */
     public String toString()
     {
-        return getClass().getName() + " [ " + domainName + " ( " + recordClass + " " + recordType + " ) ]";
+        return new ToStringBuilder( this ).appendSuper( super.toString() ).append( "domainName", this.domainName )
+            .append( "recordClass", this.recordClass ).append( "recordType", this.recordType ).toString();
     }
+
 }

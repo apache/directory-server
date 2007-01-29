@@ -21,6 +21,8 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
 
@@ -41,8 +43,8 @@ import org.apache.directory.server.dns.store.DnsAttribute;
  */
 public class TextRecordEncoder extends ResourceRecordEncoder
 {
-    protected byte[] encodeResourceData( ResourceRecord record )
+    protected void putResourceRecordData( ByteBuffer byteBuffer, ResourceRecord record )
     {
-        return encodeCharacterString( record.get( DnsAttribute.CHARACTER_STRING ) );
+        putCharacterString( byteBuffer, record.get( DnsAttribute.CHARACTER_STRING ) );
     }
 }

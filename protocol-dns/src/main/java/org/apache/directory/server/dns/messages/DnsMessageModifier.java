@@ -21,6 +21,9 @@
 package org.apache.directory.server.dns.messages;
 
 
+import java.util.List;
+
+
 /**
  * All communications inside of the domain protocol are carried in a single
  * format called a message.  The top level format of message is divided
@@ -46,7 +49,7 @@ public class DnsMessageModifier
      * whether the message is a query or a response, a standard query or some
      * other opcode, etc.
      */
-    private short transactionId;
+    private int transactionId;
     private MessageType messageType;
     private OpCode opCode;
     private boolean authoritativeAnswer;
@@ -58,10 +61,10 @@ public class DnsMessageModifier
 
     private ResponseCode responseCode;
 
-    private QuestionRecords questionRecords;
-    private ResourceRecords answerRecords;
-    private ResourceRecords authorityRecords;
-    private ResourceRecords additionalRecords;
+    private List<QuestionRecord> questionRecords;
+    private List<ResourceRecord> answerRecords;
+    private List<ResourceRecord> authorityRecords;
+    private List<ResourceRecord> additionalRecords;
 
 
     public DnsMessage getDnsMessage()
@@ -84,7 +87,7 @@ public class DnsMessageModifier
     /**
      * @param additionalRecords The additional to set.
      */
-    public void setAdditionalRecords( ResourceRecords additionalRecords )
+    public void setAdditionalRecords( List<ResourceRecord> additionalRecords )
     {
         this.additionalRecords = additionalRecords;
     }
@@ -93,7 +96,7 @@ public class DnsMessageModifier
     /**
      * @param answerRecords The answer to set.
      */
-    public void setAnswerRecords( ResourceRecords answerRecords )
+    public void setAnswerRecords( List<ResourceRecord> answerRecords )
     {
         this.answerRecords = answerRecords;
     }
@@ -111,7 +114,7 @@ public class DnsMessageModifier
     /**
      * @param authorityRecords The authority to set.
      */
-    public void setAuthorityRecords( ResourceRecords authorityRecords )
+    public void setAuthorityRecords( List<ResourceRecord> authorityRecords )
     {
         this.authorityRecords = authorityRecords;
     }
@@ -138,7 +141,7 @@ public class DnsMessageModifier
     /**
      * @param questionRecords The question to set.
      */
-    public void setQuestionRecords( QuestionRecords questionRecords )
+    public void setQuestionRecords( List<QuestionRecord> questionRecords )
     {
         this.questionRecords = questionRecords;
     }
@@ -183,7 +186,7 @@ public class DnsMessageModifier
     /**
      * @param transactionId The transactionId to set.
      */
-    public void setTransactionId( short transactionId )
+    public void setTransactionId( int transactionId )
     {
         this.transactionId = transactionId;
     }

@@ -20,10 +20,12 @@
 package org.apache.directory.server.dns.service;
 
 
+import java.util.List;
+
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.messages.MessageType;
 import org.apache.directory.server.dns.messages.OpCode;
-import org.apache.directory.server.dns.messages.QuestionRecords;
+import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -35,7 +37,7 @@ public abstract class MonitorMessage implements IoHandlerCommand
         MessageType messageType = message.getMessageType();
         OpCode opCode = message.getOpCode();
         ResponseCode responseCode = message.getResponseCode();
-        short transactionId = message.getTransactionId();
+        int transactionId = message.getTransactionId();
 
         StringBuffer sb = new StringBuffer();
         sb.append( "Monitoring " + direction + ":" );
@@ -51,7 +53,7 @@ public abstract class MonitorMessage implements IoHandlerCommand
         sb.append( "\n\t" + "reserved                   " + message.isReserved() );
         sb.append( "\n\t" + "acceptNonAuthenticatedData " + message.isAcceptNonAuthenticatedData() );
 
-        QuestionRecords questions = message.getQuestionRecords();
+        List<QuestionRecord> questions = message.getQuestionRecords();
 
         sb.append( "\n\t" + "questions:                 " + questions );
 

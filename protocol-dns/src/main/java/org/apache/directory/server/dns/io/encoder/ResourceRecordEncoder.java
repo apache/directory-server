@@ -22,50 +22,54 @@ package org.apache.directory.server.dns.io.encoder;
 
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
-import org.apache.mina.common.ByteBuffer;
 
 
 public abstract class ResourceRecordEncoder implements RecordEncoder
 {
-    protected abstract byte[] encodeResourceData( ResourceRecord record );
-
-
-    public void encode( ByteBuffer out, ResourceRecord record ) throws IOException
+    public void put( ByteBuffer byteBuffer, ResourceRecord record ) throws IOException
     {
-        encodeDomainName( out, record.getDomainName() );
-        encodeRecordType( out, record.getRecordType() );
-        encodeRecordClass( out, record.getRecordClass() );
+        putDomainName( byteBuffer, record.getDomainName() );
+        putRecordType( byteBuffer, record.getRecordType() );
+        putRecordClass( byteBuffer, record.getRecordClass() );
 
-        out.putInt( record.getTimeToLive() );
+        byteBuffer.putInt( record.getTimeToLive() );
 
-        byte[] resourceData = encodeResourceData( record );
-
-        out.putShort( ( short ) resourceData.length );
-        out.put( resourceData );
+        putResourceRecord( byteBuffer, record );
     }
 
 
-    /**
-     * <domain-name> is a domain name represented as a series of labels, and
-     * terminated by a label with zero length.
-     * @param domainName the domain name to encode
-     * @return byte array of the encoded domain name
-     */
-    protected byte[] encodeDomainName( String domainName )
+    protected abstract void putResourceRecordData( ByteBuffer byteBuffer, ResourceRecord record );
+
+
+    protected void putResourceRecord( ByteBuffer byteBuffer, ResourceRecord record )
     {
-        ByteBuffer byteBuffer = ByteBuffer.allocate( 256 );
+        int startPosition = prepareForSizedData( byteBuffer );
 
-        encodeDomainName( byteBuffer, domainName );
+        putResourceRecordData( byteBuffer, record );
 
-        byteBuffer.flip();
-        byte[] bytes = new byte[byteBuffer.remaining()];
-        byteBuffer.get( bytes, 0, bytes.length );
+        putDataSize( byteBuffer, startPosition );
+    }
 
-        return bytes;
+
+    protected int prepareForSizedData( ByteBuffer byteBuffer )
+    {
+        int startPosition = byteBuffer.position();
+        byteBuffer.position( startPosition + 1 );
+        return startPosition;
+    }
+
+
+    protected void putDataSize( ByteBuffer byteBuffer, int startPosition )
+    {
+        byte length = ( byte ) ( byteBuffer.position() - startPosition + 1 );
+        byteBuffer.position( startPosition );
+        byteBuffer.put( length );
+        byteBuffer.position( startPosition + 1 + length );
     }
 
 
@@ -75,7 +79,17 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
      * @param byteBuffer the ByteBuffer to encode the domain name into
      * @param domainName the domain name to encode
      */
-    protected void encodeDomainName( ByteBuffer byteBuffer, String domainName )
+    protected void putDomainName( ByteBuffer byteBuffer, String domainName )
+    {
+        int startPosition = prepareForSizedData( byteBuffer );
+
+        putDomainNameData( byteBuffer, domainName );
+
+        putDataSize( byteBuffer, startPosition );
+    }
+
+
+    protected void putDomainNameData( ByteBuffer byteBuffer, String domainName )
     {
         String[] labels = domainName.split( "\\." );
 
@@ -94,15 +108,15 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
     }
 
 
-    protected void encodeRecordType( ByteBuffer byteBuffer, RecordType recordType )
+    protected void putRecordType( ByteBuffer byteBuffer, RecordType recordType )
     {
-        byteBuffer.putShort( ( short ) recordType.getOrdinal() );
+        byteBuffer.putShort( recordType.convert() );
     }
 
 
-    protected void encodeRecordClass( ByteBuffer byteBuffer, RecordClass recordClass )
+    protected void putRecordClass( ByteBuffer byteBuffer, RecordClass recordClass )
     {
-        byteBuffer.putShort( ( short ) recordClass.getOrdinal() );
+        byteBuffer.putShort( ( short ) recordClass.convert() );
     }
 
 
@@ -113,10 +127,8 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
      * @param characterString the character string to encode
      * @return byte array of the encoded character string
      */
-    protected byte[] encodeCharacterString( String characterString )
+    protected void putCharacterString( ByteBuffer byteBuffer, String characterString )
     {
-        ByteBuffer byteBuffer = ByteBuffer.allocate( 256 );
-
         byteBuffer.put( ( byte ) characterString.length() );
 
         char[] characters = characterString.toCharArray();
@@ -125,47 +137,6 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
         {
             byteBuffer.put( ( byte ) characters[ii] );
         }
-
-        byteBuffer.flip();
-        byte[] bytes = new byte[byteBuffer.remaining()];
-        byteBuffer.get( bytes, 0, bytes.length );
-
-        return bytes;
     }
 
-
-    protected void putUnsignedByte( ByteBuffer byteBuffer, int value )
-    {
-        byteBuffer.put( ( byte ) ( value & 0xff ) );
-    }
-
-
-    protected void putUnsignedByte( ByteBuffer byteBuffer, int position, int value )
-    {
-        byteBuffer.put( position, ( byte ) ( value & 0xff ) );
-    }
-
-
-    protected void putUnsignedShort( ByteBuffer byteBuffer, int value )
-    {
-        byteBuffer.putShort( ( short ) ( value & 0xffff ) );
-    }
-
-
-    protected void putUnsignedShort( ByteBuffer byteBuffer, int position, int value )
-    {
-        byteBuffer.putShort( position, ( short ) ( value & 0xffff ) );
-    }
-
-
-    protected void putUnsignedInt( ByteBuffer byteBuffer, long value )
-    {
-        byteBuffer.putInt( ( int ) ( value & 0xffffffffL ) );
-    }
-
-
-    protected void putUnsignedInt( ByteBuffer byteBuffer, int position, long value )
-    {
-        byteBuffer.putInt( position, ( int ) ( value & 0xffffffffL ) );
-    }
 }

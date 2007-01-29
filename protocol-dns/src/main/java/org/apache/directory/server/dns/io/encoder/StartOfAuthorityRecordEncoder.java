@@ -21,9 +21,11 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.directory.server.dns.util.ByteBufferUtil;
 
 
 /**
@@ -94,7 +96,7 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class StartOfAuthorityRecordEncoder extends ResourceRecordEncoder
 {
-    protected byte[] encodeResourceData( ResourceRecord record )
+    protected void putResourceRecordData( ByteBuffer byteBuffer, ResourceRecord record )
     {
         String mName = record.get( DnsAttribute.SOA_M_NAME );
         String rName = record.get( DnsAttribute.SOA_R_NAME );
@@ -104,23 +106,19 @@ public class StartOfAuthorityRecordEncoder extends ResourceRecordEncoder
         int expire = Integer.parseInt( record.get( DnsAttribute.SOA_EXPIRE ) );
         long minimum = Long.parseLong( record.get( DnsAttribute.SOA_MINIMUM ) );
 
-        ByteBuffer byteBuffer = ByteBuffer.allocate( 256 );
+        int startPosition = prepareForSizedData( byteBuffer );
 
-        byteBuffer.put( encodeDomainName( mName ) );
-        byteBuffer.put( encodeDomainName( rName ) );
+        putDomainName( byteBuffer, mName );
+        putDomainName( byteBuffer, rName );
 
-        putUnsignedInt( byteBuffer, serial );
+        ByteBufferUtil.putUnsignedInt( byteBuffer, serial );
 
         byteBuffer.putInt( refresh );
         byteBuffer.putInt( retry );
         byteBuffer.putInt( expire );
 
-        putUnsignedInt( byteBuffer, minimum );
+        ByteBufferUtil.putUnsignedInt( byteBuffer, minimum );
 
-        byteBuffer.flip();
-        byte[] bytes = new byte[byteBuffer.remaining()];
-        byteBuffer.get( bytes, 0, bytes.length );
-
-        return bytes;
+        putDataSize( byteBuffer, startPosition );
     }
 }

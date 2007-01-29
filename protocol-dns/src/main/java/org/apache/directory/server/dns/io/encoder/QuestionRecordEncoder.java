@@ -21,15 +21,16 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
-import org.apache.mina.common.ByteBuffer;
 
 
 public class QuestionRecordEncoder
 {
-    public void encode( ByteBuffer out, QuestionRecord question )
+    public void put( ByteBuffer out, QuestionRecord question )
     {
         encodeDomainName( out, question.getDomainName() );
         encodeRecordType( out, question.getRecordType() );
@@ -58,12 +59,12 @@ public class QuestionRecordEncoder
 
     private void encodeRecordType( ByteBuffer byteBuffer, RecordType recordType )
     {
-        byteBuffer.putShort( ( short ) recordType.getOrdinal() );
+        byteBuffer.putShort( recordType.convert() );
     }
 
 
     private void encodeRecordClass( ByteBuffer byteBuffer, RecordClass recordClass )
     {
-        byteBuffer.putShort( ( short ) recordClass.getOrdinal() );
+        byteBuffer.putShort( recordClass.convert() );
     }
 }

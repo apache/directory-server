@@ -20,7 +20,9 @@
 package org.apache.directory.server.dns.service;
 
 
-import org.apache.directory.server.dns.messages.ResourceRecords;
+import java.util.List;
+
+import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
@@ -35,15 +37,16 @@ public class MonitorContext implements IoHandlerCommand
 
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         if ( log.isDebugEnabled() )
         {
             try
             {
-                DnsContext dnsContext = (DnsContext) session.getAttribute( getContextKey() );
+                DnsContext dnsContext = ( DnsContext ) session.getAttribute( getContextKey() );
                 RecordStore store = dnsContext.getStore();
-                ResourceRecords records = dnsContext.getResourceRecords();
+                List<ResourceRecord> records = dnsContext.getResourceRecords();
 
                 StringBuffer sb = new StringBuffer();
                 sb.append( "Monitoring context:" );
@@ -61,6 +64,7 @@ public class MonitorContext implements IoHandlerCommand
 
         next.execute( session, message );
     }
+
 
     public String getContextKey()
     {

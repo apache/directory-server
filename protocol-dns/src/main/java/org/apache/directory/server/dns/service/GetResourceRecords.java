@@ -21,12 +21,12 @@ package org.apache.directory.server.dns.service;
 
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.messages.QuestionRecord;
-import org.apache.directory.server.dns.messages.QuestionRecords;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
@@ -43,13 +43,14 @@ public class GetResourceRecords implements IoHandlerCommand
 
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        DnsContext dnsContext = (DnsContext) session.getAttribute( getContextKey() );
+        DnsContext dnsContext = ( DnsContext ) session.getAttribute( getContextKey() );
         RecordStore store = dnsContext.getStore();
 
-        DnsMessage request = (DnsMessage) message;
-        QuestionRecords questions = request.getQuestionRecords();
+        DnsMessage request = ( DnsMessage ) message;
+        List<QuestionRecord> questions = request.getQuestionRecords();
 
         Iterator it = questions.iterator();
 
@@ -92,6 +93,7 @@ public class GetResourceRecords implements IoHandlerCommand
 
         return records;
     }
+
 
     public String getContextKey()
     {

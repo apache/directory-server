@@ -18,14 +18,28 @@
  *  
  */
 
-package org.apache.directory.server.dns.io.decoder;
-
+package org.apache.directory.server.dns.protocol;
 
 import java.io.IOException;
-import java.util.Map;
+import java.nio.ByteBuffer;
 
+import org.apache.directory.server.dns.AbstractDnsTestCase;
+import org.apache.directory.server.dns.io.encoder.DnsMessageEncoder;
 
-public interface Decoder
+public class DnsMessageEncoderTest extends AbstractDnsTestCase
 {
-    public Map decode( byte[] resourceData ) throws IOException;
+    
+    DnsMessageEncoder encoder = new DnsMessageEncoder();
+    
+
+    public void testEncodeQuery() throws IOException
+    {
+        ByteBuffer requestByteBuffer = getTestQueryByteBuffer();
+        ByteBuffer byteBuffer = ByteBuffer.allocate( 1024 );
+
+        encoder.encode (byteBuffer, getTestQuery ());
+        byteBuffer.position (MINIMUM_DNS_DATAGRAM_SIZE);
+        byteBuffer.flip ();
+        assertEquals (requestByteBuffer, byteBuffer);
+    }
 }

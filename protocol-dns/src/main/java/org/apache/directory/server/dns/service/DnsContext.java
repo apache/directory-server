@@ -20,12 +20,13 @@
 package org.apache.directory.server.dns.service;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.messages.ResourceRecord;
-import org.apache.directory.server.dns.messages.ResourceRecords;
 import org.apache.directory.server.dns.store.RecordStore;
 
 
@@ -36,13 +37,13 @@ public class DnsContext
     private DnsConfiguration config;
     private RecordStore store;
     private DnsMessage reply;
-    private ResourceRecords records = new ResourceRecords();
+    private List<ResourceRecord> records = new ArrayList<ResourceRecord>();
 
 
     /**
      * @return Returns the recordEntry.
      */
-    public ResourceRecords getResourceRecords()
+    public List<ResourceRecord> getResourceRecords()
     {
         return records;
     }

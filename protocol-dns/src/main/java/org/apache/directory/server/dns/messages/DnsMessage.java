@@ -21,6 +21,13 @@
 package org.apache.directory.server.dns.messages;
 
 
+import java.util.List;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+
 /**
  * All communications inside of the domain protocol are carried in a single
  * format called a message.  The top level format of message is divided
@@ -46,7 +53,7 @@ public class DnsMessage
      * whether the message is a query or a response, a standard query or some
      * other opcode, etc.
      */
-    private short transactionId;
+    private int transactionId;
     private MessageType messageType;
     private OpCode opCode;
     private boolean authoritativeAnswer;
@@ -58,16 +65,16 @@ public class DnsMessage
 
     private ResponseCode responseCode;
 
-    private QuestionRecords questionRecords;
-    private ResourceRecords answerRecords;
-    private ResourceRecords authorityRecords;
-    private ResourceRecords additionalRecords;
+    private List<QuestionRecord> questionRecords;
+    private List<ResourceRecord> answerRecords;
+    private List<ResourceRecord> authorityRecords;
+    private List<ResourceRecord> additionalRecords;
 
 
-    public DnsMessage(short transactionId, MessageType messageType, OpCode opCode, boolean authoritativeAnswer,
+    public DnsMessage( int transactionId, MessageType messageType, OpCode opCode, boolean authoritativeAnswer,
         boolean truncated, boolean recursionDesired, boolean recursionAvailable, boolean reserved,
-        boolean acceptNonAuthenticatedData, ResponseCode responseCode, QuestionRecords question,
-        ResourceRecords answer, ResourceRecords authority, ResourceRecords additional)
+        boolean acceptNonAuthenticatedData, ResponseCode responseCode, List<QuestionRecord> question,
+        List<ResourceRecord> answer, List<ResourceRecord> authority, List<ResourceRecord> additional )
     {
         this.transactionId = transactionId;
         this.messageType = messageType;
@@ -98,7 +105,7 @@ public class DnsMessage
     /**
      * @return Returns the additional.
      */
-    public ResourceRecords getAdditionalRecords()
+    public List<ResourceRecord> getAdditionalRecords()
     {
         return additionalRecords;
     }
@@ -107,7 +114,7 @@ public class DnsMessage
     /**
      * @return Returns the answers.
      */
-    public ResourceRecords getAnswerRecords()
+    public List<ResourceRecord> getAnswerRecords()
     {
         return answerRecords;
     }
@@ -125,7 +132,7 @@ public class DnsMessage
     /**
      * @return Returns the authority.
      */
-    public ResourceRecords getAuthorityRecords()
+    public List<ResourceRecord> getAuthorityRecords()
     {
         return authorityRecords;
     }
@@ -152,7 +159,7 @@ public class DnsMessage
     /**
      * @return Returns the question.
      */
-    public QuestionRecords getQuestionRecords()
+    public List<QuestionRecord> getQuestionRecords()
     {
         return questionRecords;
     }
@@ -197,7 +204,7 @@ public class DnsMessage
     /**
      * @return Returns the transactionId.
      */
-    public short getTransactionId()
+    public int getTransactionId()
     {
         return transactionId;
     }
@@ -212,8 +219,56 @@ public class DnsMessage
     }
 
 
+    /**
+     * @see java.lang.Object#equals(Object)
+     */
+    public boolean equals( Object object )
+    {
+        if ( object == this )
+        {
+            return true;
+        }
+        if ( !( object instanceof DnsMessage ) )
+        {
+            return false;
+        }
+        DnsMessage rhs = ( DnsMessage ) object;
+        return new EqualsBuilder().append( this.transactionId, rhs.transactionId ).append( this.answerRecords,
+            rhs.answerRecords ).append( this.opCode, rhs.opCode ).append( this.recursionAvailable,
+            rhs.recursionAvailable ).append( this.messageType, rhs.messageType ).append( this.additionalRecords,
+            rhs.additionalRecords ).append( this.truncated, rhs.truncated ).append( this.recursionDesired,
+            rhs.recursionDesired ).append( this.responseCode, rhs.responseCode ).append( this.authorityRecords,
+            rhs.authorityRecords ).append( this.authoritativeAnswer, rhs.authoritativeAnswer ).append( this.reserved,
+            rhs.reserved ).append( this.acceptNonAuthenticatedData, rhs.acceptNonAuthenticatedData ).append(
+            this.questionRecords, rhs.questionRecords ).isEquals();
+    }
+
+
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode()
+    {
+        return new HashCodeBuilder( -1805208585, -276770303 ).append( this.transactionId ).append( this.answerRecords )
+            .append( this.opCode ).append( this.recursionAvailable ).append( this.messageType ).append(
+                this.additionalRecords ).append( this.truncated ).append( this.recursionDesired ).append(
+                this.responseCode ).append( this.authorityRecords ).append( this.authoritativeAnswer ).append(
+                this.reserved ).append( this.acceptNonAuthenticatedData ).append( this.questionRecords ).toHashCode();
+    }
+
+
+    /**
+     * @see java.lang.Object#toString()
+     */
     public String toString()
     {
-        return getClass().getName() + "[ transactionId = " + transactionId + " ]";
+        return new ToStringBuilder( this ).appendSuper( super.toString() ).append( "transactionId", this.transactionId )
+            .append( "opCode", this.opCode ).append( "truncated", this.truncated ).append( "messageType",
+                this.messageType ).append( "recursionDesired", this.recursionDesired ).append( "additionalRecords",
+                this.additionalRecords ).append( "responseCode", this.responseCode ).append( "authorityRecords",
+                this.authorityRecords ).append( "acceptNonAuthenticatedData", this.acceptNonAuthenticatedData ).append(
+                "recursionAvailable", this.recursionAvailable ).append( "answerRecords", this.answerRecords ).append(
+                "questionRecords", this.questionRecords ).append( "authoritativeAnswer", this.authoritativeAnswer )
+            .append( "reserved", this.reserved ).toString();
     }
 }

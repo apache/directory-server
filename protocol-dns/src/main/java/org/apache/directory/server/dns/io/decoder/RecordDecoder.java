@@ -18,36 +18,15 @@
  *  
  */
 
-package org.apache.directory.server.dns.messages;
+package org.apache.directory.server.dns.io.decoder;
 
 
-import org.apache.directory.server.dns.util.EnumConverter;
-import org.apache.directory.server.dns.util.ReverseEnumMap;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Map;
 
 
-public enum MessageType implements EnumConverter<Byte>
+public interface RecordDecoder
 {
-    QUERY(0), RESPONSE(1);
-
-    private static ReverseEnumMap<Byte, MessageType> map = new ReverseEnumMap<Byte, MessageType>( MessageType.class );
-
-    private final byte value;
-
-
-    private MessageType( int value )
-    {
-        this.value = ( byte ) value;
-    }
-
-
-    public Byte convert()
-    {
-        return this.value;
-    }
-
-
-    public static MessageType convert( byte value )
-    {
-        return map.get( value );
-    }
+    public Map decode( ByteBuffer byteBuffer, short length ) throws IOException;
 }

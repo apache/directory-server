@@ -47,9 +47,9 @@ public class DnsException extends Exception
      */
     public DnsException(ResponseCode responseCode)
     {
-        super( responseCode.getMessage() );
+        super( responseCode.name() );
 
-        this.responseCode = responseCode.getOrdinal();
+        this.responseCode = responseCode.convert();
     }
 
 

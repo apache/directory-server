@@ -21,6 +21,8 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
 
@@ -45,10 +47,10 @@ import org.apache.directory.server.dns.store.DnsAttribute;
  */
 public class PointerRecordEncoder extends ResourceRecordEncoder
 {
-    protected byte[] encodeResourceData( ResourceRecord record )
+    protected void putResourceRecordData( ByteBuffer byteBuffer, ResourceRecord record )
     {
         String domainName = record.get( DnsAttribute.DOMAIN_NAME );
 
-        return encodeDomainName( domainName );
+        putDomainName( byteBuffer, domainName );
     }
 }

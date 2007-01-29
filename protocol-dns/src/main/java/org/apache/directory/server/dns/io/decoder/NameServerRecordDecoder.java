@@ -21,43 +21,22 @@
 package org.apache.directory.server.dns.io.decoder;
 
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.directory.server.dns.store.DnsAttribute;
 
 
-public class ResourceRecordDecoder
+public class NameServerRecordDecoder implements RecordDecoder
 {
-    protected short getUnsignedByte( ByteBuffer byteBuffer )
+
+    public Map decode( ByteBuffer byteBuffer, short length ) throws IOException
     {
-        return ( ( short ) ( byteBuffer.get() & 0xff ) );
+        Map map = new HashMap();
+        map.put( DnsAttribute.DOMAIN_NAME, DnsMessageDecoder.getDomainName( byteBuffer ) );
+        return map;
     }
 
-
-    protected short getUnsignedByte( ByteBuffer byteBuffer, int position )
-    {
-        return ( ( short ) ( byteBuffer.get( position ) & ( short ) 0xff ) );
-    }
-
-
-    protected int getUnsignedShort( ByteBuffer byteBuffer )
-    {
-        return ( byteBuffer.getShort() & 0xffff );
-    }
-
-
-    protected int getUnsignedShort( ByteBuffer byteBuffer, int position )
-    {
-        return ( byteBuffer.getShort( position ) & 0xffff );
-    }
-
-
-    protected long getUnsignedInt( ByteBuffer byteBuffer )
-    {
-        return ( byteBuffer.getInt() & 0xffffffffL );
-    }
-
-
-    protected long getUnsignedInt( ByteBuffer byteBuffer, int position )
-    {
-        return ( byteBuffer.getInt( position ) & 0xffffffffL );
-    }
 }

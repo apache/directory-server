@@ -23,6 +23,7 @@ package org.apache.directory.server.dns.io.encoder;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
@@ -49,17 +50,16 @@ import org.apache.directory.server.dns.store.DnsAttribute;
  */
 public class AddressRecordEncoder extends ResourceRecordEncoder
 {
-    protected byte[] encodeResourceData( ResourceRecord record )
+    protected void putResourceRecordData( ByteBuffer byteBuffer, ResourceRecord record )
     {
         String ipAddress = record.get( DnsAttribute.IP_ADDRESS );
 
         try
         {
-            return InetAddress.getByName( ipAddress ).getAddress();
+            byteBuffer.put( InetAddress.getByName( ipAddress ).getAddress() );
         }
         catch ( UnknownHostException uhe )
         {
-            return null;
         }
     }
 }

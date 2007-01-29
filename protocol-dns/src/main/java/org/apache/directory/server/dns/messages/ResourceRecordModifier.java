@@ -35,10 +35,7 @@ public class ResourceRecordModifier
     private RecordType dnsType;
     private RecordClass dnsClass;
     private int dnsTtl;
-    
-    /**
-     * TODO : Is this object really used? I don't think so...
-     */
+
     private Map<String, String> attributes = new HashMap<String, String>();
 
 

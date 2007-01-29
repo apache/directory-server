@@ -64,7 +64,7 @@ public class GetRecords implements ContextOperation
     /**
      * Creates the action to be used against the embedded JNDI provider.
      */
-    public GetRecords(QuestionRecord question)
+    public GetRecords( QuestionRecord question )
     {
         this.question = question;
     }
@@ -184,7 +184,7 @@ public class GetRecords implements ContextOperation
 
         if ( attr != null )
         {
-            modifier.setDnsType( RecordType.getTypeByName( ( String ) attr.get() ) );
+            modifier.setDnsType( RecordType.valueOf( ( String ) attr.get() ) );
         }
         else
         {
@@ -193,7 +193,7 @@ public class GetRecords implements ContextOperation
 
         // class defaults to SOA CLASS
         String dnsClass = ( attr = attrs.get( DnsAttribute.CLASS ) ) != null ? ( String ) attr.get() : SOA_CLASS;
-        modifier.setDnsClass( RecordClass.getTypeByName( dnsClass ) );
+        modifier.setDnsClass( RecordClass.valueOf( dnsClass ) );
 
         // ttl defaults to SOA MINIMUM
         String dnsTtl = ( attr = attrs.get( DnsAttribute.TTL ) ) != null ? ( String ) attr.get() : SOA_MINIMUM;

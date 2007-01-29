@@ -52,16 +52,12 @@ import org.apache.directory.server.dns.store.DnsAttribute;
  */
 public class MailExchangeRecordEncoder extends ResourceRecordEncoder
 {
-    protected byte[] encodeResourceData( ResourceRecord record )
+    protected void putResourceRecordData( ByteBuffer byteBuffer, ResourceRecord record )
     {
-        ByteBuffer byteBuffer = ByteBuffer.allocate( 256 );
+        int startPosition = prepareForSizedData( byteBuffer );
         byteBuffer.putShort( Short.parseShort( record.get( DnsAttribute.MX_PREFERENCE ) ) );
-        byteBuffer.put( encodeDomainName( record.get( DnsAttribute.DOMAIN_NAME ) ) );
+        putDomainName( byteBuffer, record.get( DnsAttribute.DOMAIN_NAME ) );
 
-        byteBuffer.flip();
-        byte[] bytes = new byte[byteBuffer.remaining()];
-        byteBuffer.get( bytes, 0, bytes.length );
-
-        return bytes;
+        putDataSize( byteBuffer, startPosition );
     }
 }

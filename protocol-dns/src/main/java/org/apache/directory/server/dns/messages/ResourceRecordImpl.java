@@ -159,7 +159,7 @@ public class ResourceRecordImpl implements ResourceRecord
 
         ResourceRecordImpl that = ( ResourceRecordImpl ) o;
 
-        return ( this.domainName.equals( that.domainName ) ) && ( this.recordType == that.recordType )
+        return ( this.domainName.equalsIgnoreCase( that.domainName ) ) && ( this.recordType == that.recordType )
             && ( this.recordClass == that.recordClass );
     }
 
@@ -173,6 +173,6 @@ public class ResourceRecordImpl implements ResourceRecord
     public String toString()
     {
         return getClass().getName() + " [ " + domainName + " ( " + recordType + " " + recordClass + " " + timeToLive
-            + " " + attributes.size() + " ) ]";
+            + " " + attributes + " ) ]";
     }
 }
