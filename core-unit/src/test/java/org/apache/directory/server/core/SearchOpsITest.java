@@ -74,7 +74,7 @@ public class SearchOpsITest extends AbstractAdminTestCase
             sysConf.setContextEntry( attrs );
             sysConf.setSuffix( "ou=system" );
             
-            Set<String> indices = new HashSet<String>();
+            Set<Object> indices = new HashSet<Object>();
             indices.addAll( sysConf.getIndexedAttributes() );
             
             MutableIndexConfiguration idxConfig = new MutableIndexConfiguration();

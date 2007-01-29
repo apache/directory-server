@@ -51,7 +51,7 @@ public class MutablePartitionConfiguration extends BTreePartitionConfiguration
     }
 
 
-    public void setIndexedAttributes( Set<String> indexedAttributes )
+    public void setIndexedAttributes( Set<Object> indexedAttributes )
     {
         super.setIndexedAttributes( indexedAttributes );
     }

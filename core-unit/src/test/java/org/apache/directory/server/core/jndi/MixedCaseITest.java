@@ -58,7 +58,7 @@ public class MixedCaseITest extends AbstractAdminTestCase
         partition.setName( "apache" );
         partition.setSuffix( suffix );
 
-        Set<String> indexedAttributes = new HashSet<String>();
+        Set<Object> indexedAttributes = new HashSet<Object>();
         indexedAttributes.add( "objectClass" );
         indexedAttributes.add( "ou" );
         indexedAttributes.add( "uid" );

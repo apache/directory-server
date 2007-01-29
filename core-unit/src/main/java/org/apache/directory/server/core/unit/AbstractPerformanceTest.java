@@ -138,7 +138,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
         if ( ! isExternal )
         {
             // Add indices for ou, uid, and objectClass
-            HashSet<String> indexedAttributes = new HashSet<String>();
+            HashSet<Object> indexedAttributes = new HashSet<Object>();
             indexedAttributes.add( "ou" );
             indexedAttributes.add( "uid" );
             indexedAttributes.add( "objectClass" );

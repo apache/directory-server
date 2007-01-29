@@ -86,7 +86,7 @@ public class MiscTest extends AbstractServerTest
         }
         else if ( this.getName().equals( "testUserAuthOnMixedCaseSuffix" ) )
         {
-            Set<PartitionConfiguration> partitions = new HashSet();
+            Set<PartitionConfiguration> partitions = new HashSet<PartitionConfiguration>();
             partitions.addAll( configuration.getPartitionConfigurations() );
             MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
             partition.setSuffix( "dc=aPache,dc=org" );
@@ -97,7 +97,7 @@ public class MiscTest extends AbstractServerTest
             oc.add( "domain" );
             partition.setName( "apache" );
             partition.setContextEntry( entry );
-            partition.setIndexedAttributes( Collections.singleton( "dc" ) );
+            partition.setIndexedAttributes( Collections.singleton( ( Object ) "dc" ) );
             partitions.add( partition );
             configuration.setPartitionConfigurations( partitions );
         }
@@ -118,7 +118,7 @@ public class MiscTest extends AbstractServerTest
             oc.add( "domain" );
             partition.setName( "apache" );
             partition.setContextEntry( entry );
-            partition.setIndexedAttributes( Collections.singleton( "dc" ) );
+            partition.setIndexedAttributes( Collections.singleton( ( Object ) "dc" ) );
             partitions.add( partition );
             configuration.setPartitionConfigurations( partitions );
         }

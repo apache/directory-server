@@ -278,13 +278,13 @@ public class DefaultPartitionNexus extends PartitionNexus
             }
             
             // add all attribute oids of index configs to a hashset
-            Set<String> indices = systemCfg.getIndexedAttributes();
+            Set<Object> indices = systemCfg.getIndexedAttributes();
             Set<String> indexOids = new HashSet<String>();
             OidRegistry registry = factoryCfg.getRegistries().getOidRegistry();
             
-            for ( String index : indices )
+            for ( Object index : indices )
             {
-                indexOids.add( registry.getOid( index ) );
+                indexOids.add( registry.getOid( index.toString() ) );
             }
             
             if ( ! indexOids.contains( Oid.ALIAS ) )
@@ -732,7 +732,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#search(org.apache.directory.shared.ldap.name.LdapDN,java.util.Map,org.apache.directory.shared.ldap.filter.ExprNode,javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration<SearchResult> search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
         throws NamingException
     {
 
