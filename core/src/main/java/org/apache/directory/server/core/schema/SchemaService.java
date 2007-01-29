@@ -344,24 +344,6 @@ public class SchemaService extends BaseInterceptor
     }
 
     /**
-     * Check if an attribute stores binary values.
-     * 
-     * @return Returns true if the attribute is binary.
-     */
-    public boolean isBinary( String id )
-    {
-        return binaries.contains( StringTools.lowerCase( StringTools.trim( id ) ) );
-    }
-
-    /**
-     * Destroy the Schema Service
-     */
-    public void destroy()
-    {
-    }
-
-
-    /**
      * 
      */
     public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
@@ -1621,7 +1603,7 @@ public class SchemaService extends BaseInterceptor
     public void add( NextInterceptor next, LdapDN normName, Attributes attrs ) throws NamingException
     {
         check( normName, attrs );
-        next.add(normName, attrs );
+        next.add( normName, attrs );
     }
     
     
