@@ -40,6 +40,9 @@ import org.apache.directory.server.dns.store.DnsAttribute;
  * 
  * TXT RRs are used to hold descriptive text.  The semantics of the text
  * depends on the domain where it is found.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class TextRecordEncoder extends ResourceRecordEncoder
 {

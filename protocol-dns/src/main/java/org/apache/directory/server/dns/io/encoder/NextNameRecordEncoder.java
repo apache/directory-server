@@ -51,6 +51,9 @@ package org.apache.directory.server.dns.io.encoder;
  *    The domain name may be compressed with standard DNS name compression
  *    when being transmitted over the network.  The size of the bit map can
  *    be inferred from the RDLENGTH and the length of the next domain name.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class NextNameRecordEncoder
 {

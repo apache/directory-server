@@ -29,6 +29,10 @@ import java.util.Map;
 import org.apache.directory.server.dns.store.DnsAttribute;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class MailExchangeRecordDecoder implements RecordDecoder
 {
     public Map decode( ByteBuffer byteBuffer, short length ) throws IOException

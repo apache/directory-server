@@ -49,6 +49,9 @@ import org.apache.directory.server.dns.store.DnsAttribute;
  * MX records cause type A additional section processing for the host
  * specified by EXCHANGE.  The use of MX RRs is explained in detail in
  * [RFC-974].
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class MailExchangeRecordEncoder extends ResourceRecordEncoder
 {

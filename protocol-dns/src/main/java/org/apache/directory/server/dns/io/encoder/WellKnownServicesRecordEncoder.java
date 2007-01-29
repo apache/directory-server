@@ -64,6 +64,9 @@ package org.apache.directory.server.dns.io.encoder;
  * 
  * In master files, both ports and protocols are expressed using mnemonics
  * or decimal numbers.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class WellKnownServicesRecordEncoder
 {

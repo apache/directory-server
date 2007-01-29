@@ -44,6 +44,9 @@ import org.apache.directory.server.dns.store.DnsAttribute;
  * These records are simple data, and don't imply any special processing
  * similar to that performed by CNAME, which identifies aliases.  See the
  * description of the IN-ADDR.ARPA domain for an example.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class PointerRecordEncoder extends ResourceRecordEncoder
 {

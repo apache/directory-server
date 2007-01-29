@@ -27,6 +27,10 @@ import org.apache.directory.server.dns.AbstractDnsTestCase;
 import org.apache.directory.server.dns.io.decoder.DnsMessageDecoder;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class DnsMessageDecoderTest extends AbstractDnsTestCase
 {
     private DnsMessageDecoder decoder = new DnsMessageDecoder();

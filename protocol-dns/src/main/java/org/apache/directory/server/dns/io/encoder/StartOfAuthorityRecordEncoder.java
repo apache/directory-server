@@ -93,6 +93,9 @@ import org.apache.directory.server.dns.util.ByteBufferUtil;
  * when the zone is loaded from a master file or via a zone transfer.  The
  * reason for this provison is to allow future dynamic update facilities to
  * change the SOA RR with known semantics.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class StartOfAuthorityRecordEncoder extends ResourceRecordEncoder
 {

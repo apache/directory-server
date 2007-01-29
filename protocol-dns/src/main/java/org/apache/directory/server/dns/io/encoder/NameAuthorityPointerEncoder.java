@@ -129,6 +129,9 @@ package org.apache.directory.server.dns.io.encoder;
  *       exists.  The fields are also mutually exclusive.  If a record is
  *       returned that has values for both fields then it is considered to
  *       be in error and SHOULD be either ignored or an error returned.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class NameAuthorityPointerEncoder
 {

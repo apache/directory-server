@@ -44,6 +44,10 @@ import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.DnsAttribute;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public abstract class AbstractDnsTestCase extends TestCase
 {
     protected static final int MINIMUM_DNS_DATAGRAM_SIZE = 576;

@@ -30,6 +30,10 @@ import java.util.Map;
 import org.apache.directory.server.dns.store.DnsAttribute;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class IPv6RecordDecoder implements RecordDecoder
 {
 

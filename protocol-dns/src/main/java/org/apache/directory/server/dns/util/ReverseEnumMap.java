@@ -29,6 +29,9 @@ import java.util.Map;
  * A map to easily get the actual Enum instance from it's value as seen in the
  * <a href="http://www.javaspecialists.co.za/archive/newsletter.do?issue=113">
  * The JavaSpecialists newsletter</a>.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class ReverseEnumMap<K, E extends Enum<E> & EnumConverter<K>>
 {

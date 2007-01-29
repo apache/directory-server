@@ -29,6 +29,10 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class DnsEncoder implements ProtocolEncoder
 {
     private DnsMessageEncoder encoder = new DnsMessageEncoder();

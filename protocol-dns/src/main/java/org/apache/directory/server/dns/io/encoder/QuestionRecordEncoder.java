@@ -28,6 +28,10 @@ import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class QuestionRecordEncoder
 {
     public void put( ByteBuffer out, QuestionRecord question )

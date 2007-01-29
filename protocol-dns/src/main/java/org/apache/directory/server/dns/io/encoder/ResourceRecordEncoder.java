@@ -29,6 +29,10 @@ import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public abstract class ResourceRecordEncoder implements RecordEncoder
 {
     public void put( ByteBuffer byteBuffer, ResourceRecord record ) throws IOException

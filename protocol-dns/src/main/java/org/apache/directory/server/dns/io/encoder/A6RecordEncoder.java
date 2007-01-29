@@ -52,6 +52,9 @@ package org.apache.directory.server.dns.io.encoder;
  *    It is SUGGESTED that an A6 record intended for use as a prefix for
  *    other A6 records have all the insignificant trailing bits in its
  *    address suffix field set to zero.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class A6RecordEncoder
 {

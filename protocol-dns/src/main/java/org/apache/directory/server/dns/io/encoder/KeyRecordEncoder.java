@@ -55,6 +55,9 @@ package org.apache.directory.server.dns.io.encoder;
  *    The KEY RR is not intended for storage of certificates and a separate
  *    certificate RR has been developed for that purpose, defined in [RFC
  *    2538].
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class KeyRecordEncoder
 {

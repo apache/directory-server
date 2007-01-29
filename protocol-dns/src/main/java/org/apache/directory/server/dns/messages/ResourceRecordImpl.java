@@ -49,6 +49,9 @@ import java.util.Map;
  *     /                     RDATA                     /
  *     /                                               /
  *     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class ResourceRecordImpl implements ResourceRecord
 {

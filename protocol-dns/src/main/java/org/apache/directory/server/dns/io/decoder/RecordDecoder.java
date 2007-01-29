@@ -26,6 +26,10 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public interface RecordDecoder
 {
     public Map decode( ByteBuffer byteBuffer, short length ) throws IOException;

@@ -25,6 +25,10 @@ import org.apache.directory.server.dns.util.EnumConverter;
 import org.apache.directory.server.dns.util.ReverseEnumMap;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public enum OpCode implements EnumConverter<Byte>
 {
     /** Standard query */

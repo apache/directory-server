@@ -112,6 +112,9 @@ package org.apache.directory.server.dns.io.encoder;
  *              Adjustments to ALTITUDE and/or VERT PRE will be necessary
  *              in most cases.  The Defense Mapping Agency publishes geoid
  *              height values relative to the [WGS 84] ellipsoid.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LocationRecordEncoder
 {

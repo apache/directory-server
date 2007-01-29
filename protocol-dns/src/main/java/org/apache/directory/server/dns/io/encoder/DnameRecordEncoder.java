@@ -62,6 +62,9 @@ package org.apache.directory.server.dns.io.encoder;
  *    Resolvers, including resolvers embedded in DNS servers, MUST limit
  *    the resources they devote to any query.  Implementors should note,
  *    however, that fairly lengthy chains of DNAME records may be valid.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class DnameRecordEncoder
 {

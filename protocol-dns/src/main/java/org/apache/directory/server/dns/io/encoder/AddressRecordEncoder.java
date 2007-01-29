@@ -47,6 +47,9 @@ import org.apache.directory.server.dns.store.DnsAttribute;
  * an A line in a master file is an Internet address expressed as four
  * decimal numbers separated by dots without any imbedded spaces (e.g.,
  * "10.2.0.52" or "192.0.5.6").
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class AddressRecordEncoder extends ResourceRecordEncoder
 {

@@ -27,6 +27,10 @@ import java.nio.ByteBuffer;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public interface RecordEncoder
 {
     public void put( ByteBuffer buffer, ResourceRecord record ) throws IOException;

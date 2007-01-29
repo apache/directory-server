@@ -50,6 +50,9 @@ import org.apache.directory.server.dns.store.DnsAttribute;
  * with the host, although it is typically a strong hint.  For example,
  * hosts which are name servers for either Internet (IN) or Hesiod (HS)
  * class information are normally queried using IN class protocols.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class NameServerRecordEncoder extends ResourceRecordEncoder
 {

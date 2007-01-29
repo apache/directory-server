@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Domain Name Service (DNS) Protocol (RFC 1034, 1035)
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class DomainNameServiceChain extends IoHandlerChain
 {

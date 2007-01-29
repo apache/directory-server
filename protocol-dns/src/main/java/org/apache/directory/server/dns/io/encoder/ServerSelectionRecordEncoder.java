@@ -125,6 +125,9 @@ import org.apache.directory.server.dns.store.DnsAttribute;
  * 
  *         A Target of "." means that the service is decidedly not
  *         available at this domain.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class ServerSelectionRecordEncoder extends ResourceRecordEncoder
 {

@@ -30,6 +30,10 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.RecordStore;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class DnsContext
 {
     private static final long serialVersionUID = -5911142975867852436L;

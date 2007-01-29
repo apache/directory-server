@@ -57,6 +57,9 @@ package org.apache.directory.server.dns.io.encoder;
  *    to an algorithm (and limits such as key size limits) defined for DNS
  *    security.  If it is not, the algorithm field MUST BE zero and the tag
  *    field is meaningless and SHOULD BE zero.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class CertificateRecordEncoder
 {

@@ -43,6 +43,9 @@ import org.apache.directory.server.dns.store.DnsAttribute;
  * CNAME RRs cause no additional section processing, but name servers may
  * choose to restart the query at the canonical name in certain cases.  See
  * the description of name server logic in [RFC-1034] for details.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class CanonicalNameRecordEncoder extends ResourceRecordEncoder
 {

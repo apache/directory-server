@@ -74,6 +74,9 @@ package org.apache.directory.server.dns.io.encoder;
  * 
  *    b.a.9.8.7.6.5.0.4.0.0.0.3.0.0.0.2.0.0.0.1.0.0.0.0.0.0.0.1.2.3.4.IP6.
  *                                                                   ARPA.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class Inet6AddressRecordEncoder
 {

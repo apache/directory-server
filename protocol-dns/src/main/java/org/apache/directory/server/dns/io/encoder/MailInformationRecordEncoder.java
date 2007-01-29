@@ -50,6 +50,9 @@ package org.apache.directory.server.dns.io.encoder;
  * MINFO records cause no additional section processing.  Although these
  * records can be associated with a simple mailbox, they are usually used
  * with a mailing list.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class MailInformationRecordEncoder
 {
