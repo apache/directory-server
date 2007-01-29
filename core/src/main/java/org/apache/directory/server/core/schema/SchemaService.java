@@ -438,6 +438,7 @@ public class SchemaService extends BaseInterceptor
         if ( !subschemaSubentryDn.toNormName().equals( base.toNormName() ) )
         {
             NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+            
             if ( searchCtls.getReturningAttributes() != null )
             {
                 return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, topFilter );
@@ -446,10 +447,11 @@ public class SchemaService extends BaseInterceptor
             return new SearchResultFilteringEnumeration( e, searchCtls, invocation, filters );
         }
 
-        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE && filter instanceof SimpleNode )
+        if ( ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE ) && ( filter instanceof SimpleNode ) )
         {
             SimpleNode node = ( SimpleNode ) filter;
             String compareto = null;
+            
             if ( node.getValue() instanceof String )
             {
                 compareto = ( String ) node.getValue();
@@ -461,7 +463,7 @@ public class SchemaService extends BaseInterceptor
 
             // see if node attribute is objectClass
             if ( node.getAttribute().equalsIgnoreCase( "2.5.4.0" )
-                && "subschema".equalsIgnoreCase( compareto ) && node.getAssertionType() == SimpleNode.EQUALITY )
+                && "subschema".equalsIgnoreCase( compareto ) && ( node.getAssertionType() == SimpleNode.EQUALITY ) )
             {
                 // call.setBypass( true );
                 Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
@@ -469,7 +471,7 @@ public class SchemaService extends BaseInterceptor
                 return new SingletonEnumeration( result );
             }
         }
-        else if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE && filter instanceof PresenceNode )
+        else if ( ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE ) && ( filter instanceof PresenceNode ) )
         {
             PresenceNode node = ( PresenceNode ) filter;
 
@@ -484,6 +486,7 @@ public class SchemaService extends BaseInterceptor
         }
 
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+        
         if ( searchCtls.getReturningAttributes() != null )
         {
             return new SearchResultFilteringEnumeration( e, searchCtls, invocation, topFilter );
