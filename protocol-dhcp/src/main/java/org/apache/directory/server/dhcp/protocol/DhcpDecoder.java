@@ -29,6 +29,10 @@ import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class DhcpDecoder implements ProtocolDecoder
 {
     public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws DhcpException

@@ -32,6 +32,10 @@ package org.apache.directory.server.dhcp.options.vendor;
 import org.apache.directory.server.dhcp.options.AddressListOption;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class LprServers extends AddressListOption
 {
     public LprServers(byte[] lprServers)

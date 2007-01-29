@@ -40,6 +40,10 @@ import org.apache.directory.server.dhcp.options.vendor.SubnetMask;
 import org.apache.directory.server.dhcp.options.vendor.TimeOffset;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class DhcpOptionsDecoder
 {
     private static final byte[] VENDOR_MAGIC_COOKIE =

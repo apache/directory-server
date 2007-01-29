@@ -28,6 +28,10 @@ import org.apache.directory.server.dhcp.options.OptionsField;
 import org.apache.directory.server.dhcp.options.vendor.EndOption;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class DhcpOptionsEncoder
 {
     private static final byte[] VENDOR_MAGIC_COOKIE =

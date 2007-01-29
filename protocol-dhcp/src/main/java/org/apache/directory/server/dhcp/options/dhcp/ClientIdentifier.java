@@ -49,6 +49,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * meet this requirement for uniqueness.
  * 
  * The code for this option is 61, and its minimum length is 2.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class ClientIdentifier extends DhcpOption
 {

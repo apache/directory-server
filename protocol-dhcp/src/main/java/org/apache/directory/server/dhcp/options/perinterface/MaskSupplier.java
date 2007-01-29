@@ -33,6 +33,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * respond.
  * 
  * The code for this option is 30, and its length is 1.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class MaskSupplier extends DhcpOption
 {

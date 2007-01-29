@@ -31,6 +31,9 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  * The code for the IRC server option is 74.  The minimum length for
  * this option is 4 octets, and the length MUST always be a multiple of
  * 4.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class DefaultIrcServers extends AddressListOption
 {

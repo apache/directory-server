@@ -33,6 +33,10 @@ package org.apache.directory.server.dhcp.options.vendor;
 import org.apache.directory.server.dhcp.options.AddressListOption;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class ImpressServers extends AddressListOption
 {
     public ImpressServers(byte[] impressServers)

@@ -44,6 +44,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  *           1     the 'file' field is used to hold options
  *           2     the 'sname' field is used to hold options
  *           3     both fields are used to hold options
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class OptionOverload extends DhcpOption
 {

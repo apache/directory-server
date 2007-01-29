@@ -31,6 +31,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * The time is specified as a 32-bit unsigned integer.
  * 
  * The code for this option is 35, and its length is 4.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class ArpCacheTimeout extends DhcpOption
 {

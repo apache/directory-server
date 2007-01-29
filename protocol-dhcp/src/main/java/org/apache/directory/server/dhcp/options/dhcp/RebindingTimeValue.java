@@ -34,6 +34,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * unsigned integer.
  * 
  * The code for this option is 59, and its length is 4.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class RebindingTimeValue extends DhcpOption
 {

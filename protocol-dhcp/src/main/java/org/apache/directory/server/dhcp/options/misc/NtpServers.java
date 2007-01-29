@@ -31,6 +31,9 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  * 
  * The code for this option is 42.  Its minimum length is 4, and the
  * length MUST be a multiple of 4.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class NtpServers extends AddressListOption
 {

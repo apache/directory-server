@@ -26,6 +26,9 @@ import org.apache.directory.server.dhcp.messages.DhcpMessage;
 
 /**
  * DHCP Protocol (RFC 2131, RFC 2132)
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public interface DhcpService
 {

@@ -29,6 +29,10 @@ package org.apache.directory.server.dhcp.options.vendor;
 import org.apache.directory.server.dhcp.options.AddressOption;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class SwapServer extends AddressOption
 {
     public SwapServer(byte[] swapServer)

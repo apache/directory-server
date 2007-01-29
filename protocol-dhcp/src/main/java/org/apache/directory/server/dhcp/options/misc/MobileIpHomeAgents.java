@@ -33,6 +33,9 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  * no home agents are available) and the length MUST be a multiple of 4.
  * It is expected that the usual length will be four octets, containing
  * a single home agent's address.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class MobileIpHomeAgents extends AddressListOption
 {

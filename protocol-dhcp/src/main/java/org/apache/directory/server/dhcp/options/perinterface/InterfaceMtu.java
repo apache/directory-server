@@ -32,6 +32,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * the MTU is 68.
  * 
  * The code for this option is 26, and its length is 2.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class InterfaceMtu extends DhcpOption
 {

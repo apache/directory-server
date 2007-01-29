@@ -29,6 +29,9 @@ import org.apache.directory.server.dhcp.options.AddressOption;
  * client to request that a particular IP address be assigned.
  * 
  * The code for this option is 50, and its length is 4.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class RequestedIpAddress extends AddressOption
 {

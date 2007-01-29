@@ -36,6 +36,10 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.DatagramConnector;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class DhcpProtocolHandler implements IoHandler
 {
     public void sessionCreated( IoSession session ) throws Exception

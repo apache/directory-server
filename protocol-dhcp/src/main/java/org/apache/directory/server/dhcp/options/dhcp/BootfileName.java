@@ -31,6 +31,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * the DHCP header has been used for DHCP options.
  * 
  * The code for this option is 67, and its minimum length is 1.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class BootfileName extends DhcpOption
 {

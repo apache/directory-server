@@ -34,6 +34,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * router discovery.
  * 
  * The code for this option is 31, and its length is 1.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class PerformRouterDiscovery extends DhcpOption
 {

@@ -23,6 +23,10 @@ package org.apache.directory.server.dhcp.messages;
 import org.apache.directory.server.dhcp.options.OptionsField;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class DhcpMessageModifier
 {
     private MessageType messageType;

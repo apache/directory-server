@@ -27,6 +27,10 @@ import org.apache.directory.server.dhcp.io.DhcpMessageDecoder;
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class DhcpMessageDecoderTest extends AbstractDhcpTestCase
 {
     private ByteBuffer requestByteBuffer;

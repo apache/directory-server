@@ -41,6 +41,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  *           6     DHCPNAK
  *           7     DHCPRELEASE
  *           8     DHCPINFORM
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class DhcpMessageType extends DhcpOption
 {

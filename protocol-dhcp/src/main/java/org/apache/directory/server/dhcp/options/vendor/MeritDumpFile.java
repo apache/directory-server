@@ -34,6 +34,10 @@ import java.nio.ByteBuffer;
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class MeritDumpFile extends DhcpOption
 {
     private byte[] meritDumpFile;

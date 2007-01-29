@@ -33,6 +33,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * value of 1 means that the client should attempt to use trailers.
  * 
  * The code for this option is 34, and its length is 1.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class TrailerEncapsulation extends DhcpOption
 {

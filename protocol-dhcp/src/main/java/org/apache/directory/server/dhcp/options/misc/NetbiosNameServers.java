@@ -30,6 +30,9 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  * 
  * The code for this option is 44.  The minimum length of the option is
  * 4 octets, and the length must always be a multiple of 4.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class NetbiosNameServers extends AddressListOption
 {

@@ -32,6 +32,9 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  * The code for the StreetTalk Directory Assistance server option is 76.
  * The minimum length for this option is 4 octets, and the length MUST
  * always be a multiple of 4.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class StdaServers extends AddressListOption
 {

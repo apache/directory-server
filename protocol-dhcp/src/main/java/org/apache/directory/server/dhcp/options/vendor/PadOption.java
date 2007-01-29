@@ -31,6 +31,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * word boundaries.
  * 
  * The code for the pad option is 0, and its length is 1 octet.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class PadOption extends DhcpOption
 {

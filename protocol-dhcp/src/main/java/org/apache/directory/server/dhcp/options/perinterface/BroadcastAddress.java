@@ -31,6 +31,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * subnet.
  * 
  * The code for this option is 28, and its length is 4.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class BroadcastAddress extends DhcpOption
 {

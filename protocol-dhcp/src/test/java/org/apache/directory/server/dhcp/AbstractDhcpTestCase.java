@@ -32,6 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public abstract class AbstractDhcpTestCase extends TestCase
 {
     protected static final int MINIMUM_DHCP_DATAGRAM_SIZE = 576;

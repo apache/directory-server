@@ -35,6 +35,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * 
  * The code for this option is 57, and its length is 2.  The minimum
  * legal value is 576 octets.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class MaximumDhcpMessageSize extends DhcpOption
 {

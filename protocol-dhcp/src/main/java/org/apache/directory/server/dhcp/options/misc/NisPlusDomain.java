@@ -32,6 +32,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * from the NVT ASCII character set.
  * 
  * The code for this option is 64.  Its minimum length is 1.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class NisPlusDomain extends DhcpOption
 {

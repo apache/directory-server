@@ -31,6 +31,9 @@ import java.util.Set;
  * Configuration parameters and other control information are carried in
  * tagged data items that are stored in the 'options' field of the DHCP
  * message.  The data items themselves are also called "options."
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class OptionsField
 {

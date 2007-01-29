@@ -21,6 +21,10 @@
 package org.apache.directory.server.dhcp;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class DhcpException extends Exception
 {
     private static final long serialVersionUID = 3985748516732135317L;

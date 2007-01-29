@@ -40,6 +40,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * information to the client.
  * 
  * The code for this option is 60, and its minimum length is 1.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class VendorClassIdentifier extends DhcpOption
 {

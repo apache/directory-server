@@ -35,6 +35,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * some subnets of the directly connected network may have smaller MTUs.
  * 
  * The code for this option is 27, and its length is 1.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class AllSubnetsAreLocal extends DhcpOption
 {

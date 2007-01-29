@@ -44,6 +44,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * 
  * The code for this option is 46.  The length of this option is always
  * 1.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class NetbiosNodeType extends DhcpOption
 {

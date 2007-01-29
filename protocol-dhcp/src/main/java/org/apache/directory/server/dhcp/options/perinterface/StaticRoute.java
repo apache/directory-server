@@ -41,6 +41,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * 
  * The code for this option is 33.  The minimum length of this option is
  * 8, and the length MUST be a multiple of 8.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class StaticRoute extends DhcpOption
 {

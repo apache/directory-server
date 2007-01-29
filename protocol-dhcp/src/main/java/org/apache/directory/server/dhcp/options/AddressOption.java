@@ -32,6 +32,9 @@ import java.nio.ByteBuffer;
  * message.  The data items themselves are also called "options."
  * 
  * This abstract base class is for options that carry a single IP address.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public abstract class AddressOption extends DhcpOption
 {

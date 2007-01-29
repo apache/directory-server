@@ -33,6 +33,9 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  * 
  * The code for the this option is 49. The minimum length of this option
  * is 4, and the length MUST be a multiple of 4.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class XWindowDisplayManagers extends AddressListOption
 {

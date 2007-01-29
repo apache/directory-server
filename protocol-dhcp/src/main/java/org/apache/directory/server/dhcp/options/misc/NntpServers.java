@@ -31,6 +31,9 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  * The code for the NNTP server option is 71. The minimum length for
  * this option is 4 octets, and the length MUST always be a multiple of
  * 4.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class NntpServers extends AddressListOption
 {

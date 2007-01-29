@@ -29,6 +29,10 @@ import org.apache.directory.server.dhcp.messages.DhcpMessageModifier;
 import org.apache.directory.server.dhcp.messages.MessageType;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class DhcpMessageDecoder
 {
     /**
