@@ -179,4 +179,22 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         assertTrue( ocs.contains( "organizationalPerson" ) );
         assertTrue( ocs.contains( "inetOrgPerson" ) );
     }
+
+    public void testSearchForSubSchemaSubEntry() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setReturningAttributes( new String[]{ "+" } );
+        
+        Map subSchemaEntry = new HashMap();
+        NamingEnumeration results = sysRoot.search( "cn=schema", "(objectClass=*)", controls );
+
+        while ( results.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) results.next();
+            subSchemaEntry.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( 1, subSchemaEntry.size() );
+    }
 }
