@@ -73,6 +73,7 @@ import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -428,8 +429,6 @@ public class SchemaService extends BaseInterceptor
         SearchControls searchCtls ) throws NamingException
     {
         // check to make sure the DN searched for is a subentry
-        Invocation invocation = InvocationStack.getInstance().peek();
-
         // We have to eliminate bad attributes from the request, accordingly
         // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
         // from the list
@@ -439,6 +438,8 @@ public class SchemaService extends BaseInterceptor
         {
             NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
             
+            Invocation invocation = InvocationStack.getInstance().peek();
+
             if ( searchCtls.getReturningAttributes() != null )
             {
                 return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, topFilter );
@@ -447,52 +448,52 @@ public class SchemaService extends BaseInterceptor
             return new SearchResultFilteringEnumeration( e, searchCtls, invocation, filters );
         }
 
-        if ( ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE ) && ( filter instanceof SimpleNode ) )
+        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
         {
-            SimpleNode node = ( SimpleNode ) filter;
-            String compareto = null;
-            
-            if ( node.getValue() instanceof String )
+            if ( filter instanceof SimpleNode )
             {
-                compareto = ( String ) node.getValue();
+                SimpleNode node = ( SimpleNode ) filter;
+                String compareto = null;
+                
+                if ( node.getValue() instanceof String )
+                {
+                    compareto = ( String ) node.getValue();
+                }
+                else
+                {
+                    compareto = node.getValue().toString();
+                }
+    
+                // see if node attribute is objectClass
+                if ( node.getAttribute().equalsIgnoreCase( "2.5.4.0" )
+                    && "subschema".equalsIgnoreCase( compareto ) && ( node.getAssertionType() == SimpleNode.EQUALITY ) )
+                {
+                    // call.setBypass( true );
+                    Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
+                    SearchResult result = new SearchResult( base.toString(), null, attrs );
+                    return new SingletonEnumeration( result );
+                }
+                else
+                {
+                    return new EmptyEnumeration();
+                }
             }
-            else
+            else if ( filter instanceof PresenceNode )
             {
-                compareto = node.getValue().toString();
-            }
+                PresenceNode node = ( PresenceNode ) filter;
 
-            // see if node attribute is objectClass
-            if ( node.getAttribute().equalsIgnoreCase( "2.5.4.0" )
-                && "subschema".equalsIgnoreCase( compareto ) && ( node.getAssertionType() == SimpleNode.EQUALITY ) )
-            {
-                // call.setBypass( true );
-                Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
-                SearchResult result = new SearchResult( base.toString(), null, attrs );
-                return new SingletonEnumeration( result );
+                // see if node attribute is objectClass
+                if ( node.getAttribute().equalsIgnoreCase( "2.5.4.0" ) )
+                {
+                    // call.setBypass( true );
+                    Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
+                    SearchResult result = new SearchResult( base.toString(), null, attrs );
+                    return new SingletonEnumeration( result );
+                }
             }
         }
-        else if ( ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE ) && ( filter instanceof PresenceNode ) )
-        {
-            PresenceNode node = ( PresenceNode ) filter;
 
-            // see if node attribute is objectClass
-            if ( node.getAttribute().equalsIgnoreCase( "2.5.4.0" ) )
-            {
-                // call.setBypass( true );
-                Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
-                SearchResult result = new SearchResult( base.toString(), null, attrs );
-                return new SingletonEnumeration( result );
-            }
-        }
-
-        NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
-        
-        if ( searchCtls.getReturningAttributes() != null )
-        {
-            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, topFilter );
-        }
-
-        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, filters );
+        return new EmptyEnumeration();
     }
 
 
