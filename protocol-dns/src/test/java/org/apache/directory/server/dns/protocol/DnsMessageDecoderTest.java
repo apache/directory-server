@@ -50,11 +50,11 @@ public class DnsMessageDecoderTest extends AbstractDnsTestCase
     
     public void testParseMxQuery() throws Exception
     {
-        //assertEquals( getTestMxQuery(), decoder.decode( getTestMxQueryByteBuffer() ) );
+        assertEquals( getTestMxQuery(), decoder.decode( getTestMxQueryByteBuffer() ) );
     }
     
     public void testParseMxResponse() throws IOException
     {
-        //assertEquals( getTestMxResponse(), decoder.decode( getTestMxResponseByteBuffer() ) );
+        assertEquals( getTestMxResponse(), decoder.decode( getTestMxResponseByteBuffer() ) );
     }
 }
