@@ -31,6 +31,10 @@ import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class NtpConfiguration extends ServiceConfiguration
 {
     private static final long serialVersionUID = 2961795205765175775L;

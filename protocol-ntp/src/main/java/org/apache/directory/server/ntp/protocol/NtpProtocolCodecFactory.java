@@ -26,6 +26,10 @@ import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class NtpProtocolCodecFactory implements ProtocolCodecFactory
 {
     private static final NtpProtocolCodecFactory INSTANCE = new NtpProtocolCodecFactory();

@@ -37,6 +37,9 @@ import java.util.List;
  *    01       1         last minute has 61 seconds
  *    10       2         last minute has 59 seconds)
  *    11       3         alarm condition (clock not synchronized)
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public final class LeapIndicatorType implements Comparable
 {

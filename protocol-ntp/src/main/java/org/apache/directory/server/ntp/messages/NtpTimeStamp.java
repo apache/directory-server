@@ -32,6 +32,9 @@ import java.util.TimeZone;
  * in seconds relative to 0h on 1 January 1900. The integer part is in the
  * first 32 bits and the fraction part in the last 32 bits. In the fraction
  * part, the non-significant low order can be set to 0.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class NtpTimeStamp
 {

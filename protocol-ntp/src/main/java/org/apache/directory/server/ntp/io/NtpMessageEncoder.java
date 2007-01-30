@@ -29,6 +29,10 @@ import org.apache.directory.server.ntp.messages.NtpMessage;
 import org.apache.directory.server.ntp.messages.ReferenceIdentifier;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class NtpMessageEncoder
 {
     public void encode( ByteBuffer byteBuffer, NtpMessage message )

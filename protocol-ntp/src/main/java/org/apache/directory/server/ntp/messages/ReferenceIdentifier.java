@@ -39,6 +39,9 @@ import java.util.List;
  * to the following list. If the external reference is one of those
  * listed, the associated code should be used. Codes for sources not
  * listed can be contrived as appropriate.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class ReferenceIdentifier implements Comparable
 {

@@ -40,6 +40,9 @@ import java.util.List;
  *    5        broadcast
  *    6        reserved for NTP control message
  *    7        reserved for private use
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public final class ModeType implements Comparable
 {

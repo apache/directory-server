@@ -26,6 +26,9 @@ import org.apache.directory.server.ntp.messages.NtpMessage;
 
 /**
  * NTP Protocol (RFC 2030)
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public interface NtpService
 {

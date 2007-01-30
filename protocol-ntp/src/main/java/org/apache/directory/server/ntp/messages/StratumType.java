@@ -36,6 +36,9 @@ import java.util.List;
  *    1        primary reference (e.g., radio clock)
  *    2-15     secondary reference (via NTP or SNTP)
  *    16-255   reserved
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public final class StratumType implements Comparable
 {

@@ -25,6 +25,10 @@ import org.apache.directory.server.ntp.io.NtpMessageDecoder;
 import org.apache.directory.server.ntp.messages.NtpMessage;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class NtpMessageDecoderTest extends AbstractNtpTestCase
 {
     private ByteBuffer requestByteBuffer;
