@@ -24,10 +24,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-
-import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapRegistries;
 import org.apache.directory.server.core.schema.bootstrap.BootstrapSchemaLoader;
@@ -35,9 +31,6 @@ import org.apache.directory.server.core.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.core.schema.bootstrap.CosineSchema;
 import org.apache.directory.server.core.schema.bootstrap.InetorgpersonSchema;
 import org.apache.directory.server.core.schema.bootstrap.SystemSchema;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import junit.framework.TestCase;
