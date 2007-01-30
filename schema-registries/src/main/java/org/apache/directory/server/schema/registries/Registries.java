@@ -44,6 +44,8 @@ public interface Registries
     void load( String schemaName ) throws NamingException;
     
     void load( String schemaName, Properties props ) throws NamingException;
+
+    void unload( String schemaName ) throws NamingException;
     
     SchemaLoader setSchemaLoader();
     

@@ -33,6 +33,7 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
 
 
@@ -507,7 +508,45 @@ public class DefaultRegistries implements Registries
         byName.put( schema.getSchemaName(), schema );
         schemaLoader.load( schema, this );
     }
+    
+    
+    public void unload( String schemaName ) throws NamingException
+    {
+        disableSchema( ditStructureRuleRegistry, schemaName );
+        disableSchema( ditContentRuleRegistry, schemaName );
+        disableSchema( matchingRuleUseRegistry, schemaName );
+        disableSchema( nameFormRegistry, schemaName );
+        disableSchema( objectClassRegistry, schemaName );
+        disableSchema( attributeTypeRegistry, schemaName );
+        disableSchema( matchingRuleRegistry, schemaName );
+        disableSchema( syntaxRegistry, schemaName );
 
+        normalizerRegistry.unregisterSchemaElements( schemaName );
+        comparatorRegistry.unregisterSchemaElements( schemaName );
+        syntaxCheckerRegistry.unregisterSchemaElements( schemaName );
+        byName.remove( schemaName );
+    }
+
+
+    private void disableSchema( SchemaObjectRegistry registry, String schemaName ) throws NamingException
+    {
+        Iterator<? extends SchemaObject> objects = registry.iterator();
+        List<String> unregistered = new ArrayList<String>();
+        while ( objects.hasNext() )
+        {
+            SchemaObject obj = objects.next();
+            if ( obj.getSchema().equalsIgnoreCase( schemaName ) )
+            {
+                unregistered.add( obj.getOid() );
+            }
+        }
+        
+        for ( String oid : unregistered )
+        {
+            registry.unregister( oid );
+        }
+    }
+    
 
     public SchemaLoader setSchemaLoader()
     {
