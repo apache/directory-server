@@ -23,10 +23,10 @@ package org.apache.directory.server.dns.io.encoder;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**

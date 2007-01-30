@@ -22,14 +22,37 @@ package org.apache.directory.server.dns.io.decoder;
 
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
+ * A decoder for MX records.  MX records are encoded as per RFC-1035:
+ * 
+ * <pre>
+ *   3.3.9. MX RDATA format
+ *
+ *     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+ *     |                  PREFERENCE                   |
+ *     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+ *     /                   EXCHANGE                    /
+ *     /                                               /
+ *     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+ *
+ *   where:
+ *
+ *   PREFERENCE
+ *     A 16 bit integer which specifies the preference given to this RR among 
+ *     others at the same owner. Lower values are preferred. 
+ *     
+ *   EXCHANGE
+ *     A <domain-name> which specifies a host willing to act as a mail exchange
+ *     for the owner name.
+ * </pre>
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

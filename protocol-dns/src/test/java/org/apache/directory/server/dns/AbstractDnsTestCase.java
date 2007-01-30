@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +41,7 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordModifier;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.DnsAttribute;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**

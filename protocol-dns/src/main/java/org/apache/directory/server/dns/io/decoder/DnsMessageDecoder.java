@@ -22,7 +22,6 @@ package org.apache.directory.server.dns.io.decoder;
 
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,12 +38,17 @@ import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordImpl;
 import org.apache.directory.server.dns.messages.ResponseCode;
-import org.apache.directory.server.dns.util.ByteBufferUtil;
+import org.apache.mina.common.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
+ * A decoder for DNS messages.  The primary usage of the DnsMessageDecoder is by
+ * calling the <code>decode(ByteBuffer)</code> method which will read the 
+ * message from the incoming ByteBuffer and build a <code>DnsMessage</code>
+ * from it according to the DnsMessage encoding in RFC-1035.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -75,7 +79,7 @@ public class DnsMessageDecoder
     {
         DnsMessageModifier modifier = new DnsMessageModifier();
 
-        modifier.setTransactionId( ByteBufferUtil.getUnsignedShort( in ) );
+        modifier.setTransactionId( in.getUnsignedShort() );
 
         byte header = in.get();
         modifier.setMessageType( decodeMessageType( header ) );
@@ -172,11 +176,11 @@ public class DnsMessageDecoder
 
     static void recurseDomainName( ByteBuffer byteBuffer, StringBuffer domainName )
     {
-        int length = ByteBufferUtil.getUnsignedByte( byteBuffer );
+        int length = byteBuffer.getUnsigned();
 
         if ( isOffset( length ) )
         {
-            int position = ByteBufferUtil.getUnsignedByte( byteBuffer );
+            int position = byteBuffer.getUnsigned();
             int offset = length & ~( 0xc0 ) << 8;
             int originalPosition = byteBuffer.position();
             byteBuffer.position( position + offset );

@@ -22,6 +22,17 @@ package org.apache.directory.server.dns.util;
 
 
 /**
+ * An interface that allows an Enum to be converted to another type, such as an
+ * integer or long.  Useful in cases where the Java assigned ordinal just isn't
+ * reliable enough or is unable to represent the values we need.<p>
+ * 
+ * Implementers should also implement (though there is no way of requiring it)
+ * a static method for taking the conversion the other way:
+ * 
+ * <code>
+ *   public static Enum convert (K value);
+ * </code>
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

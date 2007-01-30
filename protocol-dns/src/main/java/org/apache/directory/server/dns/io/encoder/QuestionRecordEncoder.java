@@ -21,11 +21,10 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
-import java.nio.ByteBuffer;
-
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**

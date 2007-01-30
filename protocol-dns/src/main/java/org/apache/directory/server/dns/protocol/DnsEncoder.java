@@ -30,6 +30,9 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 
 /**
+ * A ProtocolEncoder for use in the MINA framework that uses the 
+ * DnsMessageEncoder to encode DnsMessages.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -41,7 +44,7 @@ public class DnsEncoder implements ProtocolEncoder
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out )
     {
         ByteBuffer buf = ByteBuffer.allocate( 1024 );
-        encoder.encode( buf.buf(), ( DnsMessage ) message );
+        encoder.encode( buf, ( DnsMessage ) message );
 
         buf.flip();
 

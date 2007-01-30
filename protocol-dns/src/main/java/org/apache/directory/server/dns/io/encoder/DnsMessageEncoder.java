@@ -22,7 +22,6 @@ package org.apache.directory.server.dns.io.encoder;
 
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,12 +36,17 @@ import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.protocol.DnsEncoder;
-import org.apache.directory.server.dns.util.ByteBufferUtil;
+import org.apache.mina.common.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
+ * An encoder for DNS messages.  The primary usage of the DnsMessageEncoder is 
+ * to call the <code>encode(ByteBuffer, DnsMessage)</code> method which will 
+ * write the message to the outgoing ByteBuffer according to the DnsMessage 
+ * encoding in RFC-1035.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -76,7 +80,7 @@ public class DnsMessageEncoder
 
     public void encode( ByteBuffer byteBuffer, DnsMessage message )
     {
-        ByteBufferUtil.putUnsignedShort( byteBuffer, message.getTransactionId() );
+        byteBuffer.putShort( ( short ) message.getTransactionId() );
 
         byte header = ( byte ) 0x00;
         header |= encodeMessageType( message.getMessageType() );

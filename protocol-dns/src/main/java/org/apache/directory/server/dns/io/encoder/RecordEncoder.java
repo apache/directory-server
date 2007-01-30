@@ -22,9 +22,9 @@ package org.apache.directory.server.dns.io.encoder;
 
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dns.messages.ResourceRecord;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**

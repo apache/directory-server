@@ -23,14 +23,29 @@ package org.apache.directory.server.dns.io.decoder;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
+ * A decoder for A records. As per RFC 1035
+ * 
+ * <pre>
+ *   3.4.1. A RDATA format
+ *
+ *     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+ *     |                    ADDRESS                    |
+ *     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+ *
+ *   where:
+ *
+ *   ADDRESS
+ *       A 32 bit Internet address. 
+ * </pre>
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

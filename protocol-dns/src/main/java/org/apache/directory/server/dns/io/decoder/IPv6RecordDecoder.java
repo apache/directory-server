@@ -23,14 +23,23 @@ package org.apache.directory.server.dns.io.decoder;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
+ * A decoder for AAAA records.  AAAA records are encoded as per RFC-3596:
+ * 
+ * <pre>
+ *   2.2. AAAA data format
+ *
+ *     A 128 bit IPv6 address is encoded in the data portion of an AAAA
+ *     resource record in network byte order (high-order byte first).
+ * </pre>
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

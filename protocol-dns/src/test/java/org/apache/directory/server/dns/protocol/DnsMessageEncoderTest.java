@@ -21,10 +21,10 @@
 package org.apache.directory.server.dns.protocol;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dns.AbstractDnsTestCase;
 import org.apache.directory.server.dns.io.encoder.DnsMessageEncoder;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**

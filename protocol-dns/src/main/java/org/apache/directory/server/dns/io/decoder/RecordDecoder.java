@@ -22,8 +22,9 @@ package org.apache.directory.server.dns.io.decoder;
 
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Map;
+
+import org.apache.mina.common.ByteBuffer;
 
 
 /**

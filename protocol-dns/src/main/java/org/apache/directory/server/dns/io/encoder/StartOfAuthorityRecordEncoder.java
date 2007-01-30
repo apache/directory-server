@@ -21,12 +21,10 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
-import java.nio.ByteBuffer;
-
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.directory.server.dns.util.ByteBufferUtil;
-
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.util.ByteBufferUtil;
 
 /**
  * 3.3.13. SOA RDATA format
@@ -114,13 +112,13 @@ public class StartOfAuthorityRecordEncoder extends ResourceRecordEncoder
         putDomainName( byteBuffer, mName );
         putDomainName( byteBuffer, rName );
 
-        ByteBufferUtil.putUnsignedInt( byteBuffer, serial );
+        byteBuffer.putInt( ( int ) serial );
 
         byteBuffer.putInt( refresh );
         byteBuffer.putInt( retry );
         byteBuffer.putInt( expire );
 
-        ByteBufferUtil.putUnsignedInt( byteBuffer, minimum );
+        byteBuffer.putInt( ( int ) minimum );
 
         putDataSize( byteBuffer, startPosition );
     }

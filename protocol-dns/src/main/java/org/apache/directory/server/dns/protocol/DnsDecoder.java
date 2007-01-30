@@ -31,6 +31,9 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 
 /**
+ * A ProtocolDecoder for use in the MINA framework that uses the 
+ * DnsMessageDecoder to decode DnsMessages.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -41,7 +44,7 @@ public class DnsDecoder implements ProtocolDecoder
 
     public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws IOException
     {
-        out.write( decoder.decode( in.buf() ) );
+        out.write( decoder.decode( in ) );
     }
 
 

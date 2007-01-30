@@ -21,10 +21,9 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
-import java.nio.ByteBuffer;
-
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**

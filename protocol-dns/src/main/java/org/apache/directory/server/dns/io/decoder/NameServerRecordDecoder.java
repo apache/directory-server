@@ -22,14 +22,31 @@ package org.apache.directory.server.dns.io.decoder;
 
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
+ * A decoder for NS records.  NS records are encoded as per RFC-1035:
+ * 
+ * <pre>
+ *   3.3.11. NS RDATA format
+ *
+ *     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+ *     /                   NSDNAME                     /
+ *     /                                               /
+ *     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+ *
+ *   where:
+ *
+ *   NSDNAME
+ *     A <domain-name> which specifies a host which should be authoritative for
+ *     the specified class and domain. 
+ * </pre>
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
