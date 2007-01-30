@@ -22,9 +22,14 @@ package org.apache.directory.server.core.operational;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -32,6 +37,7 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
@@ -45,6 +51,37 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
 {
     private static final String CREATORS_NAME = "creatorsName";
     private static final String CREATE_TIMESTAMP = "createTimestamp";
+    private static final String RDN_KATE_BUSH = "cn=Kate Bush";
+
+    protected Attributes getPersonAttributes( String sn, String cn )
+    {
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        attrs.put( ocls );
+        attrs.put( "cn", cn );
+        attrs.put( "sn", sn );
+
+        return attrs;
+    }
+
+    protected void setUp() throws NamingException, Exception
+    {
+        super.setUp();
+
+        // Create an entry for Kate Bush
+        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
+        DirContext ctx = sysRoot.createSubcontext( RDN_KATE_BUSH, attrs );
+        assertNotNull( ctx );
+    }
+
+    protected void tearDown() throws NamingException, Exception
+    {
+        sysRoot.destroySubcontext( RDN_KATE_BUSH );
+
+        super.tearDown();
+    }
 
 
     public void testModifyOperationalOpAttrs() throws NamingException
@@ -143,5 +180,79 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
             { "creatorsName" } );
 
         assertFalse( "uid=akarasulu,ou=users,ou=system".equals( attributes.get( "creatorsName" ).get() ) );
+    }
+
+    /**
+     * Try to add modifiersName attribute to an entry
+     */
+    public void testModifyOperationalAttributeAdd() throws NamingException
+    {
+        ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
+            "modifiersName", "cn=Tori Amos,dc=example,dc=com" ) );
+
+        try
+        {
+            sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
+                { modifyOp } );
+            fail( "modification of entry should fail" );
+        }
+        catch ( InvalidAttributeValueException e )
+        {
+            // expected
+        }
+        catch ( NoPermissionException e )
+        {
+            // expected
+        }
+    }
+
+
+    /**
+     * Try to remove creatorsName attribute from an entry.
+     */
+    public void testModifyOperationalAttributeRemove() throws NamingException
+    {
+        ModificationItem modifyOp = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(
+            "creatorsName" ) );
+
+        try
+        {
+            sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
+                { modifyOp } );
+            fail( "modification of entry should fail" );
+        }
+        catch ( InvalidAttributeValueException e )
+        {
+            // expected
+        }
+        catch ( NoPermissionException e )
+        {
+            // expected
+        }
+    }
+
+
+    /**
+     * Try to replace creatorsName attribute on an entry.
+     */
+    public void testModifyOperationalAttributeReplace() throws NamingException
+    {
+        ModificationItem modifyOp = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
+            "creatorsName", "cn=Tori Amos,dc=example,dc=com" ) );
+
+        try
+        {
+            sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
+                { modifyOp } );
+            fail( "modification of entry should fail" );
+        }
+        catch ( InvalidAttributeValueException e )
+        {
+            // expected
+        }
+        catch ( NoPermissionException e )
+        {
+            // expected
+        }
     }
 }
