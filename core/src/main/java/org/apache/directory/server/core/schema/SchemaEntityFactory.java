@@ -650,7 +650,7 @@ public class SchemaEntityFactory
         if ( entry.get( MetaSchemaConstants.M_NO_USER_MODIFICATION_AT ) != null )
         {
             String val = ( String ) entry.get( MetaSchemaConstants.M_NO_USER_MODIFICATION_AT ).get();
-            at.setCanUserModify( val.equalsIgnoreCase( "TRUE" ) );
+            at.setCanUserModify( ! val.equalsIgnoreCase( "TRUE" ) );
         }
         
         if ( entry.get( MetaSchemaConstants.M_USAGE_AT ) != null )
