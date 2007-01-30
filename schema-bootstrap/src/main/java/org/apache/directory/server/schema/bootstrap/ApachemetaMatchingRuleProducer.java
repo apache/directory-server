@@ -89,7 +89,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
     public static class RuleIdMatch implements MatchingRule
     {
         private static final long serialVersionUID = 1L;
-        private final String OID = "1.3.6.1.4.1.18060.0.4.0.1.4";
+        private static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.4";
         private final Syntax syntax;
         private final String[] NAMES = new String[] { "ruleIdMatch" };
         
