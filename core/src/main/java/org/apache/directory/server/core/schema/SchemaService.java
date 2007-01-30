@@ -428,12 +428,12 @@ public class SchemaService extends BaseInterceptor
     public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
         SearchControls searchCtls ) throws NamingException
     {
-        // check to make sure the DN searched for is a subentry
         // We have to eliminate bad attributes from the request, accordingly
         // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
         // from the list
         filterAttributesToReturn( searchCtls );
-        
+
+        // Deal with the normal case : searching for a normal value (not subSchemaSubEntry
         if ( !subschemaSubentryDn.toNormName().equals( base.toNormName() ) )
         {
             NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
@@ -448,25 +448,39 @@ public class SchemaService extends BaseInterceptor
             return new SearchResultFilteringEnumeration( e, searchCtls, invocation, filters );
         }
 
+        // The user was searching into the subSchemaSubEntry
+        // Thgis kind of search _must_ be limited to OBJECT scope (the subSchemaSubEntry
+        // does not have any sub level)
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
         {
+            // The filter can be an equality or a presence, but nothing else
             if ( filter instanceof SimpleNode )
             {
+                // We should get the value for the filter.
+                // only 'top' and 'subSchema' are valid values 
                 SimpleNode node = ( SimpleNode ) filter;
-                String compareto = null;
+                String objectClass = null;
                 
                 if ( node.getValue() instanceof String )
                 {
-                    compareto = ( String ) node.getValue();
+                    objectClass = ( String ) node.getValue();
                 }
                 else
                 {
-                    compareto = node.getValue().toString();
+                    objectClass = node.getValue().toString();
                 }
     
+                String objectClassOid = null;
+                
+                if ( globalRegistries.getObjectClassRegistry().hasObjectClass( objectClass ) )
+                {
+                    objectClassOid = globalRegistries.getObjectClassRegistry().lookup( objectClass ).getName();
+                }
+                
                 // see if node attribute is objectClass
                 if ( node.getAttribute().equalsIgnoreCase( "2.5.4.0" )
-                    && "subschema".equalsIgnoreCase( compareto ) && ( node.getAssertionType() == SimpleNode.EQUALITY ) )
+                    && ( "top".equalsIgnoreCase( objectClassOid ) || "subschema".equalsIgnoreCase( objectClassOid ) )
+                    && ( node.getAssertionType() == SimpleNode.EQUALITY ) )
                 {
                     // call.setBypass( true );
                     Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
@@ -493,6 +507,7 @@ public class SchemaService extends BaseInterceptor
             }
         }
 
+        // In any case not handled previously, just return an empty result
         return new EmptyEnumeration();
     }
 
