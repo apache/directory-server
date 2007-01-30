@@ -20,10 +20,8 @@
 package org.apache.directory.server.core.schema;
 
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
