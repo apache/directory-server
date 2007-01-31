@@ -28,6 +28,10 @@ import org.apache.directory.server.kerberos.shared.service.VerifyTicket;
 import org.apache.mina.common.IoSession;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class VerifyServiceTicket extends VerifyTicket
 {
     private String contextKey = "context";

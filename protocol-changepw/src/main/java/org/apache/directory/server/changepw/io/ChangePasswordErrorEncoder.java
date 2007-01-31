@@ -29,6 +29,10 @@ import org.apache.directory.server.kerberos.shared.io.encoder.ErrorMessageEncode
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class ChangePasswordErrorEncoder
 {
     public void encode( ByteBuffer buf, ChangePasswordError message ) throws IOException

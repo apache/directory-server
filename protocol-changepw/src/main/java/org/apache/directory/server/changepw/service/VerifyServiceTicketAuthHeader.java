@@ -32,6 +32,10 @@ import org.apache.directory.server.kerberos.shared.service.VerifyAuthHeader;
 import org.apache.mina.common.IoSession;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class VerifyServiceTicketAuthHeader extends VerifyAuthHeader
 {
     private String contextKey = "context";

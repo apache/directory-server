@@ -24,6 +24,10 @@ import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class ChangePasswordRequest extends AbstractPasswordMessage
 {
     private ApplicationRequest authHeader;

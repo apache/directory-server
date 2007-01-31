@@ -20,6 +20,10 @@
 package org.apache.directory.server.changepw.messages;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 abstract public class AbstractPasswordMessageModifier
 {
     protected short messageLength;

@@ -23,6 +23,10 @@ package org.apache.directory.server.changepw.value;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class ChangePasswordDataModifier
 {
     private byte[] password;

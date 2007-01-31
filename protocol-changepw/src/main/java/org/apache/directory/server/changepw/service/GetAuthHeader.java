@@ -27,8 +27,11 @@ import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-/*
- * differs from the TGS getAuthHeader by not verifying the presence of TGS_REQ
+/**
+ * Differs from the TGS getAuthHeader by not verifying the presence of TGS_REQ.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class GetAuthHeader implements IoHandlerCommand
 {

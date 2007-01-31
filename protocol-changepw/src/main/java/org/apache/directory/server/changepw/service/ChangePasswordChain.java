@@ -26,7 +26,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Kerberos Change Password and Set Password Protocols (RFC 3244)
+ * Kerberos Change Password and Set Password Protocols (RFC 3244).
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class ChangePasswordChain extends IoHandlerChain
 {
