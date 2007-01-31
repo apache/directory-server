@@ -539,5 +539,9 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         {
             return null;
         }
+
+        public void setSchema( String schemaName )
+        {
+        }
     }
 }

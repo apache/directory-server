@@ -74,6 +74,7 @@ public abstract class AbstractSchemaLoader implements SchemaLoader
      * and tracks what schemas it has seen so the recursion does not go out of
      * control with depenency cycle detection.
      *
+     * @param rootAncestor the triggering schema load request: the root ancestor of dependency chain
      * @param beenthere stack of schema names we have visited and have yet to load
      * @param notLoaded hash of schemas keyed by name which have yet to be loaded
      * @param schema the current schema we are attempting to load
@@ -82,7 +83,7 @@ public abstract class AbstractSchemaLoader implements SchemaLoader
      * @throws NamingException if there is a cycle detected and/or another
      * failure results while loading, producing and or registering schema objects
      */
-    protected final void loadDepsFirst( Stack<String> beenthere, Map<String,Schema> notLoaded, Schema schema,
+    protected final void loadDepsFirst( Schema rootAncestor, Stack<String> beenthere, Map<String,Schema> notLoaded, Schema schema,
         Registries registries, Properties props ) throws NamingException
     {
         if ( registries.getLoadedSchemas().containsKey( schema.getSchemaName() ) )
@@ -97,7 +98,15 @@ public abstract class AbstractSchemaLoader implements SchemaLoader
         // if no deps then load this guy and return
         if ( deps == null || deps.length == 0 )
         {
-            load( schema, registries );
+            if ( rootAncestor == schema )
+            {
+                load( schema, registries, false );
+            }
+            else
+            {
+                load( schema, registries, true );
+            }
+            
             notLoaded.remove( schema.getSchemaName() );
             beenthere.pop();
             return;
@@ -131,11 +140,19 @@ public abstract class AbstractSchemaLoader implements SchemaLoader
                 throw new NamingException( "schema dependency cycle detected: " + beenthere );
             }
 
-            loadDepsFirst( beenthere, notLoaded, dep, registries, props );
+            loadDepsFirst( rootAncestor, beenthere, notLoaded, dep, registries, props );
         }
 
         // We have loaded all our deps so we can load this schema
-        load( schema, registries );
+        if ( rootAncestor == schema )
+        {
+            load( schema, registries, false );
+        }
+        else
+        {
+            load( schema, registries, true );
+        }
+        
         notLoaded.remove( schema.getSchemaName() );
         beenthere.pop();
     }

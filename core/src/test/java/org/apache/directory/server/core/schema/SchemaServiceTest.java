@@ -48,9 +48,9 @@ public class SchemaServiceTest extends TestCase
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
-        loader.load( new SystemSchema(), registries );
-        loader.load( new ApacheSchema(), registries );
-        loader.load( new CoreSchema(), registries );
+        loader.load( new SystemSchema(), registries, false );
+        loader.load( new ApacheSchema(), registries, false );
+        loader.load( new CoreSchema(), registries, false );
     }
 
     

@@ -102,4 +102,14 @@ public interface SyntaxCheckerRegistry
      * @param schemaName the name of the schema whose syntaxCheckers will be removed
      */
     void unregisterSchemaElements( String schemaName );
+
+
+    /**
+     * Renames the schemaName associated with entities within this 
+     * registry to a new schema name.
+     * 
+     * @param originalSchemaName the original schema name
+     * @param newSchemaName the new name to give to the schema
+     */
+    void renameSchema( String originalSchemaName, String newSchemaName );
 }

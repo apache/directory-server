@@ -28,11 +28,14 @@ import javax.naming.directory.DirContext;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+
+import sun.awt.GlobalCursorManager;
 
 
 /**
@@ -272,6 +275,26 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     // -----------------------------------------------------------------------
 
     
+    private void enableSchema( String schemaName ) throws NamingException
+    {
+        // now enable the test schema
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        Attribute attr = new AttributeImpl( "m-disabled", "FALSE" );
+        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        super.schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+    }
+    
+    
+    private void disableSchema( String schemaName ) throws NamingException
+    {
+        // now enable the test schema
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        Attribute attr = new AttributeImpl( "m-disabled", "TRUE" );
+        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        super.schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+    }
+    
+    
     /**
      * Checks to make sure updates enabling a metaSchema object in
      * the schema partition triggers the loading of that schema into
@@ -289,10 +312,7 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
         
         // now enable the test schema
-        ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-disabled", "FALSE" );
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( "cn=nis", mods );
+        enableSchema( "nis" );
         
         // now test that the schema is loaded 
         assertNotNull( registries.getLoadedSchemas().get( TEST_SCHEMA ) );
@@ -321,11 +341,9 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         // in the AttributeTypeRegistry
         assertTrue( atr.hasAttributeType( TEST_ATTR_OID ) );
         
-        // now disable the test schema
-        ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-disabled", "TRUE" );
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( "cn=nis", mods );
+        // now disable the test schema 
+        disableSchema( "samba" );
+        disableSchema( "nis" );
         
         // now test that the schema is NOT loaded 
         assertNull( registries.getLoadedSchemas().get( TEST_SCHEMA ) );
@@ -346,7 +364,7 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         // let's enable the test schema and add the dummy schema
         // as enabled by default and dependends on the test schema
         
-//      // enables the test schema
+//      // enables the test schema and samba
         testEnableSchema(); 
         
         // adds enabled dummy schema that depends on the test schema  
@@ -368,7 +386,7 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         assertTrue( atr.hasAttributeType( TEST_ATTR_OID ) );
         
         // now try to disable the test schema which should fail 
-        // since it's dependent, the dummy schema, is enabled         
+        // since it's dependent, the dummy schema, is enabled
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         Attribute attr = new AttributeImpl( "m-disabled", "TRUE" );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
@@ -390,5 +408,88 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         // double check and make sure the test attribute from the test  
         // schema is still loaded and present within the attr registry
         assertTrue( atr.hasAttributeType( TEST_ATTR_OID ) );
+    }
+    
+    
+    // -----------------------------------------------------------------------
+    // Schema Rename Tests
+    // -----------------------------------------------------------------------
+
+
+    /**
+     * Makes sure we can change the name of a schema with entities in it.
+     * Will use the samba schema which comes out of the box and nothing 
+     * depends on.
+     */
+    public void testSchemaRenameDisabledSchema() throws Exception
+    {
+        schemaRoot.rename( "cn=samba", "cn=foo" );
+        assertNotNull( schemaRoot.lookup( "cn=foo" ) );
+        
+        try
+        {
+            schemaRoot.lookup( "cn=samba" );
+            fail( "the samba schema should not be present after a rename to foo" );
+        }
+        catch( LdapNameNotFoundException e )
+        {
+        }
+    }
+
+
+    /**
+     * Makes sure we can NOT change the name of a schema that has dependents.
+     * Will use the nis schema which comes out of the box and has samba as
+     * it's dependent.
+     */
+    public void testRejectSchemaRenameWithDeps() throws Exception
+    {
+        try
+        {
+            schemaRoot.rename( "cn=nis", "cn=foo" );
+            fail( "should not be able to rename nis which has samba as it's dependent" );
+        }
+        catch ( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+        
+        assertNotNull( schemaRoot.lookup( "cn=nis" ) );
+        
+        try
+        {
+            schemaRoot.lookup( "cn=foo" );
+            fail( "the foo schema should not be present after rejecting the rename" );
+        }
+        catch( LdapNameNotFoundException e )
+        {
+        }
+    }
+
+
+    /**
+     * Makes sure we can change the name of a schema with entities in it.
+     * Will use the samba schema which comes out of the box and nothing 
+     * depends on.
+     */
+    public void testSchemaRenameEnabledSchema() throws Exception
+    {
+        enableSchema( "samba" );
+        assertTrue( registries.getAttributeTypeRegistry().hasAttributeType( "sambaNTPassword" ) );
+        assertEquals( "samba", registries.getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
+        
+        schemaRoot.rename( "cn=samba", "cn=foo" );
+        assertNotNull( schemaRoot.lookup( "cn=foo" ) );
+        assertTrue( registries.getAttributeTypeRegistry().hasAttributeType( "sambaNTPassword" ) );
+        assertEquals( "foo", registries.getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
+        
+        try
+        {
+            schemaRoot.lookup( "cn=samba" );
+            fail( "the samba schema should not be present after a rename to foo" );
+        }
+        catch( LdapNameNotFoundException e )
+        {
+        }
     }
 }

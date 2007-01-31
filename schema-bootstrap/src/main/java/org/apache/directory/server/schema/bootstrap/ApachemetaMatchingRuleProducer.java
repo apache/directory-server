@@ -30,6 +30,7 @@ import org.apache.commons.collections.comparators.ComparableComparator;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
@@ -143,6 +144,11 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         {
             return MetaSchemaConstants.SCHEMA_NAME;
         }
+
+        public void setSchema( String schemaName )
+        {
+            throw new NotImplementedException();
+        }
     }
     
     
@@ -203,6 +209,11 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         public String getSchema()
         {
             return MetaSchemaConstants.SCHEMA_NAME;
+        }
+
+        public void setSchema( String schemaName )
+        {
+            throw new NotImplementedException();
         }
     }
     
@@ -265,6 +276,11 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         {
             return MetaSchemaConstants.SCHEMA_NAME;
         }
+
+        public void setSchema( String schemaName )
+        {
+            throw new NotImplementedException();
+        }
     }
 
     
@@ -322,6 +338,11 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         public String getSchema()
         {
             return MetaSchemaConstants.SCHEMA_NAME;
+        }
+
+        public void setSchema( String schemaName )
+        {
+            throw new NotImplementedException();
         }
     }
 }

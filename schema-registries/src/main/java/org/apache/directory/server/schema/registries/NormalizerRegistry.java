@@ -77,6 +77,7 @@ public interface NormalizerRegistry
      */
     boolean hasNormalizer( String oid );
     
+    
     /**
      * Used to iterate through all normalizers.  We have to iterate over the
      * OID String keys because these objects do not associate a matchingRule OID
@@ -86,6 +87,7 @@ public interface NormalizerRegistry
      */
     Iterator<String> oidIterator();
 
+    
     /**
      * Unregisters a normalizer from this registry by OID.
      * 
@@ -94,6 +96,7 @@ public interface NormalizerRegistry
      */
     void unregister( String oid ) throws NamingException;
     
+    
     /**
      * Unregisters normalizers from this registry associated with a schema.
      *
@@ -101,4 +104,14 @@ public interface NormalizerRegistry
      * removed from this registry
      */
     void unregisterSchemaElements( String schemaName );
+
+    
+    /**
+     * Renames the schemaName associated with entities within this 
+     * registry to a new schema name.
+     * 
+     * @param originalSchemaName the original schema name
+     * @param newSchemaName the new name to give to the schema
+     */
+    void renameSchema( String originalSchemaName, String newSchemaName );
 }

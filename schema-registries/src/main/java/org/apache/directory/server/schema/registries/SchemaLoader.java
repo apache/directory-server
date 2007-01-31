@@ -87,7 +87,8 @@ public interface SchemaLoader
      * 
      * @param schema the schema to load
      * @param registries the registries to populate with these schemas
+     * @param isDepLoad tells the loader if this load request is to satisfy a dependency
      * @throws NamingException if any kind of problems are encountered during the load
      */
-    void load( Schema schema, Registries registries ) throws NamingException;
+    void load( Schema schema, Registries registries, boolean isDepLoad ) throws NamingException;
 }

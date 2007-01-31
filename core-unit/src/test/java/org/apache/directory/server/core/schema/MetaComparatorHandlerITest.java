@@ -540,5 +540,9 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         {
             return null;
         }
+
+        public void setSchema( String schemaName )
+        {
+        }
     }
 }

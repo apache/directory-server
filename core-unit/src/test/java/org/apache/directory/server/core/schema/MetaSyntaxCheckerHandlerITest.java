@@ -554,5 +554,9 @@ public class MetaSyntaxCheckerHandlerITest extends AbstractAdminTestCase
         {
             return null;
         }
+
+        public void setSchema( String schemaName )
+        {
+        }
     }
 }

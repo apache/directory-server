@@ -44,6 +44,7 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AbstractSchemaLoader;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -247,14 +248,24 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         while ( list.hasNext() )
         {
             Schema schema = ( Schema ) list.next();
-            loadDepsFirst( new Stack<String>(), notLoaded, schema, targetRegistries, null );
+            loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, targetRegistries, null );
             list = notLoaded.values().iterator();
         }
     }
 
 
-    public final void load( Schema schema, Registries targetRegistries ) throws NamingException
+    /**
+     * @see {@link SchemaLoader#load(Schema, Registries, boolean)}
+     */
+    public final void load( Schema schema, Registries targetRegistries, boolean isDepLoad ) throws NamingException
     {
+        // if we're loading a dependency and it has not been enabled on disk
+        // on disk then enable it on disk before we proceed to load it
+        if ( schema.isDisabled() && isDepLoad )
+        {
+            dao.enableSchema( schema.getSchemaName() );
+        }
+        
         if ( targetRegistries.getLoadedSchemas().containsKey( schema.getSchemaName() ) )
         {
             log.debug( "schema {} already seems to be loaded", schema.getSchemaName() );
@@ -633,6 +644,6 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();
         notLoaded.put( schema.getSchemaName(), schema );                        
         Properties props = new Properties();
-        loadDepsFirst( new Stack<String>(), notLoaded, schema, registries, props );
+        loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, registries, props );
     }
 }

@@ -25,6 +25,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.Syntax;
@@ -146,5 +147,11 @@ public class NameOrNumericIdMatch implements MatchingRule
     public String getSchema()
     {
         return schema;
+    }
+
+
+    public void setSchema( String schemaName )
+    {
+        throw new NotImplementedException();
     }
 }

@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,14 +36,16 @@ import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.server.schema.registries.SchemaObjectRegistry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
 /**
@@ -226,9 +229,79 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      */
     public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
     {
-        throw new NotImplementedException();
-    }
+        String rdnAttribute = NamespaceTools.getRdnAttribute( newRdn );
+        String rdnAttributeOid = globalRegistries.getOidRegistry().getOid( rdnAttribute );
+        if ( ! rdnAttributeOid.equals( cnAT.getOid() ) )
+        {
+            throw new LdapOperationNotSupportedException( 
+                "Cannot allow rename with rdnAttribute set to " 
+                + rdnAttribute + ": cn must be used instead." ,
+                ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
 
+        /*
+         * This operation has to do the following:
+         * 
+         * [1] check and make sure there are no dependent schemas on the 
+         *     one being renamed - if so an exception should result
+         *      
+         * [2] make non-schema object registries modify the mapping 
+         *     for their entities: non-schema object registries contain
+         *     objects that are not SchemaObjects and hence do not carry
+         *     their schema within the object as a property
+         *     
+         * [3] make schema object registries do the same but the way
+         *     they do them will be different since these objects will
+         *     need to be replaced or will require a setter for the 
+         *     schema name
+         */
+        
+        // step [1]
+        String schemaName = getSchemaName( name );
+        Set<String> dependents = loader.listDependentSchemaNames( schemaName );
+        if ( ! dependents.isEmpty() )
+        {
+            throw new LdapOperationNotSupportedException( 
+                "Cannot allow a rename on " + schemaName + " schema while it has depentents.",
+                ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        // check if the new schema is enabled or disabled
+        boolean isEnabled = false;
+        Attribute disabled = AttributeUtils.getAttribute( entry, this.disabledAT );
+        if ( disabled == null )
+        {
+            isEnabled = true;
+        }
+        else if ( ! disabled.get().equals( "TRUE" ) )
+        {
+            isEnabled = true;
+        }
+
+        if ( ! isEnabled )
+        {
+            return;
+        }
+
+        // do steps 2 and 3 if the schema has been enabled and is loaded
+        
+        // step [2] 
+        String newSchemaName = NamespaceTools.getRdnValue( newRdn );
+        globalRegistries.getComparatorRegistry().renameSchema( schemaName, newSchemaName );
+        globalRegistries.getNormalizerRegistry().renameSchema( schemaName, newSchemaName );
+        globalRegistries.getSyntaxCheckerRegistry().renameSchema( schemaName, newSchemaName );
+        
+        // step [3]
+        renameSchema( globalRegistries.getAttributeTypeRegistry(), schemaName, newSchemaName );
+        renameSchema( globalRegistries.getDitContentRuleRegistry(), schemaName, newSchemaName );
+        renameSchema( globalRegistries.getDitStructureRuleRegistry(), schemaName, newSchemaName );
+        renameSchema( globalRegistries.getMatchingRuleRegistry(), schemaName, newSchemaName );
+        renameSchema( globalRegistries.getMatchingRuleUseRegistry(), schemaName, newSchemaName );
+        renameSchema( globalRegistries.getNameFormRegistry(), schemaName, newSchemaName );
+        renameSchema( globalRegistries.getObjectClassRegistry(), schemaName, newSchemaName );
+        renameSchema( globalRegistries.getSyntaxRegistry(), schemaName, newSchemaName );
+    }
+    
 
     /**
      * Moves are not allowed for metaSchema objects so this always throws an
@@ -306,8 +379,8 @@ public class MetaSchemaHandler implements SchemaChangeHandler
                 if ( !isCurrentlyDisabled && isNewStateDisabled )
                 {
                     disableSchema( getSchemaName( name ) );
-                    break;
                 }
+                break;
             default:
                 throw new IllegalArgumentException( "Unknown modify operation type: " + modOp );
         }
@@ -347,7 +420,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         }
 
         Schema schema = loader.getSchema( schemaName );
-        loader.load( schema, globalRegistries );
+        loader.loadWithDependencies( schema, globalRegistries );
     }
 
 
@@ -396,6 +469,28 @@ public class MetaSchemaHandler implements SchemaChangeHandler
                         "Unwilling to add schema with missing dependencies: " + dependency, 
                         ResultCodeEnum.UNWILLING_TO_PERFORM );
                 }
+            }
+        }
+    }
+
+    
+    /**
+     * Used to iterate through SchemaObjects in a SchemaObjectRegistry and rename
+     * their schema property to a new schema name.
+     * 
+     * @param registry the registry whose objects are changed
+     * @param originalSchemaName the original schema name
+     * @param newSchemaName the new schema name
+     */
+    private void renameSchema( SchemaObjectRegistry registry, String originalSchemaName, String newSchemaName ) 
+    {
+        Iterator<? extends SchemaObject> list = registry.iterator();
+        while ( list.hasNext() )
+        {
+            SchemaObject obj = list.next();
+            if ( obj.getSchema().equalsIgnoreCase( originalSchemaName ) )
+            {
+                obj.setSchema( newSchemaName );
             }
         }
     }

@@ -166,7 +166,10 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                         {
                             return null;
                         }
-                        
+
+                        public void setSchema( String schemaName )
+                        {
+                        }
                     };
                 }
 
@@ -217,6 +220,11 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 public String getSchema()
                 {
                     return null;
+                }
+
+
+                public void setSchema( String schemaName )
+                {
                 }
             };
         }
@@ -302,7 +310,10 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                         {
                             return null;
                         }
-                        
+
+                        public void setSchema( String schemaName )
+                        {
+                        }
                     };
                 }
 
@@ -365,7 +376,10 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                                 {
                                     return null;
                                 }
-                                
+
+                                public void setSchema( String schemaName )
+                                {
+                                }
                             };
                         }
 
@@ -416,7 +430,10 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                         {
                             return null;
                         }
-                        
+
+                        public void setSchema( String schemaName )
+                        {
+                        }
                     };
                 }
 
@@ -467,6 +484,11 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 public String getSchema()
                 {
                     return null;
+                }
+
+
+                public void setSchema( String schemaName )
+                {
                 }
             };
         }

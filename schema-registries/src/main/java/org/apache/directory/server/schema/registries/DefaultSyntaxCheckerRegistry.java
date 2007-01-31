@@ -156,4 +156,19 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
             }
         }
     }
+
+
+    public void renameSchema( String originalSchemaName, String newSchemaName )
+    {
+        List<String> oids = new ArrayList<String>( byOid.keySet() );
+        for ( String oid : oids )
+        {
+            String schemaNameForOid = oidToSchema.get( oid );
+            if ( schemaNameForOid.equalsIgnoreCase( originalSchemaName ) )
+            {
+                oidToSchema.remove( oid );
+                oidToSchema.put( oid, newSchemaName );
+            }
+        }
+    }
 }

@@ -93,7 +93,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     public void testSystemSchemaLoad() throws NamingException
     {
         SystemSchema systemSchema = new SystemSchema();
-        loader.load( systemSchema, registries );
+        loader.load( systemSchema, registries, false );
 
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "distinguishedName" );
@@ -111,7 +111,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     {
         testSystemSchemaLoad();
         ApacheSchema apacheSchema = new ApacheSchema();
-        loader.load( apacheSchema, registries );
+        loader.load( apacheSchema, registries, false );
 
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "apacheNdn" );
@@ -148,7 +148,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     {
         testSystemSchemaLoad();
         CoreSchema coreSchema = new CoreSchema();
-        loader.load( coreSchema, registries );
+        loader.load( coreSchema, registries, false );
 
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "knowledgeInformation" );

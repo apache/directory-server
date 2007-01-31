@@ -104,7 +104,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
         notLoaded.put( schema.getSchemaName(), schema );
         Properties props = new Properties();
         props.put( "package", ( ( BootstrapSchema ) schema ).getPackageName() );
-        loadDepsFirst( new Stack<String>(), notLoaded, schema, registries, props );
+        loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, registries, props );
     }
 
     
@@ -133,7 +133,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
         // Create system schema and kick it off by loading system which
         // will never depend on anything.
         schema = new SystemSchema();
-        load( schema, registries );
+        load( schema, registries, false );
         notLoaded.remove( schema.getSchemaName() ); // Remove if user specified it.
         loaded.put( schema.getSchemaName(), schema );
 
@@ -143,7 +143,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
             schema = ( BootstrapSchema ) list.next();
             Properties props = new Properties();
             props.put( "package", schema.getPackageName() );
-            loadDepsFirst( new Stack<String>(), notLoaded, schema, registries, props );
+            loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, registries, props );
             list = notLoaded.values().iterator();
         }
     }
@@ -156,7 +156,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
      * @param registries the registries to fill with producer created objects
      * @throws NamingException if there are any failures during this process
      */
-    public final void load( Schema schema, Registries registries ) throws NamingException
+    public final void load( Schema schema, Registries registries, boolean isDepLoad ) throws NamingException
     {
         if ( registries.getLoadedSchemas().containsKey( schema.getSchemaName() ) )
         {

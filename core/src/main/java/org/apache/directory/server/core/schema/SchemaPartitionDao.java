@@ -606,8 +606,6 @@ public class SchemaPartitionDao
                 {
                     set.add( sr );
                 }
-                
-                set.add( ne.next() );
             }
         }
         finally

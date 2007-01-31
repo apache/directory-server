@@ -506,7 +506,7 @@ public class DefaultRegistries implements Registries
         }
         
         loadedByName.put( schema.getSchemaName(), schema );
-        schemaLoader.load( schema, this );
+        schemaLoader.load( schema, this, false );
     }
     
     

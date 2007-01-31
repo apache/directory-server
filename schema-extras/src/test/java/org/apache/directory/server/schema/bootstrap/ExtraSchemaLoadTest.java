@@ -134,8 +134,8 @@ public class ExtraSchemaLoadTest extends TestCase
     {
         ApacheSchema apacheSchema = new ApacheSchema();
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        loader.load( new SystemSchema(), registries );
-        loader.load( apacheSchema, registries );
+        loader.load( new SystemSchema(), registries, false );
+        loader.load( apacheSchema, registries, false );
 
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "apacheNdn" );
@@ -174,8 +174,8 @@ public class ExtraSchemaLoadTest extends TestCase
     {
         CoreSchema coreSchema = new CoreSchema();
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        loader.load( new SystemSchema(), registries );
-        loader.load( coreSchema, registries );
+        loader.load( new SystemSchema(), registries, false );
+        loader.load( coreSchema, registries, false );
 
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "knowledgeInformation" );
@@ -195,7 +195,7 @@ public class ExtraSchemaLoadTest extends TestCase
 
         JavaSchema javaSchema = new JavaSchema();
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        loader.load( javaSchema, registries );
+        loader.load( javaSchema, registries, false );
 
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "javaFactory" );
