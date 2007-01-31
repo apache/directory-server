@@ -24,12 +24,16 @@ import java.util.Hashtable;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.AttributeInUseException;
+import javax.naming.directory.AttributeModificationException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
@@ -52,8 +56,9 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 public class ModifyAddTest extends AbstractServerTest
 {
     private LdapContext ctx = null;
-    public static final String RDN = "cn=Tori Amos";
-    public static final String PERSON_DESCRIPTION = "an American singer-songwriter";
+    private static final String RDN_TORI_AMOS = "cn=Tori Amos";
+    private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
+    private static final String RDN_DEBBIE_HARRY = "cn=Debbie Harry";
 
 
     /**
@@ -90,10 +95,14 @@ public class ModifyAddTest extends AbstractServerTest
         ctx = new InitialLdapContext( env, null );
         assertNotNull( ctx );
 
-        // Create a person with description
+        // Create Tori Amos with description
         Attributes attributes = this.getPersonAttributes( "Amos", "Tori Amos" );
         attributes.put( "description", "an American singer-songwriter" );
-        ctx.createSubcontext( RDN, attributes );
+        ctx.createSubcontext( RDN_TORI_AMOS, attributes );
+
+        // Create Debbie Harry ( I feel like being God when creating people as good looking as Blondie :)
+        attributes = getPersonAttributes( "Bush", "Kate Bush" );
+        ctx.createSubcontext( RDN_DEBBIE_HARRY, attributes );
 
     }
 
@@ -103,7 +112,8 @@ public class ModifyAddTest extends AbstractServerTest
      */
     protected void tearDown() throws Exception
     {
-        ctx.unbind( RDN );
+        ctx.unbind( RDN_TORI_AMOS );
+        ctx.destroySubcontext( RDN_DEBBIE_HARRY );
         ctx.close();
         ctx = null;
         super.tearDown();
@@ -120,10 +130,10 @@ public class ModifyAddTest extends AbstractServerTest
         // Add telephoneNumber attribute
         String newValue = "1234567890";
         Attributes attrs = new AttributesImpl( "telephoneNumber", newValue );
-        ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
+        ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
 
         // Verify, that attribute value is added
-        attrs = ctx.getAttributes( RDN );
+        attrs = ctx.getAttributes( RDN_TORI_AMOS );
         Attribute attr = attrs.get( "telephoneNumber" );
         assertNotNull( attr );
         assertTrue( attr.contains( newValue ) );
@@ -146,10 +156,10 @@ public class ModifyAddTest extends AbstractServerTest
         attr.add( newValues[1] );
         Attributes attrs = new AttributesImpl();
         attrs.put( attr );
-        ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
+        ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
 
         // Verify, that attribute values are present
-        attrs = ctx.getAttributes( RDN );
+        attrs = ctx.getAttributes( RDN_TORI_AMOS );
         attr = attrs.get( "telephoneNumber" );
         assertNotNull( attr );
         assertTrue( attr.contains( newValues[0] ) );
@@ -170,10 +180,10 @@ public class ModifyAddTest extends AbstractServerTest
         assertFalse( newValue.equals( PERSON_DESCRIPTION ) );
         Attributes attrs = new AttributesImpl( "description", newValue );
 
-        ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
+        ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
 
         // Verify, that attribute value is added
-        attrs = ctx.getAttributes( RDN );
+        attrs = ctx.getAttributes( RDN_TORI_AMOS );
         Attribute attr = attrs.get( "description" );
         assertNotNull( attr );
         assertTrue( attr.contains( newValue ) );
@@ -199,7 +209,7 @@ public class ModifyAddTest extends AbstractServerTest
         
         try
         {
-            ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
+            ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
             fail( "Adding an already existing atribute value should fail." );
         }
         catch ( AttributeInUseException e )
@@ -208,7 +218,7 @@ public class ModifyAddTest extends AbstractServerTest
         }
 
         // Verify, that attribute is still there, and is the only one
-        attrs = ctx.getAttributes( RDN );
+        attrs = ctx.getAttributes( RDN_TORI_AMOS );
         Attribute attr = attrs.get( "description" );
         assertNotNull( attr );
         assertTrue( attr.contains( PERSON_DESCRIPTION ) );
@@ -252,7 +262,7 @@ public class ModifyAddTest extends AbstractServerTest
         
         try
         {
-            ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
+            ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
             fail( "Adding an already existing atribute value should fail." );
         }
         catch ( AttributeInUseException e )
@@ -261,7 +271,7 @@ public class ModifyAddTest extends AbstractServerTest
         }
 
         // Verify, that attribute is still there, and is the only one
-        attrs = ctx.getAttributes( RDN );
+        attrs = ctx.getAttributes( RDN_TORI_AMOS );
         attr = attrs.get( "description" );
         assertNotNull( attr );
         assertTrue( attr.contains( PERSON_DESCRIPTION ) );
@@ -281,10 +291,10 @@ public class ModifyAddTest extends AbstractServerTest
         attr.add( "one of the most influential female artists of the twentieth century" );
         attrs.put( attr );
         
-        ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
+        ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
 
         // Verify, that attribute is still there, and is the only one
-        attrs = ctx.getAttributes( RDN );
+        attrs = ctx.getAttributes( RDN_TORI_AMOS );
         attr = attrs.get( "description" );
         assertNotNull( attr );
         assertEquals( 3, attr.size() );
@@ -310,7 +320,7 @@ public class ModifyAddTest extends AbstractServerTest
         modItems[1] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, ocls );
         try
         {
-            ctx.modifyAttributes( RDN, modItems );
+            ctx.modifyAttributes( RDN_TORI_AMOS, modItems );
             fail( "Adding a duplicate attribute value should cause an error." );
         }
         catch ( AttributeInUseException ex )
@@ -318,7 +328,7 @@ public class ModifyAddTest extends AbstractServerTest
         }
 
         // Check, whether attribute objectClass is unchanged
-        Attributes attrs = ctx.getAttributes( RDN );
+        Attributes attrs = ctx.getAttributes( RDN_TORI_AMOS );
         ocls = attrs.get( "objectClass" );
         assertEquals( ocls.size(), 2 );
         assertTrue( ocls.contains( "top" ) );
@@ -342,7 +352,7 @@ public class ModifyAddTest extends AbstractServerTest
         modItems[1] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, desc );
         try
         {
-            ctx.modifyAttributes( RDN, modItems );
+            ctx.modifyAttributes( RDN_TORI_AMOS, modItems );
             fail( "Adding a duplicate attribute value should cause an error." );
         }
         catch ( AttributeInUseException ex )
@@ -350,7 +360,7 @@ public class ModifyAddTest extends AbstractServerTest
         }
 
         // Check, whether attribute description is still not present
-        Attributes attrs = ctx.getAttributes( RDN );
+        Attributes attrs = ctx.getAttributes( RDN_TORI_AMOS );
         assertEquals( 1, attrs.get( "description" ).size() );
     }
 
@@ -403,7 +413,7 @@ public class ModifyAddTest extends AbstractServerTest
 
         try
         {
-            ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
+            ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
         }
         catch ( InvalidAttributeIdentifierException iaie )
         {
@@ -448,7 +458,7 @@ public class ModifyAddTest extends AbstractServerTest
 
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        String filter = "(sn=Bush)";
+        String filter = "(cn=*Bush)";
         String base = "";
 
         // Check entry
@@ -469,12 +479,37 @@ public class ModifyAddTest extends AbstractServerTest
     }
 
     /**
+     * Try to add subschemaSubentry attribute to an entry
+     */
+    public void testModifyOperationalAttributeAdd() throws NamingException
+    {
+        ModificationItem modifyOp = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
+            "subschemaSubentry", "cn=anotherSchema" ) );
+
+        try
+        {
+            ctx.modifyAttributes( RDN_DEBBIE_HARRY, new ModificationItem[]
+                { modifyOp } );
+
+            fail( "modification of entry should fail" );
+        }
+        catch ( InvalidAttributeValueException e )
+        {
+            // Expected result
+        }
+        catch ( NoPermissionException e )
+        {
+            // Expected result
+        }
+    }
+
+
+    /**
      * Create a person entry and perform a modify op on an
      * attribute which is part of the DN. This is not allowed.
      * 
      * A JIRA has been created for this bug : DIRSERVER_687
      */
-    /*
      public void testDNAttributeMemberMofificationDIRSERVER_687() throws NamingException {
 
         // Create a person entry
@@ -491,6 +526,7 @@ public class ModifyAddTest extends AbstractServerTest
         try
         {
             ctx.modifyAttributes( rdn, new ModificationItem[] { addModOp } );
+            fail();
         }
         catch ( AttributeModificationException ame )
         {
@@ -504,13 +540,7 @@ public class ModifyAddTest extends AbstractServerTest
             // Remove the person entry
             ctx.destroySubcontext(rdn);
         }
-
-        // Remove the person entry
-        ctx.destroySubcontext(rdn);
-
-        fail();
     }
-    */
     
     /**
      * Try to modify an entry adding invalid number of values for a single-valued atribute
