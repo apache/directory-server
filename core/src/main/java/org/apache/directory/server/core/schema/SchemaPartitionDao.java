@@ -96,7 +96,6 @@ public class SchemaPartitionDao
     private final String M_OC_OID;
     private final String M_SUP_OBJECT_CLASS_OID;
     private final String M_DEPENDENCIES_OID;
-    private final String M_DISABLED_OID;
     
     private final AttributeType disabledAttributeType;
     
@@ -131,7 +130,6 @@ public class SchemaPartitionDao
         this.M_OC_OID = oidRegistry.getOid( MetaSchemaConstants.M_OC_AT );
         this.M_SUP_OBJECT_CLASS_OID = oidRegistry.getOid( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
         this.M_DEPENDENCIES_OID = oidRegistry.getOid( MetaSchemaConstants.M_DEPENDENCIES_AT );
-        this.M_DISABLED_OID = oidRegistry.getOid( MetaSchemaConstants.M_DISABLED_AT );
     }
 
 
