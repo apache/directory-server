@@ -20,13 +20,19 @@
 package org.apache.directory.server.core.schema;
 
 
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
+import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
 /**
@@ -42,7 +48,229 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     private static final String TEST_SCHEMA = "nis";
     /** a test attribute in the test schema: uidNumber in nis schema */
     private static final String TEST_ATTR_OID = "1.3.6.1.1.1.1.0";
+    /** the name of the dummy schema to test metaSchema adds/deletes with */
+    private static final String DUMMY_SCHEMA = "dummy";
     
+    
+    // -----------------------------------------------------------------------
+    // Schema Add Tests
+    // -----------------------------------------------------------------------
+
+    
+    /**
+     * Tests the addition of a new metaSchema object that is disabled 
+     * on addition and has no dependencies.
+     */
+    public void testAddDisabledSchemaNoDeps() throws Exception
+    {
+        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
+        dummySchema.put( "cn", DUMMY_SCHEMA );
+        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
+        dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
+        super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        
+        assertNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNotNull( schemaRoot.lookup( "cn=" + DUMMY_SCHEMA ) );
+    }
+    
+    
+    /**
+     * Tests the addition of a new metaSchema object that is disabled 
+     * on addition and has dependencies.
+     */
+    public void testAddDisabledSchemaWithDeps() throws Exception
+    {
+        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
+        dummySchema.put( "cn", DUMMY_SCHEMA );
+        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
+        dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
+        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
+        dummySchema.get( MetaSchemaConstants.M_DEPENDENCIES_AT ).add( "core" );
+        super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        
+        assertNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNotNull( schemaRoot.lookup( "cn=" + DUMMY_SCHEMA ) );
+    }
+    
+    
+    /**
+     * Tests the rejection of a new metaSchema object that is disabled 
+     * on addition and has missing dependencies.
+     */
+    public void testRejectDisabledSchemaAddWithMissingDeps() throws Exception
+    {
+        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
+        dummySchema.put( "cn", DUMMY_SCHEMA );
+        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
+        dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
+        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "missing" );
+        dummySchema.get( MetaSchemaConstants.M_DEPENDENCIES_AT ).add( "core" );
+        
+        try
+        {
+            super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        } 
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
+        }
+        
+        assertNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+
+        try
+        {
+            schemaRoot.lookup( "cn=" + DUMMY_SCHEMA );
+            fail( "schema should not be added to schema partition" );
+        }
+        catch( NamingException e )
+        {
+        }
+    }
+    
+    
+    /**
+     * Tests the addition of a new metaSchema object that is enabled 
+     * on addition and has no dependencies.
+     */
+    public void testAddEnabledSchemaNoDeps() throws Exception
+    {
+        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
+        dummySchema.put( "cn", DUMMY_SCHEMA );
+        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
+        super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        
+        assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNotNull( schemaRoot.lookup( "cn=" + DUMMY_SCHEMA ) );
+    }
+    
+    
+    /**
+     * Tests the rejection of a metaSchema object add that is enabled 
+     * on addition yet has disabled dependencies.
+     */
+    public void testRejectEnabledSchemaAddWithDisabledDeps() throws Exception
+    {
+        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
+        dummySchema.put( "cn", DUMMY_SCHEMA );
+        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
+        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
+        
+        try
+        {
+            super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+            fail( "should not be able to add enabled schema with deps on disabled schemas" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
+        }
+        
+        assertNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        
+        try
+        {
+            schemaRoot.lookup( "cn=" + DUMMY_SCHEMA );
+            fail( "schema should not be added to schema partition" );
+        }
+        catch( NamingException e )
+        {
+        }
+    }
+
+    
+    // -----------------------------------------------------------------------
+    // Schema Delete Tests
+    // -----------------------------------------------------------------------
+
+    
+    /**
+     * Makes sure we can delete schemas that have no dependents.
+     */
+    public void testDeleteSchemaNoDependents() throws Exception
+    {
+        // add the dummy schema enabled 
+        testAddEnabledSchemaNoDeps();
+        assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        
+        // delete it now
+        schemaRoot.destroySubcontext( "cn=" + DUMMY_SCHEMA );
+        assertNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+    }
+    
+    
+    /**
+     * Makes sure we can NOT delete schemas that have dependents.
+     */
+    public void testRejectSchemaDeleteWithDependents() throws Exception
+    {
+        // add the dummy schema enabled 
+        testAddEnabledSchemaNoDeps();
+        assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        
+        // make the nis schema depend on the dummy schema
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new AttributeImpl( MetaSchemaConstants.M_DEPENDENCIES_AT, DUMMY_SCHEMA ) );
+        schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
+        
+        // attempt to delete it now & it should fail
+        try
+        {
+            schemaRoot.destroySubcontext( "cn=" + DUMMY_SCHEMA );
+            fail( "should not be able to delete a schema with dependents" );
+        }
+        catch ( LdapOperationNotSupportedException e )
+        {
+            assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
+        }
+
+        assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+    }
+    
+    
+    /**
+     * Tests the rejection of a new metaSchema object that is enabled 
+     * on addition and missing dependencies.
+     */
+    public void testRejectEnabledSchemaAddWithMisingDeps() throws Exception
+    {
+        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
+        dummySchema.put( "cn", DUMMY_SCHEMA );
+        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
+        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "missing" );
+        
+        try
+        {
+            super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+            fail( "should not be able to add enabled schema with deps on missing schemas" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
+        }
+        
+        assertNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+
+        try
+        {
+            schemaRoot.lookup( "cn=" + DUMMY_SCHEMA );
+            fail( "schema should not be added to schema partition" );
+        }
+        catch( NamingException e )
+        {
+        }
+    }
+
+    
+    // -----------------------------------------------------------------------
+    // Enable/Disable Schema Tests
+    // -----------------------------------------------------------------------
+
     
     /**
      * Checks to make sure updates enabling a metaSchema object in
@@ -76,9 +304,8 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
 
 
     /**
-     * Checks to make sure updates disabling a metaSchema object in
-     * the schema partition triggers the unloading of that schema from
-     * the global registries.
+     * Checks to make sure an attempt to disable a metaSchema fails if 
+     * that schema has dependents which are enabled.
      */
     public void testDisableSchema() throws Exception
     {
@@ -106,5 +333,62 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         // double check and make sure the test attribute from the test  
         // schema is now NOT loaded and present within the attr registry
         assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
+    }
+
+    
+    /**
+     * Checks to make sure updates disabling a metaSchema object in
+     * the schema partition triggers the unloading of that schema from
+     * the global registries.
+     */
+    public void testDisableSchemaWithEnabledDependents() throws Exception
+    {
+        // let's enable the test schema and add the dummy schema
+        // as enabled by default and dependends on the test schema
+        
+//      // enables the test schema
+        testEnableSchema(); 
+        
+        // adds enabled dummy schema that depends on the test schema  
+        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
+        dummySchema.put( "cn", DUMMY_SCHEMA );
+        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
+        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
+        super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        
+        // check that the nis schema is loaded and the dummy schema is loaded
+        assertNotNull( registries.getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        
+        AttributeTypeRegistry atr = registries.getAttributeTypeRegistry();
+        
+        // double check and make sure an attribute from that schema is 
+        // in the AttributeTypeRegistry
+        assertTrue( atr.hasAttributeType( TEST_ATTR_OID ) );
+        
+        // now try to disable the test schema which should fail 
+        // since it's dependent, the dummy schema, is enabled         
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        Attribute attr = new AttributeImpl( "m-disabled", "TRUE" );
+        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        
+        try
+        {
+            super.schemaRoot.modifyAttributes( "cn=nis", mods );
+            fail( "attempt to disable schema with enabled dependents should fail" );
+        }
+        catch ( LdapOperationNotSupportedException e )
+        {
+            assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
+        }
+        
+        // now test that both schema are still loaded 
+        assertNotNull( registries.getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        
+        // double check and make sure the test attribute from the test  
+        // schema is still loaded and present within the attr registry
+        assertTrue( atr.hasAttributeType( TEST_ATTR_OID ) );
     }
 }

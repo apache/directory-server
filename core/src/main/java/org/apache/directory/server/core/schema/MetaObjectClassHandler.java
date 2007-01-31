@@ -101,7 +101,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     {
         Schema schema = getSchema( name );
         ObjectClass oc = factory.getObjectClass( entry, targetRegistries, schema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listObjectClassDependees( oc );
+        Set<SearchResult> dependees = dao.listObjectClassDependents( oc );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The objectClass with OID " + oc.getOid() 
@@ -124,7 +124,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     {
         Schema schema = getSchema( name );
         ObjectClass oldOc = factory.getObjectClass( entry, targetRegistries, schema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listObjectClassDependees( oldOc );
+        Set<SearchResult> dependees = dao.listObjectClassDependents( oldOc );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The objectClass with OID " + oldOc.getOid()
@@ -159,7 +159,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         ObjectClass oldOc = factory.getObjectClass( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listObjectClassDependees( oldOc );
+        Set<SearchResult> dependees = dao.listObjectClassDependents( oldOc );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The objectClass with OID " + oldOc.getOid()
@@ -198,7 +198,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         ObjectClass oldAt = factory.getObjectClass( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listObjectClassDependees( oldAt );
+        Set<SearchResult> dependees = dao.listObjectClassDependents( oldAt );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The objectClass with OID " + oldAt.getOid() 

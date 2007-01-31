@@ -76,4 +76,23 @@ public interface Registries
     List checkRefInteg();
 
     Schema getSchema( String schemaName );
+
+    /**
+     * Removes a schema from the loaded set without unloading the schema.
+     * This should be used ONLY when an enabled schema is deleted.
+     * 
+     * @param schemaName the name of the schema to remove
+     */
+    void removeFromLoadedSet( String schemaName );
+    
+    /**
+     * Adds a schema to the loaded set but does not load the schema in 
+     * question.  This may be a temporary fix for new schemas being added
+     * which are enabled yet do not have any schema entities associated 
+     * with them to load.  In this case all objects added under this 
+     * schema will load when added instead of in bulk.
+     * 
+     * @param schema the schema object to add to the loaded set.
+     */
+    void addToLoadedSet( Schema schema );
 }

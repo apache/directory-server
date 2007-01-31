@@ -102,7 +102,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     {
         Schema schema = getSchema( name );
         AttributeType at = factory.getAttributeType( entry, targetRegistries, schema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listAttributeTypeDependees( at );
+        Set<SearchResult> dependees = dao.listAttributeTypeDependents( at );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The attributeType with OID " + at.getOid() 
@@ -124,7 +124,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     {
         Schema schema = getSchema( name );
         AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, schema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listAttributeTypeDependees( oldAt );
+        Set<SearchResult> dependees = dao.listAttributeTypeDependents( oldAt );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The attributeType with OID " + oldAt.getOid()
@@ -159,7 +159,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listAttributeTypeDependees( oldAt );
+        Set<SearchResult> dependees = dao.listAttributeTypeDependents( oldAt );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The attributeType with OID " + oldAt.getOid()
@@ -198,7 +198,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listAttributeTypeDependees( oldAt );
+        Set<SearchResult> dependees = dao.listAttributeTypeDependents( oldAt );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The attributeType with OID " + oldAt.getOid() 

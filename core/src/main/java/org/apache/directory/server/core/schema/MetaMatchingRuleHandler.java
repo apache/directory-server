@@ -101,7 +101,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     {
         Schema schema = getSchema( name );
         MatchingRule mr = factory.getMatchingRule( entry, targetRegistries, schema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listMatchingRuleDependees( mr );
+        Set<SearchResult> dependees = dao.listMatchingRuleDependents( mr );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The matchingRule with OID " + mr.getOid() 
@@ -123,7 +123,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     {
         Schema schema = getSchema( name );
         MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries, schema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listMatchingRuleDependees( oldMr );
+        Set<SearchResult> dependees = dao.listMatchingRuleDependents( oldMr );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The matchingRule with OID " + oldMr.getOid()
@@ -158,7 +158,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listMatchingRuleDependees( oldMr );
+        Set<SearchResult> dependees = dao.listMatchingRuleDependents( oldMr );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The matchingRule with OID " + oldMr.getOid()
@@ -197,7 +197,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listMatchingRuleDependees( oldMr );
+        Set<SearchResult> dependees = dao.listMatchingRuleDependents( oldMr );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The matchingRule with OID " + oldMr.getOid() 

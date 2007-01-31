@@ -55,6 +55,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,6 +95,8 @@ public class SchemaPartitionDao
     private final String M_AUX_OID;
     private final String M_OC_OID;
     private final String M_SUP_OBJECT_CLASS_OID;
+    private final String M_DEPENDENCIES_OID;
+    private final String M_DISABLED_OID;
     
     private final AttributeType disabledAttributeType;
     
@@ -127,6 +130,8 @@ public class SchemaPartitionDao
         this.M_AUX_OID = oidRegistry.getOid( MetaSchemaConstants.M_AUX_AT );
         this.M_OC_OID = oidRegistry.getOid( MetaSchemaConstants.M_OC_AT );
         this.M_SUP_OBJECT_CLASS_OID = oidRegistry.getOid( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
+        this.M_DEPENDENCIES_OID = oidRegistry.getOid( MetaSchemaConstants.M_DEPENDENCIES_AT );
+        this.M_DISABLED_OID = oidRegistry.getOid( MetaSchemaConstants.M_DISABLED_AT );
     }
 
 
@@ -355,7 +360,7 @@ public class SchemaPartitionDao
      * @param numericOid the numeric identifier for the entity
      * @return
      */
-    public Set<SearchResult> listSyntaxDependies( String numericOid ) throws NamingException
+    public Set<SearchResult> listSyntaxDependents( String numericOid ) throws NamingException
     {
         Set<SearchResult> set = new HashSet<SearchResult>( );
         BranchNode filter = new BranchNode( AssertionEnum.AND );
@@ -395,7 +400,7 @@ public class SchemaPartitionDao
     }
 
 
-    public Set<SearchResult> listMatchingRuleDependees( MatchingRule mr ) throws NamingException
+    public Set<SearchResult> listMatchingRuleDependents( MatchingRule mr ) throws NamingException
     {
         Set<SearchResult> set = new HashSet<SearchResult>( );
         BranchNode filter = new BranchNode( AssertionEnum.AND );
@@ -457,7 +462,7 @@ public class SchemaPartitionDao
     }
 
 
-    public Set<SearchResult> listAttributeTypeDependees( AttributeType at ) throws NamingException
+    public Set<SearchResult> listAttributeTypeDependents( AttributeType at ) throws NamingException
     {
         /*
          * Right now the following inefficient filter is being used:
@@ -519,7 +524,107 @@ public class SchemaPartitionDao
     }
 
 
-    public Set<SearchResult> listObjectClassDependees( ObjectClass oc ) throws NamingException
+    /**
+     * Lists the SearchResults of metaSchema objects that depend on a schema.
+     * 
+     * @param schemaName the name of the schema to search for dependees
+     * @return a set of SearchResults over the schemas whose m-dependency attribute contains schemaName
+     * @throws NamingException if there is a problem while searching the schema partition
+     */
+    public Set<SearchResult> listSchemaDependents( String schemaName ) throws NamingException
+    {
+        /*
+         * The following filter is being used:
+         * 
+         * ( & ( objectClass = metaSchema ) ( m-dependencies = $schemaName ) )
+         */
+        
+        Set<SearchResult> set = new HashSet<SearchResult>( );
+        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        
+        filter.addNode( new SimpleNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_SCHEMA_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
+        filter.addNode( new SimpleNode( M_DEPENDENCIES_OID, 
+            schemaName.toLowerCase(), AssertionEnum.EQUALITY ) );
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+        
+        try
+        {
+            ne = partition.search( partition.getSuffix(), new HashMap(), filter, searchControls );
+            while( ne.hasMore() )
+            {
+                set.add( ne.next() );
+            }
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+        
+        return set;
+    }
+
+
+    /**
+     * Lists the SearchResults of metaSchema objects that depend on a schema.
+     * 
+     * @param schemaName the name of the schema to search for dependees
+     * @return a set of SearchResults over the schemas whose m-dependency attribute contains schemaName
+     * @throws NamingException if there is a problem while searching the schema partition
+     */
+    public Set<SearchResult> listEnabledSchemaDependents( String schemaName ) throws NamingException
+    {
+        Set<SearchResult> set = new HashSet<SearchResult>( );
+        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        
+        filter.addNode( new SimpleNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_SCHEMA_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
+        filter.addNode( new SimpleNode( M_DEPENDENCIES_OID, 
+            schemaName.toLowerCase(), AssertionEnum.EQUALITY ) );
+        
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+        
+        try
+        {
+            ne = partition.search( partition.getSuffix(), new HashMap(), filter, searchControls );
+            while( ne.hasMore() )
+            {
+                SearchResult sr = ne.next();
+                Attribute disabled = AttributeUtils.getAttribute( sr.getAttributes(), disabledAttributeType );
+                
+                if ( disabled == null )
+                {
+                    set.add( sr );
+                }
+                else if ( disabled.get().equals( "FALSE" ) )
+                {
+                    set.add( sr );
+                }
+                
+                set.add( ne.next() );
+            }
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+        
+        return set;
+    }
+
+
+    public Set<SearchResult> listObjectClassDependents( ObjectClass oc ) throws NamingException
     {
         /*
          * Right now the following inefficient filter is being used:

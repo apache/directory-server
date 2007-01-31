@@ -57,7 +57,7 @@ public class DefaultRegistries implements Registries
     private OidRegistry oidRegistry;
     private DefaultSyntaxCheckerRegistry syntaxCheckerRegistry;
     private DefaultSyntaxRegistry syntaxRegistry;
-    private Map<String,Schema> byName = new HashMap<String, Schema>();
+    private Map<String,Schema> loadedByName = new HashMap<String, Schema>();
     private final SchemaLoader schemaLoader;
     private final String name;
 
@@ -69,7 +69,7 @@ public class DefaultRegistries implements Registries
         this.schemaLoader.setListener( new SchemaLoaderListener() {
             public void schemaLoaded( Schema schema )
             {
-                byName.put( schema.getSchemaName(), schema );
+                loadedByName.put( schema.getSchemaName(), schema );
             }
         });
         oidRegistry = registry;
@@ -487,7 +487,7 @@ public class DefaultRegistries implements Registries
      */
     public Map<String, Schema> getLoadedSchemas()
     {
-        return new HashMap<String,Schema>( byName );
+        return new HashMap<String,Schema>( loadedByName );
     }
 
 
@@ -505,7 +505,7 @@ public class DefaultRegistries implements Registries
             throw new NamingException( "Disabled schemas cannot be loaded into registries." );
         }
         
-        byName.put( schema.getSchemaName(), schema );
+        loadedByName.put( schema.getSchemaName(), schema );
         schemaLoader.load( schema, this );
     }
     
@@ -524,7 +524,7 @@ public class DefaultRegistries implements Registries
         normalizerRegistry.unregisterSchemaElements( schemaName );
         comparatorRegistry.unregisterSchemaElements( schemaName );
         syntaxCheckerRegistry.unregisterSchemaElements( schemaName );
-        byName.remove( schemaName );
+        loadedByName.remove( schemaName );
     }
 
 
@@ -556,6 +556,18 @@ public class DefaultRegistries implements Registries
 
     public Schema getSchema( String schemaName )
     {
-        return this.byName.get( schemaName );
+        return this.loadedByName.get( schemaName );
+    }
+
+
+    public void addToLoadedSet( Schema schema )
+    {
+        loadedByName.put( schema.getSchemaName(), schema );
+    }
+
+
+    public void removeFromLoadedSet( String schemaName )
+    {
+        loadedByName.remove( schemaName );
     }
 }

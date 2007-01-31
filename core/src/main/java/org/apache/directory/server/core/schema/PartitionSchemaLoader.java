@@ -38,6 +38,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AbstractSchemaLoader;
@@ -73,6 +74,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private AttributeTypeRegistry attrRegistry;
     private final AttributeType mOidAT;
     private final AttributeType mNameAT;
+    private final AttributeType cnAT;
 
     
     public PartitionSchemaLoader( Partition partition, Registries bootstrapRegistries ) throws NamingException
@@ -84,6 +86,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         dao = new SchemaPartitionDao( this.partition, bootstrapRegistries );
         mOidAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
         mNameAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_NAME_AT );
+        cnAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( SystemSchemaConstants.CN_AT );
     }
     
     
@@ -147,6 +150,61 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         }
 
         loadWithDependencies( enabledSchemaSet, targetRegistries );
+    }
+    
+    
+    /**
+     * Lists the names of the schemas that depend on the schema name provided.
+     * 
+     * @param schemaName the name of the schema to find dependents for
+     * @return a set of schemas (String names) that depend on the schema
+     * @throws NamingException if there are problems searching the schema partition
+     */
+    public Set<String> listDependentSchemaNames( String schemaName ) throws NamingException
+    {
+        Set<String> dependees = new HashSet<String>();
+        Set<SearchResult> results = dao.listSchemaDependents( schemaName );
+        
+        if ( results.isEmpty() )
+        {
+            return dependees;
+        }
+        
+        for ( SearchResult sr: results )
+        {
+            Attribute cn = AttributeUtils.getAttribute( sr.getAttributes(), cnAT );
+            dependees.add( ( String ) cn.get() );
+        }
+        
+        return dependees;
+    }
+
+    
+    /**
+     * Lists the names of the enabled schemas that depend on the schema name 
+     * provided.
+     * 
+     * @param schemaName the name of the schema to find dependents for
+     * @return a set of enabled schemas (String names) that depend on the schema
+     * @throws NamingException if there are problems searching the schema partition
+     */
+    public Set<String> listEnabledDependentSchemaNames( String schemaName ) throws NamingException
+    {
+        Set<String> dependees = new HashSet<String>();
+        Set<SearchResult> results = dao.listEnabledSchemaDependents( schemaName );
+        
+        if ( results.isEmpty() )
+        {
+            return dependees;
+        }
+        
+        for ( SearchResult sr: results )
+        {
+            Attribute cn = AttributeUtils.getAttribute( sr.getAttributes(), cnAT );
+            dependees.add( ( String ) cn.get() );
+        }
+        
+        return dependees;
     }
 
     

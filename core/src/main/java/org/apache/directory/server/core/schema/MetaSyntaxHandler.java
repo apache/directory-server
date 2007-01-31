@@ -102,7 +102,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     {
         String oid = getOid( entry );
         
-        Set<SearchResult> dependees = dao.listSyntaxDependies( oid );
+        Set<SearchResult> dependees = dao.listSyntaxDependents( oid );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The syntax with OID " + oid 
@@ -127,7 +127,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     {
         String oldOid = getOid( entry );
 
-        Set<SearchResult> dependees = dao.listSyntaxDependies( oldOid );
+        Set<SearchResult> dependees = dao.listSyntaxDependents( oldOid );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The syntax with OID " + oldOid
@@ -165,7 +165,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
 
-        Set<SearchResult> dependees = dao.listSyntaxDependies( oldOid );
+        Set<SearchResult> dependees = dao.listSyntaxDependents( oldOid );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The syntax with OID " + oldOid 
@@ -207,7 +207,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         String oid = getOid( entry );
 
-        Set<SearchResult> dependees = dao.listSyntaxDependies( oid );
+        Set<SearchResult> dependees = dao.listSyntaxDependents( oid );
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The syntax with OID " + oid 
