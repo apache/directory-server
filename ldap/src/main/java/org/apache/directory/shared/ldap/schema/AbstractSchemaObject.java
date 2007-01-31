@@ -241,7 +241,7 @@ public abstract class AbstractSchemaObject implements SchemaObject
      * 
      * @param schema the name of the schema this object is associated with
      */
-    protected void setSchema( String schema )
+    public void setSchema( String schema )
     {
         this.schema = schema;
     }
