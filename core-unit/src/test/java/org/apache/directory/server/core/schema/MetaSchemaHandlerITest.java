@@ -35,8 +35,6 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
-import sun.awt.GlobalCursorManager;
-
 
 /**
  * A test case which tests the correct operation of the schema 
