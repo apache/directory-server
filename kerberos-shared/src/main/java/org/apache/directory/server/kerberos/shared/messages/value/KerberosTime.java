@@ -27,7 +27,10 @@ import java.util.TimeZone;
 
 
 /**
- * Implementation of the time object for Kerberos
+ * Implementation of the time object for Kerberos.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class KerberosTime implements Comparable
 {

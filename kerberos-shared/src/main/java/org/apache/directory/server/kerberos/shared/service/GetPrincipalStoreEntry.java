@@ -29,6 +29,10 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public abstract class GetPrincipalStoreEntry implements IoHandlerCommand
 {
     private String contextKey = "context";

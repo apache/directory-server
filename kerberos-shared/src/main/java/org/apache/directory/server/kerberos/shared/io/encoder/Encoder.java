@@ -26,6 +26,10 @@ import java.io.IOException;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public interface Encoder
 {
     public byte[] encode( Encodable object ) throws IOException;

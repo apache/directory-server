@@ -66,6 +66,9 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * A Hashed Adapter encapsulating ASN.1 encoders and decoders and cipher text engines to
  * perform seal() and unseal() operations.  A seal() operation performs an encode and an
  * encrypt, while an unseal() operation performs a decrypt and a decode.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LockBox
 {

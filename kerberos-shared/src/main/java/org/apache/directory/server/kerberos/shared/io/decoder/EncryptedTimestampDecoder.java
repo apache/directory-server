@@ -42,6 +42,9 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  *         patimestamp[0]               KerberosTime, -- client's time
  *         pausec[1]                    INTEGER OPTIONAL
  * }
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class EncryptedTimestampDecoder implements Decoder, DecoderFactory
 {

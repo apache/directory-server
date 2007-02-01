@@ -41,6 +41,10 @@ import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class EncTicketPartDecoder implements Decoder, DecoderFactory
 {
     public Decoder getDecoder()

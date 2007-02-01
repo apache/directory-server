@@ -38,8 +38,11 @@ import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-/*
- * Shared by TGS and Changepw
+/**
+ * Shared by TGS and Changepw.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public abstract class VerifyAuthHeader implements IoHandlerCommand
 {

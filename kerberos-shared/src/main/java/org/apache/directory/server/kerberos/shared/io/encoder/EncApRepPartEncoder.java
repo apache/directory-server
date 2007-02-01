@@ -32,6 +32,10 @@ import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class EncApRepPartEncoder implements Encoder, EncoderFactory
 {
     public static final int APPLICATION_CODE = 27;

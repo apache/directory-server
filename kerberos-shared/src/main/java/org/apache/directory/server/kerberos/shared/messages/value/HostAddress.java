@@ -26,6 +26,9 @@ import java.net.UnknownHostException;
 
 /**
  * Provides host address information.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class HostAddress
 {

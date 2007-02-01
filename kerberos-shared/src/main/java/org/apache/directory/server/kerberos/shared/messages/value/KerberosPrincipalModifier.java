@@ -23,6 +23,10 @@ package org.apache.directory.server.kerberos.shared.messages.value;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class KerberosPrincipalModifier
 {
     private static final String REALM_SEPARATOR = "@";

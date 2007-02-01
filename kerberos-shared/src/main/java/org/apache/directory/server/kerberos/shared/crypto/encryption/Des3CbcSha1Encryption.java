@@ -25,6 +25,10 @@ import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.Sha1Checksum;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class Des3CbcSha1Encryption extends Des3CbcEncryption
 {
     public ChecksumEngine getChecksumEngine()

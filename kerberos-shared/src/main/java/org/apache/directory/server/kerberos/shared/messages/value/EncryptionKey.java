@@ -25,6 +25,10 @@ import java.util.Arrays;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class EncryptionKey
 {
     private EncryptionType keyType;

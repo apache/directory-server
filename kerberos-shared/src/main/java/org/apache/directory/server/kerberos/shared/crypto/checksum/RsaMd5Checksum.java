@@ -25,6 +25,10 @@ import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.MD5Digest;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class RsaMd5Checksum extends ChecksumEngine
 {
     public Digest getDigest()

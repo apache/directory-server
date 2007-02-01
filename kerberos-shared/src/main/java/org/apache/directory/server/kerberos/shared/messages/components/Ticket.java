@@ -32,7 +32,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncod
 
 
 /**
- * Ticket message component as handed out by the ticket granting service
+ * Ticket message component as handed out by the ticket granting service.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class Ticket
 {

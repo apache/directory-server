@@ -30,7 +30,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 
 
 /**
- * Encrypted part of TGS responses
+ * Encrypted part of TGS responses.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class EncTgsRepPart extends EncKdcRepPart
 {

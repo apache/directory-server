@@ -26,6 +26,10 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
 import org.bouncycastle.crypto.Digest;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class Crc32Checksum extends ChecksumEngine
 {
     public Digest getDigest()

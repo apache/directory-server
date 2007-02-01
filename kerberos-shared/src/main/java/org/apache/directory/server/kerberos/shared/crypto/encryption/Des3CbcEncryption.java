@@ -24,6 +24,10 @@ import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.engines.DESedeEngine;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public abstract class Des3CbcEncryption extends EncryptionEngine
 {
     public BlockCipher getBlockCipher()

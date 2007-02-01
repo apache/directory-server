@@ -27,6 +27,10 @@ import java.util.List;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class AuthorizationData implements Encodable
 {
     private List entries = new ArrayList();

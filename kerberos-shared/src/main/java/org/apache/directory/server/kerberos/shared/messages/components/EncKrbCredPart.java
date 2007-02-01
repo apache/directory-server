@@ -27,7 +27,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.KrbCredInfo;
 
 
 /**
- * Encrypted part of credential message types
+ * Encrypted part of credential message types.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class EncKrbCredPart
 {

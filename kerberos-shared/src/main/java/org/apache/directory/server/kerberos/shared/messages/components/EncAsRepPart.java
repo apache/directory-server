@@ -30,7 +30,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 
 
 /**
- * Encrypted part of the authentication service response
+ * Encrypted part of the authentication service response.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class EncAsRepPart extends EncKdcRepPart
 {

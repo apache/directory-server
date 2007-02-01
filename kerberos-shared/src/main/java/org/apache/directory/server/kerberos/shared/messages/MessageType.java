@@ -25,6 +25,10 @@ import java.util.Collections;
 import java.util.List;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public final class MessageType implements Comparable
 {
     /**

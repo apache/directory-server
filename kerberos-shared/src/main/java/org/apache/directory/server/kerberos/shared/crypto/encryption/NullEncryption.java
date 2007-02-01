@@ -25,6 +25,10 @@ import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 import org.bouncycastle.crypto.BlockCipher;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class NullEncryption extends EncryptionEngine
 {
     public BlockCipher getBlockCipher()

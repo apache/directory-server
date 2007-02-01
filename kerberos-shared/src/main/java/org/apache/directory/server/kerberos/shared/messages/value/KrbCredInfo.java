@@ -24,7 +24,10 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 
 /**
- * Kerberos credential information
+ * Kerberos credential information.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class KrbCredInfo
 {

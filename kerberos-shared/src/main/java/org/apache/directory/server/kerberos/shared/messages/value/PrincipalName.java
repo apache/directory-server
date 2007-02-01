@@ -20,6 +20,10 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class PrincipalName
 {
     private String nameComponent;

@@ -30,6 +30,10 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class InMemoryReplayCache implements ReplayCache
 {
     private static final long TWO_WEEKS = 1000 * 60 * 60 * 24 * 14;
