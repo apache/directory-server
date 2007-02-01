@@ -37,6 +37,10 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.protocol.shared.AbstractBackingStoreTest;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class CatalogTest extends AbstractBackingStoreTest
 {
     /**
