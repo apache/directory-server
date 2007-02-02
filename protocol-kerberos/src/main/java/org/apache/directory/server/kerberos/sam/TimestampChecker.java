@@ -34,6 +34,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class TimestampChecker implements KeyIntegrityChecker
 {
     private static final long FIVE_MINUTES = 300000;

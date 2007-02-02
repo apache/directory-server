@@ -30,6 +30,10 @@ import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class AuthenticationContext extends KdcContext
 {
     private static final long serialVersionUID = -2249170923251265359L;

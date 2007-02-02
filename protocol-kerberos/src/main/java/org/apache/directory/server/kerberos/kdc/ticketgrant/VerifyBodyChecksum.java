@@ -30,6 +30,10 @@ import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class VerifyBodyChecksum implements IoHandlerCommand
 {
     private String contextKey = "context";

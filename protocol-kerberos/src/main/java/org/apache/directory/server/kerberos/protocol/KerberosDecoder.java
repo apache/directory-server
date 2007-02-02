@@ -29,6 +29,10 @@ import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class KerberosDecoder implements ProtocolDecoder
 {
     private KdcRequestDecoder decoder = new KdcRequestDecoder();

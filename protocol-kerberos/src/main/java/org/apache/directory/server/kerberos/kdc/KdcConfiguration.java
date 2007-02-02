@@ -36,6 +36,10 @@ import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class KdcConfiguration extends ServiceConfiguration
 {
     private static final long serialVersionUID = 522567370475574165L;

@@ -32,6 +32,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticat
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public abstract class VerifierBase implements IoHandlerCommand
 {
     private String contextKey = "context";

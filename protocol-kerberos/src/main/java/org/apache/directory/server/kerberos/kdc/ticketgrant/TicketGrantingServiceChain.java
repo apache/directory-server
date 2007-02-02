@@ -28,7 +28,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * KRB_TGS_REQ verification and KRB_TGS_REP generation
+ * KRB_TGS_REQ verification and KRB_TGS_REP generation.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class TicketGrantingServiceChain extends IoHandlerChain
 {

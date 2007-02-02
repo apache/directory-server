@@ -28,6 +28,10 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.mina.common.IoSession;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class GetClientEntry extends GetPrincipalStoreEntry
 {
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception

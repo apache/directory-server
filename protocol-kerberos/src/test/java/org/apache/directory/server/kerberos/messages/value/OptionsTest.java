@@ -28,6 +28,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import junit.framework.TestCase;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class OptionsTest extends TestCase
 {
     private byte[] fpriOptions =

@@ -28,6 +28,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class TestUtils
 {
     public static char[] getControlDocument( String resource ) throws IOException

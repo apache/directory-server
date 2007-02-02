@@ -25,6 +25,10 @@ import org.apache.directory.server.kerberos.kdc.preauthentication.PreAuthenticat
 import org.apache.mina.handler.chain.IoHandlerChain;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class AuthenticationServiceChain extends IoHandlerChain
 {
     public AuthenticationServiceChain()

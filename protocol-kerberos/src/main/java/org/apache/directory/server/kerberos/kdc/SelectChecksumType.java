@@ -27,6 +27,10 @@ import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class SelectChecksumType implements IoHandlerCommand
 {
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
