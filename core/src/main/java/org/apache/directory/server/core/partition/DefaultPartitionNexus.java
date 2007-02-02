@@ -133,7 +133,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         // setup that root DSE
         this.rootDSE = rootDSE;
         Attribute attr = new AttributeImpl( "subschemaSubentry" );
-        attr.add( "cn=schema,ou=system" );
+        attr.add( GLOBAL_SCHEMA_SUBENTRY_DN );
         rootDSE.put( attr );
 
         attr = new AttributeImpl( "supportedLDAPVersion" );

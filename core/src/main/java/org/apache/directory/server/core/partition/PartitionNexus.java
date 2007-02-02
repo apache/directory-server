@@ -50,6 +50,9 @@ public abstract class PartitionNexus implements Partition
     /** the default user principal or DN */
     public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
     
+    /** the DN for the global schema subentry */
+    public final static String GLOBAL_SCHEMA_SUBENTRY_DN = "cn=schema";
+    
     /** the normalized user principal or DN */
     public final static String ADMIN_PRINCIPAL_NORMALIZED = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
     

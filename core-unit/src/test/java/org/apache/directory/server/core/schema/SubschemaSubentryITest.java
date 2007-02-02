@@ -39,7 +39,7 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
  */
 public class SubschemaSubentryITest extends AbstractAdminTestCase
 {
-    private static final String GLOBAL_SUBSCHEMA_DN = "cn=schema,ou=system";
+    private static final String GLOBAL_SUBSCHEMA_DN = "cn=schema";
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
 
     
