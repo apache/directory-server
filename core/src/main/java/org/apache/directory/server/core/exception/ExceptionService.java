@@ -43,6 +43,7 @@ import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -145,6 +146,14 @@ public class ExceptionService extends BaseInterceptor
      */
     public void delete( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
+        if ( name.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
+        {
+            throw new LdapOperationNotSupportedException( 
+                "Can not allow the deletion of the subschemaSubentry (" + 
+                subschemSubentryDn + ") for the global schema.",
+                ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+        
         // check if entry to delete exists
         String msg = "Attempt to delete non-existant entry: ";
         assertHasEntry( nextInterceptor, msg, name );
@@ -187,6 +196,11 @@ public class ExceptionService extends BaseInterceptor
      */
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
+        if ( name.getNormName().equals( subschemSubentryDn.getNormName() ) )
+        {
+            return nexus.getRootDSE();
+        }
+        
         String msg = "Attempt to lookup non-existant entry: ";
         assertHasEntry( nextInterceptor, msg, name );
 

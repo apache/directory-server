@@ -44,6 +44,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
+import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -52,6 +53,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +82,7 @@ public class TupleCache
     /** cloned startup environment properties we use for subentry searching */
     private final Hashtable env;
     /** a map of strings to ACITuple collections */
-    private final Map tuples = new HashMap();
+    private final Map<String,List> tuples = new HashMap<String,List>();
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
     /** a normalizing ACIItem parser */
@@ -89,7 +91,7 @@ public class TupleCache
     /**
      * The OIDs normalizer map
      */
-    private Map normalizerMap;
+    private Map<String, OidNormalizer> normalizerMap;
 
     /**
      * Creates a ACITuple cache.
@@ -183,7 +185,7 @@ public class TupleCache
             return;
         }
 
-        List entryTuples = new ArrayList();
+        List<ACITuple> entryTuples = new ArrayList<ACITuple>();
         
         for ( int ii = 0; ii < aci.size(); ii++ )
         {
@@ -252,7 +254,8 @@ public class TupleCache
     }
 
 
-    public List getACITuples( String subentryDn )
+    @SuppressWarnings("unchecked")
+    public List<ACITuple> getACITuples( String subentryDn )
     {
         List aciTuples = ( List ) tuples.get( subentryDn );
         if ( aciTuples == null )

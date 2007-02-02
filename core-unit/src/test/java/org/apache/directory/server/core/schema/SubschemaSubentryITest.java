@@ -28,6 +28,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
 /**
@@ -91,5 +93,22 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         assertEquals( GLOBAL_SUBSCHEMA_DN, getSubschemaSubentryDN() );
         Attributes subschemaSubentryAttrs = getSubschemaSubentryAttributes();
         assertNotNull( subschemaSubentryAttrs );
+    }
+    
+    
+    /**
+     * Tests the rejection of a delete operation on the SubschemaSubentry (SSSE).
+     */
+    public void testSSSEDeleteRejection() throws NamingException
+    {
+        try
+        {
+            rootDSE.destroySubcontext( getSubschemaSubentryDN() );
+            fail( "You are not allowed to delete the global schema subentry" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
     }
 }

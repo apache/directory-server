@@ -1753,6 +1753,7 @@ public class SchemaService extends BaseInterceptor
         }
     }
     
+    
     public void delete( NextInterceptor next, LdapDN normName ) throws NamingException
     {
         Attributes entry = nexus.lookup( normName );
