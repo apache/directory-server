@@ -91,7 +91,7 @@ public class ReferralService extends BaseInterceptor
     private static final String FOLLOW = "follow";
     private static final String REFERRAL_OC = "referral";
     private static final String OBJCLASS_ATTR = "objectClass";
-    private static final Collection SEARCH_BYPASS;
+    private static final Collection<String> SEARCH_BYPASS;
     private static final String REF_ATTR = "ref";
 
     private ReferralLut lut = new ReferralLut();
@@ -107,7 +107,7 @@ public class ReferralService extends BaseInterceptor
          * These are the services that we will bypass while searching for referrals in
          * partitions of the system during startup and during add/remove partition ops
          */
-        Collection c = new HashSet();
+        Collection<String> c = new HashSet<String>();
         c.add( "normalizationService" );
         c.add( "authenticationService" );
         c.add( "authorizationService" );
@@ -977,7 +977,7 @@ public class ReferralService extends BaseInterceptor
     public void doReferralExceptionOnSearchBase( LdapDN base, Attribute refs, int scope ) throws NamingException
     {
         // handle referral here
-        List list = new ArrayList( refs.size() );
+        List<String> list = new ArrayList<String>( refs.size() );
         for ( int ii = 0; ii < refs.size(); ii++ )
         {
             String val = ( String ) refs.get( ii );
@@ -1038,7 +1038,7 @@ public class ReferralService extends BaseInterceptor
         throws NamingException
     {
         // handle referral here
-        List list = new ArrayList( refs.size() );
+        List<String> list = new ArrayList<String>( refs.size() );
         for ( int ii = 0; ii < refs.size(); ii++ )
         {
             String val = ( String ) refs.get( ii );

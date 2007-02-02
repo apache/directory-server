@@ -89,20 +89,20 @@ public class AuthorizationService extends BaseInterceptor
      */
     private static final String AC_SUBENTRY_ATTR = "accessControlSubentries";
 
-    private static final Collection ADD_PERMS;
-    private static final Collection READ_PERMS;
-    private static final Collection COMPARE_PERMS;
-    private static final Collection SEARCH_ENTRY_PERMS;
-    private static final Collection SEARCH_ATTRVAL_PERMS;
-    private static final Collection REMOVE_PERMS;
-    private static final Collection MATCHEDNAME_PERMS;
-    private static final Collection BROWSE_PERMS;
-    private static final Collection LOOKUP_PERMS;
-    private static final Collection REPLACE_PERMS;
-    private static final Collection RENAME_PERMS;
-    private static final Collection EXPORT_PERMS;
-    private static final Collection IMPORT_PERMS;
-    private static final Collection MOVERENAME_PERMS;
+    private static final Collection<MicroOperation> ADD_PERMS;
+    private static final Collection<MicroOperation> READ_PERMS;
+    private static final Collection<MicroOperation> COMPARE_PERMS;
+    private static final Collection<MicroOperation> SEARCH_ENTRY_PERMS;
+    private static final Collection<MicroOperation> SEARCH_ATTRVAL_PERMS;
+    private static final Collection<MicroOperation> REMOVE_PERMS;
+    private static final Collection<MicroOperation> MATCHEDNAME_PERMS;
+    private static final Collection<MicroOperation> BROWSE_PERMS;
+    private static final Collection<MicroOperation> LOOKUP_PERMS;
+    private static final Collection<MicroOperation> REPLACE_PERMS;
+    private static final Collection<MicroOperation> RENAME_PERMS;
+    private static final Collection<MicroOperation> EXPORT_PERMS;
+    private static final Collection<MicroOperation> IMPORT_PERMS;
+    private static final Collection<MicroOperation> MOVERENAME_PERMS;
 
     static
     {
@@ -508,7 +508,7 @@ public class AuthorizationService extends BaseInterceptor
             Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
 
         NamingEnumeration attrList = mods.getAll();
-        Collection perms = null;
+        Collection<MicroOperation> perms = null;
         switch ( modOp )
         {
             case ( DirContext.ADD_ATTRIBUTE  ):
@@ -572,7 +572,7 @@ public class AuthorizationService extends BaseInterceptor
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
             Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
 
-        Collection perms = null;
+        Collection<MicroOperation> perms = null;
         for ( int ii = 0; ii < mods.length; ii++ )
         {
             switch ( mods[ii].getModificationOp() )

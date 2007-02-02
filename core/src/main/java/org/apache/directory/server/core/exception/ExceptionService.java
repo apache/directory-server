@@ -47,6 +47,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 
 
 /**
@@ -66,7 +67,7 @@ public class ExceptionService extends BaseInterceptor
     /**
      * The OIDs normalizer map
      */
-    private Map normalizerMap;
+    private Map<String, OidNormalizer> normalizerMap;
 
     /**
      * Creates an interceptor that is also the exception handling service.
