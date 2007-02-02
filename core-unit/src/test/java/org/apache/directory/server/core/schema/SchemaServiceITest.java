@@ -189,7 +189,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = sysRoot.search( "cn=schema", "(objectClass=*)", controls );
+        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=*)", controls );
 
         while ( results.hasMore() )
         {
@@ -200,8 +200,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
         
-        // It should be the normalized form of cn=schema,ou=system
-        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema,2.5.4.11=system" );
+        // It should be the normalized form of cn=schema
+        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema" );
         
         assertNotNull( attrs );
         
@@ -222,7 +222,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = sysRoot.search( "cn=schema", "(objectClass=*)", controls );
+        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=*)", controls );
 
         while ( results.hasMore() )
         {
@@ -233,8 +233,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
         
-        // It should be the normalized form of cn=schema,ou=system
-        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema,2.5.4.11=system" );
+        // It should be the normalized form of cn=schema
+        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema" );
         
         assertNotNull( attrs );
         
@@ -278,7 +278,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "nameForms" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = sysRoot.search( "cn=schema", "(objectClass=*)", controls );
+        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=*)", controls );
 
         while ( results.hasMore() )
         {
@@ -289,8 +289,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
         
-        // It should be the normalized form of cn=schema,ou=system
-        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema,2.5.4.11=system" );
+        // It should be the normalized form of cn=schema
+        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema" );
         
         assertNotNull( attrs );
         
@@ -321,7 +321,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = sysRoot.search( "cn=schema", "(objectClass=nothing)", controls );
+        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=nothing)", controls );
 
         while ( results.hasMore() )
         {
@@ -340,7 +340,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = sysRoot.search( "cn=schema", "(objectClass=top)", controls );
+        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=top)", controls );
 
         while ( results.hasMore() )
         {
@@ -351,8 +351,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
         
-        // It should be the normalized form of cn=schema,ou=system
-        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema,2.5.4.11=system" );
+        // It should be the normalized form of cn=schema
+        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema" );
         
         assertNotNull( attrs );
         
@@ -383,7 +383,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = sysRoot.search( "cn=schema", "(objectClass=subSchema)", controls );
+        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=subSchema)", controls );
 
         while ( results.hasMore() )
         {
@@ -394,8 +394,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
         
-        // It should be the normalized form of cn=schema,ou=system
-        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema,2.5.4.11=system" );
+        // It should be the normalized form of cn=schema
+        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema" );
         
         assertNotNull( attrs );
         
@@ -426,7 +426,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = sysRoot.search( "cn=schema", "(objectClass=nothing)", controls );
+        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=nothing)", controls );
 
         while ( results.hasMore() )
         {
@@ -445,7 +445,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = sysRoot.search( "cn=schema", "(&(objectClass=*)(objectClass=top))", controls );
+        NamingEnumeration results = rootDSE.search( "cn=schema", "(&(objectClass=*)(objectClass=top))", controls );
 
         while ( results.hasMore() )
         {

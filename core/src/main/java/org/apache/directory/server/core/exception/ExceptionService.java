@@ -465,6 +465,11 @@ public class ExceptionService extends BaseInterceptor
      */
     private void assertHasEntry( NextInterceptor nextInterceptor, String msg, LdapDN dn ) throws NamingException
     {
+        if ( subschemSubentryDn.getNormName().equals( dn.getNormName() ) )
+        {
+            return;
+        }
+        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         if ( !nextInterceptor.hasEntry( dn ) )

@@ -1198,6 +1198,11 @@ public class SchemaService extends BaseInterceptor
         {
             schemaManager.modify( name, modOp, mods, entry, targetEntry );
         }
+        else if ( subschemaSubentryDn.getNormName().equals( name.getNormName() ) )
+        {
+            schemaManager.modifySchemaSubentry( name, modOp, mods, entry, targetEntry );
+            return;
+        }
         
         next.modify( name, modOp, mods );
     }
@@ -1528,6 +1533,11 @@ public class SchemaService extends BaseInterceptor
         if ( name.startsWith( schemaBaseDN ) )
         {
             schemaManager.modify( name, mods, entry, targetEntry );
+        }
+        else if ( subschemaSubentryDn.getNormName().equals( name.getNormName() ) )
+        {
+            schemaManager.modifySchemaSubentry( name, mods, entry, targetEntry );
+            return;
         }
         
         next.modify( name, mods );

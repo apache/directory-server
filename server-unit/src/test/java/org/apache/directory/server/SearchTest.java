@@ -466,6 +466,16 @@ public class SearchTest extends AbstractServerTest
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[] { "objectClasses" } );
         
+        Hashtable env = new Hashtable();
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + port );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", "secret" );
+        env.put( "java.naming.security.authentication", "simple" );
+
+        ctx = new InitialLdapContext( env, null );
+        assertNotNull( ctx );
+
         NamingEnumeration results = ctx.search( "cn=schema", "objectClass=subschema", controls );
         assertTrue( results.hasMore() );
         SearchResult result = ( SearchResult ) results.next();

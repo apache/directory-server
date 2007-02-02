@@ -550,4 +550,37 @@ public class SchemaManager
 
         throw new LdapNamingException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
+
+
+    /**
+     * Translates modify operations on schema subentries into one or more operations 
+     * on meta schema entities within the ou=schema partition and updates the registries
+     * accordingly.  This uses direct access to the partition to bypass all interceptors.
+     * 
+     * @param name the name of the subentry
+     * @param mods the modification operations performed on the subentry
+     * @param subentry the attributes of the subentry
+     * @param targetSubentry the target subentry after being modified
+     */
+    public void modifySchemaSubentry( LdapDN name, ModificationItemImpl[] mods, Attributes subentry, 
+        Attributes targetSubentry ) throws NamingException
+    {
+    }
+
+
+    /**
+     * Translates modify operations on schema subentries into one or more operations 
+     * on meta schema entities within the ou=schema partition and updates the registries
+     * accordingly.  This uses direct access to the partition to bypass all interceptors.
+     * 
+     * @param name the name of the subentry
+     * @param modOp the modification operation performed on the subentry
+     * @param mods the modification operations performed on the subentry
+     * @param subentry the attributes of the subentry
+     * @param targetSubentry the target subentry after being modified
+     */
+    public void modifySchemaSubentry( LdapDN name, int modOp, Attributes mods, Attributes subentry, 
+        Attributes targetSubentry ) throws NamingException
+    {
+    }
 }
