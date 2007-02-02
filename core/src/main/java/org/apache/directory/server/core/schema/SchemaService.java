@@ -503,7 +503,7 @@ public class SchemaService extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
-                    SearchResult result = new SearchResult( base.toString(), null, attrs );
+                    SearchResult result = new SearchResult( base.toString(), null, attrs, false );
                     return new SingletonEnumeration( result );
                 }
             }
