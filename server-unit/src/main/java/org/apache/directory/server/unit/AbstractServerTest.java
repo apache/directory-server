@@ -188,10 +188,7 @@ public abstract class AbstractServerTest extends TestCase
             while ( iterator.hasNext() )
             {
                 Entry entry = ( Entry) iterator.next();
-
                 LdapDN dn = new LdapDN( entry.getDn() );
-                dn.remove( 0 );
-
                 rootDSE.createSubcontext( dn, entry.getAttributes() );
             }
         }
