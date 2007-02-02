@@ -147,7 +147,7 @@ public class SearchTest extends AbstractServerTest
     {
         super.setUp();
 
-        Hashtable env = new Hashtable();
+        Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
@@ -198,14 +198,14 @@ public class SearchTest extends AbstractServerTest
      * Performs a single level search from ou=system base and 
      * returns the set of DNs found.
      */
-    private Set search( String filter ) throws NamingException
+    private Set<String> search( String filter ) throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         NamingEnumeration ii = ctx.search( "", filter, controls );
         
         // collect all results 
-        HashSet results = new HashSet();
+        HashSet<String> results = new HashSet<String>();
         while ( ii.hasMore() )
         {
             SearchResult result = ( SearchResult ) ii.next();
@@ -223,7 +223,7 @@ public class SearchTest extends AbstractServerTest
         ctx.createSubcontext( "cn=Kate Bush", attributes );
 
         // -------------------------------------------------------------------
-        Set results = search( "(|(cn=Kate*)(cn=Tori*))" );
+        Set<String> results = search( "(|(cn=Kate*)(cn=Tori*))" );
         assertEquals( "returned size of results", 2, results.size() );
         assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
         assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
@@ -450,7 +450,7 @@ public class SearchTest extends AbstractServerTest
         ctx.createSubcontext( "cn=Kate Bush", attributes );
 
         // -------------------------------------------------------------------
-        Set results = search( "(|(sn=Bush)(numberOfOctaves=4))" );
+        Set<String> results = search( "(|(sn=Bush)(numberOfOctaves=4))" );
         assertEquals( "returned size of results", 1, results.size() );
         assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
 
@@ -466,7 +466,7 @@ public class SearchTest extends AbstractServerTest
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[] { "objectClasses" } );
         
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
@@ -635,7 +635,7 @@ public class SearchTest extends AbstractServerTest
         
         ctx.setRequestControls( reqControls );
         NamingEnumeration enm = ctx.search( "", "(objectClass=*)", searchControls );
-        Set results = new HashSet();
+        Set<String> results = new HashSet<String>();
         while ( enm.hasMore() )
         {
             SearchResult result = ( SearchResult ) enm.next();
