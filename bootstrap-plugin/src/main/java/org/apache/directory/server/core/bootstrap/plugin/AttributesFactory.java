@@ -42,6 +42,7 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.util.DateUtils;
 
 
 /**
@@ -58,7 +59,8 @@ public class AttributesFactory
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SCHEMA_OC );
         entry.put( SystemSchemaConstants.CN_AT, schema.getSchemaName() );
-        entry.put( MetaSchemaConstants.M_OWNER_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         
         if ( schema.isDisabled() )
         {
@@ -80,42 +82,50 @@ public class AttributesFactory
     }
     
     
-    public Attributes getAttributes( SyntaxChecker syntaxChecker )
+    public Attributes getAttributes( SyntaxChecker syntaxChecker, Schema schema )
     {
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, syntaxChecker.getSyntaxOid() );
         entry.put( MetaSchemaConstants.M_FQCN_AT, syntaxChecker.getClass().getName() );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
     
-    public Attributes getAttributes( Syntax syntax )
+    public Attributes getAttributes( Syntax syntax, Schema schema )
     {
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SYNTAX_OC );
         entry.put( MetaSchemaConstants.X_HUMAN_READIBLE_AT, getBoolean( syntax.isHumanReadible() ) );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         injectCommon( syntax, entry );
         return entry;
     }
 
     
-    public Attributes getAttributes( String oid, Normalizer normalizer )
+    public Attributes getAttributes( String oid, Normalizer normalizer, Schema schema )
     {
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_NORMALIZER_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
         entry.put( MetaSchemaConstants.M_FQCN_AT, normalizer.getClass().getName() );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
     
-    public Attributes getAttributes( String oid, Comparator comparator )
+    public Attributes getAttributes( String oid, Comparator comparator, Schema schema )
     {
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_COMPARATOR_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
         entry.put( MetaSchemaConstants.M_FQCN_AT, comparator.getClass().getName() );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
@@ -126,44 +136,54 @@ public class AttributesFactory
      * @return
      * @throws NamingException
      */
-    public Attributes getAttributes( MatchingRule matchingRule ) throws NamingException
+    public Attributes getAttributes( MatchingRule matchingRule, Schema schema ) throws NamingException
     {
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_MATCHING_RULE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, matchingRule.getSyntax().getOid() );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         injectCommon( matchingRule, entry );
         return entry;
     }
 
     
-    public Attributes getAttributes( MatchingRuleUse matchingRuleUse )
+    public Attributes getAttributes( MatchingRuleUse matchingRuleUse, Schema schema )
     {
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "" );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
     
-    public Attributes getAttributes( DITStructureRule dITStructureRule )
+    public Attributes getAttributes( DITStructureRule dITStructureRule, Schema schema )
     {
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "" );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
     
-    public Attributes getAttributes( DITContentRule dITContentRule )
+    public Attributes getAttributes( DITContentRule dITContentRule, Schema schema )
     {
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "" );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
     
-    public Attributes getAttributes( NameForm nameForm )
+    public Attributes getAttributes( NameForm nameForm, Schema schema )
     {
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "" );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
@@ -186,7 +206,7 @@ public class AttributesFactory
      * @return
      * @throws NamingException
      */
-    public Attributes getAttributes( AttributeType attributeType ) throws NamingException
+    public Attributes getAttributes( AttributeType attributeType, Schema schema ) throws NamingException
     {
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
@@ -195,6 +215,8 @@ public class AttributesFactory
         entry.put( MetaSchemaConstants.M_NO_USER_MODIFICATION_AT, getBoolean( ! attributeType.isCanUserModify() ) );
         entry.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, getBoolean( attributeType.isSingleValue() ) );
         entry.put( MetaSchemaConstants.M_USAGE_AT, attributeType.getUsage().toString() );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
         injectCommon( attributeType, entry );
         
@@ -269,11 +291,13 @@ public class AttributesFactory
      * @return the attributes of the metaSchema entry representing the objectClass
      * @throws NamingException if there are any problems
      */
-    public Attributes getAttributes( ObjectClass objectClass ) throws NamingException
+    public Attributes getAttributes( ObjectClass objectClass, Schema schema ) throws NamingException
     {
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_OBJECT_CLASS_OC );
         entry.put( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT, objectClass.getType().toString() );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
+        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         
         injectCommon( objectClass, entry );
 

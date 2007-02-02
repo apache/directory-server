@@ -34,7 +34,6 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SchemaObjectRegistry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -91,10 +90,28 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry )
         throws NamingException
     {
-        Attribute disabledInMods = ServerUtils.getAttribute( disabledAT, mods );
+        Attribute disabledInMods = AttributeUtils.getAttribute( mods, disabledAT );
         if ( disabledInMods != null )
         {
             disable( name, modOp, disabledInMods, ServerUtils.getAttribute( disabledAT, entry ) );
+        }
+        
+        // check if the new schema is enabled or disabled
+        boolean isEnabled = false;
+        Attribute disabled = AttributeUtils.getAttribute( targetEntry, this.disabledAT );
+        if ( disabled == null )
+        {
+            isEnabled = true;
+        }
+        else if ( ! disabled.get().equals( "TRUE" ) )
+        {
+            isEnabled = true;
+        }
+
+        Attribute dependencies = AttributeUtils.getAttribute( mods, dependenciesAT );
+        if ( dependencies != null )
+        {
+            checkForDependencies( isEnabled, targetEntry );
         }
     }
 
@@ -111,16 +128,30 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry )
         throws NamingException
     {
-        OidRegistry registry = globalRegistries.getOidRegistry();
         Attribute disabledInEntry = AttributeUtils.getAttribute( entry, disabledAT );
-
-        for ( int ii = 0; ii < mods.length; ii++ )
+        ModificationItemImpl disabledModification = AttributeUtils.getModificationItem( mods, disabledAT );
+        if ( disabledModification != null )
         {
-            String id = registry.getOid( mods[ii].getAttribute().getID() );
-            if ( id.equals( disabledAT.getOid() ) )
-            {
-                disable( name, mods[ii].getModificationOp(), mods[ii].getAttribute(), disabledInEntry );
-            }
+            disable( name, disabledModification.getModificationOp(), disabledModification.getAttribute(), 
+                disabledInEntry );
+        }
+
+        // check if the new schema is enabled or disabled
+        boolean isEnabled = false;
+        Attribute disabled = AttributeUtils.getAttribute( targetEntry, this.disabledAT );
+        if ( disabled == null )
+        {
+            isEnabled = true;
+        }
+        else if ( ! disabled.get().equals( "TRUE" ) )
+        {
+            isEnabled = true;
+        }
+
+        Attribute dependencies = AttributeUtils.getAttribute( mods, dependenciesAT );
+        if ( dependencies != null )
+        {
+            checkForDependencies( isEnabled, targetEntry );
         }
     }
     
@@ -426,7 +457,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
 
     /**
      * Checks to make sure the dependencies either exist for disabled metaSchemas,
-     * or exist and are loaded (enabled) for enabled metaSchemas being added.
+     * or exist and are loaded (enabled) for enabled metaSchemas.
      * 
      * @param isEnabled whether or not the new metaSchema is enabled
      * @param entry the Attributes for the new metaSchema object
@@ -452,8 +483,8 @@ public class MetaSchemaHandler implements SchemaChangeHandler
                 if ( ! loaded.containsKey( dependency ) )
                 {
                     throw new LdapOperationNotSupportedException( 
-                        "Unwilling to add enabled schema with disabled or missing dependencies: " + dependency, 
-                        ResultCodeEnum.UNWILLING_TO_PERFORM );
+                        "Unwilling to perform operation on enabled schema with disabled or missing dependencies: " 
+                        + dependency, ResultCodeEnum.UNWILLING_TO_PERFORM );
                 }
             }
         }
@@ -466,7 +497,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
                 if ( ! allSchemas.contains( dependency ) )
                 {
                     throw new LdapOperationNotSupportedException( 
-                        "Unwilling to add schema with missing dependencies: " + dependency, 
+                        "Unwilling to perform operation on schema with missing dependencies: " + dependency, 
                         ResultCodeEnum.UNWILLING_TO_PERFORM );
                 }
             }

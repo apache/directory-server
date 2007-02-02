@@ -32,5 +32,7 @@ public interface SystemSchemaConstants
 
     public static final String CN_AT = "cn";
     public static final String OBJECT_CLASS_AT = "objectClass";
+    public static final String CREATORS_NAME_AT = "creatorsName";
+    public static final String CREAT_TIMESTAMP_AT = "createTimestamp";
     
 }

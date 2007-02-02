@@ -47,7 +47,6 @@ public interface MetaSchemaConstants
     public static final String M_FQCN_AT = "m-fqcn";
     public static final String M_DEPENDENCIES_AT = "m-dependencies";
     public static final String M_DISABLED_AT = "m-disabled";
-    public static final String M_OWNER_AT = "m-owner";
     public static final String M_DESCRIPTION_AT = "m-description";
     public static final String M_OBSOLETE_AT = "m-obsolete";
     public static final String M_NAME_AT = "m-name";

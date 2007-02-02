@@ -161,7 +161,8 @@ public class SchemaPartitionDao
         return schemaNames;
     }
     
-    
+    private static final String[] SCHEMA_ATTRIBUTES = new String[] { 
+        "creatorsName", "m-dependencies", "objectClass", "cn", "m-disabled" };
     private NamingEnumeration listSchemas() throws NamingException
     {
         LdapDN base = new LdapDN( "ou=schema" );
@@ -169,6 +170,7 @@ public class SchemaPartitionDao
         ExprNode filter = new SimpleNode( oidRegistry.getOid( "objectClass" ), "metaSchema", AssertionEnum.EQUALITY );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        searchControls.setReturningAttributes( SCHEMA_ATTRIBUTES );
         return partition.search( base, new HashMap(), filter, searchControls );
     }
 

@@ -325,12 +325,13 @@ public class BootstrapPlugin extends AbstractMojo
         {
             AttributeType at = ( AttributeType ) ii.next();
             String schemaName = attributeTypeRegistry.getSchemaName( at.getOid() );
+            Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( at ) );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( CoreSchemaConstants.OU_AT + "=attributeTypes" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
-            Attributes entry = attributesFactory.getAttributes( at );
+            Attributes entry = attributesFactory.getAttributes( at, schema );
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + at.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             store.add( dn, entry );
@@ -352,12 +353,13 @@ public class BootstrapPlugin extends AbstractMojo
         {
             ObjectClass oc = ( ObjectClass ) ii.next();
             String schemaName = objectClassRegistry.getSchemaName( oc.getOid() );
+            Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( oc ) );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( CoreSchemaConstants.OU_AT + "=objectClasses" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
-            Attributes entry = attributesFactory.getAttributes( oc );
+            Attributes entry = attributesFactory.getAttributes( oc, schema );
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + oc.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             store.add( dn, entry );
@@ -379,12 +381,13 @@ public class BootstrapPlugin extends AbstractMojo
         {
             MatchingRule mr = ( MatchingRule ) ii.next();
             String schemaName = matchingRuleRegistry.getSchemaName( mr.getOid() );
+            Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( mr ) );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( CoreSchemaConstants.OU_AT + "=matchingRules" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
-            Attributes entry = attributesFactory.getAttributes( mr );
+            Attributes entry = attributesFactory.getAttributes( mr, schema );
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + mr.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             store.add( dn, entry );
@@ -406,12 +409,13 @@ public class BootstrapPlugin extends AbstractMojo
         {
             String oid = ( String ) ii.next();
             String schemaName = comparatorRegistry.getSchemaName( oid );
+            Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + oid );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( CoreSchemaConstants.OU_AT + "=comparators" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
-            Attributes entry = attributesFactory.getAttributes( oid, comparatorRegistry.lookup( oid ) );
+            Attributes entry = attributesFactory.getAttributes( oid, comparatorRegistry.lookup( oid ), schema );
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + oid );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             store.add( dn, entry );
@@ -433,12 +437,13 @@ public class BootstrapPlugin extends AbstractMojo
         {
             String oid = ( String ) ii.next();
             String schemaName = normalizerRegistry.getSchemaName( oid );
+            Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + oid );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( CoreSchemaConstants.OU_AT + "=normalizers" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
-            Attributes entry = attributesFactory.getAttributes( oid, normalizerRegistry.lookup( oid ) );
+            Attributes entry = attributesFactory.getAttributes( oid, normalizerRegistry.lookup( oid ), schema );
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + oid );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             store.add( dn, entry );
@@ -461,10 +466,11 @@ public class BootstrapPlugin extends AbstractMojo
             Syntax syntax = ( Syntax ) ii.next();
             getLog().info( "\t\t o [" + syntax.getSchema() + "] - " + getNameOrNumericoid( syntax ) );
             LdapDN dn = checkCreateSchema( syntax.getSchema() );
+            Schema schema = ( Schema ) registries.getLoadedSchemas().get( syntax.getSchema() );
             dn.add( CoreSchemaConstants.OU_AT + "=syntaxes" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
-            Attributes entry = attributesFactory.getAttributes( syntax );
+            Attributes entry = attributesFactory.getAttributes( syntax, schema );
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + syntax.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             store.add( dn, entry );
@@ -486,12 +492,13 @@ public class BootstrapPlugin extends AbstractMojo
         {
             SyntaxChecker syntaxChecker = ( SyntaxChecker ) ii.next();
             String schemaName = syntaxCheckerRegistry.getSchemaName( syntaxChecker.getSyntaxOid() );
+            Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + syntaxChecker.getSyntaxOid() );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( CoreSchemaConstants.OU_AT + "=syntaxCheckers" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
-            Attributes entry = attributesFactory.getAttributes( syntaxChecker );
+            Attributes entry = attributesFactory.getAttributes( syntaxChecker, schema );
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + syntaxChecker.getSyntaxOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             store.add( dn, entry );

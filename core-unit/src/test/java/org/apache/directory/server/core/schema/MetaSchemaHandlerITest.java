@@ -67,7 +67,6 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
-        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
         super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
         
@@ -85,7 +84,6 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
-        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
         dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
         dummySchema.get( MetaSchemaConstants.M_DEPENDENCIES_AT ).add( "core" );
@@ -105,7 +103,6 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
-        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
         dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "missing" );
         dummySchema.get( MetaSchemaConstants.M_DEPENDENCIES_AT ).add( "core" );
@@ -141,7 +138,6 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
-        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
         super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
         
         assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
@@ -158,7 +154,6 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
-        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
         dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
         
         try
@@ -242,7 +237,6 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
-        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
         dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "missing" );
         
         try
@@ -369,7 +363,6 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
-        dummySchema.put( MetaSchemaConstants.M_OWNER_AT, "uid=admin,ou=system" );
         dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
         super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
         
@@ -489,5 +482,89 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         catch( LdapNameNotFoundException e )
         {
         }
+    }
+
+
+    // -----------------------------------------------------------------------
+    // Dependency Modify Tests
+    // -----------------------------------------------------------------------
+
+
+    /**
+     * Checks to make sure the addition of an undefined schema to the dependencies 
+     * of an existing schema fail with an UNWILLING_TO_PERFORM result code.
+     */
+    public void testRejectAddBogusDependency() throws Exception
+    {
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        Attribute attr = new AttributeImpl( "m-dependencies", "bogus" );
+        mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        
+        try
+        {
+            schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
+            fail( "Should not be able to add bogus dependency to schema" );
+        }
+        catch ( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+    }
+
+
+    /**
+     * Checks to make sure the addition of an defined yet disabled schema to the 
+     * dependencies of an existing enabled schema fails with an UNWILLING_TO_PERFORM 
+     * result code.  You must enable the dependency to add it or disable the schema 
+     * depending on it to add it.
+     */
+    public void testRejectAddOfDisabledDependencyToEnabledSchema() throws Exception
+    {
+        enableSchema( TEST_SCHEMA );
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        Attribute attr = new AttributeImpl( "m-dependencies", "mozilla" );
+        mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        
+        try
+        {
+            schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
+            fail( "Should not be able to add disabled dependency to schema" );
+        }
+        catch ( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+    }
+
+
+    /**
+     * Checks to make sure the addition of an defined yet disabled schema to the 
+     * dependencies of an existing disabled schema succeeds. 
+     */
+    public void testAddOfDisabledDependencyToDisabledSchema() throws Exception
+    {
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        Attribute attr = new AttributeImpl( "m-dependencies", "mozilla" );
+        mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
+        Attributes attrs = schemaRoot.getAttributes( "cn=" + TEST_SCHEMA );
+        Attribute dependencies = attrs.get( "m-dependencies" );
+        assertTrue( dependencies.contains( "mozilla" ) );
+    }
+
+
+    /**
+     * Checks to make sure the addition of an defined yet enabled schema to the 
+     * dependencies of an existing disabled schema succeeds. 
+     */
+    public void testAddOfEnabledDependencyToDisabledSchema() throws Exception
+    {
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        Attribute attr = new AttributeImpl( "m-dependencies", "java" );
+        mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
+        Attributes attrs = schemaRoot.getAttributes( "cn=" + TEST_SCHEMA );
+        Attribute dependencies = attrs.get( "m-dependencies" );
+        assertTrue( dependencies.contains( "java" ) );
     }
 }

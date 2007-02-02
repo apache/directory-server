@@ -51,7 +51,6 @@
 #         | 1.3.6.1.4.1.18060.0.4.0.2.6  | m-must                      |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.7  | m-may                       |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.8  | m-typeObjectClass           |
-#         | 1.3.6.1.4.1.18060.0.4.0.2.9  | m-extensionObjectClass      |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.10 | m-supAttributeType          |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.11 | m-equality                  |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.12 | m-ordering                  |
@@ -61,27 +60,19 @@
 #         | 1.3.6.1.4.1.18060.0.4.0.2.16 | m-collective                |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.17 | m-noUserModification        |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.18 | m-usage                     |
-#         | 1.3.6.1.4.1.18060.0.4.0.2.19 | m-extensionAttributeType    |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.20 | m-ruleId                    |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.21 | m-form                      |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.22 | m-supDITStructureRule       |
-#         | 1.3.6.1.4.1.18060.0.4.0.2.23 | m-extensionDITStructureRule |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.24 | m-oc                        |
-#         | 1.3.6.1.4.1.18060.0.4.0.2.25 | m-extensionNameForm         |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.26 | m-aux                       |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.27 | m-not                       |
-#         | 1.3.6.1.4.1.18060.0.4.0.2.28 | m-extensionDITContentRule   |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.29 | m-applies                   |
-#         | 1.3.6.1.4.1.18060.0.4.0.2.30 | m-extensionMatchingRuleUse  |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.31 | m-matchingRuleSyntax        |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.32 | m-fqcn                      |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.33 | m-bytecode                  |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.34 | x-humanReadible             |
-#         | 1.3.6.1.4.1.18060.0.4.0.2.35 | m-extensionSyntax           |
-#         | 1.3.6.1.4.1.18060.0.4.0.2.36 | m-extensionMatchingRule     |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.37 | m-disabled                  |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.38 | m-dependencies              |
-#         | 1.3.6.1.4.1.18060.0.4.0.2.39 | m-owner                     |
 #         +------------------------------+-----------------------------+
 #
 #         +------------------------------+-----------------------------+
@@ -142,7 +133,7 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.2
     STRUCTURAL
     MUST m-oid
     MAY ( m-name $ m-obsolete $ m-supObjectClass $ m-typeObjectClass $ m-must $ 
-	  m-may $ m-extensionObjectClass )
+	  m-may )
 )
 
 # --- metaAttributeType objectclass -------------------------------------------
@@ -179,7 +170,7 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.3
     STRUCTURAL
     MAY ( m-name $ m-obsolete $ m-supAttributeType $ m-equality $ m-ordering $ 
           m-substr $ m-syntax $ m-singleValue $ m-collective $
-          m-noUserModification $ m-usage $ m-extensionAttributeType )
+          m-noUserModification $ m-usage )
 )
 
 # --- metaSyntax objectclass --------------------------------------------------
@@ -196,7 +187,6 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.4
     DESC 'meta definition of the Syntax object'
     SUP metaTop
     STRUCTURAL
-    MAY m-extensionSyntax
 )
 
 # --- metaMatchingRule objectclass --------------------------------------------
@@ -216,7 +206,7 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.5
     SUP metaTop
     STRUCTURAL
     MUST m-syntax
-    MAY ( m-name $ m-obsolete $ m-extensionMatchingRule )
+    MAY ( m-name $ m-obsolete )
 )
 
 # --- metaDITStructureRule objectclass ----------------------------------------
@@ -240,8 +230,7 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.6
     SUP top
     STRUCTURAL
     MUST ( m-ruleId $ m-form )
-    MAY ( m-name $ m-obsolete $ m-supDITStructureRule $ 
-          m-extensionDITStructureRule )
+    MAY ( m-name $ m-obsolete $ m-supDITStructureRule ) 
 )
 
 # --- metaNameForm objectclass ------------------------------------------------
@@ -262,7 +251,7 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.7
     SUP metaTop
     STRUCTURAL
     MUST ( m-oc $ m-must )
-    MAY ( m-name $ m-obsolete $ m-may $ m-extensionNameForm )
+    MAY ( m-name $ m-obsolete $ m-may )
 )
 
 # --- metaMatchingRuleUse objectclass -----------------------------------------
@@ -281,7 +270,7 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.8
     SUP metaTop
     STRUCTURAL
     MUST m-applies
-    MAY ( m-name $ m-obsolete $ m-extensionMatchingRuleUse )
+    MAY ( m-name $ m-obsolete )
 )
 
 # --- metaDITContentRule objectclass ------------------------------------------
@@ -302,8 +291,7 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.9
     DESC 'meta definition of the DITContentRule object'
     SUP metaTop
     STRUCTURAL
-    MAY ( m-name $ m-obsolete $ m-aux $ m-must $ m-may $ m-not $ 
-          m-extensionDITContentRule )
+    MAY ( m-name $ m-obsolete $ m-aux $ m-must $ m-may $ m-not )
 )
 
 # --- metaSyntaxChecker objectclass -------------------------------------------
@@ -323,7 +311,7 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.11
     SUP top
     STRUCTURAL
     MUST ( cn )
-    MAY ( m-disabled $ m-dependencies $ m-owner )
+    MAY ( m-disabled $ m-dependencies )
 )
 
 # --- metaNormalizer objectclass ----------------------------------------------
@@ -409,13 +397,6 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.8 NAME 'm-typeObjectClass'
     SINGLE-VALUE
 )
 
-# --- m-extensionObjectClass AttributeType ------------------------------------
-attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.9 NAME 'm-extensionObjectClass'
-    DESC 'An objectclass extension'
-    EQUALITY caseIgnoreMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768}
-)
-
 # --- m-supAttributeType AttributeType ----------------------------------------
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.10 NAME 'm-supAttributeType'
     DESC 'The list of superior'
@@ -488,13 +469,6 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.18 NAME 'm-usage'
     SINGLE-VALUE
 )
 
-# --- m-extensionAttributeType AttributeType ----------------------------------
-attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.19 NAME 'm-extensionAttributeType'
-    DESC 'Extension for attributeType'
-    EQUALITY caseIgnoreMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
-)
-
 # --- m-ruleId AttributeType --------------------------------------------------
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.20 NAME 'm-ruleId'
     DESC 'The rule ID'
@@ -516,25 +490,11 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.22 NAME 'm-supDITStructureRule'
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.36
 )
 
-# --- m-extensionDITStructureRule AttributeType -------------------------------
-attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.23 NAME 'm-extensionDITStructureRule'
-    DESC 'Extensions for DITStructureRule'
-    EQUALITY caseIgnoreMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
-)
-
 # --- m-oc AttributeType ------------------------------------------------------
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.24 NAME 'm-oc'
     DESC 'The structural ObjectClass'
     EQUALITY numericOidMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
-)
-
-# --- m-extensionNameForm AttributeType ---------------------------------------
-attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.25 NAME 'm-extensionNameForm'
-    DESC 'Extensions for NameForm'
-    EQUALITY caseIgnoreMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
 )
 
 # --- m-aux AttributeType -----------------------------------------------------
@@ -551,25 +511,11 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.27 NAME 'm-not'
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
 )
 
-# --- m-extensionDITContentRule AttributeType ---------------------------------
-attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.28 NAME 'm-extensionDITContentRule'
-    DESC 'Extensions for DITContentRule'
-    EQUALITY caseIgnoreMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
-)
-
 # --- m-applies AttributeType -------------------------------------------------
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.29 NAME 'm-applies'
     DESC 'List of attribute types the matching rule applies to'
     EQUALITY numericOidMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
-)
-
-# --- m-extensionMatchingRuleUse AttributeType --------------------------------
-attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.30 NAME 'm-extensionMatchingRuleUse'
-    DESC 'Extensions for MatchingRuleUse'
-    EQUALITY caseIgnoreMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
 )
 
 # --- m-matchingRuleSyntax AttributeType --------------------------------------
@@ -603,20 +549,6 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.34 NAME 'x-humanReadible'
     SINGLE-VALUE
 )
 
-# --- m-extensionSyntax AttributeType -----------------------------------------
-attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.35 NAME 'm-extensionSyntax'
-    DESC 'Extensions for Syntax'
-    EQUALITY caseIgnoreMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
-)
-
-# --- m-extensionMatchingRule AttributeType -----------------------------------
-attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.36 NAME 'm-extensionMatchingRule'
-    DESC 'Extensions for MatchingRule'
-    EQUALITY caseIgnoreMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
-)
-
 # --- m-disabled AttributeType -----------------------------------
 attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.37 NAME 'm-disabled'
     DESC 'Used as a marker for schemas to enable or disable them.'
@@ -631,14 +563,4 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.38 NAME 'm-dependencies'
     EQUALITY caseIgnoreMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
 )
-
-# --- m-owner AttributeType -----------------------------------
-attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.39 NAME 'm-owner'
-    DESC 'The owner of this schema.'
-    EQUALITY distinguishedNameMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
-    SINGLE-VALUE
-)
-
-
 

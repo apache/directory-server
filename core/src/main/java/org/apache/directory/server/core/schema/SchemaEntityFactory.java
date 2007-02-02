@@ -97,12 +97,12 @@ public class SchemaEntityFactory
         }
         name = ( String ) entry.get( SystemSchemaConstants.CN_AT ).get();
         
-        if ( entry.get( MetaSchemaConstants.M_OWNER_AT ) == null )
+        if ( entry.get( SystemSchemaConstants.CREATORS_NAME_AT ) == null )
         {
             throw new NullPointerException( "entry must have a valid " 
-                + MetaSchemaConstants.M_OWNER_AT + " attribute" );
+                + SystemSchemaConstants.CREATORS_NAME_AT + " attribute" );
         }
-        owner = ( String ) entry.get( MetaSchemaConstants.M_OWNER_AT ).get();
+        owner = ( String ) entry.get( SystemSchemaConstants.CREATORS_NAME_AT ).get();
         
         if ( entry.get( MetaSchemaConstants.M_DISABLED_AT ) != null )
         {
