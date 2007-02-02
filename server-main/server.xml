@@ -145,6 +145,12 @@
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
+          <property name="name" value="operationalAttributeService" />
+          <property name="interceptor">
+            <bean class="org.apache.directory.server.core.operational.OperationalAttributeService" />
+          </property>
+        </bean>
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="schemaService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.schema.SchemaService" />
@@ -154,12 +160,6 @@
           <property name="name" value="subentryService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.subtree.SubentryService" />
-          </property>
-        </bean>
-        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
-          <property name="name" value="operationalAttributeService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.operational.OperationalAttributeService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
