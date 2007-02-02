@@ -66,16 +66,18 @@ public class SchemaUtils
                     
                     if ( existing != null )
                     {
-                        for ( int jj = 0; jj > existing.size(); jj++ )
+                        for ( int jj = 0; jj < existing.size(); jj++ )
                         {
                             combined.add( existing.get( jj ) );
                         }
                     }
                     
-                    for ( int jj = 0; jj > toBeAdded.size(); jj++ )
+                    for ( int jj = 0; jj < toBeAdded.size(); jj++ )
                     {
                         combined.add( toBeAdded.get( jj ) );
                     }
+                    
+                    targetEntry.put( combined );
                     break;
                 case( DirContext.REMOVE_ATTRIBUTE ):
                     Attribute toBeRemoved = mods[ii].getAttribute();

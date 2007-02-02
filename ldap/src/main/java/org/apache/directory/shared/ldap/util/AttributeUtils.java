@@ -211,13 +211,13 @@ public class AttributeUtils
     
     
     /**
-     * Utility method to extract an attribute from an array of modifications.
+     * Utility method to extract a modification item from an array of modifications.
      * 
      * @param mods the array of ModificationItems to extract the Attribute from.
      * @param type the attributeType spec of the Attribute to extract
-     * @return the extract Attribute or null if no such attribute exists
+     * @return the modification item on the attributeType specified
      */
-    public final static Attribute getAttribute( ModificationItemImpl[] mods, AttributeType type )
+    public final static ModificationItemImpl getModificationItem( ModificationItemImpl[] mods, AttributeType type )
     {
         // optimization bypass to avoid cost of the loop below
         if ( type.getNames().length == 1 )
@@ -226,7 +226,7 @@ public class AttributeUtils
             {
                 if ( mods[jj].getAttribute().getID().equalsIgnoreCase( type.getNames()[0] ) )
                 {
-                    return mods[jj].getAttribute();
+                    return mods[jj];
                 }
             }
         }
@@ -236,7 +236,7 @@ public class AttributeUtils
         {
             if ( mods[jj].getAttribute().getID().equals( type.getOid() ) )
             {
-                return mods[jj].getAttribute();
+                return mods[jj];
             }
         }
         
@@ -247,11 +247,29 @@ public class AttributeUtils
             {
                 if ( mods[jj].getAttribute().getID().equalsIgnoreCase( type.getNames()[ii] ) )
                 {
-                    return mods[jj].getAttribute();
+                    return mods[jj];
                 }
             }
         }
         
+        return null;
+    }
+    
+    
+    /**
+     * Utility method to extract an attribute from an array of modifications.
+     * 
+     * @param mods the array of ModificationItems to extract the Attribute from.
+     * @param type the attributeType spec of the Attribute to extract
+     * @return the extract Attribute or null if no such attribute exists
+     */
+    public final static Attribute getAttribute( ModificationItemImpl[] mods, AttributeType type )
+    {
+        ModificationItemImpl mod = getModificationItem( mods, type );
+        if ( mod != null )
+        {
+            return mod.getAttribute();
+        }
         return null;
     }
     
