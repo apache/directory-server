@@ -56,6 +56,9 @@ public abstract class AbstractServerTest extends TestCase
     /** the context root for the system partition */
     protected LdapContext sysRoot;
 
+    /** the context root for the rootDSE */
+    protected LdapContext rootDSE;
+
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
 
@@ -78,7 +81,7 @@ public abstract class AbstractServerTest extends TestCase
         port = AvailablePortFinder.getNextAvailable( 1024 );
         configuration.setLdapPort( port );
         configuration.setShutdownHookEnabled( false );
-        setSysRoot( "uid=admin,ou=system", "secret" );
+        setContexts( "uid=admin,ou=system", "secret" );
     }
 
 
@@ -102,40 +105,40 @@ public abstract class AbstractServerTest extends TestCase
 
 
     /**
-     * Sets and returns the system root.  Values of user and password used to
+     * Sets the contexts for this base class.  Values of user and password used to
      * set the respective JNDI properties.  These values can be overriden by the
      * overrides properties.
      *
      * @param user the username for authenticating as this user
      * @param passwd the password of the user
-     * @return the sysRoot context which is also set
      * @throws NamingException if there is a failure of any kind
      */
-    protected LdapContext setSysRoot( String user, String passwd ) throws NamingException
+    protected void setContexts( String user, String passwd ) throws NamingException
     {
         Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
         env.put( Context.SECURITY_PRINCIPAL, user );
         env.put( Context.SECURITY_CREDENTIALS, passwd );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        return setSysRoot( env );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+        setContexts( env );
     }
 
 
     /**
-     * Sets the system root taking into account the extras and overrides
-     * properties.  In between these it sets the properties for the working
-     * directory, the provider URL and the JNDI InitialContexFactory to use.
+     * Sets the contexts of this class taking into account the extras and overrides
+     * properties.
      *
      * @param env an environment to use while setting up the system root.
-     * @return the sysRoot context which is also set
      * @throws NamingException if there is a failure of any kind
      */
-    protected LdapContext setSysRoot( Hashtable env ) throws NamingException
+    protected void setContexts( Hashtable env ) throws NamingException
     {
         Hashtable envFinal = new Hashtable( env );
         envFinal.put( Context.PROVIDER_URL, "ou=system" );
-        envFinal.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
-        return sysRoot = new InitialLdapContext( envFinal, null );
+        sysRoot = new InitialLdapContext( envFinal, null );
+        
+        envFinal.put( Context.PROVIDER_URL, "" );
+        rootDSE = new InitialLdapContext( envFinal, null );
     }
 
 
@@ -178,10 +181,6 @@ public abstract class AbstractServerTest extends TestCase
      */
     protected void importLdif( InputStream in ) throws NamingException
     {
-        Hashtable env = new Hashtable();
-        env.putAll( sysRoot.getEnvironment() );
-        LdapContext ctx = new InitialLdapContext( env, null );
-
         try
         {
             Iterator iterator = new LdifReader( in );
@@ -191,9 +190,8 @@ public abstract class AbstractServerTest extends TestCase
                 Entry entry = ( Entry) iterator.next();
 
                 LdapDN dn = new LdapDN( entry.getDn() );
-                dn.remove( 0 );
 
-                ctx.createSubcontext( dn, entry.getAttributes() );
+                rootDSE.createSubcontext( dn, entry.getAttributes() );
             }
         }
         catch ( Exception e )
