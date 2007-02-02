@@ -107,7 +107,7 @@ public abstract class ACIItem implements Serializable
      * Converts this item into a collection of {@link ACITuple}s and returns
      * it.
      */
-    public abstract Collection toTuples();
+    public abstract Collection<ACITuple> toTuples();
 
 
     /**
@@ -125,7 +125,7 @@ public abstract class ACIItem implements Serializable
      */
     protected static Set toMicroOperations( Set grantsAndDenials )
     {
-        Set microOps = new HashSet();
+        Set<MicroOperation> microOps = new HashSet<MicroOperation>();
         for ( Iterator j = grantsAndDenials.iterator(); j.hasNext(); )
         {
             microOps.add( ( ( GrantAndDenial ) j.next() ).getMicroOperation() );
