@@ -84,6 +84,9 @@ public abstract class AbstractTestCase extends TestCase
 
     /** the context root for the schema partition */
     protected LdapContext schemaRoot;
+    
+    /** the rootDSE context for the server */
+    protected LdapContext rootDSE;
 
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
@@ -283,8 +286,12 @@ public abstract class AbstractTestCase extends TestCase
 
         // OK, now let's get an appropriate context.
         sysRoot = new InitialLdapContext( envFinal, null );
+
         envFinal.put( Context.PROVIDER_URL, "ou=schema" );
         schemaRoot = new InitialLdapContext( envFinal, null );
+        
+        envFinal.put( Context.PROVIDER_URL, "" );
+        rootDSE = new InitialLdapContext( envFinal, null );
     }
 
 
