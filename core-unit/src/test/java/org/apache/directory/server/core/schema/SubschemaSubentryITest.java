@@ -28,6 +28,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
@@ -105,6 +106,67 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         {
             rootDSE.destroySubcontext( getSubschemaSubentryDN() );
             fail( "You are not allowed to delete the global schema subentry" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+    }
+
+
+    /**
+     * Tests the rejection of an add operation for the SubschemaSubentry (SSSE).
+     */
+    public void testSSSEAddRejection() throws NamingException
+    {
+        try
+        {
+            rootDSE.createSubcontext( getSubschemaSubentryDN(), getSubschemaSubentryAttributes() );
+            fail( "You are not allowed to add the global schema subentry which exists by default" );
+        }
+        catch( LdapNameAlreadyBoundException e )
+        {
+            assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
+        }
+    }
+
+
+    /**
+     * Tests the rejection of rename (modifyDn) operation for the SubschemaSubentry (SSSE).
+     */
+    public void testSSSERenameRejection() throws NamingException
+    {
+        try
+        {
+            rootDSE.rename( getSubschemaSubentryDN(), "cn=schema,ou=system" );
+            fail( "You are not allowed to rename the global schema subentry which is fixed" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+    }
+
+
+    /**
+     * Tests the rejection of move operation for the SubschemaSubentry (SSSE).
+     */
+    public void testSSSEMoveRejection() throws NamingException
+    {
+        try
+        {
+            rootDSE.rename( getSubschemaSubentryDN(), "cn=blah,ou=schema" );
+            fail( "You are not allowed to move the global schema subentry which is fixed" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+
+        try
+        {
+            rootDSE.rename( getSubschemaSubentryDN(), "cn=schema,ou=schema" );
+            fail( "You are not allowed to move the global schema subentry which is fixed" );
         }
         catch( LdapOperationNotSupportedException e )
         {

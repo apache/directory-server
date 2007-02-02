@@ -49,6 +49,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
 
 /**
@@ -100,6 +101,12 @@ public class ExceptionService extends BaseInterceptor
     public void add( NextInterceptor nextInterceptor, LdapDN normName, Attributes entry )
         throws NamingException
     {
+        if ( subschemSubentryDn.getNormName().equals( normName.getNormName() ) )
+        {
+            throw new LdapNameAlreadyBoundException( 
+                "The global schema subentry cannot be added since it exists by default." );
+        }
+        
         // check if the entry already exists
         if ( nextInterceptor.hasEntry( normName ) )
         {
@@ -183,6 +190,12 @@ public class ExceptionService extends BaseInterceptor
      */
     public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN baseName ) throws NamingException
     {
+        if ( baseName.getNormName().equals( subschemSubentryDn.getNormName() ) )
+        {
+            // there is nothing under the schema subentry
+            return new EmptyEnumeration();
+        }
+        
         // check if entry to search exists
         String msg = "Attempt to search under non-existant entry: ";
         assertHasEntry( nextInterceptor, msg, baseName );
@@ -213,6 +226,11 @@ public class ExceptionService extends BaseInterceptor
      */
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
     {
+        if ( name.getNormName().equals( subschemSubentryDn.getNormName() ) )
+        {
+            return nexus.getRootDSE();
+        }
+        
         // check if entry to lookup exists
         String msg = "Attempt to lookup non-existant entry: ";
         assertHasEntry( nextInterceptor, msg, name );
@@ -298,6 +316,14 @@ public class ExceptionService extends BaseInterceptor
     public void modifyRn( NextInterceptor nextInterceptor, LdapDN dn, String newRn, boolean deleteOldRn )
         throws NamingException
     {
+        if ( dn.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
+        {
+            throw new LdapOperationNotSupportedException( 
+                "Can not allow the renaming of the subschemaSubentry (" + 
+                subschemSubentryDn + ") for the global schema: it is fixed at " + subschemSubentryDn,
+                ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+        
         // check if entry to rename exists
         String msg = "Attempt to rename non-existant entry: ";
         assertHasEntry( nextInterceptor, msg, dn );
@@ -325,6 +351,14 @@ public class ExceptionService extends BaseInterceptor
      */
     public void move( NextInterceptor nextInterceptor, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
     {
+        if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
+        {
+            throw new LdapOperationNotSupportedException( 
+                "Can not allow the move of the subschemaSubentry (" + 
+                subschemSubentryDn + ") for the global schema: it is fixed at " + subschemSubentryDn,
+                ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+        
         // check if child to move exists
         String msg = "Attempt to move to non-existant parent: ";
         assertHasEntry( nextInterceptor, msg, oriChildName );
@@ -361,6 +395,14 @@ public class ExceptionService extends BaseInterceptor
     public void move( NextInterceptor nextInterceptor, LdapDN oriChildName, LdapDN newParentName, String newRn,
         boolean deleteOldRn ) throws NamingException
     {
+        if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
+        {
+            throw new LdapOperationNotSupportedException( 
+                "Can not allow the move of the subschemaSubentry (" + 
+                subschemSubentryDn + ") for the global schema: it is fixed at " + subschemSubentryDn,
+                ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+        
         // check if child to move exists
         String msg = "Attempt to move to non-existant parent: ";
         assertHasEntry( nextInterceptor, msg, oriChildName );
