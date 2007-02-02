@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
  * Test cases for the collective attribute service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev:$
+ * @version $Rev$
  */
 public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
 {
@@ -147,9 +147,9 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
     }
     
     
-    public Map getAllEntriesCollectiveAttributesOnly() throws NamingException
+    public Map<String, Attributes> getAllEntriesCollectiveAttributesOnly() throws NamingException
     {
-        Map resultMap = new HashMap();
+        Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
@@ -310,7 +310,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // ------------------------------------------------------------------
         
         entries = getAllEntriesCollectiveAttributesOnly();
-        attributes = ( Attributes ) entries.get( "ou=services,ou=configuration,ou=system" );
+        attributes = entries.get( "ou=services,ou=configuration,ou=system" );
         c_ou = attributes.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertEquals( "configuration", c_ou.get() );   
