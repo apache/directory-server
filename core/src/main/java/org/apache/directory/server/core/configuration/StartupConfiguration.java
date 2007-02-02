@@ -101,10 +101,7 @@ public class StartupConfiguration extends Configuration
 
     private void setDefaultAuthenticatorConfigurations()
     {
-        Set set;
-
-        // Set default authenticator configurations
-        set = new HashSet();
+        Set<AuthenticatorConfiguration> set = new HashSet<AuthenticatorConfiguration>();
 
         MutableAuthenticatorConfiguration authCfg;
 
@@ -128,7 +125,7 @@ public class StartupConfiguration extends Configuration
     {
         // Set default interceptor chains
         InterceptorConfiguration interceptorCfg;
-        List list = new ArrayList();
+        List<InterceptorConfiguration> list = new ArrayList<InterceptorConfiguration>();
 
         interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "normalizationService" );
@@ -161,6 +158,11 @@ public class StartupConfiguration extends Configuration
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
+        interceptorCfg.setName( "operationalAttributeService" );
+        interceptorCfg.setInterceptor( new OperationalAttributeService() );
+        list.add( interceptorCfg );
+
+        interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "schemaService" );
         interceptorCfg.setInterceptor( new SchemaService() );
         list.add( interceptorCfg );
@@ -168,11 +170,6 @@ public class StartupConfiguration extends Configuration
         interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "subentryService" );
         interceptorCfg.setInterceptor( new SubentryService() );
-        list.add( interceptorCfg );
-
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "operationalAttributeService" );
-        interceptorCfg.setInterceptor( new OperationalAttributeService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
