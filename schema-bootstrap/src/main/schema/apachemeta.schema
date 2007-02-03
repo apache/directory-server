@@ -564,3 +564,31 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.38 NAME 'm-dependencies'
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
 )
 
+#
+# These operational attributes need a syntax!
+#
+
+# --- comparators AttributeType -----------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.39 NAME 'comparators'
+    DESC 'A multivalued comparator description attribute'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    USAGE directoryOperation
+)
+
+# --- normalizers AttributeType -----------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.40 NAME 'normalizers'
+    DESC 'A multivalued normalizer description attribute'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    USAGE directoryOperation
+)
+
+# --- syntaxCheckers AttributeType -----------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.41 NAME 'syntaxCheckers'
+    DESC 'A multivalued syntaxCheckers description attribute'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    USAGE directoryOperation
+)
+
