@@ -199,6 +199,46 @@ public class SearchTest extends AbstractServerTest
         return results;
     }
 
+    protected void checkWhetherFilterFindsEntry( String filter, String sn1, String sn2 ) throws NamingException
+    {
+
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        // Check entry
+        NamingEnumeration enm = ctx.search( "", filter, sctls );
+        assertTrue( "check whether " + filter + " matches an entry", enm.hasMore() );
+        
+        HashSet set = new HashSet();
+        
+        set.add( sn1 );
+        
+        if ( sn2 != null )
+        {
+            set.add( sn2 );
+        }
+        
+        while ( enm.hasMore() )
+        {
+            SearchResult sr = ( SearchResult ) enm.next();
+            Attributes attrs = sr.getAttributes();
+            Attribute sn = attrs.get( "sn" );
+            assertNotNull( sn );
+            
+            String value = (String)sn.get();
+            
+            assertTrue( set.size() > 0 );
+            assertTrue( set.contains( value ) );
+            
+            set.remove( value );
+        }
+        
+        enm.close();
+    }
+
+
+    
+    
     protected void checkForAttributes( Attributes attrs, String[] attrNames )
     {
         for ( int i = 0; i < attrNames.length; i++ )
@@ -995,5 +1035,55 @@ public class SearchTest extends AbstractServerTest
         }
 
         result.close();
+    }
+    
+    // In the following tests, the sn=Minogue does not exist
+    // but as the search is a |, we should find at least the
+    // cn=Tori Amos entry.
+    public void testWithOriginalIssueFilter() throws NamingException
+    {
+        String filter = "(&(objectClass=person)(cn=Tori*))";
+        checkWhetherFilterFindsEntry( filter, "Amos", null );
+
+        filter = "(&(objectClass=person)(|(cn=Tori*)(sn=Jagger)))";
+        checkWhetherFilterFindsEntry( filter, "Amos", "Jagger" );
+
+        filter = "(&(objectClass=person)(|(cn=Tori*)(sn=Jagger)))";
+        checkWhetherFilterFindsEntry( filter, "Amos", "Jagger" );
+    }
+
+
+    public void testWithOriginalIssueFilterWithoutAsterisk() throws NamingException
+    {
+        String filter = "(&(objectClass=person)(|(cn=Tori Amos)(sn=Jagger)))";
+        checkWhetherFilterFindsEntry( filter , "Amos", "Jagger");
+    }
+
+
+    public void testWithFilterWithAsteriskNotNecessary() throws NamingException
+    {
+        String filter = "(&(objectClass=person)(|(cn=Tori*)(sn=Amos)))";
+        checkWhetherFilterFindsEntry( filter, "Amos", null );
+    }
+
+
+    public void testWithReducedOriginalFilter() throws NamingException
+    {
+        String filter = "(|(cn=Tori*)(sn=Jagger))";
+        checkWhetherFilterFindsEntry( filter, "Amos", "Jagger" );
+    }
+
+
+    public void testWithOriginalFilterPermutation1() throws NamingException
+    {
+        String filter = "(&(objectClass=person)(|(sn=Jagger)(cn=Tori*)))";
+        checkWhetherFilterFindsEntry( filter, "Amos", "Jagger" );
+    }
+
+
+    public void testWithOriginalFilterPermutation2() throws NamingException
+    {
+        String filter = "(&(|(cn=Tori*)(sn=Jagger))(objectClass=person))";
+        checkWhetherFilterFindsEntry( filter, "Amos", "Jagger" );
     }
 }
