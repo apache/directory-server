@@ -402,20 +402,20 @@ public class SchemaManager
      * @param targetSubentry the target subentry after being modified
      */
     public void modifySchemaSubentry( LdapDN name, ModificationItemImpl[] mods, Attributes subentry, 
-        Attributes targetSubentry ) throws NamingException
+        Attributes targetSubentry ) throws NamingException 
     {
-        for ( int ii = 0; ii < mods.length; ii++ )
+        for ( ModificationItemImpl mod : mods )
         {
-            switch ( mods[ii].getModificationOp() )
+            switch ( mod.getModificationOp() )
             {
                 case( DirContext.ADD_ATTRIBUTE ):
                     break;
                 case( DirContext.REMOVE_ATTRIBUTE ):
-                    break;
+                    break; 
                 case( DirContext.REPLACE_ATTRIBUTE ):
                     break;
                 default:
-                    throw new IllegalStateException( "Undefined modify operation: " + mods[ii].getModificationOp() );
+                    throw new IllegalStateException( "Undefined modify operation: " + mod.getModificationOp() );
             }
         }
     }
