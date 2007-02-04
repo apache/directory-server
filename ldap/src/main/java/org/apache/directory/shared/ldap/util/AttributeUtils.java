@@ -43,6 +43,39 @@ import javax.naming.NamingException;
 public class AttributeUtils
 {
     /**
+     * Correctly removes an attribute from an entry using it's attributeType information.
+     * 
+     * @param type the attributeType of the attribute to remove
+     * @param entry the entry to remove the attribute from 
+     * @return the Attribute that is removed
+     * @throws NamingException if there are problems accessing the attribute
+     */
+    public static Attribute removeAttribute( AttributeType type, Attributes entry ) throws NamingException
+    {
+        Attribute attr = entry.get( type.getOid() );
+        if ( attr == null )
+        {
+            String[] aliases = type.getNames();
+            for ( int ii = 0; ii < aliases.length; ii++ )
+            {
+                attr = entry.get( aliases[ii] );
+                if ( attr != null )
+                {
+                    return entry.remove( attr.getID() );
+                }
+            }
+        }
+        
+        if ( attr == null )
+        {
+            return null;
+        }
+        
+        return entry.remove( attr.getID() );
+    }
+    
+    
+    /**
      * Compare two values and return true if they are equal.
      * 
      * @param value1 The first value
