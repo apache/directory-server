@@ -30,16 +30,13 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
-import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.Name;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
@@ -47,7 +44,6 @@ import javax.naming.directory.SearchResult;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.Collections;
 
 
 /**
@@ -62,6 +58,16 @@ import java.util.Collections;
  */
 public class CollectiveAttributeService extends BaseInterceptor
 {
+    public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
+
+    public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID = "2.5.18.0";
+    public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES = "excludeAllCollectiveAttributes";
+
+    private AttributeTypeRegistry attrTypeRegistry = null;
+    private PartitionNexus nexus = null;
+    //private AttributeTypeRegistry registry = null;
+
+
     /**
      * the search result filter to use for collective attribute injection
      */
@@ -70,39 +76,40 @@ public class CollectiveAttributeService extends BaseInterceptor
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
             throws NamingException
         {
-            return filter( result.getAttributes() );
+            LdapDN name = new LdapDN( result.getName() );
+            name = LdapDN.normalize( name, attrTypeRegistry.getNormalizerMapping() );
+            Attributes entry = result.getAttributes();
+            String[] retAttrs = controls.getReturningAttributes();
+            addCollectiveAttributes( name, entry, retAttrs );
+            return true;
         }
     };
 
-    private AttributeTypeRegistry registry = null;
-    private PartitionNexus nexus = null;
-
-
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
-    {
-        super.init( factoryCfg, cfg );
-        nexus = factoryCfg.getPartitionNexus();
-        registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-    }
-
-
     /**
-     * Adds the set of collective attributes contained in subentries referenced
-     * by the entry.  All collective attributes that are not exclused are added
-     * to the entry from all subentries.
+     * Adds the set of collective attributes requested in the returning attribute list
+     * and contained in subentries referenced by the entry. Excludes collective
+     * attributes that are specified to be excluded via the 'collectiveExclusions'
+     * attribute in the entry.
      *
+     * @param normName name of the entry being processed
      * @param entry the entry to have the collective attributes injected
+     * @param retAttrs array or attribute type to be specifically included in the result entry(s)
      * @throws NamingException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( Attributes entry ) throws NamingException
+    private void addCollectiveAttributes( LdapDN normName, Attributes entry, String[] retAttrs ) throws NamingException
     {
-        Attribute subentries = entry.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        Attributes entryWithCAS = nexus.lookup( normName, new String[] { COLLECTIVE_ATTRIBUTE_SUBENTRIES } );
+        Attribute caSubentries = entryWithCAS.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
 
-        if ( subentries == null )
+        /*
+         * If there are no collective attribute subentries referenced
+         * then we have no collective attributes to inject to this entry.
+         */
+        if ( caSubentries == null )
         {
             return;
         }
-
+        
         /*
          * Before we proceed we need to lookup the exclusions within the
          * entry and build a set of exclusions for rapid lookup.  We use
@@ -110,25 +117,47 @@ public class CollectiveAttributeService extends BaseInterceptor
          * may have case variance.
          */
         Attribute collectiveExclusions = entry.get( "collectiveExclusions" );
-        Set exclusions;
+        Set exclusions = new HashSet();
+        
         if ( collectiveExclusions != null )
         {
-            if ( collectiveExclusions.contains( "2.5.18.0" )
-                || AttributeUtils.containsValueCaseIgnore( collectiveExclusions, "excludeAllCollectiveAttributes" ) )
+            if ( collectiveExclusions.contains( EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID )
+                || collectiveExclusions.contains( EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES ) )
             {
+                /*
+                 * This entry does not allow any collective attributes
+                 * to be injected into itself.
+                 */
                 return;
             }
 
             exclusions = new HashSet();
+            
             for ( int ii = 0; ii < collectiveExclusions.size(); ii++ )
             {
-                AttributeType attrType = registry.lookup( ( String ) collectiveExclusions.get( ii ) );
+                AttributeType attrType = attrTypeRegistry.lookup( ( String ) collectiveExclusions.get( ii ) );
                 exclusions.add( attrType.getOid() );
             }
         }
-        else
+        
+        /*
+         * If no attributes are requested specifically
+         * then it means all user attributes are requested.
+         * So populate the array with all user attributes indicator: "*".
+         */
+        if ( retAttrs == null )
         {
-            exclusions = Collections.EMPTY_SET;
+            retAttrs = new String[] { "*" };
+        }
+        
+        /*
+         * Construct a set of requested attributes for easier tracking.
+         */ 
+        Set retIdsSet = new HashSet( retAttrs.length );
+        
+        for ( int i=0; i < retAttrs.length; i++ )
+        {
+            retIdsSet.add( retAttrs[i].toLowerCase() );
         }
 
         /*
@@ -136,105 +165,78 @@ public class CollectiveAttributeService extends BaseInterceptor
          * attributes of the subentry and copy collective attributes from the
          * subentry into the entry.
          */
-        for ( int ii = 0; ii < subentries.size(); ii++ )
+        for ( int ii = 0; ii < caSubentries.size(); ii++ )
         {
-            String subentryDnStr = ( String ) subentries.get( ii );
+            String subentryDnStr = ( String ) caSubentries.get( ii );
             LdapDN subentryDn = new LdapDN( subentryDnStr );
             Attributes subentry = nexus.lookup( subentryDn );
             NamingEnumeration attrIds = subentry.getIDs();
+            
             while ( attrIds.hasMore() )
             {
                 String attrId = ( String ) attrIds.next();
-                AttributeType attrType = registry.lookup( attrId );
+                AttributeType attrType = attrTypeRegistry.lookup( attrId );
 
-                // skip the addition of this collective attribute if it is excluded
+                if ( !attrType.isCollective() )
+                {
+                    continue;
+                }
+                
+                /*
+                 * Skip the addition of this collective attribute if it is excluded
+                 * in the 'collectiveAttributes' attribute.
+                 */
                 if ( exclusions.contains( attrType.getOid() ) )
                 {
                     continue;
                 }
 
                 /*
-                 * If the attribute type of the subentry attribute is collective
-                 * then we need to add all the values of the collective attribute
-                 * to the entry making sure we do not overwrite values already
-                 * existing for the collective attribute in case multiple
-                 * subentries add the same collective attributes to this entry.
+                 * If not all attributes or this collective attribute requested specifically
+                 * then bypass the inclusion process.
                  */
-
-                if ( attrType.isCollective() )
+                if ( !( retIdsSet.contains( "*" ) || retIdsSet.contains( attrId ) ) )
                 {
-                    Attribute subentryColAttr = subentry.get( attrId );
-                    Attribute entryColAttr = entry.get( attrId );
+                    /*
+                     * TODO: Check if the requested attribute types list includes any type
+                     *       that is a supertype of any collective attribute that applies
+                     *       to this entry.
+                     *       
+                     * See: http://issues.apache.org/jira/browse/DIRSERVER-820
+                     */
+                    continue;
+                }
+                
+                Attribute subentryColAttr = subentry.get( attrId );
+                Attribute entryColAttr = entry.get( attrId );
 
-                    // if entry does not have attribute for colattr then create it
-                    if ( entryColAttr == null )
-                    {
-                        entryColAttr = new LockableAttributeImpl( attrId );
-                        entry.put( entryColAttr );
-                    }
+                /*
+                 * If entry does not have attribute for collective attribute then create it.
+                 */
+                if ( entryColAttr == null )
+                {
+                    entryColAttr = new LockableAttributeImpl( attrId );
+                    entry.put( entryColAttr );
+                }
 
-                    // add all the collective attribute values in the subentry to entry
-                    for ( int jj = 0; jj < subentryColAttr.size(); jj++ )
-                    {
-                        entryColAttr.add( subentryColAttr.get( jj ) );
-                    }
+                /*
+                 *  Add all the collective attribute values in the subentry
+                 *  to the currently processed collective attribute in the entry.
+                 */
+                for ( int jj = 0; jj < subentryColAttr.size(); jj++ )
+                {
+                    entryColAttr.add( subentryColAttr.get( jj ) );
                 }
             }
         }
     }
 
-
-    /**
-     * Filter that injects collective attributes into the entry.
-     *
-     * @param attributes the resultant attributes with added collective attributes
-     * @return true always
-     */
-    private boolean filter( Attributes attributes ) throws NamingException
+    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
-        addCollectiveAttributes( attributes );
-        return true;
+        super.init( factoryCfg, cfg );
+        nexus = factoryCfg.getPartitionNexus();
+        attrTypeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
     }
-
-
-    private void filter( Name dn, Attributes entry, String[] ids ) throws NamingException
-    {
-        filter( entry );
-
-        // still need to return collective attrs when ids is null
-        if ( ids == null )
-        {
-            return;
-        }
-
-        // now we can filter out even collective attributes from the requested return ids
-        if ( dn.size() == 0 )
-        {
-            HashSet idsSet = new HashSet( ids.length );
-
-            for ( int ii = 0; ii < ids.length; ii++ )
-            {
-                idsSet.add( ids[ii].toLowerCase() );
-            }
-
-            NamingEnumeration list = entry.getIDs();
-
-            while ( list.hasMore() )
-            {
-                String attrId = ( ( String ) list.nextElement() ).toLowerCase();
-
-                if ( !idsSet.contains( attrId ) )
-                {
-                    entry.remove( attrId );
-                }
-            }
-        }
-
-        // do nothing past here since this explicity specifies which
-        // attributes to include - backends will automatically populate
-        // with right set of attributes using ids array
-    }
-
 
     // ------------------------------------------------------------------------
     // Interceptor Method Overrides
@@ -243,11 +245,13 @@ public class CollectiveAttributeService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name );
+
         if ( result == null )
         {
             return null;
         }
-        filter( result );
+        
+        addCollectiveAttributes( name, result, new String[] { "*" } );
         return result;
     }
     
@@ -255,12 +259,13 @@ public class CollectiveAttributeService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name, attrIds );
+
         if ( result == null )
         {
             return null;
         }
 
-        filter( name, result, attrIds );
+        addCollectiveAttributes( name, result, new String[] { "*" } );
         return result;
     }
 

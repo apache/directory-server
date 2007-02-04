@@ -250,10 +250,12 @@ public class OperationalAttributeService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name );
+        
         if ( result == null )
         {
             return null;
         }
+        
         filter( result );
         return result;
     }
@@ -262,6 +264,7 @@ public class OperationalAttributeService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name, attrIds );
+        
         if ( result == null )
         {
             return null;
