@@ -35,6 +35,7 @@ import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +75,7 @@ public class GroupCache
     private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /** String key for the DN of a group to a Set (HashSet) for the Strings of member DNs */
-    private final Map groups = new HashMap();
+    private final Map<String, Set<String>> groups = new HashMap<String, Set<String>>();
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
     /** the env to use for searching */
@@ -83,7 +84,7 @@ public class GroupCache
     /**
      * The OIDs normalizer map
      */
-    private Map normalizerMap;
+    private Map<String, OidNormalizer> normalizerMap;
     
     /** the normalized dn of the administrators group */
     LdapDN administratorsGroupDn;
@@ -142,7 +143,7 @@ public class GroupCache
 
                 if ( members != null )
                 {
-                    Set memberSet = new HashSet( members.size() );
+                    Set<String> memberSet = new HashSet<String>( members.size() );
                     addMembers( memberSet, members );
                     groups.put( groupDn, memberSet );
                 }
@@ -208,7 +209,7 @@ public class GroupCache
      * @param members the member attribute values being added
      * @throws NamingException if there are problems accessing the attr values
      */
-    private void addMembers( Set memberSet, Attribute members ) throws NamingException
+    private void addMembers( Set<String> memberSet, Attribute members ) throws NamingException
     {
         for ( int ii = 0; ii < members.size(); ii++ )
         {
@@ -275,7 +276,7 @@ public class GroupCache
             return;
         }
 
-        Set memberSet = new HashSet( members.size() );
+        Set<String> memberSet = new HashSet<String>( members.size() );
         addMembers( memberSet, members );
         groups.put( normName.toString(), memberSet );
         
@@ -320,7 +321,7 @@ public class GroupCache
      * @param members the members being added, removed or replaced
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void modify( Set memberSet, int modOp, Attribute members ) throws NamingException
+    private void modify( Set<String> memberSet, int modOp, Attribute members ) throws NamingException
     {
 
         switch ( modOp )
@@ -380,11 +381,13 @@ public class GroupCache
         {
             if ( memberAttrId.equalsIgnoreCase( mods[ii].getAttribute().getID() ) )
             {
-                Set memberSet = ( Set ) groups.get( name.toString() );
+                Set<String> memberSet = groups.get( name.toString() );
+                
                 if ( memberSet != null )
                 {
                     modify( memberSet, mods[ii].getModificationOp(), mods[ii].getAttribute() );
                 }
+                
                 break;
             }
         }
@@ -415,7 +418,8 @@ public class GroupCache
             return;
         }
 
-        Set memberSet = ( Set ) groups.get( name.toString() );
+        Set<String> memberSet = groups.get( name.toString() );
+        
         if ( memberSet != null )
         {
             modify( memberSet, modOp, members );
@@ -476,7 +480,7 @@ public class GroupCache
             return Collections.EMPTY_SET;
         }
 
-        Set memberGroups = null;
+        Set<Name> memberGroups = null;
 
         Iterator list = groups.keySet().iterator();
         while ( list.hasNext() )
@@ -493,7 +497,7 @@ public class GroupCache
             {
                 if ( memberGroups == null )
                 {
-                    memberGroups = new HashSet();
+                    memberGroups = new HashSet<Name>();
                 }
 
                 memberGroups.add( new LdapDN( group ) );
@@ -511,7 +515,7 @@ public class GroupCache
 
     public boolean groupRenamed( Name oldName, Name newName )
     {
-        Object members = groups.remove( oldName.toString() );
+        Set<String> members = groups.remove( oldName.toString() );
 
         if ( members != null )
         {
