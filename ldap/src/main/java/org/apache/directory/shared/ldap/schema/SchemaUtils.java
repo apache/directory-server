@@ -441,6 +441,10 @@ public class SchemaUtils
             buf.append( " MAY " );
             render( buf, oc.getMayList() );
         }
+        
+        buf.append( " X-SCHEMA '" );
+        buf.append( oc.getSchema() );
+        buf.append( "'" );
 
         // @todo extensions are not presently supported and skipped
         // the extensions would go here before closing off the description
@@ -575,6 +579,10 @@ public class SchemaUtils
             buf.append( " USAGE " ).append( UsageEnum.render( at.getUsage() ) );
         }
 
+        buf.append( " X-SCHEMA '" );
+        buf.append( at.getSchema() );
+        buf.append( "'" );
+
         // @todo extensions are not presently supported and skipped
         // the extensions would go here before closing off the description
 
@@ -649,6 +657,10 @@ public class SchemaUtils
             buf.append( " SYNTAX " ).append( mr.getSyntax().getOid() );
         }
 
+        buf.append( " X-SCHEMA '" );
+        buf.append( mr.getSchema() );
+        buf.append( "'" );
+
         // @todo extensions are not presently supported and skipped
         // the extensions would go here before closing off the description
 
@@ -692,6 +704,18 @@ public class SchemaUtils
             buf.append( "DESC " ).append( "'" ).append( syntax.getDescription() ).append( "' " );
         }
 
+        buf.append( " X-SCHEMA '" );
+        buf.append( syntax.getSchema() );
+        
+        if ( syntax.isHumanReadible() )
+        {
+            buf.append( "' X-IS-HUMAN-READABLE 'true'" );
+        }
+        else
+        {
+            buf.append( "' X-IS-HUMAN-READABLE 'false'" );
+        }
+
         // @todo extensions are not presently supported and skipped
         // the extensions would go here before closing off the description
 
@@ -714,6 +738,10 @@ public class SchemaUtils
         {
             buf.append( "DESC " ).append( "'" ).append( mru.getDescription() ).append( "' " );
         }
+
+        buf.append( " X-SCHEMA '" );
+        buf.append( mru.getSchema() );
+        buf.append( "'" );
 
         // @todo extensions are not presently supported and skipped
         // the extensions would go here before closing off the description
@@ -738,6 +766,10 @@ public class SchemaUtils
             buf.append( "DESC " ).append( "'" ).append( dcr.getDescription() ).append( "' " );
         }
 
+        buf.append( " X-SCHEMA '" );
+        buf.append( dcr.getSchema() );
+        buf.append( "'" );
+
         // @todo extensions are not presently supported and skipped
         // the extensions would go here before closing off the description
 
@@ -761,6 +793,10 @@ public class SchemaUtils
             buf.append( "DESC " ).append( "'" ).append( dsr.getDescription() ).append( "' " );
         }
 
+        buf.append( " X-SCHEMA '" );
+        buf.append( dsr.getSchema() );
+        buf.append( "'" );
+
         // @todo extensions are not presently supported and skipped
         // the extensions would go here before closing off the description
 
@@ -783,6 +819,10 @@ public class SchemaUtils
         {
             buf.append( "DESC " ).append( "'" ).append( nf.getDescription() ).append( "' " );
         }
+
+        buf.append( " X-SCHEMA '" );
+        buf.append( nf.getSchema() );
+        buf.append( "'" );
 
         // @todo extensions are not presently supported and skipped
         // the extensions would go here before closing off the description

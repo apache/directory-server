@@ -20,9 +20,9 @@
 package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 
-import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
-
 import junit.framework.TestCase;
+
+import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
 
 
 /**
@@ -56,7 +56,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the parse of a simple AttributeType with the schema extension.
      */
-    public void testAddAttributeTypeWithSchemaExtension() throws Exception
+    public void testAttributeTypeWithSchemaExtension() throws Exception
     {
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) " +
                 "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'blah' )";
