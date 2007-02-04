@@ -41,7 +41,6 @@ import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
@@ -60,6 +59,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1036,7 +1036,7 @@ public class JdbmStore
             throw new LdapNameNotFoundException( "Id for parent '" + parentDn + "' not found!" );
         }
 
-        Attribute objectClass = ServerUtils.getAttribute( OBJECT_CLASS_AT, entry );
+        Attribute objectClass = AttributeUtils.getAttribute( entry, OBJECT_CLASS_AT );
 
         if ( objectClass == null )
         {
@@ -1049,7 +1049,7 @@ public class JdbmStore
 
         if ( objectClass.contains( ALIAS_OBJECT ) )
         {
-            Attribute aliasAttr = ServerUtils.getAttribute( ALIAS_AT, entry );
+            Attribute aliasAttr = AttributeUtils.getAttribute( entry, ALIAS_AT );
             addAliasIndices( id, normName, ( String ) aliasAttr.get() );
         }
 
@@ -1103,7 +1103,7 @@ public class JdbmStore
         BigInteger parentId = getParentId( id );
         NamingEnumeration attrs = entry.getIDs();
 
-        Attribute objectClass = ServerUtils.getAttribute( OBJECT_CLASS_AT, entry );
+        Attribute objectClass = AttributeUtils.getAttribute( entry, OBJECT_CLASS_AT );
         if ( objectClass.contains( ALIAS_OBJECT ) )
         {
             dropAliasIndices( id );
@@ -1294,7 +1294,7 @@ public class JdbmStore
 
         // add all the values in mods to the same attribute in the entry
         AttributeType type = attributeTypeRegistry.lookup( modsOid );
-        Attribute entryAttrToAddTo = ServerUtils.getAttribute( type, entry );
+        Attribute entryAttrToAddTo = AttributeUtils.getAttribute( entry, type );
 
         if ( entryAttrToAddTo == null )
         {
@@ -1357,11 +1357,11 @@ public class JdbmStore
          */
         if ( mods.size() == 0 )
         {
-            ServerUtils.removeAttribute( attrType, entry );
+            AttributeUtils.removeAttribute( attrType, entry );
         }
         else
         {
-            Attribute entryAttr = ServerUtils.getAttribute( attrType, entry );
+            Attribute entryAttr = AttributeUtils.getAttribute( entry, attrType );
             NamingEnumeration values = mods.getAll();
             while ( values.hasMore() )
             {
@@ -1565,7 +1565,7 @@ public class JdbmStore
 
         String newRdnAttrOid = oidRegistry.getOid( newRdnAttr );
         AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newRdnAttrOid );
-        Attribute rdnAttr = ServerUtils.getAttribute( newRdnAttrType, entry );
+        Attribute rdnAttr = AttributeUtils.getAttribute( entry, newRdnAttrType );
         if ( rdnAttr == null )
         {
             rdnAttr = new AttributeImpl( newRdnAttr );
@@ -1613,7 +1613,7 @@ public class JdbmStore
             String oldRdnValue = NamespaceTools.getRdnValue( oldRdn );
             AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldRdnAttrOid );
             
-            ServerUtils.getAttribute( oldRdnAttrType, entry ).remove( oldRdnValue );
+            AttributeUtils.getAttribute( entry, oldRdnAttrType ).remove( oldRdnValue );
 
             if ( hasUserIndexOn( oldRdnAttrOid ) )
             {

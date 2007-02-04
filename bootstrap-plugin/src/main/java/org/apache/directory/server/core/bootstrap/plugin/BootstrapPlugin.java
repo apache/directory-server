@@ -60,6 +60,7 @@ import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
+import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;

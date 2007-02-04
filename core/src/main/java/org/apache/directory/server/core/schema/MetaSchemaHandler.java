@@ -32,7 +32,6 @@ import javax.naming.directory.DirContext;
 import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SchemaObjectRegistry;
@@ -93,7 +92,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         Attribute disabledInMods = AttributeUtils.getAttribute( mods, disabledAT );
         if ( disabledInMods != null )
         {
-            disable( name, modOp, disabledInMods, ServerUtils.getAttribute( disabledAT, entry ) );
+            disable( name, modOp, disabledInMods, AttributeUtils.getAttribute( entry, disabledAT ) );
         }
         
         // check if the new schema is enabled or disabled

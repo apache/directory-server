@@ -29,13 +29,13 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -97,7 +97,7 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     
     protected String getOid( Attributes entry ) throws NamingException
     {
-        Attribute oid = ServerUtils.getAttribute( m_oidAT, entry );
+        Attribute oid = AttributeUtils.getAttribute( entry, m_oidAT );
         if ( oid == null )
         {
             return null;

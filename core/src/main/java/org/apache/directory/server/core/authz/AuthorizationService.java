@@ -21,7 +21,6 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
@@ -225,7 +224,7 @@ public class AuthorizationService extends BaseInterceptor
     private void addPerscriptiveAciTuples( PartitionNexusProxy proxy, Collection<ACITuple> tuples, LdapDN dn,
         Attributes entry ) throws NamingException
     {
-        Attribute oc = ServerUtils.getAttribute( objectClassType, entry );
+        Attribute oc = AttributeUtils.getAttribute( entry, objectClassType );
         
         /*
          * If the protected entry is a subentry, then the entry being evaluated
@@ -243,7 +242,7 @@ public class AuthorizationService extends BaseInterceptor
             entry = proxy.lookup( parentDn, PartitionNexusProxy.LOOKUP_BYPASS );
         }
 
-        Attribute subentries = ServerUtils.getAttribute( acSubentryType, entry );
+        Attribute subentries = AttributeUtils.getAttribute( entry, acSubentryType );
         if ( subentries == null )
         {
             return;

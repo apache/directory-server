@@ -33,7 +33,6 @@ import javax.naming.directory.DirContext;
 import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -175,7 +174,7 @@ public class SchemaManager
 
     public void add( LdapDN name, Attributes entry ) throws NamingException
     {
-        Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
+        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
@@ -220,7 +219,7 @@ public class SchemaManager
 
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
-        Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
+        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
@@ -266,7 +265,7 @@ public class SchemaManager
     public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry ) 
         throws NamingException
     {
-        Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
+        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
@@ -292,7 +291,7 @@ public class SchemaManager
     public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry ) 
         throws NamingException
     {
-        Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
+        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
@@ -317,7 +316,7 @@ public class SchemaManager
 
     public void modifyRn( LdapDN name, String newRdn, boolean deleteOldRn, Attributes entry ) throws NamingException
     {
-        Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
+        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
@@ -342,7 +341,7 @@ public class SchemaManager
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
     {
-        Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
+        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
@@ -368,7 +367,7 @@ public class SchemaManager
     public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry )
         throws NamingException
     {
-        Attribute oc = ServerUtils.getAttribute( objectClassAT, entry );
+        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {

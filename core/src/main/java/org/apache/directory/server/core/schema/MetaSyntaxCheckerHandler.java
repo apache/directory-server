@@ -25,7 +25,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
@@ -39,6 +38,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
@@ -58,7 +58,7 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
     private final Registries targetRegistries;
     private final SyntaxCheckerRegistry syntaxCheckerRegistry;
     private final SyntaxRegistry syntaxRegistry;
-    private final AttributeType m_oidAT;
+    private final AttributeType oidAT;
 
     
 
@@ -69,13 +69,13 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
         this.syntaxCheckerRegistry = targetRegistries.getSyntaxCheckerRegistry();
         this.syntaxRegistry = targetRegistries.getSyntaxRegistry();
         this.factory = new SchemaEntityFactory( targetRegistries );
-        this.m_oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
+        this.oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
     }
 
 
     private String getOid( Attributes entry ) throws NamingException
     {
-        Attribute oid = ServerUtils.getAttribute( m_oidAT, entry );
+        Attribute oid = AttributeUtils.getAttribute( entry, oidAT );
         if ( oid == null )
         {
             return null;

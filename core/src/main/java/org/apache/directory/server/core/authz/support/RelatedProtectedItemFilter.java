@@ -27,7 +27,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
@@ -249,7 +248,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     if ( oid.equals( oidRegistry.getOid( svItem ) ) )
                     {
                         AttributeType attrType = attrRegistry.lookup( oid );
-                        Attribute attr = ServerUtils.getAttribute( attrType, entry );
+                        Attribute attr = AttributeUtils.getAttribute( entry, attrType );
                         if ( attr != null && ( ( attr.contains( userName.toNormName() ) || attr.contains( userName.getUpName() ) ) ) )
                         {
                             return true;

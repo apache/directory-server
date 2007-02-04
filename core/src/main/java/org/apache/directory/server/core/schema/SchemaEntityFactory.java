@@ -33,7 +33,6 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -150,7 +149,7 @@ public class SchemaEntityFactory
         SyntaxChecker syntaxChecker = null;
         Class clazz = null;
 
-        Attribute byteCodeAttr = ServerUtils.getAttribute( byteCodeAT, entry );
+        Attribute byteCodeAttr = AttributeUtils.getAttribute( entry, byteCodeAT );
         if ( byteCodeAttr == null )
         {
             try
@@ -214,7 +213,7 @@ public class SchemaEntityFactory
 
         // try now before returning to check if we can inject a Registries object
         injectRegistries( syntaxChecker, targetRegistries );
-        String syntaxOid = ( String ) ServerUtils.getAttribute( oidAT, entry ).get();
+        String syntaxOid = ( String ) AttributeUtils.getAttribute( entry, oidAT ).get();
         injectOid( syntaxOid, syntaxChecker );
         return syntaxChecker;
     }

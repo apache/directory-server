@@ -39,7 +39,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.ReferralHandlingEnumeration;
@@ -68,6 +67,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -286,7 +286,7 @@ public class ReferralService extends BaseInterceptor
 
             Attributes referral = invocation.getProxy().lookup( farthest, PartitionNexusProxy.LOOKUP_BYPASS );
             AttributeType refsType = attrRegistry.lookup( oidRegistry.getOid( REF_ATTR ) );
-            Attribute refs = ServerUtils.getAttribute( refsType, referral );
+            Attribute refs = AttributeUtils.getAttribute( referral, refsType );
             doReferralException( farthest, new LdapDN( normName.getUpName() ), refs );
         }
         else if ( refval.equals( FOLLOW ) )

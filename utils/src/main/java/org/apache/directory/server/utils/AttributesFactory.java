@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.bootstrap.plugin; 
+package org.apache.directory.server.utils; 
 
 
 import java.util.Comparator; 

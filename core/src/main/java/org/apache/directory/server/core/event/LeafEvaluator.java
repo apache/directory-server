@@ -27,7 +27,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -39,6 +38,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -150,7 +150,7 @@ public class LeafEvaluator implements Evaluator
 
         // get the attribute associated with the node
         AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( attrId ) );
-        Attribute attr = ServerUtils.getAttribute( type, entry );
+        Attribute attr = AttributeUtils.getAttribute( entry, type );
 
         // If we do not have the attribute just return false
         if ( null == attr )
@@ -219,7 +219,7 @@ public class LeafEvaluator implements Evaluator
         }
 
         AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( attrId ) );
-        return null != ServerUtils.getAttribute( type, entry );
+        return null != AttributeUtils.getAttribute( entry, type );
     }
 
 
@@ -239,7 +239,7 @@ public class LeafEvaluator implements Evaluator
 
         // get the attribute associated with the node
         AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( node.getAttribute() ) );
-        Attribute attr = ServerUtils.getAttribute( type, entry );
+        Attribute attr = AttributeUtils.getAttribute( entry, type );
 
         // If we do not have the attribute just return false
         if ( null == attr )

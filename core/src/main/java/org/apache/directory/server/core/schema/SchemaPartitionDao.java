@@ -36,7 +36,6 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.bootstrap.Schema;
@@ -374,7 +373,7 @@ public class SchemaPartitionDao
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
         dn.normalize( attrRegistry.getNormalizerMapping() );
         Attributes entry = partition.lookup( dn );
-        Attribute disabledAttr = ServerUtils.getAttribute( disabledAttributeType, entry );
+        Attribute disabledAttr = AttributeUtils.getAttribute( entry, disabledAttributeType );
         ModificationItemImpl[] mods = new ModificationItemImpl[3];
         
         if ( disabledAttr == null )

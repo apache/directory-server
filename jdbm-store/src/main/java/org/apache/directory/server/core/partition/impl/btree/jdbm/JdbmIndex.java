@@ -35,13 +35,13 @@ import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexComparator;
 import org.apache.directory.server.core.partition.impl.btree.IndexConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.IndexEnumeration;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 
 
@@ -253,7 +253,7 @@ public class JdbmIndex implements Index
      */
     public synchronized void add( Attributes attrs, BigInteger id ) throws NamingException
     {
-        add( ServerUtils.getAttribute( attribute, attrs ), id );
+        add( AttributeUtils.getAttribute( attrs, attribute ), id );
     }
 
 
@@ -317,7 +317,7 @@ public class JdbmIndex implements Index
      */
     public void drop( Attributes attrs, BigInteger id ) throws NamingException
     {
-        drop( ServerUtils.getAttribute( attribute, attrs ), id );
+        drop( AttributeUtils.getAttribute( attrs, attribute ), id );
     }
 
 

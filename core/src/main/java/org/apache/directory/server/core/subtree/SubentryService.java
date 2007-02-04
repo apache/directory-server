@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -527,7 +526,7 @@ public class SubentryService extends BaseInterceptor
     public void delete( NextInterceptor next, LdapDN name ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
-        Attribute objectClasses = ServerUtils.getAttribute( objectClassType, entry );
+        Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
         if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
         {
@@ -606,7 +605,7 @@ public class SubentryService extends BaseInterceptor
     private ModificationItemImpl[] getModsOnEntryRdnChange( Name oldName, Name newName, Attributes entry )
         throws NamingException
     {
-        List modList = new ArrayList();
+        List<ModificationItemImpl> modList = new ArrayList<ModificationItemImpl>();
 
         /*
          * There are two different situations warranting action.  Firt if
@@ -671,7 +670,7 @@ public class SubentryService extends BaseInterceptor
         }
 
         ModificationItemImpl[] mods = new ModificationItemImpl[modList.size()];
-        mods = ( ModificationItemImpl[] ) modList.toArray( mods );
+        mods = modList.toArray( mods );
         return mods;
     }
 
@@ -679,7 +678,7 @@ public class SubentryService extends BaseInterceptor
     public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
-        Attribute objectClasses = ServerUtils.getAttribute( objectClassType, entry );
+        Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
         if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
         {
@@ -750,7 +749,7 @@ public class SubentryService extends BaseInterceptor
         throws NamingException
     {
         Attributes entry = nexus.lookup( oriChildName );
-        Attribute objectClasses = ServerUtils.getAttribute( objectClassType, entry );
+        Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
         if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
         {
@@ -964,7 +963,7 @@ public class SubentryService extends BaseInterceptor
     public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
-        Attribute objectClasses = ServerUtils.getAttribute( objectClassType, entry );
+        Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
         if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" )  && mods.get( "subtreeSpecification" ) != null )
         {
@@ -1038,7 +1037,7 @@ public class SubentryService extends BaseInterceptor
     public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
-        Attribute objectClasses = ServerUtils.getAttribute( objectClassType, entry );
+        Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
         boolean isSubtreeSpecificationModification = false;
         ModificationItemImpl subtreeMod = null;
 
@@ -1127,7 +1126,7 @@ public class SubentryService extends BaseInterceptor
     private ModificationItemImpl[] getOperationalModsForReplace( Name oldName, Name newName, Subentry subentry,
         Attributes entry ) throws NamingException
     {
-        List modList = new ArrayList();
+        List<ModificationItemImpl> modList = new ArrayList<ModificationItemImpl>();
         
         Attribute operational;
 
@@ -1193,7 +1192,7 @@ public class SubentryService extends BaseInterceptor
         } 
 
         ModificationItemImpl[] mods = new ModificationItemImpl[modList.size()];
-        return ( ModificationItemImpl[] ) modList.toArray( mods );
+        return modList.toArray( mods );
     }
 
 
@@ -1275,7 +1274,7 @@ public class SubentryService extends BaseInterceptor
      */
     private ModificationItemImpl[] getOperationalModsForRemove( LdapDN subentryDn, Attributes candidate )
     {
-        List modList = new ArrayList();
+        List<ModificationItemImpl> modList = new ArrayList<ModificationItemImpl>();
         String dn = subentryDn.toNormName();
 
         for ( int ii = 0; ii < SUBENTRY_OPATTRS.length; ii++ )
@@ -1292,7 +1291,7 @@ public class SubentryService extends BaseInterceptor
         }
 
         ModificationItemImpl[] mods = new ModificationItemImpl[modList.size()];
-        return ( ModificationItemImpl[] ) modList.toArray( mods );
+        return modList.toArray( mods );
     }
 
 
@@ -1313,7 +1312,7 @@ public class SubentryService extends BaseInterceptor
     public ModificationItemImpl[] getOperationalModsForAdd( Attributes entry, Attributes operational )
         throws NamingException
     {
-        List modList = new ArrayList();
+        List<ModificationItemImpl> modList = new ArrayList<ModificationItemImpl>();
 
         NamingEnumeration opAttrIds = operational.getIDs();
         while ( opAttrIds.hasMore() )
@@ -1345,7 +1344,7 @@ public class SubentryService extends BaseInterceptor
         }
 
         ModificationItemImpl[] mods = new ModificationItemImpl[modList.size()];
-        mods = ( ModificationItemImpl[] ) modList.toArray( mods );
+        mods = modList.toArray( mods );
         return mods;
     }
 
