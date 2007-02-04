@@ -54,6 +54,45 @@ import org.apache.directory.shared.ldap.util.DateUtils;
  */
 public class AttributesFactory
 {
+    public Attributes getAttributes( SchemaObject obj, Schema schema ) throws NamingException
+    {
+        if ( obj instanceof Syntax )
+        {
+            return getAttributes( ( Syntax ) obj, schema );
+        }
+        else if ( obj instanceof MatchingRule )
+        {
+            return getAttributes( ( MatchingRule ) obj, schema );
+        }
+        else if ( obj instanceof AttributeType )
+        {
+            return getAttributes( ( AttributeType ) obj, schema );
+        }
+        else if ( obj instanceof ObjectClass )
+        {
+            return getAttributes( ( ObjectClass ) obj, schema );
+        }
+        else if ( obj instanceof MatchingRuleUse )
+        {
+            return getAttributes( ( MatchingRuleUse ) obj, schema );
+        }
+        else if ( obj instanceof DITStructureRule )
+        {
+            return getAttributes( ( DITStructureRule ) obj, schema );
+        }
+        else if ( obj instanceof DITContentRule )
+        {
+            return getAttributes( ( DITContentRule ) obj, schema );
+        }
+        else if ( obj instanceof NameForm )
+        {
+            return getAttributes( ( NameForm ) obj, schema );
+        }
+        
+        throw new IllegalArgumentException( "Unknown SchemaObject type: " + obj.getClass() );
+    }
+    
+    
     public Attributes getAttributes( Schema schema )
     {
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );

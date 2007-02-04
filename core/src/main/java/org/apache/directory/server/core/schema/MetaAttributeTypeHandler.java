@@ -76,6 +76,20 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
             attributeTypeRegistry.register( at );
         }
     }
+    
+    
+    public void add( AttributeType at ) throws NamingException
+    {
+        Schema schema = dao.getSchema( at.getSchema() );
+        if ( ! schema.isDisabled() )
+        {
+            attributeTypeRegistry.register( at );
+        }
+        else
+        {
+            registerOids( at );
+        }
+    }
 
 
     public void add( LdapDN name, Attributes entry ) throws NamingException
@@ -86,15 +100,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         
         Schema schema = getSchema( name );
         AttributeType at = factory.getAttributeType( entry, targetRegistries, schema.getSchemaName() );
-        
-        if ( ! schema.isDisabled() )
-        {
-            attributeTypeRegistry.register( at );
-        }
-        else
-        {
-            registerOids( at );
-        }
+        add( at );
     }
 
 

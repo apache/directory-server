@@ -23,6 +23,8 @@ package org.apache.directory.server.core.schema;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -64,10 +66,33 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
     {
         if ( equalityOid == null )
         {
-            return null;
+            return findEquality( getSuperior() );
         }
         
         return registries.getMatchingRuleRegistry().lookup( equalityOid );
+    }
+
+
+    /**
+     * Recursively the equality matchingRule if one exists within the attribute heirarchy.
+     * 
+     * @param at the attribute to find a equality matchingRule for
+     * @return the equality MatchingRule or null if none exists for the attributeType
+     * @throws NamingException if there are problems accessing the attribute heirarchy
+     */
+    private MatchingRule findEquality( AttributeType at ) throws NamingException
+    {
+        if ( at == null )
+        {
+            return null;
+        }
+        
+        if ( at.getEquality() == null )
+        {
+            return findEquality( at.getSuperior() );
+        }
+        
+        return null;
     }
 
 
@@ -78,10 +103,33 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
     {
         if ( orderingOid == null )
         {
-            return null;
+            return findOrdering( getSuperior() );
         }
         
         return registries.getMatchingRuleRegistry().lookup( orderingOid );
+    }
+
+
+    /**
+     * Recursively the ordering matchingRule if one exists within the attribute heirarchy.
+     * 
+     * @param at the attribute to find a ordering matchingRule for
+     * @return the ordering MatchingRule or null if none exists for the attributeType
+     * @throws NamingException if there are problems accessing the attribute heirarchy
+     */
+    private MatchingRule findOrdering( AttributeType at ) throws NamingException
+    {
+        if ( at == null )
+        {
+            return null;
+        }
+        
+        if ( at.getOrdering() == null )
+        {
+            return findOrdering( at.getSuperior() );
+        }
+        
+        return null;
     }
 
 
@@ -92,10 +140,33 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
     {
         if ( substrOid == null )
         {
-            return null;
+            return findSubstr( getSuperior() );
         }
         
         return registries.getMatchingRuleRegistry().lookup( substrOid );
+    }
+    
+
+    /**
+     * Recursively gets the substring matchingRule if one exists within the attribute heirarchy.
+     * 
+     * @param at the attribute to find a substring matchingRule for
+     * @return the substring MatchingRule or null if none exists for the attributeType
+     * @throws NamingException if there are problems accessing the attribute heirarchy
+     */
+    private MatchingRule findSubstr( AttributeType at ) throws NamingException
+    {
+        if ( at == null )
+        {
+            return null;
+        }
+        
+        if ( at.getSubstr() == null )
+        {
+            return findSubstr( at.getSuperior() );
+        }
+        
+        return null;
     }
 
 
@@ -120,13 +191,37 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
     {
         if ( syntaxOid == null )
         {
-            return null;
+            return findSyntax( getSuperior() );
         }
         
         return registries.getSyntaxRegistry().lookup( syntaxOid );
     }
     
     
+    /**
+     * Recursively walks up the ancestors to find the syntax for an attributeType.
+     * 
+     * @param at the attributeType to get the syntax for
+     * @return the Syntax for the attributeType
+     * @throws NamingException if no syntax can be found for the attributeType
+     */
+    private Syntax findSyntax( AttributeType at ) throws NamingException
+    {
+        if ( at == null )
+        {
+            throw new LdapNamingException( "Cannot find syntax for attributeType " + getName() 
+                + " after walking ancestors.", ResultCodeEnum.OTHER );
+        }
+        
+        if ( at.getSyntax() != null )
+        {
+            return at.getSyntax();
+        }
+        
+        return findSyntax( at.getSuperior() );
+    }
+    
+
     public void setSyntaxOid( String syntaxOid )
     {
         this.syntaxOid = syntaxOid;

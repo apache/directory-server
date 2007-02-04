@@ -103,5 +103,4 @@ public class MetaDitContentRuleHandler extends AbstractSchemaChangeHandler
         // TODO Auto-generated method stub
 
     }
-
 }

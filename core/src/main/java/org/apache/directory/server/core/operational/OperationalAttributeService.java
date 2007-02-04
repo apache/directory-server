@@ -109,6 +109,10 @@ public class OperationalAttributeService extends BaseInterceptor
 
     private boolean isDenormalizeOpAttrsEnabled;
 
+    /**
+     * subschemaSubentry attribute's value from Root DSE
+     */
+    private LdapDN subschemaSubentryDn;
 
     /**
      * Creates the operational attribute management service interceptor.
@@ -123,6 +127,11 @@ public class OperationalAttributeService extends BaseInterceptor
         nexus = factoryCfg.getPartitionNexus();
         registry = factoryCfg.getRegistries().getAttributeTypeRegistry();
         isDenormalizeOpAttrsEnabled = factoryCfg.getStartupConfiguration().isDenormalizeOpAttrsEnabled();
+
+        // stuff for dealing with subentries (garbage for now)
+        String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
+        subschemaSubentryDn = new LdapDN( subschemaSubentry );
+        subschemaSubentryDn.normalize( factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
     }
 
 
@@ -174,6 +183,11 @@ public class OperationalAttributeService extends BaseInterceptor
     {
         nextInterceptor.modify( name, items );
 
+        if ( name.getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
+        {
+            return;
+        }
+        
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
         Attribute attribute = new AttributeImpl( "modifiersName" );

@@ -64,6 +64,7 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
 public class SchemaManager
 {
     private static final Set<String> VALID_OU_VALUES = new HashSet<String>();
+//    private static final Set<String> SCHEMA_OBJECT_OIDS = new HashSet<String>();
     private static final String[] opAttrs = new String[] {
         "comparators",
         "normalizers",
@@ -95,11 +96,13 @@ public class SchemaManager
     private final MetaSchemaHandler metaSchemaHandler;
     private final Registries globalRegistries;
     private final AttributeType objectClassAT;
-    
+    private final SchemaSubentryModifier subentryModifier;
     private final SchemaChangeHandler[] schemaObjectHandlers = new SchemaChangeHandler[11];
+    private final String attributeTypesOid;
+    private final DescriptionParsers parsers;
     
-    private Map<String, SchemaChangeHandler> opAttr2handlerMap = new HashMap<String, SchemaChangeHandler>();
-    private Map<String, SchemaChangeHandler> objectClass2handlerMap = new HashMap<String, SchemaChangeHandler>();
+    private final Map<String, SchemaChangeHandler> opAttr2handlerMap = new HashMap<String, SchemaChangeHandler>();
+    private final Map<String, SchemaChangeHandler> objectClass2handlerMap = new HashMap<String, SchemaChangeHandler>();
     
     static 
     {
@@ -137,6 +140,20 @@ public class SchemaManager
         this.schemaObjectHandlers[8] =  new MetaDitStructureRuleHandler( globalRegistries, loader ); 
         this.schemaObjectHandlers[9] =  new MetaDitContentRuleHandler( globalRegistries, loader ); 
         this.schemaObjectHandlers[10] = new MetaNameFormHandler( globalRegistries, loader ); 
+
+        this.subentryModifier = new SchemaSubentryModifier( dao );
+        this.parsers = new DescriptionParsers( globalRegistries );
+        
+//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "ldapSyntaxes" ) );
+//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "matchingRules" ) );
+//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "matchingRuleUse" ) );
+//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "attributeTypes" ) );
+//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "objectClasses" ) );
+//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "ditContentRules" ) );
+//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "ditStructureRules" ) );
+//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "nameForms" ) );
+        
+        attributeTypesOid = globalRegistries.getOidRegistry().getOid( "attributeTypes" );
         
         initHandlerMaps();
     }
@@ -405,9 +422,14 @@ public class SchemaManager
     {
         for ( ModificationItemImpl mod : mods )
         {
+            String opAttrOid = globalRegistries.getOidRegistry().getOid( mod.getAttribute().getID() );
             switch ( mod.getModificationOp() )
             {
                 case( DirContext.ADD_ATTRIBUTE ):
+                    if ( opAttrOid.equals( attributeTypesOid ) )
+                    {
+                        addAttributeType( mod );
+                    }
                     break;
                 case( DirContext.REMOVE_ATTRIBUTE ):
                     break; 
@@ -418,7 +440,17 @@ public class SchemaManager
             }
         }
     }
-
+    
+    
+    private void addAttributeType( ModificationItemImpl mod ) throws NamingException
+    {
+        String opAttrOid = globalRegistries.getOidRegistry().getOid( mod.getAttribute().getID() );
+        AttributeType at = parsers.parseAttributeType( mod.getAttribute() );
+        subentryModifier.addSchemaObject( at );
+        MetaAttributeTypeHandler handler = ( MetaAttributeTypeHandler ) opAttr2handlerMap.get( opAttrOid );
+        handler.add( at );
+    }
+    
 
     /**
      * Translates modify operations on schema subentries into one or more operations 

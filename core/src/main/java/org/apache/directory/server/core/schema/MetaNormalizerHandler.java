@@ -240,7 +240,7 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
             normalizerRegistry.register( newSchema.getSchemaName(), oid, normalizer );
         }
     }
-    
+
     
     private void checkNewParent( LdapDN newParent ) throws NamingException
     {

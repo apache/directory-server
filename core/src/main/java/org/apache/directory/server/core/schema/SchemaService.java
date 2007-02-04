@@ -652,6 +652,12 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
+        if ( returnAllOperationalAttributes || set.contains( "subtreespecification" ) )
+        {
+            attr = new AttributeImpl( "subtreeSpecification", "{}" );
+            attrs.put( attr );
+        }
+
         // timeestamps are hacks for now until the schema is actually updateable these
         // use the servers startup time stamp for both modify and create timestamps
 
@@ -706,6 +712,7 @@ public class SchemaService extends BaseInterceptor
             attr = new AttributeImpl( "objectClass" );
             attr.add( "top" );
             attr.add( "subschema" );
+            attr.add( "subentry" );
             attrs.put( attr );
         }
 
@@ -967,7 +974,7 @@ public class SchemaService extends BaseInterceptor
 
             AttributeType[] types = oc.getMayList();
 
-            // For each objectClass, loop on all MUST attributeTypes, if any
+            // For each objectClass, loop on all MAY attributeTypes, if any
             if ( ( types != null ) && ( types.length > 0 ) )
             {
                 for ( AttributeType type:types )
@@ -1065,8 +1072,19 @@ public class SchemaService extends BaseInterceptor
      */
     public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
-        // First, we get the entry from the backend. If it does not exist, then we throw an exception
-        Attributes entry = nexus.lookup( name );
+        Attributes entry = null; 
+
+        // handle operations against the schema subentry in the schema service
+        // and never try to look it up in the nexus below
+        if ( name.getNormName().equalsIgnoreCase( subschemaSubentryDn.getNormName() ) )
+        {
+            entry = getSubschemaEntry( schemaSubentryReturnAttributes );
+        }
+        else
+        {
+            entry = nexus.lookup( name );
+        }
+
         Attributes targetEntry = SchemaUtils.getTargetEntry( modOp, mods, entry );
         
         if ( entry == null )
@@ -1247,11 +1265,24 @@ public class SchemaService extends BaseInterceptor
         next.modifyRn( name, newRn, deleteOldRn );
     }
 
-
+    private final static String[] schemaSubentryReturnAttributes = new String[] { "+", "*" };
+    
     public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
+        Attributes entry = null; 
+
+        // handle operations against the schema subentry in the schema service
+        // and never try to look it up in the nexus below
+        if ( name.getNormName().equalsIgnoreCase( subschemaSubentryDn.getNormName() ) )
+        {
+            entry = getSubschemaEntry( schemaSubentryReturnAttributes );
+        }
+        else
+        {
+            entry = nexus.lookup( name );
+        }
+        
         // First, we get the entry from the backend. If it does not exist, then we throw an exception
-        Attributes entry = nexus.lookup( name );
         Attributes targetEntry = SchemaUtils.getTargetEntry( mods, entry );
 
         if ( entry == null )
@@ -1740,7 +1771,6 @@ public class SchemaService extends BaseInterceptor
             return;
         }
 
-
         NamingEnumeration attrs = attributes.getAll();
 
         while ( attrs.hasMoreElements() )
@@ -1825,7 +1855,7 @@ public class SchemaService extends BaseInterceptor
         if ( must.size() != 0 )
         {
             throw new LdapSchemaViolationException( "Required attributes " +
-                must.toArray() + " not found within entry " + dn.getUpName(),
+                must + " not found within entry " + dn.getUpName(),
                 ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
     }

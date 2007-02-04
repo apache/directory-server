@@ -221,8 +221,8 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
             objectClassRegistry.register( oc );
         }
     }
-    
-    
+
+
     private void checkNewParent( LdapDN newParent ) throws NamingException
     {
         if ( newParent.size() != 3 )

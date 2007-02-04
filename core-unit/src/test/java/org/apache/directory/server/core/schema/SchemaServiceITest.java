@@ -241,6 +241,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // We should have 14 attributes in the result :
         // - attributeTypes
         // - cn
+        // - subtreeSpecification
         // - creatorsName
         // - createTimestamp
         // - dITContentRules
@@ -253,7 +254,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // - nameForms
         // - objectClass
         // - objectClasses
-        assertEquals( 14, attrs.size() );
+        assertEquals( 15, attrs.size() );
         
         assertNotNull( attrs.get( "attributeTypes" ) );
         assertNotNull( attrs.get( "cn" ) );
@@ -269,6 +270,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         assertNotNull( attrs.get( "nameForms" ) );
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "objectClasses" ) );
+        assertNotNull( attrs.get( "subtreeSpecification" ) );
     }
 
     public void testSearchForSubSchemaSubEntrySingleAttributeSelected() throws NamingException
@@ -358,10 +360,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         
         // We should have 14 attribute in the result :
         // - nameForms
-        assertEquals( 14, attrs.size() );
+        assertEquals( 15, attrs.size() );
         
         assertNotNull( attrs.get( "attributeTypes" ) );
         assertNotNull( attrs.get( "cn" ) );
+        assertNotNull( attrs.get( "subtreeSpecification" ) );
         assertNotNull( attrs.get( "creatorsName" ) );
         assertNotNull( attrs.get( "createTimestamp" ) );
         assertNotNull( attrs.get( "dITContentRules" ) );
@@ -401,10 +404,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         
         // We should have 14 attribute in the result :
         // - nameForms
-        assertEquals( 14, attrs.size() );
+        assertEquals( 15, attrs.size() );
         
         assertNotNull( attrs.get( "attributeTypes" ) );
         assertNotNull( attrs.get( "cn" ) );
+        assertNotNull( attrs.get( "subtreeSpecification" ) );
         assertNotNull( attrs.get( "creatorsName" ) );
         assertNotNull( attrs.get( "createTimestamp" ) );
         assertNotNull( attrs.get( "dITContentRules" ) );

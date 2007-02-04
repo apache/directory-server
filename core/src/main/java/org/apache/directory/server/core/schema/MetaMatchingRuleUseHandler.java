@@ -103,5 +103,4 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
         // TODO Auto-generated method stub
 
     }
-
 }
