@@ -664,24 +664,4 @@ public class FilterParserImplTest extends TestCase
         assertNull( node.getInitial() );
         assertNull( node.getFinal() );
     }
-
-    /* @todo look at custom error handlers for the parser */
-    // ///// Causes parser to hang rather than really bombing out. Looks like
-    // ///// we may need to implement a custom error handler for this parser.
-    // public void testSubstringNoAnyDoubleStar() throws IOException,
-    // ParseException
-    // {
-    // SubstringNode node = null;
-    //
-    // try
-    // {
-    // node = ( SubstringNode ) parser.parse( "( ou = foo**bar )" );
-    // fail("should not get here");
-    // }
-    // catch( Exception e )
-    // {
-    // }
-    //
-    // assertNull( node );
-    // }
 }

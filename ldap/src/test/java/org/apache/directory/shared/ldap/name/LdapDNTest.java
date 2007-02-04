@@ -1612,12 +1612,12 @@ public class LdapDNTest extends TestCase
 
            if ( i == 0 )
            {
-               assertEquals( "ou=East", element.toString() );
+               assertEquals( "ou=East", element );
            }
 
            if ( i == 1 )
            {
-               assertEquals( "ou=Marketing", element.toString() );
+               assertEquals( "ou=Marketing", element );
            }
        }
 
@@ -1630,17 +1630,17 @@ public class LdapDNTest extends TestCase
 
            if ( i == 0 )
            {
-               assertEquals( "ou=East", element.toString() );
+               assertEquals( "ou=East", element );
            }
 
            if ( i == 1 )
            {
-               assertEquals( "ou=Marketing", element.toString() );
+               assertEquals( "ou=Marketing", element );
            }
 
            if ( i == 2 )
            {
-               assertEquals( "cn=John", element.toString() );
+               assertEquals( "cn=John", element );
            }
        }
 
@@ -1653,22 +1653,22 @@ public class LdapDNTest extends TestCase
 
            if ( i == 0 )
            {
-               assertEquals( "ou=East", element.toString() );
+               assertEquals( "ou=East", element );
            }
 
            if ( i == 1 )
            {
-               assertEquals( "ou=Marketing", element.toString() );
+               assertEquals( "ou=Marketing", element );
            }
 
            if ( i == 2 )
            {
-               assertEquals( "cn=John", element.toString() );
+               assertEquals( "cn=John", element );
            }
 
            if ( i == 3 )
            {
-               assertEquals( "cn=HomeDir", element.toString() );
+               assertEquals( "cn=HomeDir", element );
            }
        }
 
@@ -1681,27 +1681,27 @@ public class LdapDNTest extends TestCase
 
            if ( i == 0 )
            {
-               assertEquals( "ou=West", element.toString() );
+               assertEquals( "ou=West", element );
            }
 
            if ( i == 1 )
            {
-               assertEquals( "ou=Marketing", element.toString() );
+               assertEquals( "ou=Marketing", element );
            }
 
            if ( i == 2 )
            {
-               assertEquals( "cn=John", element.toString() );
+               assertEquals( "cn=John", element );
            }
 
            if ( i == 3 )
            {
-               assertEquals( "cn=HomeDir", element.toString() );
+               assertEquals( "cn=HomeDir", element );
            }
 
            if ( i == 4 )
            {
-               assertEquals( "cn=Website", element.toString() );
+               assertEquals( "cn=Website", element );
            }
        }
 
@@ -1714,32 +1714,32 @@ public class LdapDNTest extends TestCase
 
            if ( i == 0 )
            {
-               assertEquals( "ou=West", element.toString() );
+               assertEquals( "ou=West", element );
            }
 
            if ( i == 1 )
            {
-               assertEquals( "ou=Marketing", element.toString() );
+               assertEquals( "ou=Marketing", element );
            }
 
            if ( i == 2 )
            {
-               assertEquals( "cn=John", element.toString() );
+               assertEquals( "cn=John", element );
            }
 
            if ( i == 3 )
            {
-               assertEquals( "cn=HomeDir", element.toString() );
+               assertEquals( "cn=HomeDir", element );
            }
 
            if ( i == 4 )
            {
-               assertEquals( "cn=Website", element.toString() );
+               assertEquals( "cn=Website", element );
            }
 
            if ( i == 5 )
            {
-               assertEquals( "cn=Airline", element.toString() );
+               assertEquals( "cn=Airline", element );
            }
        }
    }
@@ -1764,32 +1764,32 @@ public class LdapDNTest extends TestCase
 
            if ( i == 0 )
            {
-               assertEquals( "ou=West", element.toString() );
+               assertEquals( "ou=West", element );
            }
 
            if ( i == 1 )
            {
-               assertEquals( "ou=Marketing", element.toString() );
+               assertEquals( "ou=Marketing", element );
            }
 
            if ( i == 2 )
            {
-               assertEquals( "cn=John", element.toString() );
+               assertEquals( "cn=John", element );
            }
 
            if ( i == 3 )
            {
-               assertEquals( "cn=HomeDir", element.toString() );
+               assertEquals( "cn=HomeDir", element );
            }
 
            if ( i == 4 )
            {
-               assertEquals( "cn=Website", element.toString() );
+               assertEquals( "cn=Website", element );
            }
 
            if ( i == 5 )
            {
-               assertEquals( "cn=Airline", element.toString() );
+               assertEquals( "cn=Airline", element );
            }
        }
    }
