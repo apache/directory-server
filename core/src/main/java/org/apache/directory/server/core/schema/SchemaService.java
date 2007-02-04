@@ -998,7 +998,7 @@ public class SchemaService extends BaseInterceptor
                 
                 List ocSuperiors = (List)superiors.get( objectClass.getOid() );
                 
-                if ( ocSuperiors != null )
+                if ( ( ocSuperiors != null ) && ( ocSuperiors.size() != 0 ) )
                 {
                     Iterator iter = ocSuperiors.iterator();
                     
