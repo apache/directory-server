@@ -38,6 +38,7 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.ServerUtils;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
@@ -56,6 +57,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.DateUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +65,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A specialized data access object for managing schema objects in the
- * schema partition.
- *
+ * schema partition.  
+ * 
+ * WARNING:
+ * This dao operates directly on a partition.  Hence no interceptors are available
+ * to perform the various expected services of respective interceptors.  Take care
+ * to normalize all filters and distinguished names.
+ * 
+ * A single write operation exists for enabling schemas needed for operating indices
+ * in partitions and enabling schemas that are dependencies of other schemas that 
+ * are enabled.  In both these limited cases there is no need to worry about issues
+ * with a lack of replication propagation because these same updates will take place
+ * on replicas when the original operation is propagated or when replicas start up.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -326,13 +339,43 @@ public class SchemaPartitionDao
     }
 
 
+    /**
+     * Enables a schema by removing it's m-disabled attribute if present.
+     * 
+     * NOTE:
+     * This is a write operation and great care must be taken to make sure it
+     * is used in a limited capacity.  This method is called in two places 
+     * currently.  
+     * 
+     * (1) Within the initialization sequence to enable schemas required
+     *     for the correct operation of indices in other partitions.
+     * (2) Within the partition schema loader to auto enable schemas that are
+     *     depended on by other schemas which are enabled.
+     * 
+     * In both cases, the modifier is effectively the administrator since the 
+     * server is performing the operation directly or on behalf of a user.  In 
+     * case (1) during intialization there is no other user involved so naturally
+     * the modifier is the administrator.  In case (2) when a user enables a 
+     * schema with a dependency that is not enabled the server enables that 
+     * dependency on behalf of the user.  Again effectively it is the server that
+     * is modifying the schema entry and hence the admin is the modifier.
+     * 
+     * No need to worry about a lack of replication propagation in both cases.  In 
+     * case (1) all replicas will enable these schemas anyway on startup.  In case
+     * (2) the original operation that enabled the schema depending on the on that
+     * enableSchema() is called for itself will be replicated.  Hence the same chain 
+     * reaction will occur in a replica.
+     * 
+     * @param schemaName the name of the schema to enable
+     * @throws NamingException if there is a problem updating the schema entry
+     */
     public void enableSchema( String schemaName ) throws NamingException
     {
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
         dn.normalize( attrRegistry.getNormalizerMapping() );
         Attributes entry = partition.lookup( dn );
         Attribute disabledAttr = ServerUtils.getAttribute( disabledAttributeType, entry );
-        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        ModificationItemImpl[] mods = new ModificationItemImpl[3];
         
         if ( disabledAttr == null )
         {
@@ -349,6 +392,10 @@ public class SchemaPartitionDao
         
         mods[0] = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, 
             new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT ) );
+        mods[1] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+            new AttributeImpl( SystemSchemaConstants.MODIFIERS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL ) );
+        mods[2] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+            new AttributeImpl( SystemSchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) );
         
         partition.modify( dn, mods );
     }

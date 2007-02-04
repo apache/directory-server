@@ -259,8 +259,8 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
      */
     public final void load( Schema schema, Registries targetRegistries, boolean isDepLoad ) throws NamingException
     {
-        // if we're loading a dependency and it has not been enabled on disk
-        // on disk then enable it on disk before we proceed to load it
+        // if we're loading a dependency and it has not been enabled on 
+        // disk then enable it on disk before we proceed to load it
         if ( schema.isDisabled() && isDepLoad )
         {
             dao.enableSchema( schema.getSchemaName() );

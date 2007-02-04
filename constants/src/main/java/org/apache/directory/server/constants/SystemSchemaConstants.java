@@ -34,5 +34,7 @@ public interface SystemSchemaConstants
     public static final String OBJECT_CLASS_AT = "objectClass";
     public static final String CREATORS_NAME_AT = "creatorsName";
     public static final String CREAT_TIMESTAMP_AT = "createTimestamp";
+    public static final String MODIFY_TIMESTAMP_AT = "modifyTimestamp";
+    public static final String MODIFIERS_NAME_AT = "modifiersName";
     
 }
