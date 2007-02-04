@@ -1764,32 +1764,32 @@ public class LdapDNTest extends TestCase
 
            if ( i == 0 )
            {
-               assertEquals( "ou=West", element );
+               assertEquals( "ou=West", element.toString() );
            }
 
            if ( i == 1 )
            {
-               assertEquals( "ou=Marketing", element );
+               assertEquals( "ou=Marketing", element.toString() );
            }
 
            if ( i == 2 )
            {
-               assertEquals( "cn=John", element );
+               assertEquals( "cn=John", element.toString() );
            }
 
            if ( i == 3 )
            {
-               assertEquals( "cn=HomeDir", element );
+               assertEquals( "cn=HomeDir", element.toString() );
            }
 
            if ( i == 4 )
            {
-               assertEquals( "cn=Website", element );
+               assertEquals( "cn=Website", element.toString() );
            }
 
            if ( i == 5 )
            {
-               assertEquals( "cn=Airline", element );
+               assertEquals( "cn=Airline", element.toString() );
            }
        }
    }
