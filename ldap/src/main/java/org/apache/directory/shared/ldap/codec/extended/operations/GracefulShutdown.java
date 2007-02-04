@@ -47,6 +47,13 @@ public class GracefulShutdown extends GracefulAction
     /** Length of the sequence */
     private int gracefulSequenceLength;
 
+    /**
+     * @see Asn1Object#Asn1Object
+     */
+    public GracefulShutdown()
+    {
+        super();
+    }
 
     /**
      * Compute the GracefulShutdown length 

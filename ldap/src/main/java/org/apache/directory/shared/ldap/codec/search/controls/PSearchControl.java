@@ -74,6 +74,14 @@ public class PSearchControl extends AbstractAsn1Object
     /** A temporary storage for a psearch length */
     private int psearchSeqLength;
 
+    /**
+     * Default constructor
+     *
+     */
+    public PSearchControl()
+    {
+        super();
+    }
 
     public void setChangesOnly( boolean changesOnly )
     {

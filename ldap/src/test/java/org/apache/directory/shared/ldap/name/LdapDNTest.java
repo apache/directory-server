@@ -1905,26 +1905,6 @@ public class LdapDNTest extends TestCase
        assertTrue( name0.endsWith( name6 ) );
        assertTrue( name0.endsWith( name7 ) );
        assertTrue( name0.endsWith( name8 ) );
-
-       /*
-        * Hashtable env = new Hashtable() ; env.put(
-        * Context.SECURITY_AUTHENTICATION, "simple" ) ; env.put(
-        * Context.SECURITY_PRINCIPAL, "cn=admin,dc=example,dc=com" ) ; env.put(
-        * Context.SECURITY_CREDENTIALS, "jPasswordField1" ) ; env.put(
-        * Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" ) ;
-        * env.put( Context.PROVIDER_URL,
-        * "ldap://localhost:1396/dc=example,dc=com" ) ; DirContext ctx = new
-        * InitialDirContext( env ) ; NamingEnumeration enum = ctx.listBindings( "" ) ;
-        * Name name0 = new LdapDN( "ou=Special Users,dc=example,dc=com" ) ;
-        * Name name1 = new LdapDN( "dc=example,dc=com" ) ; Name name2 = new
-        * LdapDN( "dc=com" ) ; Name name3 = new LdapDN( "ou=Special Users" ) ;
-        * Name name4 = new LdapDN( "ou=Special Users,dc=example" ) ; Name name5 =
-        * new LdapDN( "" ) ; while ( enum.hasMore() ) { Binding binding = (
-        * Binding ) enum.next() ; DirContext dirCtx = ( DirContext )
-        * binding.getObject() ; NameParser parser = dirCtx.getNameParser( "" ) ;
-        * Name namex = parser.parse( dirCtx.getNameInNamespace() ) ; //
-        * DirContext dirCtx = ( DirContext ) enum.next() ; }
-        */
    }
 
 

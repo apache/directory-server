@@ -61,7 +61,7 @@ public class InitPresentFilterAction extends GrammarAction
         TLV tlv = ldapMessageContainer.getCurrentTLV();
 
         // We can allocate the Attribute Value Assertion
-        PresentFilter presentFilter = new PresentFilter();
+        PresentFilter presentFilter = new PresentFilter( ldapMessageContainer.getTlvId() );
 
         // add the filter to the request filter
         searchRequest.addCurrentFilter( presentFilter );

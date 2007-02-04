@@ -71,7 +71,7 @@ public class InitOrFilterAction extends GrammarAction
         SearchRequest searchRequest = ldapMessage.getSearchRequest();
 
         // We can allocate the SearchRequest
-        Filter orFilter = new OrFilter();
+        Filter orFilter = new OrFilter( ldapMessageContainer.getTlvId() );
 
         // Set the filter
         searchRequest.addCurrentFilter( orFilter );

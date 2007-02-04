@@ -58,7 +58,7 @@ public class ExtensibleMatchFilter extends Filter
     private Object matchValue;
 
     /** The dnAttributes flag */
-    private boolean dnAttributes;
+    private boolean dnAttributes = false;
 
     /** The extensible match length */
     private int extensibleMatchLength;
@@ -69,9 +69,9 @@ public class ExtensibleMatchFilter extends Filter
      * Creates a new ExtensibleMatchFilter object. The dnAttributes flag
      * defaults to false.
      */
-    public ExtensibleMatchFilter()
+    public ExtensibleMatchFilter( int tlvId )
     {
-        dnAttributes = false;
+        super( tlvId );
     }
 
 

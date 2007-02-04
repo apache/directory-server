@@ -61,6 +61,14 @@ public class Control extends AbstractAsn1Object
     // ------------------------------------------------------------------------------------
 
     /**
+     * Default constructor.
+     */
+    public Control()
+    {
+        super();
+    }
+
+    /**
      * Get the control type
      * 
      * @return A string which represent the control type

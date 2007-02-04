@@ -88,7 +88,7 @@ public class SearchRequest extends LdapMessage
     private Filter filter;
     
     /** The list of attributes to get */
-    private Attributes attributes;
+    private Attributes attributes = new AttributesImpl( true );
 
     /** The current filter. This is used while decoding a PDU */
     private Filter currentFilter;
@@ -112,9 +112,6 @@ public class SearchRequest extends LdapMessage
     public SearchRequest()
     {
         super();
-
-        currentFilter = null;
-        attributes = new AttributesImpl( true );
     }
 
 
@@ -404,27 +401,39 @@ public class SearchRequest extends LdapMessage
         // The parent has been completed, so fold it
         while ( ( localParent != null ) && ( localParent.getExpectedLength() == 0 ) )
         {
-            Asn1Object filterParent = localFilter.getParent();
-            
-            // We have a special case with PresentFilter, which has not been 
-            // pushed on the stack, so we need to get its parent's parent
-            if ( localFilter instanceof PresentFilter )
+            if ( localParent.getId() != localFilter.getParent().getTlvId() )
             {
-                filterParent = filterParent.getParent();
-            }
-
-            if ( filterParent instanceof Filter )
-            {
-                // The parent is a filter ; it will become the new currentFilter
-                // and we will loop again. 
-                currentFilter = (Filter)filterParent;
-                localFilter = currentFilter;
                 localParent = localParent.getParent();
+                
             }
             else
             {
-                // We can stop the recursion, we have reached the searchResult Object
-                break;
+                Asn1Object filterParent = localFilter.getParent();
+                
+                // We have a special case with PresentFilter, which has not been 
+                // pushed on the stack, so we need to get its parent's parent
+                if ( localFilter instanceof Filter )
+                {
+                    filterParent = filterParent.getParent();
+                }
+                else if ( filterParent instanceof Filter )
+                {
+                    filterParent = filterParent.getParent();
+                }
+                
+                if ( filterParent instanceof Filter )
+                {
+                    // The parent is a filter ; it will become the new currentFilter
+                    // and we will loop again. 
+                    currentFilter = (Filter)filterParent;
+                    localFilter = currentFilter;
+                    localParent = localParent.getParent();
+                }
+                else
+                {
+                    // We can stop the recursion, we have reached the searchResult Object
+                    break;
+                }
             }
         }
     }

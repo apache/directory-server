@@ -126,4 +126,16 @@ public interface IAsn1Container
      * being an end or not.
      */
     public void grammarEndAllowed( boolean grammarEndAllowed );
+    
+    /**
+     * Get a new TLV id
+     * @return a unique value representing the current TLV id
+     */
+    public int getNewTlvId();
+
+    /**
+     * Get the current TLV id
+     * @return a unique value representing the current TLV id
+     */
+    public int getTlvId();
 }

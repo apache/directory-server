@@ -35,7 +35,8 @@ public abstract class Filter extends AbstractAsn1Object
     /**
      * The constructor.
      */
-    public Filter()
+    public Filter( int tlvId )
     {
+        super( tlvId );
     }
 }

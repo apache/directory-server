@@ -66,6 +66,14 @@ public class SaslCredentials extends LdapAuthentication
     private int credentialsLength;
 
 
+    /**
+     * @see Asn1Object#Asn1Object
+     */
+    public SaslCredentials()
+    {
+        super();
+    }
+
     // ~ Methods
     // ------------------------------------------------------------------------------------
 

@@ -59,8 +59,9 @@ public class AttributeValueAssertionFilter extends Filter
      * 
      * @param filterType The filter type
      */
-    public AttributeValueAssertionFilter( int filterType )
+    public AttributeValueAssertionFilter( int tlvId, int filterType )
     {
+        super( tlvId );
         this.filterType = filterType;
     }
 

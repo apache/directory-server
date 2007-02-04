@@ -72,7 +72,7 @@ public class InitSubstringsFilterAction extends GrammarAction
         }
 
         // We can allocate the SearchRequest
-        Filter substringFilter = new SubstringFilter();
+        Filter substringFilter = new SubstringFilter( ldapMessageContainer.getTlvId() );
 
         searchRequest.addCurrentFilter( substringFilter );
         searchRequest.setTerminalFilter( substringFilter );

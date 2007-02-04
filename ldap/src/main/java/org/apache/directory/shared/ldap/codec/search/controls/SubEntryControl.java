@@ -37,6 +37,14 @@ public class SubEntryControl extends AbstractAsn1Object
 {
     private boolean visibility = false;
 
+    /**
+     * Default constructor
+     *
+     */
+    public SubEntryControl()
+    {
+        super();
+    }
 
     /**
      * Check if the subEntry is visible

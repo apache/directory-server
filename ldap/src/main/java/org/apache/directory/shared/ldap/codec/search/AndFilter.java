@@ -43,9 +43,9 @@ public class AndFilter extends ConnectorFilter
      * The constructor. We wont initialize the ArrayList as they may not be
      * used.
      */
-    public AndFilter()
+    public AndFilter( int tlvId )
     {
-        super();
+        super( tlvId );
     }
 
 

@@ -71,7 +71,7 @@ public class InitAndFilterAction extends GrammarAction
         SearchRequest searchRequest = ldapMessage.getSearchRequest();
 
         // We can allocate the SearchRequest
-        Filter andFilter = new AndFilter();
+        Filter andFilter = new AndFilter( ldapMessageContainer.getTlvId() );
 
         // Set the filter
         searchRequest.addCurrentFilter( andFilter );

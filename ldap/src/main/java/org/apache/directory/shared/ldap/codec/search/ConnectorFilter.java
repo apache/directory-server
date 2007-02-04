@@ -53,8 +53,9 @@ public abstract class ConnectorFilter extends Filter
     /**
      * The constructor. We wont initialize the ArrayList as it may not be used.
      */
-    public ConnectorFilter()
+    public ConnectorFilter( int tlvId )
     {
+        super( tlvId );
     }
 
 

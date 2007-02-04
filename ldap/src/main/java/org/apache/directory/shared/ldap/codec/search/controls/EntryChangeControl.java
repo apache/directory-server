@@ -97,6 +97,14 @@ public class EntryChangeControl extends AbstractAsn1Object
 
 
     /**
+     * @see Asn1Object#Asn1Object
+     */
+    public EntryChangeControl()
+    {
+        super();
+    }
+
+    /**
      * Compute the EntryChangeControl length 
      * 
      * 0x30 L1 

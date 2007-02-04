@@ -107,7 +107,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
             byte octet = stream.get();
 
-            TLV tlv = new TLV();
+            TLV tlv = new TLV( container.getNewTlvId() );
             tlv.setTag( octet );
 
             // Store the current TLV in the container.

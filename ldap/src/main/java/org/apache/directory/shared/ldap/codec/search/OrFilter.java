@@ -43,8 +43,9 @@ public class OrFilter extends ConnectorFilter
      * The constructor. We wont initialize the ArrayList as they may not be
      * used.
      */
-    public OrFilter()
+    public OrFilter( int tlvId )
     {
+        super( tlvId );
     }
 
 

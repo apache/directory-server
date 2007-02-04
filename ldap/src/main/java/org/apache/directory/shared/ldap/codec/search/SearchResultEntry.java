@@ -76,7 +76,7 @@ public class SearchResultEntry extends LdapMessage
     private byte[] objectNameBytes;
 
     /** The attributes list. It contains javax.naming.directory.Attribute */
-    private Attributes partialAttributeList;
+    private Attributes partialAttributeList = new AttributesImpl( true );
 
     /** The current attribute being decoded */
     private Attribute currentAttributeValue;
@@ -103,7 +103,6 @@ public class SearchResultEntry extends LdapMessage
     public SearchResultEntry()
     {
         super();
-        partialAttributeList = new AttributesImpl( true );
     }
 
 

@@ -95,6 +95,7 @@ public class LdapMessage extends AbstractAsn1Object
      */
     public LdapMessage()
     {
+        super();
         // We should not create this kind of object directly
     }
 

@@ -38,10 +38,10 @@ public abstract class GracefulAction extends AbstractAsn1Object
     public static final int NOW = 0;
 
     /** offline Time after disconnection */
-    protected int timeOffline;
+    protected int timeOffline = UNDETERMINED;
 
     /** Delay before disconnection */
-    protected int delay;
+    protected int delay = NOW;
 
 
     /**
@@ -50,8 +50,7 @@ public abstract class GracefulAction extends AbstractAsn1Object
      */
     public GracefulAction()
     {
-        timeOffline = UNDETERMINED;
-        delay = NOW;
+        super();
     }
 
 
@@ -61,8 +60,9 @@ public abstract class GracefulAction extends AbstractAsn1Object
      * @param timeOffline The time the server will be offline
      * @param delay The delay before the disconnection
      */
-    public GracefulAction(int timeOffline, int delay)
+    public GracefulAction( int timeOffline, int delay )
     {
+        super();
         this.timeOffline = timeOffline;
         this.delay = delay;
     }

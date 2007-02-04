@@ -58,7 +58,7 @@ public class InitExtensibleMatchFilterAction extends GrammarAction
         SearchRequest searchRequest = ldapMessage.getSearchRequest();
 
         // We can allocate the ExtensibleMatch Filter
-        Filter extensibleMatchFilter = new ExtensibleMatchFilter();
+        Filter extensibleMatchFilter = new ExtensibleMatchFilter( ldapMessageContainer.getTlvId() );
 
         searchRequest.addCurrentFilter( extensibleMatchFilter );
         searchRequest.setTerminalFilter( extensibleMatchFilter );

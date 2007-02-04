@@ -71,7 +71,7 @@ public class InitNotFilterAction extends GrammarAction
         SearchRequest searchRequest = ldapMessage.getSearchRequest();
 
         // We can allocate the SearchRequest
-        Filter notFilter = new NotFilter();
+        Filter notFilter = new NotFilter( ldapMessageContainer.getTlvId() );
 
         // Set the filter
         searchRequest.addCurrentFilter( notFilter );

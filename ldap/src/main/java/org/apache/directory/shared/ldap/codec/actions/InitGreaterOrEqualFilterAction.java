@@ -62,7 +62,9 @@ public class InitGreaterOrEqualFilterAction extends GrammarAction
         SearchRequest searchRequest = ldapMessage.getSearchRequest();
 
         // We can allocate the Attribute Value Assertion
-        Filter filter = new AttributeValueAssertionFilter( LdapConstants.GREATER_OR_EQUAL_FILTER );
+        Filter filter = new AttributeValueAssertionFilter( 
+            ldapMessageContainer.getTlvId(),
+            LdapConstants.GREATER_OR_EQUAL_FILTER );
 
         searchRequest.addCurrentFilter( filter );
         

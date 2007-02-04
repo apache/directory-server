@@ -123,10 +123,11 @@ public class LdapResult extends AbstractAsn1Object
     // -------------------------------------------------------------------------------
 
     /**
-     * Creates a new BindResponse object.
+     * Creates a new LdapResult object.
      */
     public LdapResult()
     {
+        super();
     }
 
 

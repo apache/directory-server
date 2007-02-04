@@ -62,7 +62,9 @@ public class InitEqualityMatchFilterAction extends GrammarAction
         SearchRequest searchRequest = ldapMessage.getSearchRequest();
 
         // We can allocate the Attribute Value Assertion
-        Filter filter = new AttributeValueAssertionFilter( LdapConstants.EQUALITY_MATCH_FILTER );
+        Filter filter = new AttributeValueAssertionFilter( 
+            ldapMessageContainer.getTlvId(),
+            LdapConstants.EQUALITY_MATCH_FILTER );
 
         searchRequest.addCurrentFilter( filter );
         
