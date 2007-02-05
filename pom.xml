@@ -103,4 +103,11 @@
       </plugin>
     </plugins>
   </build>
+
+    
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/1.0-with-dependencies</connection>
+    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/1.0-with-dependencies</developerConnection>
+  </scm>
+
 </project>
