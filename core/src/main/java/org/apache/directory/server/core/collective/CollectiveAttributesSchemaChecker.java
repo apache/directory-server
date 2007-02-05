@@ -53,23 +53,31 @@ public class CollectiveAttributesSchemaChecker
         this.attrTypeRegistry = attrTypeRegistry;
     }
 
+    /**
+     * Check that the attribute does not contain collective attributes if it does not
+     * have the collectiveAttributeSubentry ObjectClass declared
+     * 
+     * @param normName The entry DN
+     * @param entry The entry attributes
+     * @throws LdapSchemaViolationException 
+     * @throws NamingException
+     */
     public void checkAdd( LdapDN normName, Attributes entry ) throws LdapSchemaViolationException, NamingException
     {
         Attribute objectClass = entry.get( "objectClass" );
 
+        // If the objectclass contains "collectiveAttributeSubentry", then we don't have to
+        // check for the existence on collectivbe attributes : it's already allowed
         if ( AttributeUtils.containsValueCaseIgnore( objectClass, "collectiveAttributeSubentry" ) )
         {
             return;
         }
-
-        if ( containsAnyCollectiveAttributes( entry ) )
+        else if ( containsAnyCollectiveAttributes( entry ) )
         {
-            /*
-             * TODO: Replace the Exception and the ResultCodeEnum with the correct ones.
-             */
+            // We have some collective attributes, which is not allowed
             throw new LdapSchemaViolationException(
                 "Collective attributes cannot be stored in non-collectiveAttributeSubentries",
-                ResultCodeEnum.OTHER);
+                ResultCodeEnum.OBJECTCLASSVIOLATION );
         }
     }
 
@@ -131,7 +139,13 @@ public class CollectiveAttributesSchemaChecker
         return false;
     }
 
-
+    /**
+     * Check if an entry contains some collective attributes or not
+     *
+     * @param entry The entry to be checked
+     * @return <code>true</code> if the entry contains a collective attribute, <code>false</code> otherwise
+     * @throws NamingException If something went wrong
+     */
     private boolean containsAnyCollectiveAttributes( Attributes entry ) throws NamingException
     {
         NamingEnumeration allIDs = entry.getIDs();
