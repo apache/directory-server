@@ -319,9 +319,9 @@ public class SchemaParserTestUtils
         Assert.assertEquals( "Descripton", asd.getDescription() );
 
         // unicode
-        value = "( "+oid+" "+required+" DESC 'Descripton äöüß 部長' )";
+        value = "( "+oid+" "+required+" DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' )";
         asd = parser.parse( value );
-        Assert.assertEquals( "Descripton äöüß 部長", asd.getDescription() );
+        Assert.assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", asd.getDescription() );
         
         // escaped characters
         value = "( "+oid+" "+required+" DESC 'test\\5Ctest' )";
@@ -376,14 +376,14 @@ public class SchemaParserTestUtils
         Assert.assertEquals( "test", asd.getExtensions().get( "X-TEST" ).get( 0 ) );
 
         // single extension with multiple values
-        value = "( "+oid+" "+required+" X-TEST-ABC ('test1' 'test äöüß'       'test 部長' ) )";
+        value = "( "+oid+" "+required+" X-TEST-ABC ('test1' 'test \u00E4\u00F6\u00FC\u00DF'       'test \u90E8\u9577' ) )";
         asd = parser.parse( value );
         Assert.assertEquals( 1, asd.getExtensions().size() );
         Assert.assertNotNull( asd.getExtensions().get( "X-TEST-ABC" ) );
         Assert.assertEquals( 3, asd.getExtensions().get( "X-TEST-ABC" ).size() );
         Assert.assertEquals( "test1", asd.getExtensions().get( "X-TEST-ABC" ).get( 0 ) );
-        Assert.assertEquals( "test äöüß", asd.getExtensions().get( "X-TEST-ABC" ).get( 1 ) );
-        Assert.assertEquals( "test 部長", asd.getExtensions().get( "X-TEST-ABC" ).get( 2 ) );
+        Assert.assertEquals( "test \u00E4\u00F6\u00FC\u00DF", asd.getExtensions().get( "X-TEST-ABC" ).get( 1 ) );
+        Assert.assertEquals( "test \u90E8\u9577", asd.getExtensions().get( "X-TEST-ABC" ).get( 2 ) );
 
         // multiple extensions
         value = "("+oid+" "+required+" X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2'))";

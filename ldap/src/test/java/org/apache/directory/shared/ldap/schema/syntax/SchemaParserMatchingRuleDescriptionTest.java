@@ -144,14 +144,14 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
         String value = null;
         MatchingRuleDescription mrd = null;
 
-        value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton äöüß 部長' OBSOLETE SYNTAX 0.1.2.3.4.5.6.7.8.9 X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
+        value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE SYNTAX 0.1.2.3.4.5.6.7.8.9 X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
         mrd = parser.parseMatchingRuleDescription( value );
 
         assertEquals( "1.2.3.4.5.6.7.8.9.0", mrd.getNumericOid() );
         assertEquals( 2, mrd.getNames().size() );
         assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", mrd.getNames().get( 0 ) );
         assertEquals( "test", mrd.getNames().get( 1 ) );
-        assertEquals( "Descripton äöüß 部長", mrd.getDescription() );
+        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", mrd.getDescription() );
         assertTrue( mrd.isObsolete() );
         assertEquals( "0.1.2.3.4.5.6.7.8.9", mrd.getSyntax() );
         assertEquals( 2, mrd.getExtensions().size() );
@@ -276,7 +276,7 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
                 "( 1.1 SYNTAX 1.1 )",
                 "( 2.5.13.5 NAME 'caseExactMatch' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )",
                 "( 2.5.13.5 NAME 'caseExactMatch' DESC 'Case Exact Matching on Directory String [defined in X.520]' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )",
-                "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton äöüß 部長' OBSOLETE SYNTAX 0.1.2.3.4.5.6.7.8.9 X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
+                "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE SYNTAX 0.1.2.3.4.5.6.7.8.9 X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
     }
 

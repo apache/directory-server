@@ -414,14 +414,14 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         String value = null;
         ObjectClassDescription ocd = null;
 
-        value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton äöüß 部長' OBSOLETE SUP ( 2.3.4.5.6.7.8.9.0.1 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) STRUCTURAL MUST ( 3.4.5.6.7.8.9.0.1.2 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) MAY ( 4.5.6.7.8.9.0.1.2.3 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
+        value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE SUP ( 2.3.4.5.6.7.8.9.0.1 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) STRUCTURAL MUST ( 3.4.5.6.7.8.9.0.1.2 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) MAY ( 4.5.6.7.8.9.0.1.2.3 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
         ocd = parser.parseObjectClassDescription( value );
 
         assertEquals( "1.2.3.4.5.6.7.8.9.0", ocd.getNumericOid() );
         assertEquals( 2, ocd.getNames().size() );
         assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", ocd.getNames().get( 0 ) );
         assertEquals( "test", ocd.getNames().get( 1 ) );
-        assertEquals( "Descripton äöüß 部長", ocd.getDescription() );
+        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", ocd.getDescription() );
         assertTrue( ocd.isObsolete() );
         assertEquals( 2, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "2.3.4.5.6.7.8.9.0.1", ocd.getSuperiorObjectClasses().get( 0 ) );

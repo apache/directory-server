@@ -253,14 +253,14 @@ public class SchemaParserMatchingRuleUseDescriptionTest extends TestCase
         String value = null;
         MatchingRuleUseDescription mrud = null;
 
-        value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton äöüß 部長' OBSOLETE APPLIES ( 0.1.2.3.4.5.6.7.8.9 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
+        value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE APPLIES ( 0.1.2.3.4.5.6.7.8.9 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
         mrud = parser.parseMatchingRuleUseDescription( value );
 
         assertEquals( "1.2.3.4.5.6.7.8.9.0", mrud.getNumericOid() );
         assertEquals( 2, mrud.getNames().size() );
         assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", mrud.getNames().get( 0 ) );
         assertEquals( "test", mrud.getNames().get( 1 ) );
-        assertEquals( "Descripton äöüß 部長", mrud.getDescription() );
+        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", mrud.getDescription() );
         assertTrue( mrud.isObsolete() );
         assertEquals( 2, mrud.getApplicableAttributes().size() );
         assertEquals( "0.1.2.3.4.5.6.7.8.9", mrud.getApplicableAttributes().get( 0 ) );
@@ -356,7 +356,7 @@ public class SchemaParserMatchingRuleUseDescriptionTest extends TestCase
                 "( 1.1 APPLIES 1.1 )",
                 "( 2.5.13.17 NAME 'octetStringMatch' APPLIES ( javaSerializedData $ userPassword ) )",
                 "( 2.5.13.1 NAME 'distinguishedNameMatch' APPLIES ( memberOf $ dITRedirect $ associatedName $ secretary $ documentAuthor $ manager $ seeAlso $ roleOccupant $ owner $ member $ distinguishedName $ aliasedObjectName $ namingContexts $ subschemaSubentry $ modifiersName $ creatorsName ) )",
-                "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton äöüß 部長' OBSOLETE APPLIES ( 0.1.2.3.4.5.6.7.8.9 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
+                "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE APPLIES ( 0.1.2.3.4.5.6.7.8.9 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
     }
 

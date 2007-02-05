@@ -361,14 +361,14 @@ public class SchemaParserNameFormDescriptionTest extends TestCase
         String value = null;
         NameFormDescription nfd = null;
 
-        value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton äöüß 部長' OBSOLETE OC bcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789a MUST ( 3.4.5.6.7.8.9.0.1.2 $ cdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789ab ) MAY ( 4.5.6.7.8.9.0.1.2.3 $ defghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789abc ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
+        value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE OC bcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789a MUST ( 3.4.5.6.7.8.9.0.1.2 $ cdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789ab ) MAY ( 4.5.6.7.8.9.0.1.2.3 $ defghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789abc ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
         nfd = parser.parseNameFormDescription( value );
 
         assertEquals( "1.2.3.4.5.6.7.8.9.0", nfd.getNumericOid() );
         assertEquals( 2, nfd.getNames().size() );
         assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", nfd.getNames().get( 0 ) );
         assertEquals( "test", nfd.getNames().get( 1 ) );
-        assertEquals( "Descripton äöüß 部長", nfd.getDescription() );
+        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", nfd.getDescription() );
         assertTrue( nfd.isObsolete() );
         assertEquals( "bcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789a", nfd
             .getStructuralObjectClass() );
@@ -504,7 +504,7 @@ public class SchemaParserNameFormDescriptionTest extends TestCase
                 "( 1.1 OC o MUST m )",
                 "( 2.5.15.3 NAME 'orgNameForm' OC organization MUST o )",
                 "( 2.5.15.3 NAME 'orgNameForm' OC organization MUST o )",
-                "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton äöüß 部長' OBSOLETE OC bcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789a MUST ( 3.4.5.6.7.8.9.0.1.2 $ cdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789ab ) MAY ( 4.5.6.7.8.9.0.1.2.3 $ defghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789abc ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
+                "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE OC bcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789a MUST ( 3.4.5.6.7.8.9.0.1.2 $ cdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789ab ) MAY ( 4.5.6.7.8.9.0.1.2.3 $ defghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789abc ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
 
     }
