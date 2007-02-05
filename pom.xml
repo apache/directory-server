@@ -20,7 +20,7 @@
 
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/directory/shared/trunk</connection>
-    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/directory/sharedi/trunk</developerConnection>
+    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/directory/shared/trunk</developerConnection>
   </scm>
 
 </project>
