@@ -103,4 +103,9 @@
       </plugin>
     </plugins>
   </build>
+
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk-with-dependencies</connection>
+    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk-with-dependencies</developerConnection>
+  </scm>
 </project>
