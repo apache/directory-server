@@ -32,6 +32,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -65,6 +66,7 @@ public class CollectiveAttributeService extends BaseInterceptor
 
     private AttributeTypeRegistry attrTypeRegistry = null;
     private PartitionNexus nexus = null;
+    private CollectiveAttributesSchemaChecker collectiveAttributesSchemaChecker = null;
     //private AttributeTypeRegistry registry = null;
 
 
@@ -236,6 +238,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         super.init( factoryCfg, cfg );
         nexus = factoryCfg.getPartitionNexus();
         attrTypeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        collectiveAttributesSchemaChecker = new CollectiveAttributesSchemaChecker( nexus, attrTypeRegistry );
     }
 
     // ------------------------------------------------------------------------
@@ -284,5 +287,29 @@ public class CollectiveAttributeService extends BaseInterceptor
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
         Invocation invocation = InvocationStack.getInstance().peek();
         return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SEARCH_FILTER );
+    }
+    
+    // ------------------------------------------------------------------------
+    // Partial Schema Checking
+    // ------------------------------------------------------------------------
+
+    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
+    {
+        collectiveAttributesSchemaChecker.checkAdd( normName, entry );
+        super.add( next, normName, entry );
+    }
+
+
+    public void modify( NextInterceptor next, LdapDN normName, int modOp, Attributes mods ) throws NamingException
+    {
+        collectiveAttributesSchemaChecker.checkModify( normName, modOp, mods );
+        super.modify( next, normName, modOp, mods );
+    }
+
+
+    public void modify( NextInterceptor next, LdapDN normName, ModificationItemImpl[] mods ) throws NamingException
+    {
+        collectiveAttributesSchemaChecker.checkModify( normName, mods );
+        super.modify( next, normName, mods );
     }
 }
