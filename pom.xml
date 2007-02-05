@@ -19,8 +19,8 @@
   </modules>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared</connection>
-    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared</developerConnection>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/shared/trunk</connection>
+    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/directory/sharedi/trunk</developerConnection>
   </scm>
 
 </project>
