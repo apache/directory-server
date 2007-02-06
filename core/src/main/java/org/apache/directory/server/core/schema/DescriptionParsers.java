@@ -495,6 +495,13 @@ public class DescriptionParsers
     }
     
     
+    /**
+     * Called to populate the common schema object properties using an abstract 
+     * description object.
+     *   
+     * @param desc the source description object to copy properties from
+     * @param obj the mutable schema object to copy properites to
+     */
     private void setSchemaObjectProperties( AbstractSchemaDescription desc, MutableSchemaObject obj )
     {
         obj.setDescription( desc.getDescription() );
@@ -504,6 +511,13 @@ public class DescriptionParsers
     }
     
     
+    /**
+     * Checks to see if the syntax description is human readable by checking 
+     * for the presence of the X-IS-HUMAN_READABLE schema extension.
+     * 
+     * @param desc the ldapSyntaxDescription 
+     * @return true if the syntax is human readable, false otherwise
+     */
     private boolean isHumanReadable( LdapSyntaxDescription desc )
     {
         List<String> values = desc.getExtensions().get( X_IS_HUMAN_READABLE );
@@ -527,6 +541,13 @@ public class DescriptionParsers
     }
     
     
+    /**
+     * Gets the schema name for the schema description by looking up the value 
+     * of the X-SCHEMA schema extension of the description. 
+     * 
+     * @param desc the schema description 
+     * @return the schema name for the schema entity
+     */
     private String getSchema( AbstractSchemaDescription desc ) 
     {
         List<String> values = desc.getExtensions().get( X_SCHEMA );
