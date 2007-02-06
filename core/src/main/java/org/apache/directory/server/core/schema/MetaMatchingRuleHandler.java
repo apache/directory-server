@@ -91,8 +91,8 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
 
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
-        Schema schema = getSchema( name );
-        MatchingRule mr = factory.getMatchingRule( entry, targetRegistries, schema.getSchemaName() );
+        String schemaName = getSchemaName( name );
+        MatchingRule mr = factory.getMatchingRule( entry, targetRegistries, schemaName );
         Set<SearchResult> dependees = dao.listMatchingRuleDependents( mr );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -103,6 +103,13 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
+        delete( mr );
+    }
+
+
+    public void delete( MatchingRule mr ) throws NamingException
+    {
+        Schema schema = loader.getSchema( mr.getSchema() );
         if ( ! schema.isDisabled() )
         {
             matchingRuleRegistry.unregister( mr.getOid() );
@@ -110,7 +117,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
         unregisterOids( mr.getOid() );
     }
 
-
+    
     public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
     {
         Schema schema = getSchema( name );

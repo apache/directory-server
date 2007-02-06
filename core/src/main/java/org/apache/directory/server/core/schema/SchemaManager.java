@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -479,113 +480,19 @@ public class SchemaManager
             switch ( mod.getModificationOp() )
             {
                 case( DirContext.ADD_ATTRIBUTE ):
-                    modifyAddOperation( opAttrOid, mod );
+                    modifyAddOperation( opAttrOid, mod.getAttribute() );
                     break;
                 case( DirContext.REMOVE_ATTRIBUTE ):
+                    modifyRemoveOperation( opAttrOid, mod.getAttribute() );
                     break; 
                 case( DirContext.REPLACE_ATTRIBUTE ):
+                    AttributeType opAttrType = globalRegistries.getAttributeTypeRegistry().lookup( opAttrOid );
+                    Attribute original = AttributeUtils.getAttribute( subentry, opAttrType );
+                    modifyReplaceOperation( opAttrOid, mod.getAttribute(), original );
                     break;
                 default:
                     throw new IllegalStateException( "Undefined modify operation: " + mod.getModificationOp() );
             }
-        }
-    }
-
-
-    private void modifyAddOperation( String opAttrOid, ModificationItemImpl mod ) throws NamingException
-    {
-        int index = opAttr2handlerIndex.get( opAttrOid ).intValue();
-        SchemaChangeHandler handler = opAttr2handlerMap.get( opAttrOid );
-        switch( index )
-        {
-            case( COMPARATOR_INDEX ):
-                break;
-            case( NORMALIZER_INDEX ):
-                break;
-            case( SYNTAX_CHECKER_INDEX ):
-                break;
-            case( SYNTAX_INDEX ):
-                MetaSyntaxHandler syntaxHandler = ( MetaSyntaxHandler ) handler;
-                Syntax[] syntaxes = parsers.parseSyntaxes( mod.getAttribute() );
-                
-                for ( Syntax syntax : syntaxes )
-                {
-                    syntaxHandler.add( syntax );
-                    subentryModifier.addSchemaObject( syntax );
-                }
-                break;
-            case( MATCHING_RULE_INDEX ):
-                MetaMatchingRuleHandler matchingRuleHandler = ( MetaMatchingRuleHandler ) handler;
-                MatchingRule[] mrs = parsers.parseMatchingRules( mod.getAttribute() );
-                
-                for ( MatchingRule mr : mrs )
-                {
-                    matchingRuleHandler.add( mr );
-                    subentryModifier.addSchemaObject( mr );
-                }
-                break;
-            case( ATTRIBUTE_TYPE_INDEX ):
-                MetaAttributeTypeHandler atHandler = ( MetaAttributeTypeHandler ) handler;
-                AttributeType[] ats = parsers.parseAttributeTypes( mod.getAttribute() );
-                
-                for ( AttributeType at : ats )
-                {
-                    atHandler.add( at );
-                    subentryModifier.addSchemaObject( at );
-                }
-                break;
-            case( OBJECT_CLASS_INDEX ):
-                MetaObjectClassHandler ocHandler = ( MetaObjectClassHandler ) handler;
-                ObjectClass[] ocs = parsers.parseObjectClasses( mod.getAttribute() );
-
-                for ( ObjectClass oc : ocs )
-                {
-                    ocHandler.add( oc );
-                    subentryModifier.addSchemaObject( oc );
-                }
-                break;
-            case( MATCHING_RULE_USE_INDEX ):
-                MetaMatchingRuleUseHandler mruHandler = ( MetaMatchingRuleUseHandler ) handler;
-                MatchingRuleUse[] mrus = parsers.parseMatchingRuleUses( mod.getAttribute() );
-                
-                for ( MatchingRuleUse mru : mrus )
-                {
-                    mruHandler.add( mru );
-                    subentryModifier.addSchemaObject( mru );
-                }
-                break;
-            case( DIT_STRUCTURE_RULE_INDEX ):
-                MetaDitStructureRuleHandler dsrHandler = ( MetaDitStructureRuleHandler ) handler;
-                DITStructureRule[] dsrs = parsers.parseDitStructureRules( mod.getAttribute() );
-                
-                for ( DITStructureRule dsr : dsrs )
-                {
-                    dsrHandler.add( dsr );
-                    subentryModifier.addSchemaObject( dsr );
-                }
-                break;
-            case( DIT_CONTENT_RULE_INDEX ):
-                MetaDitContentRuleHandler dcrHandler = ( MetaDitContentRuleHandler ) handler;
-                DITContentRule[] dcrs = parsers.parseDitContentRules( mod.getAttribute() );
-                
-                for ( DITContentRule dcr : dcrs )
-                {
-                    dcrHandler.add( dcr );
-                    subentryModifier.addSchemaObject( dcr );
-                }
-                break;
-            case( NAME_FORM_INDEX ):
-                MetaNameFormHandler nfHandler = ( MetaNameFormHandler ) handler;
-                NameForm[] nfs = parsers.parseNameForms( mod.getAttribute() );
-                
-                for ( NameForm nf : nfs )
-                {
-                    nfHandler.add( nf );
-                    subentryModifier.addSchemaObject( nf );
-                }
-                break;
-            default:
-                throw new IllegalStateException( "Unknown index into handler array: " + index );
         }
     }
     
@@ -604,16 +511,413 @@ public class SchemaManager
     public void modifySchemaSubentry( LdapDN name, int modOp, Attributes mods, Attributes subentry, 
         Attributes targetSubentry ) throws NamingException
     {
+        NamingEnumeration<String> ids = mods.getIDs();
         switch ( modOp )
         {
             case( DirContext.ADD_ATTRIBUTE ):
+                while ( ids.hasMore() )
+                {
+                    String id = ids.next();
+                    AttributeType opAttrAT = globalRegistries.getAttributeTypeRegistry().lookup( id );
+                    modifyAddOperation( opAttrAT.getOid(), AttributeUtils.getAttribute( mods, opAttrAT ) );
+                }
                 break;
             case( DirContext.REMOVE_ATTRIBUTE ):
+                while ( ids.hasMore() )
+                {
+                    String id = ids.next();
+                    AttributeType opAttrAT = globalRegistries.getAttributeTypeRegistry().lookup( id );
+                    modifyRemoveOperation( opAttrAT.getOid(), AttributeUtils.getAttribute( mods, opAttrAT ) );
+                }
                 break;
             case( DirContext.REPLACE_ATTRIBUTE ):
+                while ( ids.hasMore() )
+                {
+                    String id = ids.next();
+                    AttributeType opAttrAT = globalRegistries.getAttributeTypeRegistry().lookup( id );
+                    Attribute modified = AttributeUtils.getAttribute( mods, opAttrAT );
+                    Attribute original = AttributeUtils.getAttribute( subentry, opAttrAT );
+                    modifyReplaceOperation( opAttrAT.getOid(), modified, original );
+                }
                 break;
             default:
                 throw new IllegalStateException( "Undefined modify operation: " + modOp );
+        }
+    }
+
+
+    /**
+     * Handles modify replace operations on the schema subentry.
+     * 
+     * @param opAttrOid the numeric id of the operational attribute being modified
+     * @param mods the attribute with the modifications
+     * @param original the original values for the operational attribute being modified
+     * @throws NamingException if there are problems updating the registries or the 
+     * schema partition
+     */
+    private void modifyReplaceOperation( String opAttrOid, Attribute mods, Attribute original ) 
+        throws NamingException
+    {
+        int index = opAttr2handlerIndex.get( opAttrOid ).intValue();
+        SchemaChangeHandler handler = opAttr2handlerMap.get( opAttrOid );
+        switch( index )
+        {
+            case( COMPARATOR_INDEX ):
+                break;
+            case( NORMALIZER_INDEX ):
+                break;
+            case( SYNTAX_CHECKER_INDEX ):
+                break;
+            case( SYNTAX_INDEX ):
+                MetaSyntaxHandler syntaxHandler = ( MetaSyntaxHandler ) handler;
+                Syntax[] removedSyntaxes = parsers.parseSyntaxes( original );
+                Syntax[] addedSyntaxes = parsers.parseSyntaxes( mods );
+                
+                for ( Syntax syntax : removedSyntaxes )
+                {
+                    syntaxHandler.delete( syntax );
+                    subentryModifier.deleteSchemaObject( syntax );
+                }
+                
+                for ( Syntax syntax : addedSyntaxes )
+                {
+                    syntaxHandler.add( syntax );
+                    subentryModifier.addSchemaObject( syntax );
+                }
+                break;
+            case( MATCHING_RULE_INDEX ):
+                MetaMatchingRuleHandler matchingRuleHandler = ( MetaMatchingRuleHandler ) handler;
+                MatchingRule[] removedMrs = parsers.parseMatchingRules( original );
+                MatchingRule[] addedMrs = parsers.parseMatchingRules( mods );
+                
+                for ( MatchingRule mr : removedMrs )
+                {
+                    matchingRuleHandler.delete( mr );
+                    subentryModifier.deleteSchemaObject( mr );
+                }
+                
+                for ( MatchingRule mr : addedMrs )
+                {
+                    matchingRuleHandler.add( mr );
+                    subentryModifier.addSchemaObject( mr );
+                }
+                break;
+            case( ATTRIBUTE_TYPE_INDEX ):
+                MetaAttributeTypeHandler atHandler = ( MetaAttributeTypeHandler ) handler;
+                AttributeType[] removedAts = parsers.parseAttributeTypes( original );
+                AttributeType[] addedAts = parsers.parseAttributeTypes( mods );
+                
+                for ( AttributeType at : removedAts )
+                {
+                    atHandler.delete( at );
+                    subentryModifier.deleteSchemaObject( at );
+                }
+                
+                for ( AttributeType at : addedAts )
+                {
+                    atHandler.add( at );
+                    subentryModifier.addSchemaObject( at );
+                }
+                break;
+            case( OBJECT_CLASS_INDEX ):
+                MetaObjectClassHandler ocHandler = ( MetaObjectClassHandler ) handler;
+                ObjectClass[] removedOcs = parsers.parseObjectClasses( original );
+                ObjectClass[] addedOcs = parsers.parseObjectClasses( mods );
+
+                for ( ObjectClass oc : removedOcs )
+                {
+                    ocHandler.delete( oc );
+                    subentryModifier.deleteSchemaObject( oc );
+                }
+                
+                for ( ObjectClass oc : addedOcs )
+                {
+                    ocHandler.add( oc );
+                    subentryModifier.addSchemaObject( oc );
+                }
+                break;
+            case( MATCHING_RULE_USE_INDEX ):
+                MetaMatchingRuleUseHandler mruHandler = ( MetaMatchingRuleUseHandler ) handler;
+                MatchingRuleUse[] removedMrus = parsers.parseMatchingRuleUses( original );
+                MatchingRuleUse[] addedMrus = parsers.parseMatchingRuleUses( mods );
+                
+                for ( MatchingRuleUse mru : removedMrus )
+                {
+                    mruHandler.delete( mru );
+                    subentryModifier.deleteSchemaObject( mru );
+                }
+                
+                for ( MatchingRuleUse mru : addedMrus )
+                {
+                    mruHandler.add( mru );
+                    subentryModifier.addSchemaObject( mru );
+                }
+                break;
+            case( DIT_STRUCTURE_RULE_INDEX ):
+                MetaDitStructureRuleHandler dsrHandler = ( MetaDitStructureRuleHandler ) handler;
+                DITStructureRule[] removedDsrs = parsers.parseDitStructureRules( original );
+                DITStructureRule[] addedDsrs = parsers.parseDitStructureRules( mods );
+                
+                for ( DITStructureRule dsr : removedDsrs )
+                {
+                    dsrHandler.delete( dsr );
+                    subentryModifier.deleteSchemaObject( dsr );
+                }
+                
+                for ( DITStructureRule dsr : addedDsrs )
+                {
+                    dsrHandler.add( dsr );
+                    subentryModifier.addSchemaObject( dsr );
+                }
+                break;
+            case( DIT_CONTENT_RULE_INDEX ):
+                MetaDitContentRuleHandler dcrHandler = ( MetaDitContentRuleHandler ) handler;
+                DITContentRule[] removedDcrs = parsers.parseDitContentRules( original );
+                DITContentRule[] addedDcrs = parsers.parseDitContentRules( mods );
+                
+                for ( DITContentRule dcr : removedDcrs )
+                {
+                    dcrHandler.delete( dcr );
+                    subentryModifier.deleteSchemaObject( dcr );
+                }
+                
+                for ( DITContentRule dcr : addedDcrs )
+                {
+                    dcrHandler.add( dcr );
+                    subentryModifier.addSchemaObject( dcr );
+                }
+                break;
+            case( NAME_FORM_INDEX ):
+                MetaNameFormHandler nfHandler = ( MetaNameFormHandler ) handler;
+                NameForm[] removedNfs = parsers.parseNameForms( original );
+                NameForm[] addedNfs = parsers.parseNameForms( mods );
+                
+                for ( NameForm nf : removedNfs )
+                {
+                    nfHandler.delete( nf );
+                    subentryModifier.deleteSchemaObject( nf );
+                }
+                
+                for ( NameForm nf : addedNfs )
+                {
+                    nfHandler.add( nf );
+                    subentryModifier.addSchemaObject( nf );
+                }
+                break;
+            default:
+                throw new IllegalStateException( "Unknown index into handler array: " + index );
+        }
+    }
+
+
+    /**
+     * Handles the modify remove operation on the subschemaSubentry for schema entities. 
+     * 
+     * @param opAttrOid the numeric id of the operational attribute modified
+     * @param mods the attribute with the modifications
+     * @throws NamingException if there are problems updating the registries and the 
+     * schema partition
+     */
+    private void modifyRemoveOperation( String opAttrOid, Attribute mods ) throws NamingException
+    {
+        int index = opAttr2handlerIndex.get( opAttrOid ).intValue();
+        SchemaChangeHandler handler = opAttr2handlerMap.get( opAttrOid );
+        switch( index )
+        {
+            case( COMPARATOR_INDEX ):
+                break;
+            case( NORMALIZER_INDEX ):
+                break;
+            case( SYNTAX_CHECKER_INDEX ):
+                break;
+            case( SYNTAX_INDEX ):
+                MetaSyntaxHandler syntaxHandler = ( MetaSyntaxHandler ) handler;
+                Syntax[] syntaxes = parsers.parseSyntaxes( mods );
+                
+                for ( Syntax syntax : syntaxes )
+                {
+                    syntaxHandler.delete( syntax );
+                    subentryModifier.deleteSchemaObject( syntax );
+                }
+                break;
+            case( MATCHING_RULE_INDEX ):
+                MetaMatchingRuleHandler matchingRuleHandler = ( MetaMatchingRuleHandler ) handler;
+                MatchingRule[] mrs = parsers.parseMatchingRules( mods );
+                
+                for ( MatchingRule mr : mrs )
+                {
+                    matchingRuleHandler.delete( mr );
+                    subentryModifier.deleteSchemaObject( mr );
+                }
+                break;
+            case( ATTRIBUTE_TYPE_INDEX ):
+                MetaAttributeTypeHandler atHandler = ( MetaAttributeTypeHandler ) handler;
+                AttributeType[] ats = parsers.parseAttributeTypes( mods );
+                
+                for ( AttributeType at : ats )
+                {
+                    atHandler.delete( at );
+                    subentryModifier.deleteSchemaObject( at );
+                }
+                break;
+            case( OBJECT_CLASS_INDEX ):
+                MetaObjectClassHandler ocHandler = ( MetaObjectClassHandler ) handler;
+                ObjectClass[] ocs = parsers.parseObjectClasses( mods );
+
+                for ( ObjectClass oc : ocs )
+                {
+                    ocHandler.delete( oc );
+                    subentryModifier.deleteSchemaObject( oc );
+                }
+                break;
+            case( MATCHING_RULE_USE_INDEX ):
+                MetaMatchingRuleUseHandler mruHandler = ( MetaMatchingRuleUseHandler ) handler;
+                MatchingRuleUse[] mrus = parsers.parseMatchingRuleUses( mods );
+                
+                for ( MatchingRuleUse mru : mrus )
+                {
+                    mruHandler.delete( mru );
+                    subentryModifier.deleteSchemaObject( mru );
+                }
+                break;
+            case( DIT_STRUCTURE_RULE_INDEX ):
+                MetaDitStructureRuleHandler dsrHandler = ( MetaDitStructureRuleHandler ) handler;
+                DITStructureRule[] dsrs = parsers.parseDitStructureRules( mods );
+                
+                for ( DITStructureRule dsr : dsrs )
+                {
+                    dsrHandler.delete( dsr );
+                    subentryModifier.deleteSchemaObject( dsr );
+                }
+                break;
+            case( DIT_CONTENT_RULE_INDEX ):
+                MetaDitContentRuleHandler dcrHandler = ( MetaDitContentRuleHandler ) handler;
+                DITContentRule[] dcrs = parsers.parseDitContentRules( mods );
+                
+                for ( DITContentRule dcr : dcrs )
+                {
+                    dcrHandler.delete( dcr );
+                    subentryModifier.deleteSchemaObject( dcr );
+                }
+                break;
+            case( NAME_FORM_INDEX ):
+                MetaNameFormHandler nfHandler = ( MetaNameFormHandler ) handler;
+                NameForm[] nfs = parsers.parseNameForms( mods );
+                
+                for ( NameForm nf : nfs )
+                {
+                    nfHandler.delete( nf );
+                    subentryModifier.deleteSchemaObject( nf );
+                }
+                break;
+            default:
+                throw new IllegalStateException( "Unknown index into handler array: " + index );
+        }
+    }
+    
+    
+    /**
+     * Handles the modify add operation on the subschemaSubentry for schema entities. 
+     * 
+     * @param opAttrOid the numeric id of the operational attribute modified
+     * @param mods the attribute with the modifications
+     * @throws NamingException if there are problems updating the registries and the 
+     * schema partition
+     */
+    private void modifyAddOperation( String opAttrOid, Attribute mods ) throws NamingException
+    {
+        int index = opAttr2handlerIndex.get( opAttrOid ).intValue();
+        SchemaChangeHandler handler = opAttr2handlerMap.get( opAttrOid );
+        switch( index )
+        {
+            case( COMPARATOR_INDEX ):
+                break;
+            case( NORMALIZER_INDEX ):
+                break;
+            case( SYNTAX_CHECKER_INDEX ):
+                break;
+            case( SYNTAX_INDEX ):
+                MetaSyntaxHandler syntaxHandler = ( MetaSyntaxHandler ) handler;
+                Syntax[] syntaxes = parsers.parseSyntaxes( mods );
+                
+                for ( Syntax syntax : syntaxes )
+                {
+                    syntaxHandler.add( syntax );
+                    subentryModifier.addSchemaObject( syntax );
+                }
+                break;
+            case( MATCHING_RULE_INDEX ):
+                MetaMatchingRuleHandler matchingRuleHandler = ( MetaMatchingRuleHandler ) handler;
+                MatchingRule[] mrs = parsers.parseMatchingRules( mods );
+                
+                for ( MatchingRule mr : mrs )
+                {
+                    matchingRuleHandler.add( mr );
+                    subentryModifier.addSchemaObject( mr );
+                }
+                break;
+            case( ATTRIBUTE_TYPE_INDEX ):
+                MetaAttributeTypeHandler atHandler = ( MetaAttributeTypeHandler ) handler;
+                AttributeType[] ats = parsers.parseAttributeTypes( mods );
+                
+                for ( AttributeType at : ats )
+                {
+                    atHandler.add( at );
+                    subentryModifier.addSchemaObject( at );
+                }
+                break;
+            case( OBJECT_CLASS_INDEX ):
+                MetaObjectClassHandler ocHandler = ( MetaObjectClassHandler ) handler;
+                ObjectClass[] ocs = parsers.parseObjectClasses( mods );
+
+                for ( ObjectClass oc : ocs )
+                {
+                    ocHandler.add( oc );
+                    subentryModifier.addSchemaObject( oc );
+                }
+                break;
+            case( MATCHING_RULE_USE_INDEX ):
+                MetaMatchingRuleUseHandler mruHandler = ( MetaMatchingRuleUseHandler ) handler;
+                MatchingRuleUse[] mrus = parsers.parseMatchingRuleUses( mods );
+                
+                for ( MatchingRuleUse mru : mrus )
+                {
+                    mruHandler.add( mru );
+                    subentryModifier.addSchemaObject( mru );
+                }
+                break;
+            case( DIT_STRUCTURE_RULE_INDEX ):
+                MetaDitStructureRuleHandler dsrHandler = ( MetaDitStructureRuleHandler ) handler;
+                DITStructureRule[] dsrs = parsers.parseDitStructureRules( mods );
+                
+                for ( DITStructureRule dsr : dsrs )
+                {
+                    dsrHandler.add( dsr );
+                    subentryModifier.addSchemaObject( dsr );
+                }
+                break;
+            case( DIT_CONTENT_RULE_INDEX ):
+                MetaDitContentRuleHandler dcrHandler = ( MetaDitContentRuleHandler ) handler;
+                DITContentRule[] dcrs = parsers.parseDitContentRules( mods );
+                
+                for ( DITContentRule dcr : dcrs )
+                {
+                    dcrHandler.add( dcr );
+                    subentryModifier.addSchemaObject( dcr );
+                }
+                break;
+            case( NAME_FORM_INDEX ):
+                MetaNameFormHandler nfHandler = ( MetaNameFormHandler ) handler;
+                NameForm[] nfs = parsers.parseNameForms( mods );
+                
+                for ( NameForm nf : nfs )
+                {
+                    nfHandler.add( nf );
+                    subentryModifier.addSchemaObject( nf );
+                }
+                break;
+            default:
+                throw new IllegalStateException( "Unknown index into handler array: " + index );
         }
     }
 }

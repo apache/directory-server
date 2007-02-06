@@ -91,8 +91,8 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
 
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
-        Schema schema = getSchema( name );
-        ObjectClass oc = factory.getObjectClass( entry, targetRegistries, schema.getSchemaName() );
+        String schemaName = getSchemaName( name );
+        ObjectClass oc = factory.getObjectClass( entry, targetRegistries, schemaName );
         Set<SearchResult> dependees = dao.listObjectClassDependents( oc );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -102,6 +102,14 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
                 + getOids( dependees ), 
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
+
+        delete( oc );
+    }
+
+
+    public void delete( ObjectClass oc ) throws NamingException
+    {
+        Schema schema = loader.getSchema( oc.getSchema() );
         
         if ( ! schema.isDisabled() )
         {

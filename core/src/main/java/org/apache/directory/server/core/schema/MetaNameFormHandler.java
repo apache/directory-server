@@ -106,7 +106,13 @@ public class MetaNameFormHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( NameForm nf )
+    public void add( NameForm nf ) throws NamingException
+    {
+        // TODO Auto-generated method stub
+    }
+
+
+    public void delete( NameForm nf ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

@@ -127,4 +127,12 @@ public class SchemaSubentryModifier
         Attributes attrs = factory.getAttributes( obj, schema );
         proxy.add( dn, attrs, BYPASS );
     }
+
+
+    public void deleteSchemaObject( SchemaObject obj ) throws NamingException
+    {
+        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
+        LdapDN dn = getDn( obj );
+        proxy.delete( dn, BYPASS );
+    }
 }

@@ -59,7 +59,7 @@ import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescript
 
 
 /**
- * Document me!
+ * Parses descriptions using a number of different parsers for schema descriptions.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -72,6 +72,15 @@ public class DescriptionParsers
     // TODO put these into an interface in the apacheds-constants project 
     private static final String X_SCHEMA = "X-SCHEMA";
     private static final Object X_IS_HUMAN_READABLE = "X-IS-HUMAN-READABLE";
+
+    private static final Syntax[] EMPTY_SYNTAXES = new Syntax[0];
+    private static final MatchingRule[] EMPTY_MATCHING_RULES = new MatchingRule[0];
+    private static final AttributeType[] EMPTY_ATTRIBUTE_TYPES = new AttributeType[0];
+    private static final ObjectClass[] EMPTY_OBJECT_CLASSES = new ObjectClass[0];
+    private static final MatchingRuleUse[] EMPTY_MATCHING_RULE_USES = new MatchingRuleUse[0];
+    private static final DITStructureRule[] EMPTY_DIT_STRUCTURE_RULES = new DITStructureRule[0];
+    private static final DITContentRule[] EMPTY_DIT_CONTENT_RULES = new DITContentRule[0];
+    private static final NameForm[] EMPTY_NAME_FORMS = new NameForm[0];
 
     private final Registries globalRegistries;
     
@@ -93,14 +102,32 @@ public class DescriptionParsers
         new NameFormDescriptionSchemaParser();
     
     
+    /**
+     * Creates a description parser.
+     * 
+     * @param globalRegistries the registries to use while creating new schema entities
+     */
     public DescriptionParsers( Registries globalRegistries )
     {
         this.globalRegistries = globalRegistries;
     }
     
-    
+
+    /**
+     * Parses a set of attributeTypeDescriptions held within an attribute into 
+     * schema entities.
+     * 
+     * @param attr the attribute containing attributeTypeDescriptions
+     * @return the set of attributeType objects for the descriptions 
+     * @throws NamingException if there are problems parsing the descriptions
+     */
     public AttributeType[] parseAttributeTypes( Attribute attr ) throws NamingException
     {
+        if ( attr == null || attr.size() == 0 )
+        {
+            return EMPTY_ATTRIBUTE_TYPES;
+        }
+        
         AttributeType[] attributeTypes = new AttributeType[attr.size()];
         
         for ( int ii = 0; ii < attr.size(); ii++ )
@@ -140,8 +167,21 @@ public class DescriptionParsers
     }
     
     
+    /**
+     * Parses a set of objectClassDescriptions held within an attribute into 
+     * schema entities.
+     * 
+     * @param attr the attribute containing objectClassDescriptions
+     * @return the set of objectClass objects for the descriptions 
+     * @throws NamingException if there are problems parsing the descriptions
+     */
     public ObjectClass[] parseObjectClasses( Attribute attr ) throws NamingException
     {
+        if ( attr == null || attr.size() == 0 )
+        {
+            return EMPTY_OBJECT_CLASSES;
+        }
+        
         ObjectClass[] objectClasses = new ObjectClass[attr.size()];
         
         for ( int ii = 0; ii < attr.size(); ii++ )
@@ -175,8 +215,21 @@ public class DescriptionParsers
     }
 
 
+    /**
+     * Parses a set of matchingRuleUseDescriptions held within an attribute into 
+     * schema entities.
+     * 
+     * @param attr the attribute containing matchingRuleUseDescriptions
+     * @return the set of matchingRuleUse objects for the descriptions 
+     * @throws NamingException if there are problems parsing the descriptions
+     */
     public MatchingRuleUse[] parseMatchingRuleUses( Attribute attr ) throws NamingException
     {
+        if ( attr == null || attr.size() == 0 )
+        {
+            return EMPTY_MATCHING_RULE_USES;
+        }
+        
         MatchingRuleUse[] matchingRuleUses = new MatchingRuleUse[attr.size()];
         
         for ( int ii = 0; ii < attr.size(); ii++ )
@@ -207,8 +260,21 @@ public class DescriptionParsers
     }
 
 
+    /**
+     * Parses a set of ldapSyntaxDescriptions held within an attribute into 
+     * schema entities.
+     * 
+     * @param attr the attribute containing ldapSyntaxDescriptions
+     * @return the set of Syntax objects for the descriptions 
+     * @throws NamingException if there are problems parsing the descriptions
+     */
     public Syntax[] parseSyntaxes( Attribute attr ) throws NamingException
     {
+        if ( attr == null || attr.size() == 0 )
+        {
+            return EMPTY_SYNTAXES;
+        }
+        
         Syntax[] syntaxes = new Syntax[attr.size()];
         
         for ( int ii = 0; ii < attr.size(); ii++ )
@@ -238,8 +304,21 @@ public class DescriptionParsers
     }
 
 
+    /**
+     * Parses a set of matchingRuleDescriptions held within an attribute into 
+     * schema entities.
+     * 
+     * @param attr the attribute containing matchingRuleDescriptions
+     * @return the set of matchingRule objects for the descriptions 
+     * @throws NamingException if there are problems parsing the descriptions
+     */
     public MatchingRule[] parseMatchingRules( Attribute attr ) throws NamingException
     {
+        if ( attr == null || attr.size() == 0 )
+        {
+            return EMPTY_MATCHING_RULES;
+        }
+        
         MatchingRule[] matchingRules = new MatchingRule[attr.size()];
 
         for ( int ii = 0; ii < attr.size(); ii++ )
@@ -269,8 +348,21 @@ public class DescriptionParsers
     }
     
 
+    /**
+     * Parses a set of dITStructureRuleDescriptions held within an attribute into 
+     * schema entities.
+     * 
+     * @param attr the attribute containing dITStructureRuleDescriptions
+     * @return the set of DITStructureRule objects for the descriptions 
+     * @throws NamingException if there are problems parsing the descriptions
+     */
     public DITStructureRule[] parseDitStructureRules( Attribute attr ) throws NamingException
     {
+        if ( attr == null || attr.size() == 0 )
+        {
+            return EMPTY_DIT_STRUCTURE_RULES;
+        }
+        
         DITStructureRule[] ditStructureRules = new DITStructureRule[attr.size()];
         
         for ( int ii = 0; ii < attr.size(); ii++ )
@@ -306,8 +398,21 @@ public class DescriptionParsers
     }
 
     
+    /**
+     * Parses a set of dITContentRuleDescriptions held within an attribute into 
+     * schema entities.
+     * 
+     * @param attr the attribute containing dITContentRuleDescriptions
+     * @return the set of DITContentRule objects for the descriptions 
+     * @throws NamingException if there are problems parsing the descriptions
+     */
     public DITContentRule[] parseDitContentRules( Attribute attr ) throws NamingException
     {
+        if ( attr == null || attr.size() == 0 )
+        {
+            return EMPTY_DIT_CONTENT_RULES;
+        }
+        
         DITContentRule[] ditContentRules = new DITContentRule[attr.size()];
         
         for ( int ii = 0; ii < attr.size(); ii++ )
@@ -342,8 +447,21 @@ public class DescriptionParsers
     }
 
     
+    /**
+     * Parses a set of nameFormDescriptions held within an attribute into 
+     * schema entities.
+     * 
+     * @param attr the attribute containing nameFormDescriptions
+     * @return the set of NameFormRule objects for the descriptions 
+     * @throws NamingException if there are problems parsing the descriptions
+     */
     public NameForm[] parseNameForms( Attribute attr ) throws NamingException
     {
+        if ( attr == null || attr.size() == 0 )
+        {
+            return EMPTY_NAME_FORMS;
+        }
+        
         NameForm[] nameForms = new NameForm[attr.size()];
         
         for ( int ii = 0; ii < attr.size(); ii++ )
@@ -409,7 +527,7 @@ public class DescriptionParsers
     }
     
     
-    String getSchema( AbstractSchemaDescription desc ) 
+    private String getSchema( AbstractSchemaDescription desc ) 
     {
         List<String> values = desc.getExtensions().get( X_SCHEMA );
         

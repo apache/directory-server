@@ -103,17 +103,26 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
-        Schema schema = getSchema( name );
-        if ( ! schema.isDisabled() )
-        {
-            syntaxRegistry.unregister( oid );
-        }
-
-        // no matter what we remove OID for deleted syntaxes
-        unregisterOids( oid );
+        
+        String schemaName = getSchemaName( name );
+        Syntax syntax = factory.getSyntax( entry, targetRegistries, schemaName );
+        delete( syntax );
     }
 
 
+    public void delete( Syntax syntax ) throws NamingException
+    {
+        Schema schema = loader.getSchema( syntax.getSchema() );
+        if ( ! schema.isDisabled() )
+        {
+            syntaxRegistry.unregister( syntax.getOid() );
+        }
+
+        // no matter what we remove OID for deleted syntaxes
+        unregisterOids( syntax.getOid() );
+    }
+
+    
     public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
     {
         String oldOid = getOid( entry );

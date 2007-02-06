@@ -106,8 +106,8 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
-        Schema schema = getSchema( name );
-        AttributeType at = factory.getAttributeType( entry, targetRegistries, schema.getSchemaName() );
+        String schemaName = getSchemaName( name );
+        AttributeType at = factory.getAttributeType( entry, targetRegistries, schemaName );
         Set<SearchResult> dependees = dao.listAttributeTypeDependents( at );
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -118,6 +118,13 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
+        delete( at );
+    }
+
+
+    public void delete( AttributeType at ) throws NamingException
+    {
+        Schema schema = loader.getSchema( at.getSchema() );
         if ( ! schema.isDisabled() )
         {
             attributeTypeRegistry.unregister( at.getOid() );

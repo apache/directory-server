@@ -106,7 +106,13 @@ public class MetaDitContentRuleHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( DITContentRule dcr )
+    public void add( DITContentRule dcr ) throws NamingException
+    {
+        // TODO Auto-generated method stub
+    }
+
+
+    public void delete( DITContentRule dcr ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

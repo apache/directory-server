@@ -106,7 +106,13 @@ public class MetaDitStructureRuleHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( DITStructureRule dsr )
+    public void add( DITStructureRule dsr ) throws NamingException
+    {
+        // TODO Auto-generated method stub
+    }
+
+
+    public void delete( DITStructureRule dsr ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

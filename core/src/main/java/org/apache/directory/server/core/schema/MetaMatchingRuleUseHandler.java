@@ -100,7 +100,13 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( MatchingRuleUse mru )
+    public void add( MatchingRuleUse mru ) throws NamingException
+    {
+        // TODO Auto-generated method stub
+    }
+
+
+    public void delete( MatchingRuleUse mru ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
