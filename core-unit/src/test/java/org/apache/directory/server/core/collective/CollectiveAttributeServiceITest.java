@@ -121,11 +121,13 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]
             { "+", "*" } );
         NamingEnumeration results = super.sysRoot.search( "", "(objectClass=*)", controls );
+        
         while ( results.hasMore() )
         {
             SearchResult result = ( SearchResult ) results.next();
             resultMap.put( result.getName(), result.getAttributes() );
         }
+        
         return resultMap;
     }
 
@@ -138,11 +140,13 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]
             { "cn", "ou" } );
         NamingEnumeration results = super.sysRoot.search( "", "(objectClass=*)", controls );
+        
         while ( results.hasMore() )
         {
             SearchResult result = ( SearchResult ) results.next();
             resultMap.put( result.getName(), result.getAttributes() );
         }
+        
         return resultMap;
     }
 
@@ -185,6 +189,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // entry should not show the c-ou collective attribute anymore
         attributes = super.sysRoot.getAttributes( "ou=services,ou=configuration" );
         c_ou = attributes.get( "c-ou" );
+        
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
@@ -195,6 +200,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
 
         attributes = super.sysRoot.getAttributes( "ou=services,ou=configuration" );
         c_ou = attributes.get( "c-ou" );
+        
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
@@ -234,18 +240,21 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         items = new ModificationItemImpl[]
-            { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "collectiveExclusions",
-                "excludeAllCollectiveAttributes" ) ) };
+            { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+                "collectiveExclusions", "excludeAllCollectiveAttributes" ) ) };
         super.sysRoot.modifyAttributes( "ou=interceptors,ou=configuration", items );
 
         // none of the attributes should appear any longer
         attributes = super.sysRoot.getAttributes( "ou=interceptors,ou=configuration" );
         c_ou = attributes.get( "c-ou" );
+        
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
         }
+        
         c_st = attributes.get( "c-st" );
+        
         if ( c_st != null )
         {
             assertEquals( "the c-st collective attribute should not be present", 0, c_st.size() );
@@ -287,23 +296,25 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         ModificationItemImpl[] items = new ModificationItemImpl[]
             { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
                 new BasicAttribute( "collectiveExclusions", "c-ou" ) ) };
-        super.sysRoot.modifyAttributes( "ou=services,ou=configuration", items );
+        sysRoot.modifyAttributes( "ou=services,ou=configuration", items );
         entries = getAllEntries();
 
         // entry should not show the c-ou collective attribute anymore
         attributes = ( Attributes ) entries.get( "ou=services,ou=configuration,ou=system" );
         c_ou = attributes.get( "c-ou" );
+        
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
         }
 
         // now add more collective subentries - the c-ou should still not show due to exclusions
-        super.sysRoot.createSubcontext( "cn=testsubentry2", getTestSubentry2() );
+        sysRoot.createSubcontext( "cn=testsubentry2", getTestSubentry2() );
         entries = getAllEntries();
 
         attributes = ( Attributes ) entries.get( "ou=services,ou=configuration,ou=system" );
         c_ou = attributes.get( "c-ou" );
+        
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
@@ -320,7 +331,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // now add the subentry for the c-st collective attribute
         // -------------------------------------------------------------------
 
-        super.sysRoot.createSubcontext( "cn=testsubentry3", getTestSubentry3() );
+        sysRoot.createSubcontext( "cn=testsubentry3", getTestSubentry3() );
         entries = getAllEntries();
 
         // the new attribute c-st should appear in the node with the c-ou exclusion
@@ -346,12 +357,13 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         items = new ModificationItemImpl[]
             { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "collectiveExclusions",
                 "excludeAllCollectiveAttributes" ) ) };
-        super.sysRoot.modifyAttributes( "ou=interceptors,ou=configuration", items );
+        sysRoot.modifyAttributes( "ou=interceptors,ou=configuration", items );
         entries = getAllEntries();
 
         // none of the attributes should appear any longer
         attributes = ( Attributes ) entries.get( "ou=interceptors,ou=configuration,ou=system" );
         c_ou = attributes.get( "c-ou" );
+
         if ( c_ou != null )
         {
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
@@ -379,14 +391,16 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         assertNull( c_ou );
         assertNull( c_st );
     }
-    
+
+
     public void testAddRegularEntryWithCollectiveAttribute()
     {
         Attributes entry = getTestEntry( "Ersin Er" );
         entry.put( "c-l", "Turkiye" );
+
         try
         {
-            super.sysRoot.createSubcontext( "cn=Ersin Er", entry );
+            sysRoot.createSubcontext( "cn=Ersin Er", entry );
             fail( "Entry addition with collective attribute should have failed." );
         }
         catch ( NamingException e )
@@ -394,17 +408,17 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
             // Intended execution point
         }
     }
-    
-    
+
+
     public void testModifyRegularEntryAddingCollectiveAttribute() throws NamingException
     {
         Attributes entry = getTestEntry( "Ersin Er" );
-        super.sysRoot.createSubcontext( "cn=Ersin Er", entry );
+        sysRoot.createSubcontext( "cn=Ersin Er", entry );
         Attributes changeSet = new BasicAttributes( "c-l", "Turkiye", true );
+
         try
         {
-            
-            super.sysRoot.modifyAttributes( "cn=Ersin Er", DirContext.ADD_ATTRIBUTE, changeSet );
+            sysRoot.modifyAttributes( "cn=Ersin Er", DirContext.ADD_ATTRIBUTE, changeSet );
             fail( "Collective attribute addition to non-collectiveAttributeSubentry should have failed." );
         }
         catch ( NamingException e )
@@ -412,16 +426,19 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
             // Intended execution point
         }
     }
+
 
     public void testModifyRegularEntryAddingCollectiveAttribute2() throws NamingException
     {
         Attributes entry = getTestEntry( "Ersin Er" );
-        super.sysRoot.createSubcontext( "cn=Ersin Er", entry );
-        Attribute change = new BasicAttribute( "c-l", "Turkiye");
-        ModificationItemImpl mod = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, change);
+        sysRoot.createSubcontext( "cn=Ersin Er", entry );
+        Attribute change = new BasicAttribute( "c-l", "Turkiye" );
+        ModificationItemImpl mod = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, change );
+
         try
         {
-            super.sysRoot.modifyAttributes( "cn=Ersin Er", new ModificationItemImpl[] { mod } );
+            sysRoot.modifyAttributes( "cn=Ersin Er", new ModificationItemImpl[]
+                { mod } );
             fail( "Collective attribute addition to non-collectiveAttributeSubentry should have failed." );
         }
         catch ( NamingException e )
@@ -429,5 +446,4 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
             // Intended execution point
         }
     }
-
 }
