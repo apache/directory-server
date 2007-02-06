@@ -36,5 +36,13 @@ public interface SystemSchemaConstants
     public static final String CREAT_TIMESTAMP_AT = "createTimestamp";
     public static final String MODIFY_TIMESTAMP_AT = "modifyTimestamp";
     public static final String MODIFIERS_NAME_AT = "modifiersName";
-    
+
+    public static final String LDAP_SYNTAXES_AT = "ldapSyntaxes";
+    public static final String MATCHING_RULES_AT = "matchingRules";
+    public static final String ATTRIBUTE_TYPES_AT = "attributeTypes";
+    public static final String OBJECT_CLASSES_AT = "objectClasses";
+    public static final String MATCHING_RULE_USE_AT = "matchingRuleUse";
+    public static final String DIT_STRUCTURE_RULES_AT = "ditStructureRules";
+    public static final String DIT_CONTENT_RULES_AT = "ditContentRules";
+    public static final String NAME_FORMS_AT = "nameForms";
 }

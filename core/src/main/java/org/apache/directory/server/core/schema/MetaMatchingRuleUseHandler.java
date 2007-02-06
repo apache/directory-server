@@ -25,6 +25,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 
 
 /**
@@ -50,7 +51,6 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
     protected void modify( LdapDN name, Attributes entry, Attributes targetEntry ) throws NamingException
     {
         // TODO Auto-generated method stub
-
     }
 
 
@@ -60,7 +60,6 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
     public void add( LdapDN name, Attributes entry ) throws NamingException
     {
         // TODO Auto-generated method stub
-
     }
 
 
@@ -70,7 +69,6 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
         // TODO Auto-generated method stub
-
     }
 
 
@@ -81,7 +79,6 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
         throws NamingException
     {
         // TODO Auto-generated method stub
-
     }
 
 
@@ -91,7 +88,6 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
     public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
     {
         // TODO Auto-generated method stub
-
     }
 
 
@@ -101,6 +97,11 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
     public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
     {
         // TODO Auto-generated method stub
+    }
 
+
+    public void add( MatchingRuleUse mru )
+    {
+        // TODO Auto-generated method stub
     }
 }

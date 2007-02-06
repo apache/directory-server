@@ -83,17 +83,9 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         
-        Schema schema = getSchema( name );
-        ObjectClass oc = factory.getObjectClass( entry, targetRegistries, schema.getSchemaName() );
-        
-        if ( ! schema.isDisabled() )
-        {
-            objectClassRegistry.register( oc );
-        }
-        else
-        {
-            registerOids( oc );
-        }
+        String schemaName = getSchemaName( name );
+        ObjectClass oc = factory.getObjectClass( entry, targetRegistries, schemaName );
+        add( oc );
     }
 
 
@@ -244,6 +236,20 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
             throw new LdapInvalidNameException( 
                 "The parent entry of a attributeType should have a relative name of ou=objectClasses.", 
                 ResultCodeEnum.NAMING_VIOLATION );
+        }
+    }
+
+
+    public void add( ObjectClass oc ) throws NamingException
+    {
+        Schema schema = loader.getSchema( oc.getSchema() );
+        if ( ! schema.isDisabled() )
+        {
+            objectClassRegistry.register( oc );
+        }
+        else
+        {
+            registerOids( oc );
         }
     }
 }

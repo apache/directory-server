@@ -35,6 +35,7 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -44,7 +45,13 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.DITContentRule;
+import org.apache.directory.shared.ldap.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
+import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
@@ -63,8 +70,20 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  */
 public class SchemaManager
 {
+    // indices of handlers and object ids into arrays
+    private static final int COMPARATOR_INDEX = 0;
+    private static final int NORMALIZER_INDEX = 1;
+    private static final int SYNTAX_CHECKER_INDEX = 2;
+    private static final int SYNTAX_INDEX = 3;
+    private static final int MATCHING_RULE_INDEX = 4;
+    private static final int ATTRIBUTE_TYPE_INDEX = 5;
+    private static final int OBJECT_CLASS_INDEX = 6;
+    private static final int MATCHING_RULE_USE_INDEX = 7;
+    private static final int DIT_STRUCTURE_RULE_INDEX = 8;
+    private static final int DIT_CONTENT_RULE_INDEX = 9;
+    private static final int NAME_FORM_INDEX = 10;
+
     private static final Set<String> VALID_OU_VALUES = new HashSet<String>();
-//    private static final Set<String> SCHEMA_OBJECT_OIDS = new HashSet<String>();
     private static final String[] opAttrs = new String[] {
         "comparators",
         "normalizers",
@@ -98,11 +117,30 @@ public class SchemaManager
     private final AttributeType objectClassAT;
     private final SchemaSubentryModifier subentryModifier;
     private final SchemaChangeHandler[] schemaObjectHandlers = new SchemaChangeHandler[11];
+
+//    private final String comparatorsOid;
+//    private final String normalizersOid;
+//    private final String syntaxCheckersOid;
+
+    private final String ldapSyntaxesOid;
+    private final String matchingRulesOid;
     private final String attributeTypesOid;
+    private final String objectClassesOid;
+    private final String matchingRuleUseOid;
+    private final String nameFormsOid;
+    private final String ditContentRulesOid;
+    private final String ditStructureRulesOid;
+    
     private final DescriptionParsers parsers;
     
     private final Map<String, SchemaChangeHandler> opAttr2handlerMap = new HashMap<String, SchemaChangeHandler>();
     private final Map<String, SchemaChangeHandler> objectClass2handlerMap = new HashMap<String, SchemaChangeHandler>();
+    
+    /** 
+     * Maps the OID of a subschemaSubentry operational attribute to the index of 
+     * the handler in the schemaObjectHandlers array.
+     */ 
+    private final Map<String, Integer> opAttr2handlerIndex = new HashMap<String, Integer>( 11 );
     
     static 
     {
@@ -111,6 +149,7 @@ public class SchemaManager
         VALID_OU_VALUES.add( "syntaxcheckers" );
         VALID_OU_VALUES.add( "syntaxes" );
         VALID_OU_VALUES.add( "matchingrules" );
+        VALID_OU_VALUES.add( "matchingruleuse" );
         VALID_OU_VALUES.add( "attributetypes" );
         VALID_OU_VALUES.add( "objectclasses" );
         VALID_OU_VALUES.add( "nameforms" );
@@ -129,31 +168,45 @@ public class SchemaManager
         
         this.metaSchemaHandler = new MetaSchemaHandler( this.globalRegistries, this.loader );
         
-        this.schemaObjectHandlers[0] =  new MetaComparatorHandler( globalRegistries, loader ); 
-        this.schemaObjectHandlers[1] =  new MetaNormalizerHandler( globalRegistries, loader );
-        this.schemaObjectHandlers[2] =  new MetaSyntaxCheckerHandler( globalRegistries, loader );
-        this.schemaObjectHandlers[3] =  new MetaSyntaxHandler( globalRegistries, loader, dao );
-        this.schemaObjectHandlers[4] =  new MetaMatchingRuleHandler( globalRegistries, loader, dao );
-        this.schemaObjectHandlers[5] =  new MetaAttributeTypeHandler( globalRegistries, loader, dao );
-        this.schemaObjectHandlers[6] =  new MetaObjectClassHandler( globalRegistries, loader, dao );
-        this.schemaObjectHandlers[7] =  new MetaMatchingRuleUseHandler( globalRegistries, loader );
-        this.schemaObjectHandlers[8] =  new MetaDitStructureRuleHandler( globalRegistries, loader ); 
-        this.schemaObjectHandlers[9] =  new MetaDitContentRuleHandler( globalRegistries, loader ); 
-        this.schemaObjectHandlers[10] = new MetaNameFormHandler( globalRegistries, loader ); 
+        this.schemaObjectHandlers[COMPARATOR_INDEX] = new MetaComparatorHandler( globalRegistries, loader ); 
+        this.schemaObjectHandlers[NORMALIZER_INDEX] = new MetaNormalizerHandler( globalRegistries, loader );
+        this.schemaObjectHandlers[SYNTAX_CHECKER_INDEX] = new MetaSyntaxCheckerHandler( globalRegistries, loader );
+        this.schemaObjectHandlers[SYNTAX_INDEX] = new MetaSyntaxHandler( globalRegistries, loader, dao );
+        this.schemaObjectHandlers[MATCHING_RULE_INDEX] = new MetaMatchingRuleHandler( globalRegistries, loader, dao );
+        this.schemaObjectHandlers[ATTRIBUTE_TYPE_INDEX] = new MetaAttributeTypeHandler( globalRegistries, loader, dao );
+        this.schemaObjectHandlers[OBJECT_CLASS_INDEX] = new MetaObjectClassHandler( globalRegistries, loader, dao );
+        this.schemaObjectHandlers[MATCHING_RULE_USE_INDEX] = new MetaMatchingRuleUseHandler( globalRegistries, loader );
+        this.schemaObjectHandlers[DIT_STRUCTURE_RULE_INDEX] = new MetaDitStructureRuleHandler( globalRegistries, loader ); 
+        this.schemaObjectHandlers[DIT_CONTENT_RULE_INDEX] = new MetaDitContentRuleHandler( globalRegistries, loader ); 
+        this.schemaObjectHandlers[NAME_FORM_INDEX] = new MetaNameFormHandler( globalRegistries, loader ); 
 
         this.subentryModifier = new SchemaSubentryModifier( dao );
         this.parsers = new DescriptionParsers( globalRegistries );
         
-//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "ldapSyntaxes" ) );
-//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "matchingRules" ) );
-//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "matchingRuleUse" ) );
-//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "attributeTypes" ) );
-//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "objectClasses" ) );
-//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "ditContentRules" ) );
-//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "ditStructureRules" ) );
-//        this.SCHEMA_OBJECT_OIDS.add( globalRegistries.getOidRegistry().getOid( "nameForms" ) );
+        OidRegistry oidRegistry = globalRegistries.getOidRegistry();
+        ldapSyntaxesOid = oidRegistry.getOid( SystemSchemaConstants.LDAP_SYNTAXES_AT );
+        opAttr2handlerIndex.put( ldapSyntaxesOid, new Integer( SYNTAX_INDEX ) );
         
-        attributeTypesOid = globalRegistries.getOidRegistry().getOid( "attributeTypes" );
+        matchingRulesOid = oidRegistry.getOid( SystemSchemaConstants.MATCHING_RULES_AT );
+        opAttr2handlerIndex.put( matchingRulesOid, new Integer( MATCHING_RULE_INDEX ) );
+
+        attributeTypesOid = oidRegistry.getOid( SystemSchemaConstants.ATTRIBUTE_TYPES_AT );
+        opAttr2handlerIndex.put( attributeTypesOid, new Integer( ATTRIBUTE_TYPE_INDEX ) );
+
+        objectClassesOid = oidRegistry.getOid( SystemSchemaConstants.OBJECT_CLASSES_AT );
+        opAttr2handlerIndex.put( objectClassesOid, new Integer( OBJECT_CLASS_INDEX ) );
+        
+        matchingRuleUseOid = oidRegistry.getOid( SystemSchemaConstants.MATCHING_RULE_USE_AT );
+        opAttr2handlerIndex.put( matchingRuleUseOid, new Integer( MATCHING_RULE_USE_INDEX ) );
+
+        ditStructureRulesOid = oidRegistry.getOid( SystemSchemaConstants.DIT_STRUCTURE_RULES_AT );
+        opAttr2handlerIndex.put( ditStructureRulesOid, new Integer( DIT_STRUCTURE_RULE_INDEX ) );
+
+        ditContentRulesOid = oidRegistry.getOid( SystemSchemaConstants.DIT_CONTENT_RULES_AT );
+        opAttr2handlerIndex.put( ditContentRulesOid, new Integer( DIT_CONTENT_RULE_INDEX ) );
+
+        nameFormsOid = oidRegistry.getOid( SystemSchemaConstants.NAME_FORMS_AT );
+        opAttr2handlerIndex.put( nameFormsOid, new Integer( NAME_FORM_INDEX ) );
         
         initHandlerMaps();
     }
@@ -426,10 +479,7 @@ public class SchemaManager
             switch ( mod.getModificationOp() )
             {
                 case( DirContext.ADD_ATTRIBUTE ):
-                    if ( opAttrOid.equals( attributeTypesOid ) )
-                    {
-                        addAttributeType( mod );
-                    }
+                    modifyAddOperation( opAttrOid, mod );
                     break;
                 case( DirContext.REMOVE_ATTRIBUTE ):
                     break; 
@@ -440,18 +490,106 @@ public class SchemaManager
             }
         }
     }
-    
-    
-    private void addAttributeType( ModificationItemImpl mod ) throws NamingException
+
+
+    private void modifyAddOperation( String opAttrOid, ModificationItemImpl mod ) throws NamingException
     {
-        String opAttrOid = globalRegistries.getOidRegistry().getOid( mod.getAttribute().getID() );
-        AttributeType at = parsers.parseAttributeType( mod.getAttribute() );
-        subentryModifier.addSchemaObject( at );
-        MetaAttributeTypeHandler handler = ( MetaAttributeTypeHandler ) opAttr2handlerMap.get( opAttrOid );
-        handler.add( at );
+        int index = opAttr2handlerIndex.get( opAttrOid ).intValue();
+        SchemaChangeHandler handler = opAttr2handlerMap.get( opAttrOid );
+        switch( index )
+        {
+            case( COMPARATOR_INDEX ):
+                break;
+            case( NORMALIZER_INDEX ):
+                break;
+            case( SYNTAX_CHECKER_INDEX ):
+                break;
+            case( SYNTAX_INDEX ):
+                MetaSyntaxHandler syntaxHandler = ( MetaSyntaxHandler ) handler;
+                Syntax[] syntaxes = parsers.parseSyntaxes( mod.getAttribute() );
+                
+                for ( Syntax syntax : syntaxes )
+                {
+                    syntaxHandler.add( syntax );
+                    subentryModifier.addSchemaObject( syntax );
+                }
+                break;
+            case( MATCHING_RULE_INDEX ):
+                MetaMatchingRuleHandler matchingRuleHandler = ( MetaMatchingRuleHandler ) handler;
+                MatchingRule[] mrs = parsers.parseMatchingRules( mod.getAttribute() );
+                
+                for ( MatchingRule mr : mrs )
+                {
+                    matchingRuleHandler.add( mr );
+                    subentryModifier.addSchemaObject( mr );
+                }
+                break;
+            case( ATTRIBUTE_TYPE_INDEX ):
+                MetaAttributeTypeHandler atHandler = ( MetaAttributeTypeHandler ) handler;
+                AttributeType[] ats = parsers.parseAttributeTypes( mod.getAttribute() );
+                
+                for ( AttributeType at : ats )
+                {
+                    atHandler.add( at );
+                    subentryModifier.addSchemaObject( at );
+                }
+                break;
+            case( OBJECT_CLASS_INDEX ):
+                MetaObjectClassHandler ocHandler = ( MetaObjectClassHandler ) handler;
+                ObjectClass[] ocs = parsers.parseObjectClasses( mod.getAttribute() );
+
+                for ( ObjectClass oc : ocs )
+                {
+                    ocHandler.add( oc );
+                    subentryModifier.addSchemaObject( oc );
+                }
+                break;
+            case( MATCHING_RULE_USE_INDEX ):
+                MetaMatchingRuleUseHandler mruHandler = ( MetaMatchingRuleUseHandler ) handler;
+                MatchingRuleUse[] mrus = parsers.parseMatchingRuleUses( mod.getAttribute() );
+                
+                for ( MatchingRuleUse mru : mrus )
+                {
+                    mruHandler.add( mru );
+                    subentryModifier.addSchemaObject( mru );
+                }
+                break;
+            case( DIT_STRUCTURE_RULE_INDEX ):
+                MetaDitStructureRuleHandler dsrHandler = ( MetaDitStructureRuleHandler ) handler;
+                DITStructureRule[] dsrs = parsers.parseDitStructureRules( mod.getAttribute() );
+                
+                for ( DITStructureRule dsr : dsrs )
+                {
+                    dsrHandler.add( dsr );
+                    subentryModifier.addSchemaObject( dsr );
+                }
+                break;
+            case( DIT_CONTENT_RULE_INDEX ):
+                MetaDitContentRuleHandler dcrHandler = ( MetaDitContentRuleHandler ) handler;
+                DITContentRule[] dcrs = parsers.parseDitContentRules( mod.getAttribute() );
+                
+                for ( DITContentRule dcr : dcrs )
+                {
+                    dcrHandler.add( dcr );
+                    subentryModifier.addSchemaObject( dcr );
+                }
+                break;
+            case( NAME_FORM_INDEX ):
+                MetaNameFormHandler nfHandler = ( MetaNameFormHandler ) handler;
+                NameForm[] nfs = parsers.parseNameForms( mod.getAttribute() );
+                
+                for ( NameForm nf : nfs )
+                {
+                    nfHandler.add( nf );
+                    subentryModifier.addSchemaObject( nf );
+                }
+                break;
+            default:
+                throw new IllegalStateException( "Unknown index into handler array: " + index );
+        }
     }
     
-
+    
     /**
      * Translates modify operations on schema subentries into one or more operations 
      * on meta schema entities within the ou=schema partition and updates the registries

@@ -25,6 +25,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.DITStructureRule;
 
 
 /**
@@ -102,5 +103,11 @@ public class MetaDitStructureRuleHandler extends AbstractSchemaChangeHandler
     {
         // TODO Auto-generated method stub
 
+    }
+
+
+    public void add( DITStructureRule dsr )
+    {
+        // TODO Auto-generated method stub
     }
 }

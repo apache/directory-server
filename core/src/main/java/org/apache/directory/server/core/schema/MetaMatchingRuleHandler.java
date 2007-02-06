@@ -83,17 +83,9 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         
-        Schema schema = getSchema( name );
-        MatchingRule mr = factory.getMatchingRule( entry, targetRegistries, schema.getSchemaName() );
-        
-        if ( ! schema.isDisabled() )
-        {
-            matchingRuleRegistry.register( mr );
-        }
-        else
-        {
-            registerOids( mr );
-        }
+        String schemaName = getSchemaName( name );
+        MatchingRule mr = factory.getMatchingRule( entry, targetRegistries, schemaName );
+        add( mr );
     }
 
 
@@ -243,6 +235,21 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
             throw new LdapInvalidNameException( 
                 "The parent entry of a syntax should have a relative name of ou=matchingRules.", 
                 ResultCodeEnum.NAMING_VIOLATION );
+        }
+    }
+
+
+    public void add( MatchingRule mr ) throws NamingException
+    {
+        Schema schema = loader.getSchema( mr.getSchema() );
+        
+        if ( ! schema.isDisabled() )
+        {
+            matchingRuleRegistry.register( mr );
+        }
+        else
+        {
+            registerOids( mr );
         }
     }
 }

@@ -106,6 +106,12 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
     
     
+    protected String getSchemaName( LdapDN name ) throws NamingException
+    {
+        return MetaSchemaUtils.getSchemaName( name );
+    }
+    
+    
     protected Schema getSchema( LdapDN name ) throws NamingException
     {
         return loader.getSchema( MetaSchemaUtils.getSchemaName( name ) );

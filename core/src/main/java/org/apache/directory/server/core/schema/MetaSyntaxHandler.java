@@ -83,18 +83,9 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         
-        Schema schema = getSchema( name );
-        Syntax syntax = factory.getSyntax( entry, targetRegistries, schema.getSchemaName() );
-        
-        if ( ! schema.isDisabled() )
-        {
-            syntaxRegistry.register( syntax );
-        }
-        else
-        {
-            // even for disabled schemas add OIDs
-            registerOids( syntax );
-        }
+        String schemaName = getSchemaName( name );
+        Syntax syntax = factory.getSyntax( entry, targetRegistries, schemaName );
+        add( syntax );
     }
 
 
@@ -255,6 +246,30 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
             throw new LdapInvalidNameException( 
                 "The parent entry of a syntax should have a relative name of ou=syntaxes.", 
                 ResultCodeEnum.NAMING_VIOLATION );
+        }
+    }
+
+
+    /**
+     * Adds a syntax to this handler's registries if it's schema is enabled.  The
+     * OID is always registered with the OidRegistry regardless of the enabled state
+     * of the schema.   
+     * 
+     * @param syntax the syntax that is to be added to this handler's registries
+     * @throws NamingException if there are problems access schema data
+     */
+    public void add( Syntax syntax ) throws NamingException
+    {
+        Schema schema = loader.getSchema( syntax.getSchema() );
+        
+        if ( ! schema.isDisabled() )
+        {
+            syntaxRegistry.register( syntax );
+        }
+        else
+        {
+            // even for disabled schemas add OIDs
+            registerOids( syntax );
         }
     }
 }

@@ -119,13 +119,12 @@ public class SchemaSubentryModifier
     }
     
 
-    public LdapDN addSchemaObject( SchemaObject obj ) throws NamingException
+    public void addSchemaObject( SchemaObject obj ) throws NamingException
     {
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         Schema schema = dao.getSchema( obj.getSchema() );
         LdapDN dn = getDn( obj );
         Attributes attrs = factory.getAttributes( obj, schema );
         proxy.add( dn, attrs, BYPASS );
-        return dn;
     }
 }

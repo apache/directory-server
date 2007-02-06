@@ -19,17 +19,44 @@
  */
 package org.apache.directory.server.core.schema;
 
+
 import java.text.ParseException;
+import java.util.List;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.DITContentRule;
+import org.apache.directory.shared.ldap.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
+import org.apache.directory.shared.ldap.schema.MutableSchemaObject;
+import org.apache.directory.shared.ldap.schema.NameForm;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.schema.syntax.DITContentRuleDescription;
+import org.apache.directory.shared.ldap.schema.syntax.DITStructureRuleDescription;
+import org.apache.directory.shared.ldap.schema.syntax.LdapSyntaxDescription;
+import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleDescription;
+import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleUseDescription;
+import org.apache.directory.shared.ldap.schema.syntax.NameFormDescription;
+import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.DITContentRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.DITStructureRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.LdapSyntaxDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.MatchingRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.MatchingRuleUseDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.NameFormDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
+
 
 /**
  * Document me!
@@ -40,9 +67,30 @@ import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescri
 public class DescriptionParsers
 {
     private static final String OTHER_SCHEMA = "other";
+    private static final String[] EMPTY = new String[0];
+
+    // TODO put these into an interface in the apacheds-constants project 
     private static final String X_SCHEMA = "X-SCHEMA";
-    private final AttributeTypeDescriptionSchemaParser attributeTypeParser = new AttributeTypeDescriptionSchemaParser();
+    private static final Object X_IS_HUMAN_READABLE = "X-IS-HUMAN-READABLE";
+
     private final Registries globalRegistries;
+    
+    private final LdapSyntaxDescriptionSchemaParser syntaxParser =
+        new LdapSyntaxDescriptionSchemaParser();
+    private final MatchingRuleDescriptionSchemaParser matchingRuleParser =
+        new MatchingRuleDescriptionSchemaParser();
+    private final AttributeTypeDescriptionSchemaParser attributeTypeParser = 
+        new AttributeTypeDescriptionSchemaParser();
+    private final ObjectClassDescriptionSchemaParser objectClassParser = 
+        new ObjectClassDescriptionSchemaParser();
+    private final MatchingRuleUseDescriptionSchemaParser matchingRuleUseParser = 
+        new MatchingRuleUseDescriptionSchemaParser();
+    private final DITStructureRuleDescriptionSchemaParser ditStructureRuleParser =
+        new DITStructureRuleDescriptionSchemaParser();
+    private final DITContentRuleDescriptionSchemaParser ditContentRuleParser =
+        new DITContentRuleDescriptionSchemaParser();
+    private final NameFormDescriptionSchemaParser nameFormParser =
+        new NameFormDescriptionSchemaParser();
     
     
     public DescriptionParsers( Registries globalRegistries )
@@ -50,45 +98,328 @@ public class DescriptionParsers
         this.globalRegistries = globalRegistries;
     }
     
-    private static final String[] EMPTY = new String[0];
-    public AttributeType parseAttributeType( Attribute attr ) throws NamingException
+    
+    public AttributeType[] parseAttributeTypes( Attribute attr ) throws NamingException
     {
-        AttributeTypeDescription desc = null;
+        AttributeType[] attributeTypes = new AttributeType[attr.size()];
         
-        try
+        for ( int ii = 0; ii < attr.size(); ii++ )
         {
-            desc = attributeTypeParser.parseAttributeTypeDescription( ( String ) attr.get() );
+            AttributeTypeDescription desc = null;
+            
+            try
+            {
+                desc = attributeTypeParser.parseAttributeTypeDescription( ( String ) attr.get( ii ) );
+            }
+            catch ( ParseException e )
+            {
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
+                    "The following does not conform to the attributeTypeDescription syntax: " + attr.get( ii ), 
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                iave.setRootCause( e );
+                throw iave;
+            }
+            
+            AttributeTypeImpl at = new AttributeTypeImpl( desc.getNumericOid(), globalRegistries );
+            at.setCanUserModify( desc.isUserModifiable() );
+            at.setCollective( desc.isCollective() );
+            at.setEqualityOid( desc.getEqualityMatchingRule() );
+            at.setOrderingOid( desc.getOrderingMatchingRule() );
+            at.setSingleValue( desc.isSingleValued() );
+            at.setSubstrOid( desc.getSubstringsMatchingRule() );
+            at.setSuperiorOid( desc.getSuperType() );
+            at.setSyntaxOid( desc.getSyntax() );
+            at.setUsage( desc.getUsage() );
+            
+            setSchemaObjectProperties( desc, at );
+
+            attributeTypes[ii] = at;
         }
-        catch ( ParseException e )
+        
+        return attributeTypes;
+    }
+    
+    
+    public ObjectClass[] parseObjectClasses( Attribute attr ) throws NamingException
+    {
+        ObjectClass[] objectClasses = new ObjectClass[attr.size()];
+        
+        for ( int ii = 0; ii < attr.size(); ii++ )
         {
-            throw new LdapInvalidAttributeValueException( 
-                "The following does not conform to the attributeTypeDescription syntax: " + attr.get(), 
-                ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+            ObjectClassDescription desc = null;
+            
+            try
+            {
+                desc = objectClassParser.parseObjectClassDescription( ( String ) attr.get( ii ) );
+            }
+            catch ( ParseException e )
+            {
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
+                    "The following does not conform to the objectClassDescription syntax: " + attr.get( ii ), 
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                iave.setRootCause( e );
+                throw iave;
+            }
+         
+            ObjectClassImpl oc = new ObjectClassImpl( desc.getNumericOid(), globalRegistries );
+            oc.setMayListOids( desc.getMayAttributeTypes().toArray( EMPTY) );
+            oc.setMustListOids( desc.getMustAttributeTypes().toArray( EMPTY ) );
+            oc.setSuperClassOids( desc.getSuperiorObjectClasses().toArray( EMPTY ) );
+            oc.setType( desc.getKind() );
+            setSchemaObjectProperties( desc, oc );
+            
+            objectClasses[ii] = oc;
         }
         
-        AttributeTypeImpl at = new AttributeTypeImpl( desc.getNumericOid(), globalRegistries );
-        at.setCanUserModify( desc.isUserModifiable() );
-        at.setCollective( desc.isCollective() );
-        at.setDescription( desc.getDescription() );
-        at.setEqualityOid( desc.getEqualityMatchingRule() );
-        at.setNames( ( String [] ) desc.getNames().toArray( EMPTY ) );
-        at.setObsolete( desc.isObsolete() );
-        at.setOrderingOid( desc.getOrderingMatchingRule() );
-        at.setSingleValue( desc.isSingleValued() );
-        at.setSubstrOid( desc.getSubstringsMatchingRule() );
-        at.setSuperiorOid( desc.getSuperType() );
-        at.setSyntaxOid( desc.getSyntax() );
-        at.setUsage( desc.getUsage() );
+        return objectClasses;
+    }
+
+
+    public MatchingRuleUse[] parseMatchingRuleUses( Attribute attr ) throws NamingException
+    {
+        MatchingRuleUse[] matchingRuleUses = new MatchingRuleUse[attr.size()];
         
-        if ( desc.getExtensions().get( X_SCHEMA ) != null )
+        for ( int ii = 0; ii < attr.size(); ii++ )
         {
-            at.setSchema( desc.getExtensions().get( X_SCHEMA ).get( 0 ) );
+            MatchingRuleUseDescription desc = null;
+            
+            try
+            {
+                desc = matchingRuleUseParser.parseMatchingRuleUseDescription( ( String ) attr.get( ii ) );
+            }
+            catch ( ParseException e )
+            {
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
+                    "The following does not conform to the matchingRuleUseDescription syntax: " + attr.get( ii ), 
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                iave.setRootCause( e );
+                throw iave;
+            }
+            
+            MatchingRuleUseImpl mru = new MatchingRuleUseImpl( desc.getNumericOid(), globalRegistries );
+            mru.setApplicableAttributesOids( desc.getApplicableAttributes().toArray( EMPTY ) );
+            setSchemaObjectProperties( desc, mru );
+            
+            matchingRuleUses[ii] = mru;
+        }
+
+        return matchingRuleUses;
+    }
+
+
+    public Syntax[] parseSyntaxes( Attribute attr ) throws NamingException
+    {
+        Syntax[] syntaxes = new Syntax[attr.size()];
+        
+        for ( int ii = 0; ii < attr.size(); ii++ )
+        {
+            LdapSyntaxDescription desc = null;
+            
+            try
+            {
+                desc = syntaxParser.parseLdapSyntaxDescription( ( String ) attr.get( ii ) );
+            }
+            catch ( ParseException e )
+            {
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
+                    "The following does not conform to the ldapSyntaxDescription syntax: " + attr.get( ii ), 
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                iave.setRootCause( e );
+                throw iave;
+            }
+            
+            SyntaxImpl syntax = new SyntaxImpl( desc.getNumericOid(), globalRegistries.getSyntaxCheckerRegistry() );
+            setSchemaObjectProperties( desc, syntax );
+            syntax.setHumanReadible( isHumanReadable( desc ) );
+            syntaxes[ii] = syntax;
+        }
+        
+        return syntaxes;
+    }
+
+
+    public MatchingRule[] parseMatchingRules( Attribute attr ) throws NamingException
+    {
+        MatchingRule[] matchingRules = new MatchingRule[attr.size()];
+
+        for ( int ii = 0; ii < attr.size(); ii++ )
+        {
+            MatchingRuleDescription desc = null;
+
+            try
+            {
+                desc = matchingRuleParser.parseMatchingRuleDescription( ( String ) attr.get( ii ) );
+            }
+            catch ( ParseException e )
+            {
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
+                    "The following does not conform to the matchingRuleDescription syntax: " + attr.get( ii ), 
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                iave.setRootCause( e );
+                throw iave;
+            }
+            
+            MatchingRuleImpl mr = new MatchingRuleImpl( desc.getNumericOid(), desc.getSyntax(), globalRegistries );
+            setSchemaObjectProperties( desc, mr );
+            
+            matchingRules[ii] = mr;
+        }
+        
+        return matchingRules;
+    }
+    
+
+    public DITStructureRule[] parseDitStructureRules( Attribute attr ) throws NamingException
+    {
+        DITStructureRule[] ditStructureRules = new DITStructureRule[attr.size()];
+        
+        for ( int ii = 0; ii < attr.size(); ii++ )
+        {
+            DITStructureRuleDescription desc = null;
+     
+            try
+            {
+                desc = ditStructureRuleParser.parseDITStructureRuleDescription( ( String ) attr.get( ii  ) );
+            }
+            catch ( ParseException e )
+            {
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
+                    "The following does not conform to the ditStructureRuleDescription syntax: " + attr.get( ii ), 
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                iave.setRootCause( e );
+                throw iave;
+            }
+            
+            DitStructureRuleImpl dsr = new DitStructureRuleImpl( desc.getNumericOid(), globalRegistries );
+            dsr.setNameFormOid( desc.getForm() );
+            setSchemaObjectProperties( desc, dsr );
+            
+            // got a problem here
+            // dsr.setSuperClassOids( desc.get )
+            
+            ditStructureRules[ii] = dsr;
+        }
+        
+        // return ditStructureRules;
+        
+        throw new NotImplementedException( "Don't know how to convert desc to object - object may be wrong" );
+    }
+
+    
+    public DITContentRule[] parseDitContentRules( Attribute attr ) throws NamingException
+    {
+        DITContentRule[] ditContentRules = new DITContentRule[attr.size()];
+        
+        for ( int ii = 0; ii < attr.size(); ii++ )
+        {
+            DITContentRuleDescription desc = null;
+     
+            try
+            {
+                desc = ditContentRuleParser.parseDITContentRuleDescription( ( String ) attr.get( ii  ) );
+            }
+            catch ( ParseException e )
+            {
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
+                    "The following does not conform to the ditContentRuleDescription syntax: " + attr.get( ii ), 
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                iave.setRootCause( e );
+                throw iave;
+            }
+            
+            DitContentRuleImpl dcr = new DitContentRuleImpl( desc.getNumericOid(), globalRegistries );
+            dcr.setAuxObjectClassOids( desc.getAuxiliaryObjectClasses().toArray( EMPTY ) );
+            dcr.setMayNameOids( desc.getMayAttributeTypes().toArray( EMPTY ) );
+            dcr.setMustNameOids( desc.getMustAttributeTypes().toArray( EMPTY ) );
+            dcr.setNotNameOids( desc.getNotAttributeTypes().toArray( EMPTY ) );
+            
+            setSchemaObjectProperties( desc, dcr );
+
+            ditContentRules[ii] = dcr;
+        }
+        
+        return ditContentRules;
+    }
+
+    
+    public NameForm[] parseNameForms( Attribute attr ) throws NamingException
+    {
+        NameForm[] nameForms = new NameForm[attr.size()];
+        
+        for ( int ii = 0; ii < attr.size(); ii++ )
+        {
+            NameFormDescription desc = null;
+            
+            try
+            {
+                desc = nameFormParser.parseNameFormDescription( ( String  ) attr.get( ii ) );
+            }
+            catch ( ParseException e )
+            {
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
+                    "The following does not conform to the nameFormDescription syntax: " + attr.get( ii ), 
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                iave.setRootCause( e );
+                throw iave;
+            }
+            
+            NameFormImpl nf = new NameFormImpl( desc.getNumericOid(), globalRegistries );
+            nf.setMayUseOids( desc.getMayAttributeTypes().toArray( EMPTY ) );
+            nf.setMustUseOids( desc.getMustAttributeTypes().toArray( EMPTY ) );
+            nf.setObjectClassOid( desc.getStructuralObjectClass() );
+            
+            setSchemaObjectProperties( desc, nf );
+            
+            nameForms[ii] = nf;
+        }
+        
+        return nameForms;
+    }
+    
+    
+    private void setSchemaObjectProperties( AbstractSchemaDescription desc, MutableSchemaObject obj )
+    {
+        obj.setDescription( desc.getDescription() );
+        obj.setObsolete( desc.isObsolete() );
+        obj.setSchema( getSchema( desc ) );
+        obj.setNames( desc.getNames().toArray( EMPTY ) );
+    }
+    
+    
+    private boolean isHumanReadable( LdapSyntaxDescription desc )
+    {
+        List<String> values = desc.getExtensions().get( X_IS_HUMAN_READABLE );
+        
+        if ( values == null || values.size() == 0 )
+        {
+            return false;
         }
         else
         {
-            at.setSchema( OTHER_SCHEMA );
+            String value = values.get( 0 );
+            if ( value.equals( "TRUE" ) )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
+    }
+    
+    
+    String getSchema( AbstractSchemaDescription desc ) 
+    {
+        List<String> values = desc.getExtensions().get( X_SCHEMA );
         
-        return at;
+        if ( values == null )
+        {
+            return OTHER_SCHEMA;
+        }
+        else 
+        {
+            return values.get( 0 );
+        }
     }
 }
