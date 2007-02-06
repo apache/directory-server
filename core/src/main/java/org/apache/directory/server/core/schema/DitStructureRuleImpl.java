@@ -39,18 +39,19 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 public class DitStructureRuleImpl extends AbstractSchemaObject implements DITStructureRule, MutableSchemaObject
 {
     private static final long serialVersionUID = 1L;
-    private final String[] EMPTY_STR_ARRAY = new String[0];
+    private final Integer[] EMPTY_INT_ARRAY = new Integer[0];
     private final DITStructureRule[] EMPTY_DSR_ARRAY = new DITStructureRule[0];
 
     private final Registries registries;
     private String nameFormOid;
-    private String[] superClassOids;
+    private Integer[] superClassRuleIds;
     private DITStructureRule[] superClasses;
     
     
-    public DitStructureRuleImpl( String oid, Registries registries )
+    public DitStructureRuleImpl( String nameFormOid, Integer ruleId, Registries registries )
     {
-        super( oid );
+        super( nameFormOid + "." + ruleId.toString() );
+        this.nameFormOid = nameFormOid;
         this.registries = registries;
     }
 
@@ -64,42 +65,36 @@ public class DitStructureRuleImpl extends AbstractSchemaObject implements DITStr
     }
 
     
-    public void setNameFormOid( String nameFormOid )
-    {
-        this.nameFormOid = nameFormOid;
-    }
-    
-
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.DITStructureRule#getSuperClasses()
      */
     public DITStructureRule[] getSuperClasses() throws NamingException
     {
-        if ( this.superClassOids == null )
+        if ( this.superClassRuleIds == null )
         {
             return EMPTY_DSR_ARRAY;
         }
         
-        for ( int ii = 0; ii < superClassOids.length; ii++ )
+        for ( int ii = 0; ii < superClassRuleIds.length; ii++ )
         {
-            superClasses[ii] = registries.getDitStructureRuleRegistry().lookup( superClassOids[ii] );
+            superClasses[ii] = registries.getDitStructureRuleRegistry().lookup( superClassRuleIds[ii] );
         }
         
         return superClasses;
     }
     
     
-    public void setSuperClassOids( String[] superClassOids )
+    public void setSuperClassRuleIds( Integer[] superClassRuleIds )
     {
-        if ( superClassOids == null )
+        if ( superClassRuleIds == null )
         {
-            this.superClassOids = EMPTY_STR_ARRAY;
+            this.superClassRuleIds = EMPTY_INT_ARRAY;
             this.superClasses = EMPTY_DSR_ARRAY;
         }
         else
         {
-            this.superClassOids = superClassOids;
-            this.superClasses = new DITStructureRule[superClassOids.length];
+            this.superClassRuleIds = superClassRuleIds;
+            this.superClasses = new DITStructureRule[superClassRuleIds.length];
         }
     }
     
@@ -125,5 +120,11 @@ public class DitStructureRuleImpl extends AbstractSchemaObject implements DITStr
     public void setDescription( String description )
     {
         super.setDescription( description );
+    }
+
+
+    public Integer getRuleId()
+    {
+        return null;
     }
 }

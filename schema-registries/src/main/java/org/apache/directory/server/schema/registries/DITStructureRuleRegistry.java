@@ -46,10 +46,13 @@ public interface DITStructureRuleRegistry extends SchemaObjectRegistry
 
 
     /**
-     * Looks up an dITStructureRule by its unique Object IDentifier or by its
-     * name.
+     * Looks up an dITStructureRule using a composite key composed of the
+     * nameForm object identifier with a DOT and the rule id of the 
+     * DITStructureRule appended to it.  If the name form object identifier
+     * is 1.2.3.4 and the rule identifier is 5 then the OID used for the 
+     * lookup is 1.2.3.4.5.
      * 
-     * @param id the object identifier, or the name
+     * @param id the nameForm object identifier with rule identifier appended
      * @return the DITStructureRule instance for the id
      * @throws NamingException if the DITStructureRule does not exist
      */
@@ -57,13 +60,54 @@ public interface DITStructureRuleRegistry extends SchemaObjectRegistry
 
 
     /**
-     * Checks to see if an dITStructureRule exists.
+     * Looks up an dITStructureRule by its unique Object IDentifier or by its
+     * name.
      * 
-     * @param id the object identifier, or the name
+     * @param ruleId the rule identifier for the DITStructureRule
+     * @return the DITStructureRule instance for rule identifier
+     * @throws NamingException if the DITStructureRule does not exist
+     */
+    DITStructureRule lookup( Integer ruleId ) throws NamingException;
+
+
+    /**
+     * Checks to see if an dITStructureRule exists using the object identifier
+     * of the nameForm appended with the rule identifier of the DITStructureRule.
+     * 
+     * @param id the object identifier of the nameForm with the rule Id appended
      * @return true if an dITStructureRule definition exists for the id, false
      * otherwise
      */
     boolean hasDITStructureRule( String id );
+
+
+    /**
+     * Checks to see if an dITStructureRule exists using the rule identifier.
+     * 
+     * @param ruleId the rule identifier for the DITStructureRule.
+     * @return true if an dITStructureRule definition exists for the id, false
+     * otherwise
+     */
+    boolean hasDITStructureRule( Integer ruleId );
+
+    
+    /**
+     * Unregisters a DITStructureRule using it's rule identifier. 
+     * 
+     * @param ruleId the rule identifier for the DITStructureRule to unregister
+     * @throws NamingException if no such DITStructureRule exists
+     */
+    void unregister( Integer ruleId ) throws NamingException;
+    
+    
+    /**
+     * Gets the schema name for a DITStructureRule using the rule identifier. 
+     * 
+     * @param ruleId the rule identifier for the DITStructureRule
+     * @return the schema name for the DITStructureRule
+     * @throws NamingException if no such rule could be found
+     */
+    String getSchemaName( Integer ruleId ) throws NamingException;
 
 
     /**

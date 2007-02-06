@@ -27,7 +27,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -68,6 +67,7 @@ public class DescriptionParsers
 {
     private static final String OTHER_SCHEMA = "other";
     private static final String[] EMPTY = new String[0];
+    private static final Integer[] EMPTY_INT_ARRAY = new Integer[0];
 
     // TODO put these into an interface in the apacheds-constants project 
     private static final String X_SCHEMA = "X-SCHEMA";
@@ -382,19 +382,16 @@ public class DescriptionParsers
                 throw iave;
             }
             
-            DitStructureRuleImpl dsr = new DitStructureRuleImpl( desc.getNumericOid(), globalRegistries );
-            dsr.setNameFormOid( desc.getForm() );
+            DitStructureRuleImpl dsr = new DitStructureRuleImpl( desc.getNumericOid(), 
+                desc.getRuleId(), globalRegistries );
+            dsr.setSuperClassRuleIds( desc.getSuperRules().toArray( EMPTY_INT_ARRAY ) );
+            
             setSchemaObjectProperties( desc, dsr );
-            
-            // got a problem here
-            // dsr.setSuperClassOids( desc.get )
-            
+
             ditStructureRules[ii] = dsr;
         }
         
-        // return ditStructureRules;
-        
-        throw new NotImplementedException( "Don't know how to convert desc to object - object may be wrong" );
+        return ditStructureRules;
     }
 
     

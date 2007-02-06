@@ -26,6 +26,8 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,8 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
     private final static Logger log = LoggerFactory.getLogger( DefaultDitStructureRuleRegistry.class );
     /** maps an OID to an DITStructureRule */
     private final Map<String,DITStructureRule> byOid;
+    /** maps an OID to an DITStructureRule */
+    private final Map<Integer,DITStructureRule> byRuleId;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
 
@@ -57,6 +61,7 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
      */
     public DefaultDitStructureRuleRegistry(OidRegistry oidRegistry)
     {
+        this.byRuleId = new HashMap<Integer,DITStructureRule>();
         this.byOid = new HashMap<String,DITStructureRule>();
         this.oidRegistry = oidRegistry;
     }
@@ -77,6 +82,7 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
 
         oidRegistry.register( dITStructureRule.getName(), dITStructureRule.getOid() );
         byOid.put( dITStructureRule.getOid(), dITStructureRule );
+        byRuleId.put( dITStructureRule.getRuleId(), dITStructureRule );
         if ( log.isDebugEnabled() )
         {
             log.debug( "registered dITStructureRule: " + dITStructureRule );
@@ -134,9 +140,40 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
     }
 
 
+    public String getSchemaName( Integer ruleId ) throws NamingException
+    {
+        DITStructureRule dsr = byRuleId.get( ruleId );
+        if ( dsr != null )
+        {
+            return dsr.getSchema();
+        }
+
+        throw new NamingException( "A DitStructureRule with ruleId " + ruleId 
+            + " not found in the DITStructureRule map!" );
+    }
+
+
     public Iterator<DITStructureRule> iterator()
     {
         return byOid.values().iterator();
+    }
+
+    
+    public void unregister( Integer ruleId ) throws NamingException
+    {
+        DITStructureRule dsr = byRuleId.remove( ruleId );
+        
+        if ( dsr == null )
+        {
+            if ( dsr == null )
+            {
+                throw new LdapNamingException(
+                    "No such DITStructureRule for rule identifier: " + ruleId,
+                    ResultCodeEnum.OTHER );
+            }
+        }
+        
+        byOid.remove( dsr.getOid() );
     }
     
     
@@ -147,6 +184,36 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
             throw new NamingException( "Looks like the arg is not a numeric OID" );
         }
 
-        byOid.remove( numericOid );
+        DITStructureRule dsr = byOid.remove( numericOid );
+        byRuleId.remove( dsr.getRuleId() );
+    }
+
+
+    public boolean hasDITStructureRule( Integer ruleId )
+    {
+        DITStructureRule dsr = byRuleId.get( ruleId );
+        if ( dsr == null )
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+
+    public DITStructureRule lookup( Integer ruleId ) throws NamingException
+    {
+        DITStructureRule dsr = byRuleId.get( ruleId );
+        
+        if ( dsr == null )
+        {
+            throw new LdapNamingException(
+                "No such DITStructureRule for rule identifier: " + ruleId,
+                ResultCodeEnum.OTHER );
+        }
+
+        return dsr;
     }
 }
