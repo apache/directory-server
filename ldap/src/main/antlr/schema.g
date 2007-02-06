@@ -79,11 +79,46 @@ SUBSTR : ( "SUBSTR" WHSP substr:VALUES ) { setText(substr.getText().trim()); } ;
 SYNTAX : ( "SYNTAX" WHSP syntax:VALUES (len:LEN)? ) { setText(syntax.getText().trim() + (len!=null?len.getText().trim():"")); } ;
 APPLIES : ( "APPLIES" WHSP applies:VALUES ) { setText(applies.getText().trim()); } ;
 EXTENSION : x:( "X-" ( 'a'..'z' | 'A'..'Z' | '-' | '_' )+ WHSP VALUES ) ; 
+FQCN : ( "FQCN" WHSP fqcn:FQCN_VALUE ) { setText(fqcn.getText().trim()); } ;
+BYTECODE : ( "BYTECODE" WHSP bytecode:BYTECODE_VALUE ) { setText(bytecode.getText().trim()); } ;
 
 protected VALUES : ( VALUE | LPAR  VALUE ( (DOLLAR)? VALUE )* RPAR ) ;
 protected VALUE : (WHSP)? ( QUOTED_STRING | UNQUOTED_STRING ) (options {greedy=true;}: WHSP)? ;
 protected UNQUOTED_STRING : (options{greedy=true;}: 'a'..'z' | 'A'..'Z' | '0'..'9' | '-' | ';' | '.' )+ ;
 protected QUOTED_STRING : ( QUOTE (~'\'')* QUOTE ) ;
+protected FQCN_VALUE : ( FQCN_IDENTIFIER ( '.' FQCN_IDENTIFIER )* ) ;
+protected FQCN_IDENTIFIER : ( FQCN_LETTER ( FQCN_LETTERORDIGIT )* ) ;
+protected FQCN_LETTER : 
+       '\u0024' |
+       '\u0041'..'\u005a' |
+       '\u005f' |
+       '\u0061'..'\u007a' |
+       '\u00c0'..'\u00d6' |
+       '\u00d8'..'\u00f6' |
+       '\u00f8'..'\u00ff' |
+       '\u0100'..'\u1fff' |
+       '\u3040'..'\u318f' |
+       '\u3300'..'\u337f' |
+       '\u3400'..'\u3d2d' |
+       '\u4e00'..'\u9fff' |
+       '\uf900'..'\ufaff' ;
+protected FQCN_LETTERORDIGIT : 
+       '\u0024' |
+       '\u0041'..'\u005a' |
+       '\u005f' |
+       '\u0061'..'\u007a' |
+       '\u00c0'..'\u00d6' |
+       '\u00d8'..'\u00f6' |
+       '\u00f8'..'\u00ff' |
+       '\u0100'..'\u1fff' |
+       '\u3040'..'\u318f' |
+       '\u3300'..'\u337f' |
+       '\u3400'..'\u3d2d' |
+       '\u4e00'..'\u9fff' |
+       '\uf900'..'\ufaff' |
+       '\u0030'..'\u0039' ;
+protected BYTECODE_VALUE : ( 'a'..'z' | 'A'..'Z' | '0'..'9' | '+' | '/' | '=' )+ ;
+
 
 USAGE : ( "USAGE" (WHSP)? ) ;
 USER_APPLICATIONS : ( "userApplications" (WHSP)? ) ;
@@ -579,6 +614,162 @@ nameFormDescription returns [NameFormDescription nfd = new NameFormDescription()
         //{
         //    throw new SemanticException( "MUST and MAY must be disjoint, "+aList.get( 0 )+" appears in both", null, 0, 0 );
         //}
+    }
+    ;
+    
+
+    /**
+     * Production for comparator descriptions. It is fault-tolerant
+     * against element ordering.
+     *
+     * <pre>
+     * ComparatorDescription = LPAREN WSP
+     *       numericoid                           ; object identifier
+     *       [ SP "DESC" SP qdstring ]            ; description
+     *       SP "FQCN" SP fqcn                    ; fully qualified class name
+     *       [ SP "BYTECODE" SP base64 ]          ; optional base64 encoded bytecode
+     *       extensions WSP RPAREN                ; extensions
+     * 
+     * base64          = *(4base64-char)
+     * base64-char     = ALPHA / DIGIT / "+" / "/"
+     * fqcn = fqcnComponent 1*( DOT fqcnComponent )
+     * fqcnComponent = ???
+     * </pre>
+    */
+comparatorDescription returns [ComparatorDescription cd = new ComparatorDescription()]
+    {
+        ElementTracker et = new ElementTracker();
+    }
+    :
+    ( oid:STARTNUMERICOID { cd.setNumericOid(numericoid(oid.getText())); } )
+    (
+	    ( desc:DESC { et.track("DESC", desc); cd.setDescription(qdstring(desc.getText())); } )
+	    |
+	    ( fqcn:FQCN { et.track("FQCN", fqcn); cd.setFqcn(fqcn.getText()); } )
+	    |
+	    ( bytecode:BYTECODE { et.track("BYTECODE", bytecode); cd.setBytecode(bytecode.getText()); } )
+	    |
+	    ( extension:EXTENSION { 
+	        Extension ex = extension(extension.getText());
+	        et.track(ex.key, extension); 
+	        cd.addExtension(ex.key, ex.values); 
+	     } )
+    )*
+    RPAR
+    {
+        // semantic check: required elements
+        if( !et.contains("FQCN") ) {
+            throw new SemanticException( "FQCN is required", null, 0, 0 );
+        }
+        
+        // semantic check: length should be divisible by 4
+        if( cd.getBytecode() != null && ( cd.getBytecode().length() % 4 != 0 ) ) {
+            throw new SemanticException( "BYTECODE must be divisible by 4", null, 0, 0 );
+        }
+    }
+    ;
+    
+
+    /**
+     * Production for normalizer descriptions. It is fault-tolerant
+     * against element ordering.
+     *
+     * <pre>
+     * NormalizerDescription = LPAREN WSP
+     *       numericoid                           ; object identifier
+     *       [ SP "DESC" SP qdstring ]            ; description
+     *       SP "FQCN" SP fqcn                    ; fully qualified class name
+     *       [ SP "BYTECODE" SP base64 ]          ; optional base64 encoded bytecode
+     *       extensions WSP RPAREN                ; extensions
+     * 
+     * base64          = *(4base64-char)
+     * base64-char     = ALPHA / DIGIT / "+" / "/"
+     * fqcn = fqcnComponent 1*( DOT fqcnComponent )
+     * fqcnComponent = ???
+     * </pre>
+    */
+normalizerDescription returns [NormalizerDescription nd = new NormalizerDescription()]
+    {
+        ElementTracker et = new ElementTracker();
+    }
+    :
+    ( oid:STARTNUMERICOID { nd.setNumericOid(numericoid(oid.getText())); } )
+    (
+	    ( desc:DESC { et.track("DESC", desc); nd.setDescription(qdstring(desc.getText())); } )
+	    |
+	    ( fqcn:FQCN { et.track("FQCN", fqcn); nd.setFqcn(fqcn.getText()); } )
+	    |
+	    ( bytecode:BYTECODE { et.track("BYTECODE", bytecode); nd.setBytecode(bytecode.getText()); } )
+	    |
+	    ( extension:EXTENSION { 
+	        Extension ex = extension(extension.getText());
+	        et.track(ex.key, extension); 
+	        nd.addExtension(ex.key, ex.values); 
+	     } )
+    )*
+    RPAR
+    {
+        // semantic check: required elements
+        if( !et.contains("FQCN") ) {
+            throw new SemanticException( "FQCN is required", null, 0, 0 );
+        }
+        
+        // semantic check: length should be divisible by 4
+        if( nd.getBytecode() != null && ( nd.getBytecode().length() % 4 != 0 ) ) {
+            throw new SemanticException( "BYTECODE must be divisible by 4", null, 0, 0 );
+        }        
+    }
+    ;
+    
+
+    /**
+     * Production for syntax checker descriptions. It is fault-tolerant
+     * against element ordering.
+     *
+     * <pre>
+     * SyntaxCheckerDescription = LPAREN WSP
+     *       numericoid                           ; object identifier
+     *       [ SP "DESC" SP qdstring ]            ; description
+     *       SP "FQCN" SP fqcn                    ; fully qualified class name
+     *       [ SP "BYTECODE" SP base64 ]          ; optional base64 encoded bytecode
+     *       extensions WSP RPAREN                ; extensions
+     * 
+     * base64          = *(4base64-char)
+     * base64-char     = ALPHA / DIGIT / "+" / "/"
+     * fqcn = fqcnComponent 1*( DOT fqcnComponent )
+     * fqcnComponent = ???
+     * </pre>
+    */
+syntaxCheckerDescription returns [SyntaxCheckerDescription scd = new SyntaxCheckerDescription()]
+    {
+        ElementTracker et = new ElementTracker();
+    }
+    :
+    ( oid:STARTNUMERICOID { scd.setNumericOid(numericoid(oid.getText())); } )
+    (
+	    ( desc:DESC { et.track("DESC", desc); scd.setDescription(qdstring(desc.getText())); } )
+	    |
+	    ( fqcn:FQCN { et.track("FQCN", fqcn); scd.setFqcn(fqcn.getText()); } )
+	    |
+	    ( bytecode:BYTECODE { et.track("BYTECODE", bytecode); scd.setBytecode(bytecode.getText()); } )
+	    |
+	    ( extension:EXTENSION { 
+	        Extension ex = extension(extension.getText());
+	        et.track(ex.key, extension); 
+	        scd.addExtension(ex.key, ex.values); 
+	     } )
+    )*
+    RPAR
+    {
+        // semantic check: required elements
+        if( !et.contains("FQCN") ) {
+            throw new SemanticException( "FQCN is required", null, 0, 0 );
+        }
+        
+        // semantic check: length should be divisible by 4
+        if( scd.getBytecode() != null && ( scd.getBytecode().length() % 4 != 0 ) ) {
+            throw new SemanticException( "BYTECODE must be divisible by 4", null, 0, 0 );
+        }        
     }
     ;
     
