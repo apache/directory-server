@@ -122,5 +122,5 @@ public interface NameForm extends SchemaObject
      * @throws NamingException
      *             if there is a failure resolving the object
      */
-    AttributeType[] getMaytUse() throws NamingException;
+    AttributeType[] getMayUse() throws NamingException;
 }

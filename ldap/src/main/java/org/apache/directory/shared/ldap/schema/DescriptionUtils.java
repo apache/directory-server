@@ -437,7 +437,7 @@ public class DescriptionUtils
             buf.append( '\n' );
         }
 
-        AttributeType[] may = nameForm.getMaytUse();
+        AttributeType[] may = nameForm.getMayUse();
         if ( may != null && may.length > 0 )
         {
             buf.append( "MAY\n" );
