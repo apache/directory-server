@@ -80,6 +80,14 @@ import javax.naming.NamingException;
 public interface DITStructureRule extends SchemaObject
 {
     /**
+     * Gets the rule identifier for this DITStructureRule.
+     * 
+     * @return the rule identifier 
+     */
+    Integer getRuleId();
+    
+    
+    /**
      * The nameForm associating this ditStructureRule with a structural
      * objectClass.
      * 
