@@ -114,6 +114,43 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         assertTrue( ocs.contains( "inetOrgPerson" ) );
     }
 
+    /**
+     * Test for DIRSERVER-844: storing of base 64 encoded values into H-R attributes 
+     *
+     * @throws NamingException
+     */
+    public void testSearchSeeAlso() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        Map persons = new HashMap();
+        NamingEnumeration results = sysRoot.search( "", "(seeAlso=cn=Good One,ou=people,o=sevenSeas)", controls );
+
+        while ( results.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) results.next();
+            persons.put( result.getName(), result.getAttributes() );
+        }
+
+        // admin is extra
+        assertEquals( 1, persons.size() );
+
+        Attributes person = null;
+        Attribute ocs = null;
+
+        person = ( Attributes ) persons.get( "cn=person1,ou=system" );
+        assertNotNull( person );
+        ocs = person.get( "objectClass" );
+        assertEquals( 3, ocs.size() );
+        assertTrue( ocs.contains( "top" ) );
+        assertTrue( ocs.contains( "person" ) );
+        assertTrue( ocs.contains( "organizationalPerson" ) );
+        
+        Attribute seeAlso = person.get(  "seeAlso"  );
+        assertTrue( seeAlso.contains( "cn=Good One,ou=people,o=sevenSeas" ) );
+        assertTrue( seeAlso.contains( "cn=Bad E\u00e9k\u00e0,ou=people,o=sevenSeas" ) );
+    }
+
 
     public void testSearchForOrgPerson() throws NamingException
     {
