@@ -8,6 +8,8 @@ dn: cn=person1,ou=system
 objectClass: organizationalPerson
 cn: person1
 sn: sn_person1
+seealso: cn=Good One,ou=people,o=sevenSeas
+seealso:: Y249QmFkIEXDqWvDoCxvdT1wZW9wbGUsbz1zZXZlblNlYXM=
 
 dn: cn=person2,ou=system
 objectClass: inetOrgPerson
