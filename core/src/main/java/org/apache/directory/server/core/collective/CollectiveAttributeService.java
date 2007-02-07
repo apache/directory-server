@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.collective;
 
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -57,11 +56,14 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * collectiveAttributeInnerAreas.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev:$
+ * @version $Rev$
  */
 public class CollectiveAttributeService extends BaseInterceptor
 {
     public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
+    
+    public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID = "2.5.18.0";
+    public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES = "excludeAllCollectiveAttributes";
     
     /**
      * the search result filter to use for collective attribute injection
@@ -127,11 +129,12 @@ public class CollectiveAttributeService extends BaseInterceptor
          * may have case variance.
          */
         Attribute collectiveExclusions = entry.get( "collectiveExclusions" );
-        Set exclusions;
+        Set<String> exclusions = new HashSet<String>();
+        
         if ( collectiveExclusions != null )
         {
-            if ( collectiveExclusions.contains( "2.5.18.0" )
-                || collectiveExclusions.contains( "excludeAllCollectiveAttributes" ) )
+            if ( collectiveExclusions.contains( EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID )
+                || collectiveExclusions.contains( EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES ) )
             {
                 /*
                  * This entry does not allow any collective attributes
@@ -140,16 +143,13 @@ public class CollectiveAttributeService extends BaseInterceptor
                 return;
             }
 
-            exclusions = new HashSet();
+            exclusions = new HashSet<String>();
+            
             for ( int ii = 0; ii < collectiveExclusions.size(); ii++ )
             {
                 AttributeType attrType = attrTypeRegistry.lookup( ( String ) collectiveExclusions.get( ii ) );
                 exclusions.add( attrType.getOid() );
             }
-        }
-        else
-        {
-            exclusions = Collections.EMPTY_SET;
         }
         
         /*
@@ -165,10 +165,11 @@ public class CollectiveAttributeService extends BaseInterceptor
         /*
          * Construct a set of requested attributes for easier tracking.
          */ 
-        HashSet retIdsSet = new HashSet( retAttrs.length );
-        for ( int ii = 0; ii < retAttrs.length; ii++ )
+        Set<String> retIdsSet = new HashSet<String>( retAttrs.length );
+        
+        for ( String retAttr:retAttrs )
         {
-            retIdsSet.add( retAttrs[ii].toLowerCase() );
+            retIdsSet.add( retAttr.toLowerCase() );
         }
 
         /*
@@ -182,6 +183,7 @@ public class CollectiveAttributeService extends BaseInterceptor
             LdapDN subentryDn = new LdapDN( subentryDnStr );
             Attributes subentry = nexus.lookup( subentryDn );
             NamingEnumeration attrIds = subentry.getIDs();
+            
             while ( attrIds.hasMore() )
             {
                 String attrId = ( String ) attrIds.next();
@@ -249,10 +251,12 @@ public class CollectiveAttributeService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name );
+        
         if ( result == null )
         {
             return null;
         }
+        
         addCollectiveAttributes( name, result, new String[] { "*" } );
         return result;
     }
@@ -261,10 +265,12 @@ public class CollectiveAttributeService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name, attrIds );
+        
         if ( result == null )
         {
             return null;
         }
+        
         addCollectiveAttributes( name, result, attrIds );
         return result;
     }
@@ -309,6 +315,4 @@ public class CollectiveAttributeService extends BaseInterceptor
         collectiveAttributesSchemaChecker.checkModify( normName, mods );
         super.modify( next, normName, mods );
     }
-    
-
 }

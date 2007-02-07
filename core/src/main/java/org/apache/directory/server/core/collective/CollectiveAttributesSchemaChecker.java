@@ -79,6 +79,7 @@ public class CollectiveAttributesSchemaChecker
         ModificationItemImpl[] modsAsArray = new ModificationItemImpl[ mods.size() ];
         NamingEnumeration allAttrs = mods.getAll();
         int i = 0;
+        
         while ( allAttrs.hasMoreElements() )
         {
             Attribute attr = ( Attribute ) allAttrs.nextElement();
@@ -115,14 +116,14 @@ public class CollectiveAttributesSchemaChecker
     
     private boolean addsAnyCollectiveAttributes( ModificationItemImpl[] mods ) throws NamingException
     {
-        for ( int i = 0; i < mods.length; i++ )
+        for ( ModificationItemImpl mod:mods )
         {
-            Attribute attr = mods[i].getAttribute();
+            Attribute attr = mod.getAttribute();
             String attrID = attr.getID();
             AttributeType attrType = attrTypeRegistry.lookup( attrID );
-            int modOp = mods[i].getModificationOp();
+            int modOp = mod.getModificationOp();
             
-            if ( ( modOp == DirContext.ADD_ATTRIBUTE || modOp == DirContext.REPLACE_ATTRIBUTE ) &&
+            if ( ( ( modOp == DirContext.ADD_ATTRIBUTE ) || ( modOp == DirContext.REPLACE_ATTRIBUTE ) ) &&
                 attrType.isCollective() )
             {
                 return true;
@@ -136,10 +137,12 @@ public class CollectiveAttributesSchemaChecker
     private boolean containsAnyCollectiveAttributes( Attributes entry ) throws NamingException
     {
         NamingEnumeration allIDs = entry.getIDs();
+        
         while ( allIDs.hasMoreElements() )
         {
             String attrTypeStr = ( String ) allIDs.nextElement();
             AttributeType attrType = attrTypeRegistry.lookup( attrTypeStr );
+            
             if ( attrType.isCollective() )
             {
                 return true;
@@ -148,6 +151,4 @@ public class CollectiveAttributesSchemaChecker
         
         return false;
     }
-    
-
 }
