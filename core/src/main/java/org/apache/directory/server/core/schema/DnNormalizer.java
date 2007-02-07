@@ -60,6 +60,10 @@ public class DnNormalizer implements Normalizer
         {
             dn = new LdapDN( ( String ) value );
         }
+        else
+        {
+            throw new NamingException( "The DN is not an instance of String, Name or LdapDN" );
+        }
         
         dn.normalize( attrRegistry.getNormalizerMapping() );
         return dn.getNormName();
