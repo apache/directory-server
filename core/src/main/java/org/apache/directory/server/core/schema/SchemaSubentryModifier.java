@@ -27,10 +27,13 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.utils.AttributesFactory;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
@@ -41,6 +44,10 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.util.Base64;
 
 
 /**
@@ -79,7 +86,7 @@ public class SchemaSubentryModifier
     private LdapDN getDn( SchemaObject obj ) throws NamingException
     {
         StringBuffer buf = new StringBuffer();
-        buf.append( "oid=" ).append( obj.getOid() ).append( ",ou=" );
+        buf.append( "m-oid=" ).append( obj.getOid() ).append( ",ou=" );
 
         if ( obj instanceof Syntax )
         {
@@ -134,5 +141,131 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = getDn( obj );
         proxy.delete( dn, BYPASS );
+    }
+
+
+    public void delete( String schemaName, NormalizerDescription normalizerDescription ) throws NamingException
+    {
+        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
+        LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
+            + schemaName + ",ou=schema" );
+        proxy.delete( dn, BYPASS );
+    }
+
+
+    public void delete( String schemaName, SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
+    {
+        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
+        LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
+            + schemaName + ",ou=schema" );
+        proxy.delete( dn, BYPASS );
+    }
+
+
+    public void delete( String schemaName, ComparatorDescription comparatorDescription ) throws NamingException
+    {
+        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
+        LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
+            + schemaName + ",ou=schema" );
+        proxy.delete( dn, BYPASS );
+    }
+
+
+    public void add( String schemaName, ComparatorDescription comparatorDescription ) throws NamingException
+    {
+        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
+        LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
+            + schemaName + ",ou=schema" );
+        Attributes attrs = getAttributes( schemaName, comparatorDescription );
+        proxy.add( dn, attrs, BYPASS );
+    }
+    
+    
+    private Attributes getAttributes( String schemaName, ComparatorDescription comparatorDescription )
+    {
+        AttributesImpl attributes = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
+        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaComparator" );
+        attributes.put( MetaSchemaConstants.M_OID_AT, comparatorDescription.getNumericOid() );
+        attributes.put( MetaSchemaConstants.M_FQCN_AT, comparatorDescription.getFqcn() );
+
+        if ( comparatorDescription.getBytecode() != null )
+        {
+            attributes.put( MetaSchemaConstants.M_BYTECODE_AT, 
+                Base64.decode( comparatorDescription.getBytecode().toCharArray() ) );
+        }
+        
+        if ( comparatorDescription.getDescription() != null )
+        {
+            attributes.put( MetaSchemaConstants.M_DESCRIPTION_AT, comparatorDescription.getDescription() );
+        }
+        
+        return attributes;
+    }
+
+
+    public void add( String schemaName, NormalizerDescription normalizerDescription ) throws NamingException
+    {
+        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
+        LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
+            + schemaName + ",ou=schema" );
+        Attributes attrs = getAttributes( schemaName, normalizerDescription );
+        proxy.add( dn, attrs, BYPASS );
+    }
+    
+    
+    private Attributes getAttributes( String schemaName, NormalizerDescription normalizerDescription )
+    {
+        AttributesImpl attributes = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
+        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaNormalizer" );
+        attributes.put( MetaSchemaConstants.M_OID_AT, normalizerDescription.getNumericOid() );
+        attributes.put( MetaSchemaConstants.M_FQCN_AT, normalizerDescription.getFqcn() );
+
+        if ( normalizerDescription.getBytecode() != null )
+        {
+            attributes.put( MetaSchemaConstants.M_BYTECODE_AT, 
+                Base64.decode( normalizerDescription.getBytecode().toCharArray() ) );
+        }
+        
+        if ( normalizerDescription.getDescription() != null )
+        {
+            attributes.put( MetaSchemaConstants.M_DESCRIPTION_AT, normalizerDescription.getDescription() );
+        }
+        
+        return attributes;
+    }
+
+
+    public void add( String schemaName, SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
+    {
+        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
+        LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
+            + schemaName + ",ou=schema" );
+        Attributes attrs = getAttributes( schemaName, syntaxCheckerDescription );
+        proxy.add( dn, attrs, BYPASS );
+    }
+    
+    
+    private Attributes getAttributes( String schemaName, SyntaxCheckerDescription syntaxCheckerDescription )
+    {
+        AttributesImpl attributes = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
+        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
+        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaSyntaxChecker" );
+        attributes.put( MetaSchemaConstants.M_OID_AT, syntaxCheckerDescription.getNumericOid() );
+        attributes.put( MetaSchemaConstants.M_FQCN_AT, syntaxCheckerDescription.getFqcn() );
+
+        if ( syntaxCheckerDescription.getBytecode() != null )
+        {
+            attributes.put( MetaSchemaConstants.M_BYTECODE_AT, 
+                Base64.decode( syntaxCheckerDescription.getBytecode().toCharArray() ) );
+        }
+        
+        if ( syntaxCheckerDescription.getDescription() != null )
+        {
+            attributes.put( MetaSchemaConstants.M_DESCRIPTION_AT, syntaxCheckerDescription.getDescription() );
+        }
+        
+        return attributes;
     }
 }

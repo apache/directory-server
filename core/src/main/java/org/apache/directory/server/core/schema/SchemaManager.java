@@ -53,6 +53,10 @@ import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
+import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
@@ -111,6 +115,8 @@ public class SchemaManager
         "metaDITContentRule",
         "metaNameForm"
     };
+    private static final Object X_SCHEMA = null;
+    private static final String SCHEMA_OTHER = null;
 
     private final PartitionSchemaLoader loader;
     private final MetaSchemaHandler metaSchemaHandler;
@@ -119,9 +125,9 @@ public class SchemaManager
     private final SchemaSubentryModifier subentryModifier;
     private final SchemaChangeHandler[] schemaObjectHandlers = new SchemaChangeHandler[11];
 
-//    private final String comparatorsOid;
-//    private final String normalizersOid;
-//    private final String syntaxCheckersOid;
+    private final String comparatorsOid;
+    private final String normalizersOid;
+    private final String syntaxCheckersOid;
 
     private final String ldapSyntaxesOid;
     private final String matchingRulesOid;
@@ -185,6 +191,16 @@ public class SchemaManager
         this.parsers = new DescriptionParsers( globalRegistries );
         
         OidRegistry oidRegistry = globalRegistries.getOidRegistry();
+        
+        comparatorsOid = oidRegistry.getOid( MetaSchemaConstants.COMPARATORS_AT );
+        opAttr2handlerIndex.put( comparatorsOid, new Integer( COMPARATOR_INDEX ) );
+        
+        normalizersOid = oidRegistry.getOid( MetaSchemaConstants.NORMALIZERS_AT );
+        opAttr2handlerIndex.put( normalizersOid, new Integer( NORMALIZER_INDEX ) );
+        
+        syntaxCheckersOid = oidRegistry.getOid( MetaSchemaConstants.SYNTAX_CHECKERS_AT );
+        opAttr2handlerIndex.put( syntaxCheckersOid, new Integer( SYNTAX_CHECKER_INDEX ) );
+        
         ldapSyntaxesOid = oidRegistry.getOid( SystemSchemaConstants.LDAP_SYNTAXES_AT );
         opAttr2handlerIndex.put( ldapSyntaxesOid, new Integer( SYNTAX_INDEX ) );
         
@@ -563,10 +579,55 @@ public class SchemaManager
         switch( index )
         {
             case( COMPARATOR_INDEX ):
+                MetaComparatorHandler comparatorHandler = ( MetaComparatorHandler ) handler;
+                ComparatorDescription[] removedComparators = parsers.parseComparators( original );
+                ComparatorDescription[] addedComparators = parsers.parseComparators( mods );
+                
+                for ( ComparatorDescription comparatorDescription : removedComparators )
+                {
+                    comparatorHandler.delete( comparatorDescription.getNumericOid() );
+                    subentryModifier.delete( getSchema( comparatorDescription ), comparatorDescription );
+                }
+                
+                for ( ComparatorDescription comparatorDescription : addedComparators )
+                {
+                    comparatorHandler.add( comparatorDescription );
+                    subentryModifier.add( getSchema( comparatorDescription ), comparatorDescription );
+                }
                 break;
             case( NORMALIZER_INDEX ):
+                MetaNormalizerHandler normalizerHandler = ( MetaNormalizerHandler ) handler;
+                NormalizerDescription[] removedNormalizers = parsers.parseNormalizers( original );
+                NormalizerDescription[] addedNormalizers = parsers.parseNormalizers( mods );
+                
+                for ( NormalizerDescription normalizerDescription : removedNormalizers )
+                {
+                    normalizerHandler.delete( normalizerDescription.getNumericOid() );
+                    subentryModifier.delete( getSchema( normalizerDescription ), normalizerDescription );
+                }
+                
+                for ( NormalizerDescription normalizerDescription : addedNormalizers )
+                {
+                    normalizerHandler.add( normalizerDescription );
+                    subentryModifier.add( getSchema( normalizerDescription ), normalizerDescription );
+                }
                 break;
             case( SYNTAX_CHECKER_INDEX ):
+                MetaSyntaxCheckerHandler syntaxCheckerHandler = ( MetaSyntaxCheckerHandler ) handler;
+                SyntaxCheckerDescription[] removedSyntaxCheckers = parsers.parseSyntaxCheckers( original );
+                SyntaxCheckerDescription[] addedSyntaxCheckers = parsers.parseSyntaxCheckers( mods );
+                
+                for ( SyntaxCheckerDescription syntaxCheckerDescription : removedSyntaxCheckers )
+                {
+                    syntaxCheckerHandler.delete( syntaxCheckerDescription.getNumericOid() );
+                    subentryModifier.delete( getSchema( syntaxCheckerDescription ), syntaxCheckerDescription );
+                }
+                
+                for ( SyntaxCheckerDescription syntaxCheckerDescription : addedSyntaxCheckers )
+                {
+                    syntaxCheckerHandler.add( syntaxCheckerDescription );
+                    subentryModifier.delete( getSchema( syntaxCheckerDescription ), syntaxCheckerDescription );
+                }
                 break;
             case( SYNTAX_INDEX ):
                 MetaSyntaxHandler syntaxHandler = ( MetaSyntaxHandler ) handler;
@@ -709,6 +770,17 @@ public class SchemaManager
         }
     }
 
+    
+    public String getSchema( AbstractSchemaDescription desc ) 
+    {
+        if ( desc.getExtensions().containsKey( X_SCHEMA ) )
+        {
+            return desc.getExtensions().get( X_SCHEMA ).get( 0 );
+        }
+        
+        return SCHEMA_OTHER;
+    }
+    
 
     /**
      * Handles the modify remove operation on the subschemaSubentry for schema entities. 
@@ -725,10 +797,34 @@ public class SchemaManager
         switch( index )
         {
             case( COMPARATOR_INDEX ):
+                MetaComparatorHandler comparatorHandler = ( MetaComparatorHandler ) handler;
+                ComparatorDescription[] comparatorDescriptions = parsers.parseComparators( mods );
+                
+                for ( ComparatorDescription comparatorDescription : comparatorDescriptions )
+                {
+                    comparatorHandler.delete( comparatorDescription.getNumericOid() );
+                    subentryModifier.delete( getSchema( comparatorDescription ), comparatorDescription );
+                }
                 break;
             case( NORMALIZER_INDEX ):
+                MetaNormalizerHandler normalizerHandler = ( MetaNormalizerHandler ) handler;
+                NormalizerDescription[] normalizerDescriptions = parsers.parseNormalizers( mods );
+                
+                for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
+                {
+                    normalizerHandler.delete( normalizerDescription.getNumericOid() );
+                    subentryModifier.delete( getSchema( normalizerDescription ), normalizerDescription );
+                }
                 break;
             case( SYNTAX_CHECKER_INDEX ):
+                MetaSyntaxCheckerHandler syntaxCheckerHandler = ( MetaSyntaxCheckerHandler ) handler;
+                SyntaxCheckerDescription[] syntaxCheckerDescriptions = parsers.parseSyntaxCheckers( mods );
+                
+                for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
+                {
+                    syntaxCheckerHandler.delete( syntaxCheckerDescription.getNumericOid() );
+                    subentryModifier.delete( getSchema( syntaxCheckerDescription ), syntaxCheckerDescription );
+                }
                 break;
             case( SYNTAX_INDEX ):
                 MetaSyntaxHandler syntaxHandler = ( MetaSyntaxHandler ) handler;
@@ -831,10 +927,31 @@ public class SchemaManager
         switch( index )
         {
             case( COMPARATOR_INDEX ):
+                MetaComparatorHandler comparatorHandler = ( MetaComparatorHandler ) handler;
+                ComparatorDescription[] comparatorDescriptions = parsers.parseComparators( mods );
+                
+                for ( ComparatorDescription comparatorDescription : comparatorDescriptions )
+                {
+                    comparatorHandler.add( comparatorDescription );
+                }
                 break;
             case( NORMALIZER_INDEX ):
+                MetaNormalizerHandler normalizerHandler = ( MetaNormalizerHandler ) handler;
+                NormalizerDescription[] normalizerDescriptions = parsers.parseNormalizers( mods );
+                
+                for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
+                {
+                    normalizerHandler.add( normalizerDescription );
+                }
                 break;
             case( SYNTAX_CHECKER_INDEX ):
+                MetaSyntaxCheckerHandler syntaxCheckerHandler = ( MetaSyntaxCheckerHandler ) handler;
+                SyntaxCheckerDescription[] syntaxCheckerDescriptions = parsers.parseSyntaxCheckers( mods );
+                
+                for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
+                {
+                    syntaxCheckerHandler.add( syntaxCheckerDescription );
+                }
                 break;
             case( SYNTAX_INDEX ):
                 MetaSyntaxHandler syntaxHandler = ( MetaSyntaxHandler ) handler;

@@ -30,11 +30,14 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MutableSchemaObject;
@@ -43,8 +46,12 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.Base64;
 
 
 /**
@@ -125,6 +132,59 @@ public class SchemaEntityFactory
     }
     
     
+    private SyntaxChecker getSyntaxChecker( String syntaxOid, String className, Attribute bytecode, Registries targetRegistries )
+        throws NamingException
+    {
+        Class clazz = null;
+        SyntaxChecker syntaxChecker = null;
+        
+        try
+        {
+            if ( bytecode == null )
+            {
+                clazz = Class.forName( className );
+            }
+            else
+            {
+                classLoader.setAttribute( bytecode );
+                clazz = classLoader.loadClass( className );
+            }
+        }
+        catch ( ClassNotFoundException e )
+        {
+            LdapNamingException ne = new LdapNamingException( 
+                "Normalizer class "+ className + " was not found", ResultCodeEnum.OTHER );
+            ne.setRootCause( e );
+            throw ne;
+        }
+        
+        try
+        {
+            syntaxChecker = ( SyntaxChecker ) clazz.newInstance();
+        }
+        catch ( InstantiationException e )
+        {
+            LdapNamingException ne = new LdapNamingException( "Failed to instantiate SyntaxChecker class "+ className 
+                + ".\nCheck that a default constructor exists for the class.", ResultCodeEnum.OTHER );
+            ne.setRootCause( e );
+            throw ne;
+        }
+        catch ( IllegalAccessException e )
+        {
+            LdapNamingException ne = new LdapNamingException( "Failed to instantiate SyntaxChecker class "+ className 
+                + ".\nCheck that a **PUBLIC** accessible default constructor exists for the class.", 
+                ResultCodeEnum.OTHER );
+            ne.setRootCause( e );
+            throw ne;
+        }
+
+        // try now before returning to check if we can inject a Registries object
+        injectRegistries( syntaxChecker, targetRegistries );
+        injectOid( syntaxOid, syntaxChecker );
+        return syntaxChecker;
+    }
+    
+    
     /**
      * Retrieve and load a syntaxChecker class from the DIT.
      * 
@@ -144,13 +204,37 @@ public class SchemaEntityFactory
             throw new NullPointerException( "entry must have a valid "
                 + MetaSchemaConstants.M_FQCN_AT + " attribute" );
         }
-        
-        String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get();
-        SyntaxChecker syntaxChecker = null;
-        Class clazz = null;
 
-        Attribute byteCodeAttr = AttributeUtils.getAttribute( entry, byteCodeAT );
-        if ( byteCodeAttr == null )
+        String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get();
+        String syntaxOid = ( String ) AttributeUtils.getAttribute( entry, oidAT ).get();
+        return getSyntaxChecker( syntaxOid, className, AttributeUtils.getAttribute( entry, byteCodeAT ), 
+            targetRegistries );
+    }
+    
+    
+    public SyntaxChecker getSyntaxChecker( SyntaxCheckerDescription syntaxCheckerDescription, 
+        Registries targetRegistries ) throws NamingException
+    {
+        BasicAttribute attr = null;
+        
+        if ( syntaxCheckerDescription.getBytecode() != null )
+        {
+            byte[] bytecode = Base64.decode( syntaxCheckerDescription.getBytecode().toCharArray() );
+            attr = new BasicAttribute( MetaSchemaConstants.M_BYTECODE_AT, bytecode );
+        }
+        
+        return getSyntaxChecker( syntaxCheckerDescription.getNumericOid(), 
+            syntaxCheckerDescription.getFqcn(), attr, targetRegistries );
+    }
+    
+    
+    private Comparator getComparator( String className, Attribute bytecode, Registries targetRegistries ) 
+        throws NamingException
+    {
+        Comparator comparator = null;
+        Class clazz = null;
+        
+        if ( bytecode == null ) 
         {
             try
             {
@@ -158,64 +242,64 @@ public class SchemaEntityFactory
             }
             catch ( ClassNotFoundException e )
             {
-                NamingException ne = new NamingException( "SyntaxChecker class "+ className + " was not found" );
+                LdapNamingException ne = new LdapNamingException( "Comparator class "+ className + " was not found",
+                    ResultCodeEnum.OTHER );
                 ne.setRootCause( e );
                 throw ne;
             }
-        }       
+        }
         else
         {
+            classLoader.setAttribute( bytecode );
             try
             {
-                Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
-                classLoader.setAttribute( bytecode );
                 clazz = classLoader.loadClass( className );
-            }
-            catch ( ClassCastException e )
-            {
-                NamingException ne = new NamingException( "Class "+ className + " does not implement SyntaxChecker" );
-                ne.setRootCause( e );
-                throw ne;
             }
             catch ( ClassNotFoundException e )
             {
-                NamingException ne = new NamingException( "SyntaxChecker class "+ className + " was not found" );
+                LdapNamingException ne = new LdapNamingException( "Comparator class "+ className + " was not found",
+                    ResultCodeEnum.OTHER );
                 ne.setRootCause( e );
                 throw ne;
             }
         }
         
-        
         try
         {
-            syntaxChecker = ( SyntaxChecker ) clazz.newInstance();
-        }
-        catch ( ClassCastException e )
-        {
-            NamingException ne = new NamingException( "Class "+ className + " does not implement SyntaxChecker" );
-            ne.setRootCause( e );
-            throw ne;
+            comparator = ( Comparator ) clazz.newInstance();
         }
         catch ( InstantiationException e )
         {
-            NamingException ne = new NamingException( "Failed to instantiate syntaxChecker class "+ className 
+            NamingException ne = new NamingException( "Failed to instantiate comparator class "+ className 
                 + ".\nCheck that a default constructor exists for the class." );
             ne.setRootCause( e );
             throw ne;
         }
         catch ( IllegalAccessException e )
         {
-            NamingException ne = new NamingException( "Failed to instantiate syntaxChecker class "+ className 
+            NamingException ne = new NamingException( "Failed to instantiate comparator class "+ className 
                 + ".\nCheck that a **PUBLIC** accessible default constructor exists for the class." );
             ne.setRootCause( e );
             throw ne;
         }
-
-        // try now before returning to check if we can inject a Registries object
-        injectRegistries( syntaxChecker, targetRegistries );
-        String syntaxOid = ( String ) AttributeUtils.getAttribute( entry, oidAT ).get();
-        injectOid( syntaxOid, syntaxChecker );
-        return syntaxChecker;
+        
+        injectRegistries( comparator, targetRegistries );
+        return comparator;
+    }
+    
+    
+    public Comparator getComparator( ComparatorDescription comparatorDescription, Registries targetRegistries ) 
+        throws NamingException
+    {
+        BasicAttribute attr = null;
+        
+        if ( comparatorDescription.getBytecode() != null )
+        { 
+            byte[] bytecode = Base64.decode( comparatorDescription.getBytecode().toCharArray() );
+            attr = new BasicAttribute( MetaSchemaConstants.M_BYTECODE_AT, bytecode );
+        }
+        
+        return getComparator( comparatorDescription.getFqcn(), attr, targetRegistries );
     }
     
     
@@ -240,73 +324,74 @@ public class SchemaEntityFactory
         }
         
         String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get();
-        Comparator comparator = null;
+        return getComparator( className, entry.get( MetaSchemaConstants.M_BYTECODE_AT ), targetRegistries );
+    }
+    
+    
+    private Normalizer getNormalizer( String className, Attribute bytecode, Registries targetRegistries ) 
+        throws NamingException
+    {
         Class clazz = null;
-
-        if ( entry.get( MetaSchemaConstants.M_BYTECODE_AT ) == null )
-        {
-            try
-            {
-                clazz = Class.forName( className );
-            }
-            catch ( ClassNotFoundException e )
-            {
-                NamingException ne = new NamingException( "Comparator class "+ className + " was not found" );
-                ne.setRootCause( e );
-                throw ne;
-            }
-        }       
-        else
-        {
-            try
-            {
-                Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
-                classLoader.setAttribute( bytecode );
-                clazz = classLoader.loadClass( className );
-            }
-            catch ( ClassCastException e )
-            {
-                NamingException ne = new NamingException( "Class "+ className + " does not implement Comparator" );
-                ne.setRootCause( e );
-                throw ne;
-            }
-            catch ( ClassNotFoundException e )
-            {
-                NamingException ne = new NamingException( "Comparator class "+ className + " was not found" );
-                ne.setRootCause( e );
-                throw ne;
-            }
-        }
-        
+        Normalizer normalizer = null;
         
         try
         {
-            comparator = ( Comparator ) clazz.newInstance();
+            if ( bytecode == null )
+            {
+                clazz = Class.forName( className );
+            }
+            else
+            {
+                classLoader.setAttribute( bytecode );
+                clazz = classLoader.loadClass( className );
+            }
         }
-        catch ( ClassCastException e )
+        catch ( ClassNotFoundException e )
         {
-            NamingException ne = new NamingException( "Class "+ className + " does not implement Comparator" );
+            LdapNamingException ne = new LdapNamingException( 
+                "Normalizer class "+ className + " was not found", ResultCodeEnum.OTHER );
             ne.setRootCause( e );
             throw ne;
         }
+        
+        try
+        {
+            normalizer = ( Normalizer ) clazz.newInstance();
+        }
         catch ( InstantiationException e )
         {
-            NamingException ne = new NamingException( "Failed to instantiate comparator class "+ className 
-                + ".\nCheck that a default constructor exists for the class." );
+            LdapNamingException ne = new LdapNamingException( "Failed to instantiate normalizer class "+ className 
+                + ".\nCheck that a default constructor exists for the class.", ResultCodeEnum.OTHER );
             ne.setRootCause( e );
             throw ne;
         }
         catch ( IllegalAccessException e )
         {
-            NamingException ne = new NamingException( "Failed to instantiate comparator class "+ className 
-                + ".\nCheck that a **PUBLIC** accessible default constructor exists for the class." );
+            LdapNamingException ne = new LdapNamingException( "Failed to instantiate normalizer class "+ className 
+                + ".\nCheck that a **PUBLIC** accessible default constructor exists for the class.", 
+                ResultCodeEnum.OTHER );
             ne.setRootCause( e );
             throw ne;
         }
 
         // try now before returning to check if we can inject a Registries object
-        injectRegistries( comparator, targetRegistries );
-        return comparator;
+        injectRegistries( normalizer, targetRegistries );
+        return normalizer;
+    }
+
+    
+    public Normalizer getNormalizer( NormalizerDescription normalizerDescription, Registries targetRegistries )
+        throws NamingException
+    {
+        BasicAttribute attr = null;
+        
+        if ( normalizerDescription.getBytecode() != null )
+        {
+            byte[] bytecode = Base64.decode( normalizerDescription.getBytecode().toCharArray() );
+            attr = new BasicAttribute( MetaSchemaConstants.M_BYTECODE_AT, bytecode );
+        }
+        
+        return getNormalizer( normalizerDescription.getFqcn(), attr, targetRegistries );
     }
     
     
@@ -331,73 +416,7 @@ public class SchemaEntityFactory
         }
         
         String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get();
-        Normalizer normalizer = null;
-        Class clazz = null;
-
-        if ( entry.get( MetaSchemaConstants.M_BYTECODE_AT ) == null )
-        {
-            try
-            {
-                clazz = Class.forName( className );
-            }
-            catch ( ClassNotFoundException e )
-            {
-                NamingException ne = new NamingException( "Normalizer class "+ className + " was not found" );
-                ne.setRootCause( e );
-                throw ne;
-            }
-        }       
-        else
-        {
-            try
-            {
-                Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
-                classLoader.setAttribute( bytecode );
-                clazz = classLoader.loadClass( className );
-            }
-            catch ( ClassCastException e )
-            {
-                NamingException ne = new NamingException( "Class "+ className + " does not implement Normalizer" );
-                ne.setRootCause( e );
-                throw ne;
-            }
-            catch ( ClassNotFoundException e )
-            {
-                NamingException ne = new NamingException( "Normalizer class "+ className + " was not found" );
-                ne.setRootCause( e );
-                throw ne;
-            }
-        }
-        
-        
-        try
-        {
-            normalizer = ( Normalizer ) clazz.newInstance();
-        }
-        catch ( ClassCastException e )
-        {
-            NamingException ne = new NamingException( "Class "+ className + " does not implement Normalizer" );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        catch ( InstantiationException e )
-        {
-            NamingException ne = new NamingException( "Failed to instantiate normalizer class "+ className 
-                + ".\nCheck that a default constructor exists for the class." );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        catch ( IllegalAccessException e )
-        {
-            NamingException ne = new NamingException( "Failed to instantiate normalizer class "+ className 
-                + ".\nCheck that a **PUBLIC** accessible default constructor exists for the class." );
-            ne.setRootCause( e );
-            throw ne;
-        }
-
-        // try now before returning to check if we can inject a Registries object
-        injectRegistries( normalizer, targetRegistries );
-        return normalizer;
+        return getNormalizer( className, entry.get( MetaSchemaConstants.M_BYTECODE_AT ), targetRegistries );
     }
     
     

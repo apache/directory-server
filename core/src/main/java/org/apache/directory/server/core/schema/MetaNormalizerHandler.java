@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
@@ -51,6 +52,9 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
 public class MetaNormalizerHandler implements SchemaChangeHandler
 {
     private static final String OU_OID = "2.5.4.11";
+
+    private static final String SCHEMA_OTHER = "other";
+    private static final Object X_SCHEMA = "X-SCHEMA";
 
     private final PartitionSchemaLoader loader;
     private final SchemaEntityFactory factory;
@@ -133,10 +137,34 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
         }
     }
 
+    
+    public void add( NormalizerDescription normalizerDescription ) throws NamingException
+    {
+        Normalizer normalizer = factory.getNormalizer( normalizerDescription, targetRegistries );
+        String schemaName = SCHEMA_OTHER;
+        
+        if ( normalizerDescription.getExtensions().get( X_SCHEMA ) != null )
+        {
+            schemaName = ( String ) normalizerDescription.getExtensions().get( X_SCHEMA ).get( 0 );
+        }
+        
+        Schema schema = loader.getSchema( schemaName );
+        
+        if ( ! schema.isDisabled() )
+        {
+            normalizerRegistry.register( schemaName, normalizerDescription.getNumericOid(), normalizer );
+        }
+    }
+
 
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
-        String oid = getOid( entry );
+        delete( getOid( entry ) );
+    }
+
+
+    public void delete( String oid ) throws NamingException
+    {
         if ( matchingRuleRegistry.hasMatchingRule( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The normalizer with OID " + oid 
@@ -145,14 +173,12 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
-        Schema schema = getSchema( name );
-        
-        if ( ! schema.isDisabled() )
+        if ( normalizerRegistry.hasNormalizer( oid ) )
         {
-            normalizerRegistry.unregister( getOid( entry ) );
+            normalizerRegistry.unregister( oid );
         }
     }
-
+    
 
     public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
     {

@@ -38,6 +38,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
@@ -52,6 +53,9 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
 public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
 {
     private static final String OU_OID = "2.5.4.11";
+
+    private static final String SCHEMA_OTHER = "other";
+    private static final Object X_SCHEMA = "X-SCHEMA";
 
     private final PartitionSchemaLoader loader;
     private final SchemaEntityFactory factory;
@@ -134,9 +138,33 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
     }
 
 
+    public void add( SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
+    {
+        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( syntaxCheckerDescription, targetRegistries );
+        String schemaName = SCHEMA_OTHER;
+        
+        if ( syntaxCheckerDescription.getExtensions().get( X_SCHEMA ) != null )
+        {
+            schemaName = ( String ) syntaxCheckerDescription.getExtensions().get( X_SCHEMA ).get( 0 );
+        }
+        
+        Schema schema = loader.getSchema( schemaName );
+        
+        if ( ! schema.isDisabled() )
+        {
+            syntaxCheckerRegistry.register( syntaxCheckerDescription.getNumericOid(), syntaxChecker );
+        }
+    }
+
+
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
-        String oid = getOid( entry );
+        delete( getOid( entry ) );
+    }
+
+
+    public void delete( String oid ) throws NamingException
+    {
         if ( syntaxRegistry.hasSyntax( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oid 
@@ -145,11 +173,9 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
-        Schema schema = getSchema( name );
-        
-        if ( ! schema.isDisabled() )
+        if ( syntaxCheckerRegistry.hasSyntaxChecker( oid ) )
         {
-            syntaxCheckerRegistry.unregister( getOid( entry ) );
+            syntaxCheckerRegistry.unregister( oid );
         }
     }
 

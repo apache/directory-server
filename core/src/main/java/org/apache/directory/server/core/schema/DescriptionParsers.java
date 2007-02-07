@@ -40,21 +40,27 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.syntax.DITContentRuleDescription;
 import org.apache.directory.shared.ldap.schema.syntax.DITStructureRuleDescription;
 import org.apache.directory.shared.ldap.schema.syntax.LdapSyntaxDescription;
 import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleDescription;
 import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleUseDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NameFormDescription;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.ComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.DITContentRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.DITStructureRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.LdapSyntaxDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.MatchingRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.MatchingRuleUseDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.NameFormDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.NormalizerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.SyntaxCheckerDescriptionSchemaParser;
 
 
 /**
@@ -73,6 +79,9 @@ public class DescriptionParsers
     private static final String X_SCHEMA = "X-SCHEMA";
     private static final Object X_IS_HUMAN_READABLE = "X-IS-HUMAN-READABLE";
 
+    private static final ComparatorDescription[] EMPTY_COMPARATORS = new ComparatorDescription[0];
+    private static final NormalizerDescription[] EMPTY_NORMALIZERS = new NormalizerDescription[0];
+    private static final SyntaxCheckerDescription[] EMPTY_SYNTAX_CHECKERS = new SyntaxCheckerDescription[0];
     private static final Syntax[] EMPTY_SYNTAXES = new Syntax[0];
     private static final MatchingRule[] EMPTY_MATCHING_RULES = new MatchingRule[0];
     private static final AttributeType[] EMPTY_ATTRIBUTE_TYPES = new AttributeType[0];
@@ -84,6 +93,12 @@ public class DescriptionParsers
 
     private final Registries globalRegistries;
     
+    private final ComparatorDescriptionSchemaParser comparatorParser =
+        new ComparatorDescriptionSchemaParser();
+    private final NormalizerDescriptionSchemaParser normalizerParser =
+        new NormalizerDescriptionSchemaParser();
+    private final SyntaxCheckerDescriptionSchemaParser syntaxCheckerParser =
+        new SyntaxCheckerDescriptionSchemaParser();
     private final LdapSyntaxDescriptionSchemaParser syntaxParser =
         new LdapSyntaxDescriptionSchemaParser();
     private final MatchingRuleDescriptionSchemaParser matchingRuleParser =
@@ -110,6 +125,94 @@ public class DescriptionParsers
     public DescriptionParsers( Registries globalRegistries )
     {
         this.globalRegistries = globalRegistries;
+    }
+
+    
+    public SyntaxCheckerDescription[] parseSyntaxCheckers( Attribute attr ) throws NamingException
+    {
+        if ( attr == null || attr.size() == 0 )
+        {
+            return EMPTY_SYNTAX_CHECKERS;
+        }
+        
+        SyntaxCheckerDescription[] syntaxCheckerDescriptions = new SyntaxCheckerDescription[attr.size()];
+        
+        for ( int ii = 0; ii < attr.size(); ii++ )
+        {
+            try
+            {
+                syntaxCheckerDescriptions[ii] = 
+                    syntaxCheckerParser.parseSyntaxCheckerDescription( ( String ) attr.get( ii ) );
+            }
+            catch ( ParseException e )
+            {
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
+                    "The following does not conform to the syntaxCheckerDescription syntax: " + attr.get( ii ), 
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                iave.setRootCause( e );
+                throw iave;
+            }
+        }
+        
+        return syntaxCheckerDescriptions;
+    }
+    
+    
+    public NormalizerDescription[] parseNormalizers( Attribute attr ) throws NamingException
+    {
+        if ( attr == null || attr.size() == 0 )
+        {
+            return EMPTY_NORMALIZERS;
+        }
+        
+        NormalizerDescription[] normalizerDescriptions = new NormalizerDescription[attr.size()];
+        
+        for ( int ii = 0; ii < attr.size(); ii++ )
+        {
+            try
+            {
+                normalizerDescriptions[ii] = normalizerParser.parseNormalizerDescription( ( String ) attr.get( ii ) );
+            }
+            catch ( ParseException e )
+            {
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
+                    "The following does not conform to the normalizerDescription syntax: " + attr.get( ii ), 
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                iave.setRootCause( e );
+                throw iave;
+            }
+        }
+        
+        return normalizerDescriptions;
+    }
+    
+
+    public ComparatorDescription[] parseComparators( Attribute attr ) throws NamingException
+    {
+        if ( attr == null || attr.size() == 0 )
+        {
+            return EMPTY_COMPARATORS;
+        }
+        
+        ComparatorDescription[] comparatorDescriptions = new ComparatorDescription[attr.size()];
+        
+        for ( int ii = 0; ii < attr.size(); ii++ )
+        {
+            try
+            {
+                comparatorDescriptions[ii] = comparatorParser.parseComparatorDescription( ( String ) attr.get( ii ) );
+            }
+            catch ( ParseException e )
+            {
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
+                    "The following does not conform to the comparatorDescription syntax: " + attr.get( ii ), 
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                iave.setRootCause( e );
+                throw iave;
+            }
+        }
+        
+        return comparatorDescriptions;
     }
     
 

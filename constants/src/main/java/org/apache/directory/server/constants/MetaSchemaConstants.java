@@ -67,4 +67,8 @@ public interface MetaSchemaConstants
     public static final String M_TYPE_OBJECT_CLASS_AT = "m-typeObjectClass";
     
     public static final String X_HUMAN_READIBLE_AT = "x-humanReadible";
+
+    public static final String COMPARATORS_AT = "comparators";
+    public static final String NORMALIZERS_AT = "normalizers";
+    public static final String SYNTAX_CHECKERS_AT = "syntaxCheckers";
 }

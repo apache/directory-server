@@ -38,6 +38,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
@@ -52,6 +53,9 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
 public class MetaComparatorHandler implements SchemaChangeHandler
 {
     private static final String OU_OID = "2.5.4.11";
+
+    private static final String SCHEMA_OTHER = "other";
+    private static final Object X_SCHEMA = "X-SCHEMA";
 
     private final PartitionSchemaLoader loader;
     private final SchemaEntityFactory factory;
@@ -133,11 +137,36 @@ public class MetaComparatorHandler implements SchemaChangeHandler
             comparatorRegistry.register( schema.getSchemaName(), oid, comparator );
         }
     }
+    
+    
+    public void add( ComparatorDescription comparatorDescription ) throws NamingException
+    {
+        Comparator comparator = factory.getComparator( comparatorDescription, targetRegistries );
+        String schemaName = SCHEMA_OTHER;
+        
+        if ( comparatorDescription.getExtensions().get( X_SCHEMA ) != null )
+        {
+            schemaName = ( String ) comparatorDescription.getExtensions().get( X_SCHEMA ).get( 0 );
+        }
+        
+        Schema schema = loader.getSchema( schemaName );
+        
+        if ( ! schema.isDisabled() )
+        {
+            comparatorRegistry.register( schemaName, comparatorDescription.getNumericOid(), comparator );
+        }
+    }
 
 
     public void delete( LdapDN name, Attributes entry ) throws NamingException
     {
         String oid = getOid( entry );
+        delete( oid );
+    }
+
+
+    public void delete( String oid ) throws NamingException
+    {
         if ( matchingRuleRegistry.hasMatchingRule( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The comparator with OID " + oid 
@@ -146,15 +175,13 @@ public class MetaComparatorHandler implements SchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
-        Schema schema = getSchema( name );
-        
-        if ( ! schema.isDisabled() )
+        if ( comparatorRegistry.hasComparator( oid ) )
         {
-            comparatorRegistry.unregister( getOid( entry ) );
+            comparatorRegistry.unregister( oid );
         }
     }
 
-
+    
     public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
     {
         String oldOid = getOid( entry );

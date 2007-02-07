@@ -235,7 +235,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         assertNull( attributeTypeDescription );
 
         attrs = null;
-        attrs = schemaRoot.getAttributes( "oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
+        attrs = schemaRoot.getAttributes( "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory( registries );
         AttributeType at = factory.getAttributeType( attrs, registries, "nis" );
@@ -290,7 +290,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         assertEquals( "name", attributeTypeDescription.getSuperType() );
         
         attrs = null;
-        attrs = schemaRoot.getAttributes( "oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
+        attrs = schemaRoot.getAttributes( "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory( registries );
         AttributeType at = factory.getAttributeType( attrs, registries, "nis" );
