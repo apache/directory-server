@@ -1377,6 +1377,12 @@ public class LdifReader implements Iterator
 
             // We have found the version, just discard the line from the list
             lines.remove( 0 );
+            
+            // and read the next lines if the current buffer is empty
+            if ( lines.size() == 0 )
+            {
+                readLines();
+            }
         }
         else
         {

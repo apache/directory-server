@@ -147,6 +147,37 @@ public class LdifReaderTest extends TestCase
         assertEquals( 1, reader.getVersion() );
     }
 
+    public void testLdifVersionStart() throws NamingException
+    {
+        String ldif = 
+            "version:\n" + 
+            " 1\n" + 
+            "\n" +
+            "dn: cn=app1,ou=applications,ou=conf,dc=apache,dc=org\n" + 
+            "cn: app1\n" + 
+            "objectClass: top\n" + 
+            "objectClass: apApplication\n" + 
+            "displayName:   app1   \n" + 
+            "dependencies:\n" + 
+            "envVars:";
+
+
+        LdifReader reader = new LdifReader();
+        List entries = reader.parseLdif( ldif );
+
+        assertEquals( 1, reader.getVersion() );
+        assertNotNull( entries );
+
+        Entry entry = (Entry) entries.get( 0 );
+
+        assertTrue( entry.isChangeAdd() );
+
+        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
+
+        Attribute attr = entry.get( "displayname" );
+        assertTrue( attr.contains( "app1" ) );
+    }
+
     /**
      * Test the ldif parser with a file without a version. It should default to 1
      * @throws NamingException
