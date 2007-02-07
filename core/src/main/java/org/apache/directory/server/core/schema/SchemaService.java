@@ -20,7 +20,9 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1597,6 +1599,7 @@ public class SchemaService extends BaseInterceptor
         // 3) No attributes should be used if they are not part of MUST and MAY
         // 3-1) Except if the extensibleObject ObjectClass is used
         // 3-2) or if the AttributeType is COLLECTIVE
+        // 4) We also check that for H-R attributes, we have a valid String in the values
         Attribute objectClassAttr = entry.get( "objectClass" );
         List ocs = new ArrayList();
         
@@ -1614,6 +1617,9 @@ public class SchemaService extends BaseInterceptor
         {
             assertAllAttributesAllowed( dn, entry, allowed );
         }
+        
+        // Check the attributes values and transform them to String if necessary
+        assertHumanReadible( entry );
     }
     
     /**
@@ -1676,7 +1682,105 @@ public class SchemaService extends BaseInterceptor
                 ResultCodeEnum.OBJECTCLASSVIOLATION );
         }
     }
-    
+
+    /**
+     * Check that all the attribute's values which are Human Readible can be transformed
+     * to valid String if they are stored as byte[].
+     */
+    private void assertHumanReadible( Attributes entry ) throws NamingException
+    {
+        NamingEnumeration attributes = entry.getAll();
+        boolean isEntryModified = false;
+        Attributes cloneEntry = null;
+        
+        // First, loop on all attributes
+        while ( attributes.hasMoreElements() )
+        {
+            Attribute attribute = ( Attribute ) attributes.nextElement();
+            
+            AttributeType attributeType = globalRegistries.getAttributeTypeRegistry().lookup( attribute.getID() );
+            
+            // If the attributeType is H-R, check alll of its values
+            if ( attributeType.getSyntax().isHumanReadible() )
+            {
+                Enumeration values = attribute.getAll();
+                Attribute clone = null;
+                boolean isModified = false;
+                
+                // Loop on each values
+                while ( values.hasMoreElements() )
+                {
+                    Object value = values.nextElement();
+                    
+                    if ( value instanceof String )
+                    {
+                        continue;
+                    }
+                    else if ( value instanceof byte[] )
+                    {
+                        // Ve have a byte[] value. It should be a String UTF-8 encoded
+                        // Let's transform it
+                        try
+                        {
+                            String valStr = new String( (byte[])value, "UTF-8" );
+                            
+                            if ( !isModified )
+                            {
+                                // Don't create useless clones. We only clone
+                                // if we have at least one value which is a byte[]
+                                isModified = true;
+                                clone = (Attribute)attribute.clone();
+                            }
+                            
+                            // Swap the value into the clone
+                            clone.remove( value );
+                            clone.add( valStr );
+                        }
+                        catch ( UnsupportedEncodingException uee )
+                        {
+                            throw new NamingException( "The value is not a valid String" );
+                        }
+                    }
+                    else
+                    {
+                        throw new NamingException( "The value stored in an Human Readible attribute is not a String" );
+                    }
+                }
+                
+                // The attribute has been checked. If one of its value has been modified,
+                // we have to modify the cloned Attributes/
+                if ( isModified ) 
+                {
+                    if ( !isEntryModified )
+                    {
+                        // Again, let's avoid useless cloning. If no attribute is H-R
+                        // or if no H-R value is stored as a byte[], we don't have to create a clone
+                        // of the entry
+                        cloneEntry = (Attributes)entry.clone();
+                        isEntryModified = true;
+                    }
+                    
+                    // Swap the attribute into the cloned entry
+                    cloneEntry.remove( attribute.getID() );
+                    cloneEntry.put( clone );
+                }
+            }
+        }
+        
+        // At the end, we now have to switch the entries, if it has been modified
+        if ( isEntryModified )
+        {
+            attributes = cloneEntry.getAll();
+            
+            // We llop on all the attributes and modify them in the initial entry.
+            while ( attributes.hasMoreElements() )
+            {
+                Attribute attribute = (Attribute)attributes.nextElement();
+                entry.remove( attribute.getID() );
+                entry.put( attribute );
+            }
+        }
+    }
     
     /**
      * Checks to see if an attribute is required by as determined from an entry's
