@@ -38,7 +38,7 @@ public class AttributeTypeLiteral
     private boolean collective = false;
     private boolean noUserModification = false;
 
-    private final String oid;
+    private String oid;
     private String description;
     private String superior;
     private String equality;
@@ -258,5 +258,13 @@ public class AttributeTypeLiteral
     public String toString()
     {
         return getOid();
+    }
+
+    /**
+     * Method used to modify the AttributeType OID if it is edited.
+     */
+    public void setOid( String oid )
+    {
+        this.oid = oid;
     }
 }
