@@ -20,6 +20,8 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import java.util.List;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -28,6 +30,8 @@ import javax.naming.directory.DirContext;
 
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.schema.syntax.AbstractAdsSchemaDescription;
+import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 
 
 /**
@@ -795,12 +799,7 @@ public class SchemaUtils
 
         buf.append( " X-SCHEMA '" );
         buf.append( dsr.getSchema() );
-        buf.append( "'" );
-
-        // @todo extensions are not presently supported and skipped
-        // the extensions would go here before closing off the description
-
-        buf.append( " )" );
+        buf.append( "' )" );
 
         return buf;
     }
@@ -822,13 +821,46 @@ public class SchemaUtils
 
         buf.append( " X-SCHEMA '" );
         buf.append( nf.getSchema() );
-        buf.append( "'" );
-
-        // @todo extensions are not presently supported and skipped
-        // the extensions would go here before closing off the description
-
-        buf.append( " )" );
+        buf.append( "' )" );
 
         return buf;
+    }
+
+
+    public static StringBuffer render( AbstractAdsSchemaDescription description )
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append( "( " ).append( description.getNumericOid() );
+        
+        if ( description.getDescription() != null )
+        {
+            buf.append( "DESC " ).append( "'" ).append( description.getDescription() ).append( "' " );
+        }
+
+        buf.append( "FQCN " ).append( description.getFqcn() );
+        
+        if ( description.getBytecode() != null )
+        {
+            buf.append( "BYTECODE " ).append( description.getBytecode() );
+        }
+        
+        buf.append( " X-SCHEMA '" );
+        buf.append( getSchema( description ) );
+        buf.append( "' )" );
+        
+        return buf;
+    }
+    
+    
+    private static String getSchema( AbstractSchemaDescription desc )
+    {
+        List<String> values = desc.getExtensions().get( "X-SCHEMA" );
+        
+        if ( values == null || values.size() == 0 )
+        {
+            return "other";
+        }
+        
+        return values.get( 0 );
     }
 }
