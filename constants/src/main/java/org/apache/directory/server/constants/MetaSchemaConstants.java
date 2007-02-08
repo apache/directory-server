@@ -28,47 +28,52 @@ package org.apache.directory.server.constants;
  */
 public interface MetaSchemaConstants
 {
-    public static final String SCHEMA_NAME = "apachemeta";
+    String SCHEMA_NAME = "apachemeta";
 
-    public static final String META_TOP_OC = "metaTop";
-    public static final String META_SCHEMA_OC = "metaSchema";
-    public static final String META_OBJECT_CLASS_OC = "metaObjectClass";
-    public static final String META_ATTRIBUTE_TYPE_OC = "metaAttributeType";
-    public static final String META_MATCHING_RULE_OC = "metaMatchingRule";
-    public static final String META_NORMALIZER_OC = "metaNormalizer";
-    public static final String META_SYNTAX_OC = "metaSyntax";
-    public static final String META_SYNTAX_CHECKER_OC = "metaSyntaxChecker";
-    public static final String META_COMPARATOR_OC = "metaComparator";
-    public static final String META_NAME_FORM_OC = "metaNameForm";
-    public static final String META_DIT_CONTENT_RULE_OC = "metaDITContentRule";
-
-    public static final String M_SUP_OBJECT_CLASS_AT = "m-supObjectClass";
-    public static final String M_BYTECODE_AT = "m-bytecode";
-    public static final String M_FQCN_AT = "m-fqcn";
-    public static final String M_DEPENDENCIES_AT = "m-dependencies";
-    public static final String M_DISABLED_AT = "m-disabled";
-    public static final String M_DESCRIPTION_AT = "m-description";
-    public static final String M_OBSOLETE_AT = "m-obsolete";
-    public static final String M_NAME_AT = "m-name";
-    public static final String M_OID_AT = "m-oid";
-    public static final String M_OC_AT = "m-oc";
-    public static final String M_AUX_AT = "m-aux";
-    public static final String M_USAGE_AT = "m-usage";
-    public static final String M_NO_USER_MODIFICATION_AT = "m-noUserModification";
-    public static final String M_SINGLE_VALUE_AT = "m-singleValue";
-    public static final String M_COLLECTIVE_AT = "m-collective";
-    public static final String M_SUBSTR_AT = "m-substr";
-    public static final String M_SUP_ATTRIBUTE_TYPE_AT = "m-supAttributeType";
-    public static final String M_ORDERING_AT = "m-ordering";
-    public static final String M_EQUALITY_AT = "m-equality";
-    public static final String M_SYNTAX_AT = "m-syntax";
-    public static final String M_MUST_AT = "m-must";
-    public static final String M_MAY_AT = "m-may";
-    public static final String M_TYPE_OBJECT_CLASS_AT = "m-typeObjectClass";
+    // -- objectClass names --
     
-    public static final String X_HUMAN_READIBLE_AT = "x-humanReadible";
+    String META_TOP_OC = "metaTop";
+    String META_SCHEMA_OC = "metaSchema";
+    String META_OBJECT_CLASS_OC = "metaObjectClass";
+    String META_ATTRIBUTE_TYPE_OC = "metaAttributeType";
+    String META_MATCHING_RULE_OC = "metaMatchingRule";
+    String META_NORMALIZER_OC = "metaNormalizer";
+    String META_SYNTAX_OC = "metaSyntax";
+    String META_SYNTAX_CHECKER_OC = "metaSyntaxChecker";
+    String META_COMPARATOR_OC = "metaComparator";
+    String META_NAME_FORM_OC = "metaNameForm";
+    String META_DIT_CONTENT_RULE_OC = "metaDITContentRule";
 
-    public static final String COMPARATORS_AT = "comparators";
-    public static final String NORMALIZERS_AT = "normalizers";
-    public static final String SYNTAX_CHECKERS_AT = "syntaxCheckers";
+    // -- attributeType names --
+    
+    String M_SUP_OBJECT_CLASS_AT = "m-supObjectClass";
+    String M_BYTECODE_AT = "m-bytecode";
+    String M_FQCN_AT = "m-fqcn";
+    String M_DEPENDENCIES_AT = "m-dependencies";
+    String M_DISABLED_AT = "m-disabled";
+    String M_DESCRIPTION_AT = "m-description";
+    String M_OBSOLETE_AT = "m-obsolete";
+    String M_NAME_AT = "m-name";
+    String M_OID_AT = "m-oid";
+    String M_OC_AT = "m-oc";
+    String M_AUX_AT = "m-aux";
+    String M_USAGE_AT = "m-usage";
+    String M_NO_USER_MODIFICATION_AT = "m-noUserModification";
+    String M_SINGLE_VALUE_AT = "m-singleValue";
+    String M_COLLECTIVE_AT = "m-collective";
+    String M_SUBSTR_AT = "m-substr";
+    String M_SUP_ATTRIBUTE_TYPE_AT = "m-supAttributeType";
+    String M_ORDERING_AT = "m-ordering";
+    String M_EQUALITY_AT = "m-equality";
+    String M_SYNTAX_AT = "m-syntax";
+    String M_MUST_AT = "m-must";
+    String M_MAY_AT = "m-may";
+    String M_TYPE_OBJECT_CLASS_AT = "m-typeObjectClass";
+    String X_HUMAN_READIBLE_AT = "x-humanReadible";
+    
+    // -- schema extensions & values --
+    
+    String X_SCHEMA = "X-SCHEMA";
+    String X_IS_HUMAN_READABLE = "X-IS-HUMAN-READABLE";
+    String SCHEMA_OTHER = "other";
 }

@@ -28,21 +28,21 @@ package org.apache.directory.server.constants;
  */
 public interface SystemSchemaConstants
 {
-    public static final String SCHEMA_NAME = "system";
+    String SCHEMA_NAME = "system";
 
-    public static final String CN_AT = "cn";
-    public static final String OBJECT_CLASS_AT = "objectClass";
-    public static final String CREATORS_NAME_AT = "creatorsName";
-    public static final String CREAT_TIMESTAMP_AT = "createTimestamp";
-    public static final String MODIFY_TIMESTAMP_AT = "modifyTimestamp";
-    public static final String MODIFIERS_NAME_AT = "modifiersName";
+    String CN_AT = "cn";
+    String OBJECT_CLASS_AT = "objectClass";
+    String CREATORS_NAME_AT = "creatorsName";
+    String CREAT_TIMESTAMP_AT = "createTimestamp";
+    String MODIFY_TIMESTAMP_AT = "modifyTimestamp";
+    String MODIFIERS_NAME_AT = "modifiersName";
 
-    public static final String LDAP_SYNTAXES_AT = "ldapSyntaxes";
-    public static final String MATCHING_RULES_AT = "matchingRules";
-    public static final String ATTRIBUTE_TYPES_AT = "attributeTypes";
-    public static final String OBJECT_CLASSES_AT = "objectClasses";
-    public static final String MATCHING_RULE_USE_AT = "matchingRuleUse";
-    public static final String DIT_STRUCTURE_RULES_AT = "ditStructureRules";
-    public static final String DIT_CONTENT_RULES_AT = "ditContentRules";
-    public static final String NAME_FORMS_AT = "nameForms";
+    String LDAP_SYNTAXES_AT = "ldapSyntaxes";
+    String MATCHING_RULES_AT = "matchingRules";
+    String ATTRIBUTE_TYPES_AT = "attributeTypes";
+    String OBJECT_CLASSES_AT = "objectClasses";
+    String MATCHING_RULE_USE_AT = "matchingRuleUse";
+    String DIT_STRUCTURE_RULES_AT = "ditStructureRules";
+    String DIT_CONTENT_RULES_AT = "ditContentRules";
+    String NAME_FORMS_AT = "nameForms";
 }

@@ -31,6 +31,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
@@ -115,8 +116,6 @@ public class SchemaManager
         "metaDITContentRule",
         "metaNameForm"
     };
-    private static final Object X_SCHEMA = null;
-    private static final String SCHEMA_OTHER = null;
 
     private final PartitionSchemaLoader loader;
     private final MetaSchemaHandler metaSchemaHandler;
@@ -192,13 +191,13 @@ public class SchemaManager
         
         OidRegistry oidRegistry = globalRegistries.getOidRegistry();
         
-        comparatorsOid = oidRegistry.getOid( MetaSchemaConstants.COMPARATORS_AT );
+        comparatorsOid = oidRegistry.getOid( ApacheSchemaConstants.COMPARATORS_AT );
         opAttr2handlerIndex.put( comparatorsOid, new Integer( COMPARATOR_INDEX ) );
         
-        normalizersOid = oidRegistry.getOid( MetaSchemaConstants.NORMALIZERS_AT );
+        normalizersOid = oidRegistry.getOid( ApacheSchemaConstants.NORMALIZERS_AT );
         opAttr2handlerIndex.put( normalizersOid, new Integer( NORMALIZER_INDEX ) );
         
-        syntaxCheckersOid = oidRegistry.getOid( MetaSchemaConstants.SYNTAX_CHECKERS_AT );
+        syntaxCheckersOid = oidRegistry.getOid( ApacheSchemaConstants.SYNTAX_CHECKERS_AT );
         opAttr2handlerIndex.put( syntaxCheckersOid, new Integer( SYNTAX_CHECKER_INDEX ) );
         
         ldapSyntaxesOid = oidRegistry.getOid( SystemSchemaConstants.LDAP_SYNTAXES_AT );
@@ -773,12 +772,12 @@ public class SchemaManager
     
     public String getSchema( AbstractSchemaDescription desc ) 
     {
-        if ( desc.getExtensions().containsKey( X_SCHEMA ) )
+        if ( desc.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA ) )
         {
-            return desc.getExtensions().get( X_SCHEMA ).get( 0 );
+            return desc.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
         }
         
-        return SCHEMA_OTHER;
+        return MetaSchemaConstants.SCHEMA_OTHER;
     }
     
 

@@ -53,9 +53,6 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
 {
     private static final String OU_OID = "2.5.4.11";
 
-    private static final String SCHEMA_OTHER = "other";
-    private static final Object X_SCHEMA = "X-SCHEMA";
-
     private final PartitionSchemaLoader loader;
     private final SchemaEntityFactory factory;
     private final Registries targetRegistries;
@@ -141,11 +138,11 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
     public void add( NormalizerDescription normalizerDescription ) throws NamingException
     {
         Normalizer normalizer = factory.getNormalizer( normalizerDescription, targetRegistries );
-        String schemaName = SCHEMA_OTHER;
+        String schemaName = MetaSchemaConstants.SCHEMA_OTHER;
         
-        if ( normalizerDescription.getExtensions().get( X_SCHEMA ) != null )
+        if ( normalizerDescription.getExtensions().get( MetaSchemaConstants.X_SCHEMA ) != null )
         {
-            schemaName = ( String ) normalizerDescription.getExtensions().get( X_SCHEMA ).get( 0 );
+            schemaName = ( String ) normalizerDescription.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
         }
         
         Schema schema = loader.getSchema( schemaName );

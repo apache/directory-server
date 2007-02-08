@@ -54,9 +54,6 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
 {
     private static final String OU_OID = "2.5.4.11";
 
-    private static final String SCHEMA_OTHER = "other";
-    private static final Object X_SCHEMA = "X-SCHEMA";
-
     private final PartitionSchemaLoader loader;
     private final SchemaEntityFactory factory;
     private final Registries targetRegistries;
@@ -141,11 +138,12 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
     public void add( SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
     {
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( syntaxCheckerDescription, targetRegistries );
-        String schemaName = SCHEMA_OTHER;
+        String schemaName = MetaSchemaConstants.SCHEMA_OTHER;
         
-        if ( syntaxCheckerDescription.getExtensions().get( X_SCHEMA ) != null )
+        if ( syntaxCheckerDescription.getExtensions().get( MetaSchemaConstants.X_SCHEMA ) != null )
         {
-            schemaName = ( String ) syntaxCheckerDescription.getExtensions().get( X_SCHEMA ).get( 0 );
+            schemaName = ( String ) syntaxCheckerDescription.getExtensions()
+                .get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
         }
         
         Schema schema = loader.getSchema( schemaName );

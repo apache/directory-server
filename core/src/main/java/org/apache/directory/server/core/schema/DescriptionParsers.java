@@ -26,6 +26,7 @@ import java.util.List;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
+import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -74,10 +75,6 @@ public class DescriptionParsers
     private static final String OTHER_SCHEMA = "other";
     private static final String[] EMPTY = new String[0];
     private static final Integer[] EMPTY_INT_ARRAY = new Integer[0];
-
-    // TODO put these into an interface in the apacheds-constants project 
-    private static final String X_SCHEMA = "X-SCHEMA";
-    private static final Object X_IS_HUMAN_READABLE = "X-IS-HUMAN-READABLE";
 
     private static final ComparatorDescription[] EMPTY_COMPARATORS = new ComparatorDescription[0];
     private static final NormalizerDescription[] EMPTY_NORMALIZERS = new NormalizerDescription[0];
@@ -620,7 +617,7 @@ public class DescriptionParsers
      */
     private boolean isHumanReadable( LdapSyntaxDescription desc )
     {
-        List<String> values = desc.getExtensions().get( X_IS_HUMAN_READABLE );
+        List<String> values = desc.getExtensions().get( MetaSchemaConstants.X_IS_HUMAN_READABLE );
         
         if ( values == null || values.size() == 0 )
         {
@@ -650,7 +647,7 @@ public class DescriptionParsers
      */
     private String getSchema( AbstractSchemaDescription desc ) 
     {
-        List<String> values = desc.getExtensions().get( X_SCHEMA );
+        List<String> values = desc.getExtensions().get( MetaSchemaConstants.X_SCHEMA );
         
         if ( values == null )
         {
