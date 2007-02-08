@@ -851,11 +851,10 @@ public class ReferralService extends BaseInterceptor
     private void addReferrals( NamingEnumeration referrals, LdapDN base ) throws NamingException
     {
         while ( referrals.hasMore() )
-        {
+        {   
             SearchResult r = ( SearchResult ) referrals.next();
             LdapDN referral = null;
             LdapDN result = new LdapDN( r.getName() );
-            //result = LdapDN.normalize( result, registry.getNormalizerMapping() );
             result.normalize( attrRegistry.getNormalizerMapping() );
             
             if ( r.isRelative() )
