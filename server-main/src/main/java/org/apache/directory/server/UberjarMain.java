@@ -44,12 +44,12 @@ public class UberjarMain
     {
         Service server = new Service();
 
-        if ( args.length > 0 && new File( args[0] ).isDirectory() )
+        if ( ( args != null ) && ( args.length > 0 ) && new File( args[0] ).isDirectory() )
         {
             server.init( new InstallationLayout( args[0] ), null );
             server.start();
         }
-        else if ( args.length > 0 && new File( args[0] ).isFile() )
+        else if ( (args != null ) && ( args.length > 0 ) && new File( args[0] ).isFile() )
         {
             server.init( null, args );
             server.start();
