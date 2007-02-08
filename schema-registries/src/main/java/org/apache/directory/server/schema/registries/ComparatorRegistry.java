@@ -25,6 +25,8 @@ import java.util.Iterator;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
+
 
 /**
  * Comparator registry component's service interface.
@@ -47,13 +49,12 @@ public interface ComparatorRegistry
     /**
      * Registers a Comparator with this registry.
      * 
-     * @param schema the name of the schema the comparator is associated with
-     * @param oid the object identifier
+     * @param description the comparatorDescription for the comparator to register
      * @param comparator the Comparator to register
      * @throws NamingException if the Comparator is already registered or the 
      *      registration operation is not supported
      */
-    void register( String schema, String oid, Comparator comparator ) throws NamingException;
+    void register( ComparatorDescription description, Comparator comparator ) throws NamingException;
 
 
     /**
@@ -84,6 +85,14 @@ public interface ComparatorRegistry
      * @return Iterator of numeric OID strings 
      */
     Iterator<String> oidIterator();
+
+    
+    /**
+     * Iterates over the numeric OID strings of this registry.
+     * 
+     * @return Iterator of numeric OID strings 
+     */
+    Iterator<ComparatorDescription> comparatorDescriptionIterator();
 
     
     /**

@@ -20,16 +20,19 @@
 package org.apache.directory.server.schema.bootstrap;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchema;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
@@ -52,7 +55,10 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -198,6 +204,8 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
     {
         BootstrapSchema schema = ( BootstrapSchema ) this.schemas.get();
         DefaultRegistries registries = ( DefaultRegistries ) this.registries.get();
+        List<String> values = new ArrayList<String>(1);
+        values.add( schema.getSchemaName() );
 
         switch ( type )
         {
@@ -205,21 +213,39 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
                 Normalizer normalizer = ( Normalizer ) schemaObject;
                 NormalizerRegistry normalizerRegistry;
                 normalizerRegistry = registries.getNormalizerRegistry();
-                normalizerRegistry.register( schema.getSchemaName(), id, normalizer );
+                
+                NormalizerDescription normalizerDescription = new NormalizerDescription();
+                normalizerDescription.setNumericOid( id );
+                normalizerDescription.setFqcn( normalizer.getClass().getName() );
+                normalizerDescription.addExtension( MetaSchemaConstants.X_SCHEMA, values );
+                
+                normalizerRegistry.register( normalizerDescription, normalizer );
                 break;
                 
             case COMPARATOR_PRODUCER :
                 Comparator comparator = ( Comparator ) schemaObject;
                 ComparatorRegistry comparatorRegistry;
                 comparatorRegistry = registries.getComparatorRegistry();
-                comparatorRegistry.register( schema.getSchemaName(), id, comparator );
+                
+                ComparatorDescription comparatorDescription = new ComparatorDescription();
+                comparatorDescription.addExtension( MetaSchemaConstants.X_SCHEMA, values );
+                comparatorDescription.setFqcn( comparator.getClass().getName() );
+                comparatorDescription.setNumericOid( id );
+                
+                comparatorRegistry.register( comparatorDescription, comparator );
                 break;
                 
             case SYNTAX_CHECKER_PRODUCER :
                 SyntaxChecker syntaxChecker = ( SyntaxChecker ) schemaObject;
                 SyntaxCheckerRegistry syntaxCheckerRegistry;
                 syntaxCheckerRegistry = registries.getSyntaxCheckerRegistry();
-                syntaxCheckerRegistry.register( schema.getSchemaName(), syntaxChecker );
+                
+                SyntaxCheckerDescription syntaxCheckerDescription = new SyntaxCheckerDescription();
+                syntaxCheckerDescription.addExtension( MetaSchemaConstants.X_SCHEMA, values );
+                syntaxCheckerDescription.setFqcn( syntaxChecker.getClass().getName() );
+                syntaxCheckerDescription.setNumericOid( id );
+                
+                syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
                 break;
                 
             case SYNTAX_PRODUCER :

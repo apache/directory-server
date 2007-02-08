@@ -25,6 +25,7 @@ import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 
 
 /**
@@ -43,7 +44,7 @@ public interface NormalizerRegistry
      * @throws NamingException if the Normalizer is already registered or the
      *      registration operation is not supported
      */
-    void register( String schema, String oid, Normalizer normalizer ) throws NamingException;
+    void register( NormalizerDescription description, Normalizer normalizer ) throws NamingException;
 
 
     /**
@@ -86,6 +87,14 @@ public interface NormalizerRegistry
      * @return an Iterator over the set of OID Strings in this registry
      */
     Iterator<String> oidIterator();
+
+    
+    /**
+     * Used to iterate through all normalizerDescriptions.
+     *  
+     * @return an Iterator over the set of NormalizerDescriptions in this registry
+     */
+    Iterator<NormalizerDescription> normalizerDescriptionIterator();
 
     
     /**

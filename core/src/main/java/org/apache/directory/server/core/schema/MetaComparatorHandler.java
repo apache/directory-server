@@ -20,7 +20,9 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -40,6 +42,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
@@ -60,6 +63,9 @@ public class MetaComparatorHandler implements SchemaChangeHandler
     private final ComparatorRegistry comparatorRegistry;
     private final MatchingRuleRegistry matchingRuleRegistry;
     private final AttributeType oidAT;
+    private final AttributeType byteCodeAT;
+    private final AttributeType descAT;
+    private final AttributeType fqcnAT;
 
     
 
@@ -71,6 +77,9 @@ public class MetaComparatorHandler implements SchemaChangeHandler
         this.matchingRuleRegistry = targetRegistries.getMatchingRuleRegistry();
         this.factory = new SchemaEntityFactory( targetRegistries );
         this.oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
+        this.byteCodeAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
+        this.descAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DESCRIPTION_AT );
+        this.fqcnAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_FQCN_AT );
     }
 
 
@@ -100,10 +109,37 @@ public class MetaComparatorHandler implements SchemaChangeHandler
         if ( ! schema.isDisabled() )
         {
             comparatorRegistry.unregister( oldOid );
-            comparatorRegistry.register( schema.getSchemaName(), getOid( targetEntry ), comparator );
+            ComparatorDescription description = getComparatorDescription( schema.getSchemaName(), targetEntry );
+            comparatorRegistry.register( description, comparator );
         }
     }
 
+    
+    private ComparatorDescription getComparatorDescription( String schemaName, Attributes entry ) throws NamingException
+    {
+        ComparatorDescription description = new ComparatorDescription();
+        description.setNumericOid( getOid( entry ) );
+        List<String> values = new ArrayList<String>();
+        values.add( schemaName );
+        description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
+        description.setFqcn( ( String ) AttributeUtils.getAttribute( entry, fqcnAT ).get() );
+        
+        Attribute desc = AttributeUtils.getAttribute( entry, descAT );
+        if ( desc != null && desc.size() > 0 )
+        {
+            description.setDescription( ( String ) desc.get() );
+        }
+        
+        Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+        if ( bytecode != null && bytecode.size() > 0 )
+        {
+            byte[] bytes = ( byte[] ) bytecode.get();
+            description.setBytecode( new String( Base64.encode( bytes ) ) );
+        }
+
+        return description;
+    }
+    
 
     public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry )
         throws NamingException
@@ -126,12 +162,12 @@ public class MetaComparatorHandler implements SchemaChangeHandler
         checkNewParent( parentDn );
         
         Comparator comparator = factory.getComparator( entry, targetRegistries );
-        String oid = getOid( entry );
         Schema schema = getSchema( name );
         
         if ( ! schema.isDisabled() )
         {
-            comparatorRegistry.register( schema.getSchemaName(), oid, comparator );
+            ComparatorDescription comparatorDescription = getComparatorDescription( schema.getSchemaName(), entry );
+            comparatorRegistry.register( comparatorDescription, comparator );
         }
     }
     
@@ -150,7 +186,7 @@ public class MetaComparatorHandler implements SchemaChangeHandler
         
         if ( ! schema.isDisabled() )
         {
-            comparatorRegistry.register( schemaName, comparatorDescription.getNumericOid(), comparator );
+            comparatorRegistry.register( comparatorDescription, comparator );
         }
     }
 
@@ -198,7 +234,9 @@ public class MetaComparatorHandler implements SchemaChangeHandler
         {
             Comparator comparator = factory.getComparator( entry, targetRegistries );
             comparatorRegistry.unregister( oldOid );
-            comparatorRegistry.register( schema.getSchemaName(), oid, comparator );
+            ComparatorDescription comparatorDescription = getComparatorDescription( schema.getSchemaName(), entry );
+            comparatorDescription.setNumericOid( oid );
+            comparatorRegistry.register( comparatorDescription, comparator );
         }
     }
 
@@ -231,7 +269,9 @@ public class MetaComparatorHandler implements SchemaChangeHandler
 
         if ( ! newSchema.isDisabled() )
         {
-            comparatorRegistry.register( newSchema.getSchemaName(), oid, comparator );
+            ComparatorDescription comparatorDescription = getComparatorDescription( newSchema.getSchemaName(), entry );
+            comparatorDescription.setNumericOid( oid );
+            comparatorRegistry.register( comparatorDescription, comparator );
         }
     }
 
@@ -262,7 +302,8 @@ public class MetaComparatorHandler implements SchemaChangeHandler
         
         if ( ! newSchema.isDisabled() )
         {
-            comparatorRegistry.register( newSchema.getSchemaName(), oid, comparator );
+            ComparatorDescription comparatorDescription = getComparatorDescription( newSchema.getSchemaName(), entry );
+            comparatorRegistry.register( comparatorDescription, comparator );
         }
     }
     

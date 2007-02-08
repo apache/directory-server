@@ -76,6 +76,9 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
@@ -540,6 +543,49 @@ public class SchemaService extends BaseInterceptor
         // operational attributes.  Due to RFC 3673, and issue DIREVE-228 in JIRA
         boolean returnAllOperationalAttributes = set.contains( "+" );
 
+        if ( returnAllOperationalAttributes || set.contains( "comparators" ) )
+        {
+            attr = new AttributeImpl( "comparators" );
+            Iterator<ComparatorDescription> list = registries.getComparatorRegistry().comparatorDescriptionIterator();
+            
+            while ( list.hasNext() )
+            {
+                ComparatorDescription description = list.next();
+                attr.add( SchemaUtils.render( description ).toString() );
+            }
+            
+            attrs.put( attr );
+        }
+        
+        if ( returnAllOperationalAttributes || set.contains( "normalizers" ) )
+        {
+            attr = new AttributeImpl( "normalizers" );
+            Iterator<NormalizerDescription> list = registries.getNormalizerRegistry().normalizerDescriptionIterator();
+            
+            while ( list.hasNext() )
+            {
+                NormalizerDescription normalizer = list.next();
+                attr.add( SchemaUtils.render( normalizer ).toString() );
+            }
+            
+            attrs.put( attr );
+        }
+
+        if ( returnAllOperationalAttributes || set.contains( "syntaxCheckers" ) )
+        {
+            attr = new AttributeImpl( "syntaxCheckers" );
+            Iterator<SyntaxCheckerDescription> list = 
+                registries.getSyntaxCheckerRegistry().syntaxCheckerDescriptionIterator();
+            
+            while ( list.hasNext() )
+            {
+                SyntaxCheckerDescription syntaxCheckerDescription = list.next();
+                attr.add( SchemaUtils.render( syntaxCheckerDescription ).toString() );
+            }
+            
+            attrs.put( attr );
+        }
+
         if ( returnAllOperationalAttributes || set.contains( "objectclasses" ) )
         {
             attr = new AttributeImpl( "objectClasses" );
@@ -713,6 +759,7 @@ public class SchemaService extends BaseInterceptor
             attr.add( "top" );
             attr.add( "subschema" );
             attr.add( "subentry" );
+            attr.add( "apacheSubschema" );
             attrs.put( attr );
         }
 

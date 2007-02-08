@@ -20,12 +20,14 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -51,8 +53,12 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.Base64;
     
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +82,9 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private final AttributeType mOidAT;
     private final AttributeType mNameAT;
     private final AttributeType cnAT;
+    private final AttributeType byteCodeAT;
+    private final AttributeType descAT;
+    private final AttributeType fqcnAT;
 
     
     public PartitionSchemaLoader( Partition partition, Registries bootstrapRegistries ) throws NamingException
@@ -84,10 +93,13 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         this.partition = partition;
         this.attrRegistry = bootstrapRegistries.getAttributeTypeRegistry();
         
-        dao = new SchemaPartitionDao( this.partition, bootstrapRegistries );
-        mOidAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
-        mNameAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_NAME_AT );
-        cnAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( SystemSchemaConstants.CN_AT );
+        this.dao = new SchemaPartitionDao( this.partition, bootstrapRegistries );
+        this.mOidAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
+        this.mNameAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_NAME_AT );
+        this.cnAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( SystemSchemaConstants.CN_AT );
+        this.byteCodeAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
+        this.descAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DESCRIPTION_AT );
+        this.fqcnAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_FQCN_AT );
     }
     
     
@@ -582,7 +594,9 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
             Attributes attrs = partition.lookup( resultDN );
             SyntaxChecker sc = factory.getSyntaxChecker( attrs, targetRegistries );
-            targetRegistries.getSyntaxCheckerRegistry().register( schema.getSchemaName(), sc );
+            SyntaxCheckerDescription syntaxCheckerDescription = 
+                getSyntaxCheckerDescription( schema.getSchemaName(), attrs );
+            targetRegistries.getSyntaxCheckerRegistry().register( syntaxCheckerDescription, sc );
         }
     }
 
@@ -607,12 +621,49 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
             Attributes attrs = partition.lookup( resultDN );
             Normalizer normalizer = factory.getNormalizer( attrs, targetRegistries );
-            String oid = ( String ) attrs.get( "m-oid" ).get();
-            targetRegistries.getNormalizerRegistry().register( schema.getSchemaName(), oid, normalizer );
+            NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), attrs );
+            targetRegistries.getNormalizerRegistry().register( normalizerDescription, normalizer );
         }
     }
 
 
+    private String getOid( Attributes entry ) throws NamingException
+    {
+        Attribute oid = AttributeUtils.getAttribute( entry, mOidAT );
+        if ( oid == null )
+        {
+            return null;
+        }
+        return ( String ) oid.get();
+    }
+
+    
+    private NormalizerDescription getNormalizerDescription( String schemaName, Attributes entry ) throws NamingException
+    {
+        NormalizerDescription description = new NormalizerDescription();
+        description.setNumericOid( getOid( entry ) );
+        List<String> values = new ArrayList<String>();
+        values.add( schemaName );
+        description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
+        description.setFqcn( ( String ) AttributeUtils.getAttribute( entry, fqcnAT ).get() );
+        
+        Attribute desc = AttributeUtils.getAttribute( entry, descAT );
+        if ( desc != null && desc.size() > 0 )
+        {
+            description.setDescription( ( String ) desc.get() );
+        }
+        
+        Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+        if ( bytecode != null && bytecode.size() > 0 )
+        {
+            byte[] bytes = ( byte[] ) bytecode.get();
+            description.setBytecode( new String( Base64.encode( bytes ) ) );
+        }
+
+        return description;
+    }
+
+    
     private void loadComparators( Schema schema, Registries targetRegistries ) throws NamingException
     {
         LdapDN dn = new LdapDN( "ou=comparators,cn=" + schema.getSchemaName() + ",ou=schema" );
@@ -633,12 +684,65 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
             Attributes attrs = partition.lookup( resultDN );
             Comparator comparator = factory.getComparator( attrs, targetRegistries );
-            String oid = ( String ) attrs.get( "m-oid" ).get();
-            targetRegistries.getComparatorRegistry().register( schema.getSchemaName(), oid, comparator );
+            ComparatorDescription comparatorDescription = getComparatorDescription( schema.getSchemaName(), attrs );
+            targetRegistries.getComparatorRegistry().register( comparatorDescription, comparator );
         }
     }
 
 
+    private ComparatorDescription getComparatorDescription( String schemaName, Attributes entry ) throws NamingException
+    {
+        ComparatorDescription description = new ComparatorDescription();
+        description.setNumericOid( getOid( entry ) );
+        List<String> values = new ArrayList<String>();
+        values.add( schemaName );
+        description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
+        description.setFqcn( ( String ) AttributeUtils.getAttribute( entry, fqcnAT ).get() );
+        
+        Attribute desc = AttributeUtils.getAttribute( entry, descAT );
+        if ( desc != null && desc.size() > 0 )
+        {
+            description.setDescription( ( String ) desc.get() );
+        }
+        
+        Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+        if ( bytecode != null && bytecode.size() > 0 )
+        {
+            byte[] bytes = ( byte[] ) bytecode.get();
+            description.setBytecode( new String( Base64.encode( bytes ) ) );
+        }
+
+        return description;
+    }
+
+    
+    private SyntaxCheckerDescription getSyntaxCheckerDescription( String schemaName, Attributes entry ) 
+        throws NamingException
+    {
+        SyntaxCheckerDescription description = new SyntaxCheckerDescription();
+        description.setNumericOid( getOid( entry ) );
+        List<String> values = new ArrayList<String>();
+        values.add( schemaName );
+        description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
+        description.setFqcn( ( String ) AttributeUtils.getAttribute( entry, fqcnAT ).get() );
+        
+        Attribute desc = AttributeUtils.getAttribute( entry, descAT );
+        if ( desc != null && desc.size() > 0 )
+        {
+            description.setDescription( ( String ) desc.get() );
+        }
+        
+        Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+        if ( bytecode != null && bytecode.size() > 0 )
+        {
+            byte[] bytes = ( byte[] ) bytecode.get();
+            description.setBytecode( new String( Base64.encode( bytes ) ) );
+        }
+
+        return description;
+    }
+
+    
     public void loadWithDependencies( Schema schema, Registries registries ) throws NamingException
     {
         HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();

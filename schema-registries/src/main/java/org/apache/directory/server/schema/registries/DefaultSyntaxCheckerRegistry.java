@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +46,8 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     private final static Logger log = LoggerFactory.getLogger( DefaultSyntaxCheckerRegistry.class );
     /** a map by OID of SyntaxCheckers */
     private final Map<String, SyntaxChecker> byOid;
-    /** maps an OID to a schema name*/
-    private final Map<String, String> oidToSchema;
+    /** maps an OID to a syntaxCheckerDescription */
+    private final Map<String, SyntaxCheckerDescription> oidToDescription;
 
 
     // ------------------------------------------------------------------------
@@ -59,7 +60,7 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     public DefaultSyntaxCheckerRegistry()
     {
         this.byOid = new HashMap<String, SyntaxChecker>();
-        this.oidToSchema = new HashMap<String, String>();
+        this.oidToDescription = new HashMap<String, SyntaxCheckerDescription>();
     }
 
 
@@ -68,7 +69,7 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     // ------------------------------------------------------------------------
 
     
-    public void register( String schema, SyntaxChecker syntaxChecker ) throws NamingException
+    public void register( SyntaxCheckerDescription syntaxCheckerDescription, SyntaxChecker syntaxChecker ) throws NamingException
     {
         if ( byOid.containsKey( syntaxChecker.getSyntaxOid() ) )
         {
@@ -78,7 +79,7 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
         }
 
         byOid.put( syntaxChecker.getSyntaxOid(), syntaxChecker );
-        oidToSchema.put( syntaxChecker.getSyntaxOid(), schema );
+        oidToDescription.put( syntaxChecker.getSyntaxOid(), syntaxCheckerDescription );
         if ( log.isDebugEnabled() )
         {
             log.debug( "registered syntaxChecher for OID " + syntaxChecker.getSyntaxOid() );
@@ -116,12 +117,25 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
             throw new NamingException( "Looks like the arg is not a numeric OID" );
         }
 
-        if ( oidToSchema.containsKey( oid ) )
+        if ( oidToDescription.containsKey( oid ) )
         {
-            return ( String ) oidToSchema.get( oid );
+            return getSchema( oidToDescription.get( oid ) );
         }
 
         throw new NamingException( "OID " + oid + " not found in oid to " + "schema name map!" );
+    }
+    
+    
+    private static String getSchema( SyntaxCheckerDescription desc ) 
+    {
+        List<String> ext = desc.getExtensions().get( "X-SCHEMA" );
+        
+        if ( ext == null || ext.size() == 0 )
+        {
+            return "other";
+        }
+        
+        return ext.get( 0 );
     }
 
 
@@ -139,7 +153,7 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
         }
 
         byOid.remove( numericOid );
-        oidToSchema.remove( numericOid );
+        oidToDescription.remove( numericOid );
     }
     
     
@@ -148,11 +162,12 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
         List<String> oids = new ArrayList<String>( byOid.keySet() );
         for ( String oid : oids )
         {
-            String schemaNameForOid = oidToSchema.get( oid );
+            SyntaxCheckerDescription description = oidToDescription.get( oid );
+            String schemaNameForOid = getSchema( description );
             if ( schemaNameForOid.equalsIgnoreCase( schemaName ) )
             {
                 byOid.remove( oid );
-                oidToSchema.remove( oid );
+                oidToDescription.remove( oid );
             }
         }
     }
@@ -163,12 +178,20 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
         List<String> oids = new ArrayList<String>( byOid.keySet() );
         for ( String oid : oids )
         {
-            String schemaNameForOid = oidToSchema.get( oid );
+            SyntaxCheckerDescription description = oidToDescription.get( oid );
+            String schemaNameForOid = getSchema( description );
             if ( schemaNameForOid.equalsIgnoreCase( originalSchemaName ) )
             {
-                oidToSchema.remove( oid );
-                oidToSchema.put( oid, newSchemaName );
+                List<String> values = description.getExtensions().get( "X-SCHEMA" );
+                values.clear();
+                values.add( newSchemaName );
             }
         }
+    }
+
+
+    public Iterator<SyntaxCheckerDescription> syntaxCheckerDescriptionIterator()
+    {
+        return oidToDescription.values().iterator();
     }
 }

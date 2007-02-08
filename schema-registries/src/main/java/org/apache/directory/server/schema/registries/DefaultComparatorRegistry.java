@@ -29,6 +29,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +46,8 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     private final static Logger log = LoggerFactory.getLogger( DefaultComparatorRegistry.class );
     /** the comparators in this registry */
     private final Map<String,Comparator> byOid;
-    /** maps an OID to a schema name*/
-    private final Map<String,String> oidToSchema;
+    /** maps oids to a comparator description */
+    private final Map<String,ComparatorDescription> oidToDescription;
 
 
     // ------------------------------------------------------------------------
@@ -59,8 +60,8 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
      */
     public DefaultComparatorRegistry()
     {
-        this.oidToSchema = new HashMap<String,String>();
         this.byOid = new HashMap<String, Comparator>();
+        this.oidToDescription = new HashMap<String,ComparatorDescription>();
     }
 
 
@@ -69,22 +70,36 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     // ------------------------------------------------------------------------
 
     
-    public void register( String schema, String oid, Comparator comparator ) throws NamingException
+    public void register( ComparatorDescription description, Comparator comparator ) throws NamingException
     {
-        if ( byOid.containsKey( oid ) )
+        if ( byOid.containsKey( description.getNumericOid() ) )
         {
-            NamingException e = new NamingException( "Comparator with OID " + oid + " already registered!" );
+            NamingException e = new NamingException( "Comparator with OID " + description.getNumericOid() 
+                + " already registered!" );
             throw e;
         }
 
-        oidToSchema.put( oid, schema );
-        byOid.put( oid, comparator );
+        oidToDescription.put( description.getNumericOid(), description );
+        byOid.put( description.getNumericOid(), comparator );
         if ( log.isDebugEnabled() )
         {
-            log.debug( "registed comparator with OID: " + oid );
+            log.debug( "registed comparator with OID: " + description.getNumericOid() );
         }
     }
 
+    
+    private static String getSchema( ComparatorDescription desc )
+    {
+        List values = desc.getExtensions().get( "X-SCHEMA" );
+        
+        if ( values == null || values.size() == 0 )
+        {
+            return "other";
+        }
+        
+        return ( String ) desc.getExtensions().get( "X-SCHEMA" ).get( 0 );
+    }
+    
 
     public Comparator lookup( String oid ) throws NamingException
     {
@@ -116,12 +131,12 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
             throw new NamingException( "OID " + oid + " is not a numeric OID" );
         }
 
-        if ( oidToSchema.containsKey( oid ) )
+        if ( oidToDescription.containsKey( oid ) )
         {
-            return ( String ) oidToSchema.get( oid );
+            return getSchema( oidToDescription.get( oid ) );
         }
 
-        throw new NamingException( "OID " + oid + " not found in oid to " + "schema name map!" );
+        throw new NamingException( "OID " + oid + " not found in oid to " + "description map!" );
     }
 
 
@@ -139,7 +154,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
         }
 
         this.byOid.remove( oid );
-        this.oidToSchema.remove( oid );
+        this.oidToDescription.remove( oid );
     }
     
     
@@ -148,11 +163,12 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
         List<String> oids = new ArrayList<String>( byOid.keySet() );
         for ( String oid : oids )
         {
-            String schemaNameForOid = oidToSchema.get( oid );
+            ComparatorDescription description = oidToDescription.get( oid );
+            String schemaNameForOid = getSchema( description );
             if ( schemaNameForOid.equalsIgnoreCase( schemaName ) )
             {
                 byOid.remove( oid );
-                oidToSchema.remove( oid );
+                oidToDescription.remove( oid );
             }
         }
     }
@@ -163,12 +179,20 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
         List<String> oids = new ArrayList<String>( byOid.keySet() );
         for ( String oid : oids )
         {
-            String schemaNameForOid = oidToSchema.get( oid );
+            ComparatorDescription description = oidToDescription.get( oid );
+            String schemaNameForOid = getSchema( description );
             if ( schemaNameForOid.equalsIgnoreCase( originalSchemaName ) )
             {
-                oidToSchema.remove( oid );
-                oidToSchema.put( oid, newSchemaName );
+                List<String> schemaExt = description.getExtensions().get( "X-SCHEMA" );
+                schemaExt.clear();
+                schemaExt.add( newSchemaName );
             }
         }
+    }
+
+
+    public Iterator<ComparatorDescription> comparatorDescriptionIterator()
+    {
+        return oidToDescription.values().iterator();
     }
 }

@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -39,6 +42,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
@@ -59,7 +63,9 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
     private final NormalizerRegistry normalizerRegistry;
     private final MatchingRuleRegistry matchingRuleRegistry;
     private final AttributeType oidAT;
-
+    private final AttributeType byteCodeAT;
+    private final AttributeType descAT;
+    private final AttributeType fqcnAT;
     
 
     public MetaNormalizerHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws NamingException
@@ -70,9 +76,18 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
         this.matchingRuleRegistry = targetRegistries.getMatchingRuleRegistry();
         this.factory = new SchemaEntityFactory( targetRegistries );
         this.oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
+        this.byteCodeAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
+        this.descAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DESCRIPTION_AT );
+        this.fqcnAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_FQCN_AT );
     }
 
 
+    private Schema getSchema( LdapDN name ) throws NamingException
+    {
+        return loader.getSchema( MetaSchemaUtils.getSchemaName( name ) );
+    }
+    
+    
     private String getOid( Attributes entry ) throws NamingException
     {
         Attribute oid = AttributeUtils.getAttribute( entry, oidAT );
@@ -84,9 +99,29 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
     }
     
     
-    private Schema getSchema( LdapDN name ) throws NamingException
+    private NormalizerDescription getNormalizerDescription( String schemaName, Attributes entry ) throws NamingException
     {
-        return loader.getSchema( MetaSchemaUtils.getSchemaName( name ) );
+        NormalizerDescription description = new NormalizerDescription();
+        description.setNumericOid( getOid( entry ) );
+        List<String> values = new ArrayList<String>();
+        values.add( schemaName );
+        description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
+        description.setFqcn( ( String ) AttributeUtils.getAttribute( entry, fqcnAT ).get() );
+        
+        Attribute desc = AttributeUtils.getAttribute( entry, descAT );
+        if ( desc != null && desc.size() > 0 )
+        {
+            description.setDescription( ( String ) desc.get() );
+        }
+        
+        Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+        if ( bytecode != null && bytecode.size() > 0 )
+        {
+            byte[] bytes = ( byte[] ) bytecode.get();
+            description.setBytecode( new String( Base64.encode( bytes ) ) );
+        }
+
+        return description;
     }
     
     
@@ -99,7 +134,9 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
         if ( ! schema.isDisabled() )
         {
             normalizerRegistry.unregister( oldOid );
-            normalizerRegistry.register( schema.getSchemaName(), getOid( targetEntry ), normalizer );
+            NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), 
+                targetEntry );
+            normalizerRegistry.register( normalizerDescription, normalizer );
         }
     }
 
@@ -125,12 +162,12 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
         checkNewParent( parentDn );
         
         Normalizer normalizer = factory.getNormalizer( entry, targetRegistries );
-        String oid = getOid( entry );
         Schema schema = getSchema( name );
         
         if ( ! schema.isDisabled() )
         {
-            normalizerRegistry.register( schema.getSchemaName(), oid, normalizer );
+            NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), entry );
+            normalizerRegistry.register( normalizerDescription, normalizer );
         }
     }
 
@@ -149,7 +186,7 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
         
         if ( ! schema.isDisabled() )
         {
-            normalizerRegistry.register( schemaName, normalizerDescription.getNumericOid(), normalizer );
+            normalizerRegistry.register( normalizerDescription, normalizer );
         }
     }
 
@@ -196,7 +233,10 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
         {
             Normalizer normalizer = factory.getNormalizer( entry, targetRegistries );
             normalizerRegistry.unregister( oldOid );
-            normalizerRegistry.register( schema.getSchemaName(), oid, normalizer );
+            
+            NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), entry );
+            normalizerDescription.setNumericOid( oid );
+            normalizerRegistry.register( normalizerDescription, normalizer );
         }
     }
 
@@ -229,7 +269,9 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
 
         if ( ! newSchema.isDisabled() )
         {
-            normalizerRegistry.register( newSchema.getSchemaName(), oid, normalizer );
+            NormalizerDescription normalizerDescription = getNormalizerDescription( newSchema.getSchemaName(), entry );
+            normalizerDescription.setNumericOid( oid );
+            normalizerRegistry.register( normalizerDescription, normalizer );
         }
     }
 
@@ -260,7 +302,8 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
         
         if ( ! newSchema.isDisabled() )
         {
-            normalizerRegistry.register( newSchema.getSchemaName(), oid, normalizer );
+            NormalizerDescription normalizerDescription = getNormalizerDescription( newSchema.getSchemaName(), entry );
+            normalizerRegistry.register( normalizerDescription, normalizer );
         }
     }
 

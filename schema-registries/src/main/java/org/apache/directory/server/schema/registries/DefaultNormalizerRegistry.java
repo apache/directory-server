@@ -29,6 +29,8 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +46,9 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     /** static class logger */
     private final static Logger log = LoggerFactory.getLogger( DefaultNormalizerRegistry.class );
     /** a map of Normalizers looked up by OID */
-    private final Map<String, Normalizer> byOid;
-    /** maps an OID to a schema name*/
-    private final Map<String, String> oidToSchema;
+    private final Map<String,Normalizer> byOid;
+    /** maps an OID to a normalizerDescription */
+    private final Map<String,NormalizerDescription> oidToDescription;
 
 
     // ------------------------------------------------------------------------
@@ -59,7 +61,7 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     public DefaultNormalizerRegistry()
     {
         this.byOid = new HashMap<String, Normalizer>();
-        this.oidToSchema = new HashMap<String, String>();
+        this.oidToDescription = new HashMap<String, NormalizerDescription>();
     }
 
 
@@ -68,15 +70,16 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     // ------------------------------------------------------------------------
 
     
-    public void register( String schema, String oid, Normalizer normalizer ) throws NamingException
+    public void register( NormalizerDescription description, Normalizer normalizer ) throws NamingException
     {
+        String oid = description.getNumericOid();
         if ( byOid.containsKey( oid ) )
         {
             NamingException e = new NamingException( "Normalizer already " + "registered for OID " + oid );
             throw e;
         }
 
-        oidToSchema.put( oid, schema );
+        oidToDescription.put( oid, description );
         byOid.put( oid, normalizer );
         if ( log.isDebugEnabled() )
         {
@@ -115,14 +118,27 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
             throw new NamingException( "Looks like the arg is not a numeric OID" );
         }
 
-        if ( oidToSchema.containsKey( oid ) )
+        if ( oidToDescription.containsKey( oid ) )
         {
-            return ( String ) oidToSchema.get( oid );
+            return getSchema( oidToDescription.get( oid ) );
         }
 
         throw new NamingException( "OID " + oid + " not found in oid to " + "schema name map!" );
     }
 
+
+    private static String getSchema( NormalizerDescription desc )
+    {
+        List values = desc.getExtensions().get( "X-SCHEMA" );
+        
+        if ( values == null || values.size() == 0 )
+        {
+            return "other";
+        }
+        
+        return ( String ) desc.getExtensions().get( "X-SCHEMA" ).get( 0 );
+    }
+    
 
     public Iterator<String> oidIterator()
     {
@@ -138,7 +154,7 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
         }
 
         this.byOid.remove( oid );
-        this.oidToSchema.remove( oid );
+        this.oidToDescription.remove( oid );
     }
     
     
@@ -147,11 +163,12 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
         List<String> oids = new ArrayList<String>( byOid.keySet() );
         for ( String oid : oids )
         {
-            String schemaNameForOid = oidToSchema.get( oid );
+            NormalizerDescription description = oidToDescription.get( oid );
+            String schemaNameForOid = getSchema( description );
             if ( schemaNameForOid.equalsIgnoreCase( schemaName ) )
             {
                 byOid.remove( oid );
-                oidToSchema.remove( oid );
+                oidToDescription.remove( oid );
             }
         }
     }
@@ -162,12 +179,20 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
         List<String> oids = new ArrayList<String>( byOid.keySet() );
         for ( String oid : oids )
         {
-            String schemaNameForOid = oidToSchema.get( oid );
+            NormalizerDescription description = oidToDescription.get( oid );
+            String schemaNameForOid = getSchema( description );
             if ( schemaNameForOid.equalsIgnoreCase( originalSchemaName ) )
             {
-                oidToSchema.remove( oid );
-                oidToSchema.put( oid, newSchemaName );
+                List<String> schemaExt = description.getExtensions().get( "X-SCHEMA" );
+                schemaExt.clear();
+                schemaExt.add( newSchemaName );
             }
         }
+    }
+
+
+    public Iterator<NormalizerDescription> normalizerDescriptionIterator()
+    {
+        return oidToDescription.values().iterator();
     }
 }

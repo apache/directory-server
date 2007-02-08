@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -40,6 +43,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
@@ -60,7 +64,9 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
     private final SyntaxCheckerRegistry syntaxCheckerRegistry;
     private final SyntaxRegistry syntaxRegistry;
     private final AttributeType oidAT;
-
+    private final AttributeType byteCodeAT;
+    private final AttributeType descAT;
+    private final AttributeType fqcnAT;
     
 
     public MetaSyntaxCheckerHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws NamingException
@@ -71,6 +77,9 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
         this.syntaxRegistry = targetRegistries.getSyntaxRegistry();
         this.factory = new SchemaEntityFactory( targetRegistries );
         this.oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
+        this.byteCodeAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
+        this.descAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DESCRIPTION_AT );
+        this.fqcnAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_FQCN_AT );
     }
 
 
@@ -84,6 +93,33 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
         return ( String ) oid.get();
     }
     
+    
+    private SyntaxCheckerDescription getSyntaxCheckerDescription( String schemaName, Attributes entry ) 
+        throws NamingException
+    {
+        SyntaxCheckerDescription description = new SyntaxCheckerDescription();
+        description.setNumericOid( getOid( entry ) );
+        List<String> values = new ArrayList<String>();
+        values.add( schemaName );
+        description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
+        description.setFqcn( ( String ) AttributeUtils.getAttribute( entry, fqcnAT ).get() );
+        
+        Attribute desc = AttributeUtils.getAttribute( entry, descAT );
+        if ( desc != null && desc.size() > 0 )
+        {
+            description.setDescription( ( String ) desc.get() );
+        }
+        
+        Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+        if ( bytecode != null && bytecode.size() > 0 )
+        {
+            byte[] bytes = ( byte[] ) bytecode.get();
+            description.setBytecode( new String( Base64.encode( bytes ) ) );
+        }
+
+        return description;
+    }
+
     
     private Schema getSchema( LdapDN name ) throws NamingException
     {
@@ -100,7 +136,9 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
         if ( ! schema.isDisabled() )
         {
             syntaxCheckerRegistry.unregister( oldOid );
-            syntaxCheckerRegistry.register( schema.getSchemaName(), syntaxChecker );
+            SyntaxCheckerDescription syntaxCheckerDescription = 
+                getSyntaxCheckerDescription( schema.getSchemaName(), targetEntry );
+            syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
         }
     }
 
@@ -130,7 +168,9 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
         
         if ( ! schema.isDisabled() )
         {
-            syntaxCheckerRegistry.register( schema.getSchemaName(), syntaxChecker );
+            SyntaxCheckerDescription syntaxCheckerDescription = 
+                getSyntaxCheckerDescription( schema.getSchemaName(), entry );
+            syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
         }
     }
 
@@ -150,7 +190,7 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
         
         if ( ! schema.isDisabled() )
         {
-            syntaxCheckerRegistry.register( syntaxCheckerDescription.getNumericOid(), syntaxChecker );
+            syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
         }
     }
 
@@ -198,7 +238,10 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
         {
             SyntaxChecker syntaxChecker = factory.getSyntaxChecker( targetEntry, targetRegistries );
             syntaxCheckerRegistry.unregister( oldOid );
-            syntaxCheckerRegistry.register( schema.getSchemaName(), syntaxChecker );
+            SyntaxCheckerDescription syntaxCheckerDescription = 
+                getSyntaxCheckerDescription( schema.getSchemaName(), entry );
+            syntaxCheckerDescription.setNumericOid( newOid );
+            syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
         }
     }
 
@@ -231,7 +274,10 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
 
         if ( ! newSchema.isDisabled() )
         {
-            syntaxCheckerRegistry.register( newSchema.getSchemaName(), syntaxChecker );
+            SyntaxCheckerDescription syntaxCheckerDescription = 
+                getSyntaxCheckerDescription( newSchema.getSchemaName(), entry );
+            syntaxCheckerDescription.setNumericOid( newOid );
+            syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
         }
     }
 
@@ -262,7 +308,9 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
         
         if ( ! newSchema.isDisabled() )
         {
-            syntaxCheckerRegistry.register( newSchema.getSchemaName(), syntaxChecker );
+            SyntaxCheckerDescription syntaxCheckerDescription = 
+                getSyntaxCheckerDescription( newSchema.getSchemaName(), entry );
+            syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
         }
     }
     

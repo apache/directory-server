@@ -25,6 +25,7 @@ import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 
 
 /**
@@ -38,12 +39,12 @@ public interface SyntaxCheckerRegistry
     /**
      * Registers a SyntaxChecker with this registry.
      * 
-     * @param schema the name of the schema the SyntaxChecker is associated with
+     * @param description the syntaxCheckerDescription for this syntaxChecker
      * @param syntaxChecker the SyntaxChecker to register
      * @throws NamingException if the SyntaxChecker is already registered or the
      *      registration operation is not supported
      */
-    void register( String schema, SyntaxChecker syntaxChecker ) throws NamingException;
+    void register( SyntaxCheckerDescription description, SyntaxChecker syntaxChecker ) throws NamingException;
 
 
     /**
@@ -84,6 +85,14 @@ public interface SyntaxCheckerRegistry
      * @return an Iterator over all the syntaxCheckers
      */
     Iterator<SyntaxChecker> iterator();
+
+
+    /**
+     * Get's an iterator over all the syntaxCheckerDescriptions associated with this registry.
+     * 
+     * @return an Iterator over all the syntaxCheckerDescriptions
+     */
+    Iterator<SyntaxCheckerDescription> syntaxCheckerDescriptionIterator();
 
 
     /**

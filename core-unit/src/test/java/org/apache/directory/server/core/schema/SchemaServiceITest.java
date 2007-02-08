@@ -254,7 +254,10 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // - nameForms
         // - objectClass
         // - objectClasses
-        assertEquals( 15, attrs.size() );
+        // - comparators
+        // - normalizers
+        // - syntaxCheckers
+        assertEquals( 18, attrs.size() );
         
         assertNotNull( attrs.get( "attributeTypes" ) );
         assertNotNull( attrs.get( "cn" ) );
@@ -358,9 +361,12 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         
         assertNotNull( attrs );
         
-        // We should have 14 attribute in the result :
+        // We should have 18 attribute in the result :
         // - nameForms
-        assertEquals( 15, attrs.size() );
+        // - comparators
+        // - normalizers
+        // - syntaxCheckers
+        assertEquals( 18, attrs.size() );
         
         assertNotNull( attrs.get( "attributeTypes" ) );
         assertNotNull( attrs.get( "cn" ) );
@@ -402,9 +408,12 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         
         assertNotNull( attrs );
         
-        // We should have 14 attribute in the result :
+        // We should have 18 attribute in the result :
         // - nameForms
-        assertEquals( 15, attrs.size() );
+        // - comparators
+        // - normalizers
+        // - syntaxCheckers
+        assertEquals( 18, attrs.size() );
         
         assertNotNull( attrs.get( "attributeTypes" ) );
         assertNotNull( attrs.get( "cn" ) );
