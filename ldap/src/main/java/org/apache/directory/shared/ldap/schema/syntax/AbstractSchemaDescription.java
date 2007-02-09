@@ -19,9 +19,9 @@ public class AbstractSchemaDescription
 
     protected AbstractSchemaDescription()
     {
-        numericOid = "";
+        numericOid = null;
         names = new ArrayList<String>();
-        description = "";
+        description = null;
         isObsolete = false;
         extensions = new LinkedHashMap<String, List<String>>();
     }

@@ -830,14 +830,14 @@ public class SchemaUtils
     public static StringBuffer render( AbstractAdsSchemaDescription description )
     {
         StringBuffer buf = new StringBuffer();
-        buf.append( "( " ).append( description.getNumericOid() );
+        buf.append( "( " ).append( description.getNumericOid() ).append( " " );
         
         if ( description.getDescription() != null )
         {
             buf.append( "DESC " ).append( "'" ).append( description.getDescription() ).append( "' " );
         }
 
-        buf.append( "FQCN " ).append( description.getFqcn() );
+        buf.append( "FQCN " ).append( description.getFqcn() ).append( " " );
         
         if ( description.getBytecode() != null )
         {
