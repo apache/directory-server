@@ -34,6 +34,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import jdbm.helper.IntegerComparator;
+
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -43,11 +45,16 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.ComparatorDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.NormalizerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.Base64;
 
@@ -68,6 +75,10 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         new SyntaxCheckerDescriptionSchemaParser();
     private static final AttributeTypeDescriptionSchemaParser attributeTypeDescriptionSchemaParser = 
         new AttributeTypeDescriptionSchemaParser();
+    private ComparatorDescriptionSchemaParser comparatorDescriptionSchemaParser =
+        new ComparatorDescriptionSchemaParser();
+    private NormalizerDescriptionSchemaParser normalizerDescriptionSchemaParser =
+        new NormalizerDescriptionSchemaParser();
 
     
     /**
@@ -421,10 +432,360 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     // -----------------------------------------------------------------------
     
     
+    private void checkComparatorPresent( String oid, String schemaName ) throws Exception
+    {
+        // -------------------------------------------------------------------
+        // check first to see if it is present in the subschemaSubentry
+        // -------------------------------------------------------------------
+        
+        Attributes attrs = getSubschemaSubentryAttributes();
+        Attribute attrTypes = attrs.get( "comparators" );
+        ComparatorDescription comparatorDescription = null; 
+        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        {
+            String desc = ( String ) attrTypes.get( ii );
+            if ( desc.indexOf( oid ) != -1 )
+            {
+                comparatorDescription = comparatorDescriptionSchemaParser.parseComparatorDescription( desc );
+                break;
+            }
+        }
+        
+        assertNotNull( comparatorDescription );
+        assertEquals( oid, comparatorDescription.getNumericOid() );
+
+        // -------------------------------------------------------------------
+        // check next to see if it is present in the schema partition
+        // -------------------------------------------------------------------
+        
+        attrs = null;
+        attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=comparators,cn=" + schemaName );
+        assertNotNull( attrs );
+        
+        // -------------------------------------------------------------------
+        // check to see if it is present in the comparatorRegistry
+        // -------------------------------------------------------------------
+        
+        assertTrue( registries.getComparatorRegistry().hasComparator( oid ) );
+    }
+    
+    
+    private void checkComparatorNotPresent( String oid, String schemaName ) throws Exception
+    {
+        // -------------------------------------------------------------------
+        // check first to see if it is present in the subschemaSubentry
+        // -------------------------------------------------------------------
+        
+        Attributes attrs = getSubschemaSubentryAttributes();
+        Attribute attrTypes = attrs.get( "comparators" );
+        ComparatorDescription comparatorDescription = null; 
+        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        {
+            String desc = ( String ) attrTypes.get( ii );
+            if ( desc.indexOf( oid ) != -1 )
+            {
+                comparatorDescription = comparatorDescriptionSchemaParser.parseComparatorDescription( desc );
+                break;
+            }
+        }
+        
+        assertNull( comparatorDescription );
+
+        // -------------------------------------------------------------------
+        // check next to see if it is present in the schema partition
+        // -------------------------------------------------------------------
+        
+        attrs = null;
+        
+        try
+        {
+            attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=comparators,cn=" + schemaName );
+            fail( "should never get here" );
+        }
+        catch( NamingException e )
+        {
+        }
+        
+        assertNull( attrs );
+        
+        // -------------------------------------------------------------------
+        // check to see if it is present in the comparatorRegistry
+        // -------------------------------------------------------------------
+        
+        assertFalse( registries.getComparatorRegistry().hasComparator( oid ) );
+    }
+    
+    
+    private void modifyComparators( int op, List<String> descriptions ) throws Exception
+    {
+        LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
+        Attribute attr = new AttributeImpl( "comparators" );
+        for ( String description : descriptions )
+        {
+            attr.add( description );
+        }
+        
+        Attributes mods = new AttributesImpl();
+        mods.put( attr );
+        
+        rootDSE.modifyAttributes( dn, op, mods );
+    }
+    
+    
+    /**
+     * Tests a number of modify add, remove and replace operation combinations for
+     * comparators on the schema subentry.
+     */
+    public void testAddRemoveReplaceComparators() throws Exception
+    {
+        enableSchema( "nis" );
+        List<String> descriptions = new ArrayList<String>();
+        
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' FQCN " 
+            + IntegerComparator.class.getName() + " X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10001 DESC 'bogus desc' FQCN " 
+            + IntegerComparator.class.getName() + " X-SCHEMA 'nis' )" );
+
+        // -------------------------------------------------------------------
+        // add and check
+        // -------------------------------------------------------------------
+        
+        modifyComparators( DirContext.ADD_ATTRIBUTE, descriptions );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis" );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis" );
+
+        // -------------------------------------------------------------------
+        // remove and check
+        // -------------------------------------------------------------------
+        
+        modifyComparators( DirContext.REMOVE_ATTRIBUTE, descriptions );
+        checkComparatorNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis" );
+        checkComparatorNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis" );
+        
+        // -------------------------------------------------------------------
+        // test failure to replace
+        // -------------------------------------------------------------------
+        
+        try
+        {
+            modifyComparators( DirContext.REPLACE_ATTRIBUTE, descriptions );
+            fail( "modify REPLACE operations should not be allowed" );
+        }
+        catch ( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+
+        // -------------------------------------------------------------------
+        // check add with valid bytecode
+        // -------------------------------------------------------------------
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummyComparator BYTECODE " 
+            +  getByteCode( "DummyComparator.bytecode" ) + " X-SCHEMA 'nis' )" );
+
+        modifyComparators( DirContext.ADD_ATTRIBUTE, descriptions );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis" );
+
+        // -------------------------------------------------------------------
+        // check remove with valid bytecode
+        // -------------------------------------------------------------------
+        
+        modifyComparators( DirContext.REMOVE_ATTRIBUTE, descriptions );
+        checkComparatorNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis" );
+
+        // -------------------------------------------------------------------
+        // check add no schema info
+        // -------------------------------------------------------------------
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummyComparator BYTECODE " 
+            +  getByteCode( "DummyComparator.bytecode" ) + " )" );
+
+        modifyComparators( DirContext.ADD_ATTRIBUTE, descriptions );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other" );
+    }
+
+    
     // -----------------------------------------------------------------------
     // Normalizer Tests
     // -----------------------------------------------------------------------
     
+    
+    private void checkNormalizerPresent( String oid, String schemaName ) throws Exception
+    {
+        // -------------------------------------------------------------------
+        // check first to see if it is present in the subschemaSubentry
+        // -------------------------------------------------------------------
+        
+        Attributes attrs = getSubschemaSubentryAttributes();
+        Attribute attrTypes = attrs.get( "normalizers" );
+        NormalizerDescription normalizerDescription = null; 
+        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        {
+            String desc = ( String ) attrTypes.get( ii );
+            if ( desc.indexOf( oid ) != -1 )
+            {
+                normalizerDescription = normalizerDescriptionSchemaParser.parseNormalizerDescription( desc );
+                break;
+            }
+        }
+        
+        assertNotNull( normalizerDescription );
+        assertEquals( oid, normalizerDescription.getNumericOid() );
+
+        // -------------------------------------------------------------------
+        // check next to see if it is present in the schema partition
+        // -------------------------------------------------------------------
+        
+        attrs = null;
+        attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=normalizers,cn=" + schemaName );
+        assertNotNull( attrs );
+        
+        // -------------------------------------------------------------------
+        // check to see if it is present in the normalizerRegistry
+        // -------------------------------------------------------------------
+        
+        assertTrue( registries.getNormalizerRegistry().hasNormalizer( oid ) );
+    }
+    
+    
+    private void checkNormalizerNotPresent( String oid, String schemaName ) throws Exception
+    {
+        // -------------------------------------------------------------------
+        // check first to see if it is present in the subschemaSubentry
+        // -------------------------------------------------------------------
+        
+        Attributes attrs = getSubschemaSubentryAttributes();
+        Attribute attrTypes = attrs.get( "normalizers" );
+        NormalizerDescription normalizerDescription = null; 
+        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        {
+            String desc = ( String ) attrTypes.get( ii );
+            if ( desc.indexOf( oid ) != -1 )
+            {
+                normalizerDescription = normalizerDescriptionSchemaParser.parseNormalizerDescription( desc );
+                break;
+            }
+        }
+        
+        assertNull( normalizerDescription );
+
+        // -------------------------------------------------------------------
+        // check next to see if it is present in the schema partition
+        // -------------------------------------------------------------------
+        
+        attrs = null;
+        
+        try
+        {
+            attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=normalizers,cn=" + schemaName );
+            fail( "should never get here" );
+        }
+        catch( NamingException e )
+        {
+        }
+        
+        assertNull( attrs );
+        
+        // -------------------------------------------------------------------
+        // check to see if it is present in the normalizerRegistry
+        // -------------------------------------------------------------------
+        
+        assertFalse( registries.getNormalizerRegistry().hasNormalizer( oid ) );
+    }
+    
+    
+    private void modifyNormalizers( int op, List<String> descriptions ) throws Exception
+    {
+        LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
+        Attribute attr = new AttributeImpl( "normalizers" );
+        for ( String description : descriptions )
+        {
+            attr.add( description );
+        }
+        
+        Attributes mods = new AttributesImpl();
+        mods.put( attr );
+        
+        rootDSE.modifyAttributes( dn, op, mods );
+    }
+    
+    
+    /**
+     * Tests a number of modify add, remove and replace operation combinations for
+     * normalizers on the schema subentry.
+     */
+    public void testAddRemoveReplaceNormalizers() throws Exception
+    {
+        enableSchema( "nis" );
+        List<String> descriptions = new ArrayList<String>();
+        
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' FQCN " 
+            + DeepTrimNormalizer.class.getName() + " X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10001 DESC 'bogus desc' FQCN " 
+            + DeepTrimNormalizer.class.getName() + " X-SCHEMA 'nis' )" );
+
+        // -------------------------------------------------------------------
+        // add and check
+        // -------------------------------------------------------------------
+        
+        modifyNormalizers( DirContext.ADD_ATTRIBUTE, descriptions );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis" );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis" );
+
+        // -------------------------------------------------------------------
+        // remove and check
+        // -------------------------------------------------------------------
+        
+        modifyNormalizers( DirContext.REMOVE_ATTRIBUTE, descriptions );
+        checkNormalizerNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis" );
+        checkNormalizerNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis" );
+        
+        // -------------------------------------------------------------------
+        // test failure to replace
+        // -------------------------------------------------------------------
+        
+        try
+        {
+            modifyNormalizers( DirContext.REPLACE_ATTRIBUTE, descriptions );
+            fail( "modify REPLACE operations should not be allowed" );
+        }
+        catch ( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+
+        // -------------------------------------------------------------------
+        // check add with valid bytecode
+        // -------------------------------------------------------------------
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummyNormalizer BYTECODE " 
+            +  getByteCode( "DummyNormalizer.bytecode" ) + " X-SCHEMA 'nis' )" );
+
+        modifyNormalizers( DirContext.ADD_ATTRIBUTE, descriptions );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis" );
+
+        // -------------------------------------------------------------------
+        // check remove with valid bytecode
+        // -------------------------------------------------------------------
+        
+        modifyNormalizers( DirContext.REMOVE_ATTRIBUTE, descriptions );
+        checkNormalizerNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis" );
+
+        // -------------------------------------------------------------------
+        // check add no schema info
+        // -------------------------------------------------------------------
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummyNormalizer BYTECODE " 
+            +  getByteCode( "DummyNormalizer.bytecode" ) + " )" );
+
+        modifyNormalizers( DirContext.ADD_ATTRIBUTE, descriptions );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other" );
+    }
+
     
     // -----------------------------------------------------------------------
     // Syntax Tests
