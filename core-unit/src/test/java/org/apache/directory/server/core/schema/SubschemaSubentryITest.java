@@ -20,6 +20,12 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -32,12 +38,18 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.SyntaxCheckerDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.util.Base64;
 
 
 /**
@@ -51,6 +63,9 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
 {
     private static final String GLOBAL_SUBSCHEMA_DN = "cn=schema";
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
+    
+    private static final SyntaxCheckerDescriptionSchemaParser syntaxCheckerDescriptionSchemaParser =
+        new SyntaxCheckerDescriptionSchemaParser();
     private static final AttributeTypeDescriptionSchemaParser attributeTypeDescriptionSchemaParser = 
         new AttributeTypeDescriptionSchemaParser();
 
@@ -202,6 +217,228 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         super.schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
     }
+    
+    
+    // -----------------------------------------------------------------------
+    // SyntaxChecker Tests
+    // -----------------------------------------------------------------------
+
+    
+    private void checkSyntaxCheckerPresent( String oid, String schemaName ) throws Exception
+    {
+        // -------------------------------------------------------------------
+        // check first to see if it is present in the subschemaSubentry
+        // -------------------------------------------------------------------
+        
+        Attributes attrs = getSubschemaSubentryAttributes();
+        Attribute attrTypes = attrs.get( "syntaxCheckers" );
+        SyntaxCheckerDescription syntaxCheckerDescription = null; 
+        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        {
+            String desc = ( String ) attrTypes.get( ii );
+            if ( desc.indexOf( oid ) != -1 )
+            {
+                syntaxCheckerDescription = syntaxCheckerDescriptionSchemaParser.parseSyntaxCheckerDescription( desc );
+                break;
+            }
+        }
+        
+        assertNotNull( syntaxCheckerDescription );
+        assertEquals( oid, syntaxCheckerDescription.getNumericOid() );
+
+        // -------------------------------------------------------------------
+        // check next to see if it is present in the schema partition
+        // -------------------------------------------------------------------
+        
+        attrs = null;
+        attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
+        assertNotNull( attrs );
+        SchemaEntityFactory factory = new SchemaEntityFactory( registries );
+        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( attrs, registries );
+        assertEquals( oid, syntaxChecker.getSyntaxOid() );
+        
+        // -------------------------------------------------------------------
+        // check to see if it is present in the syntaxCheckerRegistry
+        // -------------------------------------------------------------------
+        
+        assertTrue( registries.getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) );
+    }
+    
+    
+    private void checkSyntaxCheckerNotPresent( String oid, String schemaName ) throws Exception
+    {
+        // -------------------------------------------------------------------
+        // check first to see if it is present in the subschemaSubentry
+        // -------------------------------------------------------------------
+        
+        Attributes attrs = getSubschemaSubentryAttributes();
+        Attribute attrTypes = attrs.get( "syntaxCheckers" );
+        SyntaxCheckerDescription syntaxCheckerDescription = null; 
+        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        {
+            String desc = ( String ) attrTypes.get( ii );
+            if ( desc.indexOf( oid ) != -1 )
+            {
+                syntaxCheckerDescription = syntaxCheckerDescriptionSchemaParser.parseSyntaxCheckerDescription( desc );
+                break;
+            }
+        }
+        
+        assertNull( syntaxCheckerDescription );
+
+        // -------------------------------------------------------------------
+        // check next to see if it is present in the schema partition
+        // -------------------------------------------------------------------
+        
+        attrs = null;
+        
+        try
+        {
+            attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
+            fail( "should never get here" );
+        }
+        catch( NamingException e )
+        {
+        }
+        
+        assertNull( attrs );
+        
+        // -------------------------------------------------------------------
+        // check to see if it is present in the syntaxCheckerRegistry
+        // -------------------------------------------------------------------
+        
+        assertFalse( registries.getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) );
+    }
+    
+    
+    private void modifySyntaxCheckers( int op, List<String> descriptions ) throws Exception
+    {
+        LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
+        Attribute attr = new AttributeImpl( "syntaxCheckers" );
+        for ( String description : descriptions )
+        {
+            attr.add( description );
+        }
+        
+        Attributes mods = new AttributesImpl();
+        mods.put( attr );
+        
+        rootDSE.modifyAttributes( dn, op, mods );
+    }
+    
+    
+    /**
+     * Tests a number of modify add, remove and replace operation combinations for
+     * a syntaxChecker on the schema subentry.
+     */
+    public void testAddRemoveReplaceSyntaxCheckers() throws Exception
+    {
+        enableSchema( "nis" );
+        List<String> descriptions = new ArrayList<String>();
+        
+        // ( 1.3.6.1.4.1.18060.0.4.0.2.10000 DESC 'bogus desc' FQCN org.foo.Bar BYTECODE 14561234 )
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' FQCN " 
+            + AcceptAllSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10001 DESC 'bogus desc' FQCN " 
+            + AcceptAllSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
+
+        // -------------------------------------------------------------------
+        // add and check
+        // -------------------------------------------------------------------
+        
+        modifySyntaxCheckers( DirContext.ADD_ATTRIBUTE, descriptions );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis" );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis" );
+
+        // -------------------------------------------------------------------
+        // remove and check
+        // -------------------------------------------------------------------
+        
+        modifySyntaxCheckers( DirContext.REMOVE_ATTRIBUTE, descriptions );
+        checkSyntaxCheckerNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis" );
+        checkSyntaxCheckerNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis" );
+        
+        // -------------------------------------------------------------------
+        // test failure to replace
+        // -------------------------------------------------------------------
+        
+        try
+        {
+            modifySyntaxCheckers( DirContext.REPLACE_ATTRIBUTE, descriptions );
+            fail( "modify REPLACE operations should not be allowed" );
+        }
+        catch ( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+
+        // -------------------------------------------------------------------
+        // check add with valid bytecode
+        // -------------------------------------------------------------------
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummySyntaxChecker BYTECODE " 
+            +  getByteCode( "DummySyntaxChecker.bytecode" ) + " X-SCHEMA 'nis' )" );
+
+        modifySyntaxCheckers( DirContext.ADD_ATTRIBUTE, descriptions );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis" );
+
+        // -------------------------------------------------------------------
+        // check remove with valid bytecode
+        // -------------------------------------------------------------------
+        
+        modifySyntaxCheckers( DirContext.REMOVE_ATTRIBUTE, descriptions );
+        checkSyntaxCheckerNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis" );
+
+        // -------------------------------------------------------------------
+        // check add no schema info
+        // -------------------------------------------------------------------
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummySyntaxChecker BYTECODE " 
+            +  getByteCode( "DummySyntaxChecker.bytecode" ) + " )" );
+
+        modifySyntaxCheckers( DirContext.ADD_ATTRIBUTE, descriptions );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other" );
+    }
+    
+    
+    private String getByteCode( String resource ) throws IOException
+    {
+        InputStream in = getClass().getResourceAsStream( resource );
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        while ( in.available() > 0 )
+        {
+            out.write( in.read() );
+        }
+        
+        return new String( Base64.encode( out.toByteArray() ) );
+    }
+    
+    
+    // -----------------------------------------------------------------------
+    // Comparator Tests
+    // -----------------------------------------------------------------------
+    
+    
+    // -----------------------------------------------------------------------
+    // Normalizer Tests
+    // -----------------------------------------------------------------------
+    
+    
+    // -----------------------------------------------------------------------
+    // Syntax Tests
+    // -----------------------------------------------------------------------
+    
+    
+    // -----------------------------------------------------------------------
+    // MatchingRule Tests
+    // -----------------------------------------------------------------------
+    
+    
+    // -----------------------------------------------------------------------
+    // AttributeType Tests
+    // -----------------------------------------------------------------------
     
     
     /**

@@ -247,6 +247,15 @@ public class ExceptionService extends BaseInterceptor
     {
         // check if entry to modify exists
         String msg = "Attempt to modify non-existant entry: ";
+
+        // handle operations against the schema subentry in the schema service
+        // and never try to look it up in the nexus below
+        if ( name.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
+        {
+            nextInterceptor.modify( name, modOp, attrs );
+            return;
+        }
+        
         assertHasEntry( nextInterceptor, msg, name );
 
         Attributes entry = nexus.lookup( name );

@@ -165,6 +165,11 @@ public class OperationalAttributeService extends BaseInterceptor
     {
         nextInterceptor.modify( name, modOp, attrs );
 
+        if ( name.getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
+        {
+            return;
+        }
+        
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
         Attribute attribute = new AttributeImpl( "modifiersName" );

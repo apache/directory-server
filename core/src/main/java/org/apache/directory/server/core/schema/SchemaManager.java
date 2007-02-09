@@ -501,10 +501,12 @@ public class SchemaManager
                     modifyRemoveOperation( opAttrOid, mod.getAttribute() );
                     break; 
                 case( DirContext.REPLACE_ATTRIBUTE ):
-                    AttributeType opAttrType = globalRegistries.getAttributeTypeRegistry().lookup( opAttrOid );
-                    Attribute original = AttributeUtils.getAttribute( subentry, opAttrType );
-                    modifyReplaceOperation( opAttrOid, mod.getAttribute(), original );
-                    break;
+                    throw new LdapOperationNotSupportedException( 
+                        "Modify REPLACE operations on schema subentries are not allowed: " +
+                        "it's just silly to destroy and recreate so many \nschema entities " +
+                        "that reside in schema operational attributes.  Instead use \na " +
+                        "targeted combination of modify ADD and REMOVE operations.", 
+                        ResultCodeEnum.UNWILLING_TO_PERFORM );
                 default:
                     throw new IllegalStateException( "Undefined modify operation: " + mod.getModificationOp() );
             }
@@ -546,226 +548,14 @@ public class SchemaManager
                 }
                 break;
             case( DirContext.REPLACE_ATTRIBUTE ):
-                while ( ids.hasMore() )
-                {
-                    String id = ids.next();
-                    AttributeType opAttrAT = globalRegistries.getAttributeTypeRegistry().lookup( id );
-                    Attribute modified = AttributeUtils.getAttribute( mods, opAttrAT );
-                    Attribute original = AttributeUtils.getAttribute( subentry, opAttrAT );
-                    modifyReplaceOperation( opAttrAT.getOid(), modified, original );
-                }
-                break;
+                throw new LdapOperationNotSupportedException( 
+                    "Modify REPLACE operations on schema subentries are not allowed: " +
+                    "it's just silly to destroy and recreate so many \nschema entities " +
+                    "that reside in schema operational attributes.  Instead use \na " +
+                    "targeted combination of modify ADD and REMOVE operations.", 
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
             default:
                 throw new IllegalStateException( "Undefined modify operation: " + modOp );
-        }
-    }
-
-
-    /**
-     * Handles modify replace operations on the schema subentry.
-     * 
-     * @param opAttrOid the numeric id of the operational attribute being modified
-     * @param mods the attribute with the modifications
-     * @param original the original values for the operational attribute being modified
-     * @throws NamingException if there are problems updating the registries or the 
-     * schema partition
-     */
-    private void modifyReplaceOperation( String opAttrOid, Attribute mods, Attribute original ) 
-        throws NamingException
-    {
-        int index = opAttr2handlerIndex.get( opAttrOid ).intValue();
-        SchemaChangeHandler handler = opAttr2handlerMap.get( opAttrOid );
-        switch( index )
-        {
-            case( COMPARATOR_INDEX ):
-                MetaComparatorHandler comparatorHandler = ( MetaComparatorHandler ) handler;
-                ComparatorDescription[] removedComparators = parsers.parseComparators( original );
-                ComparatorDescription[] addedComparators = parsers.parseComparators( mods );
-                
-                for ( ComparatorDescription comparatorDescription : removedComparators )
-                {
-                    comparatorHandler.delete( comparatorDescription.getNumericOid() );
-                    subentryModifier.delete( getSchema( comparatorDescription ), comparatorDescription );
-                }
-                
-                for ( ComparatorDescription comparatorDescription : addedComparators )
-                {
-                    comparatorHandler.add( comparatorDescription );
-                    subentryModifier.add( getSchema( comparatorDescription ), comparatorDescription );
-                }
-                break;
-            case( NORMALIZER_INDEX ):
-                MetaNormalizerHandler normalizerHandler = ( MetaNormalizerHandler ) handler;
-                NormalizerDescription[] removedNormalizers = parsers.parseNormalizers( original );
-                NormalizerDescription[] addedNormalizers = parsers.parseNormalizers( mods );
-                
-                for ( NormalizerDescription normalizerDescription : removedNormalizers )
-                {
-                    normalizerHandler.delete( normalizerDescription.getNumericOid() );
-                    subentryModifier.delete( getSchema( normalizerDescription ), normalizerDescription );
-                }
-                
-                for ( NormalizerDescription normalizerDescription : addedNormalizers )
-                {
-                    normalizerHandler.add( normalizerDescription );
-                    subentryModifier.add( getSchema( normalizerDescription ), normalizerDescription );
-                }
-                break;
-            case( SYNTAX_CHECKER_INDEX ):
-                MetaSyntaxCheckerHandler syntaxCheckerHandler = ( MetaSyntaxCheckerHandler ) handler;
-                SyntaxCheckerDescription[] removedSyntaxCheckers = parsers.parseSyntaxCheckers( original );
-                SyntaxCheckerDescription[] addedSyntaxCheckers = parsers.parseSyntaxCheckers( mods );
-                
-                for ( SyntaxCheckerDescription syntaxCheckerDescription : removedSyntaxCheckers )
-                {
-                    syntaxCheckerHandler.delete( syntaxCheckerDescription.getNumericOid() );
-                    subentryModifier.delete( getSchema( syntaxCheckerDescription ), syntaxCheckerDescription );
-                }
-                
-                for ( SyntaxCheckerDescription syntaxCheckerDescription : addedSyntaxCheckers )
-                {
-                    syntaxCheckerHandler.add( syntaxCheckerDescription );
-                    subentryModifier.delete( getSchema( syntaxCheckerDescription ), syntaxCheckerDescription );
-                }
-                break;
-            case( SYNTAX_INDEX ):
-                MetaSyntaxHandler syntaxHandler = ( MetaSyntaxHandler ) handler;
-                Syntax[] removedSyntaxes = parsers.parseSyntaxes( original );
-                Syntax[] addedSyntaxes = parsers.parseSyntaxes( mods );
-                
-                for ( Syntax syntax : removedSyntaxes )
-                {
-                    syntaxHandler.delete( syntax );
-                    subentryModifier.deleteSchemaObject( syntax );
-                }
-                
-                for ( Syntax syntax : addedSyntaxes )
-                {
-                    syntaxHandler.add( syntax );
-                    subentryModifier.addSchemaObject( syntax );
-                }
-                break;
-            case( MATCHING_RULE_INDEX ):
-                MetaMatchingRuleHandler matchingRuleHandler = ( MetaMatchingRuleHandler ) handler;
-                MatchingRule[] removedMrs = parsers.parseMatchingRules( original );
-                MatchingRule[] addedMrs = parsers.parseMatchingRules( mods );
-                
-                for ( MatchingRule mr : removedMrs )
-                {
-                    matchingRuleHandler.delete( mr );
-                    subentryModifier.deleteSchemaObject( mr );
-                }
-                
-                for ( MatchingRule mr : addedMrs )
-                {
-                    matchingRuleHandler.add( mr );
-                    subentryModifier.addSchemaObject( mr );
-                }
-                break;
-            case( ATTRIBUTE_TYPE_INDEX ):
-                MetaAttributeTypeHandler atHandler = ( MetaAttributeTypeHandler ) handler;
-                AttributeType[] removedAts = parsers.parseAttributeTypes( original );
-                AttributeType[] addedAts = parsers.parseAttributeTypes( mods );
-                
-                for ( AttributeType at : removedAts )
-                {
-                    atHandler.delete( at );
-                    subentryModifier.deleteSchemaObject( at );
-                }
-                
-                for ( AttributeType at : addedAts )
-                {
-                    atHandler.add( at );
-                    subentryModifier.addSchemaObject( at );
-                }
-                break;
-            case( OBJECT_CLASS_INDEX ):
-                MetaObjectClassHandler ocHandler = ( MetaObjectClassHandler ) handler;
-                ObjectClass[] removedOcs = parsers.parseObjectClasses( original );
-                ObjectClass[] addedOcs = parsers.parseObjectClasses( mods );
-
-                for ( ObjectClass oc : removedOcs )
-                {
-                    ocHandler.delete( oc );
-                    subentryModifier.deleteSchemaObject( oc );
-                }
-                
-                for ( ObjectClass oc : addedOcs )
-                {
-                    ocHandler.add( oc );
-                    subentryModifier.addSchemaObject( oc );
-                }
-                break;
-            case( MATCHING_RULE_USE_INDEX ):
-                MetaMatchingRuleUseHandler mruHandler = ( MetaMatchingRuleUseHandler ) handler;
-                MatchingRuleUse[] removedMrus = parsers.parseMatchingRuleUses( original );
-                MatchingRuleUse[] addedMrus = parsers.parseMatchingRuleUses( mods );
-                
-                for ( MatchingRuleUse mru : removedMrus )
-                {
-                    mruHandler.delete( mru );
-                    subentryModifier.deleteSchemaObject( mru );
-                }
-                
-                for ( MatchingRuleUse mru : addedMrus )
-                {
-                    mruHandler.add( mru );
-                    subentryModifier.addSchemaObject( mru );
-                }
-                break;
-            case( DIT_STRUCTURE_RULE_INDEX ):
-                MetaDitStructureRuleHandler dsrHandler = ( MetaDitStructureRuleHandler ) handler;
-                DITStructureRule[] removedDsrs = parsers.parseDitStructureRules( original );
-                DITStructureRule[] addedDsrs = parsers.parseDitStructureRules( mods );
-                
-                for ( DITStructureRule dsr : removedDsrs )
-                {
-                    dsrHandler.delete( dsr );
-                    subentryModifier.deleteSchemaObject( dsr );
-                }
-                
-                for ( DITStructureRule dsr : addedDsrs )
-                {
-                    dsrHandler.add( dsr );
-                    subentryModifier.addSchemaObject( dsr );
-                }
-                break;
-            case( DIT_CONTENT_RULE_INDEX ):
-                MetaDitContentRuleHandler dcrHandler = ( MetaDitContentRuleHandler ) handler;
-                DITContentRule[] removedDcrs = parsers.parseDitContentRules( original );
-                DITContentRule[] addedDcrs = parsers.parseDitContentRules( mods );
-                
-                for ( DITContentRule dcr : removedDcrs )
-                {
-                    dcrHandler.delete( dcr );
-                    subentryModifier.deleteSchemaObject( dcr );
-                }
-                
-                for ( DITContentRule dcr : addedDcrs )
-                {
-                    dcrHandler.add( dcr );
-                    subentryModifier.addSchemaObject( dcr );
-                }
-                break;
-            case( NAME_FORM_INDEX ):
-                MetaNameFormHandler nfHandler = ( MetaNameFormHandler ) handler;
-                NameForm[] removedNfs = parsers.parseNameForms( original );
-                NameForm[] addedNfs = parsers.parseNameForms( mods );
-                
-                for ( NameForm nf : removedNfs )
-                {
-                    nfHandler.delete( nf );
-                    subentryModifier.deleteSchemaObject( nf );
-                }
-                
-                for ( NameForm nf : addedNfs )
-                {
-                    nfHandler.add( nf );
-                    subentryModifier.addSchemaObject( nf );
-                }
-                break;
-            default:
-                throw new IllegalStateException( "Unknown index into handler array: " + index );
         }
     }
 
@@ -802,7 +592,7 @@ public class SchemaManager
                 for ( ComparatorDescription comparatorDescription : comparatorDescriptions )
                 {
                     comparatorHandler.delete( comparatorDescription.getNumericOid() );
-                    subentryModifier.delete( getSchema( comparatorDescription ), comparatorDescription );
+                    subentryModifier.delete( comparatorDescription );
                 }
                 break;
             case( NORMALIZER_INDEX ):
@@ -812,7 +602,7 @@ public class SchemaManager
                 for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
                 {
                     normalizerHandler.delete( normalizerDescription.getNumericOid() );
-                    subentryModifier.delete( getSchema( normalizerDescription ), normalizerDescription );
+                    subentryModifier.delete( normalizerDescription );
                 }
                 break;
             case( SYNTAX_CHECKER_INDEX ):
@@ -822,7 +612,7 @@ public class SchemaManager
                 for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
                 {
                     syntaxCheckerHandler.delete( syntaxCheckerDescription.getNumericOid() );
-                    subentryModifier.delete( getSchema( syntaxCheckerDescription ), syntaxCheckerDescription );
+                    subentryModifier.delete( syntaxCheckerDescription );
                 }
                 break;
             case( SYNTAX_INDEX ):
@@ -932,6 +722,7 @@ public class SchemaManager
                 for ( ComparatorDescription comparatorDescription : comparatorDescriptions )
                 {
                     comparatorHandler.add( comparatorDescription );
+                    subentryModifier.add( comparatorDescription );
                 }
                 break;
             case( NORMALIZER_INDEX ):
@@ -941,6 +732,7 @@ public class SchemaManager
                 for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
                 {
                     normalizerHandler.add( normalizerDescription );
+                    subentryModifier.add( normalizerDescription );
                 }
                 break;
             case( SYNTAX_CHECKER_INDEX ):
@@ -950,6 +742,7 @@ public class SchemaManager
                 for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
                 {
                     syntaxCheckerHandler.add( syntaxCheckerDescription );
+                    subentryModifier.add( syntaxCheckerDescription );
                 }
                 break;
             case( SYNTAX_INDEX ):

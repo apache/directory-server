@@ -263,7 +263,8 @@ public class BootstrapPlugin extends AbstractMojo
         }
     }
 
-    
+
+    private static final String[] OTHER_SCHEMA_DEPENDENCIES = new String[] { "system", "core", "apache", "apachemeta" };
     private void createSchemasAndContainers() throws NamingException
     {
         Map schemaMap = this.registries.getLoadedSchemas();
@@ -271,48 +272,106 @@ public class BootstrapPlugin extends AbstractMojo
         while ( schemas.hasNext() )
         {
             Schema schema = ( Schema ) schemas.next();
-            LdapDN dn = new LdapDN( SystemSchemaConstants.CN_AT + "=" 
-                + schema.getSchemaName() + "," + CoreSchemaConstants.OU_AT + "=schema" );
-            dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-
-            if ( hasEntry( dn ) )
-            {
-                continue;
-            }
-            
-            Attributes entry = attributesFactory.getAttributes( schema );
-            store.add( dn, entry );
-            dn.add( CoreSchemaConstants.OU_AT + "=comparators" );
-            dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-            checkCreateContainer( dn );
-            dn.remove( dn.size() - 1 );
-            dn.add( CoreSchemaConstants.OU_AT + "=normalizers" );
-            dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-            checkCreateContainer( dn );
-            dn.remove( dn.size() - 1 );
-            dn.add( CoreSchemaConstants.OU_AT + "=syntaxCheckers" );
-            dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-            checkCreateContainer( dn );
-            dn.remove( dn.size() - 1 );
-            dn.add( CoreSchemaConstants.OU_AT + "=syntaxes" );
-            dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-            checkCreateContainer( dn );
-            dn.remove( dn.size() - 1 );
-            dn.add( CoreSchemaConstants.OU_AT + "=matchingRules" );
-            dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-            checkCreateContainer( dn );
-            dn.remove( dn.size() - 1 );
-            dn.add( CoreSchemaConstants.OU_AT + "=attributeTypes" );
-            dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-            checkCreateContainer( dn );
-            dn.remove( dn.size() - 1 );
-            dn.add( CoreSchemaConstants.OU_AT + "=objectClasses" );
-            dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-            checkCreateContainer( dn );
+            createSchemaAndContainers( schema );
         }
+        
+        Schema other = new Schema()
+        {
+            public String[] getDependencies()
+            {
+                return OTHER_SCHEMA_DEPENDENCIES;
+            }
+
+            public String getOwner()
+            {
+                return "uid=admin,ou=system";
+            }
+
+            public String getSchemaName()
+            {
+                return "other";
+            }
+
+            public boolean isDisabled()
+            {
+                return false;
+            }
+        };
+        
+        createSchemaAndContainers( other );
     }
 
 
+    private void createSchemaAndContainers( Schema schema ) throws NamingException
+    {
+        LdapDN dn = new LdapDN( SystemSchemaConstants.CN_AT + "=" 
+            + schema.getSchemaName() + "," + CoreSchemaConstants.OU_AT + "=schema" );
+        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+
+        if ( hasEntry( dn ) )
+        {
+            return;
+        }
+        
+        Attributes entry = attributesFactory.getAttributes( schema );
+        store.add( dn, entry );
+        
+        dn.add( CoreSchemaConstants.OU_AT + "=comparators" );
+        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        checkCreateContainer( dn );
+        
+        dn.remove( dn.size() - 1 );
+        dn.add( CoreSchemaConstants.OU_AT + "=normalizers" );
+        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        checkCreateContainer( dn );
+        
+        dn.remove( dn.size() - 1 );
+        dn.add( CoreSchemaConstants.OU_AT + "=syntaxCheckers" );
+        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        checkCreateContainer( dn );
+        
+        dn.remove( dn.size() - 1 );
+        dn.add( CoreSchemaConstants.OU_AT + "=syntaxes" );
+        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        checkCreateContainer( dn );
+        
+        dn.remove( dn.size() - 1 );
+        dn.add( CoreSchemaConstants.OU_AT + "=matchingRules" );
+        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        checkCreateContainer( dn );
+        
+        dn.remove( dn.size() - 1 );
+        dn.add( CoreSchemaConstants.OU_AT + "=attributeTypes" );
+        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        checkCreateContainer( dn );
+        
+        dn.remove( dn.size() - 1 );
+        dn.add( CoreSchemaConstants.OU_AT + "=objectClasses" );
+        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        checkCreateContainer( dn );
+        
+        dn.remove( dn.size() - 1 );
+        dn.add( CoreSchemaConstants.OU_AT + "=nameForms" );
+        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        checkCreateContainer( dn );
+        
+        dn.remove( dn.size() - 1 );
+        dn.add( CoreSchemaConstants.OU_AT + "=ditStructureRules" );
+        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        checkCreateContainer( dn );
+        
+        dn.remove( dn.size() - 1 );
+        dn.add( CoreSchemaConstants.OU_AT + "=ditContentRules" );
+        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        checkCreateContainer( dn );
+        
+        dn.remove( dn.size() - 1 );
+        dn.add( CoreSchemaConstants.OU_AT + "=matchingRuleUse" );
+        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        checkCreateContainer( dn );
+    }
+
+    
     private void addAttributeTypes() throws NamingException
     {
         getLog().info( "------------------------------------------------------------------------" );

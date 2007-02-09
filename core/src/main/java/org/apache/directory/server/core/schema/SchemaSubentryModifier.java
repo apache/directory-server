@@ -44,6 +44,7 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
@@ -143,9 +144,10 @@ public class SchemaSubentryModifier
         proxy.delete( dn, BYPASS );
     }
 
-
-    public void delete( String schemaName, NormalizerDescription normalizerDescription ) throws NamingException
+    
+    public void delete( NormalizerDescription normalizerDescription ) throws NamingException
     {
+        String schemaName = getSchema( normalizerDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
@@ -153,8 +155,9 @@ public class SchemaSubentryModifier
     }
 
 
-    public void delete( String schemaName, SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
+    public void delete( SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
     {
+        String schemaName = getSchema( syntaxCheckerDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
@@ -162,8 +165,9 @@ public class SchemaSubentryModifier
     }
 
 
-    public void delete( String schemaName, ComparatorDescription comparatorDescription ) throws NamingException
+    public void delete( ComparatorDescription comparatorDescription ) throws NamingException
     {
+        String schemaName = getSchema( comparatorDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
@@ -171,17 +175,18 @@ public class SchemaSubentryModifier
     }
 
 
-    public void add( String schemaName, ComparatorDescription comparatorDescription ) throws NamingException
+    public void add( ComparatorDescription comparatorDescription ) throws NamingException
     {
+        String schemaName = getSchema( comparatorDescription );   
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
-        Attributes attrs = getAttributes( schemaName, comparatorDescription );
+        Attributes attrs = getAttributes( comparatorDescription );
         proxy.add( dn, attrs, BYPASS );
     }
     
     
-    private Attributes getAttributes( String schemaName, ComparatorDescription comparatorDescription )
+    private Attributes getAttributes( ComparatorDescription comparatorDescription )
     {
         AttributesImpl attributes = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
@@ -204,17 +209,18 @@ public class SchemaSubentryModifier
     }
 
 
-    public void add( String schemaName, NormalizerDescription normalizerDescription ) throws NamingException
+    public void add( NormalizerDescription normalizerDescription ) throws NamingException
     {
+        String schemaName = getSchema( normalizerDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
-        Attributes attrs = getAttributes( schemaName, normalizerDescription );
+        Attributes attrs = getAttributes( normalizerDescription );
         proxy.add( dn, attrs, BYPASS );
     }
     
     
-    private Attributes getAttributes( String schemaName, NormalizerDescription normalizerDescription )
+    private Attributes getAttributes( NormalizerDescription normalizerDescription )
     {
         AttributesImpl attributes = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
@@ -237,17 +243,29 @@ public class SchemaSubentryModifier
     }
 
 
-    public void add( String schemaName, SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
+    public void add( SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
     {
+        String schemaName = getSchema( syntaxCheckerDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
-        Attributes attrs = getAttributes( schemaName, syntaxCheckerDescription );
+        Attributes attrs = getAttributes( syntaxCheckerDescription );
         proxy.add( dn, attrs, BYPASS );
     }
     
     
-    private Attributes getAttributes( String schemaName, SyntaxCheckerDescription syntaxCheckerDescription )
+    private String getSchema( AbstractSchemaDescription desc ) 
+    {
+        if ( desc.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA ) )
+        {
+            return desc.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
+        }
+        
+        return MetaSchemaConstants.SCHEMA_OTHER;
+    }
+    
+    
+    private Attributes getAttributes( SyntaxCheckerDescription syntaxCheckerDescription )
     {
         AttributesImpl attributes = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
