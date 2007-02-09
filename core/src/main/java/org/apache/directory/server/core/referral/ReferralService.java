@@ -866,6 +866,9 @@ public class ReferralService extends BaseInterceptor
             {
                 referral = result;
             }
+            
+            // Now, add the referral to the cache
+            lut.referralAdded( result );
         }
     }
 
@@ -888,6 +891,9 @@ public class ReferralService extends BaseInterceptor
             {
                 referral = result;
             }
+            
+            // Now, remove the referral from the cache
+            lut.referralDeleted( result );
         }
     }
 
