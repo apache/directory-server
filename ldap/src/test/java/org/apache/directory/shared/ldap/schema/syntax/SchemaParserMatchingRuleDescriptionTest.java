@@ -225,7 +225,7 @@ public class SchemaParserMatchingRuleDescriptionTest extends TestCase
         assertEquals( "2.5.13.5", mrd.getNumericOid() );
         assertEquals( 1, mrd.getNames().size() );
         assertEquals( "caseExactMatch", mrd.getNames().get( 0 ) );
-        assertEquals( "", mrd.getDescription() );
+        assertNull( mrd.getDescription() );
         assertFalse( mrd.isObsolete() );
         assertEquals( "1.3.6.1.4.1.1466.115.121.1.15", mrd.getSyntax() );
         assertEquals( 0, mrd.getExtensions().size() );

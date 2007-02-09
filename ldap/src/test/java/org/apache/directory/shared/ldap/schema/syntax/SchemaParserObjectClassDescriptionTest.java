@@ -599,7 +599,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "1.3.6.1.4.1.1466.344", ocd.getNumericOid() );
         assertEquals( 1, ocd.getNames().size() );
         assertEquals( "dcObject", ocd.getNames().get( 0 ) );
-        assertEquals( "", ocd.getDescription() );
+        assertNull( ocd.getDescription() );
         assertEquals( 0, ocd.getSuperiorObjectClasses().size() );
         assertEquals( ObjectClassTypeEnum.AUXILIARY, ocd.getKind() );
         assertEquals( 1, ocd.getMustAttributeTypes().size() );
@@ -627,7 +627,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "2.16.840.1.113719.1.1.6.1.30", ocd.getNumericOid() );
         assertEquals( 1, ocd.getNames().size() );
         assertEquals( "List", ocd.getNames().get( 0 ) );
-        assertEquals( "", ocd.getDescription() );
+        assertNull( ocd.getDescription() );
         assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "Top", ocd.getSuperiorObjectClasses().get( 0 ) );
         assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
@@ -672,7 +672,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "2.5.6.3", ocd.getNumericOid() );
         assertEquals( 1, ocd.getNames().size() );
         assertEquals( "locality", ocd.getNames().get( 0 ) );
-        assertEquals( "", ocd.getDescription() );
+        assertNull( ocd.getDescription() );
         assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "top", ocd.getSuperiorObjectClasses().get( 0 ) );
         assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
@@ -695,7 +695,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "1.2.840.113556.1.5.240", ocd.getNumericOid() );
         assertEquals( 1, ocd.getNames().size() );
         assertEquals( "msieee80211-Policy", ocd.getNames().get( 0 ) );
-        assertEquals( "", ocd.getDescription() );
+        assertNull( ocd.getDescription() );
         assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "top", ocd.getSuperiorObjectClasses().get( 0 ) );
         assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
@@ -716,7 +716,7 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
         assertEquals( "2.5.20.1", ocd.getNumericOid() );
         assertEquals( 1, ocd.getNames().size() );
         assertEquals( "x500subSchema", ocd.getNames().get( 0 ) );
-        assertEquals( "", ocd.getDescription() );
+        assertNull( ocd.getDescription() );
         assertEquals( 0, ocd.getSuperiorObjectClasses().size() );
         assertEquals( ObjectClassTypeEnum.AUXILIARY, ocd.getKind() );
         assertEquals( 0, ocd.getMustAttributeTypes().size() );
@@ -739,7 +739,5 @@ public class SchemaParserObjectClassDescriptionTest extends TestCase
                 "( 2.5.6.6 NAME 'person' DESC 'RFC2256: a person' SUP top STRUCTURAL MUST ( sn $ cn ) MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) )",
                 "( 2.16.840.1.113719.1.1.6.1.30 NAME 'List' SUP Top STRUCTURAL MUST cn MAY ( description $ l $ member $ ou $ o $ eMailAddress $ mailboxLocation $ mailboxID $ owner $ seeAlso $ fullName ) X-NDS_NAMING 'cn' X-NDS_CONTAINMENT ( 'Organization' 'organizationalUnit' 'domain' ) X-NDS_NOT_CONTAINER '1' X-NDS_NONREMOVABLE '1' X-NDS_ACL_TEMPLATES '2#entry#[Root Template]#member' )" };
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
-
     }
-
 }
