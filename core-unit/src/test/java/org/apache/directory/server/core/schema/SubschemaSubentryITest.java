@@ -49,11 +49,13 @@ import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntax.LdapSyntaxDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.ComparatorDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.LdapSyntaxDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.NormalizerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.Base64;
@@ -79,6 +81,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         new ComparatorDescriptionSchemaParser();
     private NormalizerDescriptionSchemaParser normalizerDescriptionSchemaParser =
         new NormalizerDescriptionSchemaParser();
+    private LdapSyntaxDescriptionSchemaParser ldapSyntaxDescriptionSchemaParser =
+        new LdapSyntaxDescriptionSchemaParser();
 
     
     /**
@@ -662,6 +666,167 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     // -----------------------------------------------------------------------
     // Syntax Tests
     // -----------------------------------------------------------------------
+    
+    
+    private void checkSyntaxPresent( String oid, String schemaName, boolean isPresent ) throws Exception
+    {
+        // -------------------------------------------------------------------
+        // check first to see if it is present in the subschemaSubentry
+        // -------------------------------------------------------------------
+        
+        Attributes attrs = getSubschemaSubentryAttributes();
+        Attribute attrTypes = attrs.get( "ldapSyntaxes" );
+        LdapSyntaxDescription syntaxDescription = null; 
+        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        {
+            String desc = ( String ) attrTypes.get( ii );
+            if ( desc.indexOf( oid ) != -1 )
+            {
+                syntaxDescription = ldapSyntaxDescriptionSchemaParser.parseLdapSyntaxDescription( desc );
+                break;
+            }
+        }
+     
+        if ( isPresent )
+        {
+            assertNotNull( syntaxDescription );
+            assertEquals( oid, syntaxDescription.getNumericOid() );
+        }
+        else
+        {
+            assertNull( syntaxDescription );
+        }
+
+        // -------------------------------------------------------------------
+        // check next to see if it is present in the schema partition
+        // -------------------------------------------------------------------
+        
+        attrs = null;
+        
+        if ( isPresent )
+        {
+            attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=syntaxes,cn=" + schemaName );
+            assertNotNull( attrs );
+        }
+        else
+        {
+            try
+            {
+                attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=syntaxes,cn=" + schemaName );
+                fail( "should never get here" );
+            }
+            catch( NamingException e )
+            {
+            }
+            assertNull( attrs );
+        }
+        
+        // -------------------------------------------------------------------
+        // check to see if it is present in the syntaxRegistry
+        // -------------------------------------------------------------------
+        
+        if ( isPresent ) 
+        { 
+            assertTrue( registries.getSyntaxRegistry().hasSyntax( oid ) );
+        }
+        else
+        {
+            assertFalse( registries.getSyntaxRegistry().hasSyntax( oid ) );
+        }
+    }
+    
+    
+    /**
+     * Tests a number of modify add, remove and replace operation combinations for
+     * syntaxes on the schema subentry.
+     */
+    public void testAddRemoveReplaceSyntaxes() throws Exception
+    {
+        enableSchema( "nis" );
+        List<String> descriptions = new ArrayList<String>();
+        
+        // -------------------------------------------------------------------
+        // add of syntaxes without their syntax checkers should fail
+        // -------------------------------------------------------------------
+        
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10001 DESC 'bogus desc' X-SCHEMA 'nis' )" );
+        
+        try
+        {
+            modify( DirContext.ADD_ATTRIBUTE, descriptions, "ldapSyntaxes" );
+            fail( "should not be able to add syntaxes without their syntaxCheckers" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+        
+        // none of the syntaxes should be present
+        checkSyntaxPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", false );
+        checkSyntaxPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", false );
+
+        // -------------------------------------------------------------------
+        // first in order to add syntaxes we need their syntax checkers 
+        // -------------------------------------------------------------------
+
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' FQCN " 
+            + AcceptAllSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10001 DESC 'bogus desc' FQCN " 
+            + AcceptAllSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN " 
+            + AcceptAllSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
+
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", true );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
+
+        // -------------------------------------------------------------------
+        // add and check
+        // -------------------------------------------------------------------
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10001 DESC 'bogus desc' X-SCHEMA 'nis' )" );
+
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "ldapSyntaxes" );
+        checkSyntaxPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );
+        checkSyntaxPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // remove and check
+        // -------------------------------------------------------------------
+        
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "ldapSyntaxes" );
+        checkSyntaxPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", false );
+        checkSyntaxPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", false );
+        
+        // -------------------------------------------------------------------
+        // test failure to replace
+        // -------------------------------------------------------------------
+        
+        try
+        {
+            modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "ldapSyntaxes" );
+            fail( "modify REPLACE operations should not be allowed" );
+        }
+        catch ( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+
+        // -------------------------------------------------------------------
+        // check add no schema info
+        // -------------------------------------------------------------------
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' )" );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "ldapSyntaxes" );
+        checkSyntaxPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other", true );
+    }
+    
     
     
     // -----------------------------------------------------------------------
