@@ -1,0 +1,13 @@
+Thanks to Atlassian we have a CI setup for ApacheDS trunk and ApacheDS 1.0.  The
+build is triggered when the revision number for the checkout directory changes.
+A check for this occurs every 180 seconds.  So to induce a change to trigger
+the build you should change this file: i.e. just increment the build number in
+here.  The reason why changes in the directories do not result in a build are
+due to the use of externals.
+
+Here's the URL for the CI setup on Apache Directory Trunk:
+
+  http://opensource.bamboo.atlassian.com/browse/APACHE-DS
+
+Build Number: 6
+
