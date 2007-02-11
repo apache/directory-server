@@ -479,7 +479,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Map persons = new HashMap();
+        Map<String, Attributes> persons = new HashMap<String, Attributes>();
         NamingEnumeration results = sysRoot.search( "", "(seeAlso=cn=Good One,ou=people,o=sevenSeas)", controls );
 
         while ( results.hasMore() )
@@ -494,7 +494,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         Attributes person = null;
         Attribute ocs = null;
 
-        person = ( Attributes ) persons.get( "cn=person1,ou=system" );
+        person = persons.get( "cn=person1,ou=system" );
         assertNotNull( person );
         ocs = person.get( "objectClass" );
         assertEquals( 3, ocs.size() );

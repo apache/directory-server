@@ -209,33 +209,13 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         }
     }
     
-
-    private void enableSchema( String schemaName ) throws NamingException
-    {
-        // now enable the test schema
-        ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-disabled", "FALSE" );
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
-    }
-    
-    
-    private void disableSchema( String schemaName ) throws NamingException
-    {
-        // now enable the test schema
-        ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-disabled", "TRUE" );
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
-    }
-    
     
     // -----------------------------------------------------------------------
     // SyntaxChecker Tests
     // -----------------------------------------------------------------------
 
     
-    private void checkSyntaxCheckerPresent( String oid, String schemaName ) throws Exception
+    private void checkSyntaxCheckerPresent( String oid, String schemaName, boolean isPresent ) throws Exception
     {
         // -------------------------------------------------------------------
         // check first to see if it is present in the subschemaSubentry
@@ -253,49 +233,16 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
                 break;
             }
         }
-        
-        assertNotNull( syntaxCheckerDescription );
-        assertEquals( oid, syntaxCheckerDescription.getNumericOid() );
-
-        // -------------------------------------------------------------------
-        // check next to see if it is present in the schema partition
-        // -------------------------------------------------------------------
-        
-        attrs = null;
-        attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
-        assertNotNull( attrs );
-        SchemaEntityFactory factory = new SchemaEntityFactory( registries );
-        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( attrs, registries );
-        assertEquals( oid, syntaxChecker.getSyntaxOid() );
-        
-        // -------------------------------------------------------------------
-        // check to see if it is present in the syntaxCheckerRegistry
-        // -------------------------------------------------------------------
-        
-        assertTrue( registries.getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) );
-    }
-    
-    
-    private void checkSyntaxCheckerNotPresent( String oid, String schemaName ) throws Exception
-    {
-        // -------------------------------------------------------------------
-        // check first to see if it is present in the subschemaSubentry
-        // -------------------------------------------------------------------
-        
-        Attributes attrs = getSubschemaSubentryAttributes();
-        Attribute attrTypes = attrs.get( "syntaxCheckers" );
-        SyntaxCheckerDescription syntaxCheckerDescription = null; 
-        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+     
+        if ( isPresent )
         {
-            String desc = ( String ) attrTypes.get( ii );
-            if ( desc.indexOf( oid ) != -1 )
-            {
-                syntaxCheckerDescription = syntaxCheckerDescriptionSchemaParser.parseSyntaxCheckerDescription( desc );
-                break;
-            }
+            assertNotNull( syntaxCheckerDescription );
+            assertEquals( oid, syntaxCheckerDescription.getNumericOid() );
         }
-        
-        assertNull( syntaxCheckerDescription );
+        else
+        {
+            assertNull( syntaxCheckerDescription );
+        }
 
         // -------------------------------------------------------------------
         // check next to see if it is present in the schema partition
@@ -303,38 +250,40 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         
         attrs = null;
         
-        try
+        if ( isPresent )
         {
             attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
-            fail( "should never get here" );
+            assertNotNull( attrs );
+            SchemaEntityFactory factory = new SchemaEntityFactory( registries );
+            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( attrs, registries );
+            assertEquals( oid, syntaxChecker.getSyntaxOid() );
         }
-        catch( NamingException e )
+        else
         {
+            try
+            {
+                attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
+                fail( "should never get here" );
+            }
+            catch( NamingException e )
+            {
+            }
+            
+            assertNull( attrs );
         }
-        
-        assertNull( attrs );
         
         // -------------------------------------------------------------------
         // check to see if it is present in the syntaxCheckerRegistry
         // -------------------------------------------------------------------
-        
-        assertFalse( registries.getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) );
-    }
-    
-    
-    private void modifySyntaxCheckers( int op, List<String> descriptions ) throws Exception
-    {
-        LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
-        Attribute attr = new AttributeImpl( "syntaxCheckers" );
-        for ( String description : descriptions )
+
+        if ( isPresent )
         {
-            attr.add( description );
+            assertTrue( registries.getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) );
         }
-        
-        Attributes mods = new AttributesImpl();
-        mods.put( attr );
-        
-        rootDSE.modifyAttributes( dn, op, mods );
+        else
+        {
+            assertFalse( registries.getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) );
+        }
     }
     
     
@@ -357,17 +306,17 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         // add and check
         // -------------------------------------------------------------------
         
-        modifySyntaxCheckers( DirContext.ADD_ATTRIBUTE, descriptions );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis" );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis" );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", true );
 
         // -------------------------------------------------------------------
         // remove and check
         // -------------------------------------------------------------------
         
-        modifySyntaxCheckers( DirContext.REMOVE_ATTRIBUTE, descriptions );
-        checkSyntaxCheckerNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis" );
-        checkSyntaxCheckerNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis" );
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "syntaxCheckers" );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", false );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", false );
         
         // -------------------------------------------------------------------
         // test failure to replace
@@ -375,7 +324,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         
         try
         {
-            modifySyntaxCheckers( DirContext.REPLACE_ATTRIBUTE, descriptions );
+            modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "syntaxCheckers" );
             fail( "modify REPLACE operations should not be allowed" );
         }
         catch ( LdapOperationNotSupportedException e )
@@ -391,15 +340,15 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummySyntaxChecker BYTECODE " 
             +  getByteCode( "DummySyntaxChecker.bytecode" ) + " X-SCHEMA 'nis' )" );
 
-        modifySyntaxCheckers( DirContext.ADD_ATTRIBUTE, descriptions );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis" );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
 
         // -------------------------------------------------------------------
         // check remove with valid bytecode
         // -------------------------------------------------------------------
         
-        modifySyntaxCheckers( DirContext.REMOVE_ATTRIBUTE, descriptions );
-        checkSyntaxCheckerNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis" );
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "syntaxCheckers" );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", false );
 
         // -------------------------------------------------------------------
         // check add no schema info
@@ -409,21 +358,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummySyntaxChecker BYTECODE " 
             +  getByteCode( "DummySyntaxChecker.bytecode" ) + " )" );
 
-        modifySyntaxCheckers( DirContext.ADD_ATTRIBUTE, descriptions );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other" );
-    }
-    
-    
-    private String getByteCode( String resource ) throws IOException
-    {
-        InputStream in = getClass().getResourceAsStream( resource );
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        while ( in.available() > 0 )
-        {
-            out.write( in.read() );
-        }
-        
-        return new String( Base64.encode( out.toByteArray() ) );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
+        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other", true );
     }
     
     
@@ -432,7 +368,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     // -----------------------------------------------------------------------
     
     
-    private void checkComparatorPresent( String oid, String schemaName ) throws Exception
+    private void checkComparatorPresent( String oid, String schemaName, boolean isPresent ) throws Exception
     {
         // -------------------------------------------------------------------
         // check first to see if it is present in the subschemaSubentry
@@ -450,46 +386,16 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
                 break;
             }
         }
-        
-        assertNotNull( comparatorDescription );
-        assertEquals( oid, comparatorDescription.getNumericOid() );
-
-        // -------------------------------------------------------------------
-        // check next to see if it is present in the schema partition
-        // -------------------------------------------------------------------
-        
-        attrs = null;
-        attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=comparators,cn=" + schemaName );
-        assertNotNull( attrs );
-        
-        // -------------------------------------------------------------------
-        // check to see if it is present in the comparatorRegistry
-        // -------------------------------------------------------------------
-        
-        assertTrue( registries.getComparatorRegistry().hasComparator( oid ) );
-    }
-    
-    
-    private void checkComparatorNotPresent( String oid, String schemaName ) throws Exception
-    {
-        // -------------------------------------------------------------------
-        // check first to see if it is present in the subschemaSubentry
-        // -------------------------------------------------------------------
-        
-        Attributes attrs = getSubschemaSubentryAttributes();
-        Attribute attrTypes = attrs.get( "comparators" );
-        ComparatorDescription comparatorDescription = null; 
-        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+     
+        if ( isPresent )
         {
-            String desc = ( String ) attrTypes.get( ii );
-            if ( desc.indexOf( oid ) != -1 )
-            {
-                comparatorDescription = comparatorDescriptionSchemaParser.parseComparatorDescription( desc );
-                break;
-            }
+            assertNotNull( comparatorDescription );
+            assertEquals( oid, comparatorDescription.getNumericOid() );
         }
-        
-        assertNull( comparatorDescription );
+        else
+        {
+            assertNull( comparatorDescription );
+        }
 
         // -------------------------------------------------------------------
         // check next to see if it is present in the schema partition
@@ -497,38 +403,36 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         
         attrs = null;
         
-        try
+        if ( isPresent )
         {
             attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=comparators,cn=" + schemaName );
-            fail( "should never get here" );
+            assertNotNull( attrs );
         }
-        catch( NamingException e )
+        else
         {
+            try
+            {
+                attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=comparators,cn=" + schemaName );
+                fail( "should never get here" );
+            }
+            catch( NamingException e )
+            {
+            }
+            assertNull( attrs );
         }
-        
-        assertNull( attrs );
         
         // -------------------------------------------------------------------
         // check to see if it is present in the comparatorRegistry
         // -------------------------------------------------------------------
-        
-        assertFalse( registries.getComparatorRegistry().hasComparator( oid ) );
-    }
-    
-    
-    private void modifyComparators( int op, List<String> descriptions ) throws Exception
-    {
-        LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
-        Attribute attr = new AttributeImpl( "comparators" );
-        for ( String description : descriptions )
+
+        if ( isPresent )
         {
-            attr.add( description );
+            assertTrue( registries.getComparatorRegistry().hasComparator( oid ) );
         }
-        
-        Attributes mods = new AttributesImpl();
-        mods.put( attr );
-        
-        rootDSE.modifyAttributes( dn, op, mods );
+        else
+        {
+            assertFalse( registries.getComparatorRegistry().hasComparator( oid ) );
+        }
     }
     
     
@@ -550,17 +454,17 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         // add and check
         // -------------------------------------------------------------------
         
-        modifyComparators( DirContext.ADD_ATTRIBUTE, descriptions );
-        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis" );
-        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis" );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "comparators" );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", true );
 
         // -------------------------------------------------------------------
         // remove and check
         // -------------------------------------------------------------------
         
-        modifyComparators( DirContext.REMOVE_ATTRIBUTE, descriptions );
-        checkComparatorNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis" );
-        checkComparatorNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis" );
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "comparators" );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", false );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", false );
         
         // -------------------------------------------------------------------
         // test failure to replace
@@ -568,7 +472,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         
         try
         {
-            modifyComparators( DirContext.REPLACE_ATTRIBUTE, descriptions );
+            modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "comparators" );
             fail( "modify REPLACE operations should not be allowed" );
         }
         catch ( LdapOperationNotSupportedException e )
@@ -584,15 +488,15 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummyComparator BYTECODE " 
             +  getByteCode( "DummyComparator.bytecode" ) + " X-SCHEMA 'nis' )" );
 
-        modifyComparators( DirContext.ADD_ATTRIBUTE, descriptions );
-        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis" );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "comparators" );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
 
         // -------------------------------------------------------------------
         // check remove with valid bytecode
         // -------------------------------------------------------------------
         
-        modifyComparators( DirContext.REMOVE_ATTRIBUTE, descriptions );
-        checkComparatorNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis" );
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "comparators" );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", false );
 
         // -------------------------------------------------------------------
         // check add no schema info
@@ -602,8 +506,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummyComparator BYTECODE " 
             +  getByteCode( "DummyComparator.bytecode" ) + " )" );
 
-        modifyComparators( DirContext.ADD_ATTRIBUTE, descriptions );
-        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other" );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "comparators" );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other", true );
     }
 
     
@@ -612,7 +516,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     // -----------------------------------------------------------------------
     
     
-    private void checkNormalizerPresent( String oid, String schemaName ) throws Exception
+    private void checkNormalizerPresent( String oid, String schemaName, boolean isPresent ) throws Exception
     {
         // -------------------------------------------------------------------
         // check first to see if it is present in the subschemaSubentry
@@ -630,46 +534,16 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
                 break;
             }
         }
-        
-        assertNotNull( normalizerDescription );
-        assertEquals( oid, normalizerDescription.getNumericOid() );
-
-        // -------------------------------------------------------------------
-        // check next to see if it is present in the schema partition
-        // -------------------------------------------------------------------
-        
-        attrs = null;
-        attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=normalizers,cn=" + schemaName );
-        assertNotNull( attrs );
-        
-        // -------------------------------------------------------------------
-        // check to see if it is present in the normalizerRegistry
-        // -------------------------------------------------------------------
-        
-        assertTrue( registries.getNormalizerRegistry().hasNormalizer( oid ) );
-    }
-    
-    
-    private void checkNormalizerNotPresent( String oid, String schemaName ) throws Exception
-    {
-        // -------------------------------------------------------------------
-        // check first to see if it is present in the subschemaSubentry
-        // -------------------------------------------------------------------
-        
-        Attributes attrs = getSubschemaSubentryAttributes();
-        Attribute attrTypes = attrs.get( "normalizers" );
-        NormalizerDescription normalizerDescription = null; 
-        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+     
+        if ( isPresent )
         {
-            String desc = ( String ) attrTypes.get( ii );
-            if ( desc.indexOf( oid ) != -1 )
-            {
-                normalizerDescription = normalizerDescriptionSchemaParser.parseNormalizerDescription( desc );
-                break;
-            }
+            assertNotNull( normalizerDescription );
+            assertEquals( oid, normalizerDescription.getNumericOid() );
         }
-        
-        assertNull( normalizerDescription );
+        else
+        {
+            assertNull( normalizerDescription );
+        }
 
         // -------------------------------------------------------------------
         // check next to see if it is present in the schema partition
@@ -677,38 +551,36 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         
         attrs = null;
         
-        try
+        if ( isPresent )
         {
             attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=normalizers,cn=" + schemaName );
-            fail( "should never get here" );
+            assertNotNull( attrs );
         }
-        catch( NamingException e )
+        else
         {
+            try
+            {
+                attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=normalizers,cn=" + schemaName );
+                fail( "should never get here" );
+            }
+            catch( NamingException e )
+            {
+            }
+            assertNull( attrs );
         }
-        
-        assertNull( attrs );
         
         // -------------------------------------------------------------------
         // check to see if it is present in the normalizerRegistry
         // -------------------------------------------------------------------
         
-        assertFalse( registries.getNormalizerRegistry().hasNormalizer( oid ) );
-    }
-    
-    
-    private void modifyNormalizers( int op, List<String> descriptions ) throws Exception
-    {
-        LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
-        Attribute attr = new AttributeImpl( "normalizers" );
-        for ( String description : descriptions )
-        {
-            attr.add( description );
+        if ( isPresent ) 
+        { 
+            assertTrue( registries.getNormalizerRegistry().hasNormalizer( oid ) );
         }
-        
-        Attributes mods = new AttributesImpl();
-        mods.put( attr );
-        
-        rootDSE.modifyAttributes( dn, op, mods );
+        else
+        {
+            assertFalse( registries.getNormalizerRegistry().hasNormalizer( oid ) );
+        }
     }
     
     
@@ -730,17 +602,17 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         // add and check
         // -------------------------------------------------------------------
         
-        modifyNormalizers( DirContext.ADD_ATTRIBUTE, descriptions );
-        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis" );
-        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis" );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "normalizers" );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", true );
 
         // -------------------------------------------------------------------
         // remove and check
         // -------------------------------------------------------------------
         
-        modifyNormalizers( DirContext.REMOVE_ATTRIBUTE, descriptions );
-        checkNormalizerNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis" );
-        checkNormalizerNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis" );
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "normalizers" );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", false );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", false );
         
         // -------------------------------------------------------------------
         // test failure to replace
@@ -748,7 +620,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         
         try
         {
-            modifyNormalizers( DirContext.REPLACE_ATTRIBUTE, descriptions );
+            modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "normalizers" );
             fail( "modify REPLACE operations should not be allowed" );
         }
         catch ( LdapOperationNotSupportedException e )
@@ -764,15 +636,15 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummyNormalizer BYTECODE " 
             +  getByteCode( "DummyNormalizer.bytecode" ) + " X-SCHEMA 'nis' )" );
 
-        modifyNormalizers( DirContext.ADD_ATTRIBUTE, descriptions );
-        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis" );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "normalizers" );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
 
         // -------------------------------------------------------------------
         // check remove with valid bytecode
         // -------------------------------------------------------------------
         
-        modifyNormalizers( DirContext.REMOVE_ATTRIBUTE, descriptions );
-        checkNormalizerNotPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis" );
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "normalizers" );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", false );
 
         // -------------------------------------------------------------------
         // check add no schema info
@@ -782,8 +654,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummyNormalizer BYTECODE " 
             +  getByteCode( "DummyNormalizer.bytecode" ) + " )" );
 
-        modifyNormalizers( DirContext.ADD_ATTRIBUTE, descriptions );
-        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other" );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "normalizers" );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other", true );
     }
 
     
@@ -901,5 +773,59 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         assertEquals( false, at.isCollective() );
         assertEquals( false, at.isObsolete() );
         assertEquals( true, at.isSingleValue() );
+    }
+
+
+    // -----------------------------------------------------------------------
+    // Private Utility Methods 
+    // -----------------------------------------------------------------------
+    
+
+    private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
+    {
+        LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
+        Attribute attr = new AttributeImpl( opAttr );
+        for ( String description : descriptions )
+        {
+            attr.add( description );
+        }
+        
+        Attributes mods = new AttributesImpl();
+        mods.put( attr );
+        
+        rootDSE.modifyAttributes( dn, op, mods );
+    }
+    
+    
+    private void enableSchema( String schemaName ) throws NamingException
+    {
+        // now enable the test schema
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        Attribute attr = new AttributeImpl( "m-disabled", "FALSE" );
+        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        super.schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+    }
+    
+    
+    private void disableSchema( String schemaName ) throws NamingException
+    {
+        // now enable the test schema
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        Attribute attr = new AttributeImpl( "m-disabled", "TRUE" );
+        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        super.schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+    }
+    
+    
+    private String getByteCode( String resource ) throws IOException
+    {
+        InputStream in = getClass().getResourceAsStream( resource );
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        while ( in.available() > 0 )
+        {
+            out.write( in.read() );
+        }
+        
+        return new String( Base64.encode( out.toByteArray() ) );
     }
 }
