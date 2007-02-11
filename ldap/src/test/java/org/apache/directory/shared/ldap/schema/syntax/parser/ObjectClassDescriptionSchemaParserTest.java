@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax;
+package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 
 import java.text.ParseException;
@@ -25,7 +25,7 @@ import java.text.ParseException;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
-import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
 
 
 /**
@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescript
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SchemaParserObjectClassDescriptionTest extends TestCase
+public class ObjectClassDescriptionSchemaParserTest extends TestCase
 {
     /** the parser instance */
     private ObjectClassDescriptionSchemaParser parser;

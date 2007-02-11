@@ -17,14 +17,14 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax;
+package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 
 import java.text.ParseException;
 
 import junit.framework.TestCase;
 
-import org.apache.directory.shared.ldap.schema.syntax.parser.NameFormDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.NameFormDescription;
 
 
 /**
@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.schema.syntax.parser.NameFormDescription
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SchemaParserNameFormDescriptionTest extends TestCase
+public class NameFormDescriptionSchemaParserTest extends TestCase
 {
     /** the parser instance */
     private NameFormDescriptionSchemaParser parser;

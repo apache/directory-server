@@ -17,14 +17,14 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax;
+package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 
 import java.text.ParseException;
 
 import junit.framework.TestCase;
 
-import org.apache.directory.shared.ldap.schema.syntax.parser.DITStructureRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.DITStructureRuleDescription;
 
 
 /**
@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.schema.syntax.parser.DITStructureRuleDes
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SchemaParserDITStructureRuleDescriptionTest extends TestCase
+public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
 {
     /** the parser instance */
     private DITStructureRuleDescriptionSchemaParser parser;

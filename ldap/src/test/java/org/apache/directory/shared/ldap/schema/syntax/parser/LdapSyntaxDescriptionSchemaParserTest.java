@@ -17,14 +17,14 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax;
+package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 
 import java.text.ParseException;
 
 import junit.framework.TestCase;
 
-import org.apache.directory.shared.ldap.schema.syntax.parser.LdapSyntaxDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.LdapSyntaxDescription;
 
 
 /**
@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.schema.syntax.parser.LdapSyntaxDescripti
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SchemaParserLdapSyntaxDescriptionTest extends TestCase
+public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
 {
     /** the parser instance */
     private LdapSyntaxDescriptionSchemaParser parser;
@@ -144,7 +144,20 @@ public class SchemaParserLdapSyntaxDescriptionTest extends TestCase
         assertEquals( "TRUE", lsd.getExtensions().get( "X-NOT-HUMAN-READABLE" ).get( 0 ) );
     }
 
+    
+    /**
+     * Tests the parse of a simple AttributeType with the schema extension.
+     */
+    public void testSyntaxWithExtensions() throws Exception
+    {
+        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 DESC 'bogus description' X-SCHEMA 'blah' X-IS-HUMAN-READABLE 'true' )";
+        LdapSyntaxDescription desc = parser.parseLdapSyntaxDescription( substrate );
+        assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", desc.getNumericOid() );
+        assertEquals( "bogus description", desc.getDescription() );
+        assertNotNull( desc.getExtensions().get( "X-IS-HUMAN-READABLE" ) );
+    }
 
+    
     /**
      * Tests the multithreaded use of a single parser.
      */

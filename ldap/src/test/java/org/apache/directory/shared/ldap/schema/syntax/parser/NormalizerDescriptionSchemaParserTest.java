@@ -17,30 +17,30 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax;
+package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 
 import java.text.ParseException;
 
 import junit.framework.TestCase;
 
-import org.apache.directory.shared.ldap.schema.syntax.parser.SyntaxCheckerDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 
 
 /**
- * Tests the SyntaxCheckerDescriptionSchemaParser class.
+ * Tests the NormalizerDescriptionSchemaParser class.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SchemaParserSyntaxCheckerDescriptionTest extends TestCase
+public class NormalizerDescriptionSchemaParserTest extends TestCase
 {
     /** the parser instance */
-    private SyntaxCheckerDescriptionSchemaParser parser;
+    private NormalizerDescriptionSchemaParser parser;
 
 
     protected void setUp() throws Exception
     {
-        parser = new SyntaxCheckerDescriptionSchemaParser();
+        parser = new NormalizerDescriptionSchemaParser();
     }
 
 
@@ -67,13 +67,13 @@ public class SchemaParserSyntaxCheckerDescriptionTest extends TestCase
     {
 
         String value = null;
-        SyntaxCheckerDescription scd = null;
+        NormalizerDescription nd = null;
 
         // FQCN simple p
         value = "( 1.1 FQCN org.apache.directory.SimpleComparator )";
-        scd = parser.parseSyntaxCheckerDescription( value );
-        assertNotNull( scd.getFqcn() );
-        assertEquals( "org.apache.directory.SimpleComparator", scd.getFqcn() );
+        nd = parser.parseNormalizerDescription( value );
+        assertNotNull( nd.getFqcn() );
+        assertEquals( "org.apache.directory.SimpleComparator", nd.getFqcn() );
 
     }
 
@@ -82,13 +82,13 @@ public class SchemaParserSyntaxCheckerDescriptionTest extends TestCase
     {
 
         String value = null;
-        SyntaxCheckerDescription scd = null;
+        NormalizerDescription nd = null;
 
         // FQCN simple p
         value = "( 1.1 FQCN org.apache.directory.SimpleComparator BYTECODE ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789==== )";
-        scd = parser.parseSyntaxCheckerDescription( value );
-        assertNotNull( scd.getBytecode() );
-        assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", scd.getBytecode() );
+        nd = parser.parseNormalizerDescription( value );
+        assertNotNull( nd.getBytecode() );
+        assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", nd.getBytecode() );
 
     }
 

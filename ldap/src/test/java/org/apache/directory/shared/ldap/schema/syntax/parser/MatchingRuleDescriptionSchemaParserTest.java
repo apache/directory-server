@@ -17,14 +17,14 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax;
+package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 
 import java.text.ParseException;
 
 import junit.framework.TestCase;
 
-import org.apache.directory.shared.ldap.schema.syntax.parser.MatchingRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleDescription;
 
 
 /**
@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.schema.syntax.parser.MatchingRuleDescrip
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SchemaParserMatchingRuleDescriptionTest extends TestCase
+public class MatchingRuleDescriptionSchemaParserTest extends TestCase
 {
     /** the parser instance */
     private MatchingRuleDescriptionSchemaParser parser;
