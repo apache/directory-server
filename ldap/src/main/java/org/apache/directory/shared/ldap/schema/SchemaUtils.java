@@ -700,8 +700,7 @@ public class SchemaUtils
     public static StringBuffer render( Syntax syntax )
     {
         StringBuffer buf = new StringBuffer();
-        buf.append( "( " ).append( syntax.getOid() ).append( " NAME " );
-        render( buf, syntax.getNames() ).append( " " );
+        buf.append( "( " ).append( syntax.getOid() ).append( " " );
 
         if ( syntax.getDescription() != null )
         {
