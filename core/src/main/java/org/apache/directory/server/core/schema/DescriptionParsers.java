@@ -602,9 +602,13 @@ public class DescriptionParsers
     private void setSchemaObjectProperties( AbstractSchemaDescription desc, MutableSchemaObject obj )
     {
         obj.setDescription( desc.getDescription() );
-        obj.setObsolete( desc.isObsolete() );
         obj.setSchema( getSchema( desc ) );
-        obj.setNames( desc.getNames().toArray( EMPTY ) );
+
+        if ( ! ( desc instanceof LdapSyntaxDescription ) )
+        {
+            obj.setNames( desc.getNames().toArray( EMPTY ) );
+            obj.setObsolete( desc.isObsolete() );
+        }
     }
     
     
