@@ -410,9 +410,18 @@ public class SchemaUtils
     public static StringBuffer render( ObjectClass oc ) throws NamingException
     {
         StringBuffer buf = new StringBuffer();
-        buf.append( "( " ).append( oc.getOid() ).append( " NAME " );
-        render( buf, oc.getNames() ).append( " " );
+        buf.append( "( " ).append( oc.getOid() );
 
+        if ( oc.getNames() != null && oc.getNames().length > 0 )
+        {
+            buf.append( " NAME " );
+            render( buf, oc.getNames() ).append( " " );
+        }
+        else
+        {
+            buf.append( " " );
+        }
+        
         if ( oc.getDescription() != null )
         {
             buf.append( "DESC " ).append( "'" ).append( oc.getDescription() ).append( "' " );
