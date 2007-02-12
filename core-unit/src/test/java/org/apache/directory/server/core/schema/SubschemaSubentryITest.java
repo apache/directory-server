@@ -90,46 +90,6 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
 
     
     /**
-     * Get's the subschemaSubentry attribute value from the rootDSE.
-     * 
-     * @return the subschemaSubentry distinguished name
-     * @throws NamingException if there are problems accessing the RootDSE
-     */
-    private String getSubschemaSubentryDN() throws NamingException
-    {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ SUBSCHEMA_SUBENTRY } );
-        
-        NamingEnumeration<SearchResult> results = rootDSE.search( "", "(objectClass=*)", controls );
-        SearchResult result = results.next();
-        results.close();
-        Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
-        return ( String ) subschemaSubentry.get();
-    }
-
-    
-    /**
-     * Gets the subschemaSubentry attributes for the global schema.
-     * 
-     * @return all operational attributes of the subschemaSubentry 
-     * @throws NamingException if there are problems accessing this entry
-     */
-    private Attributes getSubschemaSubentryAttributes() throws NamingException
-    {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ "+", "*" } );
-        
-        NamingEnumeration<SearchResult> results = rootDSE.search( getSubschemaSubentryDN(), 
-            "(objectClass=*)", controls );
-        SearchResult result = results.next();
-        results.close();
-        return result.getAttributes();
-    }
-    
-    
-    /**
      * Make sure the global subschemaSubentry is where it is expected to be. 
      */
     public void testRootDSEsSubschemaSubentry() throws NamingException
@@ -1040,7 +1000,209 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     // -----------------------------------------------------------------------
     // AttributeType Tests
     // -----------------------------------------------------------------------
+
     
+    private void checkAttributeTypePresent( String oid, String schemaName, boolean isPresent ) throws Exception
+    {
+        // -------------------------------------------------------------------
+        // check first to see if it is present in the subschemaSubentry
+        // -------------------------------------------------------------------
+        
+        Attributes attrs = getSubschemaSubentryAttributes();
+        Attribute attrTypes = attrs.get( "attributeTypes" );
+        AttributeTypeDescription attributeTypeDescription = null; 
+        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        {
+            String desc = ( String ) attrTypes.get( ii );
+            if ( desc.indexOf( oid ) != -1 )
+            {
+                attributeTypeDescription = attributeTypeDescriptionSchemaParser.parseAttributeTypeDescription( desc );
+                break;
+            }
+        }
+     
+        if ( isPresent )
+        {
+            assertNotNull( attributeTypeDescription );
+            assertEquals( oid, attributeTypeDescription.getNumericOid() );
+        }
+        else
+        {
+            assertNull( attributeTypeDescription );
+        }
+
+        // -------------------------------------------------------------------
+        // check next to see if it is present in the schema partition
+        // -------------------------------------------------------------------
+        
+        attrs = null;
+        
+        if ( isPresent )
+        {
+            attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+            assertNotNull( attrs );
+        }
+        else
+        {
+            try
+            {
+                attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+                fail( "should never get here" );
+            }
+            catch( NamingException e )
+            {
+            }
+            assertNull( attrs );
+        }
+        
+        // -------------------------------------------------------------------
+        // check to see if it is present in the attributeTypeRegistry
+        // -------------------------------------------------------------------
+        
+        if ( isPresent ) 
+        { 
+            assertTrue( registries.getAttributeTypeRegistry().hasAttributeType( oid ) );
+        }
+        else
+        {
+            assertFalse( registries.getAttributeTypeRegistry().hasAttributeType( oid ) );
+        }
+    }
+    
+    
+    /**
+     * Tests a number of modify add, remove and replace operation combinations for
+     * attributeTypes on the schema subentry.
+     */
+    public void testAddRemoveReplaceAttributeTypes() throws Exception
+    {
+        enableSchema( "nis" );
+        List<String> descriptions = new ArrayList<String>();
+
+        // -------------------------------------------------------------------
+        // test rejection with non-existant syntax
+        // -------------------------------------------------------------------
+        
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 DESC 'bogus desc' " +
+                "SYNTAX 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 DESC 'bogus desc' " +
+                "SYNTAX 1.2.3.4 X-SCHEMA 'nis' )" );
+
+        try
+        {
+            modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
+            fail( "Cannot add attributeType with bogus non-existant syntax" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+        
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
+
+//        // -------------------------------------------------------------------
+//        // test add with existant syntax but no name and no desc
+//        // -------------------------------------------------------------------
+//
+//        descriptions.clear();
+//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
+//                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
+//                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+//        
+//        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
+//        
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+//
+//        // -------------------------------------------------------------------
+//        // test add with existant syntax but no name 
+//        // -------------------------------------------------------------------
+//        
+//        // clear the matchingRules out now
+//        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "matchingRules" );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
+//
+//        descriptions.clear();
+//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 DESC 'bogus desc' " +
+//                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 DESC 'bogus desc' " +
+//                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+//        
+//        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
+//        
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+//
+//        // -------------------------------------------------------------------
+//        // test add success with name
+//        // -------------------------------------------------------------------
+//        
+//        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "matchingRules" );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
+//        
+//        descriptions.clear();
+//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'blah0' DESC 'bogus desc' " +
+//                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'blah1' 'othername1' ) DESC 'bogus desc' " +
+//                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+//        
+//        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
+//        
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+//
+//        // -------------------------------------------------------------------
+//        // test add success full (with obsolete)
+//        // -------------------------------------------------------------------
+//        
+//        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "matchingRules" );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
+//        
+//        descriptions.clear();
+//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'blah0' DESC 'bogus desc' " +
+//                "OBSOLETE SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'blah1' 'othername1' ) DESC 'bogus desc' " +
+//                "OBSOLETE SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+//        
+//        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
+//        
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+//
+//        // -------------------------------------------------------------------
+//        // test failure to replace
+//        // -------------------------------------------------------------------
+//        
+//        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "matchingRules" );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
+//        
+//        try
+//        {
+//            modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "matchingRules" );
+//            fail( "modify REPLACE operations should not be allowed" );
+//        }
+//        catch ( LdapOperationNotSupportedException e )
+//        {
+//            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+//        }
+//
+//        // -------------------------------------------------------------------
+//        // check add no schema info
+//        // -------------------------------------------------------------------
+//        
+//        descriptions.clear();
+//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10002 DESC 'bogus desc' " +
+//            "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )" );
+//        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
+//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10002", "other", true );
+    }
+
     
     /**
      * Tests the addition of a new attributeType via a modify ADD on the SSSE to disabled schema.
@@ -1195,5 +1357,45 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         }
         
         return new String( Base64.encode( out.toByteArray() ) );
+    }
+
+
+    /**
+     * Get's the subschemaSubentry attribute value from the rootDSE.
+     * 
+     * @return the subschemaSubentry distinguished name
+     * @throws NamingException if there are problems accessing the RootDSE
+     */
+    private String getSubschemaSubentryDN() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setReturningAttributes( new String[]{ SUBSCHEMA_SUBENTRY } );
+        
+        NamingEnumeration<SearchResult> results = rootDSE.search( "", "(objectClass=*)", controls );
+        SearchResult result = results.next();
+        results.close();
+        Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
+        return ( String ) subschemaSubentry.get();
+    }
+
+    
+    /**
+     * Gets the subschemaSubentry attributes for the global schema.
+     * 
+     * @return all operational attributes of the subschemaSubentry 
+     * @throws NamingException if there are problems accessing this entry
+     */
+    private Attributes getSubschemaSubentryAttributes() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setReturningAttributes( new String[]{ "+", "*" } );
+        
+        NamingEnumeration<SearchResult> results = rootDSE.search( getSubschemaSubentryDN(), 
+            "(objectClass=*)", controls );
+        SearchResult result = results.next();
+        results.close();
+        return result.getAttributes();
     }
 }

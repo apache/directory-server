@@ -187,7 +187,7 @@ public class SchemaManager
         this.schemaObjectHandlers[NAME_FORM_INDEX] = new MetaNameFormHandler( globalRegistries, loader ); 
 
         this.subentryModifier = new SchemaSubentryModifier( dao );
-        this.parsers = new DescriptionParsers( globalRegistries );
+        this.parsers = new DescriptionParsers( globalRegistries, dao );
         
         OidRegistry oidRegistry = globalRegistries.getOidRegistry();
         

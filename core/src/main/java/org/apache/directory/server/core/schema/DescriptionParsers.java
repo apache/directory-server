@@ -67,6 +67,8 @@ import org.apache.directory.shared.ldap.schema.syntax.parser.SyntaxCheckerDescri
 
 /**
  * Parses descriptions using a number of different parsers for schema descriptions.
+ * Also checks to make sure some things are valid as it's parsing paramters of
+ * certain entity types.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -114,15 +116,18 @@ public class DescriptionParsers
     private final NameFormDescriptionSchemaParser nameFormParser =
         new NameFormDescriptionSchemaParser();
     
+    private final SchemaPartitionDao dao;
+    
     
     /**
      * Creates a description parser.
      * 
      * @param globalRegistries the registries to use while creating new schema entities
      */
-    public DescriptionParsers( Registries globalRegistries )
+    public DescriptionParsers( Registries globalRegistries, SchemaPartitionDao dao )
     {
         this.globalRegistries = globalRegistries;
+        this.dao = dao;
     }
 
     
@@ -247,7 +252,14 @@ public class DescriptionParsers
                 iave.setRootCause( e );
                 throw iave;
             }
-            
+
+            if ( desc.getSyntax() != null && ! dao.hasSyntax( desc.getSyntax() ) )
+            {
+                throw new LdapOperationNotSupportedException(
+                    "Cannot permit the addition of an attributeType with an invalid syntax: " + desc.getSyntax(), 
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+
             AttributeTypeImpl at = new AttributeTypeImpl( desc.getNumericOid(), globalRegistries );
             at.setCanUserModify( desc.isUserModifiable() );
             at.setCollective( desc.isCollective() );
@@ -395,6 +407,14 @@ public class DescriptionParsers
                 throw iave;
             }
             
+            if ( ! dao.hasSyntaxChecker( desc.getNumericOid() ) )
+            {
+                throw new LdapOperationNotSupportedException(
+                    "Cannot permit the addition of a syntax without the prior creation of a " +
+                    "\nsyntaxChecker with the same object identifier of the syntax!",
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+
             SyntaxImpl syntax = new SyntaxImpl( desc.getNumericOid(), globalRegistries.getSyntaxCheckerRegistry() );
             setSchemaObjectProperties( desc, syntax );
             syntax.setHumanReadible( isHumanReadable( desc ) );
@@ -439,7 +459,7 @@ public class DescriptionParsers
                 throw iave;
             }
             
-            if ( ! globalRegistries.getSyntaxRegistry().hasSyntax( desc.getSyntax() ) )
+            if ( ! dao.hasSyntax( desc.getSyntax() )  )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot create a matchingRule that depends on non-existant syntax: " + desc.getSyntax(),
