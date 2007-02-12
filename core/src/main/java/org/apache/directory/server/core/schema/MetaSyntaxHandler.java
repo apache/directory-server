@@ -271,14 +271,14 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     {
         Schema schema = loader.getSchema( syntax.getSchema() );
         
-        if ( ! this.targetRegistries.getSyntaxCheckerRegistry().hasSyntaxChecker( syntax.getOid() ) )
+        if ( ! dao.hasSyntaxChecker( syntax.getOid() ) )
         {
             throw new LdapOperationNotSupportedException(
                 "Cannot permit the addition of a syntax without the prior creation of a " +
                 "\nsyntaxChecker with the same object identifier of the syntax!",
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
-        
+
         if ( ! schema.isDisabled() )
         {
             syntaxRegistry.register( syntax );

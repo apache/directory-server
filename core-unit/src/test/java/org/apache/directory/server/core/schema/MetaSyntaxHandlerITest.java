@@ -20,10 +20,16 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
@@ -36,6 +42,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 
 
 /**
@@ -56,7 +63,8 @@ public class MetaSyntaxHandlerITest extends AbstractAdminTestCase
     private static final String MR_OID = "1.3.6.1.4.1.18060.0.4.0.1.100000";
     private static final String MR_DESCRIPTION = "A test matchingRule";
 
-    
+    private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
+
     /**
      * Gets relative DN to ou=schema.
      */
@@ -83,6 +91,7 @@ public class MetaSyntaxHandlerITest extends AbstractAdminTestCase
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        createDummySyntaxChecker( OID, "apachemeta" );
         super.schemaRoot.createSubcontext( dn, attrs );
         
         assertTrue( registries.getSyntaxRegistry().hasSyntax( OID ) );
@@ -433,6 +442,7 @@ public class MetaSyntaxHandlerITest extends AbstractAdminTestCase
         // nis is by default inactive
         LdapDN dn = getSyntaxContainer( "nis" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        createDummySyntaxChecker( OID, "nis" );
         super.schemaRoot.createSubcontext( dn, attrs );
         
         assertFalse( "adding new syntax to disabled schema should not register it into the registries", 
@@ -479,5 +489,50 @@ public class MetaSyntaxHandlerITest extends AbstractAdminTestCase
         
         assertEquals( "syntax should be in apachemeta schema after move", 
             registries.getSyntaxRegistry().getSchemaName( OID ), "apachemeta" );
+    }
+
+
+    private void createDummySyntaxChecker( String oid, String schema ) throws NamingException
+    {
+        List<String> descriptions = new ArrayList<String>();
+        descriptions.add( "( " + oid + " DESC 'bogus desc' FQCN " + AcceptAllSyntaxChecker.class.getName() 
+            + " X-SCHEMA '" + schema + "' )" );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
+    }
+    
+    
+    private void modify( int op, List<String> descriptions, String opAttr ) throws NamingException
+    {
+        LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
+        Attribute attr = new AttributeImpl( opAttr );
+        for ( String description : descriptions )
+        {
+            attr.add( description );
+        }
+        
+        Attributes mods = new AttributesImpl();
+        mods.put( attr );
+        
+        rootDSE.modifyAttributes( dn, op, mods );
+    }
+    
+    
+    /**
+     * Get's the subschemaSubentry attribute value from the rootDSE.
+     * 
+     * @return the subschemaSubentry distinguished name
+     * @throws NamingException if there are problems accessing the RootDSE
+     */
+    private String getSubschemaSubentryDN() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setReturningAttributes( new String[]{ SUBSCHEMA_SUBENTRY } );
+        
+        NamingEnumeration<SearchResult> results = rootDSE.search( "", "(objectClass=*)", controls );
+        SearchResult result = results.next();
+        results.close();
+        Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
+        return ( String ) subschemaSubentry.get();
     }
 }
