@@ -23,5 +23,18 @@
     <developerConnection>scm:svn:http://svn.apache.org/repos/asf/directory/shared/trunk</developerConnection>
   </scm>
 
+  <pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.1.3</version>
+        <configuration>
+          <argLine>-Xmx1024m</argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </pluginManagement>
+
 </project>
 
