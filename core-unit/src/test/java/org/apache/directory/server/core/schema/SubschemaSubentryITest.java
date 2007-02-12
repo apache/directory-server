@@ -50,12 +50,14 @@ import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.syntax.LdapSyntaxDescription;
+import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.ComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.LdapSyntaxDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.MatchingRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.NormalizerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.Base64;
@@ -83,6 +85,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         new NormalizerDescriptionSchemaParser();
     private LdapSyntaxDescriptionSchemaParser ldapSyntaxDescriptionSchemaParser =
         new LdapSyntaxDescriptionSchemaParser();
+    private MatchingRuleDescriptionSchemaParser matchingRuleDescriptionSchemaParser =
+        new MatchingRuleDescriptionSchemaParser();
 
     
     /**
@@ -828,11 +832,210 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     }
     
     
-    
     // -----------------------------------------------------------------------
     // MatchingRule Tests
     // -----------------------------------------------------------------------
     
+    
+    private void checkMatchingRulePresent( String oid, String schemaName, boolean isPresent ) throws Exception
+    {
+        // -------------------------------------------------------------------
+        // check first to see if it is present in the subschemaSubentry
+        // -------------------------------------------------------------------
+        
+        Attributes attrs = getSubschemaSubentryAttributes();
+        Attribute attrTypes = attrs.get( "matchingRules" );
+        MatchingRuleDescription matchingRuleDescription = null; 
+        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        {
+            String desc = ( String ) attrTypes.get( ii );
+            if ( desc.indexOf( oid ) != -1 )
+            {
+                matchingRuleDescription = matchingRuleDescriptionSchemaParser.parseMatchingRuleDescription( desc );
+                break;
+            }
+        }
+     
+        if ( isPresent )
+        {
+            assertNotNull( matchingRuleDescription );
+            assertEquals( oid, matchingRuleDescription.getNumericOid() );
+        }
+        else
+        {
+            assertNull( matchingRuleDescription );
+        }
+
+        // -------------------------------------------------------------------
+        // check next to see if it is present in the schema partition
+        // -------------------------------------------------------------------
+        
+        attrs = null;
+        
+        if ( isPresent )
+        {
+            attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=matchingRules,cn=" + schemaName );
+            assertNotNull( attrs );
+        }
+        else
+        {
+            try
+            {
+                attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=matchingRules,cn=" + schemaName );
+                fail( "should never get here" );
+            }
+            catch( NamingException e )
+            {
+            }
+            assertNull( attrs );
+        }
+        
+        // -------------------------------------------------------------------
+        // check to see if it is present in the matchingRuleRegistry
+        // -------------------------------------------------------------------
+        
+        if ( isPresent ) 
+        { 
+            assertTrue( registries.getMatchingRuleRegistry().hasMatchingRule( oid ) );
+        }
+        else
+        {
+            assertFalse( registries.getMatchingRuleRegistry().hasMatchingRule( oid ) );
+        }
+    }
+    
+    
+    /**
+     * Tests a number of modify add, remove and replace operation combinations for
+     * matchingRules on the schema subentry.
+     */
+    public void testAddRemoveReplaceMatchingRules() throws Exception
+    {
+        enableSchema( "nis" );
+        List<String> descriptions = new ArrayList<String>();
+
+        // -------------------------------------------------------------------
+        // test rejection with non-existant syntax
+        // -------------------------------------------------------------------
+        
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 DESC 'bogus desc' SYNTAX 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 DESC 'bogus desc' SYNTAX 1.2.3.4 X-SCHEMA 'nis' )" );
+
+        try
+        {
+            modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
+            fail( "Cannot add matchingRule with bogus non-existant syntax" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+        
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10000", "nis", false );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10001", "nis", false );
+
+        // -------------------------------------------------------------------
+        // test add with existant syntax but no name and no desc
+        // -------------------------------------------------------------------
+
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
+        
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10000", "nis", true );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test add with existant syntax but no name 
+        // -------------------------------------------------------------------
+        
+        // clear the matchingRules out now
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "matchingRules" );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10000", "nis", false );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10001", "nis", false );
+
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 DESC 'bogus desc' " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 DESC 'bogus desc' " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
+        
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10000", "nis", true );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test add success with name
+        // -------------------------------------------------------------------
+        
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "matchingRules" );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10000", "nis", false );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10001", "nis", false );
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 NAME 'blah0' DESC 'bogus desc' " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 NAME ( 'blah1' 'othername1' ) DESC 'bogus desc' " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
+        
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10000", "nis", true );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test add success full (with obsolete)
+        // -------------------------------------------------------------------
+        
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "matchingRules" );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10000", "nis", false );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10001", "nis", false );
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10000 NAME 'blah0' DESC 'bogus desc' " +
+                "OBSOLETE SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10001 NAME ( 'blah1' 'othername1' ) DESC 'bogus desc' " +
+                "OBSOLETE SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
+        
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10000", "nis", true );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test failure to replace
+        // -------------------------------------------------------------------
+        
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "matchingRules" );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10000", "nis", false );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10001", "nis", false );
+        
+        try
+        {
+            modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "matchingRules" );
+            fail( "modify REPLACE operations should not be allowed" );
+        }
+        catch ( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+
+        // -------------------------------------------------------------------
+        // check add no schema info
+        // -------------------------------------------------------------------
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.1.10002 DESC 'bogus desc' " +
+        "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )" );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.1.10002", "other", true );
+    }
+
     
     // -----------------------------------------------------------------------
     // AttributeType Tests
