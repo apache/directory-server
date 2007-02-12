@@ -103,6 +103,7 @@
               <exclude>**/*ITest.java</exclude>
               <exclude>**/*PTest.java</exclude>
             </excludes>
+            <argLine>-Xmx1024m</argLine>
           </configuration>
         </plugin>
         <plugin>
@@ -147,6 +148,7 @@ enable performance tests run maven with the -Dperformance switch.
             <excludes>
               <exclude>**/*PTest.java</exclude>
             </excludes>
+            <argLine>-Xmx1024m</argLine>
           </configuration>
         </plugin>
         <plugin>
@@ -195,6 +197,7 @@ performance tests run maven with the -Dperformance switch.
             <excludes>
               <exclude>**/*ITest.java</exclude>
             </excludes>
+            <argLine>-Xmx1024m</argLine>
           </configuration>
         </plugin>
         <plugin>

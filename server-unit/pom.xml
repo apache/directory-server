@@ -48,6 +48,7 @@
           <excludes>
             <exclude>**/Abstract*</exclude>
           </excludes>
+          <argLine>-Xmx1024m</argLine>
         </configuration>
       </plugin>
     </plugins>
@@ -74,6 +75,7 @@
                    -->
                   <exclude>**/*Test.java</exclude>
                 </excludes>
+                <argLine>-Xmx1024m</argLine>
               </configuration>
             </plugin>
             <plugin>
@@ -115,6 +117,7 @@ tests run maven with the -Dintegration switch.
             <configuration>
               <forkMode>pertest</forkMode>
               <!-- <argLine>-agentlib:yjpagent</argLine> -->
+              <argLine>-Xmx1024m</argLine>
             </configuration>
           </plugin>
         </plugins>
