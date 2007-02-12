@@ -643,8 +643,17 @@ public class SchemaUtils
     public static StringBuffer render( MatchingRule mr ) throws NamingException
     {
         StringBuffer buf = new StringBuffer();
-        buf.append( "( " ).append( mr.getOid() ).append( " NAME " );
-        render( buf, mr.getNames() ).append( " " );
+        buf.append( "( " ).append( mr.getOid() );
+        
+        if ( mr.getNames() != null && mr.getNames().length > 0 )
+        {
+            buf.append( " NAME " );
+            render( buf, mr.getNames() ).append( " " );
+        }
+        else
+        {
+            buf.append( " " );
+        }
 
         if ( mr.getDescription() != null )
         {
