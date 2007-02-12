@@ -52,6 +52,7 @@ import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.syntax.LdapSyntaxDescription;
 import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
@@ -59,6 +60,7 @@ import org.apache.directory.shared.ldap.schema.syntax.parser.ComparatorDescripti
 import org.apache.directory.shared.ldap.schema.syntax.parser.LdapSyntaxDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.MatchingRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.NormalizerDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.Base64;
 
@@ -87,6 +89,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         new LdapSyntaxDescriptionSchemaParser();
     private MatchingRuleDescriptionSchemaParser matchingRuleDescriptionSchemaParser =
         new MatchingRuleDescriptionSchemaParser();
+    private ObjectClassDescriptionSchemaParser objectClassDescriptionSchemaParser =
+        new ObjectClassDescriptionSchemaParser();
 
     
     /**
@@ -1391,6 +1395,335 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     }
 
 
+    // -----------------------------------------------------------------------
+    // ObjectClass Tests
+    // -----------------------------------------------------------------------
+    
+    
+    private void checkObjectClassPresent( String oid, String schemaName, boolean isPresent ) throws Exception
+    {
+        // -------------------------------------------------------------------
+        // check first to see if it is present in the subschemaSubentry
+        // -------------------------------------------------------------------
+        
+        Attributes attrs = getSubschemaSubentryAttributes();
+        Attribute attrTypes = attrs.get( "objectClasses" );
+        ObjectClassDescription objectClassDescription = null; 
+        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        {
+            String desc = ( String ) attrTypes.get( ii );
+            if ( desc.indexOf( oid ) != -1 )
+            {
+                objectClassDescription = objectClassDescriptionSchemaParser.parseObjectClassDescription( desc );
+                break;
+            }
+        }
+     
+        if ( isPresent )
+        {
+            assertNotNull( objectClassDescription );
+            assertEquals( oid, objectClassDescription.getNumericOid() );
+        }
+        else
+        {
+            assertNull( objectClassDescription );
+        }
+
+        // -------------------------------------------------------------------
+        // check next to see if it is present in the schema partition
+        // -------------------------------------------------------------------
+        
+        attrs = null;
+        
+        if ( isPresent )
+        {
+            attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=objectClasses,cn=" + schemaName );
+            assertNotNull( attrs );
+        }
+        else
+        {
+            try
+            {
+                attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=objectClasses,cn=" + schemaName );
+                fail( "should never get here" );
+            }
+            catch( NamingException e )
+            {
+            }
+            assertNull( attrs );
+        }
+        
+        // -------------------------------------------------------------------
+        // check to see if it is present in the matchingRuleRegistry
+        // -------------------------------------------------------------------
+        
+        if ( isPresent ) 
+        { 
+            assertTrue( registries.getObjectClassRegistry().hasObjectClass( oid ) );
+        }
+        else
+        {
+            assertFalse( registries.getObjectClassRegistry().hasObjectClass( oid ) );
+        }
+    }
+    
+    
+    /**
+     * Tests a number of modify add, remove and replace operation combinations for
+     * objectClasses on the schema subentry.
+     */
+    public void testAddRemoveReplaceObjectClasses() throws Exception
+    {
+        enableSchema( "nis" );
+        List<String> descriptions = new ArrayList<String>();
+
+        // -------------------------------------------------------------------
+        // test rejection with non-existant superclass
+        // -------------------------------------------------------------------
+        
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 SUP 1.2.3 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 SUP ( 1.2.3 $ 4.5.6 ) X-SCHEMA 'nis' )" );
+
+        try
+        {
+            modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
+            fail( "Cannot add objectClass with bogus non-existant super" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+        
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", false );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
+
+        // -------------------------------------------------------------------
+        // test add with existant superiors but no name and no desc
+        // -------------------------------------------------------------------
+
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
+                "SUP 2.5.6.0 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
+                "SUP 2.5.6.0 X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
+        
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", true );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test add with existant superiors with names and no desc
+        // -------------------------------------------------------------------
+
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "objectClasses" );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", false );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
+                "NAME ( 'blah0' 'altname0' ) SUP 2.5.6.0 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
+                "NAME ( 'blah1' 'altname1' ) SUP 2.5.6.0 X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
+        
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", true );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test add with existant superiors with names and desc
+        // -------------------------------------------------------------------
+
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "objectClasses" );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", false );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
+                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP 2.5.6.0 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
+                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP 2.5.6.0 X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
+        
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", true );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test add with many existant superiors with names and desc
+        // -------------------------------------------------------------------
+
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "objectClasses" );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", false );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
+                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
+                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
+        
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", true );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test reject with non-existant attributeType in may list
+        // -------------------------------------------------------------------
+
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "objectClasses" );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", false );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
+                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) " +
+                "MAY ( blah0 $ cn ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
+                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) " +
+                "MAY ( sn $ blah1 ) X-SCHEMA 'nis' )" );
+        
+        try
+        {
+            modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
+            fail( "Cannot add objectClass with bogus non-existant attributeTypes" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+        
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", false );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
+
+        // -------------------------------------------------------------------
+        // test reject with non-existant attributeType in must list
+        // -------------------------------------------------------------------
+
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
+                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) " +
+                "MUST ( blah0 $ cn ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
+                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) " +
+                "MUST ( sn $ blah1 ) X-SCHEMA 'nis' )" );
+        
+        try
+        {
+            modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
+            fail( "Cannot add objectClass with bogus non-existant attributeTypes" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+        
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", false );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
+
+        // -------------------------------------------------------------------
+        // test add with valid attributeTypes in may list
+        // -------------------------------------------------------------------
+
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
+                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) " +
+                "MAY ( sn $ cn ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
+                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) " +
+                "MAY ( sn $ ou ) X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
+        
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", true );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test add with valid attributeTypes in must list
+        // -------------------------------------------------------------------
+
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "objectClasses" );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", false );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
+                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) " +
+                "MUST ( sn $ cn ) X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
+                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) " +
+                "MUST ( sn $ ou ) X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
+        
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", true );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test add success full (with obsolete)
+        // -------------------------------------------------------------------
+        
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "objectClasses" );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", false );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
+                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ dynamicObject ) STRUCTURAL " +
+                "MUST ( sn $ cn ) " +
+                "MAY ( sn $ ou ) " +
+                "X-SCHEMA 'nis' ) " );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
+                "NAME ( 'blah1' 'altname1' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ domain ) STRUCTURAL " +
+                "MUST ( sn $ ou ) " +
+                "MAY ( sn $ ou ) " +
+                "X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
+        
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", true );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test failure to replace
+        // -------------------------------------------------------------------
+        
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "objectClasses" );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "nis", false );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "nis", false );
+        
+        try
+        {
+            modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "objectClasses" );
+            fail( "modify REPLACE operations should not be allowed" );
+        }
+        catch ( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+
+        // -------------------------------------------------------------------
+        // check add no schema info
+        // -------------------------------------------------------------------
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
+            "NAME ( 'blah0' 'altname0' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ dynamicObject ) STRUCTURAL " +
+            "MUST ( sn $ cn ) " +
+            "MAY ( sn $ ou ) )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
+            "NAME ( 'blah1' 'altname1' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ domain ) STRUCTURAL " +
+            "MUST ( sn $ ou ) " +
+            "MAY ( sn $ ou ) )" );
+
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "other", true );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "other", true );
+    }
+
+    
     // -----------------------------------------------------------------------
     // Private Utility Methods 
     // -----------------------------------------------------------------------

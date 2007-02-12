@@ -75,7 +75,15 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
             throw e;
         }
 
-        oidRegistry.register( objectClass.getName(), objectClass.getOid() );
+        if ( objectClass.getNames() != null && objectClass.getNames().length > 0 )
+        {
+            oidRegistry.register( objectClass.getName(), objectClass.getOid() );
+        }
+        else
+        {
+            oidRegistry.register( objectClass.getOid(), objectClass.getOid() );
+        }
+        
         byOid.put( objectClass.getOid(), objectClass );
         if ( log.isDebugEnabled() )
         {

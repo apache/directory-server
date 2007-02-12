@@ -385,7 +385,57 @@ public class DescriptionParsers
                 iave.setRootCause( e );
                 throw iave;
             }
-         
+            
+            // if the super objectClasses are provided make sure it exists in some schema
+            if ( desc.getSuperiorObjectClasses() != null && desc.getSuperiorObjectClasses().size() > 0 )
+            {
+                for ( String superior : desc.getSuperiorObjectClasses() )
+                {
+                    if ( superior.equals( "2.5.6.0" ) || superior.equalsIgnoreCase( "top" ) )
+                    {
+                        continue;
+                    }
+                    
+                    if ( ! dao.hasObjectClass( superior ) )
+                    {
+                        throw new LdapOperationNotSupportedException(
+                            "Cannot permit the addition of an objectClass with an invalid superior objectClass: " 
+                                + superior, 
+                            ResultCodeEnum.UNWILLING_TO_PERFORM );
+                    }
+                }
+            }
+            
+            // if the may list is provided make sure attributes exists in some schema
+            if ( desc.getMayAttributeTypes() != null && desc.getMayAttributeTypes().size() > 0 )
+            {
+                for ( String mayAttr : desc.getMayAttributeTypes() )
+                {
+                    if ( ! dao.hasAttributeType( mayAttr ) )
+                    {
+                        throw new LdapOperationNotSupportedException(
+                            "Cannot permit the addition of an objectClass with an invalid " +
+                            "attributeType in the mayList: " + mayAttr, 
+                            ResultCodeEnum.UNWILLING_TO_PERFORM );
+                    }
+                }
+            }
+            
+            // if the must list is provided make sure attributes exists in some schema
+            if ( desc.getMustAttributeTypes() != null && desc.getMustAttributeTypes().size() > 0 )
+            {
+                for ( String mustAttr : desc.getMustAttributeTypes() )
+                {
+                    if ( ! dao.hasAttributeType( mustAttr ) )
+                    {
+                        throw new LdapOperationNotSupportedException(
+                            "Cannot permit the addition of an objectClass with an invalid " +
+                            "attributeType in the mustList: " + mustAttr, 
+                            ResultCodeEnum.UNWILLING_TO_PERFORM );
+                    }
+                }
+            }
+            
             ObjectClassImpl oc = new ObjectClassImpl( desc.getNumericOid(), globalRegistries );
             oc.setMayListOids( desc.getMayAttributeTypes().toArray( EMPTY) );
             oc.setMustListOids( desc.getMustAttributeTypes().toArray( EMPTY ) );
