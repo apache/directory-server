@@ -1101,106 +1101,191 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
         checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
 
-//        // -------------------------------------------------------------------
-//        // test add with existant syntax but no name and no desc
-//        // -------------------------------------------------------------------
-//
-//        descriptions.clear();
-//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
-//                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
-//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
-//                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
-//        
-//        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
-//        
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
-//
-//        // -------------------------------------------------------------------
-//        // test add with existant syntax but no name 
-//        // -------------------------------------------------------------------
-//        
-//        // clear the matchingRules out now
-//        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "matchingRules" );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
-//
-//        descriptions.clear();
-//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 DESC 'bogus desc' " +
-//                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
-//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 DESC 'bogus desc' " +
-//                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
-//        
-//        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
-//        
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
-//
-//        // -------------------------------------------------------------------
-//        // test add success with name
-//        // -------------------------------------------------------------------
-//        
-//        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "matchingRules" );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
-//        
-//        descriptions.clear();
-//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'blah0' DESC 'bogus desc' " +
-//                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
-//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'blah1' 'othername1' ) DESC 'bogus desc' " +
-//                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
-//        
-//        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
-//        
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
-//
-//        // -------------------------------------------------------------------
-//        // test add success full (with obsolete)
-//        // -------------------------------------------------------------------
-//        
-//        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "matchingRules" );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
-//        
-//        descriptions.clear();
-//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'blah0' DESC 'bogus desc' " +
-//                "OBSOLETE SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
-//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'blah1' 'othername1' ) DESC 'bogus desc' " +
-//                "OBSOLETE SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-SCHEMA 'nis' )" );
-//        
-//        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
-//        
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
-//
-//        // -------------------------------------------------------------------
-//        // test failure to replace
-//        // -------------------------------------------------------------------
-//        
-//        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "matchingRules" );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
-//        
-//        try
-//        {
-//            modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "matchingRules" );
-//            fail( "modify REPLACE operations should not be allowed" );
-//        }
-//        catch ( LdapOperationNotSupportedException e )
-//        {
-//            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
-//        }
-//
-//        // -------------------------------------------------------------------
-//        // check add no schema info
-//        // -------------------------------------------------------------------
-//        
-//        descriptions.clear();
-//        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10002 DESC 'bogus desc' " +
-//            "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )" );
-//        modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
-//        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10002", "other", true );
+        // -------------------------------------------------------------------
+        // test reject with non-existant super type
+        // -------------------------------------------------------------------
+
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 1.2.3.4 X-SCHEMA 'nis' )" );
+        
+        try
+        {
+            modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
+            fail( "Cannot add attributeType with bogus non-existant syntax" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+        
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
+
+        // -------------------------------------------------------------------
+        // test reject with non-existant equality matchingRule
+        // -------------------------------------------------------------------
+
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 EQUALITY 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 EQUALITY 1.2.3.4 X-SCHEMA 'nis' )" );
+        
+        try
+        {
+            modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
+            fail( "Cannot add attributeType with bogus non-existant equality MatchingRule" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+        
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
+
+        // -------------------------------------------------------------------
+        // test reject with non-existant ordering matchingRule
+        // -------------------------------------------------------------------
+
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 ORDERING 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 ORDERING 1.2.3.4 X-SCHEMA 'nis' )" );
+        
+        try
+        {
+            modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
+            fail( "Cannot add attributeType with bogus non-existant ordering MatchingRule" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+        
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
+
+        // -------------------------------------------------------------------
+        // test reject with non-existant substring matchingRule
+        // -------------------------------------------------------------------
+
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUBSTR 1.2.3.4 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUBSTR 1.2.3.4 X-SCHEMA 'nis' )" );
+        
+        try
+        {
+            modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
+            fail( "Cannot add attributeType with bogus non-existant substrings MatchingRule" );
+        }
+        catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+        
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
+
+        // -------------------------------------------------------------------
+        // test success with valid superior, valid syntax but no name
+        // -------------------------------------------------------------------
+
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
+        
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test success with valid superior, valid syntax and names
+        // -------------------------------------------------------------------
+
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "attributeTypes" );
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
+        
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test success with everything
+        // -------------------------------------------------------------------
+
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "attributeTypes" );
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " +
+                "OBSOLETE SUP 2.5.4.41 " +
+                "EQUALITY caseExactIA5Match " +
+                "ORDERING octetStringOrderingMatch " +
+                "SUBSTR caseExactIA5SubstringsMatch COLLECTIVE " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
+                "SINGLE-VALUE USAGE userApplications X-SCHEMA 'nis' )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 " +
+                "NO-USER-MODIFICATION USAGE directoryOperation X-SCHEMA 'nis' )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
+        
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+
+        // -------------------------------------------------------------------
+        // test failure to replace
+        // -------------------------------------------------------------------
+        
+        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "attributeTypes" );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", false );
+        checkMatchingRulePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", false );
+        
+        try
+        {
+            modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "attributeTypes" );
+            fail( "modify REPLACE operations should not be allowed" );
+        }
+        catch ( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
+
+        // -------------------------------------------------------------------
+        // check add no schema info
+        // -------------------------------------------------------------------
+        
+        descriptions.clear();
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " +
+                "OBSOLETE SUP 2.5.4.41 " +
+                "EQUALITY caseExactIA5Match " +
+                "ORDERING octetStringOrderingMatch " +
+                "SUBSTR caseExactIA5SubstringsMatch COLLECTIVE " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
+                "SINGLE-VALUE USAGE userApplications )" );
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) " +
+                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 " +
+                "NO-USER-MODIFICATION USAGE directoryOperation )" );
+        
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
+        
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "other", true );
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "other", true );
     }
 
     

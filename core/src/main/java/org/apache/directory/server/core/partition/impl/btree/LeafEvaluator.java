@@ -57,7 +57,7 @@ public class LeafEvaluator implements Evaluator
     /** ordering matching type constant */
     private static final int ORDERING_MATCH = 1;
     /** substring matching type constant */
-    private static final int SUBSTRING_MATCH = 3;
+    private static final int SUBSTRING_MATCH = 2;
 
     /** Database used to evaluate leaf with */
     private BTreePartition db;
@@ -190,8 +190,8 @@ public class LeafEvaluator implements Evaluator
          * We need to iterate through all values and for each value we normalize
          * and use the comparator to determine if a match exists.
          */
-        Normalizer normalizer = getNormalizer( attrId );
-        Comparator comparator = getComparator( attrId );
+        Normalizer normalizer = getNormalizer( attrId, ORDERING_MATCH );
+        Comparator<Object> comparator = getComparator( attrId, ORDERING_MATCH );
         Object filterValue = node.getValue();
         NamingEnumeration list = attr.getAll();
 
@@ -284,8 +284,8 @@ public class LeafEvaluator implements Evaluator
             return idx.hasValue( node.getValue(), rec.getEntryId() );
         }
 
-        Normalizer normalizer = getNormalizer( node.getAttribute() );
-        Comparator comparator = getComparator( node.getAttribute() );
+        Normalizer normalizer = getNormalizer( node.getAttribute(), EQUALITY_MATCH );
+        Comparator<Object> comparator = getComparator( node.getAttribute(), EQUALITY_MATCH );
 
         /*
          * Get the attribute and if it is not set in rec then resusitate it
@@ -355,9 +355,10 @@ public class LeafEvaluator implements Evaluator
      * @return the comparator for equality matching
      * @throws NamingException if there is a failure
      */
-    private Comparator getComparator( String attrId ) throws NamingException
+    @SuppressWarnings("unchecked")
+    private Comparator<Object> getComparator( String attrId, int matchType ) throws NamingException
     {
-        MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
+        MatchingRule mrule = getMatchingRule( attrId, matchType );
         
         if ( mrule == null )
         {
@@ -375,9 +376,9 @@ public class LeafEvaluator implements Evaluator
      * @return the normalizer for equality matching
      * @throws NamingException if there is a failure
      */
-    private Normalizer getNormalizer( String attrId ) throws NamingException
+    private Normalizer getNormalizer( String attrId, int matchType ) throws NamingException
     {
-        MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
+        MatchingRule mrule = getMatchingRule( attrId, matchType );
         
         if ( mrule == null )
         {
@@ -416,6 +417,17 @@ public class LeafEvaluator implements Evaluator
                 throw new NamingException( "Unknown match type: " + matchType );
         }
 
+        // if there is no ordering or substring matchingRule for the attributeType 
+        // then we fallback to use the equality matching rule to determine the
+        // normalizer and comparator to use.  This possible since 
+        // comparators are redundant and enable ordering to occur.  So if
+        // we can we will use the comparator of the ordering matchingRule
+        // and if not we default to the equality matchingRule's comparator.
+        if ( matchType != EQUALITY_MATCH && mrule == null )
+        {
+            return getMatchingRule( attrId, EQUALITY_MATCH );
+        }
+        
         return mrule;
     }
 }

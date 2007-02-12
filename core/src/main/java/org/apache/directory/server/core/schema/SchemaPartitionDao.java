@@ -245,6 +245,49 @@ public class SchemaPartitionDao
     }
     
     
+    public boolean hasAttributeType( String oid ) throws NamingException
+    {
+        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        filter.addNode( new SimpleNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC, AssertionEnum.EQUALITY ) );
+
+        if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
+        {
+            filter.addNode( new SimpleNode( M_OID_OID, oid, AssertionEnum.EQUALITY ) );
+        }
+        else
+        {
+            filter.addNode( new SimpleNode( M_NAME_OID, oid.toLowerCase(), AssertionEnum.EQUALITY ) );
+        }
+        
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+
+        try
+        {
+            ne = partition.search( partition.getSuffix(), new HashMap(), filter, searchControls );
+            
+            if ( ! ne.hasMore() )
+            {
+                return false;
+            }
+            
+            ne.next();
+            if ( ne.hasMore() )
+            {
+                throw new NamingException( "Got more than one attributeType for oid of " + oid );
+            }
+
+            return true;
+        }
+        finally
+        {
+            ne.close();
+        }
+    }
+    
+    
     public boolean hasSyntax( String oid ) throws NamingException
     {
         BranchNode filter = new BranchNode( AssertionEnum.AND );

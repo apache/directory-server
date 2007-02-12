@@ -253,12 +253,84 @@ public class DescriptionParsers
                 throw iave;
             }
 
+            // if the supertype is provided make sure it exists in some schema
+            if ( desc.getSuperType() != null && ! dao.hasAttributeType( desc.getSuperType() ) )
+            {
+                throw new LdapOperationNotSupportedException(
+                    "Cannot permit the addition of an attributeType with an invalid super type: " 
+                        + desc.getSuperType(), 
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+
+            // if the syntax is provided by the description make sure it exists in some schema
             if ( desc.getSyntax() != null && ! dao.hasSyntax( desc.getSyntax() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid syntax: " + desc.getSyntax(), 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
+            
+            // if the matchingRule is provided make sure it exists in some schema
+            if ( desc.getEqualityMatchingRule() != null && ! dao.hasMatchingRule( desc.getEqualityMatchingRule() ) )
+            {
+                throw new LdapOperationNotSupportedException(
+                    "Cannot permit the addition of an attributeType with an invalid EQUALITY matchingRule: " 
+                        + desc.getEqualityMatchingRule(), 
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+
+            // if the matchingRule is provided make sure it exists in some schema
+            if ( desc.getOrderingMatchingRule() != null && ! dao.hasMatchingRule( desc.getOrderingMatchingRule() ) )
+            {
+                throw new LdapOperationNotSupportedException(
+                    "Cannot permit the addition of an attributeType with an invalid ORDERING matchingRule: " 
+                        + desc.getOrderingMatchingRule(), 
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+
+            // if the matchingRule is provided make sure it exists in some schema
+            if ( desc.getSubstringsMatchingRule() != null && ! dao.hasMatchingRule( desc.getSubstringsMatchingRule() ) )
+            {
+                throw new LdapOperationNotSupportedException(
+                    "Cannot permit the addition of an attributeType with an invalid SUBSTRINGS matchingRule: " 
+                        + desc.getSubstringsMatchingRule(), 
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+
+            // if the equality matching rule is null and no super type is specified then there is
+            // definitely no equality matchingRule that can be resolved.  We cannot use an attribute
+            // without a matchingRule for search or for building indices not to mention lookups.
+            if ( desc.getEqualityMatchingRule() == null && desc.getSuperType() == null )
+            {
+                throw new LdapOperationNotSupportedException(
+                    "Cannot permit the addition of an attributeType with an no EQUALITY matchingRule " +
+                    "\nand no super type from which to derive an EQUALITY matchingRule.", 
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+            else if ( desc.getEqualityMatchingRule() == null )
+            {
+                AttributeType superType = globalRegistries.getAttributeTypeRegistry().lookup( desc.getSuperType() );
+                if ( superType.getEquality() == null )
+                {
+                    throw new LdapOperationNotSupportedException(
+                        "Cannot permit the addition of an attributeType with which cannot resolve an " +
+                        "EQUALITY matchingRule from it's super type.", 
+                        ResultCodeEnum.UNWILLING_TO_PERFORM );
+                }
+            }
+            
+            // a syntax is manditory for an attributeType and if not provided by the description 
+            // must be provided from some ancestor in the attributeType hierarchy; without either
+            // of these the description definitely cannot resolve a syntax and cannot be allowed.
+            // if a supertype exists then it must resolve a proper syntax somewhere in the hierarchy.
+            if ( desc.getSyntax() == null && desc.getSuperType() == null )
+            {
+                throw new LdapOperationNotSupportedException(
+                    "Cannot permit the addition of an attributeType with an no syntax " +
+                    "\nand no super type from which to derive a syntax.", 
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+            
 
             AttributeTypeImpl at = new AttributeTypeImpl( desc.getNumericOid(), globalRegistries );
             at.setCanUserModify( desc.isUserModifiable() );

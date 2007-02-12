@@ -61,8 +61,8 @@ public class SubstringEvaluator implements Evaluator
      * @param oidRegistry the OID registry for name to OID mapping
      * @param attributeTypeRegistry the attributeType registry
      */
-    public SubstringEvaluator(BTreePartition db, OidRegistry oidRegistry,
-        AttributeTypeRegistry attributeTypeRegistry)
+    public SubstringEvaluator( BTreePartition db, OidRegistry oidRegistry,
+        AttributeTypeRegistry attributeTypeRegistry )
     {
         this.db = db;
         this.oidRegistry = oidRegistry;
