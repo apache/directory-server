@@ -520,8 +520,17 @@ public class SchemaUtils
     public static StringBuffer render( AttributeType at ) throws NamingException
     {
         StringBuffer buf = new StringBuffer();
-        buf.append( "( " ).append( at.getOid() ).append( " NAME " );
-        render( buf, at.getNames() ).append( " " );
+        buf.append( "( " ).append( at.getOid() );
+        
+        if ( at.getNames() != null && at.getNames().length > 0 )
+        {
+            buf.append( " NAME " );
+            render( buf, at.getNames() ).append( " " );
+        }
+        else
+        {
+            buf.append( " " );
+        }
 
         if ( at.getDescription() != null )
         {
