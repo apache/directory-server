@@ -230,6 +230,7 @@ public class SchemaPartitionDao
                 return false;
             }
             
+            ne.next();
             if ( ne.hasMore() )
             {
                 throw new NamingException( "Got more than one matchingRule for oid of " + oid );
@@ -272,6 +273,7 @@ public class SchemaPartitionDao
                 return false;
             }
             
+            ne.next();
             if ( ne.hasMore() )
             {
                 throw new NamingException( "Got more than one syntax for oid of " + oid );
@@ -314,6 +316,7 @@ public class SchemaPartitionDao
                 return false;
             }
             
+            ne.next();
             if ( ne.hasMore() )
             {
                 throw new NamingException( "Got more than one syntaxChecker for oid of " + oid );
