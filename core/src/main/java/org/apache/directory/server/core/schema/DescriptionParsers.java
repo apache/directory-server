@@ -29,6 +29,7 @@ import javax.naming.directory.Attribute;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
@@ -436,6 +437,13 @@ public class DescriptionParsers
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
+            }
+            
+            if ( ! globalRegistries.getSyntaxRegistry().hasSyntax( desc.getSyntax() ) )
+            {
+                throw new LdapOperationNotSupportedException(
+                    "Cannot create a matchingRule that depends on non-existant syntax: " + desc.getSyntax(),
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
             MatchingRuleImpl mr = new MatchingRuleImpl( desc.getNumericOid(), desc.getSyntax(), globalRegistries );
