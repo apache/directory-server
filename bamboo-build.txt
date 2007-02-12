@@ -9,5 +9,5 @@ Here's the URL for the CI setup on Apache Directory Trunk:
 
   http://opensource.bamboo.atlassian.com/browse/APACHE-DS
 
-Build Number: 6
+Build Number: 7 
 
