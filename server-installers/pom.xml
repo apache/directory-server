@@ -98,7 +98,7 @@
             <version>${pom.version}</version>
             <copyrightYear>2006</copyrightYear>
             <minimumJavaVersion>1.4</minimumJavaVersion>
-            <url>http://directory.apache.org/subprojects/apacheds</url>
+            <url>http://directory.apache.org/apacheds/1.0</url>
             <email>users@directory.apache.org</email>
             <description>Apache Directory Server</description>
             <authors>
@@ -109,6 +109,9 @@
               <author>trustin@apache.org</author>
               <author>erodriguez@apache.org</author>
               <author>szoerner@apache.org</author>
+              <author>seelmann@apache.org</author>
+              <author>pamarcelot@apache.org</author>
+              <author>ckoppelt@apache.org</author>
             </authors>
           </application>
           <packagedFiles>
