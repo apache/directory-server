@@ -216,35 +216,6 @@
     <property name="indexedAttributes">
       <set>
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.1" />
-          <property name="cacheSize" value="100" />
-        </bean>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.2" />
-          <property name="cacheSize" value="100" />
-        </bean>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.3" />
-          <property name="cacheSize" value="100" />
-        </bean>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.4" />
-          <property name="cacheSize" value="100" />
-        </bean>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.5" />
-          <property name="cacheSize" value="10" />
-        </bean>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.6" />
-          <property name="cacheSize" value="10" />
-        </bean>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.7" />
-          <property name="cacheSize" value="10" />
-        </bean>
-
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
           <property name="attributeId" value="ou" />
           <property name="cacheSize" value="100" />
         </bean>
@@ -288,35 +259,6 @@
     <property name="synchOnWrite" value="true" />
     <property name="indexedAttributes">
       <set>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.1" />
-          <property name="cacheSize" value="100" />
-        </bean>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.2" />
-          <property name="cacheSize" value="100" />
-        </bean>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.3" />
-          <property name="cacheSize" value="100" />
-        </bean>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.4" />
-          <property name="cacheSize" value="100" />
-        </bean>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.5" />
-          <property name="cacheSize" value="10" />
-        </bean>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.6" />
-          <property name="cacheSize" value="10" />
-        </bean>
-        <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
-          <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.7" />
-          <property name="cacheSize" value="10" />
-        </bean>
-
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
           <property name="attributeId" value="dc" />
           <property name="cacheSize" value="100" />
