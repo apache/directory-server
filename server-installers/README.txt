@@ -11,7 +11,7 @@ within the docs directory.  Point your browser to:
 
 or go online here for the most up to date documentation,
 
-     http://directory.apache.org/subprojects/apacheds/index.html
+     http://directory.apache.org/apacheds/1.0/
 
 
 Running
@@ -78,7 +78,7 @@ Building Bundled Sources
 
 The sources are bundled with the installers and can be found in the src
 directory of the installation base.  The build system used is Maven 2.  We use
-version 2.0.3 for this release.  In general we try to use the most recent 
+version 2.0.4 for this release.  In general we try to use the most recent 
 production release of Maven.  You can build the server like so:
 
    cd ${install.basedir}; cd src; mvn install 
@@ -86,10 +86,7 @@ production release of Maven.  You can build the server like so:
 If you're interested in the latest sources you can check out ApacheDS using 
 subversion at the following base URL:
 
-   http://svn.apache.org/repos/asf/directory/trunks
-
-We recommend issuing a build command at the top most level in case ApacheDS
-has dependencies on the latest MINA version in trunks.  
+   http://svn.apache.org/repos/asf/directory/apacheds/releases/1.0.1
 
 
 Notes
