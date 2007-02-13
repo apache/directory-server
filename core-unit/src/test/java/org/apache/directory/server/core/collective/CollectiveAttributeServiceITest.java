@@ -138,7 +138,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
-            { "cn", "ou" } );
+            { "cn" } );
         NamingEnumeration results = super.sysRoot.search( "", "(objectClass=*)", controls );
         
         while ( results.hasMore() )
@@ -445,5 +445,23 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         {
             // Intended execution point
         }
+    }
+    
+    
+    public void testPolymorphicReturnAttrLookup() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Setup the collective attribute specific administration point
+        // -------------------------------------------------------------------
+    
+        addAdministrativeRole( "collectiveAttributeSpecificArea" );
+        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
+    
+        // request the collective attribute's super type specifically
+        Attributes attributes = super.sysRoot.getAttributes( "ou=interceptors,ou=configuration",
+            new String[] { "ou" } );
+        Attribute c_ou = attributes.get( "c-ou" );
+        assertNotNull( "a collective c-ou attribute should be present", c_ou );
+        assertTrue( c_ou.contains( "configuration" ) );
     }
 }
