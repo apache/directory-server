@@ -963,6 +963,7 @@ public class SubentryService extends BaseInterceptor
     public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
+        Attributes oldEntry = (Attributes) entry.clone();
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
         if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" )  && mods.get( "subtreeSpecification" ) != null )
@@ -1030,6 +1031,17 @@ public class SubentryService extends BaseInterceptor
         else
         {
             next.modify( name, modOp, mods );
+            
+            if ( !AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+            {
+	            Attributes newEntry = nexus.lookup( name );
+	            
+	            ModificationItemImpl[] subentriesOpAttrMods =  getModsOnEntryModification(name, oldEntry, newEntry);
+	            if ( subentriesOpAttrMods.length > 0)
+	            {
+	            	nexus.modify(name, subentriesOpAttrMods);
+	            }
+            }
         }
     }
 
@@ -1037,6 +1049,7 @@ public class SubentryService extends BaseInterceptor
     public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
+        Attributes oldEntry = (Attributes) entry.clone();
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
         boolean isSubtreeSpecificationModification = false;
         ModificationItemImpl subtreeMod = null;
@@ -1115,6 +1128,17 @@ public class SubentryService extends BaseInterceptor
         else
         {
             next.modify( name, mods );
+            
+            if ( !AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+            {
+	            Attributes newEntry = nexus.lookup( name );
+	            
+	            ModificationItemImpl[] subentriesOpAttrMods =  getModsOnEntryModification(name, oldEntry, newEntry);
+	            if ( subentriesOpAttrMods.length > 0)
+	            {
+	            	nexus.modify(name, subentriesOpAttrMods);
+	            }
+            }
         }
     }
 
@@ -1467,4 +1491,65 @@ public class SubentryService extends BaseInterceptor
             return subentryCache.hasSubentry( name.toNormName() );
         }
     }
+    
+    
+    private ModificationItemImpl[] getModsOnEntryModification( LdapDN name, Attributes oldEntry, Attributes newEntry )
+    throws NamingException
+	{
+	    List<ModificationItemImpl> modList = new ArrayList<ModificationItemImpl>();
+	
+	    Iterator subentries = subentryCache.nameIterator();
+	    while ( subentries.hasNext() )
+	    {
+	        String subentryDn = ( String ) subentries.next();
+	        Name apDn = new LdapDN( subentryDn );
+	        apDn.remove( apDn.size() - 1 );
+	        SubtreeSpecification ss = subentryCache.getSubentry( subentryDn ).getSubtreeSpecification();
+	        boolean isOldEntrySelected = evaluator.evaluate( ss, apDn, name, oldEntry );
+	        boolean isNewEntrySelected = evaluator.evaluate( ss, apDn, name, newEntry );
+	
+	        if ( isOldEntrySelected == isNewEntrySelected )
+	        {
+	            continue;
+	        }
+	
+	        // need to remove references to the subentry
+	        if ( isOldEntrySelected && !isNewEntrySelected )
+	        {
+	            for ( int ii = 0; ii < SUBENTRY_OPATTRS.length; ii++ )
+	            {
+	                int op = DirContext.REPLACE_ATTRIBUTE;
+	                Attribute opAttr = oldEntry.get( SUBENTRY_OPATTRS[ii] );
+	                if ( opAttr != null )
+	                {
+	                    opAttr = ( Attribute ) opAttr.clone();
+	                    opAttr.remove( subentryDn );
+	
+	                    if ( opAttr.size() < 1 )
+	                    {
+	                        op = DirContext.REMOVE_ATTRIBUTE;
+	                    }
+	
+	                    modList.add( new ModificationItemImpl( op, opAttr ) );
+	                }
+	            }
+	        }
+	        // need to add references to the subentry
+	        else if ( isNewEntrySelected && !isOldEntrySelected )
+	        {
+	            for ( int ii = 0; ii < SUBENTRY_OPATTRS.length; ii++ )
+	            {
+	                int op = DirContext.ADD_ATTRIBUTE;
+	                Attribute opAttr = new AttributeImpl( SUBENTRY_OPATTRS[ii] );
+	                opAttr.add( subentryDn );
+	                modList.add( new ModificationItemImpl( op, opAttr ) );
+	            }
+	        }
+	    }
+	
+	    ModificationItemImpl[] mods = new ModificationItemImpl[modList.size()];
+	    mods = modList.toArray( mods );
+	    return mods;
+	}
+
 }
