@@ -21,6 +21,7 @@ package org.apache.directory.server.core.collective;
 
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -202,6 +203,24 @@ public class CollectiveAttributeService extends BaseInterceptor
                 {
                     continue;
                 }
+                
+                Set allSuperTypes = getAllSuperTypes( attrType );
+                Iterator it = retIdsSet.iterator();
+                while ( it.hasNext() )
+                {
+                    String retId = ( String ) it.next();
+                    if ( retId.equals( "*" ) || retId.equals( "+" ) )
+                    {
+                        continue;
+                    }
+                    
+                    AttributeType retType = attrTypeRegistry.lookup( retId );
+                    if ( allSuperTypes.contains( retType ) )
+                    {
+                        retIdsSet.add( attrId );
+                        break;
+                    }
+                }
 
                 /*
                  * If not all attributes or this collective attribute requested specifically
@@ -209,13 +228,6 @@ public class CollectiveAttributeService extends BaseInterceptor
                  */
                 if ( !( retIdsSet.contains( "*" ) || retIdsSet.contains( attrId ) ) )
                 {
-                    /*
-                     * TODO: Check if the requested attribute types list includes any type
-                     *       that is a supertype of any collective attribute that applies
-                     *       to this entry.
-                     *       
-                     * See: http://issues.apache.org/jira/browse/DIRSERVER-820
-                     */
                     continue;
                 }
                 
@@ -241,6 +253,23 @@ public class CollectiveAttributeService extends BaseInterceptor
                 }
             }
         }
+    }
+    
+    
+    private Set getAllSuperTypes( AttributeType id ) throws NamingException
+    {
+        Set allSuperTypes = new HashSet();
+        AttributeType superType = id;
+        while ( superType != null )
+        {
+            superType = superType.getSuperior();
+            if ( superType != null )
+            {
+                allSuperTypes.add( superType );
+            }
+        }
+        
+        return allSuperTypes;
     }
 
 
