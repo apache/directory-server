@@ -40,12 +40,14 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 /**
  * Testcases for the SubentryService. Investigation on handling Subtree Refinement
- * Selection Membership upon objectClass attribute value changes.
+ * Selection Membership upon entry modifications. As we allow any LDAP filter to be
+ * specified as specificationFilter in subtreeSpecifications, any modification on
+ * entries can cause changes on subentry operational attributes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubentryServiceObjectClassChangeHandlingITest extends AbstractAdminTestCase
+public class SubentryServiceEntryModificationHandlingITest extends AbstractAdminTestCase
 {
     public Attributes getTestEntry( String cn )
     {
@@ -59,19 +61,7 @@ public class SubentryServiceObjectClassChangeHandlingITest extends AbstractAdmin
         return entry;
     }
 
-
-    public Attributes getModsForIntroducingNewOC() throws NamingException
-    {
-        Attributes changes = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
-        objectClass.add( "organizationalPerson" );
-        changes.put( objectClass );
-        changes.put( "ou", "Test Organizational Unit" );
-        return changes;
-    }
-
-
-    public Attributes getCollectiveAttributeTestSubentry( String cn )
+    public Attributes getCollectiveAttributeTestSubentryWithLDAPFilter( String cn, String sn )
     {
         Attributes subentry = new AttributesImpl();
         Attribute objectClass = new AttributeImpl( "objectClass" );
@@ -79,7 +69,7 @@ public class SubentryServiceObjectClassChangeHandlingITest extends AbstractAdmin
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
         subentry.put( objectClass );
-        subentry.put( "subtreeSpecification", "{ specificationFilter item:organizationalPerson }" );
+        subentry.put( "subtreeSpecification", "{ specificationFilter (sn=" + sn + ") }" );
         subentry.put( "c-o", "Test Org" );
         subentry.put( "cn", cn );
         return subentry;
@@ -114,11 +104,11 @@ public class SubentryServiceObjectClassChangeHandlingITest extends AbstractAdmin
     }
     
 
-    public void testTrackingOfOCChangesInSubentryServiceModifyRoutine() throws Exception
+    public void testTrackingOfEntryModificationsInSubentryServiceModifyRoutine() throws Exception
     {
         addAdministrativeRoles();
         super.sysRoot.createSubcontext( "cn=collectiveAttributeTestSubentry",
-            getCollectiveAttributeTestSubentry( "collectiveAttributeTestSubentry" ) );
+            getCollectiveAttributeTestSubentryWithLDAPFilter( "collectiveAttributeTestSubentry", "testEntry" ) );
         super.sysRoot.createSubcontext( "cn=testEntry", getTestEntry( "testEntry" ) );
 
         //----------------------------------------------------------------------
@@ -127,19 +117,23 @@ public class SubentryServiceObjectClassChangeHandlingITest extends AbstractAdmin
         Attributes testEntry = ( Attributes ) results.get( "cn=testEntry,ou=system" );
 
         Attribute collectiveAttributeSubentries = testEntry.get( "collectiveAttributeSubentries" );
-        
-        assertNull( collectiveAttributeSubentries );
+
+        assertNotNull( collectiveAttributeSubentries );
 
         //----------------------------------------------------------------------
 
-        super.sysRoot.modifyAttributes( "cn=testEntry", DirContext.ADD_ATTRIBUTE, getModsForIntroducingNewOC() );
+        AttributeImpl attr = new AttributeImpl( "sn", "changedSn");
+        ModificationItemImpl mod = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, attr);
+        ModificationItemImpl[] mods = new ModificationItemImpl[] { mod };
+        
+        super.sysRoot.modifyAttributes( "cn=testEntry", mods );
 
         results = getAllEntries();
         testEntry = ( Attributes ) results.get( "cn=testEntry,ou=system" );
 
         collectiveAttributeSubentries = testEntry.get( "collectiveAttributeSubentries" );
 
-        assertNotNull( collectiveAttributeSubentries );
+        assertNull( collectiveAttributeSubentries );
     }
 
 }
