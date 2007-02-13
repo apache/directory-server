@@ -38,8 +38,10 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -388,5 +390,53 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         assertTrue( attrs.get( "cn" ).contains( "Alex Karasulu" ) );
         assertTrue( attrs.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
         assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
+    }
+    
+    
+    /**
+     * According to JIRA issue DIRSERVER-782 old entries in the credential cache
+     * are not being purged when a user's password is changed.  This test tries
+     * to reproduce the bug so it can be fixed.
+     */
+    public void testDIRSERVER782() throws NamingException
+    {
+        // create the jim bean user entry
+        LockableAttributesImpl entry = new LockableAttributesImpl( "objectClass", "top", true );
+        entry.get( "objectClass" ).add( "person" );
+        entry.get( "objectClass" ).add( "organizationalPerson" );
+        entry.get( "objectClass" ).add( "inetOrgPerson" );
+        entry.put( "uid", "jbean" );
+        entry.put( "sn", "Bean" );
+        entry.put( "cn", "Jim Bean" );
+        entry.put( "userPassword", "originalPassword" );
+        sysRoot.createSubcontext( "uid=jbean,ou=users", entry );
+        
+        // get jim bean's entry back as jim bean
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        env.put( Context.PROVIDER_URL, "uid=jbean,ou=users,ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=jbean,ou=users,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "originalPassword" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        InitialDirContext ic = new InitialDirContext( env );
+        Attributes user = ic.getAttributes( "" );
+        assertNotNull( user );
+        assertEquals( "originalPassword", StringTools.utf8ToString( ( byte[] ) user.get( "userPassword" ).get() ) );
+        
+        // reset jim bean's password
+        ic.modifyAttributes( "", DirContext.REPLACE_ATTRIBUTE, 
+            new LockableAttributesImpl( "userPassword", "newPassword", true ) );
+        
+        // now try to get a new context as jim bean again but with the new password
+        env = new Hashtable( configuration.toJndiEnvironment() );
+        env.put( Context.PROVIDER_URL, "uid=jbean,ou=users,ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=jbean,ou=users,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "newPassword" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        ic = new InitialDirContext( env );
+        user = ic.getAttributes( "" );
+        assertNotNull( user );
+        assertEquals( "newPassword", StringTools.utf8ToString( ( byte[] ) user.get( "userPassword" ).get() ) );
     }
 }
