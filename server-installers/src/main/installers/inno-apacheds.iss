@@ -49,8 +49,8 @@ Source: {#SourceBase}\bin\logger.jar; DestDir: {app}\bin; DestName: logger.jar
 Source: {#SourceBase}\bin\apacheds-tools.jar; DestDir: {app}\bin; DestName: apacheds-tools.jar
 Source: {#SourceBase}\bin\daemon.jar; DestDir: {app}\bin; DestName: daemon.jar
 ; conf directory targets
-Source: {#SourceBase}\conf\log4j.properties; DestDir: {app}\conf; DestName: log4j.properties
-Source: {#SourceBase}\conf\server.xml; DestDir: {app}\conf; DestName: server.xml
+Source: {#SourceBase}\conf\log4j.properties; DestDir: {app}\conf; DestName: log4j.properties; Flags: confirmoverwrite
+Source: {#SourceBase}\conf\server.xml; DestDir: {app}\conf; DestName: server.xml; Flags: confirmoverwrite
 Source: {#SourceBase}\conf\bootstrapper.properties; DestDir: {app}\conf; DestName: bootstrapper.properties
 ; top level directory targets 
 Source: {#SourceBase}\${app.license.name}; DestDir: {app}; DestName: ${app.license.name}
