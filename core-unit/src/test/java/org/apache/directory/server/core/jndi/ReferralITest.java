@@ -1003,4 +1003,52 @@ public class ReferralITest extends AbstractAdminTestCase
 
         assertNull( results.get( "ou=users" ) );
     }
+
+    public void testSimpleContinuationWithDefaultFilter() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+
+        try {
+            NamingEnumeration enm = td.refCtx.search("", "(objectClass=*)", controls);
+    
+            while ( enm.hasMore() ) 
+            {
+                enm.next();
+            }
+            
+            fail("No referral exception");
+        } 
+        catch (ReferralException e) 
+        {
+            assertNotNull(e.getReferralInfo());
+            String referralInfo = e.getReferralInfo().toString();
+            assertTrue(referralInfo.startsWith("ldap://"));
+        }
+    }
+
+    public void testSimpleContinuationWithCnFilter() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+
+        try {
+            NamingEnumeration enm = td.refCtx.search("", "(cn=does not exist)", controls);
+    
+            while ( enm.hasMore() ) 
+            {
+                enm.next();
+            }
+            
+            fail("No referral exception");
+        } 
+        catch (ReferralException e) 
+        {
+            assertNotNull(e.getReferralInfo());
+            String referralInfo = e.getReferralInfo().toString();
+            assertTrue(referralInfo.startsWith("ldap://"));
+        }
+    }
 }
