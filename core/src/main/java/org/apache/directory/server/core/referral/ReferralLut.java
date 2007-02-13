@@ -84,8 +84,12 @@ public class ReferralLut
     public LdapDN getFarthestReferralAncestor( LdapDN dn )
     {
         if ( dn == null )
+        {
             throw new IllegalArgumentException( "dn cannot be null" );
+        }
+        
         LdapDN farthest = new LdapDN();
+        
         for ( int ii = 0; ii < dn.size(); ii++ )
         {
             try
@@ -96,12 +100,14 @@ public class ReferralLut
             {
                 log.error( "Should never get this when moving names from a proper normalized name!", e );
             }
+        
             // do not return dn if it is the farthest referral
-            if ( isReferral( farthest ) && farthest.size() != dn.size() )
+            if ( isReferral( farthest ) && ( farthest.size() != dn.size() ) )
             {
                 return farthest;
             }
         }
+        
         return null;
     }
 
