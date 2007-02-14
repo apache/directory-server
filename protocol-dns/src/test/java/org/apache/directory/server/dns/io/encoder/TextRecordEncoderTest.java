@@ -18,33 +18,42 @@
  *  
  */
 
-package org.apache.directory.server.dns.protocol;
+package org.apache.directory.server.dns.io.encoder;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.directory.server.dns.AbstractDnsTestCase;
-import org.apache.directory.server.dns.io.encoder.DnsMessageEncoder;
+import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.common.ByteBuffer;
 
 
 /**
+ * Tests for the TXT record encoder.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
+ * @version $Rev: 501160 $, $Date: 2007-01-29 12:41:33 -0700 (Mon, 29 Jan 2007) $
  */
-public class DnsMessageEncoderTest extends AbstractDnsTestCase
+public class TextRecordEncoderTest extends AbstractResourceRecordEncoderTest
 {
-    
-    DnsMessageEncoder encoder = new DnsMessageEncoder();
-    
 
-    public void testEncodeQuery() throws IOException
+    String characterString = "This is a string";
+    
+    protected Map getAttributes()
     {
-        ByteBuffer requestByteBuffer = getTestQueryByteBuffer();
-        ByteBuffer byteBuffer = ByteBuffer.allocate( 1024 );
+        Map map = new HashMap();
+        map.put( DnsAttribute.CHARACTER_STRING.toLowerCase(), characterString );
+        return map;
+    }
 
-        encoder.encode (byteBuffer, getTestQuery ());
-        byteBuffer.position (MINIMUM_DNS_DATAGRAM_SIZE);
-        byteBuffer.flip ();
-        assertEquals (requestByteBuffer, byteBuffer);
+    protected ResourceRecordEncoder getEncoder()
+    {
+        return new TextRecordEncoder();
+    }
+
+    protected void putExpectedResourceData( ByteBuffer expectedData )
+    {
+        expectedData.put( ( byte ) ( characterString.length() + 1 ) );
+        expectedData.put( ( byte ) characterString.length() );
+        expectedData.put( characterString.getBytes() );
     }
 }
