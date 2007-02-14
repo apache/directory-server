@@ -107,8 +107,6 @@ public class StartOfAuthorityRecordEncoder extends ResourceRecordEncoder
         int expire = Integer.parseInt( record.get( DnsAttribute.SOA_EXPIRE ) );
         long minimum = Long.parseLong( record.get( DnsAttribute.SOA_MINIMUM ) );
 
-        int startPosition = prepareForSizedData( byteBuffer );
-
         putDomainName( byteBuffer, mName );
         putDomainName( byteBuffer, rName );
 
@@ -119,7 +117,5 @@ public class StartOfAuthorityRecordEncoder extends ResourceRecordEncoder
         byteBuffer.putInt( expire );
 
         byteBuffer.putInt( ( int ) minimum );
-
-        putDataSize( byteBuffer, startPosition );
     }
 }

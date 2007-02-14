@@ -132,12 +132,9 @@ public class ServerSelectionRecordEncoder extends ResourceRecordEncoder
 {
     protected void putResourceRecordData( ByteBuffer byteBuffer, ResourceRecord record )
     {
-        int startPosition = prepareForSizedData( byteBuffer );
         byteBuffer.putShort( Short.parseShort( record.get( DnsAttribute.SERVICE_PRIORITY ) ) );
         byteBuffer.putShort( Short.parseShort( record.get( DnsAttribute.SERVICE_WEIGHT ) ) );
         byteBuffer.putShort( Short.parseShort( record.get( DnsAttribute.SERVICE_PORT ) ) );
         putDomainName( byteBuffer, record.get( DnsAttribute.DOMAIN_NAME ) );
-
-        putDataSize( byteBuffer, startPosition );
     }
 }

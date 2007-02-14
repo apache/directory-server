@@ -56,10 +56,7 @@ public class MailExchangeRecordEncoder extends ResourceRecordEncoder
 {
     protected void putResourceRecordData( ByteBuffer byteBuffer, ResourceRecord record )
     {
-        int startPosition = prepareForSizedData( byteBuffer );
         byteBuffer.putShort( Short.parseShort( record.get( DnsAttribute.MX_PREFERENCE ) ) );
         putDomainName( byteBuffer, record.get( DnsAttribute.DOMAIN_NAME ) );
-
-        putDataSize( byteBuffer, startPosition );
     }
 }

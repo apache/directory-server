@@ -73,7 +73,7 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
         byte length = ( byte ) ( byteBuffer.position() - startPosition + 1 );
         byteBuffer.position( startPosition );
         byteBuffer.put( length );
-        byteBuffer.position( startPosition + 1 + length );
+        byteBuffer.position( startPosition + length - 1 );
     }
 
 
