@@ -402,6 +402,11 @@ public class SchemaService extends BaseInterceptor
                     filteredAttrs.put( oid, attribute );
                 }
             }
+            else
+            {
+                throw new LdapInvalidAttributeIdentifierException( 
+                    "The attribute " + attribute + " was not recognized as a valid attributeType." );
+            }
         }
         
         // If we still have the same attribute number, then we can just get out the method
@@ -424,6 +429,7 @@ public class SchemaService extends BaseInterceptor
         searchCtls.setReturningAttributes( newAttributesList );
     }
 
+    
     /**
      * 
      */

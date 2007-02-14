@@ -31,6 +31,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
@@ -261,26 +262,25 @@ public class SearchITest extends AbstractAdminTestCase
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( new String[]
             { "cn", "unknownAttribute" } );
-
-        NamingEnumeration result = sysRoot.search( rdn, filter, ctls );
-
-        if ( result.hasMore() )
+        NamingEnumeration result = null;
+        try
         {
-            SearchResult entry = ( SearchResult ) result.next();
-            Attributes attrs = entry.getAttributes();
-            Attribute cn = attrs.get( "cn" );
-
-            assertNotNull( cn );
-            assertEquals( "Heather Nova", cn.get().toString() );
+            result = sysRoot.search( rdn, filter, ctls );
+            fail( "should never get here due to an invalid attribute exception" );
         }
-        else
+        catch ( LdapInvalidAttributeIdentifierException e )
         {
-            fail( "entry " + rdn + " not found" );
         }
-
-        result.close();
+        finally
+        {
+            if ( result != null )
+            {
+                result.close();
+            }
+        }
     }
 
+    
     /**
      * Search an entry and fetch an attribute with unknown option
      */
@@ -290,27 +290,22 @@ public class SearchITest extends AbstractAdminTestCase
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( new String[]
             { "cn", "sn;unknownOption" } );
-
-        NamingEnumeration result = sysRoot.search( rdn, filter, ctls );
-
-        if ( result.hasMore() )
+        NamingEnumeration result = null;
+        try
         {
-            SearchResult entry = ( SearchResult ) result.next();
-            Attributes attrs = entry.getAttributes();
-            Attribute cn = attrs.get( "cn" );
-
-            assertNotNull( cn );
-            assertEquals( "Heather Nova", cn.get().toString() );
-
-            Attribute sn = attrs.get( "sn" );
-            assertNull( sn );
+            result = sysRoot.search( rdn, filter, ctls );
+            fail( "should never get here due to an invalid attribute exception" );
         }
-        else
+        catch ( LdapInvalidAttributeIdentifierException e )
         {
-            fail( "entry " + rdn + " not found" );
         }
-
-        result.close();
+        finally
+        {
+            if ( result != null )
+            {
+                result.close();
+            }
+        }
     }
 
     /**

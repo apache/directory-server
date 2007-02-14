@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.schema.bootstrap.BootstrapOidRegistry;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -173,7 +174,7 @@ public class GlobalOidRegistry implements OidRegistry
         }
 
         String msg = "OID for name '" + name + "' was not " + "found within the OID registry";
-        NamingException fault = new NamingException( msg );
+        NamingException fault = new LdapInvalidAttributeIdentifierException( msg );
         monitor.oidResolutionFailed( name, fault );
         throw fault;
     }
