@@ -233,6 +233,15 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                 }
             }
         }
+        
+        // add the ref attribute if it exists in the entry if it was already
+        // added to the entry because of '+' above then it will just be overwritten
+        AttributeType refAT = registry.lookup( "ref" );
+        Attribute refAttr = AttributeUtils.getAttribute( rec.getAttributes(), refAT );
+        if ( refAttr != null )
+        {
+            entry.put( ( Attribute ) refAttr.clone() );
+        }
 
         BTreeSearchResult result = new BTreeSearchResult( rec.getEntryId(), name, null, entry );
         result.setRelative( false );

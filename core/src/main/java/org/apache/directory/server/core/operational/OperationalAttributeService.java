@@ -108,6 +108,8 @@ public class OperationalAttributeService extends BaseInterceptor
 
     private boolean isDenormalizeOpAttrsEnabled;
 
+    private AttributeType refAttrOid = null;
+
 
     /**
      * Creates the operational attribute management service interceptor.
@@ -122,6 +124,7 @@ public class OperationalAttributeService extends BaseInterceptor
         nexus = factoryCfg.getPartitionNexus();
         registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         isDenormalizeOpAttrsEnabled = factoryCfg.getStartupConfiguration().isDenormalizeOpAttrsEnabled();
+        refAttrOid =registry.lookup( "ref" );
     }
 
 
@@ -326,7 +329,11 @@ public class OperationalAttributeService extends BaseInterceptor
 
             if ( type != null && type.getUsage() != UsageEnum.USERAPPLICATIONS )
             {
-                attributes.remove( attrId );
+                // just make sure we do not remove the ref attribute
+                if ( ! type.getOid().equals( refAttrOid.getOid() ) )
+                {
+                    attributes.remove( attrId );
+                }
             }
         }
         return true;

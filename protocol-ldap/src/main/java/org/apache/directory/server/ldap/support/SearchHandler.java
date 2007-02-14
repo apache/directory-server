@@ -20,9 +20,7 @@
 package org.apache.directory.server.ldap.support;
 
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.naming.Context;
@@ -154,21 +152,13 @@ public class SearchHandler implements LdapMessageHandler
         SearchRequest req = ( SearchRequest ) request;
         NamingEnumeration list = null;
         String[] ids = null;
-        Collection retAttrs = new HashSet();
-        retAttrs.addAll( req.getAttributes() );
 
         // add the search request to the registry of outstanding requests for this session
         SessionRegistry.getSingleton().addOutstandingRequest( session, req );
 
-        // check the attributes to see if a referral's ref attribute is included
-        if ( retAttrs.size() > 0 && !retAttrs.contains( "ref" ) )
+        if ( req.getAttributes() != null && req.getAttributes().size() > 0 )
         {
-            retAttrs.add( "ref" );
-            ids = ( String[] ) retAttrs.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
-        }
-        else if ( retAttrs.size() > 0 )
-        {
-            ids = ( String[] ) retAttrs.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
+            ids = ( String[] ) req.getAttributes().toArray( ArrayUtils.EMPTY_STRING_ARRAY );
         }
 
         try
