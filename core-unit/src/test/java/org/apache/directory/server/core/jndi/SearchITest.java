@@ -262,20 +262,35 @@ public class SearchITest extends AbstractAdminTestCase
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( new String[]
             { "cn", "unknownAttribute" } );
-        NamingEnumeration result = null;
+        NamingEnumeration list = null;
+        HashMap map = new HashMap();
+
         try
         {
-            result = sysRoot.search( rdn, filter, ctls );
-            fail( "should never get here due to an invalid attribute exception" );
+            list = sysRoot.search( rdn, filter, ctls );
+            
+            while ( list.hasMore() )
+            {
+                SearchResult result = ( SearchResult ) list.next();
+                map.put( result.getName(), result.getAttributes() );
+            }
+
+            assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+
+            Attributes attrs = (Attributes)map.get( "cn=Heather Nova,ou=system" );
+            
+            assertNotNull( attrs.get( "cn" ) );
+            assertNull( attrs.get( "unknownAttribute" ) );
         }
         catch ( LdapInvalidAttributeIdentifierException e )
         {
+            fail( "should never get here due to an invalid attribute exception: it should be simply ignored" );
         }
         finally
         {
-            if ( result != null )
+            if ( list != null )
             {
-                result.close();
+                list.close();
             }
         }
     }
@@ -290,20 +305,34 @@ public class SearchITest extends AbstractAdminTestCase
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( new String[]
             { "cn", "sn;unknownOption" } );
-        NamingEnumeration result = null;
+        NamingEnumeration list = null;
+        HashMap map = new HashMap();
+
         try
         {
-            result = sysRoot.search( rdn, filter, ctls );
-            fail( "should never get here due to an invalid attribute exception" );
+            list = sysRoot.search( rdn, filter, ctls );
+            while ( list.hasMore() )
+            {
+                SearchResult result = ( SearchResult ) list.next();
+                map.put( result.getName(), result.getAttributes() );
+            }
+
+            assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+
+            Attributes attrs = (Attributes)map.get( "cn=Heather Nova,ou=system" );
+            
+            assertNotNull( attrs.get( "cn" ) );
+            assertNull( attrs.get( "unknownAttribute" ) );
         }
         catch ( LdapInvalidAttributeIdentifierException e )
         {
+            fail( "should never get here due to an invalid attribute exception: it should be simply ignored" );
         }
         finally
         {
-            if ( result != null )
+            if ( list != null )
             {
-                result.close();
+                list.close();
             }
         }
     }
