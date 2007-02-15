@@ -404,8 +404,8 @@ public class SchemaService extends BaseInterceptor
             }
             else
             {
-                throw new LdapInvalidAttributeIdentifierException( 
-                    "The attribute " + attribute + " was not recognized as a valid attributeType." );
+                log.warn( "The attribute " + attribute + " was not recognized as a valid attributeType." );
+                // Simply ignore the attribute
             }
         }
         
