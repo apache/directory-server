@@ -69,8 +69,13 @@ rename entries as well as search the directory.
 Connecting
 ----------
 
-See http://directory.apache.org/subprojects/apacheds/users/authentication.html
-or the bundled documentation.
+Learn how to connect to ApacheDS with various clients (graphical tools
+among others), manipulate the data within your directory and integrate 
+ApacheDS with other software. The same sample data, provided as a download, 
+is used through the whole guide.
+
+ApacheDS v1.0 Basic User's Guide
+See http://directory.apache.org/apacheds/1.0/
 
 
 Building Bundled Sources
