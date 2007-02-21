@@ -1,0 +1,67 @@
+Apache Directory Server 1.0.1
+=============================
+
+Release Notes - Directory ApacheDS - Version 1.0.1
+
+** Bug
+    * [DIRSERVER-730] - init script fails due to missing commands "success" 
+                        and "failure"
+    * [DIRSERVER-755] - Referrals returned as regular entries after server 
+                        restart
+    * [DIRSERVER-758] - schema checking
+    * [DIRSERVER-779] - Can't provide an instanceId with 
+                        ServerStartupConfiguration
+    * [DIRSERVER-782] - Restart required after changing password
+    * [DIRSERVER-783] - Adding another value to an attribute results in the 
+                        value to be added twice
+    * [DIRSERVER-784] - The server fails to handle subtree refinement membership
+                        references in entries upon object class changes
+    * [DIRSERVER-788] - Attribute names are being lowercased again instead 
+                        of being returned AS-IS
+    * [DIRSERVER-790] - Typo in all OID bases of all Apache schema entities.
+    * [DIRSERVER-792] - jpegPhoto attribute is returned as a String by SearchResultEntry
+    * [DIRSERVER-812] - Infinite loop while parsing a bad filter
+    * [DIRSERVER-813] - Filter parser does not accept AND and OR filters with 
+                        only one child filter
+    * [DIRSERVER-814] - ACI parser hangs when using rangeOfValues with 
+                        nested filter
+    * [DIRSERVER-816] - Requesting collective attributes fails
+    * [DIRSERVER-819] - getMessageTypeName() of LdapMessage returns wrong name 
+                        for CompareResponse
+    * [DIRSERVER-820] - Collective attributes are not injected upon 
+                        polymorphic queries
+    * [DIRSERVER-821] - Collective attributes should not be editable over 
+                        regular entries they are injected to
+    * [DIRSERVER-822] - Collective attributes should be prevented from being 
+                        added to any entry whose type is not 
+                        collectiveAttributeSubentry
+    * [DIRSERVER-823] - Problem decoding search filter
+    * [DIRSERVER-827] - Spliiting LDIF lines does not work correctly
+    * [DIRSERVER-829] - venderVersion attribute contains maven placeholder as 
+                        value
+    * [DIRSERVER-830] - Windows Installer overwrites configuration
+    * [DIRSERVER-835] - Trying to modify operational attributes does not cause 
+                        appropriate errors
+    * [DIRSERVER-836] - Requesting an unknown attribute in a search operation 
+                        causes an error
+    * [DIRSERVER-839] - Importing Ldif files with apachedsTools seems to be 
+                        impossible with some valid files
+    * [DIRSERVER-843] - NPE in DnNormalizer
+    * [DIRSERVER-844] - Storing byte[] values for textual AT is possible 
+                        even if not allowed
+    * [DIRSERVER-846] - NPE if launching ADS without any parameter
+    * [DIRSERVER-856] - Connecting to ApacheDS with Softerra LDAP 
+                        Administrator fails
+
+
+** Improvement
+    * [DIRSERVER-825] - Simplify default server.xml by using another 
+                        property setting style for simple values and references
+    * [DIRSERVER-857] - Support for MacOSX Intel
+
+
+Apache Directory Server 1.0.0
+=============================
+
+Initial Release
+
