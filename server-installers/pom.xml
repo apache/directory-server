@@ -116,6 +116,11 @@
           </application>
           <packagedFiles>
             <packagedFile>
+              <source>RELEASE-NOTES.txt</source>
+              <destinationPath>RELEASE-NOTES.txt</destinationPath>
+              <installationBundleId>Binaries</installationBundleId>
+            </packagedFile>
+            <packagedFile>
               <source>org.apache.directory.server:apacheds-server-tools</source>
               <destinationPath>bin/apacheds-tools.jar</destinationPath>
               <dependency>true</dependency>
