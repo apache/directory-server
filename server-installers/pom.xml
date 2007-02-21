@@ -128,7 +128,7 @@
             </packagedFile>
           </packagedFiles>
           <svnBaseUrl>
-            http://svn.apache.org/repos/asf/directory/branches/apacheds/1.0
+            http://svn.apache.org/repos/asf/directory/apacheds/branches/1.0
           </svnBaseUrl>
           <packageSources>true</packageSources>
           <packageDocs>true</packageDocs>
