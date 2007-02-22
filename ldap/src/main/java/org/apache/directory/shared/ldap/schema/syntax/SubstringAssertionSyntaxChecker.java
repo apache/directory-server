@@ -47,7 +47,7 @@ public class SubstringAssertionSyntaxChecker extends BinarySyntaxChecker
      * 
      * Creates a new instance of SubstringAssertionSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected SubstringAssertionSyntaxChecker( String oid )

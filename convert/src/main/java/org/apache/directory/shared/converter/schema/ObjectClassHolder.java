@@ -102,7 +102,7 @@ public class ObjectClassHolder extends SchemaElementImpl
 
     /**
      * Set the list of optional attributes
-     * @param must The list of optional attributes
+     * @param may The list of optional attributes
      */
     public void setMay( List<String> may )
     {

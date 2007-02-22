@@ -42,7 +42,7 @@ public interface SchemaElement
     /**
      * Set the obsolete flag
      * 
-     * @param obsolete The value to be set
+     * @param isObsolete The value to be set
      */
     void setObsolete( boolean isObsolete );
 
@@ -80,7 +80,7 @@ public interface SchemaElement
     
     /**
      * Set a list of extensions for a schemaElement
-     * @param names The list of extensions of this schemaElement
+     * @param extensions The list of extensions of this schemaElement
      */
     void setExtensions( List<String> extensions );
 

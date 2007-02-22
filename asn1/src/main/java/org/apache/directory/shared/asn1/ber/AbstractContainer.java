@@ -115,7 +115,7 @@ public class AbstractContainer implements IAsn1Container
     /**
      * Set the flag to allow a end transition
      * 
-     * @param endAllowed true or false, depending on the next transition 
+     * @param grammarEndAllowed true or false, depending on the next transition
      * being an end or not.
      */
     public void grammarEndAllowed( boolean grammarEndAllowed )
@@ -193,7 +193,7 @@ public class AbstractContainer implements IAsn1Container
     /**
      * Set the parent TLV.
      * 
-     * @param The parent TLV to set.
+     * @param parentTLV The parent TLV to set.
      */
     public void setParentTLV( TLV parentTLV )
     {

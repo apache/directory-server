@@ -48,7 +48,7 @@ public class JavaStoredProcedureUtils
     /**
      * Returns the stream data of a Java class.
      * 
-     * @param class
+     * @param clazz
      *           The class whose stream data will be retrieved.
      * @return
      *           Stream data of the class file as a byte array.

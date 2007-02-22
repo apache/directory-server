@@ -47,7 +47,7 @@ public class BinarySyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of BinarySyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected BinarySyntaxChecker( String oid )

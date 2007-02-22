@@ -52,7 +52,7 @@ public class Ia5StringSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of Ia5StringSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected Ia5StringSyntaxChecker( String oid )

@@ -45,7 +45,7 @@ public class ProtocolInformationSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of ProtocolInformationSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected ProtocolInformationSyntaxChecker( String oid )

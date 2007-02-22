@@ -30,7 +30,7 @@ import antlr.LexerSharedInputState;
 /**
  * A reusable lexer class extended from antlr generated lexer for an LDAP
  * Trigger Specification as defined at <a
- * http://docs.safehaus.org/display/APACHEDS/Grammar+for+Triggers">
+ * href="http://docs.safehaus.org/display/APACHEDS/Grammar+for+Triggers">
  * The ABNF grammar for LDAP Triggers</a>.
  * 
  * <p>This class enables the reuse of the antlr lexer without having to recreate

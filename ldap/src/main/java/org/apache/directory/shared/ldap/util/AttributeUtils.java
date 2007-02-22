@@ -592,8 +592,8 @@ public class AttributeUtils
      * 
      * @param tabs
      *            Spaces to be added before the string
-     * @param attributes
-     *            The attributes to print
+     * @param attribute
+     *            The attribute to print
      * @return A string
      */
     public static String toString( String tabs, Attribute attribute )
@@ -647,10 +647,10 @@ public class AttributeUtils
     }
 
     /**
-     * Return a string representing the attributes
+     * Return a string representing the attribute
      * 
-     * @param attributes
-     *            The attributes to print
+     * @param attribute
+     *            The attribute to print
      * @return A string
      */
     public static String toString( Attribute attribute )

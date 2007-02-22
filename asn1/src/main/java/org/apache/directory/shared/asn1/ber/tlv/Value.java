@@ -212,7 +212,6 @@ public class Value implements Cloneable, Serializable
      * Integer.MAX_VALUE].
      * 
      * @param value The value to store in a byte array
-     * @param sign The integer value sign
      * @return The number of bytes necessary to store the value.
      */
     public static int getNbBytes( int value )
@@ -250,7 +249,6 @@ public class Value implements Cloneable, Serializable
      * 2) Negative number - (~value) + 1
      * 
      * @param value The value to store in a byte array
-     * @param sign The value sign : positive or negative
      * @return The byte array representing the value.
      */
     public static byte[] getBytes( int value )
@@ -374,7 +372,7 @@ public class Value implements Cloneable, Serializable
      * Encode an OctetString value
      * 
      * @param buffer The PDU in which the value will be put
-     * @param byte[] The bytes to be encoded
+     * @param bytes The bytes to be encoded
      */
     public static void encode( ByteBuffer buffer, byte[] bytes ) throws EncoderException
     {
@@ -410,7 +408,7 @@ public class Value implements Cloneable, Serializable
      * Encode an OID value
      * 
      * @param buffer The PDU in which the value will be put
-     * @param string The OID to be encoded
+     * @param oid The OID to be encoded
      */
     public static void encode( ByteBuffer buffer, OID oid ) throws EncoderException
     {

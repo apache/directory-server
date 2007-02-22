@@ -44,7 +44,7 @@ public class AccessPointSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of AccessPointSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected AccessPointSyntaxChecker( String oid )

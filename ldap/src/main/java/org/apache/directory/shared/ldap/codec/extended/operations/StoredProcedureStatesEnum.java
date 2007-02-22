@@ -113,7 +113,7 @@ public class StoredProcedureStatesEnum implements IStates
 
     /**
      * Get the grammar name
-     * @param The grammar code
+     * @param grammar The grammar code
      * @return The grammar name
      */
     public String getGrammarName( int grammar )
@@ -124,7 +124,7 @@ public class StoredProcedureStatesEnum implements IStates
 
     /**
      * Get the grammar name
-     * @param The grammar class
+     * @param grammar The grammar class
      * @return The grammar name
      */
     public String getGrammarName( IGrammar grammar )
@@ -143,7 +143,6 @@ public class StoredProcedureStatesEnum implements IStates
     /**
      * Get the string representing the state
      * 
-     * @param grammar The current grammar being used
      * @param state The state number
      * @return The String representing the state
      */

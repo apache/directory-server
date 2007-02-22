@@ -72,7 +72,7 @@ public class DITStructureRuleDescriptionSyntaxChecker extends AbstractSyntaxChec
      * 
      * Creates a new instance of DITStructureRuleDescriptionSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected DITStructureRuleDescriptionSyntaxChecker( String oid )

@@ -110,7 +110,7 @@ public class SubstringFilter extends Filter
     /**
      * Add a internal substring
      * 
-     * @param anySubstrings The anySubstrings to set.
+     * @param any The anySubstrings to set.
      */
     public void addAnySubstrings( String any )
     {

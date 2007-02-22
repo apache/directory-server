@@ -71,7 +71,7 @@ public class DITContentRuleDescriptionSyntaxChecker extends AbstractSyntaxChecke
      * 
      * Creates a new instance of DITContentRuleDescriptionSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected DITContentRuleDescriptionSyntaxChecker( String oid )

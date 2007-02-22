@@ -72,7 +72,7 @@ public class MatchingRuleDescriptionSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of MatchingRuleDescriptionSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected MatchingRuleDescriptionSyntaxChecker( String oid )

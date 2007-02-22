@@ -1672,7 +1672,7 @@ public class LdifReader implements Iterator
      * The main entry point of the LdifParser. It reads a buffer and returns a
      * List of entries.
      * 
-     * @param in
+     * @param inf
      *            The buffer being processed
      * @return A list of entries
      * @throws NamingException

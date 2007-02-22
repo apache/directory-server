@@ -57,7 +57,7 @@ public class TeletexTerminalIdentifierSyntaxChecker extends AbstractSyntaxChecke
      * 
      * Creates a new instance of TeletexTerminalIdentifier.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected TeletexTerminalIdentifierSyntaxChecker( String oid )

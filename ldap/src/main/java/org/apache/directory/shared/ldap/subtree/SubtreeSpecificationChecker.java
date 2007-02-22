@@ -94,7 +94,6 @@ public class SubtreeSpecificationChecker
      * 
      * @param spec
      *            the specification to be parsed
-     * @return the specification bean
      * @throws ParseException
      *             if there are any recognition errors (bad syntax)
      */

@@ -47,7 +47,7 @@ public class BranchNode extends AbstractExprNode
      * 
      * @param operator
      *            the logical operator to use for this branch node.
-     * @param a_childList
+     * @param childList
      *            the child nodes under this branch node.
      */
     public BranchNode( AssertionEnum operator, List<ExprNode> childList)
@@ -324,7 +324,7 @@ public class BranchNode extends AbstractExprNode
      * Gets a human readable representation for the operators: AND for '&', OR
      * for '|' and NOT for '!'.
      * 
-     * @param a_operator
+     * @param operator
      *            the operator constant.
      * @return one of the strings AND, OR, or NOT.
      */

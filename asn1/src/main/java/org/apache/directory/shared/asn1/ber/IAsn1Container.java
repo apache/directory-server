@@ -106,7 +106,7 @@ public interface IAsn1Container
     /**
      * Set the parent TLV
      * 
-     * @param The new parent TLV
+     * @param parentTLV The new parent TLV
      */
     public void setParentTLV( TLV parentTLV );
 
@@ -122,7 +122,7 @@ public interface IAsn1Container
     /**
      * Set the flag to allow a end transition
      * 
-     * @param endAllowed true or false, depending on the next transition 
+     * @param grammarEndAllowed true or false, depending on the next transition
      * being an end or not.
      */
     public void grammarEndAllowed( boolean grammarEndAllowed );

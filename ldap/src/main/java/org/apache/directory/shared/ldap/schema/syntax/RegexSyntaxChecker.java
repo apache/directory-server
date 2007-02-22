@@ -69,7 +69,7 @@ public class RegexSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of RegexSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected RegexSyntaxChecker( String oid )

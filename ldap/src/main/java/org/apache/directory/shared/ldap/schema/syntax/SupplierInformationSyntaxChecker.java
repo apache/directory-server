@@ -44,7 +44,7 @@ public class SupplierInformationSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of SupplierInformationSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected SupplierInformationSyntaxChecker( String oid )

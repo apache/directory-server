@@ -69,12 +69,8 @@ public class ModificationItemImpl extends ModificationItem
     }
     
     /**
-     * Create a modificationItemImpl from a modificationItem
-     * @param modificationOp The modification operation : on of :
-      *  - DirContext.ADD_ATTRIBUTE        
-      *  - DirContext.REPLACE_ATTRIBUTE
-      *  - DirContext.REMOVE_ATTRIBUTE
-     * @param attribte The attribute to add, modify or remove
+     * Create a modificationItemImpl from another one.
+     * @param modification item to be copied.
      */
     public ModificationItemImpl( ModificationItemImpl modification ) 
     {

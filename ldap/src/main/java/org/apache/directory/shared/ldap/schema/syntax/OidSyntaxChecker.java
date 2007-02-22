@@ -66,7 +66,7 @@ public class OidSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of OidSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected OidSyntaxChecker( String oid )

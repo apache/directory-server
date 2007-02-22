@@ -42,7 +42,7 @@ public abstract class AbstractExprNode implements ExprNode
     /**
      * Creates an node by setting abstract node type.
      * 
-     * @param a_type
+     * @param type
      *            the type of this leaf node
      */
     protected AbstractExprNode( AssertionEnum type)
@@ -105,7 +105,7 @@ public abstract class AbstractExprNode implements ExprNode
     /**
      * Returns the filter operator string associated with an assertion type.
      * 
-     * @param a_assertionType
+     * @param assertionType
      *            the assertion type value
      * @return the string representation
      * TODO Refactor these classes to use an enumeration type

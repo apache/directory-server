@@ -46,7 +46,7 @@ public class GuideSyntaxChecker extends BinarySyntaxChecker
      * 
      * Creates a new instance of GuideSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected GuideSyntaxChecker( String oid )

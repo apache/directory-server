@@ -52,7 +52,7 @@ public class CertificatePairSyntaxChecker extends BinarySyntaxChecker
      * 
      * Creates a new instance of CertificatePairSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected CertificatePairSyntaxChecker( String oid )

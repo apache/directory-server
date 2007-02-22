@@ -72,7 +72,7 @@ public class AttributeTypeHolder extends SchemaElementImpl
     /**
      * Create an instance of an attributeType
      * 
-     * @param The attributeType's OID
+     * @param oid The attributeType's OID
      */
     public AttributeTypeHolder( String oid )
     {
@@ -203,7 +203,7 @@ public class AttributeTypeHolder extends SchemaElementImpl
 
     /**
      * Set the substring Matching Rule
-     * @param substring The substring Matching Rule
+     * @param substr The substring Matching Rule
      */
     public void setSubstr( String substr )
     {

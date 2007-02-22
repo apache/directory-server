@@ -45,7 +45,7 @@ public class MHSORAddressSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of MHSORAddressSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected MHSORAddressSyntaxChecker( String oid )

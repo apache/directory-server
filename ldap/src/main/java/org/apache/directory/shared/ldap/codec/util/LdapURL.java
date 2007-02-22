@@ -1149,7 +1149,7 @@ public class LdapURL
      * Some references to RFC 1738 are made, but they are really useless 
      * and inadequat.
      * 
-     * @param string The String to encode
+     * @param url The String to encode
      * @param doubleEncode Set if we need to encode the comma
      * @return An encoded string
      */

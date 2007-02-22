@@ -43,7 +43,7 @@ public class BERTaggedObject extends DERTaggedObject
 
 
     /**
-     * @param true
+     * @param explicit true
      *            if an explicitly tagged object.
      * @param tag
      *            the tag number for this object.

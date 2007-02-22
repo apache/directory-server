@@ -112,10 +112,10 @@ public class Asn1StringUtils
     }
 
     /**
-     * Thansform an array of ASCII bytes to a string. the byte array should contains
+     * Thansform a string to an array of ASCII bytes, where the byte array will contain
      * only values in [0, 127].
      * 
-     * @param bytes The byte array to transform
+     * @param string The byte array to transform
      * @return The resulting string
      */
     public static byte[] asciiStringToByte( String string )

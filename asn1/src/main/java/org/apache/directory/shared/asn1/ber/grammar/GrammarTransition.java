@@ -80,7 +80,7 @@ public class GrammarTransition
     }
 
     /**
-     * @param grammar The grammar which state we want a String from
+     * @param statesEnum Starting state.
      * @return A representation of the transition as a string.
      */
     public String toString( IStates statesEnum )

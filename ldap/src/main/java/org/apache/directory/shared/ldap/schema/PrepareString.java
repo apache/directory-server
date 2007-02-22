@@ -128,7 +128,7 @@ public class PrepareString
     * The first step is already done, the step (3) is not done.
     *
     * @param str
-    * @return
+    * @return Normalised string.
     * @throws IOException
     */
    public static String normalize( String str, StringType type ) throws IOException

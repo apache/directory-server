@@ -52,7 +52,7 @@ public class PostalAddressSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of PostalAddressSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected PostalAddressSyntaxChecker( String oid )

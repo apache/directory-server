@@ -1055,9 +1055,6 @@ public class RdnParser
      *
      * @param string
      *            The buffer to parse
-     * @param rdn
-     *            The RDN to fill. Beware that if the RDN is not empty, the new
-     *            AttributeTypeAndValue will be added.
      * @return <code>true</code> if the RDN is valid
      */
     public static boolean isValid( String string )

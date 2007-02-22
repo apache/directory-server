@@ -76,7 +76,7 @@ public class ObjectClassDescriptionSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of ObjectClassDescriptionSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected ObjectClassDescriptionSyntaxChecker( String oid )

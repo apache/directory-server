@@ -93,7 +93,7 @@ public class UtcTimeSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of UtcTimeSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected UtcTimeSyntaxChecker( String oid )

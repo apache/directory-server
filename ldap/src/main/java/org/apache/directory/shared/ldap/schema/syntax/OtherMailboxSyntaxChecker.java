@@ -53,7 +53,7 @@ public class OtherMailboxSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of OtherMailboxSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected OtherMailboxSyntaxChecker( String oid )

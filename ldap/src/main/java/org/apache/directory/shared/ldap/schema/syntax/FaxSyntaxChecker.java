@@ -47,7 +47,7 @@ public class FaxSyntaxChecker extends BinarySyntaxChecker
      * 
      * Creates a new instance of FaxSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected FaxSyntaxChecker( String oid )

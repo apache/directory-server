@@ -52,7 +52,7 @@ public class SubtreeSpecificationSyntaxChecker extends AbstractSyntaxChecker
      * 
      * Creates a new instance of SubtreeSpecificationSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected SubtreeSpecificationSyntaxChecker( String oid )

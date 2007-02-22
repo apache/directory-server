@@ -47,7 +47,7 @@ public class EnhancedGuideSyntaxChecker extends BinarySyntaxChecker
      * 
      * Creates a new instance of EnhancedGuideSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected EnhancedGuideSyntaxChecker( String oid )

@@ -45,7 +45,7 @@ public class MasterAndShadowAccessPointSyntaxChecker extends AbstractSyntaxCheck
      * 
      * Creates a new instance of MasterAndShadowAccessPoints.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected MasterAndShadowAccessPointSyntaxChecker( String oid )

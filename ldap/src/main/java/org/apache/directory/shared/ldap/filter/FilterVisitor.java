@@ -79,7 +79,7 @@ public interface FilterVisitor
      * 
      * @param node
      *            the parent branch node
-     * @param a_children
+     * @param children
      *            the child node array
      * @return the new reordered array of children
      */

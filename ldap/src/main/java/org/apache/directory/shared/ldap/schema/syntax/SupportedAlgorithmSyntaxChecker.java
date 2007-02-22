@@ -46,7 +46,7 @@ public class SupportedAlgorithmSyntaxChecker extends BinarySyntaxChecker
      * 
      * Creates a new instance of SupportedAlgorithmSyntaxChecker.
      * 
-     * @param the oid to associate with this new SyntaxChecker
+     * @param oid the oid to associate with this new SyntaxChecker
      *
      */
     protected SupportedAlgorithmSyntaxChecker( String oid )

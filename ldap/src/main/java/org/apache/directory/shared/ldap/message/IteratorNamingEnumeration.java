@@ -40,7 +40,7 @@ public class IteratorNamingEnumeration<T> implements NamingEnumeration<T>
     /**
      * Creates a NamingEnumeration over an Iterator.
      * 
-     * @param a_iterator
+     * @param iterator
      *            the Iterator the NamingEnumeration is based on.
      */
     public IteratorNamingEnumeration( Iterator<T> iterator)
