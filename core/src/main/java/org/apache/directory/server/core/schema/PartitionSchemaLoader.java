@@ -265,9 +265,8 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         }
     }
 
-
     /**
-     * @see {@link SchemaLoader#load(Schema, Registries, boolean)}
+     * {@link SchemaLoader#load(Schema, Registries, boolean)}
      */
     public final void load( Schema schema, Registries targetRegistries, boolean isDepLoad ) throws NamingException
     {

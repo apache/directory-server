@@ -244,7 +244,6 @@ public abstract class AbstractTestCase extends TestCase
      *
      * @param user the username for authenticating as this user
      * @param passwd the password of the user
-     * @return the sysRoot context which is also set
      * @throws NamingException if there is a failure of any kind
      */
     protected void setContextRoots( String user, String passwd, Configuration cfg ) throws NamingException
@@ -263,7 +262,6 @@ public abstract class AbstractTestCase extends TestCase
      * directory, the provider URL and the JNDI InitialContexFactory to use.
      *
      * @param env an environment to use while setting up the system root.
-     * @return the sysRoot context which is also set
      * @throws NamingException if there is a failure of any kind
      */
     protected void setContextRoots( Hashtable<String,Object> env ) throws NamingException

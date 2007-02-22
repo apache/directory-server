@@ -168,13 +168,13 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#bind(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,byte[],java.util.List,String)
+     * Calls the next interceptor's {@link Interceptor#bind(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,byte[],java.util.List,String)}
      */
     void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#unbind(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)
+     * Calls the next interceptor's {@link Interceptor#unbind(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}
      */
     void unbind( LdapDN bindDn ) throws NamingException;
 }

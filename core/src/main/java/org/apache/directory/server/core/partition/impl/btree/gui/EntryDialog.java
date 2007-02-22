@@ -67,8 +67,8 @@ public class EntryDialog extends JDialog
     /**
      * Creates new form JDialog
      *  
-     * @param a_parent
-     * @param a_modal
+     * @param parent
+     * @param modal
      */
     public EntryDialog( Frame parent, boolean modal )
     {

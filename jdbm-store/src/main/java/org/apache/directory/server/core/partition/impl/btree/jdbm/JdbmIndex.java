@@ -79,15 +79,15 @@ public class JdbmIndex implements Index
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-    /**
-     * Creates an Index using an existing record manager based on a file.  The
-     * index table B+Tree are created and saved within this file rather than 
-     * creating a new file.
-     *
-     * @param attribute the attribute specification to base this index on
-     * @param recMan the record manager
-     * @throws NamingException if we fail to create B+Trees using recMan
-     */
+//    /**
+//     * Creates an Index using an existing record manager based on a file.  The
+//     * index table B+Tree are created and saved within this file rather than
+//     * creating a new file.
+//     *
+//     * @param attribute the attribute specification to base this index on
+//     * @param recMan the record manager
+//     * @throws NamingException if we fail to create B+Trees using recMan
+//     */
 //    public JdbmIndex( AttributeType attribute, RecordManager recMan ) throws NamingException
 //    {
 //        this.attribute = attribute;

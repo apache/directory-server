@@ -54,7 +54,6 @@ public class SaslBindHandlerTest extends AbstractServerTest
 
     public void setUp() throws Exception
     {
-        configuration.get
         configuration.setExtendedOperationHandlers( extendedHandlers );
         
         super.setUp();

@@ -255,7 +255,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * 
      * @param name the dn of the metaSchema object renamed
      * @param entry the entry of the metaSchema object before the rename
-     * @param the new commonName of the metaSchema object
+     * @param newRdn the new commonName of the metaSchema object
      */
     public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
     {

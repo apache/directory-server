@@ -244,7 +244,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * XYZ, if XYZ is an algorithm known to the MessageDigest class of
      * java.security.
      * 
-     * @param password,
+     * @param password
      *            either a String or a byte[]
      * @return included message digest alorithm, if any
      */

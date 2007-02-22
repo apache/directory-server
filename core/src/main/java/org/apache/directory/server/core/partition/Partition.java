@@ -149,7 +149,7 @@ public interface Partition
      * @param name the normalized distinguished/absolute name of the entry to modify
      * @param items the ModificationItems used to affect the modification with
      * @throws NamingException if there are any problems
-     * @see ModificationItem
+     * @see javax.naming.directory.ModificationItem
      */
     void modify( LdapDN name, ModificationItemImpl[] items ) throws NamingException;
 

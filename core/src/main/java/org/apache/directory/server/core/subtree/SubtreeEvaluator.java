@@ -52,7 +52,8 @@ public class SubtreeEvaluator
      * Creates a subtreeSpecification evaluatior which can be used to determine
      * if an entry is included within the collection of a subtree.
      *
-     * @param registry a registry used to lookup objectClass names for OIDs
+     * @param oidRegistry a registry used to lookup objectClass names for OIDs
+     * @param attrRegistry registry to be looked up
      * @throws NamingException 
      */
     public SubtreeEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attrRegistry) throws NamingException
@@ -67,7 +68,6 @@ public class SubtreeEvaluator
      * @param subtree the subtree specification
      * @param apDn the distinguished name of the administrative point containing the subentry
      * @param entryDn the distinguished name of the candidate entry
-     * @param objectClasses the objectClasses of the candidate entry
      * @return true if the entry is selected by the specification, false if it is not
      * @throws javax.naming.NamingException if errors are encountered while evaluating selection
      */

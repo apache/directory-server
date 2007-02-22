@@ -39,7 +39,6 @@ public interface NormalizerRegistry
     /**
      * Registers a Normalizer with this registry.
      * 
-     * @param schema the name of the schema the Normalizer is associated with
      * @param normalizer the Normalizer to register
      * @throws NamingException if the Normalizer is already registered or the
      *      registration operation is not supported

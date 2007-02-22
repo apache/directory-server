@@ -79,7 +79,7 @@ public abstract class AbstractSchemaLoader implements SchemaLoader
      * @param notLoaded hash of schemas keyed by name which have yet to be loaded
      * @param schema the current schema we are attempting to load
      * @param registries the set of registries to use while loading
-     * @param properties to use while trying resolve other schemas
+     * @param props to use while trying resolve other schemas
      * @throws NamingException if there is a cycle detected and/or another
      * failure results while loading, producing and or registering schema objects
      */

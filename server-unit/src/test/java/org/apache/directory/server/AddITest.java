@@ -339,7 +339,7 @@ public class AddITest extends AbstractServerTest
     
     /**
      * Try to add entry with invalid number of values for a single-valued atribute
-     * @see http://issues.apache.org/jira/browse/DIRSERVER-614
+     * @see <a href="http://issues.apache.org/jira/browse/DIRSERVER-614">DIRSERVER-614</a>
      */
     public void testAddWithInvalidNumberOfAttributeValues() throws NamingException
     {

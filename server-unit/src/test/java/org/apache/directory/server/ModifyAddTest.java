@@ -544,7 +544,7 @@ public class ModifyAddTest extends AbstractServerTest
     
     /**
      * Try to modify an entry adding invalid number of values for a single-valued atribute
-     * @see http://issues.apache.org/jira/browse/DIRSERVER-614
+     * @see <a href="http://issues.apache.org/jira/browse/DIRSERVER-614">DIRSERVER-614</a>
      */
     public void testModifyAddWithInvalidNumberOfAttributeValues() throws NamingException
     {
