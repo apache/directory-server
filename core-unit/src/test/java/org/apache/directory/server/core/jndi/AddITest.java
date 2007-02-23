@@ -25,6 +25,7 @@ import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
+import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
 
@@ -42,6 +43,54 @@ public class AddITest extends AbstractAdminTestCase
         super.setUp();
     }
 
+    
+//    /**
+//     * Test that attribute name case is preserved after adding an entry
+//     * in the case the user added them.  This is to test DIRSERVER-832.
+//     */
+//    public void testAddCasePreservedOnAttributeNames() throws Exception
+//    {
+//        Attributes attrs = new AttributesImpl( true );
+//        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+//        oc.add( "PERSON" );
+//        oc.add( "organizationalPerson" );
+//        oc.add( "inetORGperson" );
+//        Attribute cn = new AttributeImpl( "Cn", "Kevin Spacey" );
+//        Attribute dc = new AttributeImpl( "sN", "Spacey" );
+//        attrs.put( oc );
+//        attrs.put( cn );
+//        attrs.put( dc);
+//        sysRoot.createSubcontext( "uID=kevin", attrs );
+//        Attributes returned = sysRoot.getAttributes( "UID=kevin" );
+//        
+//        NamingEnumeration attrList = returned.getAll();
+//        while( attrList.hasMore() )
+//        {
+//            Attribute attr = ( Attribute ) attrList.next();
+//            
+//            if ( attr.getID().equalsIgnoreCase( "uid" ) )
+//            {
+//                assertEquals( "uID", attr.getID() );
+//            }
+//            
+//            if ( attr.getID().equalsIgnoreCase( "objectClass" ) )
+//            {
+//                assertEquals( "ObjectClass", attr.getID() );
+//            }
+//            
+//            if ( attr.getID().equalsIgnoreCase( "sn" ) )
+//            {
+//                assertEquals( "sN", attr.getID() );
+//            }
+//            
+//            if ( attr.getID().equalsIgnoreCase( "cn" ) )
+//            {
+//                assertEquals( "Cn", attr.getID() );
+//            }
+//        }
+//    }
+    
+    
     /**
      * Test that we can't add an entry with an attribute type not within
      * any of the MUST or MAY of any of its objectClasses
