@@ -2763,4 +2763,14 @@ public class LdapDNTest extends TestCase
        assertTrue( dn.size() == 0 );
        assertTrue( dn.add( "" ).size() == 0 );
    }
+   
+   
+//   /**
+//    * This leads to the bug in DIRSERVER-832.
+//    */
+//   public void testPreserveAttributeIdCase() throws NamingException
+//   {
+//       LdapDN dn = new LdapDN( "uID=kevin" );
+//       assertEquals( "uID", dn.getRdn().getType() );
+//   }
 }
