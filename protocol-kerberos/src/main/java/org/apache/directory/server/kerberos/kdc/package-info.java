@@ -11,6 +11,9 @@
  * support, the execution context, chain monitors for logging, and chain
  * "links" ({@link IoHandlerCommand}'s) for selecting checksum and
  * encryption types.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 
 package org.apache.directory.server.kerberos.kdc;
