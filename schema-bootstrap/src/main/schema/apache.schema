@@ -335,3 +335,34 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.1.3.9 NAME 'apacheSubschema'
 # END Schema Subentry Related
 # ===========================
 
+# =============================================
+# Schema Subentry Modification Attribute Schema 
+# =============================================
+
+#         | 1.3.6.1.4.1.18060.0.4.1.2.35 | schemaModifyTimestamp       |
+#         | 1.3.6.1.4.1.18060.0.4.1.2.36 | schemaModifiersName         |
+#         | 1.3.6.1.4.1.18060.0.4.1.2.37 | subschemaSubentryName       |
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.35 NAME 'schemaModifyTimestamp'
+    DESC 'time which schema was modified'
+    SUP modifyTimestamp )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.36 NAME 'schemaModifiersName'
+    DESC 'the DN of the modifier of the schema'
+    SUP modifiersName )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.37 NAME 'subschemaSubentryName'
+    DESC 'the DN of the schema subentry the modification info corresponds to'
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )
+
+objectclass ( 1.3.6.1.4.1.18060.0.4.1.3.10 NAME 'schemaModificationAttributes'
+        DESC 'a special entry tracking schema modification attributes'
+        SUP top STRUCTURAL
+        MUST ( cn $ subschemaSubentryName $ 
+               schemaModifyTimestamp $ schemaModifiersName ) )
+
+# =================================================
+# END Schema Subentry Modification Attribute Schema 
+# =================================================
+

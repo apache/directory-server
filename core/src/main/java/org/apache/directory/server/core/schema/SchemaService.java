@@ -40,6 +40,8 @@ import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -82,7 +84,6 @@ import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
-import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -135,9 +136,9 @@ public class SchemaService extends BaseInterceptor
     private LdapDN subschemaSubentryDn;
 
     /**
-     * The time when the server started up.
+     * the normalized name for the schema modification attributes
      */
-    private String startUpTimeStamp;
+    private LdapDN schemaModificationAttributesDN;
 
     private SchemaManager schemaManager;
     
@@ -156,15 +157,7 @@ public class SchemaService extends BaseInterceptor
     /** A map used to store all the objectClasses allowed attributes (may + must) */
     private Map<String, List<AttributeType>> allowed;
 
-    /**
-     * Creates a schema service interceptor.
-     */
-    public SchemaService()
-    {
-        startUpTimeStamp = DateUtils.getGeneralizedTime();
-    }
 
-    
     /**
      * Initialize the Schema Service
      * 
@@ -198,6 +191,9 @@ public class SchemaService extends BaseInterceptor
         subschemaSubentryDn = new LdapDN( subschemaSubentry );
         subschemaSubentryDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
 
+        schemaModificationAttributesDN = new LdapDN( "cn=schemaModifications,ou=schema" );
+        schemaModificationAttributesDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        
         computeSuperiors();
 
         if ( IS_DEBUG )
@@ -206,6 +202,7 @@ public class SchemaService extends BaseInterceptor
         }
     }
 
+    
     /**
      * Compute the MUST attributes for an objectClass. This method gather all the
      * MUST from all the objectClass and its superors.
@@ -705,38 +702,7 @@ public class SchemaService extends BaseInterceptor
             attr = new AttributeImpl( "subtreeSpecification", "{}" );
             attrs.put( attr );
         }
-
-        // timeestamps are hacks for now until the schema is actually updateable these
-        // use the servers startup time stamp for both modify and create timestamps
-
-        if ( returnAllOperationalAttributes || set.contains( "createtimestamp" ) )
-        {
-            attr = new AttributeImpl( "createTimestamp" );
-            attr.add( startUpTimeStamp );
-            attrs.put( attr );
-        }
-
-        if ( returnAllOperationalAttributes || set.contains( "modifytimestamp" ) )
-        {
-            attr = new AttributeImpl( "modifyTimestamp" );
-            attr.add( startUpTimeStamp );
-            attrs.put( attr );
-        }
-
-        if ( returnAllOperationalAttributes || set.contains( "creatorsname" ) )
-        {
-            attr = new AttributeImpl( "creatorsName" );
-            attr.add( PartitionNexus.ADMIN_PRINCIPAL );
-            attrs.put( attr );
-        }
-
-        if ( returnAllOperationalAttributes || set.contains( "modifiersname" ) )
-        {
-            attr = new AttributeImpl( "modifiersName" );
-            attr.add( PartitionNexus.ADMIN_PRINCIPAL );
-            attrs.put( attr );
-        }
-
+        
         int minSetSize = 0;
         
         if ( set.contains( "+" ) )
@@ -771,10 +737,58 @@ public class SchemaService extends BaseInterceptor
             attrs.put( "cn", "schema" );
         }
 
+        // -------------------------------------------------------------------
+        // set operational attributes for the subentry 
+        // -------------------------------------------------------------------
+
+        // look up cn=schemaModifications,ou=schema and get values for the 
+        // modifiers and creators operational information
+
+        Attributes modificationAttributes = nexus.lookup( schemaModificationAttributesDN );
+        
+        if ( returnAllOperationalAttributes || set.contains( "createtimestamp" ) )
+        {
+            attr = new AttributeImpl( "createTimestamp" );
+            AttributeType createTimestampAT = registries.
+                getAttributeTypeRegistry().lookup( SystemSchemaConstants.CREATE_TIMESTAMP_AT );
+            Attribute createTimestamp = AttributeUtils.getAttribute( modificationAttributes, createTimestampAT );
+            attr.add( createTimestamp.get() );
+            attrs.put( attr );
+        }
+
+        if ( returnAllOperationalAttributes || set.contains( "creatorsname" ) )
+        {
+            attr = new AttributeImpl( "creatorsName" );
+            attr.add( PartitionNexus.ADMIN_PRINCIPAL );
+            attrs.put( attr );
+        }
+        
+        if ( returnAllOperationalAttributes || set.contains( "modifytimestamp" ) )
+        {
+            attr = new AttributeImpl( "modifyTimestamp" );
+            AttributeType schemaModifyTimestampAT = registries.
+                getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT );
+            Attribute schemaModifyTimestamp = 
+                AttributeUtils.getAttribute( modificationAttributes, schemaModifyTimestampAT );
+            attr.add( schemaModifyTimestamp.get() );
+            attrs.put( attr );
+        }
+
+        if ( returnAllOperationalAttributes || set.contains( "modifiersname" ) )
+        {
+            attr = new AttributeImpl( "modifiersName" );
+            AttributeType schemaModifiersNameAT = registries.
+                getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
+            Attribute schemaModifiersName = 
+                AttributeUtils.getAttribute( modificationAttributes, schemaModifiersNameAT );
+            attr.add( schemaModifiersName.get() );
+            attrs.put( attr );
+        }
+        
         return attrs;
     }
 
-
+    
     /**
      * Search for an entry, using its DN. Binary attributes and ObjectClass attribute are removed.
      */

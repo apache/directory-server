@@ -35,6 +35,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
@@ -71,6 +72,7 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -88,6 +90,8 @@ import org.codehaus.plexus.util.FileUtils;
  */
 public class BootstrapPlugin extends AbstractMojo
 {
+    private static final String ADMIN_NORM_NAME = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
+
     /**
      * The package to put the db file entry listing info as well as the partition.
      * 
@@ -216,6 +220,8 @@ public class BootstrapPlugin extends AbstractMojo
                 getLog().info( "" );
                 getLog().info( "------------------------------------------------------------------------" );
             }
+            
+            createSchemaModificationAttributesEntry();
         }
         catch ( NamingException e )
         {
@@ -606,6 +612,39 @@ public class BootstrapPlugin extends AbstractMojo
             e.printStackTrace();
             throw new MojoFailureException( "Failed to initialize parition: " + e.getMessage() );
         }
+    }
+    
+    
+    /**
+     * Creates the special schemaModificationsAttribute entry used to
+     * store the modification attributes for the schema.  The current
+     * time is used to create the initial values for the attributes in
+     * this entry.
+     * 
+     * @throws NamingException if there is a failure to add the entry 
+     */
+    private void createSchemaModificationAttributesEntry() throws NamingException
+    {
+        Attributes entry = new AttributesImpl( 
+            SystemSchemaConstants.OBJECT_CLASS_AT, 
+            ApacheSchemaConstants.SCHEMA_MODIFICATION_ATTRIBUTES_OC,
+            true );
+        entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "top" );
+        
+        entry.put( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, ADMIN_NORM_NAME );
+        entry.put( SystemSchemaConstants.MODIFIERS_NAME_AT, ADMIN_NORM_NAME );
+        entry.put( SystemSchemaConstants.CREATORS_NAME_AT, ADMIN_NORM_NAME );
+        
+        entry.put( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        
+        entry.put( SystemSchemaConstants.CN_AT, "schemaModifications" );
+        entry.put( ApacheSchemaConstants.SUBSCHEMA_SUBENTRY_NAME_AT, "cn=schema" );
+        
+        LdapDN normName = new LdapDN( "cn=schemaModifications,ou=schema" );
+        normName.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        store.add( normName, entry );
     }
     
     

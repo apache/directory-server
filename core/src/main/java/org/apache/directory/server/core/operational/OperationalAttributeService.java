@@ -34,6 +34,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -393,7 +395,7 @@ public class OperationalAttributeService extends BaseInterceptor
     {
         if ( isDenormalizeOpAttrsEnabled )
         {
-            AttributeType type = registry.lookup( "creatorsName" );
+            AttributeType type = registry.lookup( SystemSchemaConstants.CREATORS_NAME_AT );
             Attribute attr = AttributeUtils.getAttribute( entry, type );
 
             if ( attr != null )
@@ -405,7 +407,20 @@ public class OperationalAttributeService extends BaseInterceptor
             }
             
             type = null;
-            type = registry.lookup( "modifiersName" );
+            type = registry.lookup( SystemSchemaConstants.MODIFIERS_NAME_AT );
+            attr = null;
+            attr = AttributeUtils.getAttribute( entry, type );
+            
+            if ( attr != null )
+            {
+                LdapDN modifiersName = new LdapDN( ( String ) attr.get() );
+
+                attr.clear();
+                attr.add( denormalizeTypes( modifiersName ).getUpName() );
+            }
+
+            type = null;
+            type = registry.lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
             attr = null;
             attr = AttributeUtils.getAttribute( entry, type );
             

@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,6 +37,9 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
+import org.apache.directory.server.core.invocation.Invocation;
+import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
@@ -43,6 +48,7 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -59,6 +65,7 @@ import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.DateUtils;
 
 
 /**
@@ -116,6 +123,7 @@ public class SchemaManager
         "metaDITContentRule",
         "metaNameForm"
     };
+    private static final Collection SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS;
 
     private final PartitionSchemaLoader loader;
     private final MetaSchemaHandler metaSchemaHandler;
@@ -161,6 +169,17 @@ public class SchemaManager
         VALID_OU_VALUES.add( "nameforms" );
         VALID_OU_VALUES.add( "ditcontentrules" );
         VALID_OU_VALUES.add( "ditstructurerules" );
+        
+        HashSet<String> set = new HashSet<String>();
+        set.add( "normalizationService" );
+        set.add( "authenticationService" );
+        set.add( "referralService" );
+        set.add( "authorizationService" );
+        set.add( "defaultAuthorizationService" );
+        set.add( "exceptionService" );
+        set.add( "schemaService" );
+        set.add( "collectiveAttributeService" );
+        SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS = Collections.unmodifiableCollection( set );
     }
 
 
@@ -269,6 +288,7 @@ public class SchemaManager
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
                 handler.add( name, entry );
+                updateSchemaModificationAttributes();
                 return;
             }
         }
@@ -276,6 +296,7 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
             metaSchemaHandler.add( name, entry );
+            updateSchemaModificationAttributes();
             return;
         }
         
@@ -314,6 +335,7 @@ public class SchemaManager
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
                 handler.delete( name, entry );
+                updateSchemaModificationAttributes();
                 return;
             }
         }
@@ -321,6 +343,7 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
             metaSchemaHandler.delete( name, entry );
+            updateSchemaModificationAttributes();
             return;
         }
         
@@ -360,6 +383,7 @@ public class SchemaManager
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
                 handler.modify( name, modOp, mods, entry, targetEntry );
+                updateSchemaModificationAttributes();
                 return;
             }
         }
@@ -367,6 +391,7 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
             metaSchemaHandler.modify( name, modOp, mods, entry, targetEntry );
+            updateSchemaModificationAttributes();
             return;
         }
         
@@ -386,6 +411,7 @@ public class SchemaManager
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
                 handler.modify( name, mods, entry, targetEntry );
+                updateSchemaModificationAttributes();
                 return;
             }
         }
@@ -393,6 +419,7 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
             metaSchemaHandler.modify( name, mods, entry, targetEntry );
+            updateSchemaModificationAttributes();
             return;
         }
         
@@ -411,6 +438,7 @@ public class SchemaManager
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
                 handler.rename( name, entry, newRdn );
+                updateSchemaModificationAttributes();
                 return;
             }
         }
@@ -418,6 +446,7 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
             metaSchemaHandler.rename( name, entry, newRdn );
+            updateSchemaModificationAttributes();
             return;
         }
         
@@ -436,6 +465,7 @@ public class SchemaManager
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
                 handler.move( oriChildName, newParentName, entry );
+                updateSchemaModificationAttributes();
                 return;
             }
         }
@@ -443,6 +473,7 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
             metaSchemaHandler.move( oriChildName, newParentName, entry );
+            updateSchemaModificationAttributes();
             return;
         }
         
@@ -462,6 +493,7 @@ public class SchemaManager
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
                 handler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
+                updateSchemaModificationAttributes();
                 return;
             }
         }
@@ -469,6 +501,7 @@ public class SchemaManager
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
             metaSchemaHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
+            updateSchemaModificationAttributes();
             return;
         }
         
@@ -510,6 +543,11 @@ public class SchemaManager
                 default:
                     throw new IllegalStateException( "Undefined modify operation: " + mod.getModificationOp() );
             }
+        }
+        
+        if ( mods != null || mods.length > 0 )
+        {
+            updateSchemaModificationAttributes();
         }
     }
     
@@ -557,6 +595,7 @@ public class SchemaManager
             default:
                 throw new IllegalStateException( "Undefined modify operation: " + modOp );
         }
+        updateSchemaModificationAttributes();
     }
 
     
@@ -828,5 +867,34 @@ public class SchemaManager
             default:
                 throw new IllegalStateException( "Unknown index into handler array: " + index );
         }
+    }
+    
+    
+    /**
+     * Updates the schemaModifiersName and schemaModifyTimestamp attributes of
+     * the schemaModificationAttributes entry for the global schema at 
+     * ou=schema,cn=schemaModifications.  This entry is hardcoded at that 
+     * position for now.
+     * 
+     * The current time is used to set the timestamp and the DN of current user
+     * is set for the modifiersName.
+     * 
+     * @throws NamingException if the update fails
+     */
+    private void updateSchemaModificationAttributes() throws NamingException
+    {
+        Invocation invocation = InvocationStack.getInstance().peek();
+        ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
+        String modifiersName = ctx.getPrincipal().getJndiName().getNormName();
+        String modifyTimestamp = DateUtils.getGeneralizedTime();
+        
+        ModificationItemImpl[] mods = new ModificationItemImpl[2];
+        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, 
+            new AttributeImpl( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT, modifyTimestamp ) );
+        mods[1] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE,
+            new AttributeImpl( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, modifiersName ) );
+        LdapDN name = new LdapDN( "cn=schemaModifications,ou=schema" );
+        name.normalize( globalRegistries.getAttributeTypeRegistry().getNormalizerMapping() );
+        invocation.getProxy().modify( name, mods, SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
     }
 }

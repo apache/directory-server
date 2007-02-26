@@ -99,7 +99,7 @@ public class AttributesFactory
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SCHEMA_OC );
         entry.put( SystemSchemaConstants.CN_AT, schema.getSchemaName() );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
-        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         
         if ( schema.isDisabled() )
         {
@@ -128,7 +128,7 @@ public class AttributesFactory
         entry.put( MetaSchemaConstants.M_OID_AT, syntaxChecker.getSyntaxOid() );
         entry.put( MetaSchemaConstants.M_FQCN_AT, syntaxChecker.getClass().getName() );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
-        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
@@ -139,7 +139,7 @@ public class AttributesFactory
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SYNTAX_OC );
         entry.put( MetaSchemaConstants.X_HUMAN_READIBLE_AT, getBoolean( syntax.isHumanReadible() ) );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
-        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         injectCommon( syntax, entry );
         return entry;
     }
@@ -152,7 +152,7 @@ public class AttributesFactory
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
         entry.put( MetaSchemaConstants.M_FQCN_AT, normalizer.getClass().getName() );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
-        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
@@ -164,7 +164,7 @@ public class AttributesFactory
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
         entry.put( MetaSchemaConstants.M_FQCN_AT, comparator.getClass().getName() );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
-        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
@@ -181,7 +181,7 @@ public class AttributesFactory
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_MATCHING_RULE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, matchingRule.getSyntax().getOid() );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
-        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         injectCommon( matchingRule, entry );
         return entry;
     }
@@ -192,7 +192,7 @@ public class AttributesFactory
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "" );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
-        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
@@ -202,7 +202,7 @@ public class AttributesFactory
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "" );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
-        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
@@ -212,7 +212,7 @@ public class AttributesFactory
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "" );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
-        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
@@ -222,7 +222,7 @@ public class AttributesFactory
         Attributes entry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "" );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
-        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
@@ -255,7 +255,7 @@ public class AttributesFactory
         entry.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, getBoolean( attributeType.isSingleValue() ) );
         entry.put( MetaSchemaConstants.M_USAGE_AT, attributeType.getUsage().toString() );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
-        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
         injectCommon( attributeType, entry );
         
@@ -336,7 +336,7 @@ public class AttributesFactory
         entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_OBJECT_CLASS_OC );
         entry.put( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT, objectClass.getType().toString() );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
-        entry.put( SystemSchemaConstants.CREAT_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         
         injectCommon( objectClass, entry );
 

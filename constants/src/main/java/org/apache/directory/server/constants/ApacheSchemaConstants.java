@@ -32,4 +32,9 @@ public interface ApacheSchemaConstants
     String NORMALIZERS_AT = "normalizers";
     String SYNTAX_CHECKERS_AT = "syntaxCheckers";
 
+    String SCHEMA_MODIFIERS_NAME_AT = "schemaModifiersName";
+    String SCHEMA_MODIFY_TIMESTAMP_AT = "schemaModifyTimestamp";
+    String SUBSCHEMA_SUBENTRY_NAME_AT = "subschemaSubentryName";
+
+    String SCHEMA_MODIFICATION_ATTRIBUTES_OC = "schemaModificationAttributes";
 }

@@ -33,7 +33,7 @@ public interface SystemSchemaConstants
     String CN_AT = "cn";
     String OBJECT_CLASS_AT = "objectClass";
     String CREATORS_NAME_AT = "creatorsName";
-    String CREAT_TIMESTAMP_AT = "createTimestamp";
+    String CREATE_TIMESTAMP_AT = "createTimestamp";
     String MODIFY_TIMESTAMP_AT = "modifyTimestamp";
     String MODIFIERS_NAME_AT = "modifiersName";
 
