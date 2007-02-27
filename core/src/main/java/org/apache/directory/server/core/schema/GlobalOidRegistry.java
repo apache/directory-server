@@ -238,29 +238,28 @@ public class GlobalOidRegistry implements OidRegistry
     public String getPrimaryName( String oid ) throws NamingException
     {
         Object value = byOid.get( oid );
+        
+        if ( null == value )
+        {
+            value = bootstrap.getPrimaryName( oid );
+        }
 
         if ( null == value )
         {
             String msg = "OID '" + oid + "' was not found within the OID registry";
-
             NamingException fault = new NamingException( msg );
-
             monitor.oidDoesNotExist( oid, fault );
-
             throw fault;
         }
 
         if ( value instanceof String )
         {
             monitor.nameResolved( oid, ( String ) value );
-
             return ( String ) value;
         }
 
         String name = ( String ) ( ( List ) value ).get( 0 );
-
         monitor.nameResolved( oid, name );
-
         return name;
     }
 

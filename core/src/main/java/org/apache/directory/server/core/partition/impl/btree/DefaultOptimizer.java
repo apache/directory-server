@@ -216,8 +216,14 @@ public class DefaultOptimizer implements Optimizer
             && !( onlyChild instanceof PresenceNode ) )
         {
             LeafNode leaf = ( LeafNode ) onlyChild;
-            Index idx = db.getUserIndex( leaf.getAttribute() );
-            return BigInteger.valueOf( idx.count() );
+            
+            if ( db.hasUserIndexOn( leaf.getAttribute() ) )
+            {
+                Index idx = db.getUserIndex( leaf.getAttribute() );
+                return BigInteger.valueOf( idx.count() );
+            }
+
+            return BigInteger.valueOf( db.count() );
         }
 
         return BigInteger.valueOf( db.count() );

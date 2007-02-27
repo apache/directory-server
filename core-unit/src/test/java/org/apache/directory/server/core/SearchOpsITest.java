@@ -97,6 +97,7 @@ public class SearchOpsITest extends AbstractAdminTestCase
         addNisPosixGroup( "testGroup0", 0 );
         addNisPosixGroup( "testGroup1", 1 );
         addNisPosixGroup( "testGroup2", 2 );
+        // --- skip group 3 ---
         addNisPosixGroup( "testGroup4", 4 );
         addNisPosixGroup( "testGroup5", 5 );
     }
@@ -288,5 +289,17 @@ public class SearchOpsITest extends AbstractAdminTestCase
         assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+    }
+    
+    
+    public void testNotOperator() throws NamingException
+    {
+        Set results = searchGroups( "(!(gidNumber=4))" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
     }
 }
