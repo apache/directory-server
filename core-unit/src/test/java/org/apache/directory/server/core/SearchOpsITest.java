@@ -107,16 +107,31 @@ public class SearchOpsITest extends AbstractAdminTestCase
      *  Convenience method that performs a one level search using the 
      *  specified filter returning their DNs as Strings in a set.
      */
-    public Set searchGroups( String filter ) throws NamingException
+    public Set searchGroups( String filter, SearchControls controls ) throws NamingException
     {
+        if ( controls == null )
+        {
+            controls = new SearchControls();
+        }
+        
         Set results = new HashSet();
-        NamingEnumeration list = sysRoot.search( "ou=groups", filter, new SearchControls() );
+        NamingEnumeration list = sysRoot.search( "ou=groups", filter, controls );
         while( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();
             results.add( result.getName() );
         }
         return results;
+    }
+    
+    
+    /**
+     *  Convenience method that performs a one level search using the 
+     *  specified filter returning their DNs as Strings in a set.
+     */
+    public Set searchGroups( String filter ) throws NamingException
+    {
+        return searchGroups( filter, null );
     }
     
     
@@ -295,6 +310,21 @@ public class SearchOpsITest extends AbstractAdminTestCase
     public void testNotOperator() throws NamingException
     {
         Set results = searchGroups( "(!(gidNumber=4))" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+    }
+    
+    
+    public void testNotOperatorSubtree() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        
+        Set results = searchGroups( "(!(gidNumber=4))", controls );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
