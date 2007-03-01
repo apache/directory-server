@@ -193,8 +193,16 @@ public class ExpressionEnumerator implements Enumerator
         if ( node.getChild().isLeaf() )
         {
             LeafNode child = ( LeafNode ) node.getChild();
-            idx = db.getUserIndex( child.getAttribute() );
-            childEnumeration = idx.listIndices();
+            
+            if ( db.hasUserIndexOn( child.getAttribute() ) )
+            {
+                idx = db.getUserIndex( child.getAttribute() );
+                childEnumeration = idx.listIndices();
+            }
+            else
+            {
+                childEnumeration = db.getNdnIndex().listIndices();
+            }
         }
         // Iterates over the entire set of entries
         else
