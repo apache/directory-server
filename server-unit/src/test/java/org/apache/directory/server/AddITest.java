@@ -81,6 +81,7 @@ public class AddITest extends AbstractServerTest
         attributes.put( "cn", "The Person" );
         attributes.put( "sn", "Person" );
         attributes.put( "description", "this is a person" );
+        attributes.put(  "administrativeRole", "subschemaAdminSpecificArea" );
         DirContext person = ctx.createSubcontext( RDN, attributes );
 
         assertNotNull( person );
@@ -485,4 +486,65 @@ public class AddITest extends AbstractServerTest
         // Remove container
         ctx.destroySubcontext( containerRdn );
     }
+
+    /**
+     * Testcase to demonstrate DIRSERVER-643 ("Netscape SDK: Adding an entry with
+     * two description attributes does not combine values."). Uses Sun ONE Directory
+     * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
+     */
+    public void testAddEntryWithACIAndTabs() throws LDAPException
+    {
+        LDAPConnection con = new LDAPConnection();
+        con.connect( 3, HOST, super.port, USER, PASSWORD );
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
+            { "top", "subentry", "accessControlSubentry" } );
+        attrs.add( ocls );
+        attrs.add( new LDAPAttribute( "subtreeSpecification", "{}" ) );
+        attrs.add( new LDAPAttribute( "prescriptiveACI", 
+            "{" +
+            "   identificationTag \"allowJohnToReadHisName_ACI13\", \n" +
+            "   precedence 10, \n" + 
+            "   authenticationLevel simple,\n" +
+            "   itemOrUserFirst userFirst: \n" +
+            "   {\n" +
+            "       userClasses\n" + 
+            "       {\n" +
+            "           name { \"cn=John,cn=The Person, ou=systemm\" }\n" +
+            "       },\n" +
+            "       userPermissions \n" +
+            "       {\n" +
+            "           { \n" +
+            "               protectedItems { entry },\n" +
+            "               grantsAndDenials { grantBrowse }\n" +
+            "           },\n" +
+            "           { \n" +
+            "               protectedItems\n" +
+            "               {\n" +
+            "                   attributeType { cn },\n" +
+            "                   allAttributeValues { cn }\n" +
+            "               },\n" +
+            "               grantsAndDenials { grantRead }\n" +
+            "           }\n" +
+            "       }\n" +
+            "   }\n" +
+            "}" ) );
+        
+        attrs.add( new LDAPAttribute( "cn", "allowJohnToReadHisName_ACI13" ) );
+
+        String dn = "cn=allowJohnToReadHisName_ACI13,cn=The person," + BASE;
+
+        LDAPEntry entry = new LDAPEntry( dn, attrs );
+
+        con.add( entry );
+
+        // Analyze entry and description attribute
+        LDAPEntry entryReloaded = con.read( dn );
+        assertNotNull( entryReloaded );
+
+        // Remove entry
+        con.delete( dn );
+        con.disconnect();
+    }
+    
 }
