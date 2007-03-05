@@ -347,14 +347,14 @@ public abstract class ServerContext implements EventContext
         Rdn rdn = target.getRdn( target.size() - 1 );
         if ( rdn.size() == 1 )
         {
-            attributes.put( rdn.getType(), rdn.getValue() );
+            attributes.put( rdn.getUpType(), rdn.getValue() );
         }
         else
         {
             for ( Iterator ii = rdn.iterator(); ii.hasNext(); /**/ )
             {
                 AttributeTypeAndValue atav = ( AttributeTypeAndValue ) ii.next();
-                attributes.put( atav.getType(), atav.getValue() );
+                attributes.put( atav.getUpType(), atav.getValue() );
             }
         }
     }
