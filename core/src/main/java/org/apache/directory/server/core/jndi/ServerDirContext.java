@@ -374,7 +374,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         Attributes attributes = ( Attributes ) attrs.clone();
         if ( rdn.size() == 1 )
         {
-            String rdnAttribute = rdn.getType();
+            String rdnAttribute = rdn.getUpType();
             String rdnValue = (String)rdn.getValue();
 
             // Add the Rdn attribute
@@ -394,13 +394,13 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 AttributeTypeAndValue atav = ( AttributeTypeAndValue ) ii.next();
 
                 // Add the Rdn attribute
-                boolean doRdnPut = attributes.get( atav.getType() ) == null;
-                doRdnPut = doRdnPut || attributes.get( atav.getType() ).size() == 0;
-                doRdnPut = doRdnPut || !attributes.get( atav.getType() ).contains( atav.getValue() );
+                boolean doRdnPut = attributes.get( atav.getUpType() ) == null;
+                doRdnPut = doRdnPut || attributes.get( atav.getUpType() ).size() == 0;
+                doRdnPut = doRdnPut || !attributes.get( atav.getUpType() ).contains( atav.getValue() );
         
                 if ( doRdnPut )
                 {
-                    attributes.put( atav.getType(), atav.getValue() );
+                    attributes.put( atav.getUpType(), atav.getValue() );
                 }
             }
         }
