@@ -40,6 +40,7 @@ import netscape.ldap.LDAPException;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.xml.sax.helpers.AttributesImpl;
 
 import java.util.Hashtable;
 
@@ -547,4 +548,49 @@ public class AddITest extends AbstractServerTest
         con.disconnect();
     }
     
+    /**
+     * Test that attribute name case is preserved after adding an entry
+     * in the case the user added them.  This is to test DIRSERVER-832.
+     */
+    public void testAddCasePreservedOnAttributeNames() throws Exception
+    {
+        Attributes attrs = new LockableAttributesImpl( true );
+        Attribute oc = new LockableAttributeImpl( "ObjectClass", "top" );
+        oc.add( "PERSON" );
+        oc.add( "organizationalPerson" );
+        oc.add( "inetORGperson" );
+        Attribute cn = new LockableAttributeImpl( "Cn", "Kevin Spacey" );
+        Attribute dc = new LockableAttributeImpl( "sN", "Spacey" );
+        attrs.put( oc );
+        attrs.put( cn );
+        attrs.put( dc);
+        sysRoot.createSubcontext( "uID=kevin", attrs );
+        Attributes returned = sysRoot.getAttributes( "UID=kevin" );
+        
+        NamingEnumeration attrList = returned.getAll();
+        while( attrList.hasMore() )
+        {
+            Attribute attr = ( Attribute ) attrList.next();
+            
+            if ( attr.getID().equalsIgnoreCase( "uid" ) )
+            {
+                assertEquals( "uID", attr.getID() );
+            }
+            
+            if ( attr.getID().equalsIgnoreCase( "objectClass" ) )
+            {
+                assertEquals( "ObjectClass", attr.getID() );
+            }
+            
+            if ( attr.getID().equalsIgnoreCase( "sn" ) )
+            {
+                assertEquals( "sN", attr.getID() );
+            }
+            
+            if ( attr.getID().equalsIgnoreCase( "cn" ) )
+            {
+                assertEquals( "Cn", attr.getID() );
+            }
+        }
+    }
 }
