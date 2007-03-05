@@ -194,7 +194,7 @@ public class StartupConfiguration extends Configuration
     /**
      * Returns {@link AuthenticatorConfiguration}s to use for authenticating clients.
      */
-    public Set getAuthenticatorConfigurations()
+    public Set<AuthenticatorConfiguration> getAuthenticatorConfigurations()
     {
         return ConfigurationUtil.getClonedSet( authenticatorConfigurations );
     }

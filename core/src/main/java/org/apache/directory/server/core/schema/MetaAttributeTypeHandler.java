@@ -246,7 +246,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getType() ).equals( OU_OID ) )
+        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( OU_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a attributeType should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );

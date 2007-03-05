@@ -440,10 +440,10 @@ public class SchemaPartitionDao
         }
         
         Rdn rdn = dn.getRdn( 1 );
-        if ( ! rdn.getType().equalsIgnoreCase( CN_OID ) )
+        if ( ! rdn.getNormType().equalsIgnoreCase( CN_OID ) )
         {
             throw new NamingException( "Attribute of second rdn in dn '" + dn.toNormName() 
-                + "' expected to be CN oid of " + CN_OID + " but was " + rdn.getType() );
+                + "' expected to be CN oid of " + CN_OID + " but was " + rdn.getNormType() );
         }
         
         return ( String ) rdn.getValue();

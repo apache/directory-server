@@ -453,7 +453,7 @@ public class OperationalAttributeService extends BaseInterceptor
             }
             else if ( rdn.size() == 1 )
             {
-                newDn.add( new Rdn( registry.lookup( rdn.getType() ).getName(), (String)rdn.getAtav().getValue() ) );
+                newDn.add( new Rdn( registry.lookup( rdn.getNormType() ).getName(), (String)rdn.getAtav().getValue() ) );
                 continue;
             }
 
@@ -462,7 +462,7 @@ public class OperationalAttributeService extends BaseInterceptor
             for ( Iterator jj = rdn.iterator(); jj.hasNext(); /**/ )
             {
                 AttributeTypeAndValue atav = ( AttributeTypeAndValue ) jj.next();
-                String type = registry.lookup( rdn.getType() ).getName();
+                String type = registry.lookup( rdn.getNormType() ).getName();
                 buf.append( type ).append( '=' ).append( atav.getValue() );
                 if ( jj.hasNext() )
                 {

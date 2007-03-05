@@ -47,6 +47,7 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -88,12 +89,11 @@ public class AuthenticationService extends BaseInterceptor
         this.factoryCfg = factoryCfg;
 
         // Register all authenticators
-        Iterator i = factoryCfg.getStartupConfiguration().getAuthenticatorConfigurations().iterator();
-        while ( i.hasNext() )
+        for ( AuthenticatorConfiguration config:factoryCfg.getStartupConfiguration().getAuthenticatorConfigurations() )
         {
             try
             {
-                this.register( ( AuthenticatorConfiguration ) i.next() );
+                this.register( config );
             }
             catch ( Exception e )
             {
@@ -112,10 +112,12 @@ public class AuthenticationService extends BaseInterceptor
     {
         Set<Collection<Authenticator>> clonedAuthenticatorCollections = new HashSet<Collection<Authenticator>>();
         clonedAuthenticatorCollections.addAll( authenticators.values() );
+        
         for ( Collection<Authenticator> collection:clonedAuthenticatorCollections )
         {
             Set <Authenticator> clonedAuthenticators = new HashSet<Authenticator>();
             clonedAuthenticators.addAll( collection );
+            
             for ( Authenticator authenticator:clonedAuthenticators )
             {
                 unregister( authenticator );
@@ -135,6 +137,7 @@ public class AuthenticationService extends BaseInterceptor
         cfg.getAuthenticator().init( factoryCfg, cfg );
 
         Collection<Authenticator> authenticatorList = getAuthenticators( cfg.getAuthenticator().getAuthenticatorType() );
+        
         if ( authenticatorList == null )
         {
             authenticatorList = new ArrayList<Authenticator>();
@@ -199,7 +202,7 @@ public class AuthenticationService extends BaseInterceptor
                     + normName.getUpName() + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( MessageTypeEnum.ADD_REQUEST );
         next.add(normName, entry );
     }
 
@@ -211,7 +214,7 @@ public class AuthenticationService extends BaseInterceptor
             log.debug( "Deleting name = '" + name.toString() + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( MessageTypeEnum.DEL_REQUEST );
         next.delete( name );
         invalidateAuthenticatorCaches( name );
     }
@@ -347,7 +350,7 @@ public class AuthenticationService extends BaseInterceptor
             log.debug( "Modifying name = '" + name.toString() + "', modifs = " + AttributeUtils.toString( mods ) );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( MessageTypeEnum.MODIFY_REQUEST );
         next.modify( name, modOp, mods );
         invalidateAuthenticatorCaches( name );
     }
@@ -360,7 +363,7 @@ public class AuthenticationService extends BaseInterceptor
             log.debug( "Modifying name = '" + name.toString() + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( MessageTypeEnum.MODIFY_REQUEST );
         next.modify( name, mods );
         invalidateAuthenticatorCaches( name );
     }
@@ -374,7 +377,7 @@ public class AuthenticationService extends BaseInterceptor
                 + deleteOldRn + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
         next.modifyRn( name, newRn, deleteOldRn );
         invalidateAuthenticatorCaches( name );
     }
@@ -389,7 +392,7 @@ public class AuthenticationService extends BaseInterceptor
                 + newRn + "', oldRDN = '" + deleteOldRn + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
         next.move( oriChildName, newParentName, newRn, deleteOldRn );
         invalidateAuthenticatorCaches( oriChildName );
     }
@@ -402,7 +405,7 @@ public class AuthenticationService extends BaseInterceptor
             log.debug( "Moving name = '" + oriChildName.toString() + " to name = '" + newParentName + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
         next.move( oriChildName, newParentName );
         invalidateAuthenticatorCaches( oriChildName );
     }
@@ -416,10 +419,24 @@ public class AuthenticationService extends BaseInterceptor
             log.debug( "Search for base = '" + base.toString() + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( MessageTypeEnum.SEARCH_REQUEST );
         return next.search( base, env, filter, searchCtls );
     }
 
+
+    private void checkAuthenticated( MessageTypeEnum operation ) throws NamingException
+    {
+        try
+        {
+            checkAuthenticated();
+        }
+        catch( IllegalStateException ise )
+        {
+            log.error( "Attempted operation {} by unauthenticated caller.", operation.name() );
+
+            throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
+        }
+    }
 
     private void checkAuthenticated() throws NamingException
     {
@@ -431,6 +448,7 @@ public class AuthenticationService extends BaseInterceptor
             {
                 ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
             }
+            
             return;
         }
 
@@ -442,13 +460,19 @@ public class AuthenticationService extends BaseInterceptor
         throws NamingException
     {
         
-        log.debug( "bind: bindDn: " + bindDn );
+        if ( IS_DEBUG )
+        {
+            log.debug( "Bind operation. bindDn: " + bindDn );
+        }
         
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
         ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
 
-        log.debug( "bind: principal: " + ctx.getPrincipal() );
+        if ( IS_DEBUG )
+        {
+            log.debug( "bind: principal: " + ctx.getPrincipal() );
+        }
         
         if ( ctx.getPrincipal() != null )
         {
@@ -456,6 +480,7 @@ public class AuthenticationService extends BaseInterceptor
             {
                 ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
             }
+            
             return;
         }
 
@@ -518,6 +543,11 @@ public class AuthenticationService extends BaseInterceptor
             }
         }
 
+        if ( log.isInfoEnabled() )
+        {
+            log.info( "Cannot bind to the server " );
+        }
+        
         throw new LdapAuthenticationException();
     }
 
