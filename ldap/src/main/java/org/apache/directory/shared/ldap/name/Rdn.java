@@ -277,7 +277,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                {
                    AttributeTypeAndValue currentAtav = iter.next();
                    atavs.add( (AttributeTypeAndValue)currentAtav.clone() );
-                   atavTypes.put( currentAtav.getType(), currentAtav );
+                   atavTypes.put( currentAtav.getUpType(), currentAtav );
                }
        }
    }
@@ -309,7 +309,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                }
                else
                {
-                   normName = atav.getType() + "=#" + StringTools.dumpHexPairs( (byte[])atav.getValue() );
+                   normName = atav.getNormType() + "=#" + StringTools.dumpHexPairs( (byte[])atav.getValue() );
                }
 
                break;
@@ -364,7 +364,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
        {
            case 0:
                // This is the first AttributeTypeAndValue. Just stores it.
-               atav = new AttributeTypeAndValue( normalizedType, normalizedValue );
+               atav = new AttributeTypeAndValue( type, normalizedValue );
                nbAtavs = 1;
                atavType = normalizedType;
                return;
@@ -387,7 +387,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
            default:
                // add a new AttributeTypeAndValue
-               AttributeTypeAndValue newAtav = new AttributeTypeAndValue( normalizedType, normalizedValue );
+               AttributeTypeAndValue newAtav = new AttributeTypeAndValue( type, normalizedValue );
                atavs.add( newAtav );
                atavTypes.put( normalizedType, newAtav );
 
@@ -434,7 +434,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                return "";
 
            case 1:
-               if ( StringTools.equals( atav.getType(), normalizedType ) )
+               if ( StringTools.equals( atav.getNormType(), normalizedType ) )
                {
                    return atav.getValue();
                }
@@ -508,7 +508,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                return null;
 
            case 1:
-               if ( atav.getType().equals( normalizedType ) )
+               if ( atav.getNormType().equals( normalizedType ) )
                {
                    return atav;
                }
@@ -603,7 +603,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
                    for ( AttributeTypeAndValue currentAtav:this.atavs )
                    {
                        rdn.atavs.add( (AttributeTypeAndValue)currentAtav.clone() );
-                       rdn.atavTypes.put( currentAtav.getType(), currentAtav );
+                       rdn.atavTypes.put( currentAtav.getUpType(), currentAtav );
                    }
 
                    break;
@@ -664,7 +664,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
                    for ( AttributeTypeAndValue current:atavs )
                    {
-                       String type = current.getType();
+                       String type = current.getNormType();
 
                        if ( rdn.atavTypes.containsKey( type ) )
                        {
@@ -792,11 +792,11 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
 
    /**
-    * Return the type, or the first one of we have more than one (the lowest)
+    * Return the user provided type, or the first one of we have more than one (the lowest)
     *
-    * @return The first type of this RDN
+    * @return The first user provided type of this RDN
     */
-   public String getType()
+   public String getUpType()
    {
        switch ( nbAtavs )
        {
@@ -804,13 +804,32 @@ public class Rdn implements Cloneable, Comparable, Serializable
                return null;
 
            case 1:
-               return atav.getType();
+               return atav.getUpType();
 
            default:
-               return ( ( AttributeTypeAndValue )((TreeSet)atavs).first() ).getType();
+               return ( ( AttributeTypeAndValue )((TreeSet)atavs).first() ).getUpType();
        }
    }
 
+   /**
+    * Return the normalized type, or the first one of we have more than one (the lowest)
+    *
+    * @return The first normalized type of this RDN
+    */
+   public String getNormType()
+   {
+       switch ( nbAtavs )
+       {
+           case 0:
+               return null;
+
+           case 1:
+               return atav.getNormType();
+
+           default:
+               return ( ( AttributeTypeAndValue )((TreeSet)atavs).first() ).getNormType();
+       }
+   }
 
    /**
     * Return the value, or the first one of we have more than one (the lowest)

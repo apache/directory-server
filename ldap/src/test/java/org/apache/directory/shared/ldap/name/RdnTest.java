@@ -399,7 +399,7 @@ public class RdnTest extends TestCase
    {
        Rdn rdn = new Rdn( " a = b + a = f + g = h + c = d " );
 
-       Assert.assertEquals( "a", rdn.getType() );
+       Assert.assertEquals( "a", rdn.getNormType() );
    }
 
 
