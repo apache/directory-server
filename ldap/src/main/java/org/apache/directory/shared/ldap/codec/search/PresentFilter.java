@@ -56,6 +56,15 @@ public class PresentFilter extends Filter
     {
         super( tlvId );
     }
+    
+    
+    /**
+     * The constructor.
+     */
+    public PresentFilter()
+    {
+        super();
+    }
 
 
     // ~ Methods

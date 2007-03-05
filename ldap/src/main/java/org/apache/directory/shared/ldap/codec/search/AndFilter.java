@@ -50,6 +50,16 @@ public class AndFilter extends ConnectorFilter
 
 
     /**
+     * The constructor. We wont initialize the ArrayList as they may not be
+     * used.
+     */
+    public AndFilter()
+    {
+        super();
+    }
+
+
+    /**
      * Get the AndFilter.
      * 
      * @return Returns the andFilter.

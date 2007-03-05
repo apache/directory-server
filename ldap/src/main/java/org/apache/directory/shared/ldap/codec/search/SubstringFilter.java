@@ -94,6 +94,16 @@ public class SubstringFilter extends Filter
     {
         super( tlvId );
     }
+    
+    
+    /**
+     * The constructor. We will create the 'any' subsring arraylist with only
+     * one element.
+     */
+    public SubstringFilter()
+    {
+        super();
+    }
 
 
     /**

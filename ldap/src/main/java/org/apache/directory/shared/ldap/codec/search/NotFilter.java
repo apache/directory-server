@@ -46,6 +46,14 @@ public class NotFilter extends ConnectorFilter
     {
         super( tlvId );
     }
+    
+    /**
+     * The constructor.
+     */
+    public NotFilter()
+    {
+        super();
+    }
 
 
     /**

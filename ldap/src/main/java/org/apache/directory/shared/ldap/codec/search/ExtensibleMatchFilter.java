@@ -73,6 +73,16 @@ public class ExtensibleMatchFilter extends Filter
     {
         super( tlvId );
     }
+    
+    
+    /**
+     * Creates a new ExtensibleMatchFilter object. The dnAttributes flag
+     * defaults to false.
+     */
+    public ExtensibleMatchFilter()
+    {
+        super();
+    }
 
 
     // ~ Methods

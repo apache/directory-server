@@ -66,6 +66,18 @@ public class AttributeValueAssertionFilter extends Filter
     }
 
 
+    /**
+     * The constructor.
+     * 
+     * @param filterType The filter type
+     */
+    public AttributeValueAssertionFilter( int filterType )
+    {
+        super();
+        this.filterType = filterType;
+    }
+
+
     // ~ Methods
     // ------------------------------------------------------------------------------------
 

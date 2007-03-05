@@ -59,6 +59,15 @@ public abstract class ConnectorFilter extends Filter
     }
 
 
+    /**
+     * The constructor. We wont initialize the ArrayList as it may not be used.
+     */
+    public ConnectorFilter()
+    {
+        super();
+    }
+
+
     // ~ Methods
     // ------------------------------------------------------------------------------------
 
@@ -67,7 +76,7 @@ public abstract class ConnectorFilter extends Filter
      * 
      * @param filter The filter to add
      */
-    public void addFilter( Filter filter )  throws DecoderException
+    public void addFilter( Filter filter ) throws DecoderException
     {
 
         if ( filterSet == null )
@@ -159,7 +168,7 @@ public abstract class ConnectorFilter extends Filter
 
         if ( ( filterSet != null ) && ( filterSet.size() != 0 ) )
         {
-            for ( Filter filter:filterSet )
+            for ( Filter filter : filterSet )
             {
                 sb.append( '(' ).append( filter ).append( ')' );
             }
