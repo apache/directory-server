@@ -944,7 +944,7 @@ public class SchemaService extends BaseInterceptor
         Set allowed = new HashSet( must );
         
         // Add the 'ObjectClass' attribute ID
-        allowed.add( globalRegistries.getOidRegistry().getOid( "ObjectClass" ) );
+        allowed.add( globalRegistries.getOidRegistry().getOid( "objectClass" ) );
         
         // Loop on all objectclasses
         while ( objectClasses.hasMoreElements() )
@@ -1475,7 +1475,7 @@ public class SchemaService extends BaseInterceptor
 
             entry.remove( "objectClass" );
             
-            Attribute newOc = new LockableAttributeImpl( "ObjectClass" );
+            Attribute newOc = new LockableAttributeImpl( "objectClass" );
             
             for ( int i = 0; i < objectClasses.size(); i++ )
             {
