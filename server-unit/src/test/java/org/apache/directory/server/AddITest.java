@@ -579,7 +579,7 @@ public class AddITest extends AbstractServerTest
             
             if ( attr.getID().equalsIgnoreCase( "objectClass" ) )
             {
-                assertEquals( "ObjectClass", attr.getID() );
+                assertEquals( "objectClass", attr.getID() );
             }
             
             if ( attr.getID().equalsIgnoreCase( "sn" ) )
