@@ -851,7 +851,7 @@ public class ReferralITest extends AbstractAdminTestCase
         try
         {
             Attributes attrs = new LockableAttributesImpl( "ou", "deep" );
-            Attribute oc = new LockableAttributeImpl( "ObjectClass" );
+            Attribute oc = new LockableAttributeImpl( "objectClass" );
             oc.add( "top" );
             oc.add( "organizationalUnit" );
             attrs.put( oc );
