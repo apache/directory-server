@@ -56,7 +56,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     private DirContext createSubContext( DirContext ctx, String type, String value ) throws NamingException
     {
         Attributes attrs = new LockableAttributesImpl( type, value );
-        Attribute attr = new LockableAttributeImpl( "ObjectClass" );
+        Attribute attr = new LockableAttributeImpl( "objectClass" );
         attr.add( "top"  );
         attr.add( "person" );
         attr.add( "OrganizationalPerson" );
@@ -123,7 +123,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         try
         {
             Attributes attrs = new LockableAttributesImpl( "ou", "users" );
-            Attribute attr = new LockableAttributeImpl( "ObjectClass" );
+            Attribute attr = new LockableAttributeImpl( "objectClass" );
             attr.add( "top"  );
             attr.add( "OrganizationalUnit" );
             attrs.put( attr );
@@ -141,7 +141,7 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         try
         {
             Attributes attrs = new LockableAttributesImpl( "ou", "uzerz" );
-            Attribute attr = new LockableAttributeImpl( "ObjectClass" );
+            Attribute attr = new LockableAttributeImpl( "objectClass" );
             attr.add( "top"  );
             attr.add( "OrganizationalUnit" );
             attrs.put( attr );
