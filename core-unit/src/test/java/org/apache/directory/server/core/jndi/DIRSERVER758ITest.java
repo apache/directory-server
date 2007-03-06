@@ -49,7 +49,7 @@ public class DIRSERVER758ITest extends AbstractAdminTestCase
     public void testAddAttributesNotInObjectClasses() throws Exception
     {
         Attributes attrs = new LockableAttributesImpl( true );
-        Attribute oc = new LockableAttributeImpl( "ObjectClass", "top" );
+        Attribute oc = new LockableAttributeImpl( "objectClass", "top" );
         Attribute cn = new LockableAttributeImpl( "cn", "kevin Spacey" );
         Attribute dc = new LockableAttributeImpl( "dc", "ke" );
         attrs.put( oc );
