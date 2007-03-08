@@ -21,6 +21,7 @@
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
+      <version>0.9.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
@@ -39,8 +40,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.directory.mina</groupId>
+      <groupId>org.apache.mina</groupId>
       <artifactId>mina-filter-ssl</artifactId>
+      <version>1.0.1</version>
     </dependency>
   </dependencies>
 </project>

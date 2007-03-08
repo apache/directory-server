@@ -53,7 +53,7 @@ public class SaslBindHandler extends BindHandler
         LdapContext ctx;
         BindRequest req = ( BindRequest ) message;
         LdapResult result = req.getResultResponse().getLdapResult();
-        Hashtable env = SessionRegistry.getSingleton().getEnvironment();
+        Hashtable env = SessionRegistry.getSingleton().getEnvironmentByCopy();
 
         // If the bind request is simple, then forward the request to the
         // original BindHandler implementation.
@@ -77,7 +77,7 @@ public class SaslBindHandler extends BindHandler
             }
             else
             {
-                result.setResultCode( ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
+                result.setResultCode( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
                 result.setErrorMessage( "Unsupported SASL mechanism: " + mechanism );
                 session.write( req.getResultResponse() );
                 return;
@@ -95,7 +95,7 @@ public class SaslBindHandler extends BindHandler
             // Return the challenge if not complete
             if( !saslServer.isComplete() )
             {
-                result.setResultCode( ResultCodeEnum.SASLBINDINPROGRESS );
+                result.setResultCode( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
                 BindResponse response = ( BindResponse ) req.getResultResponse();
                 response.setServerSaslCreds( challenge );
                 session.write( req.getResultResponse() );
