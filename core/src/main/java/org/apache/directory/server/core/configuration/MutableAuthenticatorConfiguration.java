@@ -39,12 +39,26 @@ public class MutableAuthenticatorConfiguration extends AuthenticatorConfiguratio
     {
     }
 
+    /**
+     * Create and register an authenticator with its name
+     * 
+     * @param name The authenticator name
+     * @param authenticator The authenticator to register
+     */
+    public MutableAuthenticatorConfiguration( String name, Authenticator authenticator )
+    {
+        super.setAuthenticator( name, authenticator );
+    }
 
+    /**
+     * Register an authenticator
+     * 
+     * @param authenticator The authenticator to register
+     */
     public void setAuthenticator( Authenticator authenticator )
     {
         super.setAuthenticator( authenticator );
     }
-
 
     public void setName( String name )
     {
