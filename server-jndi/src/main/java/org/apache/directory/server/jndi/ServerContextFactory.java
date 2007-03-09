@@ -23,7 +23,6 @@ package org.apache.directory.server.jndi;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -52,6 +51,7 @@ import org.apache.directory.server.ntp.NtpConfiguration;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
+import org.apache.directory.server.ssl.LdapsInitializer;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -415,32 +415,8 @@ public class ServerContextFactory extends CoreContextFactory
             return;
         }
 
-        // We use the reflection API in case this is not running on JDK 1.5+.
-        IoFilterChainBuilder chain;
-        try
-        {
-            chain = ( IoFilterChainBuilder ) Class.forName( "org.apache.directory.server.ssl.LdapsInitializer", true,
-                ServerContextFactory.class.getClassLoader() ).getMethod( "init", new Class[]
-                { ServerStartupConfiguration.class } ).invoke( null, new Object[]
-                { cfg } );
-            ldapsStarted = true;
-        }
-        catch ( InvocationTargetException e )
-        {
-            if ( e.getCause() instanceof NamingException )
-            {
-                throw ( NamingException ) e.getCause();
-            }
-            else
-            {
-                throw ( NamingException ) new NamingException( "Failed to load LDAPS initializer." ).initCause( e
-                    .getCause() );
-            }
-        }
-        catch ( Exception e )
-        {
-            throw ( NamingException ) new NamingException( "Failed to load LDAPS initializer." ).initCause( e );
-        }
+        IoFilterChainBuilder chain = LdapsInitializer.init( cfg );
+        ldapsStarted = true;
 
         startLDAP0( cfg, env, cfg.getLdapsPort(), chain );
     }
