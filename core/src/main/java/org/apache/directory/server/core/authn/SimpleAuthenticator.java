@@ -61,10 +61,24 @@ import org.slf4j.LoggerFactory;
 public class SimpleAuthenticator extends AbstractAuthenticator
 {
     private static final Logger log = LoggerFactory.getLogger( SimpleAuthenticator.class );
-    private static final Collection USERLOOKUP_BYPASS;
 
-    private WeakHashMap<String, byte[]> credentialCache = new WeakHashMap<String, byte[]>( 1000 );
-    
+    /**
+     * A cache to store passwords. It's a speedup, we will be able to avoid backend lookups.
+     * 
+     * Note that the backend also use a cache mechanism, so it might be a good thing to manage 
+     * a cache right here. The main problem is that when a user modify his password, we will
+     * have to update it at three different places :
+     * - in the backend,
+     * - in the partition cache,
+     * - in this cache.
+     */ 
+    // private WeakHashMap<String, byte[]> credentialCache = new WeakHashMap<String, byte[]>( 1000 );
+
+    /**
+     * Define the interceptors we should *not* go through when we will have to request the backend
+     * about a userPassword.
+     */
+    private static final Collection USERLOOKUP_BYPASS;
     static
     {
         Set<String> c = new HashSet<String>();
@@ -111,49 +125,37 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             creds = StringTools.getBytesUtf8( ( String ) creds );
         }
 
-        byte[] userPassword = null;
-        if ( credentialCache.containsKey( principalDn.getNormName() ) )
-        {
-            userPassword = credentialCache.get( principalDn.getNormName() );
-        }
-        else
-        {
-            userPassword = lookupUserPassword( principalDn );
-        }
+        // Get the user password from the backend
+        byte[] userPassword = lookupUserPassword( principalDn );
 
-        boolean credentialsMatch = false;
+        boolean credentialsMatch = Arrays.equals( (byte[])creds, userPassword );
 
-        // Check if password is stored as a message digest, i.e. one-way
-        // encrypted
-        if ( this.isPasswordOneWayEncrypted( userPassword ) )
+        if ( ! credentialsMatch )
         {
-            try
+            // Check if password is stored as a message digest, i.e. one-way
+            // encrypted
+            String algorithm = getAlgorithmForHashedPassword( userPassword );
+            
+            if ( algorithm != null )
             {
-                // create a corresponding digested password from creds
-                String algorithm = this.getAlgorithmForHashedPassword( userPassword );
-                String digestedCredits = this.createDigestedPassword( algorithm, creds );
-
-                credentialsMatch = Arrays.equals( StringTools.getBytesUtf8( digestedCredits ), userPassword );
-            }
-            catch ( NoSuchAlgorithmException nsae )
-            {
-                log.warn( "Password stored with unknown algorithm.", nsae );
-            }
-            catch ( IllegalArgumentException e )
-            {
-                log.warn( "Exception during authentication", e );
+                try
+                {
+                    // create a corresponding digested password from creds
+                    String digestedCredits = createDigestedPassword( algorithm, (byte[])creds );
+    
+                    credentialsMatch = Arrays.equals( StringTools.getBytesUtf8( digestedCredits ), userPassword );
+                }
+                catch ( IllegalArgumentException e )
+                {
+                    log.warn( "Exception during authentication", e );
+                }
             }
         }
-        else
-        {
-            // password is not stored one-way encrypted
-            credentialsMatch = Arrays.equals( (byte[])creds, userPassword );
-        }
 
+        // Now, update the local cache.
         if ( credentialsMatch )
         {
             LdapPrincipal principal = new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
-            credentialCache.put( principalDn.getNormName(), userPassword );
             return principal;
         }
         else
@@ -163,7 +165,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     }
     
     
-    protected byte[] lookupUserPassword( LdapDN principalDn ) throws NamingException
+    private byte[] lookupUserPassword( LdapDN principalDn ) throws NamingException
     {
         // ---- lookup the principal entry's userPassword attribute
 
@@ -212,66 +214,30 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         return ( byte[] ) userPassword;
     }
 
-
-    /**
-     * Checks if the argument is one-way encryped. If it is a string or a
-     * byte-array which looks like "{XYZ}...", and XYZ is a known lessage
-     * digest, the method returns true. The method does not throw an exception
-     * otherwise, e.g. if the algorithm XYZ is not known to the runtime.
-     * 
-     * @param password
-     *            agument, either a string or a byte-array
-     * @return true, if the value is a digested password with algorithm included
-     */
-    protected boolean isPasswordOneWayEncrypted( Object password )
-    {
-        boolean result = false;
-        try
-        {
-            String algorithm = getAlgorithmForHashedPassword( password );
-            result = ( algorithm != null );
-        }
-        catch ( IllegalArgumentException ignored )
-        {
-        }
-        return result;
-    }
-
-
     /**
      * Get the algorithm of a password, which is stored in the form "{XYZ}...".
      * The method returns null, if the argument is not in this form. It returns
      * XYZ, if XYZ is an algorithm known to the MessageDigest class of
      * java.security.
      * 
-     * @param password
-     *            either a String or a byte[]
+     * @param password a byte[]
      * @return included message digest alorithm, if any
      */
-    protected String getAlgorithmForHashedPassword( Object password ) throws IllegalArgumentException
+    protected String getAlgorithmForHashedPassword( byte[] password ) throws IllegalArgumentException
     {
         String result = null;
 
         // Check if password arg is string or byte[]
-        String sPassword = null;
-        if ( password instanceof byte[] )
-        {
-            sPassword = new String( ( byte[] ) password );
-        }
-        else if ( password instanceof String )
-        {
-            sPassword = ( String ) password;
-        }
-        else
-        {
-            throw new IllegalArgumentException( "password is neither a String nor a byte-Array." );
-        }
+        String sPassword = StringTools.utf8ToString( password );
+        int rightParen = sPassword.indexOf( '}' );
 
-        if ( sPassword != null && sPassword.length() > 2 && sPassword.charAt( 0 ) == '{'
-            && sPassword.indexOf( '}' ) > -1 )
+        if ( ( sPassword != null ) && 
+             ( sPassword.length() > 2 ) && 
+             ( sPassword.charAt( 0 ) == '{' ) &&
+             ( rightParen > -1 ) )
         {
-            int algPosEnd = sPassword.indexOf( '}' );
-            String algorithm = sPassword.substring( 1, algPosEnd );
+            String algorithm = sPassword.substring( 1, rightParen );
+
             try
             {
                 MessageDigest.getInstance( algorithm );
@@ -298,7 +264,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      *            an algorithm which is supported by
      *            java.security.MessageDigest, e.g. SHA
      * @param password
-     *            password value, either a string or a byte[]
+     *            password value, a byte[]
      * 
      * @return a digested password, which looks like
      *         {SHA}LhkDrSoM6qr0fW6hzlfOJQW61tc=
@@ -307,52 +273,30 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      *             if password is neither a String nor a byte[], or algorithm is
      *             not known to java.security.MessageDigest class
      */
-    protected String createDigestedPassword( String algorithm, Object password ) throws NoSuchAlgorithmException,
-        IllegalArgumentException
+    protected String createDigestedPassword( String algorithm, byte[] password ) throws IllegalArgumentException
     {
-        // Check if password arg is string or byte[]
-        byte[] data = null;
-        if ( password instanceof byte[] )
-        {
-            data = ( byte[] ) password;
-        }
-        else if ( password instanceof String )
-        {
-            data = StringTools.getBytesUtf8( ( String ) password );
-        }
-        else
-        {
-            throw new IllegalArgumentException( "password is neither a String nor a byte-Array." );
-        }
-
         // create message digest object
-        MessageDigest digest = null;
         try
         {
-            digest = MessageDigest.getInstance( algorithm );
+            MessageDigest digest = MessageDigest.getInstance( algorithm );
+            
+            // calculate hashed value of password
+            byte[] fingerPrint = digest.digest( password );
+            char[] encoded = Base64.encode( fingerPrint );
+
+            // create return result of form "{alg}bbbbbbb"
+            return '{' + algorithm + '}' + new String( encoded );
         }
         catch ( NoSuchAlgorithmException nsae )
         {
+            log.error( "Cannot create a digested password for algorithm '{}'", algorithm );
             throw new IllegalArgumentException( nsae.getMessage() );
         }
-
-        // calculate hashed value of password
-        byte[] fingerPrint = digest.digest( data );
-        char[] encoded = Base64.encode( fingerPrint );
-
-        // create return result of form "{alg}bbbbbbb"
-        StringBuffer result = new StringBuffer();
-        result.append( '{' );
-        result.append( algorithm );
-        result.append( '}' );
-        result.append( encoded );
-
-        return result.toString();
     }
 
 
     public void invalidateCache( LdapDN bindDn )
     {
-        credentialCache.remove( bindDn.getNormName() );
+        // credentialCache.remove( bindDn.getNormName() );
     }
 }
