@@ -34,7 +34,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
-import org.apache.directory.server.configuration.ServerStartupConfiguration;
 import org.apache.directory.server.ssl.support.ServerX509TrustManager;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoFilterChainBuilder;
@@ -51,12 +50,8 @@ import org.apache.mina.filter.SSLFilter;
  */
 public class LdapsInitializer
 {
-    public static IoFilterChainBuilder init( ServerStartupConfiguration cfg ) throws NamingException
+    public static IoFilterChainBuilder init( char[] certPasswordChars, String storePath ) throws NamingException
     {
-        // Load the certificate
-        char[] certPasswdChars = cfg.getLdapsCertificatePassword().toCharArray();
-        String storePath = cfg.getLdapsCertificateFile().getPath();
-
         KeyStore ks = null;
         try
         {
@@ -80,12 +75,12 @@ public class LdapsInitializer
         {
             // Set up key manager factory to use our key store
             String algorithm = Security.getProperty( "ssl.KeyManagerFactory.algorithm" );
-            if( algorithm == null )
+            if ( algorithm == null )
             {
                 algorithm = "SunX509";
             }
             KeyManagerFactory kmf = KeyManagerFactory.getInstance( algorithm );
-            kmf.init( ks, certPasswdChars );
+            kmf.init( ks, certPasswordChars );
 
             // Initialize the SSLContext to work with our key managers.
             sslCtx = SSLContext.getInstance( "TLS" );
