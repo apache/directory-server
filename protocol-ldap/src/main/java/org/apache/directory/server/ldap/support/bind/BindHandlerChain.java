@@ -6,55 +6,39 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
-package org.apache.directory.server.ldap.support;
+package org.apache.directory.server.ldap.support.bind;
 
 
-import org.apache.directory.server.core.configuration.StartupConfiguration;
-import org.apache.directory.server.ldap.support.bind.BindHandlerChain;
-import org.apache.mina.common.IoSession;
-import org.apache.mina.handler.chain.IoHandlerCommand;
+import org.apache.mina.handler.chain.IoHandlerChain;
 
 
 /**
- * A single reply handler for {@link org.apache.directory.shared.ldap.message.BindRequest}s.
- * 
- * Implements server-side of RFC 2222, sections 4.2 and 4.3.
- * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BindHandler implements LdapMessageHandler
+public class BindHandlerChain extends IoHandlerChain
 {
-    private IoHandlerCommand bindHandler;
-
-
     /**
-     * Creates a new instance of BindHandler.
+     * Creates a new instance of BindHandlerChain.
      */
-    public BindHandler()
+    public BindHandlerChain()
     {
-        bindHandler = new BindHandlerChain();
-    }
-
-
-    public void messageReceived( IoSession session, Object message ) throws Exception
-    {
-        bindHandler.execute( null, session, message );
-    }
-
-
-    public void init( StartupConfiguration cfg )
-    {
+        addLast( "configureChain", new ConfigureChain() );
+        addLast( "chainGuard", new ChainGuard() );
+        addLast( "handleSasl", new HandleSasl() );
+        addLast( "handleSimple", new HandleSimple() );
+        addLast( "getLdapContext", new GetLdapContext() );
+        addLast( "returnSuccess", new ReturnSuccess() );
     }
 }

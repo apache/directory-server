@@ -6,55 +6,48 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
-package org.apache.directory.server.ldap.support;
+package org.apache.directory.server.ldap.support.bind;
 
 
-import org.apache.directory.server.core.configuration.StartupConfiguration;
-import org.apache.directory.server.ldap.support.bind.BindHandlerChain;
+import javax.security.sasl.SaslServer;
+
 import org.apache.mina.common.IoSession;
-import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
 /**
- * A single reply handler for {@link org.apache.directory.shared.ldap.message.BindRequest}s.
+ * An interface for retrieving a {@link SaslServer} for a session.
  * 
- * Implements server-side of RFC 2222, sections 4.2 and 4.3.
- * 
+ * @see javax.security.sasl.SaslServer
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BindHandler implements LdapMessageHandler
+public interface MechanismHandler
 {
-    private IoHandlerCommand bindHandler;
+    /**
+     * A key constant ({@value}) for storing the SASL context in the session.
+     */
+    public static final String SASL_CONTEXT = "saslContext";
 
 
     /**
-     * Creates a new instance of BindHandler.
+     * Implementors will use the session and message to determine what kind of
+     * {@link SaslServer} to create and what initialization parameters it will require.
+     *
+     * @param session
+     * @param message
+     * @return The {@link SaslServer} to use for the duration of the bound session.
+     * @throws Exception
      */
-    public BindHandler()
-    {
-        bindHandler = new BindHandlerChain();
-    }
-
-
-    public void messageReceived( IoSession session, Object message ) throws Exception
-    {
-        bindHandler.execute( null, session, message );
-    }
-
-
-    public void init( StartupConfiguration cfg )
-    {
-    }
+    public SaslServer handleMechanism( IoSession session, Object message ) throws Exception;
 }
