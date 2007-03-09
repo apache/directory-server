@@ -60,6 +60,18 @@ public class AuthenticatorConfiguration
         this.authenticator = authenticator;
     }
 
+    /**
+     * Sets the {@link Authenticator} to configure, with its name
+     * 
+     * @param name The authenticator name
+     * @param authenticator The authenticator to register
+     */
+    protected void setAuthenticator( String name, Authenticator authenticator )
+    {
+        this.authenticator = authenticator;
+        this.name = name;
+    }
+
 
     /**
      * Returns the user-defined name of the {@link Authenticator} that
