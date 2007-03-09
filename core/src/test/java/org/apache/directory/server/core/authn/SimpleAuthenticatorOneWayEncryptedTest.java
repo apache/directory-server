@@ -21,9 +21,8 @@
 package org.apache.directory.server.core.authn;
 
 
-import java.security.NoSuchAlgorithmException;
-
 import org.apache.directory.server.core.authn.SimpleAuthenticator;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
 
@@ -48,24 +47,24 @@ public class SimpleAuthenticatorOneWayEncryptedTest extends TestCase
     public void testGetAlgorithmForHashedPassword()
     {
         String digestetValue = "{SHA}LhkDrSoM6qr0fW6hzlfOJQW61tc=";
-        assertEquals( "SHA", auth.getAlgorithmForHashedPassword( digestetValue ) );
+        assertEquals( "SHA", auth.getAlgorithmForHashedPassword( StringTools.getBytesUtf8( digestetValue ) ) );
         assertEquals( "SHA", auth.getAlgorithmForHashedPassword( digestetValue.getBytes() ) );
 
         String noAlgorithm = "Secret1!";
-        assertEquals( null, auth.getAlgorithmForHashedPassword( noAlgorithm ) );
+        assertEquals( null, auth.getAlgorithmForHashedPassword( StringTools.getBytesUtf8( noAlgorithm ) ) );
         assertEquals( null, auth.getAlgorithmForHashedPassword( noAlgorithm.getBytes() ) );
 
         String unknownAlgorithm = "{XYZ}LhkDrSoM6qr0fW6hzlfOJQW61tc=";
-        assertEquals( null, auth.getAlgorithmForHashedPassword( unknownAlgorithm ) );
+        assertEquals( null, auth.getAlgorithmForHashedPassword( StringTools.getBytesUtf8( unknownAlgorithm ) ) );
         assertEquals( null, auth.getAlgorithmForHashedPassword( unknownAlgorithm.getBytes() ) );
     }
 
 
-    public void testCreateDigestedPassword() throws NoSuchAlgorithmException
+    public void testCreateDigestedPassword() throws IllegalArgumentException
     {
         String pwd = "Secret1!";
         String expected = "{SHA}znbJr3+tymFoQD4+Njh4ITtI7Cc=";
-        String digested = auth.createDigestedPassword( "SHA", pwd );
+        String digested = auth.createDigestedPassword( "SHA", StringTools.getBytesUtf8( pwd ) );
 
         assertEquals( expected, digested );
     }
