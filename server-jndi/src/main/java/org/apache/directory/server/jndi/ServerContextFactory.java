@@ -47,11 +47,12 @@ import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapProtocolProvider;
+import org.apache.directory.server.ldap.support.bind.SaslFilter;
+import org.apache.directory.server.ldap.support.ssl.LdapsInitializer;
 import org.apache.directory.server.ntp.NtpConfiguration;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
-import org.apache.directory.server.ssl.LdapsInitializer;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -67,7 +68,6 @@ import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketSessionConfig;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -398,7 +398,10 @@ public class ServerContextFactory extends CoreContextFactory
             return;
         }
 
-        startLDAP0( cfg, env, port, new DefaultIoFilterChainBuilder() );
+        DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();
+        chain.addLast( "SASL", new SaslFilter() );
+
+        startLDAP0( cfg, env, port, chain );
     }
 
 
@@ -415,7 +418,10 @@ public class ServerContextFactory extends CoreContextFactory
             return;
         }
 
-        IoFilterChainBuilder chain = LdapsInitializer.init( cfg );
+        char[] certPasswordChars = cfg.getLdapsCertificatePassword().toCharArray();
+        String storePath = cfg.getLdapsCertificateFile().getPath();
+
+        IoFilterChainBuilder chain = LdapsInitializer.init( certPasswordChars, storePath );
         ldapsStarted = true;
 
         startLDAP0( cfg, env, cfg.getLdapsPort(), chain );

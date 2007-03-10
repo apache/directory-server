@@ -34,7 +34,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
-import org.apache.directory.server.ssl.support.ServerX509TrustManager;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoFilterChainBuilder;
 import org.apache.mina.filter.SSLFilter;
