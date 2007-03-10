@@ -249,10 +249,6 @@
         <module>mitosis</module>
         <module>server-replication</module>
 
-        <!-- extra for jdk 1.5 -->
-        <module>server-ssl</module>
-        <!-- extra for jdk 1.5 -->
-
       </modules>
 
   <developers>
