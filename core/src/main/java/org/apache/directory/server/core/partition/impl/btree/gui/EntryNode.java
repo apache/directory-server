@@ -98,12 +98,12 @@ public class EntryNode implements TreeNode
 
                 if ( engine != null && exprNode != null )
                 {
-                    if ( db.getChildCount( rec.getEntryId() ) == 0 )
+                    if ( db.getChildCount( (BigInteger)rec.getEntryId() ) == 0 )
                     {
-                        if ( engine.evaluate( exprNode, rec.getEntryId() ) )
+                        if ( engine.evaluate( exprNode, (BigInteger)rec.getEntryId() ) )
                         {
-                            Attributes newEntry = db.lookup( rec.getEntryId() );
-                            EntryNode child = new EntryNode( rec.getEntryId(), this, db, newEntry, map, exprNode,
+                            Attributes newEntry = db.lookup( (BigInteger)rec.getEntryId() );
+                            EntryNode child = new EntryNode( (BigInteger)rec.getEntryId(), this, db, newEntry, map, exprNode,
                                 engine );
                             children.add( child );
                         }
@@ -114,15 +114,15 @@ public class EntryNode implements TreeNode
                     }
                     else
                     {
-                        Attributes newEntry = db.lookup( rec.getEntryId() );
-                        EntryNode child = new EntryNode( rec.getEntryId(), this, db, newEntry, map, exprNode, engine );
+                        Attributes newEntry = db.lookup( (BigInteger)rec.getEntryId() );
+                        EntryNode child = new EntryNode( (BigInteger)rec.getEntryId(), this, db, newEntry, map, exprNode, engine );
                         children.add( child );
                     }
                 }
                 else
                 {
-                    Attributes newEntry = db.lookup( rec.getEntryId() );
-                    EntryNode child = new EntryNode( rec.getEntryId(), this, db, newEntry, map );
+                    Attributes newEntry = db.lookup( (BigInteger)rec.getEntryId() );
+                    EntryNode child = new EntryNode( (BigInteger)rec.getEntryId(), this, db, newEntry, map );
                     children.add( child );
                 }
             }

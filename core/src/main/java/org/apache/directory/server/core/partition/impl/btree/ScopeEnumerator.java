@@ -203,7 +203,7 @@ public class ScopeEnumerator implements Enumerator
          */
         public boolean assertCandidate( IndexRecord record ) throws NamingException
         {
-            String dn = db.getEntryDn( record.getEntryId() );
+            String dn = db.getEntryDn( (BigInteger)record.getEntryId() );
             return dn.endsWith( scope.getBaseDn() );
         }
     }

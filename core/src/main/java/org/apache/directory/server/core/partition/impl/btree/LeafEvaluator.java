@@ -156,7 +156,7 @@ public class LeafEvaluator implements Evaluator
     private boolean evalGreater( SimpleNode node, IndexRecord record, boolean isGreater ) throws NamingException
     {
         String attrId = node.getAttribute();
-        BigInteger id = record.getEntryId();
+        BigInteger id = (BigInteger)record.getEntryId();
 
         if ( db.hasUserIndexOn( attrId ) )
         {
@@ -251,7 +251,7 @@ public class LeafEvaluator implements Evaluator
         // resusitate entry if need be
         if ( null == rec.getAttributes() )
         {
-            rec.setAttributes( db.lookup( rec.getEntryId() ) );
+            rec.setAttributes( db.lookup( (BigInteger)rec.getEntryId() ) );
         }
 
         // get the attribute associated with the node 
@@ -298,7 +298,7 @@ public class LeafEvaluator implements Evaluator
         // resusitate entry if need be
         if ( null == rec.getAttributes() )
         {
-            rec.setAttributes( db.lookup( rec.getEntryId() ) );
+            rec.setAttributes( db.lookup( (BigInteger)rec.getEntryId() ) );
         }
 
         // get the attribute associated with the node 

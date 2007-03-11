@@ -785,7 +785,7 @@ public class JdbmStore
 
     public BigInteger getEntryId( String dn ) throws NamingException
     {
-        return ndnIdx.forwardLookup( dn );
+        return (BigInteger)ndnIdx.forwardLookup( dn );
     }
 
 
@@ -797,7 +797,7 @@ public class JdbmStore
 
     public BigInteger getParentId( String dn ) throws NamingException
     {
-        BigInteger childId = ndnIdx.forwardLookup( dn );
+        BigInteger childId = (BigInteger)ndnIdx.forwardLookup( dn );
         return ( BigInteger ) hierarchyIdx.reverseLookup( childId );
     }
 
@@ -816,7 +816,7 @@ public class JdbmStore
 
     public String getEntryUpdn( String dn ) throws NamingException
     {
-        BigInteger id = ndnIdx.forwardLookup( dn );
+        BigInteger id = (BigInteger)ndnIdx.forwardLookup( dn );
         return ( String ) updnIdx.reverseLookup( id );
     }
 
@@ -930,7 +930,7 @@ public class JdbmStore
         }
 
         // L O O K U P   T A R G E T   I D
-        targetId = ndnIdx.forwardLookup( normalizedAliasTargetDn.toNormName() );
+        targetId = (BigInteger)ndnIdx.forwardLookup( normalizedAliasTargetDn.toNormName() );
 
         /*
          * Check For Target Existance
@@ -1710,7 +1710,7 @@ public class JdbmStore
         {
             // Get the child and its id
             IndexRecord rec = ( IndexRecord ) children.next();
-            BigInteger childId = rec.getEntryId();
+            BigInteger childId = (BigInteger)rec.getEntryId();
 
             /* 
              * Calculate the Dn for the child's new name by copying the parents
@@ -1818,7 +1818,7 @@ public class JdbmStore
         {
             public boolean assertCandidate( IndexRecord rec ) throws NamingException
             {
-                String dn = getEntryDn( rec.getEntryId() );
+                String dn = getEntryDn( (BigInteger)rec.getEntryId() );
                 if ( dn.endsWith( movedBase.toString() ) )
                 {
                     return true;
@@ -1839,7 +1839,7 @@ public class JdbmStore
         while ( aliases.hasMore() )
         {
             IndexRecord entry = ( IndexRecord ) aliases.next();
-            dropAliasIndices( entry.getEntryId(), movedBase );
+            dropAliasIndices( (BigInteger)entry.getEntryId(), movedBase );
         }
     }
 

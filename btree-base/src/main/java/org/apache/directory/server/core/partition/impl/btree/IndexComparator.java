@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import org.apache.directory.server.schema.SerializableComparator;
+//import org.apache.directory.shared.ldap.util.BigIntegerComparator;
 import org.apache.directory.shared.ldap.util.BigIntegerComparator;
 
 

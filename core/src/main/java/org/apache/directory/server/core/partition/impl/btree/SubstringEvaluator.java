@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import java.math.BigInteger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -137,7 +138,7 @@ public class SubstringEvaluator implements Evaluator
         // resusitate the entry if it has not been and set entry in IndexRecord
         if ( null == record.getAttributes() )
         {
-            Attributes attrs = db.lookup( record.getEntryId() );
+            Attributes attrs = db.lookup( (BigInteger)record.getEntryId() );
             record.setAttributes( attrs );
         }
 

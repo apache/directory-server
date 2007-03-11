@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
-
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
@@ -48,7 +46,7 @@ public interface MasterTable extends Table
      * @return the Attributes of the entry with operational attributes and all.
      * @throws NamingException if there is a read error on the underlying Db.
      */
-    Attributes get( BigInteger id ) throws NamingException;
+    Attributes get( Object id ) throws NamingException;
 
 
     /**
@@ -61,7 +59,7 @@ public interface MasterTable extends Table
      * @return the newly created entry's Attributes
      * @throws NamingException if there is a write error on the underlying Db.
      */
-    Attributes put( Attributes entry, BigInteger id ) throws NamingException;
+    Attributes put( Attributes entry, Object id ) throws NamingException;
 
 
     /**
@@ -71,7 +69,7 @@ public interface MasterTable extends Table
      * @return the Attributes of the deleted entry
      * @throws NamingException if there is a write error on the underlying Db
      */
-    Attributes delete( BigInteger id ) throws NamingException;
+    Attributes delete( Object id ) throws NamingException;
 
 
     /**
@@ -82,7 +80,7 @@ public interface MasterTable extends Table
      * @throws NamingException if the admin table storing sequences cannot be
      * read.
      */
-    BigInteger getCurrentId() throws NamingException;
+    Object getCurrentId() throws NamingException;
 
 
     /**
@@ -93,7 +91,7 @@ public interface MasterTable extends Table
      * @throws NamingException if the admin table storing sequences cannot be
      * read and writen to.
      */
-    BigInteger getNextId() throws NamingException;
+    Object getNextId() throws NamingException;
 
 
     /**

@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -45,7 +44,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration
     /** The iteration cursor */
     private final NamingEnumeration underlying;
     /** LUT used to avoid returning duplicates */
-    private final Map<BigInteger,BigInteger> candidates;
+    private final Map<Object,Object> candidates;
     /** */
     private final IndexAssertion assertion;
     /** */
@@ -72,7 +71,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration
         throws NamingException
     {
         this.underlying = underlying;
-        candidates = new HashMap<BigInteger,BigInteger>();
+        candidates = new HashMap<Object,Object>();
         this.assertion = assertion;
         checkDups = enableDupCheck;
         prefetch();

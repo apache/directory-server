@@ -63,12 +63,12 @@ public class ScopeEvaluator implements Evaluator
         switch ( snode.getScope() )
         {
             case ( SearchControls.OBJECT_SCOPE  ):
-                String dn = db.getEntryDn( record.getEntryId() );
+                String dn = db.getEntryDn( (BigInteger)record.getEntryId() );
                 return dn.equals( snode.getBaseDn() );
             case ( SearchControls.ONELEVEL_SCOPE  ):
-                return assertOneLevelScope( snode, record.getEntryId() );
+                return assertOneLevelScope( snode, (BigInteger)record.getEntryId() );
             case ( SearchControls.SUBTREE_SCOPE  ):
-                return assertSubtreeScope( snode, record.getEntryId() );
+                return assertSubtreeScope( snode, (BigInteger)record.getEntryId() );
             default:
                 throw new NamingException( "Unrecognized search scope!" );
         }

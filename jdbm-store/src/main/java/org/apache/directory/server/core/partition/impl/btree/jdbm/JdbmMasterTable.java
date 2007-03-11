@@ -94,7 +94,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @return the Attributes of the entry with operational attributes and all.
      * @throws NamingException if there is a read error on the underlying Db.
      */
-    public Attributes get( BigInteger id ) throws NamingException
+    public Attributes get( Object id ) throws NamingException
     {
         return ( Attributes ) super.get( id );
     }
@@ -110,7 +110,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @return the Attributes of the entry put
      * @throws NamingException if there is a write error on the underlying Db.
      */
-    public Attributes put( Attributes entry, BigInteger id ) throws NamingException
+    public Attributes put( Attributes entry, Object id ) throws NamingException
     {
         return ( Attributes ) super.put( id, entry );
     }
@@ -123,7 +123,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @return the Attributes of the deleted entry
      * @throws NamingException if there is a write error on the underlying Db
      */
-    public Attributes delete( BigInteger id ) throws NamingException
+    public Attributes delete( Object id ) throws NamingException
     {
         return ( Attributes ) super.remove( id );
     }
