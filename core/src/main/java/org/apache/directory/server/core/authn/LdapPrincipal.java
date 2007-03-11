@@ -41,13 +41,16 @@ public final class LdapPrincipal implements Principal, Serializable
     private static final long serialVersionUID = 3906650782395676720L;
 
     /** the normalized distinguished name of the principal */
-    private final Name name;
+    private final LdapDN name;
 
     /** the no name anonymous user whose DN is the empty String */
     public static final LdapPrincipal ANONYMOUS = new LdapPrincipal();
 
     /** the authentication level for this principal */
     private final AuthenticationLevel authenticationLevel;
+    
+    /** The userPassword */
+    private byte[] userPassword;
 
 
     /**
@@ -58,10 +61,27 @@ public final class LdapPrincipal implements Principal, Serializable
      * @param name the normalized distinguished name of the principal
      * @param authenticationLevel
      */
-    LdapPrincipal( Name name, AuthenticationLevel authenticationLevel )
+    LdapPrincipal( LdapDN name, AuthenticationLevel authenticationLevel )
     {
         this.name = name;
         this.authenticationLevel = authenticationLevel;
+        this.userPassword = null;
+    }
+
+    /**
+     * Creates a new LDAP/X500 principal without any group associations.  Keep
+     * this package friendly so only code in the package can create a
+     * trusted principal.
+     *
+     * @param name the normalized distinguished name of the principal
+     * @param authenticationLevel
+     * @param userPassword The user password
+     */
+    LdapPrincipal( LdapDN name, AuthenticationLevel authenticationLevel, byte[] userPassword )
+    {
+        this.name = name;
+        this.authenticationLevel = authenticationLevel;
+        this.userPassword = userPassword;
     }
 
 
@@ -71,8 +91,9 @@ public final class LdapPrincipal implements Principal, Serializable
      */
     private LdapPrincipal()
     {
-        this.name = new LdapDN();
-        this.authenticationLevel = AuthenticationLevel.NONE;
+        name = new LdapDN();
+        authenticationLevel = AuthenticationLevel.NONE;
+        userPassword = null;
     }
 
 
@@ -93,7 +114,7 @@ public final class LdapPrincipal implements Principal, Serializable
      */
     public String getName()
     {
-        return name.toString();
+        return name.getNormName();
     }
 
 
@@ -115,5 +136,17 @@ public final class LdapPrincipal implements Principal, Serializable
     public String toString()
     {
         return name.toString();
+    }
+
+
+    public byte[] getUserPassword()
+    {
+        return userPassword;
+    }
+
+
+    public void setUserPassword( byte[] userPassword )
+    {
+        this.userPassword = userPassword;
     }
 }
