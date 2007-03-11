@@ -27,13 +27,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -61,18 +61,30 @@ import org.slf4j.LoggerFactory;
 public class SimpleAuthenticator extends AbstractAuthenticator
 {
     private static final Logger log = LoggerFactory.getLogger( SimpleAuthenticator.class );
+    
+    /** A speedup for logger in debug mode */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /**
      * A cache to store passwords. It's a speedup, we will be able to avoid backend lookups.
      * 
-     * Note that the backend also use a cache mechanism, so it might be a good thing to manage 
-     * a cache right here. The main problem is that when a user modify his password, we will
+     * Note that the backend also use a cache mechanism, but for performance gain, it's good 
+     * to manage a cache here. The main problem is that when a user modify his password, we will
      * have to update it at three different places :
      * - in the backend,
      * - in the partition cache,
      * - in this cache.
+     * 
+     * The update of the backend and partition cache is already correctly handled, so we will
+     * just have to offer an access to refresh the local cache.
+     * 
+     * We need to be sure that frequently used passwords be always in cache, and not discarded.
+     * We will use a LRU cache for this purpose. 
      */ 
-    // private WeakHashMap<String, byte[]> credentialCache = new WeakHashMap<String, byte[]>( 1000 );
+    private LRUMap credentialCache;
+    
+    /** Declare a default for this cache. 100 entries seems to be enough */
+    private static final int DEFAULT_CACHE_SIZE = 100;
 
     /**
      * Define the interceptors we should *not* go through when we will have to request the backend
@@ -98,10 +110,25 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
     /**
      * Creates a new instance.
+     * @
      */
+    @SuppressWarnings( "unchecked" )
     public SimpleAuthenticator()
     {
         super( "simple" );
+        
+        credentialCache = new LRUMap( DEFAULT_CACHE_SIZE );
+    }
+
+    /**
+     * Creates a new instance, with an initial cache size
+     */
+    @SuppressWarnings( "unchecked" )
+    public SimpleAuthenticator( int cacheSize)
+    {
+        super( "simple" );
+
+        credentialCache = new LRUMap( cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE );
     }
 
     
@@ -112,63 +139,123 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      */
     public LdapPrincipal authenticate( LdapDN principalDn, ServerContext ctx ) throws NamingException
     {
+        if ( IS_DEBUG )
+        {
+            log.debug( "Authenticating {}", principalDn );
+        }
+        
         // ---- extract password from JNDI environment
-
         Object creds = ctx.getEnvironment().get( Context.SECURITY_CREDENTIALS );
+        byte[] credentials = null;
+        String principalNorm = principalDn.getNormName();
 
         if ( creds == null )
         {
-            creds = ArrayUtils.EMPTY_BYTE_ARRAY;
+            credentials = ArrayUtils.EMPTY_BYTE_ARRAY;
         }
         else if ( creds instanceof String )
         {
-            creds = StringTools.getBytesUtf8( ( String ) creds );
+            credentials = StringTools.getBytesUtf8( ( String ) creds );
+        }
+        else if ( creds instanceof byte[] )
+        {
+            credentials = (byte[])creds;
+        }
+        else
+        {
+            log.info( "Incorrect credentials stored in {}", Context.SECURITY_CREDENTIALS );
+            throw new LdapAuthenticationException();
         }
 
-        // Get the user password from the backend
-        byte[] userPassword = lookupUserPassword( principalDn );
-
-        boolean credentialsMatch = Arrays.equals( (byte[])creds, userPassword );
-
-        if ( ! credentialsMatch )
+        boolean credentialsMatch = false;
+        LdapPrincipal principal = null;
+        
+        // Check to see if the password is stored in the cache
+        synchronized( credentialCache )
         {
-            // Check if password is stored as a message digest, i.e. one-way
-            // encrypted
-            String algorithm = getAlgorithmForHashedPassword( userPassword );
+            principal = (LdapPrincipal)credentialCache.get( principalNorm );
+        }
+        
+        if ( principal != null )
+        {
+            // Found ! Are the password equals ?
+            credentialsMatch = Arrays.equals( credentials, principal.getUserPassword() );
+        }
+        else
+        {
+            // Not found :(...
+            // Get the user password from the backend
+            byte[] userPassword = lookupUserPassword( principalDn );
             
-            if ( algorithm != null )
+            // Deal with the special case where the user didn't enter a password
+            // We will compare the empty array with the credentials. Sometime,
+            // a user does not set a password. This is bad, but there is nothing
+            // we can do against that, except education ...
+            if ( userPassword == null )
             {
-                try
-                {
-                    // create a corresponding digested password from creds
-                    String digestedCredits = createDigestedPassword( algorithm, (byte[])creds );
+                userPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
+            }
     
-                    credentialsMatch = Arrays.equals( StringTools.getBytesUtf8( digestedCredits ), userPassword );
-                }
-                catch ( IllegalArgumentException e )
+            // Compare the passwords
+            credentialsMatch = Arrays.equals( credentials, userPassword );
+    
+            if ( ! credentialsMatch )
+            {
+                // Check if password is stored as a message digest, i.e. one-way
+                // encrypted
+                String algorithm = getAlgorithmForHashedPassword( userPassword );
+                
+                if ( algorithm != null )
                 {
-                    log.warn( "Exception during authentication", e );
+                    try
+                    {
+                        // create a corresponding digested password from creds
+                        String digestedCredits = createDigestedPassword( algorithm, credentials );
+        
+                        credentialsMatch = Arrays.equals( StringTools.getBytesUtf8( digestedCredits ), userPassword );
+                    }
+                    catch ( IllegalArgumentException e )
+                    {
+                        log.warn( "Exception during authentication", e.getMessage() );
+                    }
+                }
+            }
+            
+            // Last, if we have found the credential, we have to store it in the cache
+            if ( credentialsMatch )
+            {
+                principal = new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE, userPassword );
+
+                // Now, update the local cache.
+                synchronized( credentialCache )
+                {
+                    credentialCache.put( principalNorm, principal );
                 }
             }
         }
-
-        // Now, update the local cache.
+        
         if ( credentialsMatch )
         {
-            LdapPrincipal principal = new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
+            if ( IS_DEBUG )
+            {
+                log.debug( "{} Authenticated", principalDn );
+            }
+            
             return principal;
         }
         else
         {
+            log.info( "Password not correct for user '{}'", principalDn );
             throw new LdapAuthenticationException();
         }
     }
     
-    
+    /**
+     * Local function which request the password from the backend
+     */
     private byte[] lookupUserPassword( LdapDN principalDn ) throws NamingException
     {
         // ---- lookup the principal entry's userPassword attribute
-
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes userEntry;
@@ -196,7 +283,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         Attribute userPasswordAttr = userEntry.get( "userPassword" );
 
         // ---- assert that credentials match
-
         if ( userPasswordAttr == null )
         {
             userPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
@@ -294,9 +380,15 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
 
-
+    /**
+     * Remove the principal form the cache. This is used when the user changes
+     * his password.
+     */
     public void invalidateCache( LdapDN bindDn )
     {
-        // credentialCache.remove( bindDn.getNormName() );
+        synchronized( credentialCache )
+        {
+            credentialCache.remove( bindDn.getNormName() );
+        }
     }
 }
