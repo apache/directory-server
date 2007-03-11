@@ -23,6 +23,7 @@ package org.apache.directory.server.ldap.support.bind;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
@@ -30,6 +31,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -117,10 +119,24 @@ public class GetBindDn implements ContextOperation
                     return null;
                 }
 
-                if ( attrs.get( "userPassword" ) != null )
+                Object userPassword;
+                Attribute userPasswordAttr = attrs.get( "userPassword" );
+
+                if ( userPasswordAttr == null )
                 {
-                    userPassword = ( String ) attrs.get( "userPassword" ).get();
+                    userPassword = "";
                 }
+                else
+                {
+                    userPassword = userPasswordAttr.get();
+
+                    if ( userPassword instanceof byte[] )
+                    {
+                        userPassword = StringTools.asciiBytesToString( ( byte[] ) userPassword );
+                    }
+                }
+
+                this.userPassword = ( String ) userPassword;
             }
         }
         catch ( NamingException e )

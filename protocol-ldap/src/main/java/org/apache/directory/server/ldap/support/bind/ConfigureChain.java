@@ -60,7 +60,7 @@ public class ConfigureChain implements IoHandlerCommand
         /**
          * TODO - Take host from configuration.
          */
-        String saslHost = "ldap.example.com";
+        String saslHost = "localhost";
         session.setAttribute( "saslHost", saslHost );
 
         Map<String, String> saslProps = new HashMap<String, String>();
