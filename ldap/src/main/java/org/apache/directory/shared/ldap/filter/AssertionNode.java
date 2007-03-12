@@ -20,9 +20,6 @@
 package org.apache.directory.shared.ldap.filter;
 
 
-import java.math.BigInteger;
-
-
 /**
  * Node used for the application of arbitrary predicates on return candidates.
  * Applies dynamic and programatic criteria for the selection of candidates for
@@ -36,7 +33,7 @@ import java.math.BigInteger;
 public class AssertionNode extends AbstractExprNode
 {
     /** Setting scan count to max */
-    private static final BigInteger MAX = BigInteger.valueOf( Integer.MAX_VALUE );
+    private static final Long MAX = Long.MAX_VALUE;
 
     /** Setting display string to [MAX] */
     private static final String MAX_STR = "[" + MAX.toString() + "]";

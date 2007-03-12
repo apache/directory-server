@@ -24,7 +24,6 @@ package org.apache.directory.shared.ldap.filter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.math.BigInteger;
 
 /**
  * Node representing branches within the expression tree corresponding to
@@ -266,7 +265,7 @@ public class BranchNode extends AbstractExprNode
         if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
         {
             buf.append( '[' );
-            buf.append( ( ( BigInteger ) getAnnotations().get( "count" ) ).toString() );
+            buf.append( ( ( Long ) getAnnotations().get( "count" ) ).toString() );
             buf.append( "] " );
         }
         else
@@ -368,7 +367,7 @@ public class BranchNode extends AbstractExprNode
         if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
         {
             buf.append( '[' );
-            buf.append( ( ( BigInteger ) getAnnotations().get( "count" ) ).toString() );
+            buf.append( ( ( Long ) getAnnotations().get( "count" ) ).toString() );
             buf.append( "] " );
         }
         else
