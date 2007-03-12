@@ -46,6 +46,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.MultiException;
@@ -85,13 +86,6 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultPartitionNexus extends PartitionNexus
 {
-    // SASL mechanism support constants
-    // TODO perhaps these belong in constants module
-    private static final String SUPPORTED_SASL_MECHANISMS_ATTR = "supportedSASLMechanisms";
-    private static final String SASL_MECH_CRAM_MD5 = "CRAM-MD5";
-    private static final String SASL_MECH_DIGEST_MD5 = "DIGEST-MD5";
-    private static final String SASL_MECH_GSSAPI = "GSSAPI";
-    
     private static final Logger log = LoggerFactory.getLogger( DefaultPartitionNexus.class );
 
     /** Speedup for logs */
@@ -156,11 +150,12 @@ public class DefaultPartitionNexus extends PartitionNexus
         attr.add( NoticeOfDisconnect.EXTENSION_OID );
 
         // Add the supportedSASLMechanisms attribute to rootDSE
-        attr = new AttributeImpl( SUPPORTED_SASL_MECHANISMS_ATTR );
+        attr = new AttributeImpl( SupportedSASLMechanisms.ATTRIBUTE );
         rootDSE.put( attr );
-        attr.add( SASL_MECH_GSSAPI );
-        attr.add( SASL_MECH_DIGEST_MD5 );
-        attr.add( SASL_MECH_CRAM_MD5 );
+        attr.add( SupportedSASLMechanisms.SIMPLE );
+        attr.add( SupportedSASLMechanisms.GSSAPI );
+        attr.add( SupportedSASLMechanisms.DIGEST_MD5 );
+        attr.add( SupportedSASLMechanisms.CRAM_MD5 );
 
         attr = new AttributeImpl( "supportedControl" );
         rootDSE.put( attr );

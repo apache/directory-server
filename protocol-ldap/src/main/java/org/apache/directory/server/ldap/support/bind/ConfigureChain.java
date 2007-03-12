@@ -30,6 +30,7 @@ import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.Sasl;
 
+import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -51,10 +52,10 @@ public class ConfigureChain implements IoHandlerCommand
          * TODO - Take intersection of supported mechanisms and mechanisms enabled in configuration.
          */
         Set<String> supportedMechanisms = new HashSet<String>();
-        supportedMechanisms.add( "SIMPLE" );
-        supportedMechanisms.add( "CRAM-MD5" );
-        supportedMechanisms.add( "DIGEST-MD5" );
-        supportedMechanisms.add( "GSSAPI" );
+        supportedMechanisms.add( SupportedSASLMechanisms.SIMPLE );
+        supportedMechanisms.add( SupportedSASLMechanisms.CRAM_MD5 );
+        supportedMechanisms.add( SupportedSASLMechanisms.DIGEST_MD5 );
+        supportedMechanisms.add( SupportedSASLMechanisms.GSSAPI );
         session.setAttribute( "supportedMechanisms", supportedMechanisms );
 
         /**

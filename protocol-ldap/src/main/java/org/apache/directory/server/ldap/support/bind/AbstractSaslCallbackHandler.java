@@ -259,9 +259,9 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * @param message The current message.
      * @return An environment suitable for acquiring an {@link LdapContext} for the client.
      */
-    protected Hashtable getEnvironment( IoSession session, Object message )
+    protected Hashtable<String, Object> getEnvironment( IoSession session, Object message )
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.PROVIDER_URL, ( String ) session.getAttribute( "baseDn" ) );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
