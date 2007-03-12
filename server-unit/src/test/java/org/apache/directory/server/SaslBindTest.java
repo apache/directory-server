@@ -25,6 +25,7 @@ import java.util.Hashtable;
 import java.util.Set;
 
 import javax.naming.Context;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -153,8 +154,6 @@ public class SaslBindTest extends AbstractServerTest
 
     /**
      * Tests to make sure the server properly returns the supportedSASLMechanisms.
-     * 
-     * TODO - complete test when 'supportedSASLMechanisms' attribute return is implemented.
      */
     public void testSupportedSASLMechanisms()
     {
@@ -165,9 +164,27 @@ public class SaslBindTest extends AbstractServerTest
             Attributes attrs = ctx.getAttributes( "ldap://localhost:" + port, new String[]
                 { "supportedSASLMechanisms" } );
 
-            System.out.println( attrs );
+            try
+            {
+                NamingEnumeration answer = attrs.getAll();
 
-            ctx.close();
+                if ( answer.hasMore() )
+                {
+                    Attribute result = ( Attribute ) answer.next();
+                    assertTrue( result.size() == 3 );
+                    assertTrue( result.contains( "GSSAPI" ) );
+                    assertTrue( result.contains( "DIGEST-MD5" ) );
+                    assertTrue( result.contains( "CRAM-MD5" ) );
+                }
+                else
+                {
+                    fail();
+                }
+            }
+            catch ( NamingException e )
+            {
+                e.printStackTrace();
+            }
         }
         catch ( NamingException e )
         {
@@ -470,7 +487,6 @@ public class SaslBindTest extends AbstractServerTest
     {
         try
         {
-            // Create the initial context
             Hashtable<String, String> env = new Hashtable<String, String>();
             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );

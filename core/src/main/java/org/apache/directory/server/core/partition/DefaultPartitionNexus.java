@@ -152,7 +152,6 @@ public class DefaultPartitionNexus extends PartitionNexus
         // Add the supportedSASLMechanisms attribute to rootDSE
         attr = new AttributeImpl( SupportedSASLMechanisms.ATTRIBUTE );
         rootDSE.put( attr );
-        attr.add( SupportedSASLMechanisms.SIMPLE );
         attr.add( SupportedSASLMechanisms.GSSAPI );
         attr.add( SupportedSASLMechanisms.DIGEST_MD5 );
         attr.add( SupportedSASLMechanisms.CRAM_MD5 );
