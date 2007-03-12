@@ -85,6 +85,13 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultPartitionNexus extends PartitionNexus
 {
+    // SASL mechanism support constants
+    // TODO perhaps these belong in constants module
+    private static final String SUPPORTED_SASL_MECHANISMS_ATTR = "supportedSASLMechanisms";
+    private static final String SASL_MECH_CRAM_MD5 = "CRAM-MD5";
+    private static final String SASL_MECH_DIGEST_MD5 = "DIGEST-MD5";
+    private static final String SASL_MECH_GSSAPI = "GSSAPI";
+    
     private static final Logger log = LoggerFactory.getLogger( DefaultPartitionNexus.class );
 
     /** Speedup for logs */
@@ -147,6 +154,13 @@ public class DefaultPartitionNexus extends PartitionNexus
         attr = new AttributeImpl( "supportedExtension" );
         rootDSE.put( attr );
         attr.add( NoticeOfDisconnect.EXTENSION_OID );
+
+        // Add the supportedSASLMechanisms attribute to rootDSE
+        attr = new AttributeImpl( SUPPORTED_SASL_MECHANISMS_ATTR );
+        rootDSE.put( attr );
+        attr.add( SASL_MECH_GSSAPI );
+        attr.add( SASL_MECH_DIGEST_MD5 );
+        attr.add( SASL_MECH_CRAM_MD5 );
 
         attr = new AttributeImpl( "supportedControl" );
         rootDSE.put( attr );
