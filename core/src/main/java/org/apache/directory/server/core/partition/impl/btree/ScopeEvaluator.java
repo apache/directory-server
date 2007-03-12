@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
-
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
@@ -63,12 +61,12 @@ public class ScopeEvaluator implements Evaluator
         switch ( snode.getScope() )
         {
             case ( SearchControls.OBJECT_SCOPE  ):
-                String dn = db.getEntryDn( (BigInteger)record.getEntryId() );
+                String dn = db.getEntryDn( (Long)record.getEntryId() );
                 return dn.equals( snode.getBaseDn() );
             case ( SearchControls.ONELEVEL_SCOPE  ):
-                return assertOneLevelScope( snode, (BigInteger)record.getEntryId() );
+                return assertOneLevelScope( snode, (Long)record.getEntryId() );
             case ( SearchControls.SUBTREE_SCOPE  ):
-                return assertSubtreeScope( snode, (BigInteger)record.getEntryId() );
+                return assertSubtreeScope( snode, (Long)record.getEntryId() );
             default:
                 throw new NamingException( "Unrecognized search scope!" );
         }
@@ -85,7 +83,7 @@ public class ScopeEvaluator implements Evaluator
      * alias dereferencing is enabled.
      * @throws NamingException if the index lookups fail.
      */
-    public boolean assertSubtreeScope( final ScopeNode node, final BigInteger id ) throws NamingException
+    public boolean assertSubtreeScope( final ScopeNode node, final Long id ) throws NamingException
     {
         String dn = db.getEntryDn( id );
         DerefAliasesEnum mode = node.getDerefAliases();
@@ -150,7 +148,7 @@ public class ScopeEvaluator implements Evaluator
      * alias dereferencing is enabled.
      * @throws NamingException if the index lookups fail.
      */
-    public boolean assertOneLevelScope( final ScopeNode node, final BigInteger id ) throws NamingException
+    public boolean assertOneLevelScope( final ScopeNode node, final Long id ) throws NamingException
     {
         DerefAliasesEnum mode = node.getDerefAliases();
         Object baseId = db.getEntryId( node.getBaseDn() );

@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import java.io.File;
-import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 
@@ -265,31 +264,31 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final BigInteger getEntryId( String dn ) throws NamingException
+    public final Long getEntryId( String dn ) throws NamingException
     {
         return store.getEntryId( dn );
     }
 
 
-    public final String getEntryDn( BigInteger id ) throws NamingException
+    public final String getEntryDn( Long id ) throws NamingException
     {
         return store.getEntryDn( id );
     }
 
 
-    public final BigInteger getParentId( String dn ) throws NamingException
+    public final Long getParentId( String dn ) throws NamingException
     {
         return store.getParentId( dn );
     }
 
 
-    public final BigInteger getParentId( BigInteger childId ) throws NamingException
+    public final Long getParentId( Long childId ) throws NamingException
     {
         return store.getParentId( childId );
     }
 
 
-    public final String getEntryUpdn( BigInteger id ) throws NamingException
+    public final String getEntryUpdn( Long id ) throws NamingException
     {
         return store.getEntryUpdn( id );
     }
@@ -313,25 +312,25 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final Attributes lookup( BigInteger id ) throws NamingException
+    public final Attributes lookup( Long id ) throws NamingException
     {
         return store.lookup( id );
     }
 
 
-    public final void delete( BigInteger id ) throws NamingException
+    public final void delete( Long id ) throws NamingException
     {
         store.delete( id );
     }
 
 
-    public final NamingEnumeration list( BigInteger id ) throws NamingException
+    public final NamingEnumeration list( Long id ) throws NamingException
     {
         return store.list( id );
     }
 
 
-    public final int getChildCount( BigInteger id ) throws NamingException
+    public final int getChildCount( Long id ) throws NamingException
     {
         return store.getChildCount( id );
     }
@@ -366,7 +365,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final Attributes getIndices( BigInteger id ) throws NamingException
+    public final Attributes getIndices( Long id ) throws NamingException
     {
         return store.getIndices( id );
     }

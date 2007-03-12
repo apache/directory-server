@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -44,7 +43,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 public class DefaultOptimizer implements Optimizer
 {
     /** the maximum size for a count Integer.MAX_VALUE as a BigInteger */
-    private static final BigInteger MAX = BigInteger.valueOf( Integer.MAX_VALUE );
+    private static final Long MAX = Long.MAX_VALUE;
     /** the database this optimizer operates on */
     private BTreePartition db;
 
@@ -71,7 +70,7 @@ public class DefaultOptimizer implements Optimizer
     public void annotate( ExprNode node ) throws NamingException
     {
         // Start off with the worst case unless scan count says otherwise.
-        BigInteger count = MAX;
+        Long count = MAX;
 
         /* --------------------------------------------------------------------
          *                 H A N D L E   L E A F   N O D E S          
@@ -165,7 +164,7 @@ public class DefaultOptimizer implements Optimizer
         }
 
         // Protect against overflow when counting.
-        if ( count.compareTo( BigInteger.ZERO ) < 0 )
+        if ( count.compareTo( 0L ) < 0 )
         {
             count = MAX;
         }
@@ -185,16 +184,16 @@ public class DefaultOptimizer implements Optimizer
      * @return the calculated scan count
      * @throws NamingException if there is an error
      */
-    private BigInteger getConjunctionScan( BranchNode node ) throws NamingException
+    private Long getConjunctionScan( BranchNode node ) throws NamingException
     {
-        BigInteger count = MAX;
+        Long count = MAX;
         List<ExprNode> children = node.getChildren();
 
         for ( int ii = 0; ii < children.size(); ii++ )
         {
             ExprNode child = ( ExprNode ) children.get( ii );
             annotate( child );
-            count = ( ( BigInteger ) child.get( "count" ) ).min( count );
+            count = Math.min( ( ( Long ) child.get( "count" ) ), count );
         }
 
         return count;
@@ -215,7 +214,7 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count
      * @throws NamingException if there is an error
      */
-    private BigInteger getNegationScan( BranchNode node ) throws NamingException
+    private Long getNegationScan( BranchNode node ) throws NamingException
     {
         ExprNode onlyChild = ( ExprNode ) node.getChildren().get( 0 );
 
@@ -229,13 +228,13 @@ public class DefaultOptimizer implements Optimizer
             if ( db.hasUserIndexOn( leaf.getAttribute() ) )
             {
                 Index idx = db.getUserIndex( leaf.getAttribute() );
-                return BigInteger.valueOf( idx.count() );
+                return Long.valueOf( idx.count() );
             }
             
-            return BigInteger.valueOf( db.count() );
+            return Long.valueOf( db.count() );
         }
 
-        return BigInteger.valueOf( db.count() );
+        return Long.valueOf( db.count() );
     }
 
 
@@ -248,16 +247,16 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count on the OR node
      * @throws NamingException if there is an error
      */
-    private BigInteger getDisjunctionScan( BranchNode node ) throws NamingException
+    private Long getDisjunctionScan( BranchNode node ) throws NamingException
     {
         List<ExprNode> children = node.getChildren();
-        BigInteger total = BigInteger.ZERO;
+        Long total = 0L;
 
         for ( int ii = 0; ii < children.size(); ii++ )
         {
             ExprNode child = ( ExprNode ) children.get( ii );
             annotate( child );
-            total = total.add( ( BigInteger ) child.get( "count" ) );
+            total += ( Long ) child.get( "count" );
         }
         
         // we don't want values bigger than Integer.MAX_VALUE
@@ -278,12 +277,12 @@ public class DefaultOptimizer implements Optimizer
      * @return the worst case
      * @throws NamingException if there is an error accessing an index
      */
-    private BigInteger getEqualityScan( SimpleNode node ) throws NamingException
+    private Long getEqualityScan( SimpleNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getUserIndex( node.getAttribute() );
-            return BigInteger.valueOf( idx.count( node.getValue() ) );
+            return Long.valueOf( idx.count( node.getValue() ) );
         }
 
         // count for non-indexed attribute is unknown so we presume da worst
@@ -300,13 +299,13 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count of all nodes satisfying the AVA
      * @throws NamingException if there is an error accessing an index
      */
-    private BigInteger getGreaterLessScan( SimpleNode node, boolean isGreaterThan ) throws NamingException
+    private Long getGreaterLessScan( SimpleNode node, boolean isGreaterThan ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getUserIndex( node.getAttribute() );
             int count = idx.count( node.getValue(), isGreaterThan );
-            return BigInteger.valueOf( count );
+            return Long.valueOf( count );
         }
 
         // count for non-indexed attribute is unknown so we presume da worst
@@ -323,13 +322,13 @@ public class DefaultOptimizer implements Optimizer
      * @return the worst case full scan count
      * @throws NamingException if there is an error access database indices
      */
-    private BigInteger getFullScan( LeafNode node ) throws NamingException
+    private Long getFullScan( LeafNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getUserIndex( node.getAttribute() );
             int count = idx.count();
-            return BigInteger.valueOf( count );
+            return Long.valueOf( count );
         }
 
         return MAX;
@@ -344,13 +343,13 @@ public class DefaultOptimizer implements Optimizer
      * @return the number of entries matched for the presence of an attribute
      * @throws NamingException if errors result
      */
-    private BigInteger getPresenceScan( PresenceNode node ) throws NamingException
+    private Long getPresenceScan( PresenceNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getExistanceIndex();
             int count = idx.count( node.getAttribute() );
-            return BigInteger.valueOf( count );
+            return Long.valueOf( count );
         }
 
         return MAX;
@@ -364,17 +363,20 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count for scope
      * @throws NamingException if any errors result
      */
-    private BigInteger getScopeScan( ScopeNode node ) throws NamingException
+    private Long getScopeScan( ScopeNode node ) throws NamingException
     {
         switch ( node.getScope() )
         {
             case ( SearchControls.OBJECT_SCOPE  ):
-                return BigInteger.ONE;
+                return 1L;
+            
             case ( SearchControls.ONELEVEL_SCOPE  ):
-                BigInteger id = db.getEntryId( node.getBaseDn() );
-                return BigInteger.valueOf( db.getChildCount( id ) );
+                Long id = db.getEntryId( node.getBaseDn() );
+                return Long.valueOf( db.getChildCount( id ) );
+                
             case ( SearchControls.SUBTREE_SCOPE  ):
-                return BigInteger.valueOf( db.count() );
+                return Long.valueOf( db.count() );
+            
             default:
                 throw new IllegalArgumentException( "Unrecognized search scope " + "value for filter scope node" );
         }

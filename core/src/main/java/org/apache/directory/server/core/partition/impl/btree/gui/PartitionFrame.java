@@ -29,7 +29,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -660,7 +659,7 @@ public class PartitionFrame extends JFrame
         {
             IndexRecord rec = ( IndexRecord ) cursor.next();
             row[0] = rec.getEntryId();
-            row[1] = partition.getEntryDn( ( BigInteger ) row[0] );
+            row[1] = partition.getEntryDn( ( Long ) row[0] );
             tableModel.addRow( row );
             count++;
         }
@@ -704,7 +703,7 @@ public class PartitionFrame extends JFrame
     }
 
 
-    public void selectTreeNode( BigInteger id )
+    public void selectTreeNode( Long id )
     {
         Stack stack = new Stack();
         Object[] comps = null;
@@ -851,7 +850,7 @@ public class PartitionFrame extends JFrame
     }
 
 
-    void displayEntry( BigInteger id, Attributes entry ) throws Exception
+    void displayEntry( Long id, Attributes entry ) throws Exception
     {
         String dn = partition.getEntryUpdn( id );
         AttributesTableModel model = new AttributesTableModel( entry, id, dn, false );
@@ -870,7 +869,7 @@ public class PartitionFrame extends JFrame
         nodes = new HashMap();
 
         Attributes suffix = partition.getSuffixEntry();
-        BigInteger id = partition.getEntryId( partition.getSuffix().toString() );
+        Long id = partition.getEntryId( partition.getSuffix().toString() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*

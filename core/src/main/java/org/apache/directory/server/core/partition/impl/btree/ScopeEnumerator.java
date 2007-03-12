@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
-
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
@@ -64,7 +62,7 @@ public class ScopeEnumerator implements Enumerator
     public NamingEnumeration enumerate( ExprNode node ) throws NamingException
     {
         final ScopeNode snode = ( ScopeNode ) node;
-        final BigInteger id = db.getEntryId( snode.getBaseDn() );
+        final Long id = db.getEntryId( snode.getBaseDn() );
 
         switch ( snode.getScope() )
         {
@@ -97,7 +95,7 @@ public class ScopeEnumerator implements Enumerator
     private NamingEnumeration enumerateChildren( String dn, boolean deref ) throws NamingException
     {
         Index idx = db.getHierarchyIndex();
-        final BigInteger id = db.getEntryId( dn );
+        final Long id = db.getEntryId( dn );
         final NamingEnumeration children = idx.listIndices( id );
 
         /*
@@ -203,7 +201,7 @@ public class ScopeEnumerator implements Enumerator
          */
         public boolean assertCandidate( IndexRecord record ) throws NamingException
         {
-            String dn = db.getEntryDn( (BigInteger)record.getEntryId() );
+            String dn = db.getEntryDn( (Long)record.getEntryId() );
             return dn.endsWith( scope.getBaseDn() );
         }
     }

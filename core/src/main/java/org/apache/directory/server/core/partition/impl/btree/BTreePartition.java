@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -382,7 +381,7 @@ public abstract class BTreePartition implements Partition
 
     public void delete( LdapDN dn ) throws NamingException
     {
-        BigInteger id = getEntryId( dn.toString() );
+        Long id = getEntryId( dn.toString() );
 
         // don't continue if id is null
         if ( id == null )
@@ -643,16 +642,16 @@ public abstract class BTreePartition implements Partition
     public abstract Index getSystemIndex( String attribute ) throws IndexNotFoundException;
 
 
-    public abstract BigInteger getEntryId( String dn ) throws NamingException;
+    public abstract Long getEntryId( String dn ) throws NamingException;
 
 
-    public abstract String getEntryDn( BigInteger id ) throws NamingException;
+    public abstract String getEntryDn( Long id ) throws NamingException;
 
 
-    public abstract BigInteger getParentId( String dn ) throws NamingException;
+    public abstract Long getParentId( String dn ) throws NamingException;
 
 
-    public abstract BigInteger getParentId( BigInteger childId ) throws NamingException;
+    public abstract Long getParentId( Long childId ) throws NamingException;
 
 
     /**
@@ -662,7 +661,7 @@ public abstract class BTreePartition implements Partition
      * @return the user provided distinguished name
      * @throws NamingException if the updn index cannot be accessed
      */
-    public abstract String getEntryUpdn( BigInteger id ) throws NamingException;
+    public abstract String getEntryUpdn( Long id ) throws NamingException;
 
 
     /**
@@ -675,16 +674,16 @@ public abstract class BTreePartition implements Partition
     public abstract String getEntryUpdn( String dn ) throws NamingException;
 
 
-    public abstract Attributes lookup( BigInteger id ) throws NamingException;
+    public abstract Attributes lookup( Long id ) throws NamingException;
 
 
-    public abstract void delete( BigInteger id ) throws NamingException;
+    public abstract void delete( Long id ) throws NamingException;
 
 
-    public abstract NamingEnumeration list( BigInteger id ) throws NamingException;
+    public abstract NamingEnumeration list( Long id ) throws NamingException;
 
 
-    public abstract int getChildCount( BigInteger id ) throws NamingException;
+    public abstract int getChildCount( Long id ) throws NamingException;
 
 
     public abstract Attributes getSuffixEntry() throws NamingException;
@@ -702,7 +701,7 @@ public abstract class BTreePartition implements Partition
     public abstract Iterator getSystemIndices();
 
 
-    public abstract Attributes getIndices( BigInteger id ) throws NamingException;
+    public abstract Attributes getIndices( Long id ) throws NamingException;
 
 
     /**

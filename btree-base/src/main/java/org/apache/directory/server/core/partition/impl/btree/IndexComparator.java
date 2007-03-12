@@ -21,9 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import org.apache.directory.server.schema.SerializableComparator;
-//import org.apache.directory.shared.ldap.util.BigIntegerComparator;
-import org.apache.directory.shared.ldap.util.BigIntegerComparator;
-
+import org.apache.directory.shared.ldap.util.LongComparator;
 
 /**
  * TupleComparator for index records.
@@ -35,7 +33,7 @@ public class IndexComparator implements TupleComparator
 {
     private static final long serialVersionUID = 3257283621751633459L;
 
-    private static final SerializableComparator BIG_INTEGER_COMPARATOR = new SerializableComparator(
+    private static final SerializableComparator LONG_COMPARATOR = new SerializableComparator(
         "1.3.6.1.4.1.18060.0.4.1.1.2" )
     {
         private static final long serialVersionUID = 3690478030414165816L;
@@ -43,11 +41,13 @@ public class IndexComparator implements TupleComparator
 
         public int compare( Object o1, Object o2 )
         {
-            return BigIntegerComparator.INSTANCE.compare( o1, o2 );
+            return LongComparator.INSTANCE.compare( o1, o2 );
         }
     };
+    
     /** Whether or not the key/value is swapped */
     private final boolean isForwardMap;
+    
     /** The key comparison to use */
     private final SerializableComparator keyComp;
 
@@ -79,7 +79,7 @@ public class IndexComparator implements TupleComparator
             return keyComp;
         }
 
-        return BIG_INTEGER_COMPARATOR;
+        return LONG_COMPARATOR;
     }
 
 
@@ -93,7 +93,7 @@ public class IndexComparator implements TupleComparator
     {
         if ( isForwardMap )
         {
-            return BIG_INTEGER_COMPARATOR;
+            return LONG_COMPARATOR;
         }
 
         return keyComp;

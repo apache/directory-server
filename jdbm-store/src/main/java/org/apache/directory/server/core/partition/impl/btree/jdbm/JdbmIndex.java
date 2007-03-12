@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.regex.Pattern;
 
 import javax.naming.NamingEnumeration;
@@ -198,9 +197,9 @@ public class JdbmIndex implements Index
     /**
      * @see Index#forwardLookup(java.lang.Object)
      */
-    public BigInteger forwardLookup( Object attrVal ) throws NamingException
+    public Long forwardLookup( Object attrVal ) throws NamingException
     {
-        return ( BigInteger ) forward.get( getNormalized( attrVal ) );
+        return ( Long ) forward.get( getNormalized( attrVal ) );
     }
 
 

@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
 import java.util.List;
 
 import javax.naming.NamingEnumeration;
@@ -248,7 +247,7 @@ public class ExpressionEnumerator implements Enumerator
         for ( int ii = 0; ii < children.size(); ii++ )
         {
             ExprNode child = ( ExprNode ) children.get( ii );
-            value = ( ( BigInteger ) child.get( "count" ) ).intValue();
+            value = ( ( Long ) child.get( "count" ) ).intValue();
             minValue = Math.min( minValue, value );
 
             if ( minValue == value )

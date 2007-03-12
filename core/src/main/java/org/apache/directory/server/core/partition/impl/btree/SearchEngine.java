@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
 import java.util.Map;
 
 import javax.naming.Name;
@@ -96,5 +95,5 @@ public interface SearchEngine
      * @return true if the filter passes the entry, false otherwise
      * @throws NamingException if something goes wrong while accessing the db
      */
-    boolean evaluate( ExprNode filter, BigInteger id ) throws NamingException;
+    boolean evaluate( ExprNode filter, Long id ) throws NamingException;
 }

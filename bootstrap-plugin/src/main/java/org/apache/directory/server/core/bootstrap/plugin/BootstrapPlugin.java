@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -785,7 +784,7 @@ public class BootstrapPlugin extends AbstractMojo
     
     private final boolean hasEntry( LdapDN dn ) throws NamingException
     {
-        BigInteger id = store.getEntryId( dn.toNormName() );
+        Long id = store.getEntryId( dn.toNormName() );
         if ( id == null )
         {
             return false;

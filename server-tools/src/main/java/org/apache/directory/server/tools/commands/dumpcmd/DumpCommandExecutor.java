@@ -23,7 +23,6 @@ package org.apache.directory.server.tools.commands.dumpcmd;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -325,7 +324,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         while ( list.hasMore() )
         {
             Tuple tuple = ( Tuple ) list.next();
-            BigInteger id = ( BigInteger ) tuple.getKey();
+            Long id = ( Long ) tuple.getKey();
             String dn = ( String ) idIndex.reverseLookup( id );
             Attributes entry = ( Attributes ) tuple.getValue();
 

@@ -57,7 +57,7 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
 
         Attributes user = new AttributesImpl( "uid", "bob" );
         user.put( "cn", "Bob Hamilton" );
-        user.put( "userPassword", "bobspassword".getBytes( "UTF-8" ) );
+        user.put( "userPassword", "bobspassword" );
 
         Attribute objectClass = new AttributeImpl( "objectClass" );
         user.put( objectClass );
@@ -122,7 +122,7 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
 
         String filter = "(userPassword={0})";
         NamingEnumeration results = ctx.search( "uid=bob,ou=people", filter, new Object[]
-            { "bobspassword".getBytes( "UTF-8" ) }, ctls );
+            { "bobspassword" }, ctls );
 
         // We should have a match
         assertTrue( results.hasMore() );
