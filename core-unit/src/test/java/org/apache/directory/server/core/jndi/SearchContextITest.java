@@ -346,7 +346,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
-        controls.setTimeLimit( 200 );
+        controls.setTimeLimit( 1000 );
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
 
         HashMap map = new HashMap();
@@ -359,7 +359,7 @@ public class SearchContextITest extends AbstractAdminTestCase
             {
                 try
                 {
-                    Thread.sleep( 201 );
+                    Thread.sleep( 1001 );
                 }
                 catch ( InterruptedException e )
                 {
@@ -381,7 +381,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         catch ( LdapTimeLimitExceededException e )
         {
         }
-        assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
+        assertEquals( "Expected number of results returned was incorrect", 2, map.size() );
     }
     
     
