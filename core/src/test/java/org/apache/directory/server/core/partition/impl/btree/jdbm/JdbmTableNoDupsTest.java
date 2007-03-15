@@ -33,6 +33,8 @@ import org.apache.directory.shared.ldap.util.ArrayEnumeration;
 import org.apache.directory.shared.ldap.util.LongComparator;
 
 import jdbm.RecordManager;
+import jdbm.helper.LongSerializer;
+import jdbm.helper.Serializer;
 import jdbm.recman.BaseRecordManager;
 
 import junit.framework.TestCase;
@@ -81,7 +83,7 @@ public class JdbmTableNoDupsTest extends TestCase implements Serializable
         rm = new BaseRecordManager( tempFile.getAbsolutePath() );
 
         // make sure the table does not use duplicates
-        table = new JdbmTable( "test", rm, serializableComparator );
+        table = new JdbmTable( "test", rm, serializableComparator, LongSerializer.INSTANCE, LongSerializer.INSTANCE );
 
         table.put( 1L, 1L );
         table.put( 2L, 1L );
@@ -118,7 +120,7 @@ public class JdbmTableNoDupsTest extends TestCase implements Serializable
         table.sync();
         table.close();
 
-        table = new JdbmTable( "test", rm, serializableComparator );
+        table = new JdbmTable( "test", rm, serializableComparator, LongSerializer.INSTANCE, LongSerializer.INSTANCE );
     }
     
 
