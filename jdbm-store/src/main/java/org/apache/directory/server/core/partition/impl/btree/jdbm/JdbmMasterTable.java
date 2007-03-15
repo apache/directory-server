@@ -24,11 +24,14 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import jdbm.RecordManager;
+import jdbm.helper.LongSerializer;
+import jdbm.helper.Serializer;
 import jdbm.helper.StringComparator;
 
 import org.apache.directory.server.core.partition.impl.btree.MasterTable;
 import org.apache.directory.server.schema.SerializableComparator;
 //import org.apache.directory.shared.ldap.util.BigIntegerComparator;
+import org.apache.directory.shared.ldap.util.AttributesSerializerUtils;
 import org.apache.directory.shared.ldap.util.LongComparator;
 
 
@@ -75,8 +78,8 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      */
     public JdbmMasterTable(RecordManager recMan) throws NamingException
     {
-        super( DBF, recMan, LONG_COMPARATOR );
-        adminTbl = new JdbmTable( "admin", recMan, STRING_COMPARATOR );
+        super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new AttributesSerializer() );
+        adminTbl = new JdbmTable( "admin", recMan, STRING_COMPARATOR, null, null );
         String seqValue = ( String ) adminTbl.get( SEQPROP_KEY );
 
         if ( null == seqValue )

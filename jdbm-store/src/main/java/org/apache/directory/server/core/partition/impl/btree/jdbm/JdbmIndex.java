@@ -30,6 +30,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import jdbm.RecordManager;
+import jdbm.helper.LongSerializer;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
@@ -137,7 +138,14 @@ public class JdbmIndex implements Index
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        forward = new JdbmTable( attribute.getName() + FORWARD_BTREE, true, numDupLimit, recMan, new IndexComparator( comp, true ) );
+        forward = new JdbmTable( 
+            attribute.getName() + FORWARD_BTREE, 
+            true, 
+            numDupLimit, 
+            recMan, 
+            new IndexComparator( comp, true ),
+            null, null );
+            //LongSerializer.INSTANCE );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -145,8 +153,14 @@ public class JdbmIndex implements Index
          * is single valued according to its specification based on a schema 
          * then duplicate keys should not be allowed within the reverse table.
          */
-        reverse = new JdbmTable( attribute.getName() + REVERSE_BTREE, !attribute.isSingleValue(), numDupLimit, recMan,
-            new IndexComparator( comp, false ) );
+        reverse = new JdbmTable( 
+            attribute.getName() + REVERSE_BTREE, 
+            !attribute.isSingleValue(), 
+            numDupLimit, 
+            recMan,
+            new IndexComparator( comp, false ),
+            null, //LongSerializer.INSTANCE,
+            null);
     }
 
 
