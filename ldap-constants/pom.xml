@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.shared</groupId>
+    <artifactId>build</artifactId>
+    <version>0.9.6-SNAPSHOT</version>
+  </parent>
+  <artifactId>shared-ldap-constants</artifactId>
+  <name>Apache Directory Protocol Ldap Shared Constants</name>
+  <inceptionYear>2007</inceptionYear>
+
+  <issueManagement>
+    <system>jira</system>
+    <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
+  </issueManagement>
+
+  <distributionManagement>
+    <site>
+      <id>apache.websites</id>
+      <url>scp://minotaur.apache.org/www/directory.apache.org/subprojects/ldap/common</url>
+    </site>
+  </distributionManagement>
+
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared/ldap-constants</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/trunks/shared/ldap-constants</developerConnection>
+  </scm>
+
+  <ciManagement>
+    <notifiers>
+      <notifier>
+        <type>mail</type>
+        <address>dev@directory.apache.org</address>
+      </notifier>
+    </notifiers>
+  </ciManagement>
+
+  <description>
+    Common LDAP constants used by clients and servers.
+  </description>
+
+  <mailingLists>
+    <mailingList>
+      <name>Apache Directory Project</name>
+      <subscribe>dev-subscribe@directory.apache.org</subscribe>
+      <unsubscribe>dev-unsubscribe@directory.apache.org</unsubscribe>
+      <archive>http://mail-archives.apache.org/mod_mbox/dev/</archive>
+      <otherArchives>
+        <otherArchive>http://www.archivum.info/dev@directory.apache.org/</otherArchive>
+      </otherArchives>
+    </mailingList>
+  </mailingLists>
+
+  <licenses>
+    <license>
+      <name>Apache 2.0 License</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <dependencies>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+          <debug>true</debug>
+          <optimize>true</optimize>
+          <showDeprecations>true</showDeprecations>
+          <encoding>ISO-8859-1</encoding>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clover-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jxr-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>surefire-report-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+</project>
+
