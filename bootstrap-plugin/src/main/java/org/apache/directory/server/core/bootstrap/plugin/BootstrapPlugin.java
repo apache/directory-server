@@ -61,6 +61,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.server.utils.AttributesFactory;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -187,8 +188,8 @@ public class BootstrapPlugin extends AbstractMojo
             if ( ! hasEntry( dn ) )
             {
                 Attributes entry = new AttributesImpl();
-                entry.put( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
-                entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
+                entry.put( SchemaConstants.OBJECT_CLASS_AT, "top" );
+                entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
                 entry.put( CoreSchemaConstants.OU_AT, "schema" );
                 store.add( dn, entry );
             }
@@ -598,7 +599,7 @@ public class BootstrapPlugin extends AbstractMojo
         }
         storeConfig.setIndexedAttributes( indexSet );
 
-        Attributes rootEntry = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "organizationalUnit", true );
+        Attributes rootEntry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit", true );
         rootEntry.put( CoreSchemaConstants.OU_AT, "schema" );
         storeConfig.setContextEntry( rootEntry );
         
@@ -625,10 +626,10 @@ public class BootstrapPlugin extends AbstractMojo
     private void createSchemaModificationAttributesEntry() throws NamingException
     {
         Attributes entry = new AttributesImpl( 
-            SystemSchemaConstants.OBJECT_CLASS_AT, 
+            SchemaConstants.OBJECT_CLASS_AT, 
             ApacheSchemaConstants.SCHEMA_MODIFICATION_ATTRIBUTES_OC,
             true );
-        entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "top" );
+        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "top" );
         
         entry.put( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, ADMIN_NORM_NAME );
         entry.put( SystemSchemaConstants.MODIFIERS_NAME_AT, ADMIN_NORM_NAME );
@@ -733,8 +734,8 @@ public class BootstrapPlugin extends AbstractMojo
         }
         
         Attributes entry = new AttributesImpl();
-        entry.put( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
-        entry.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
         entry.put( CoreSchemaConstants.OU_AT, dn.getRdn().getValue() );
         store.add( dn, entry );
     }
