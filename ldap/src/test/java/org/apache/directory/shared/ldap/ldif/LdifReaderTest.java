@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.ldap.ldif;
 
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,6 +34,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.ldap.Control;
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -1555,7 +1557,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( "cn=browseRootAci,dc=example,dc=com", entry.getDn() );
         Attribute attr = entry.get( "objectClass" );
         assertTrue( attr.contains( "top" ) );
-        assertTrue( attr.contains( "subentry" ) );
+        assertTrue( attr.contains( SchemaConstants.SUBENTRY_OC ) );
         assertTrue( attr.contains( "accessControlSubentry" ) );
 
         attr = entry.get( "subtreeSpecification" );

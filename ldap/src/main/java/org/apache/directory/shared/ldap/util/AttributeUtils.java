@@ -306,7 +306,15 @@ public class AttributeUtils
         return null;
     }
     
-    
+    /**
+     * Check if an attribute contains a specific value, using the associated matchingRule for that
+     *
+     * @param attr The attribute we are searching in
+     * @param compared The object we are looking for
+     * @param type The attribute type
+     * @return <code>true</code> if the value exists in the attribute</code>
+     * @throws NamingException If something went wrong while accessing the data
+     */
     public final static boolean containsValue( Attribute attr, Object compared, AttributeType type ) throws NamingException
     {
         // quick bypass test
@@ -320,9 +328,12 @@ public class AttributeUtils
         if ( type.getSyntax().isHumanReadible() )
         {
             String comparedStr = ( String ) normalizer.normalize( compared );
-            for ( int ii = attr.size() - 1; ii >= 0; ii-- )
+            
+            for ( NamingEnumeration values = attr.getAll(); values.hasMoreElements(); /**/ )
+            //for ( int ii = attr.size() - 1; ii >= 0; ii-- )
             {
-                String value = ( String ) attr.get( ii );
+                String value = (String)values.nextElement();
+                //String value = ( String ) attr.get( ii );
                 if ( comparedStr.equals( normalizer.normalize( value ) ) )
                 {
                     return true;
@@ -332,9 +343,12 @@ public class AttributeUtils
         else
         {
             byte[] comparedBytes = ( byte[] ) compared;
-            for ( int ii = attr.size() - 1; ii >= 0; ii-- )
+            
+            for ( NamingEnumeration values = attr.getAll(); values.hasMoreElements(); /**/ )
+            //for ( int ii = attr.size() - 1; ii >= 0; ii-- )
             {
-                if ( ArrayUtils.isEquals( comparedBytes, attr.get( ii ) ) )
+                String value = (String)values.nextElement();
+                if ( ArrayUtils.isEquals( comparedBytes, value ) )
                 {
                     return true;
                 }

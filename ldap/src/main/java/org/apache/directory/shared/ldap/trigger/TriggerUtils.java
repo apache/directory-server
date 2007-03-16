@@ -27,6 +27,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
@@ -69,7 +70,7 @@ public class TriggerUtils
         Attribute objectClass = new AttributeImpl( "objectClass" );
         subentry.put( objectClass );
         objectClass.add( "top" );
-        objectClass.add( "subentry" );
+        objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( TRIGGER_EXECUTION_SUBENTRY_OC );
         subentry.put( SUBTREE_SPECIFICATION_ATTR, subtreeSpec );
         subentry.put( PRESCRIPTIVE_TRIGGER_SPECIFICATION_ATTR, prescriptiveTriggerSpec );
