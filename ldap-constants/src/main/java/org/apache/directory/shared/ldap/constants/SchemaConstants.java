@@ -30,4 +30,5 @@ package org.apache.directory.shared.ldap.constants;
 public class SchemaConstants
 {
     public static final String SUBENTRY_OC = "subentry";
+    public static final String OBJECT_CLASS_AT = "objectClass";
 }
