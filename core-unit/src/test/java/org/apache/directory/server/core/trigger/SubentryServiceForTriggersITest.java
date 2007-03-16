@@ -34,6 +34,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -66,7 +67,7 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         Attributes subentry = new AttributesImpl();
         Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
-        objectClass.add( "subentry" );
+        objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "triggerExecutionSubentry" );
         subentry.put( objectClass );
         subentry.put( "subtreeSpecification", "{ base \"ou=configuration\" }" );
@@ -80,7 +81,7 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         Attributes subentry = new AttributesImpl();
         Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
-        objectClass.add( "subentry" );
+        objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "triggerExecutionSubentry" );
         subentry.put( objectClass );
         String spec = "{ base \"ou=configuration\", specificExclusions { chopBefore:\"cn=unmarked\" } }";

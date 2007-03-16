@@ -33,6 +33,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -64,7 +65,7 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
         Attributes subentry = new AttributesImpl();
         Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
-        objectClass.add( "subentry" );
+        objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "collectiveAttributeSubentry" );
         subentry.put( objectClass );
         subentry.put( "subtreeSpecification", "{ }" );
@@ -79,7 +80,7 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
         Attributes subentry = new AttributesImpl();
         Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
-        objectClass.add( "subentry" );
+        objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "accessControlSubentry" );
         subentry.put( objectClass );
         subentry.put( "subtreeSpecification", "{ }" );
