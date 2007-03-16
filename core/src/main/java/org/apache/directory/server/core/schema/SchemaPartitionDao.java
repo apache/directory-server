@@ -132,7 +132,7 @@ public class SchemaPartitionDao
         this.CN_OID = oidRegistry.getOid( SystemSchemaConstants.CN_AT );
         this.disabledAttributeType = attrRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT );
         this.M_OID_OID = oidRegistry.getOid( MetaSchemaConstants.M_OID_AT );
-        this.OBJECTCLASS_OID = oidRegistry.getOid( SystemSchemaConstants.OBJECT_CLASS_AT );
+        this.OBJECTCLASS_OID = oidRegistry.getOid( SystemSchemaConstants.SYSTEM_OBJECT_CLASS_AT );
         this.M_SYNTAX_OID = oidRegistry.getOid( MetaSchemaConstants.M_SYNTAX_AT );
         this.M_ORDERING_OID = oidRegistry.getOid( MetaSchemaConstants.M_ORDERING_AT );
         this.M_EQUALITY_OID = oidRegistry.getOid( MetaSchemaConstants.M_EQUALITY_AT );

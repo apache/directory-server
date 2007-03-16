@@ -189,7 +189,7 @@ public class SchemaManager
         this.loader = loader;
         this.globalRegistries = globalRegistries;
         this.objectClassAT = this.globalRegistries.getAttributeTypeRegistry()
-            .lookup( SystemSchemaConstants.OBJECT_CLASS_AT );
+            .lookup( SystemSchemaConstants.SYSTEM_OBJECT_CLASS_AT );
         
         this.metaSchemaHandler = new MetaSchemaHandler( this.globalRegistries, this.loader );
         

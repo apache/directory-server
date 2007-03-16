@@ -28,11 +28,11 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.utils.AttributesFactory;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -188,9 +188,9 @@ public class SchemaSubentryModifier
     
     private Attributes getAttributes( ComparatorDescription comparatorDescription )
     {
-        AttributesImpl attributes = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
-        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
-        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaComparator" );
+        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaComparator" );
         attributes.put( MetaSchemaConstants.M_OID_AT, comparatorDescription.getNumericOid() );
         attributes.put( MetaSchemaConstants.M_FQCN_AT, comparatorDescription.getFqcn() );
 
@@ -222,9 +222,9 @@ public class SchemaSubentryModifier
     
     private Attributes getAttributes( NormalizerDescription normalizerDescription )
     {
-        AttributesImpl attributes = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
-        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
-        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaNormalizer" );
+        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaNormalizer" );
         attributes.put( MetaSchemaConstants.M_OID_AT, normalizerDescription.getNumericOid() );
         attributes.put( MetaSchemaConstants.M_FQCN_AT, normalizerDescription.getFqcn() );
 
@@ -267,9 +267,9 @@ public class SchemaSubentryModifier
     
     private Attributes getAttributes( SyntaxCheckerDescription syntaxCheckerDescription )
     {
-        AttributesImpl attributes = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
-        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
-        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaSyntaxChecker" );
+        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaSyntaxChecker" );
         attributes.put( MetaSchemaConstants.M_OID_AT, syntaxCheckerDescription.getNumericOid() );
         attributes.put( MetaSchemaConstants.M_FQCN_AT, syntaxCheckerDescription.getFqcn() );
 

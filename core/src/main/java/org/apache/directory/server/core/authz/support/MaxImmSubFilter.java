@@ -35,6 +35,7 @@ import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -55,7 +56,7 @@ public class MaxImmSubFilter implements ACITupleFilter
 
     public MaxImmSubFilter()
     {
-        childrenFilter = new PresenceNode( "objectClass" );
+        childrenFilter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
         childrenSearchControls = new SearchControls();
         childrenSearchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
     }
