@@ -29,8 +29,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -73,7 +73,7 @@ public class MetaSyntaxCheckerHandlerITest extends AbstractAdminTestCase
     public void testAddSyntaxChecker() throws NamingException
     {
         Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
         attrs.put( oc );
@@ -102,7 +102,7 @@ public class MetaSyntaxCheckerHandlerITest extends AbstractAdminTestCase
         }
         
         Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
         attrs.put( oc );
@@ -428,7 +428,7 @@ public class MetaSyntaxCheckerHandlerITest extends AbstractAdminTestCase
     public void testAddSyntaxCheckerToDisabledSchema() throws NamingException
     {
         Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
         attrs.put( oc );
