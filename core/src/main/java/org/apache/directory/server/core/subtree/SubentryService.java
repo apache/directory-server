@@ -37,6 +37,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -82,8 +83,6 @@ public class SubentryService extends BaseInterceptor
 {
     /** the subentry control OID */
     private static final String SUBENTRY_CONTROL = SubentriesControl.CONTROL_OID;
-    /** the objectClass value for a subentry */
-    private static final String SUBENTRY_OBJECTCLASS = "subentry";
     /** the objectClass OID for a subentry */
     private static final String SUBENTRY_OBJECTCLASS_OID = "2.5.17.0";
 
@@ -142,7 +141,7 @@ public class SubentryService extends BaseInterceptor
 
         // prepare to find all subentries in all namingContexts
         Iterator suffixes = this.nexus.listSuffixes();
-        ExprNode filter = new SimpleNode( "objectclass", "subentry", AssertionEnum.EQUALITY );
+        ExprNode filter = new SimpleNode( "objectclass", SchemaConstants.SUBENTRY_OC, AssertionEnum.EQUALITY );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[] { "subtreeSpecification", "objectClass" } );
@@ -373,7 +372,7 @@ public class SubentryService extends BaseInterceptor
     {
         Attribute objectClasses = entry.get( "objectClass" );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
         {
             // get the name of the administrative point and its administrativeRole attributes
             LdapDN apName = ( LdapDN ) normName.clone();
@@ -528,7 +527,7 @@ public class SubentryService extends BaseInterceptor
         Attributes entry = nexus.lookup( name );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
         {
             SubtreeSpecification ss = subentryCache.removeSubentry( name.toNormName() ).getSubtreeSpecification();
             next.delete( name );
@@ -680,7 +679,7 @@ public class SubentryService extends BaseInterceptor
         Attributes entry = nexus.lookup( name );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
         {
             Subentry subentry = subentryCache.getSubentry( name.toNormName() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
@@ -751,7 +750,7 @@ public class SubentryService extends BaseInterceptor
         Attributes entry = nexus.lookup( oriChildName );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
         {
             Subentry subentry = subentryCache.getSubentry( oriChildName.toNormName() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
@@ -822,7 +821,7 @@ public class SubentryService extends BaseInterceptor
         Attributes entry = nexus.lookup( oriChildName );
         Attribute objectClasses = entry.get( "objectClass" );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
         {
             Subentry subentry = subentryCache.getSubentry( oriChildName.toString() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
@@ -966,7 +965,7 @@ public class SubentryService extends BaseInterceptor
         Attributes oldEntry = (Attributes) entry.clone();
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" )  && mods.get( "subtreeSpecification" ) != null )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC )  && mods.get( "subtreeSpecification" ) != null )
         {
             SubtreeSpecification ssOld = subentryCache.removeSubentry( name.toNormName() ).getSubtreeSpecification();
             SubtreeSpecification ssNew;
@@ -1032,7 +1031,7 @@ public class SubentryService extends BaseInterceptor
         {
             next.modify( name, modOp, mods );
             
-            if ( !AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
             {
 	            Attributes newEntry = nexus.lookup( name );
 	            
@@ -1063,7 +1062,7 @@ public class SubentryService extends BaseInterceptor
             }
         }
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) && isSubtreeSpecificationModification )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) && isSubtreeSpecificationModification )
         {
             SubtreeSpecification ssOld = subentryCache.removeSubentry( name.toString() ).getSubtreeSpecification();
             SubtreeSpecification ssNew;
@@ -1129,7 +1128,7 @@ public class SubentryService extends BaseInterceptor
         {
             next.modify( name, mods );
             
-            if ( !AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
             {
 	            Attributes newEntry = nexus.lookup( name );
 	            
@@ -1392,7 +1391,7 @@ public class SubentryService extends BaseInterceptor
             Attribute objectClasses = result.getAttributes().get( "objectClass" );
             if ( objectClasses != null )
             {
-                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SUBENTRY_OBJECTCLASS ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
                 {
                     return false;
                 }
@@ -1405,7 +1404,7 @@ public class SubentryService extends BaseInterceptor
                 for ( int ii = 0; ii < objectClasses.size(); ii++ )
                 {
                     String oc = ( String ) objectClasses.get( ii );
-                    if ( oc.equalsIgnoreCase( SUBENTRY_OBJECTCLASS ) )
+                    if ( oc.equalsIgnoreCase( SchemaConstants.SUBENTRY_OC ) )
                     {
                         return false;
                     }
@@ -1453,7 +1452,7 @@ public class SubentryService extends BaseInterceptor
             Attribute objectClasses = result.getAttributes().get( "objectClass" );
             if ( objectClasses != null )
             {
-                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SUBENTRY_OBJECTCLASS ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
                 {
                     return true;
                 }
@@ -1466,7 +1465,7 @@ public class SubentryService extends BaseInterceptor
                 for ( int ii = 0; ii < objectClasses.size(); ii++ )
                 {
                     String oc = ( String ) objectClasses.get( ii );
-                    if ( oc.equalsIgnoreCase( SUBENTRY_OBJECTCLASS ) )
+                    if ( oc.equalsIgnoreCase( SchemaConstants.SUBENTRY_OC ) )
                     {
                         return true;
                     }

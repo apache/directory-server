@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.authz;
 
 
+
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
@@ -42,6 +43,7 @@ import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -181,7 +183,7 @@ public class AuthorizationService extends BaseInterceptor
         
         // look up some constant information
         objectClassOid = oidRegistry.getOid( "objectClass" );
-        subentryOid = oidRegistry.getOid( "subentry" );
+        subentryOid = oidRegistry.getOid( SchemaConstants.SUBENTRY_OC );
         acSubentryOid = oidRegistry.getOid( AC_SUBENTRY_ATTR );
         objectClassType = attrRegistry.lookup( objectClassOid );
         acSubentryType = attrRegistry.lookup( acSubentryOid );
@@ -235,7 +237,8 @@ public class AuthorizationService extends BaseInterceptor
          * to be in the same naming context as their access point so the subentries
          * effecting their parent entry applies to them as well.
          */
-        if ( AttributeUtils.containsValue( oc, "subentry", objectClassType ) || oc.contains( subentryOid ) )
+        if ( AttributeUtils.containsValue( oc, SchemaConstants.SUBENTRY_OC, objectClassType ) || 
+             AttributeUtils.containsValue( oc, subentryOid, objectClassType ) )
         {
             LdapDN parentDn = ( LdapDN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
@@ -305,7 +308,7 @@ public class AuthorizationService extends BaseInterceptor
         throws NamingException
     {
         // only perform this for subentries
-        if ( !entry.get( "objectClass" ).contains( "subentry" ) )
+        if ( !entry.get( "objectClass" ).contains( SchemaConstants.SUBENTRY_OC ) )
         {
             return;
         }

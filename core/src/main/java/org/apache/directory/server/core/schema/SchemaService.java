@@ -55,6 +55,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
@@ -726,7 +727,7 @@ public class SchemaService extends BaseInterceptor
             attr = new AttributeImpl( "objectClass" );
             attr.add( "top" );
             attr.add( "subschema" );
-            attr.add( "subentry" );
+            attr.add( SchemaConstants.SUBENTRY_OC );
             attr.add( "apacheSubschema" );
             attrs.put( attr );
         }
