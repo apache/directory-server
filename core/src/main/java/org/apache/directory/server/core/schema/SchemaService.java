@@ -977,7 +977,7 @@ public class SchemaService extends BaseInterceptor
                 continue;
             }
 
-            if ( "extensibleObject".equalsIgnoreCase( objectClassName ) )
+            if ( SchemaConstants.EXTENSIBLE_OBJECT_OC.equalsIgnoreCase( objectClassName ) )
             {
                 hasExtensibleObject = true;
             }
@@ -1170,7 +1170,8 @@ public class SchemaService extends BaseInterceptor
             String id = ( String ) changes.next();
             Attribute change = mods.get( id );
 
-            if ( !atRegistry.hasAttributeType( change.getID() ) && !objectClass.contains( "extensibleObject" ) )
+            if ( !atRegistry.hasAttributeType( change.getID() ) && 
+                !objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
             {
                 throw new LdapInvalidAttributeIdentifierException( "unrecognized attributeID " + change.getID() );
             }
@@ -1437,7 +1438,8 @@ public class SchemaService extends BaseInterceptor
             int modOp = mod.getModificationOp();
             Attribute change = mod.getAttribute();
 
-            if ( !atRegistry.hasAttributeType( change.getID() ) && !objectClass.contains( "extensibleObject" ) )
+            if ( !atRegistry.hasAttributeType( change.getID() ) && 
+                !objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
             {
                 throw new LdapInvalidAttributeIdentifierException();
             }
@@ -1834,7 +1836,7 @@ public class SchemaService extends BaseInterceptor
         // declared for this entry
         Attribute objectClass = attributes.get( SchemaConstants.OBJECT_CLASS_AT );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClass, "extensibleObject" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClass, SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
         {
             return;
         }

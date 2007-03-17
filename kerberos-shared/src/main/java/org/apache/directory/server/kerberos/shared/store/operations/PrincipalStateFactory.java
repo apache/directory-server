@@ -91,9 +91,9 @@ public class PrincipalStateFactory implements DirStateFactory
                 }
             }
 
-            if ( !oc.contains( "extensibleObject" ) )
+            if ( !oc.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
             {
-                oc.add( "extensibleObject" );
+                oc.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
                 outAttrs.put( "apacheSamType", "7" );
             }
 

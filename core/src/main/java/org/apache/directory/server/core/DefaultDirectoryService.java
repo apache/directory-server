@@ -683,7 +683,7 @@ class DefaultDirectoryService extends DirectoryService
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
 
-            attributes.put( SchemaConstants.OBJECT_CLASS_AT, "extensibleObject" );
+            attributes.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.EXTENSIBLE_OBJECT_OC );
             attributes.put( "prefNodeName", "sysPrefRoot" );
             attributes.put( "creatorsName", PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );

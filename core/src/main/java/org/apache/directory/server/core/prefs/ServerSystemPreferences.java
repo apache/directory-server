@@ -195,7 +195,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         Attribute attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         attr.add( SchemaConstants.TOP_OC );
         attr.add( "prefNode" );
-        attr.add( "extensibleObject" );
+        attr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         attrs.put( attr );
         attr = new AttributeImpl( "prefNodeName" );
         attr.add( name );

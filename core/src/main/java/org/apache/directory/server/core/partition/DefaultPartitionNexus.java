@@ -159,7 +159,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         rootDSE.put( attr );
         attr.add( SchemaConstants.TOP_OC );
-        attr.add( "extensibleObject" );
+        attr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
 
         attr = new AttributeImpl( NAMINGCTXS_ATTR );
         rootDSE.put( attr );
@@ -262,7 +262,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             }
             objectClassAttr.add( SchemaConstants.TOP_OC );
             objectClassAttr.add( "organizationalUnit" );
-            objectClassAttr.add( "extensibleObject" );
+            objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
             systemEntry.put( "creatorsName", PartitionNexus.ADMIN_PRINCIPAL );
             systemEntry.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             systemEntry.put( NamespaceTools.getRdnAttribute( PartitionNexus.SYSTEM_PARTITION_SUFFIX ),
@@ -358,7 +358,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClassAttr.add( SchemaConstants.TOP_OC );
             objectClassAttr.add( "organizationalUnit" );
-            objectClassAttr.add( "extensibleObject" );
+            objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
             systemEntry.put( objectClassAttr );
             systemEntry.put( "creatorsName", PartitionNexus.ADMIN_PRINCIPAL );
             systemEntry.put( "createTimestamp", DateUtils.getGeneralizedTime() );
