@@ -34,23 +34,23 @@ import java.util.Iterator;
 public class SchemaPartitionExtractor
 {
     private DbFileListing listing;
-    private File outputDirectory; 
-    
-    
+    private File outputDirectory;
+
+
     public SchemaPartitionExtractor( File outputDirectory ) throws IOException
     {
         this.outputDirectory = outputDirectory;
         this.listing = new DbFileListing();
     }
-    
-    
+
+
     public void extract() throws IOException
     {
         if ( ! outputDirectory.exists() )
         {
             outputDirectory.mkdirs();
         }
-        
+
         File schemaDirectory = new File( outputDirectory, "schema" );
         if ( ! schemaDirectory.exists() )
         {
@@ -63,41 +63,38 @@ public class SchemaPartitionExtractor
             extract( ii.next() );
         }
     }
-    
-    
+
+
     public DbFileListing getDbFileListing()
     {
         return listing;
     }
-    
-    
+
+
     private void extract( String resource ) throws IOException
     {
         byte[] buf = new byte[512];
-        InputStream in = getClass().getResourceAsStream( resource );
-        FileOutputStream out = null;
+        InputStream in = DbFileListing.getUniqueResourceAsStream( resource );
 
         try
         {
-            out = new FileOutputStream( new File( outputDirectory, resource ) );
-            while( in.available() > 0 )
+            FileOutputStream out = new FileOutputStream( new File( outputDirectory, resource ) );
+            try
             {
-                int readCount = in.read( buf );
-                out.write( buf, 0, readCount );
-            }
-            out.flush();
-        }
-        finally
-        {
-            if ( out != null )
+                while ( in.available() > 0 )
+                {
+                    int readCount = in.read( buf );
+                    out.write( buf, 0, readCount );
+                }
+                out.flush();
+            } finally
             {
                 out.close();
             }
-            
-            if ( in != null )
-            {
-                in.close();
-            }
+        }
+        finally
+        {
+            in.close();
         }
     }
 }

@@ -42,14 +42,19 @@
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-utils</artifactId>
+      <artifactId>apacheds-schema-bootstrap</artifactId>
       <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-schema-extras</artifactId>
+      <artifactId>apacheds-utils</artifactId>
       <version>${pom.version}</version>
     </dependency>
+    <!--<dependency>-->
+      <!--<groupId>org.apache.directory.server</groupId>-->
+      <!--<artifactId>apacheds-schema-extras</artifactId>-->
+      <!--<version>${pom.version}</version>-->
+    <!--</dependency>-->
   </dependencies>
 
   <build>

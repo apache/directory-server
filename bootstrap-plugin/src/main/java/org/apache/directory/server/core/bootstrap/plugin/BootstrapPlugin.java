@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.bootstrap.plugin; 
+package org.apache.directory.server.core.bootstrap.plugin;
 
 
 import java.io.File;
@@ -29,6 +29,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
+import java.net.URLClassLoader;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -82,86 +87,104 @@ import org.codehaus.plexus.util.FileUtils;
 /**
  * A plugin used to pre-load meta schema entries into the schema partition.
  *
- * @goal load 
- * @description creates and pre-loads ApacheDS schema partition
- * @phase compile
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
+ * @goal load
+ * @description creates and pre-loads ApacheDS schema partition
+ * @phase compile
+ * @requiresDependencyResolution compile
  */
 public class BootstrapPlugin extends AbstractMojo
 {
     private static final String ADMIN_NORM_NAME = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
 
     /**
+     * The classpath elements of the project being tested.
+     *
+     * @parameter expression="${project.compileClasspathElements}"
+     * @required
+     * @readonly
+     */
+    private List classpathElements;
+
+    /**
      * The package to put the db file entry listing info as well as the partition.
-     * 
+     *
      * @parameter expression="org.apache.directory.server.schema.bootstrap.partition"
      */
     private String outputPackage;
-    
+
     /**
      * The file name to use for the package listing.
-     * 
+     *
      * @parameter expression="DBFILES"
      */
     private String listingFileName;
-    
+
     /**
      * The target directory into which the plugin generates schema partion files
      * within the specified outputPackage.
-     * 
+     *
      * @parameter expression="target/classes"
      */
     private File outputDirectory;
-    
+
     /**
      * The name of the set of bootstrap schemas to load into the registries
      * and ultimately into the schema partition being built.
-     * 
-     * @parameter 
+     *
+     * @parameter
      */
     private String[] bootstrapSchemaClasses;
-    
+
     /**
      * The set of disabled schema names.
-     * 
-     * @parameter 
+     *
+     * @parameter
      */
     private String[] disabledSchemas;
-    
+
     /**
      * The names of Attributes to index.
-     * 
-     * @parameter 
+     *
+     * @parameter
      */
     private String[] indexedAttributes;
-    
-    /** Facotry used to create attributes objects from schema entities. */ 
+
+    /**
+     * Facotry used to create attributes objects from schema entities.
+     */
     private AttributesFactory attributesFactory = new AttributesFactory();
-    
-    /** Registries of objects used to load the schema partition. */
+
+    /**
+     * Registries of objects used to load the schema partition.
+     */
     private Registries registries;
 
-    /** The store to load schema entities into. */
-    private JdbmStore store = new JdbmStore();
-    
-    /** Map of schemas by name */
-    private Map schemas = new HashMap();
-    
-    
     /**
-     * Loads a bunch of bootstrap classes into memory then adds them to a new 
+     * The store to load schema entities into.
+     */
+    private JdbmStore store = new JdbmStore();
+
+    /**
+     * Map of schemas by name
+     */
+    private Map schemas = new HashMap();
+
+
+    /**
+     * Loads a bunch of bootstrap classes into memory then adds them to a new
      * schema partition within the target area.  The db files for this partition
      * are then packaged into the jar by the jar plugin.
      */
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         File packageDirectory = new File( outputDirectory, outputPackage.replace( '.', File.separatorChar ) );
-        if ( ! packageDirectory.exists() )
+        if ( !packageDirectory.exists() )
         {
             packageDirectory.mkdirs();
         }
-        
+
         // delete output directory if it exists
         File schemaDirectory = new File( packageDirectory, "schema" );
         if ( schemaDirectory.exists() )
@@ -172,20 +195,20 @@ public class BootstrapPlugin extends AbstractMojo
             }
             catch ( IOException e )
             {
-                throw new MojoFailureException( "Failed to delete old schema partition folder " 
-                    + schemaDirectory.getAbsolutePath() + ": " + e.getMessage() );
+                throw new MojoFailureException( "Failed to delete old schema partition folder "
+                        + schemaDirectory.getAbsolutePath() + ": " + e.getMessage() );
             }
         }
-        
+
         initializeSchemas();
         initializePartition( schemaDirectory );
-        
+
         try
         {
             LdapDN dn = new LdapDN( CoreSchemaConstants.OU_AT + "=schema" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-            
-            if ( ! hasEntry( dn ) )
+
+            if ( !hasEntry( dn ) )
             {
                 Attributes entry = new AttributesImpl();
                 entry.put( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -195,7 +218,7 @@ public class BootstrapPlugin extends AbstractMojo
             }
 
             createSchemasAndContainers();
-            
+
             addSyntaxCheckers();
             addSyntaxes();
             addNormalizers();
@@ -216,7 +239,7 @@ public class BootstrapPlugin extends AbstractMojo
                     disableSchema( disabledSchemas[ii] );
                     getLog().info( "\t\t o " + disabledSchemas[ii] );
                 }
-                
+
                 getLog().info( "" );
                 getLog().info( "------------------------------------------------------------------------" );
             }
@@ -228,7 +251,7 @@ public class BootstrapPlugin extends AbstractMojo
             e.printStackTrace();
             throw new MojoFailureException( "Failed to add syntaxCheckers to partition: " + e.getMessage() );
         }
-        
+
         try
         {
             store.sync();
@@ -237,12 +260,12 @@ public class BootstrapPlugin extends AbstractMojo
         {
             e.printStackTrace();
         }
-        
+
         // ------------------------------------------------------------------
         // Create db file listing and place it into the right package on disk
         // ------------------------------------------------------------------
-        
-        
+
+
         File listingFile = new File( packageDirectory, listingFileName );
         PrintWriter out = null;
         try
@@ -571,12 +594,12 @@ public class BootstrapPlugin extends AbstractMojo
         }
         getLog().info( "" );
     }
-    
-    
+
+
     /**
      * Creates the configuration and initializes the partition so we can start
      * adding entries into it.
-     * 
+     *
      * @throws MojoFailureException
      */
     private void initializePartition( File workingDirectory ) throws MojoFailureException
@@ -602,7 +625,7 @@ public class BootstrapPlugin extends AbstractMojo
         Attributes rootEntry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit", true );
         rootEntry.put( CoreSchemaConstants.OU_AT, "schema" );
         storeConfig.setContextEntry( rootEntry );
-        
+
         try
         {
             store.init( storeConfig );
@@ -613,8 +636,8 @@ public class BootstrapPlugin extends AbstractMojo
             throw new MojoFailureException( "Failed to initialize parition: " + e.getMessage() );
         }
     }
-    
-    
+
+
     /**
      * Creates the special schemaModificationsAttribute entry used to
      * store the modification attributes for the schema.  The current
@@ -651,7 +674,7 @@ public class BootstrapPlugin extends AbstractMojo
     /**
      * Loads all the bootstrap schemas into the registries in preparation for
      * loading them into the schema partition.
-     * 
+     *
      * @throws MojoFailureException
      */
     private void initializeSchemas() throws MojoFailureException
@@ -663,54 +686,70 @@ public class BootstrapPlugin extends AbstractMojo
         // always include these core bootstrap schemas
         BootstrapSchema schema = new SystemSchema();
         schemas.put( schema.getSchemaName(), schema );
-        
+
         schema = new ApacheSchema();
         schemas.put( schema.getSchemaName(), schema );
 
         schema = new ApachemetaSchema();
         schemas.put( schema.getSchemaName(), schema );
-        
+
         schema = new CoreSchema();
         schemas.put( schema.getSchemaName(), schema );
-        
+
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( "Found bootstrap schemas: " );
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( "" );
 
         // start loading other schemas from the plugin's configuration section
+        ClassLoader parent = getClass().getClassLoader();
+        URL[] urls = new URL[classpathElements.size()];
+        int i = 0;
+        for ( Iterator it = classpathElements.iterator(); it.hasNext(); )
+        {
+            try
+            {
+                urls[i++] = new File( ( String ) it.next() ).toURL();
+            } catch ( MalformedURLException e )
+            {
+                throw ( MojoFailureException ) new MojoFailureException( "Could not construct classloader: " ).initCause( e );
+            }
+        }
+        ClassLoader cl = new URLClassLoader( urls, parent );
         for ( int ii = 0; ii < bootstrapSchemaClasses.length; ii++ )
         {
             try
             {
-                Class schemaClass = Class.forName( bootstrapSchemaClasses[ii] );
+                Class schemaClass = cl.loadClass( bootstrapSchemaClasses[ii] );
                 schema = ( BootstrapSchema ) schemaClass.newInstance();
                 schemas.put( schema.getSchemaName(), schema );
             }
             catch ( ClassNotFoundException e )
             {
+                getLog().info( "ClassLoader " + getClass().getClassLoader() );
+                getLog().info( "ClassLoader URLs: " + Arrays.asList( ( ( URLClassLoader ) getClass().getClassLoader() ).getURLs() ) );
                 e.printStackTrace();
-                throw new MojoFailureException( "Could not find BootstrapSchema class: " 
-                    + bootstrapSchemaClasses[ii] );
+                throw new MojoFailureException( "Could not find BootstrapSchema class: "
+                        + bootstrapSchemaClasses[ii] );
             }
             catch ( InstantiationException e )
             {
                 e.printStackTrace();
-                throw new MojoFailureException( "Could not instantiate BootstrapSchema class: " 
-                    + bootstrapSchemaClasses[ii] );
+                throw new MojoFailureException( "Could not instantiate BootstrapSchema class: "
+                        + bootstrapSchemaClasses[ii] );
             }
             catch ( IllegalAccessException e )
             {
                 e.printStackTrace();
                 throw new MojoFailureException( "Could not instantiate BootstrapSchema class due to security: "
-                    + bootstrapSchemaClasses[ii] );
+                        + bootstrapSchemaClasses[ii] );
             }
-            
+
             getLog().info( "\t" + bootstrapSchemaClasses[ii] );
         }
         getLog().info( "" );
-        
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
+
+        BootstrapSchemaLoader loader = new BootstrapSchemaLoader( cl );
         registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
         try
         {
@@ -721,10 +760,10 @@ public class BootstrapPlugin extends AbstractMojo
             e.printStackTrace();
             throw new MojoFailureException( "Failed to load bootstrap registries with schemas: " + e.getMessage() );
         }
-        
+
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
     }
-    
+
 
     private void checkCreateContainer( LdapDN dn ) throws NamingException
     {
@@ -732,41 +771,41 @@ public class BootstrapPlugin extends AbstractMojo
         {
             return;
         }
-        
+
         Attributes entry = new AttributesImpl();
         entry.put( SchemaConstants.OBJECT_CLASS_AT, "top" );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
         entry.put( CoreSchemaConstants.OU_AT, dn.getRdn().getValue() );
         store.add( dn, entry );
     }
-    
-    
+
+
     private LdapDN checkCreateSchema( String schemaName ) throws NamingException
     {
         Schema schema = ( Schema ) schemas.get( schemaName );
-        LdapDN dn = new LdapDN( SystemSchemaConstants.CN_AT + "=" 
-            + schemaName + "," + CoreSchemaConstants.OU_AT + "=schema" );
+        LdapDN dn = new LdapDN( SystemSchemaConstants.CN_AT + "="
+                + schemaName + "," + CoreSchemaConstants.OU_AT + "=schema" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
 
         if ( hasEntry( dn ) )
         {
             return dn;
         }
-        
+
         Attributes entry = attributesFactory.getAttributes( schema );
         store.add( dn, entry );
         return dn;
     }
-    
-    
+
+
     private void disableSchema( String schemaName ) throws NamingException
     {
-        LdapDN dn = new LdapDN( SystemSchemaConstants.CN_AT + "=" + schemaName 
-            + "," + CoreSchemaConstants.OU_AT + "=schema" );
+        LdapDN dn = new LdapDN( SystemSchemaConstants.CN_AT + "=" + schemaName
+                + "," + CoreSchemaConstants.OU_AT + "=schema" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        ModificationItemImpl mod = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, 
-            new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT, "TRUE" ) );
-        ModificationItemImpl[] mods = new ModificationItemImpl[] { mod };
+        ModificationItemImpl mod = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+                new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT, "TRUE" ) );
+        ModificationItemImpl[] mods = new ModificationItemImpl[] {mod};
         store.modify( dn, mods );
     }
 
@@ -778,11 +817,11 @@ public class BootstrapPlugin extends AbstractMojo
         {
             return object.getName();
         }
-        
+
         return object.getOid();
     }
-    
-    
+
+
     private final boolean hasEntry( LdapDN dn ) throws NamingException
     {
         Long id = store.getEntryId( dn.toNormName() );
@@ -792,15 +831,15 @@ public class BootstrapPlugin extends AbstractMojo
         }
         return true;
     }
-    
-    
+
+
     private final StringBuffer getDbFileListing() throws IndexNotFoundException
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "schema/master.db\n" );
-        
+
         Iterator systemIndices = store.getSystemIndices();
-        while( systemIndices.hasNext() )
+        while ( systemIndices.hasNext() )
         {
             Index index = store.getSystemIndex( ( String ) systemIndices.next() );
             buf.append( "schema/" );
@@ -815,7 +854,7 @@ public class BootstrapPlugin extends AbstractMojo
             buf.append( indexedAttributes[ii] );
             buf.append( ".db\n" );
         }
-        
+
         return buf;
     }
 }

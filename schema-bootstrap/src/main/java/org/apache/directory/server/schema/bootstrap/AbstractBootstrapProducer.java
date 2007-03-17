@@ -109,7 +109,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         final SyntaxCheckerRegistry registry;
 
 
-        protected BootstrapSyntax(String oid, SyntaxCheckerRegistry registry)
+        public BootstrapSyntax(String oid, SyntaxCheckerRegistry registry)
         {
             super( oid );
             this.registry = registry;
@@ -161,7 +161,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         String syntaxOid;
 
 
-        protected BootstrapMatchingRule(String oid, Registries registries)
+        public BootstrapMatchingRule(String oid, Registries registries)
         {
             super( oid );
             this.syntaxRegistry = registries.getSyntaxRegistry();
@@ -238,7 +238,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         private String syntaxId;
 
 
-        protected BootstrapAttributeType(String oid, Registries registries)
+        public BootstrapAttributeType(String oid, Registries registries)
         {
             super( oid );
 
@@ -434,7 +434,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
          * @param oid the OID of the new objectClass
          * @param registries the bootstrap registries to use for resolving dependent objects
          */
-        protected BootstrapObjectClass(String oid, Registries registries)
+        public BootstrapObjectClass(String oid, Registries registries)
         {
             super( oid );
 
