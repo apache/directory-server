@@ -263,7 +263,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             objectClassAttr.add( SchemaConstants.TOP_OC );
             objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
-            systemEntry.put( "creatorsName", PartitionNexus.ADMIN_PRINCIPAL );
+            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL );
             systemEntry.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             systemEntry.put( NamespaceTools.getRdnAttribute( PartitionNexus.SYSTEM_PARTITION_SUFFIX ),
                 NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );
@@ -360,7 +360,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
             systemEntry.put( objectClassAttr );
-            systemEntry.put( "creatorsName", PartitionNexus.ADMIN_PRINCIPAL );
+            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL );
             systemEntry.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             systemEntry.put( NamespaceTools.getRdnAttribute( PartitionNexus.SYSTEM_PARTITION_SUFFIX ),
                 NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );

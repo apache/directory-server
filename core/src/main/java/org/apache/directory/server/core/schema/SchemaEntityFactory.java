@@ -36,6 +36,7 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -103,12 +104,12 @@ public class SchemaEntityFactory
         }
         name = ( String ) entry.get( SystemSchemaConstants.CN_AT ).get();
         
-        if ( entry.get( SystemSchemaConstants.CREATORS_NAME_AT ) == null )
+        if ( entry.get( SchemaConstants.CREATORS_NAME_AT ) == null )
         {
             throw new NullPointerException( "entry must have a valid " 
-                + SystemSchemaConstants.CREATORS_NAME_AT + " attribute" );
+                + SchemaConstants.CREATORS_NAME_AT + " attribute" );
         }
-        owner = ( String ) entry.get( SystemSchemaConstants.CREATORS_NAME_AT ).get();
+        owner = ( String ) entry.get( SchemaConstants.CREATORS_NAME_AT ).get();
         
         if ( entry.get( MetaSchemaConstants.M_DISABLED_AT ) != null )
         {

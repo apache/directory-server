@@ -47,6 +47,7 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
@@ -150,7 +151,7 @@ public class OperationalAttributeService extends BaseInterceptor
     {
         String principal = getPrincipal().getName();
 
-        Attribute attribute = new AttributeImpl( "creatorsName" );
+        Attribute attribute = new AttributeImpl( SchemaConstants.CREATORS_NAME_AT );
         attribute.add( principal );
         entry.put( attribute );
 
@@ -395,7 +396,7 @@ public class OperationalAttributeService extends BaseInterceptor
     {
         if ( isDenormalizeOpAttrsEnabled )
         {
-            AttributeType type = registry.lookup( SystemSchemaConstants.CREATORS_NAME_AT );
+            AttributeType type = registry.lookup( SchemaConstants.CREATORS_NAME_AT );
             Attribute attr = AttributeUtils.getAttribute( entry, type );
 
             if ( attr != null )

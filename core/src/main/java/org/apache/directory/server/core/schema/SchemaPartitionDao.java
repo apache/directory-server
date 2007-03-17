@@ -87,7 +87,7 @@ public class SchemaPartitionDao
     private final static Logger log = LoggerFactory.getLogger( SchemaPartitionDao.class );
     private final static NumericOidSyntaxChecker NUMERIC_OID_CHECKER = new NumericOidSyntaxChecker();
     private static final String[] SCHEMA_ATTRIBUTES = new String[] { 
-        "creatorsName", "m-dependencies", SchemaConstants.OBJECT_CLASS_AT, "cn", "m-disabled" };
+        SchemaConstants.CREATORS_NAME_AT, "m-dependencies", SchemaConstants.OBJECT_CLASS_AT, "cn", "m-disabled" };
 
 
     private final Partition partition;

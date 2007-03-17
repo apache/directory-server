@@ -757,9 +757,9 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || set.contains( "creatorsname" ) )
+        if ( returnAllOperationalAttributes || set.contains( SchemaConstants.CREATORS_NAME_AT ) )
         {
-            attr = new AttributeImpl( "creatorsName" );
+            attr = new AttributeImpl( SchemaConstants.CREATORS_NAME_AT );
             attr.add( PartitionNexus.ADMIN_PRINCIPAL );
             attrs.put( attr );
         }

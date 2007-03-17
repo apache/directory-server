@@ -31,7 +31,6 @@ public interface SystemSchemaConstants
     String SCHEMA_NAME = "system";
 
     String CN_AT = "cn";
-    String CREATORS_NAME_AT = "creatorsName";
     String CREATE_TIMESTAMP_AT = "createTimestamp";
     String MODIFY_TIMESTAMP_AT = "modifyTimestamp";
     String MODIFIERS_NAME_AT = "modifiersName";
