@@ -38,4 +38,6 @@ public class SchemaConstants
     // AttributeTypes
     public static final String OBJECT_CLASS_AT = "objectClass";
     public static final String CREATORS_NAME_AT = "creatorsName";
+    public static final String CREATE_TIMESTAMP_AT = "createTimestamp";
+
 }
