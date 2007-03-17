@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.filter;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+
 
 /**
  * A simple assertion value node.
@@ -209,7 +211,7 @@ public class SimpleNode extends LeafNode
                 throw new UnsupportedOperationException( "Undefined assertion for a refinement" );
         }
 
-        if ( getAttribute() == null || !"objectClass".equalsIgnoreCase( getAttribute() ) )
+        if ( getAttribute() == null || !SchemaConstants.OBJECT_CLASS_AT.equalsIgnoreCase( getAttribute() ) )
         {
             throw new UnsupportedOperationException( "Invalid attribute " + getAttribute() + " for a refinement" );
         }

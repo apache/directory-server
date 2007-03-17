@@ -67,7 +67,7 @@ public class TriggerUtils
         String prescriptiveTriggerSpec ) throws NamingException
     {
         Attributes subentry = new AttributesImpl( "cn", subentryCN, true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         subentry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( SchemaConstants.SUBENTRY_OC );

@@ -32,6 +32,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
@@ -95,8 +96,8 @@ public class JavaStoredProcedureUtils
         byte[] buf = getClassFileAsStream( clazz );
         String fullClassName = clazz.getName();
         
-        Attributes attributes = new AttributesImpl( "objectClass", "top", true );
-        attributes.get( "objectClass" ).add( "javaClass" );
+        Attributes attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "javaClass" );
         attributes.put( "fullyQualifiedJavaClassName", fullClassName );
         attributes.put( "javaClassByteCode", buf );
         
