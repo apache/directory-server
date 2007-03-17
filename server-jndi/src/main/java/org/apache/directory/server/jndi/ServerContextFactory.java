@@ -222,7 +222,7 @@ public class ServerContextFactory extends CoreContextFactory
     {
         Attributes entry = new AttributesImpl( "ou", "loadedLdifFiles", true );
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
+        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         try
         {
             root.createSubcontext( LDIF_FILES_DN, entry );

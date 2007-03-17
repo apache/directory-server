@@ -212,7 +212,7 @@ public class BootstrapPlugin extends AbstractMojo
             {
                 Attributes entry = new AttributesImpl();
                 entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
-                entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
+                entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
                 entry.put( CoreSchemaConstants.OU_AT, "schema" );
                 store.add( dn, entry );
             }
@@ -622,7 +622,8 @@ public class BootstrapPlugin extends AbstractMojo
         }
         storeConfig.setIndexedAttributes( indexSet );
 
-        Attributes rootEntry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit", true );
+        Attributes rootEntry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, 
+            SchemaConstants.ORGANIZATIONAL_UNIT_OC, true );
         rootEntry.put( CoreSchemaConstants.OU_AT, "schema" );
         storeConfig.setContextEntry( rootEntry );
 
@@ -774,7 +775,7 @@ public class BootstrapPlugin extends AbstractMojo
 
         Attributes entry = new AttributesImpl();
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
+        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( CoreSchemaConstants.OU_AT, dn.getRdn().getValue() );
         store.add( dn, entry );
     }

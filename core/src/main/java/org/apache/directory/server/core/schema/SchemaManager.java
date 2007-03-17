@@ -34,7 +34,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -301,7 +300,7 @@ public class SchemaManager
             return;
         }
         
-        if ( AttributeUtils.containsValue( oc, CoreSchemaConstants.ORGANIZATIONAL_UNIT_OC, objectClassAT ) )
+        if ( AttributeUtils.containsValue( oc, SchemaConstants.ORGANIZATIONAL_UNIT_OC, objectClassAT ) )
         {
             if ( name.size() != 3 )
             {
@@ -348,7 +347,7 @@ public class SchemaManager
             return;
         }
         
-        if ( AttributeUtils.containsValue( oc, CoreSchemaConstants.ORGANIZATIONAL_UNIT_OC, objectClassAT ) )
+        if ( AttributeUtils.containsValue( oc, SchemaConstants.ORGANIZATIONAL_UNIT_OC, objectClassAT ) )
         {
             if ( name.size() != 3 )
             {

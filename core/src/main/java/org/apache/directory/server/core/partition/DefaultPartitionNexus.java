@@ -261,7 +261,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 systemEntry.put( objectClassAttr );
             }
             objectClassAttr.add( SchemaConstants.TOP_OC );
-            objectClassAttr.add( "organizationalUnit" );
+            objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
             systemEntry.put( "creatorsName", PartitionNexus.ADMIN_PRINCIPAL );
             systemEntry.put( "createTimestamp", DateUtils.getGeneralizedTime() );
@@ -357,7 +357,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             Attributes systemEntry = new AttributesImpl();
             Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClassAttr.add( SchemaConstants.TOP_OC );
-            objectClassAttr.add( "organizationalUnit" );
+            objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
             systemEntry.put( objectClassAttr );
             systemEntry.put( "creatorsName", PartitionNexus.ADMIN_PRINCIPAL );

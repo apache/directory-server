@@ -491,7 +491,7 @@ class DefaultDirectoryService extends DirectoryService
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( "organizationalUnit" );
+            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
             attributes.put( "ou", "users" );
@@ -515,7 +515,7 @@ class DefaultDirectoryService extends DirectoryService
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( "organizationalUnit" );
+            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
             attributes.put( "ou", "groups" );
@@ -584,7 +584,7 @@ class DefaultDirectoryService extends DirectoryService
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( "organizationalUnit" );
+            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
             attributes.put( "ou", "configuration" );
@@ -608,7 +608,7 @@ class DefaultDirectoryService extends DirectoryService
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( "organizationalUnit" );
+            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
             attributes.put( "ou", "partitions" );
@@ -632,7 +632,7 @@ class DefaultDirectoryService extends DirectoryService
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( "organizationalUnit" );
+            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
             attributes.put( "ou", "services" );
@@ -656,7 +656,7 @@ class DefaultDirectoryService extends DirectoryService
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( "organizationalUnit" );
+            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
             attributes.put( "ou", "interceptors" );
@@ -680,7 +680,7 @@ class DefaultDirectoryService extends DirectoryService
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( "organizationalUnit" );
+            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
             attributes.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.EXTENSIBLE_OBJECT_OC );
@@ -832,7 +832,7 @@ class DefaultDirectoryService extends DirectoryService
         
         Attributes entry = new AttributesImpl();
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
+        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( "ou", "schema" );
         schemaPartitionConfig.setContextEntry( entry );
         JdbmPartition schemaPartition = new JdbmPartition();
