@@ -69,7 +69,7 @@ public class TriggerUtils
         Attributes subentry = new AttributesImpl( "cn", subentryCN, true );
         Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         subentry.put( objectClass );
-        objectClass.add( "top" );
+        objectClass.add( SchemaConstants.TOP_OC );
         objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( TRIGGER_EXECUTION_SUBENTRY_OC );
         subentry.put( SUBTREE_SPECIFICATION_ATTR, subtreeSpec );

@@ -96,7 +96,7 @@ public class JavaStoredProcedureUtils
         byte[] buf = getClassFileAsStream( clazz );
         String fullClassName = clazz.getName();
         
-        Attributes attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "javaClass" );
         attributes.put( "fullyQualifiedJavaClassName", fullClassName );
         attributes.put( "javaClassByteCode", buf );
