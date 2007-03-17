@@ -112,7 +112,7 @@ wrapperEntryPoint returns [ TriggerSpecification triggerSpec ]
     spSpecs = new ArrayList<SPSpec>(); 
 }
     :
-    ( SP )* triggerSpec=triggerSpecification ( SP )* EOF
+    ( SP )* triggerSpec=triggerSpecification EOF
     ;
 
 // -----------------------------------------------------------------------------
@@ -160,11 +160,11 @@ modifyOperationAndStoredProcedureCalls
     log.debug( "entered modifyOperationAndStoredProcedureCalls()" );
 }
     :
-    ID_modify
+    ID_modify ( SP )+
     ( theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( modifyStoredProcedureParameterList )?
-    CLOSE_PARAN ( SP )* SEMI
+    CLOSE_PARAN ( SP )* SEMI ( SP )*
     {
     	spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
     })+
@@ -175,11 +175,11 @@ addOperationAndStoredProcedureCalls
     log.debug( "entered addOperationAndStoredProcedureCalls()" );
 }
     :
-    ID_add
+    ID_add ( SP )+
     ( theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( addStoredProcedureParameterList )?
-    CLOSE_PARAN ( SP )* SEMI
+    CLOSE_PARAN ( SP )* SEMI ( SP )*
     {
     	spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
     }
@@ -191,11 +191,11 @@ deleteOperationAndStoredProcedureCalls
     log.debug( "entered deleteOperationAndStoredProcedureCalls()" );
 }
     :
-    ID_delete
+    ID_delete ( SP )+
     ( theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( deleteStoredProcedureParameterList )?
-    CLOSE_PARAN ( SP )* SEMI
+    CLOSE_PARAN ( SP )* SEMI ( SP )*
     {
     	spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
     }
@@ -211,10 +211,10 @@ modifyDNOperationAndStoredProcedureCalls
     ( ( ID_modifyDNRename { triggerLdapOperation = LdapOperation.MODIFYDN_RENAME; }
     | ID_modifyDNExport { triggerLdapOperation = LdapOperation.MODIFYDN_EXPORT; }
     | ID_modifyDNImport { triggerLdapOperation = LdapOperation.MODIFYDN_IMPORT; } )
-    theCompositeRuleForCallAndSPNameAndSPOptionList
+    ( SP )+ theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( modifyDNStoredProcedureParameterList )?
-    CLOSE_PARAN ( SP )* SEMI
+    CLOSE_PARAN ( SP )* SEMI ( SP )*
     {
     	spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
     }
@@ -235,7 +235,7 @@ theCompositeRuleForCallAndSPNameAndSPOptionList
     log.debug( "entered theCompositeRuleForCallAndSPNameAndSPOptionList()" );
 }
     :
-    SP ID_CALL
+    ID_CALL
     {
     	triggerStoredProcedureName = null;
     	triggerStoredProcedureParameters = new ArrayList();
