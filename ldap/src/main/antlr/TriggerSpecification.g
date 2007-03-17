@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
+import org.apache.directory.shared.ldap.trigger.TriggerSpecification.SPSpec;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,10 +79,11 @@ options
     
     private String triggerStoredProcedureName;
     
-    private List triggerStoredProcedureOptions;
+	private List triggerStoredProcedureParameters;
+	
+	private List triggerStoredProcedureOptions;
     
-    private List triggerStoredProcedureParameters;
-    
+    private List<SPSpec> spSpecs;   
     
     public void init()
     {
@@ -107,8 +109,7 @@ wrapperEntryPoint returns [ TriggerSpecification triggerSpec ]
 {
     log.debug( "entered wrapperEntryPoint()" );
     triggerSpec = null;
-    triggerStoredProcedureOptions = new ArrayList();
-    triggerStoredProcedureParameters = new ArrayList();
+    spSpecs = new ArrayList<SPSpec>(); 
 }
     :
     ( SP )* triggerSpec=triggerSpecification ( SP )* EOF
@@ -124,16 +125,15 @@ triggerSpecification returns [ TriggerSpecification triggerSpec ]
     triggerSpec = null;
 }
     :
-    actionTime ( SP )+ ldapOperationAndStoredProcedureCall
+    actionTime ( SP )+ ldapOperationAndStoredProcedureCalls
     { triggerSpec = new TriggerSpecification( triggerLdapOperation,
                                               triggerActionTime,
-                                              triggerStoredProcedureName,
-                                              triggerStoredProcedureOptions,
-                                              triggerStoredProcedureParameters
+                                              spSpecs
                                             );
     }
     ;
-    
+
+// Currently we only support "AFTER" Triggers   
 actionTime
 {
     log.debug( "entered actionTime()" );
@@ -141,75 +141,93 @@ actionTime
     : ID_AFTER { triggerActionTime = ActionTime.AFTER; }
     ;
     
-ldapOperationAndStoredProcedureCall
+ldapOperationAndStoredProcedureCalls
 {
     log.debug( "entered ldapOperationAndStoredProcedureCall()" );
 }
-    : modifyOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.MODIFY; }
-    | addOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.ADD; }
-    | deleteOperationAndStoredProcedureCall { triggerLdapOperation = LdapOperation.DELETE; }
-    | modifyDNOperationAndStoredProcedureCall
+    : modifyOperationAndStoredProcedureCalls { triggerLdapOperation = LdapOperation.MODIFY; }
+    | addOperationAndStoredProcedureCalls { triggerLdapOperation = LdapOperation.ADD; }
+    | deleteOperationAndStoredProcedureCalls { triggerLdapOperation = LdapOperation.DELETE; }
+    | modifyDNOperationAndStoredProcedureCalls // Will decide operation type for this one later
     ;
 
 // -----------------------------------------------------------------------------
-//  XXXOperationAndStoredProcedureCall
+//  XXXOperationAndStoredProcedureCalls
 // -----------------------------------------------------------------------------
 
-modifyOperationAndStoredProcedureCall
+modifyOperationAndStoredProcedureCalls
 {
-    log.debug( "entered modifyOperationAndStoredProcedureCall()" );
+    log.debug( "entered modifyOperationAndStoredProcedureCalls()" );
 }
     :
-    ID_modify theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_modify
+    ( theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( modifyStoredProcedureParameterList )?
-    CLOSE_PARAN
+    CLOSE_PARAN ( SP )* SEMI
+    {
+    	spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
+    })+
     ;
 
-addOperationAndStoredProcedureCall
+addOperationAndStoredProcedureCalls
 {
-    log.debug( "entered addOperationAndStoredProcedureCall()" );
+    log.debug( "entered addOperationAndStoredProcedureCalls()" );
 }
     :
-    ID_add theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_add
+    ( theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( addStoredProcedureParameterList )?
-    CLOSE_PARAN
+    CLOSE_PARAN ( SP )* SEMI
+    {
+    	spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
+    }
+    )+
     ;
 
-deleteOperationAndStoredProcedureCall
+deleteOperationAndStoredProcedureCalls
 {
-    log.debug( "entered deleteOperationAndStoredProcedureCall()" );
+    log.debug( "entered deleteOperationAndStoredProcedureCalls()" );
 }
     :
-    ID_delete theCompositeRuleForCallAndSPNameAndSPOptionList
+    ID_delete
+    ( theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( deleteStoredProcedureParameterList )?
-    CLOSE_PARAN
+    CLOSE_PARAN ( SP )* SEMI
+    {
+    	spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
+    }
+    )+
     ;
 
-modifyDNOperationAndStoredProcedureCall
+modifyDNOperationAndStoredProcedureCalls
 {
-    log.debug( "entered modifyDNOperationAndStoredProcedureCall()" );
+    log.debug( "entered modifyDNOperationAndStoredProcedureCalls()" );
 }
     :
     ID_modifyDN DOT
-    ( ID_modifyDNRename { triggerLdapOperation = LdapOperation.MODIFYDN_RENAME; }
+    ( ( ID_modifyDNRename { triggerLdapOperation = LdapOperation.MODIFYDN_RENAME; }
     | ID_modifyDNExport { triggerLdapOperation = LdapOperation.MODIFYDN_EXPORT; }
     | ID_modifyDNImport { triggerLdapOperation = LdapOperation.MODIFYDN_IMPORT; } )
     theCompositeRuleForCallAndSPNameAndSPOptionList
     OPEN_PARAN ( SP )*
         ( modifyDNStoredProcedureParameterList )?
-    CLOSE_PARAN
+    CLOSE_PARAN ( SP )* SEMI
+    {
+    	spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
+    }
+    )+
     ;
 
 // -----------------------------------------------------------------------------
 // The following rule does not make any sense semantically. Just placed for
 // reducing repetition. All OperationAndStoredProcedureCall type are heavily
 // context sensitive where their StoredProcedureParameterList depends on their
-// Operation type. Other elements that sit between these two dependend elements
+// Operation type. Other elements that sit between these two dependent elements
 // are repeated for all OperationAndStoredProcedureCall type rules. So the
-// the fallowing rule is for the part falling between those two dependend parts.
+// the following rule is for the part falling between those two dependent parts.
 // -----------------------------------------------------------------------------
 
 theCompositeRuleForCallAndSPNameAndSPOptionList
@@ -217,9 +235,15 @@ theCompositeRuleForCallAndSPNameAndSPOptionList
     log.debug( "entered theCompositeRuleForCallAndSPNameAndSPOptionList()" );
 }
     :
-    ( SP )+ ID_CALL ( SP )+ triggerStoredProcedureName=fullyQualifiedStoredProcedureName ( SP )*
+    SP ID_CALL
+    {
+    	triggerStoredProcedureName = null;
+    	triggerStoredProcedureParameters = new ArrayList();
+		triggerStoredProcedureOptions = new ArrayList();
+    }
+    ( SP )+ triggerStoredProcedureName=fullyQualifiedStoredProcedureName ( SP )*
         ( genericStoredProcedureOptionList ( SP )* )?
-    {  }
+    { }
     ;
 
 // -----------------------------------------------------------------------------
@@ -516,6 +540,8 @@ CLOSE_PARAN : ')' ;
 OPEN_CURLY : '{' ;
 
 CLOSE_CURLY : '}' ;
+
+SEMI : ';' ;
 
 SEP : ',' ;
 

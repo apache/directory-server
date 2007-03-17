@@ -38,28 +38,26 @@ public class TriggerSpecification
     
     private ActionTime actionTime;
     
-    private String storedProcedureName;
+    private List<SPSpec> spSpecs; 
     
-    private List storedProcedureOptions;
     
-    private List storedProcedureParameters;
     
-    public TriggerSpecification( LdapOperation ldapOperation, ActionTime actionTime, String storedProcedureName, List storedProcedureOptions, List storedProcedureParameters )
+    public TriggerSpecification( LdapOperation ldapOperation, ActionTime actionTime, List<SPSpec> spSpecs )
     {
         super();
         if ( ldapOperation == null || 
             actionTime == null || 
-            storedProcedureName == null || 
-            storedProcedureOptions == null || 
-            storedProcedureParameters == null )
+            spSpecs == null )
         {
             throw new NullArgumentException( "TriggerSpecification cannot be initialized with any NULL argument." );
         }
+        if ( spSpecs.size() == 0 )
+        {
+        	throw new IllegalArgumentException( "TriggerSpecification cannot be initialized with emtpy SPSPec list." );
+        }
         this.ldapOperation = ldapOperation;
         this.actionTime = actionTime;
-        this.storedProcedureName = storedProcedureName;
-        this.storedProcedureOptions = storedProcedureOptions;
-        this.storedProcedureParameters = storedProcedureParameters;
+        this.spSpecs = spSpecs;
     }
 
     public ActionTime getActionTime()
@@ -72,129 +70,83 @@ public class TriggerSpecification
         return ldapOperation;
     }
 
-    public String getStoredProcedureName()
+    public List<SPSpec> getSPSpecs() {
+		return spSpecs;
+	}
+    
+    public static class SPSpec
     {
-        return storedProcedureName;
-    }
-
-    public List getStoredProcedureOptions()
-    {
-        return storedProcedureOptions;
-    }
-
-    public List getStoredProcedureParameters()
-    {
-        return storedProcedureParameters;
-    }
-
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    public String toString()
-    {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append( actionTime );
-        buffer.append( " " );
-        buffer.append( ldapOperation );
-        buffer.append( " CALL \"" );
-        buffer.append( storedProcedureName );
-        buffer.append( "\" { " );
-        if ( storedProcedureOptions.size() > 0 )
-        {
-            Iterator it = storedProcedureOptions.iterator();
-            while ( it.hasNext() )
-            {
-                StoredProcedureOption spOption = ( StoredProcedureOption ) it.next();
-                buffer.append( spOption );
-                if ( it.hasNext() )
-                {
-                    buffer.append( ", " );
-                }
-            }
-        }
-        buffer.append( " } ( " );
-        if ( storedProcedureParameters.size() > 0 )
-        {
-            Iterator it = storedProcedureParameters.iterator();
-            while ( it.hasNext() )
-            {
-                StoredProcedureParameter spParameter = ( StoredProcedureParameter ) it.next();
-                buffer.append( spParameter.toString() );
-                if ( it.hasNext() )
-                {
-                    buffer.append( ", " );
-                }
-            }
-        }
-        buffer.append( " )" );
+    	private String name;
         
-        return buffer.toString();
+        private List<String> options;
+        
+        private List<String> parameters;
+
+        public SPSpec(String name, List<String> options, List<String> parameters) {
+			super();
+			this.name = name;
+			this.options = options;
+			this.parameters = parameters;
+		}
+        
+		public String getName() {
+			return name;
+		}
+
+		public List<String> getOptions() {
+			return options;
+		}
+
+		public List<String> getParameters() {
+			return parameters;
+		}
+
+		@Override
+		public int hashCode() {
+			final int PRIME = 31;
+			int result = 1;
+			result = PRIME * result + ((name == null) ? 0 : name.hashCode());
+			result = PRIME * result + ((options == null) ? 0 : options.hashCode());
+			result = PRIME * result + ((parameters == null) ? 0 : parameters.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			final SPSpec other = (SPSpec) obj;
+			if (name == null) {
+				if (other.name != null)
+					return false;
+			} else if (!name.equals(other.name))
+				return false;
+			if (options == null) {
+				if (other.options != null)
+					return false;
+			} else if (!options.equals(other.options))
+				return false;
+			if (parameters == null) {
+				if (other.parameters != null)
+					return false;
+			} else if (!parameters.equals(other.parameters))
+				return false;
+			return true;
+		}
+
+		
+
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
-    public int hashCode()
-    {
-        final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + ( ( actionTime == null ) ? 0 : actionTime.hashCode() );
-        result = PRIME * result + ( ( ldapOperation == null ) ? 0 : ldapOperation.hashCode() );
-        result = PRIME * result + ( ( storedProcedureName == null ) ? 0 : storedProcedureName.hashCode() );
-        result = PRIME * result + ( ( storedProcedureOptions == null ) ? 0 : storedProcedureOptions.hashCode() );
-        result = PRIME * result + ( ( storedProcedureParameters == null ) ? 0 : storedProcedureParameters.hashCode() );
-        return result;
-    }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    public boolean equals( Object obj )
-    {
-        if ( this == obj )
-            return true;
-        if ( obj == null )
-            return false;
-        if ( getClass() != obj.getClass() )
-            return false;
-        final TriggerSpecification other = ( TriggerSpecification ) obj;
-        if ( actionTime == null )
-        {
-            if ( other.actionTime != null )
-                return false;
-        }
-        else if ( !actionTime.equals( other.actionTime ) )
-            return false;
-        if ( ldapOperation == null )
-        {
-            if ( other.ldapOperation != null )
-                return false;
-        }
-        else if ( !ldapOperation.equals( other.ldapOperation ) )
-            return false;
-        if ( storedProcedureName == null )
-        {
-            if ( other.storedProcedureName != null )
-                return false;
-        }
-        else if ( !storedProcedureName.equals( other.storedProcedureName ) )
-            return false;
-        if ( storedProcedureOptions == null )
-        {
-            if ( other.storedProcedureOptions != null )
-                return false;
-        }
-        else if ( !storedProcedureOptions.equals( other.storedProcedureOptions ) )
-            return false;
-        if ( storedProcedureParameters == null )
-        {
-            if ( other.storedProcedureParameters != null )
-                return false;
-        }
-        else if ( !storedProcedureParameters.equals( other.storedProcedureParameters ) )
-            return false;
-        return true;
-    }
+
+
+
+	
+    
     
 }
