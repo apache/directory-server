@@ -33,6 +33,7 @@ public class SchemaConstants
     public static final String SUBENTRY_OC = "subentry";
     public static final String TOP_OC = "top";
     public static final String EXTENSIBLE_OBJECT_OC = "extensibleObject";
+    public static final String ORGANIZATIONAL_UNIT_OC = "organizationalUnit";
     
     // AttributeTypes
     public static final String OBJECT_CLASS_AT = "objectClass";
