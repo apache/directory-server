@@ -457,7 +457,7 @@ class DefaultDirectoryService extends DirectoryService
 
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( "top" );
+            objectClass.add( SchemaConstants.TOP_OC );
             objectClass.add( "person" );
             objectClass.add( "organizationalPerson" );
             objectClass.add( "inetOrgPerson" );
@@ -490,7 +490,7 @@ class DefaultDirectoryService extends DirectoryService
 
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( "top" );
+            objectClass.add( SchemaConstants.TOP_OC );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
 
@@ -514,7 +514,7 @@ class DefaultDirectoryService extends DirectoryService
 
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( "top" );
+            objectClass.add( SchemaConstants.TOP_OC );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
 
@@ -539,7 +539,7 @@ class DefaultDirectoryService extends DirectoryService
 
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( "top" );
+            objectClass.add( SchemaConstants.TOP_OC );
             objectClass.add( "groupOfUniqueNames" );
             attributes.put( objectClass );
             attributes.put( "cn", "Administrators" );
@@ -583,7 +583,7 @@ class DefaultDirectoryService extends DirectoryService
 
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( "top" );
+            objectClass.add( SchemaConstants.TOP_OC );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
 
@@ -607,7 +607,7 @@ class DefaultDirectoryService extends DirectoryService
 
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( "top" );
+            objectClass.add( SchemaConstants.TOP_OC );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
 
@@ -631,7 +631,7 @@ class DefaultDirectoryService extends DirectoryService
 
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( "top" );
+            objectClass.add( SchemaConstants.TOP_OC );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
 
@@ -655,7 +655,7 @@ class DefaultDirectoryService extends DirectoryService
 
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( "top" );
+            objectClass.add( SchemaConstants.TOP_OC );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
 
@@ -679,7 +679,7 @@ class DefaultDirectoryService extends DirectoryService
 
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( "top" );
+            objectClass.add( SchemaConstants.TOP_OC );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
 
@@ -831,7 +831,7 @@ class DefaultDirectoryService extends DirectoryService
         schemaPartitionConfig.setSuffix( "ou=schema" );
         
         Attributes entry = new AttributesImpl();
-        entry.put( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
         entry.put( "ou", "schema" );
         schemaPartitionConfig.setContextEntry( entry );

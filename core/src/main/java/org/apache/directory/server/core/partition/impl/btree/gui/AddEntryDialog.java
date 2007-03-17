@@ -84,7 +84,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
     public AddEntryDialog(Frame parent, boolean modal)
     {
         super( parent, modal );
-        m_childEntry.put( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        m_childEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         initGUI();
     }
 

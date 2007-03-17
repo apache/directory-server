@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
@@ -130,7 +131,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
             return;
         }
         
-        if ( ancestor.getName() != null && ancestor.getName().equals( "top" ) )
+        if ( ancestor.getName() != null && ancestor.getName().equals( SchemaConstants.TOP_OC ) )
         {
             return;
         }

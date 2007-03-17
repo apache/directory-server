@@ -115,7 +115,7 @@ public class EntryUtil
         
         //// Add objectClass attribute. 
         Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        objectClassAttr.add( "top" );
+        objectClassAttr.add( SchemaConstants.TOP_OC );
         objectClassAttr.add( "extensibleObject" );
         entry.put( objectClassAttr );
 

@@ -193,7 +193,7 @@ public class ServerSystemPreferences extends AbstractPreferences
     {
         Attributes attrs = new AttributesImpl();
         Attribute attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        attr.add( "top" );
+        attr.add( SchemaConstants.TOP_OC );
         attr.add( "prefNode" );
         attr.add( "extensibleObject" );
         attrs.put( attr );

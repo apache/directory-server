@@ -301,7 +301,7 @@ public class SchemaService extends BaseInterceptor
             for ( ObjectClass parent:parents )
             {
                 // Top is not added
-                if ( "top".equals( parent.getName() ) )
+                if ( SchemaConstants.TOP_OC.equals( parent.getName() ) )
                 {
                     continue;
                 }
@@ -484,7 +484,7 @@ public class SchemaService extends BaseInterceptor
                 
                 // see if node attribute is objectClass
                 if ( node.getAttribute().equalsIgnoreCase( "2.5.4.0" )
-                    && ( "top".equalsIgnoreCase( objectClassOid ) || "subschema".equalsIgnoreCase( objectClassOid ) )
+                    && ( SchemaConstants.TOP_OC.equalsIgnoreCase( objectClassOid ) || "subschema".equalsIgnoreCase( objectClassOid ) )
                     && ( node.getAssertionType() == AssertionEnum.EQUALITY ) )
                 {
                     // call.setBypass( true );
@@ -725,7 +725,7 @@ public class SchemaService extends BaseInterceptor
         if ( set.contains( "*" ) || set.contains( SchemaConstants.OBJECT_CLASS_AT ) || set.size() == minSetSize )
         {
             attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            attr.add( "top" );
+            attr.add( SchemaConstants.TOP_OC );
             attr.add( "subschema" );
             attr.add( SchemaConstants.SUBENTRY_OC );
             attr.add( "apacheSubschema" );
@@ -825,7 +825,7 @@ public class SchemaService extends BaseInterceptor
         for ( ObjectClass parent:oc.getSuperClasses() )
         {
             // Skip 'top'
-            if ( "top".equals( parent.getName() ) )
+            if ( SchemaConstants.TOP_OC.equals( parent.getName() ) )
             {
                 continue;
             }
@@ -972,7 +972,7 @@ public class SchemaService extends BaseInterceptor
         {
             String objectClassName = (String)ocs.nextElement();
 
-            if ( "top".equals( objectClassName ) )
+            if ( SchemaConstants.TOP_OC.equals( objectClassName ) )
             {
                 continue;
             }
@@ -1067,7 +1067,7 @@ public class SchemaService extends BaseInterceptor
         Set<String> objectClasses = new HashSet<String>();
 
         // Init the objectClass list with 'top'
-        objectClasses.add( "top" );
+        objectClasses.add( SchemaConstants.TOP_OC );
         
         // Construct the new list of ObjectClasses
         NamingEnumeration ocList = objectClassAttr.getAll();
@@ -1076,7 +1076,7 @@ public class SchemaService extends BaseInterceptor
         {
             String ocName = ( String ) ocList.nextElement();
 
-            if ( !ocName.equalsIgnoreCase( "top" ) )
+            if ( !ocName.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
             {
                 String ocLowerName = ocName.toLowerCase();
 
@@ -1233,9 +1233,9 @@ public class SchemaService extends BaseInterceptor
                 switch ( modOp )
                 {
                     case ( DirContext.ADD_ATTRIBUTE  ):
-                        if ( ocMods.contains( "top" ) )
+                        if ( ocMods.contains( SchemaConstants.TOP_OC ) )
                         {
-                            ocMods.remove( "top" );
+                            ocMods.remove( SchemaConstants.TOP_OC );
                         }
                     
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
@@ -1583,9 +1583,9 @@ public class SchemaService extends BaseInterceptor
                 switch ( objectClassMod.getModificationOp() )
                 {
                     case ( DirContext.ADD_ATTRIBUTE  ):
-                        if ( ocMods.contains( "top" ) )
+                        if ( ocMods.contains( SchemaConstants.TOP_OC ) )
                         {
-                            ocMods.remove( "top" );
+                            ocMods.remove( SchemaConstants.TOP_OC );
                         }
                     
                         for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
@@ -1664,7 +1664,7 @@ public class SchemaService extends BaseInterceptor
                 }
             }
 
-            newOc.add( "top" );
+            newOc.add( SchemaConstants.TOP_OC );
             entry.put( newOc );
         }
     }

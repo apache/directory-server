@@ -96,7 +96,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( Schema schema )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SCHEMA_OC );
         entry.put( SystemSchemaConstants.CN_AT, schema.getSchemaName() );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -124,7 +124,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( SyntaxChecker syntaxChecker, Schema schema )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, syntaxChecker.getSyntaxOid() );
         entry.put( MetaSchemaConstants.M_FQCN_AT, syntaxChecker.getClass().getName() );
@@ -136,7 +136,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( Syntax syntax, Schema schema )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SYNTAX_OC );
         entry.put( MetaSchemaConstants.X_HUMAN_READIBLE_AT, getBoolean( syntax.isHumanReadible() ) );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -148,7 +148,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( String oid, Normalizer normalizer, Schema schema )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_NORMALIZER_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
         entry.put( MetaSchemaConstants.M_FQCN_AT, normalizer.getClass().getName() );
@@ -160,7 +160,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( String oid, Comparator comparator, Schema schema )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_COMPARATOR_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
         entry.put( MetaSchemaConstants.M_FQCN_AT, comparator.getClass().getName() );
@@ -178,7 +178,7 @@ public class AttributesFactory
      */
     public Attributes getAttributes( MatchingRule matchingRule, Schema schema ) throws NamingException
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_MATCHING_RULE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, matchingRule.getSyntax().getOid() );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -190,7 +190,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( MatchingRuleUse matchingRuleUse, Schema schema )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "" );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
@@ -200,7 +200,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( DITStructureRule dITStructureRule, Schema schema )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "" );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
@@ -210,7 +210,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( DITContentRule dITContentRule, Schema schema )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "" );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
@@ -220,7 +220,7 @@ public class AttributesFactory
     
     public Attributes getAttributes( NameForm nameForm, Schema schema )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "" );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SystemSchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
@@ -248,7 +248,7 @@ public class AttributesFactory
      */
     public Attributes getAttributes( AttributeType attributeType, Schema schema ) throws NamingException
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, attributeType.getSyntax().getOid() );
         entry.put( MetaSchemaConstants.M_COLLECTIVE_AT, getBoolean( attributeType.isCollective() ) );
@@ -333,7 +333,7 @@ public class AttributesFactory
      */
     public Attributes getAttributes( ObjectClass objectClass, Schema schema ) throws NamingException
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_OBJECT_CLASS_OC );
         entry.put( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT, objectClass.getType().toString() );
         entry.put( SystemSchemaConstants.CREATORS_NAME_AT, schema.getOwner() );

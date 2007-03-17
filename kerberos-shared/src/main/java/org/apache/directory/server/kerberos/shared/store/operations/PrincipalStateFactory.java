@@ -71,9 +71,9 @@ public class PrincipalStateFactory implements DirStateFactory
                 outAttrs.put( oc );
             }
 
-            if ( !oc.contains( "top" ) )
+            if ( !oc.contains( SchemaConstants.TOP_OC ) )
             {
-                oc.add( "top" );
+                oc.add( SchemaConstants.TOP_OC );
             }
 
             PrincipalStoreEntry p = ( PrincipalStoreEntry ) obj;

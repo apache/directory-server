@@ -303,7 +303,7 @@ public abstract class ServerContext implements EventContext
         injectRdnAttributeValues( target, attributes );
         
         attributes.put( SchemaConstants.OBJECT_CLASS_AT, JavaLdapSupport.JCONTAINER_ATTR );
-        attributes.put( SchemaConstants.OBJECT_CLASS_AT, JavaLdapSupport.TOP_ATTR );
+        attributes.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
 
         /*
          * Add the new context to the server which as a side effect adds 

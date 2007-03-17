@@ -188,7 +188,7 @@ public class SchemaSubentryModifier
     
     private Attributes getAttributes( ComparatorDescription comparatorDescription )
     {
-        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
         attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaComparator" );
         attributes.put( MetaSchemaConstants.M_OID_AT, comparatorDescription.getNumericOid() );
@@ -222,7 +222,7 @@ public class SchemaSubentryModifier
     
     private Attributes getAttributes( NormalizerDescription normalizerDescription )
     {
-        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
         attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaNormalizer" );
         attributes.put( MetaSchemaConstants.M_OID_AT, normalizerDescription.getNumericOid() );
@@ -267,7 +267,7 @@ public class SchemaSubentryModifier
     
     private Attributes getAttributes( SyntaxCheckerDescription syntaxCheckerDescription )
     {
-        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
         attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaSyntaxChecker" );
         attributes.put( MetaSchemaConstants.M_OID_AT, syntaxCheckerDescription.getNumericOid() );

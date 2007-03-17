@@ -49,8 +49,6 @@ class JavaLdapSupport
     // Attribute Id Constants Used By The Java LDAP BootstrapSchema
     // ------------------------------------------------------------------------
 
-    /** objectClass attribute for top */
-    public static final String TOP_ATTR = "top";
     /** the javaObject attribute */
     public static final String JOBJECT_ATTR = "javaObject";
     /** the javaContainer attribute */
@@ -173,7 +171,7 @@ class JavaLdapSupport
          * objectClass: javaSerializedObject
          */
         Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        objectClass.add( TOP_ATTR );
+        objectClass.add( SchemaConstants.TOP_OC );
         objectClass.add( JOBJECT_ATTR );
         objectClass.add( JCONTAINER_ATTR );
         objectClass.add( JSERIALIZEDOBJ_ATTR );

@@ -158,7 +158,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         rootDSE.put( attr );
-        attr.add( "top" );
+        attr.add( SchemaConstants.TOP_OC );
         attr.add( "extensibleObject" );
 
         attr = new AttributeImpl( NAMINGCTXS_ATTR );
@@ -260,7 +260,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 objectClassAttr = new AttributeImpl(  SchemaConstants.OBJECT_CLASS_AT );
                 systemEntry.put( objectClassAttr );
             }
-            objectClassAttr.add( "top" );
+            objectClassAttr.add( SchemaConstants.TOP_OC );
             objectClassAttr.add( "organizationalUnit" );
             objectClassAttr.add( "extensibleObject" );
             systemEntry.put( "creatorsName", PartitionNexus.ADMIN_PRINCIPAL );
@@ -356,7 +356,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             // Add context entry for system partition
             Attributes systemEntry = new AttributesImpl();
             Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClassAttr.add( "top" );
+            objectClassAttr.add( SchemaConstants.TOP_OC );
             objectClassAttr.add( "organizationalUnit" );
             objectClassAttr.add( "extensibleObject" );
             systemEntry.put( objectClassAttr );

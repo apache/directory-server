@@ -221,7 +221,7 @@ public class ServerContextFactory extends CoreContextFactory
     private void ensureLdifFileBase( DirContext root )
     {
         Attributes entry = new AttributesImpl( "ou", "loadedLdifFiles", true );
-        entry.put( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
         try
         {
@@ -252,7 +252,7 @@ public class ServerContextFactory extends CoreContextFactory
         buf.append( LDIF_FILES_DN );
 
         Attributes entry = new AttributesImpl( rdnAttr, getCanonical( ldif ), true );
-        entry.put( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( oc );
         root.createSubcontext( buf.toString(), entry );
     }
