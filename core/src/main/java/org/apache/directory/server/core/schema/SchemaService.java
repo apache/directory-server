@@ -41,7 +41,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -747,11 +746,11 @@ public class SchemaService extends BaseInterceptor
 
         Attributes modificationAttributes = nexus.lookup( schemaModificationAttributesDN );
         
-        if ( returnAllOperationalAttributes || set.contains( "createtimestamp" ) )
+        if ( returnAllOperationalAttributes || set.contains( SchemaConstants.CREATE_TIMESTAMP_AT ) )
         {
             attr = new AttributeImpl( "createTimestamp" );
             AttributeType createTimestampAT = registries.
-                getAttributeTypeRegistry().lookup( SystemSchemaConstants.CREATE_TIMESTAMP_AT );
+                getAttributeTypeRegistry().lookup( SchemaConstants.CREATE_TIMESTAMP_AT );
             Attribute createTimestamp = AttributeUtils.getAttribute( modificationAttributes, createTimestampAT );
             attr.add( createTimestamp.get() );
             attrs.put( attr );
