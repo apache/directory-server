@@ -45,6 +45,7 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -71,8 +72,6 @@ public class TupleCache
 {
     /** the attribute id for prescriptive aci: prescriptiveACI */
     private static final String ACI_ATTR = "prescriptiveACI";
-    /** the attribute id for an object class: objectClass */
-    private static final String OC_ATTR = "objectClass";
     /** the object class for access control subentries: accessControlSubentry */
     private static final String ACSUBENTRY_OC = "accessControlSubentry";
 
@@ -129,7 +128,7 @@ public class TupleCache
         {
             String suffix = ( String ) suffixes.next();
             LdapDN baseDn = parseNormalized( suffix );
-            ExprNode filter = new SimpleNode( OC_ATTR, ACSUBENTRY_OC, AssertionEnum.EQUALITY );
+            ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, ACSUBENTRY_OC, AssertionEnum.EQUALITY );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration results = nexus.search( baseDn, env, filter, ctls );
@@ -159,7 +158,7 @@ public class TupleCache
 
         if ( aci == null )
         {
-            if ( AttributeUtils.containsValueCaseIgnore( entry.get( OC_ATTR ), ACSUBENTRY_OC ) )
+            if ( AttributeUtils.containsValueCaseIgnore( entry.get( SchemaConstants.OBJECT_CLASS_AT ), ACSUBENTRY_OC ) )
             {
                 // should not be necessary because of schema interceptor but schema checking
                 // can be turned off and in this case we must protect against being able to

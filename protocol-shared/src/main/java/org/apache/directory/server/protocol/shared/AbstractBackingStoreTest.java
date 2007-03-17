@@ -60,6 +60,7 @@ import org.apache.directory.server.schema.bootstrap.CosineSchema;
 import org.apache.directory.server.schema.bootstrap.InetorgpersonSchema;
 import org.apache.directory.server.schema.bootstrap.Krb5kdcSchema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -181,7 +182,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         HashSet indices = new HashSet();
         indices.add( "dc" );
         indices.add( "ou" );
-        indices.add( "objectClass" );
+        indices.add( SchemaConstants.OBJECT_CLASS_AT );
         indices.add( "krb5PrincipalName" );
         indices.add( "uid" );
         partConfig.setIndexedAttributes( indices );
@@ -189,7 +190,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         partConfig.setSuffix( "dc=example, dc=com" );
 
         AttributesImpl attrs = new AttributesImpl();
-        AttributeImpl objectClass = new AttributeImpl( "objectClass" );
+        AttributeImpl objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         objectClass.add( "top" );
         objectClass.add( "domain" );
         attrs.put( objectClass );
@@ -208,7 +209,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         HashSet indices = new HashSet();
         indices.add( "dc" );
         indices.add( "ou" );
-        indices.add( "objectClass" );
+        indices.add( SchemaConstants.OBJECT_CLASS_AT );
         indices.add( "krb5PrincipalName" );
         indices.add( "uid" );
         partConfig.setIndexedAttributes( indices );
@@ -216,7 +217,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         partConfig.setSuffix( "dc=apache, dc=org" );
 
         AttributesImpl attrs = new AttributesImpl();
-        AttributeImpl objectClass = new AttributeImpl( "objectClass" );
+        AttributeImpl objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         objectClass.add( "top" );
         objectClass.add( "domain" );
         attrs.put( objectClass );
@@ -316,7 +317,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
                 String dn = entry.getDn();
                 Attributes attributes = entry.getAttributes();
 
-                if ( attributes.get( "objectClass" ).contains( "krb5KDCEntry" ) )
+                if ( attributes.get( SchemaConstants.OBJECT_CLASS_AT ).contains( "krb5KDCEntry" ) )
                 {
                     String pw = ( String ) attributes.get( "userpassword" ).get();
                     String krbPrincipal = ( String ) attributes.get( KerberosAttribute.PRINCIPAL ).get();

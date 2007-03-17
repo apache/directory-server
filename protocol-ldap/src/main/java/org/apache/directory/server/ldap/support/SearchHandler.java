@@ -37,6 +37,7 @@ import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.SessionRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -133,7 +134,7 @@ public class SearchHandler implements LdapMessageHandler
         boolean isRootDSEFilter = false;
         if ( req.getFilter() instanceof PresenceNode )
         {
-            isRootDSEFilter = ( ( PresenceNode ) req.getFilter() ).getAttribute().equalsIgnoreCase( "objectClass" );
+            isRootDSEFilter = ( ( PresenceNode ) req.getFilter() ).getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT );
         }
         return isBaseIsRoot && isBaseScope && isRootDSEFilter;
     }

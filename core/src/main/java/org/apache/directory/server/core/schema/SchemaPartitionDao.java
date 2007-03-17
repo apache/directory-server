@@ -42,6 +42,7 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -86,7 +87,7 @@ public class SchemaPartitionDao
     private final static Logger log = LoggerFactory.getLogger( SchemaPartitionDao.class );
     private final static NumericOidSyntaxChecker NUMERIC_OID_CHECKER = new NumericOidSyntaxChecker();
     private static final String[] SCHEMA_ATTRIBUTES = new String[] { 
-        "creatorsName", "m-dependencies", "objectClass", "cn", "m-disabled" };
+        "creatorsName", "m-dependencies", SchemaConstants.OBJECT_CLASS_AT, "cn", "m-disabled" };
 
 
     private final Partition partition;
@@ -132,7 +133,7 @@ public class SchemaPartitionDao
         this.CN_OID = oidRegistry.getOid( SystemSchemaConstants.CN_AT );
         this.disabledAttributeType = attrRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT );
         this.M_OID_OID = oidRegistry.getOid( MetaSchemaConstants.M_OID_AT );
-        this.OBJECTCLASS_OID = oidRegistry.getOid( SystemSchemaConstants.SYSTEM_OBJECT_CLASS_AT );
+        this.OBJECTCLASS_OID = oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT );
         this.M_SYNTAX_OID = oidRegistry.getOid( MetaSchemaConstants.M_SYNTAX_AT );
         this.M_ORDERING_OID = oidRegistry.getOid( MetaSchemaConstants.M_ORDERING_AT );
         this.M_EQUALITY_OID = oidRegistry.getOid( MetaSchemaConstants.M_EQUALITY_AT );
@@ -180,7 +181,7 @@ public class SchemaPartitionDao
     {
         LdapDN base = new LdapDN( "ou=schema" );
         base.normalize( attrRegistry.getNormalizerMapping() );
-        ExprNode filter = new SimpleNode( oidRegistry.getOid( "objectClass" ), "metaSchema", AssertionEnum.EQUALITY );
+        ExprNode filter = new SimpleNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ), "metaSchema", AssertionEnum.EQUALITY );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         searchControls.setReturningAttributes( SCHEMA_ATTRIBUTES );

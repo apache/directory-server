@@ -182,7 +182,7 @@ public class AuthorizationService extends BaseInterceptor
         OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
         
         // look up some constant information
-        objectClassOid = oidRegistry.getOid( "objectClass" );
+        objectClassOid = oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT );
         subentryOid = oidRegistry.getOid( SchemaConstants.SUBENTRY_OC );
         acSubentryOid = oidRegistry.getOid( AC_SUBENTRY_ATTR );
         objectClassType = attrRegistry.lookup( objectClassOid );
@@ -308,7 +308,7 @@ public class AuthorizationService extends BaseInterceptor
         throws NamingException
     {
         // only perform this for subentries
-        if ( !entry.get( "objectClass" ).contains( SchemaConstants.SUBENTRY_OC ) )
+        if ( !entry.get( SchemaConstants.OBJECT_CLASS_AT ).contains( SchemaConstants.SUBENTRY_OC ) )
         {
             return;
         }

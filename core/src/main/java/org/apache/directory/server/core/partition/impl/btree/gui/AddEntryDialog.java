@@ -40,6 +40,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +84,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
     public AddEntryDialog(Frame parent, boolean modal)
     {
         super( parent, modal );
-        m_childEntry.put( "objectClass", "top" );
+        m_childEntry.put( SchemaConstants.OBJECT_CLASS_AT, "top" );
         initGUI();
     }
 

@@ -21,6 +21,7 @@ package org.apache.directory.server.core.subtree;
 
 
 import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -75,7 +76,7 @@ public class RefinementLeafEvaluator
         {
             throw new NamingException( "Unrecognized assertion type for refinement node: " + node.getAssertionType() );
         }
-        if ( !node.getAttribute().equalsIgnoreCase( "objectclass" ) )
+        if ( !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             throw new NamingException( "Refinement leaf node attribute was " + node.getAttribute() );
         }
@@ -84,7 +85,7 @@ public class RefinementLeafEvaluator
         {
             throw new IllegalArgumentException( "objectClasses argument cannot be null" );
         }
-        if ( !objectClasses.getID().equalsIgnoreCase( "objectclass" ) )
+        if ( !objectClasses.getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             throw new IllegalArgumentException( "objectClasses attribute must be for ID 'objectClass'" );
         }

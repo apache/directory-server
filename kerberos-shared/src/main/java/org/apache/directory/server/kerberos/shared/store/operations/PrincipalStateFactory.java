@@ -33,6 +33,7 @@ import javax.naming.spi.DirStateFactory;
 
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
@@ -62,11 +63,11 @@ public class PrincipalStateFactory implements DirStateFactory
             }
 
             // process the objectClass attribute
-            Attribute oc = outAttrs.get( "objectClass" );
+            Attribute oc = outAttrs.get( SchemaConstants.OBJECT_CLASS_AT );
 
             if ( oc == null )
             {
-                oc = new AttributeImpl( "objectClass" );
+                oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
                 outAttrs.put( oc );
             }
 

@@ -45,6 +45,7 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordModifier;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 
 /**
@@ -188,7 +189,7 @@ public class GetRecords implements ContextOperation
         }
         else
         {
-            modifier.setDnsType( getType( attrs.get( "objectclass" ) ) );
+            modifier.setDnsType( getType( attrs.get( SchemaConstants.OBJECT_CLASS_AT ) ) );
         }
 
         // class defaults to SOA CLASS

@@ -128,7 +128,7 @@ public class SubentryService extends BaseInterceptor
         this.oidRegistry = factoryCfg.getRegistries().getOidRegistry();
         
         // setup various attribute type values
-        objectClassType = attrRegistry.lookup( oidRegistry.getOid( "objectClass" ) );
+        objectClassType = attrRegistry.lookup( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
         
         ssParser = new SubtreeSpecificationParser( new NormalizerMappingResolver()
         {
@@ -141,10 +141,10 @@ public class SubentryService extends BaseInterceptor
 
         // prepare to find all subentries in all namingContexts
         Iterator suffixes = this.nexus.listSuffixes();
-        ExprNode filter = new SimpleNode( "objectclass", SchemaConstants.SUBENTRY_OC, AssertionEnum.EQUALITY );
+        ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC, AssertionEnum.EQUALITY );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[] { "subtreeSpecification", "objectClass" } );
+        controls.setReturningAttributes( new String[] { "subtreeSpecification", SchemaConstants.OBJECT_CLASS_AT } );
 
         // search each namingContext for subentries
         while ( suffixes.hasNext() )
@@ -184,7 +184,7 @@ public class SubentryService extends BaseInterceptor
     {
         int types = 0;
         
-        Attribute oc = subentry.get( "objectClass" );
+        Attribute oc = subentry.get( SchemaConstants.OBJECT_CLASS_AT );
         if ( oc == null )
         {
             throw new LdapSchemaViolationException( "A subentry must have an objectClass attribute", 
@@ -370,7 +370,7 @@ public class SubentryService extends BaseInterceptor
 
     public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
     {
-        Attribute objectClasses = entry.get( "objectClass" );
+        Attribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
         {
@@ -545,7 +545,7 @@ public class SubentryService extends BaseInterceptor
             LdapDN baseDn = ( LdapDN ) apName.clone();
             baseDn.addAll( ss.getBase() );
 
-            ExprNode filter = new PresenceNode( oidRegistry.getOid( "objectclass" ) );
+            ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -700,7 +700,7 @@ public class SubentryService extends BaseInterceptor
             next.modifyRn( name, newRn, deleteOldRn );
 
             subentry = subentryCache.getSubentry( newNormName );
-            ExprNode filter = new PresenceNode( oidRegistry.getOid( "objectclass" ) );
+            ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[] { "+", "*" } );
@@ -772,7 +772,7 @@ public class SubentryService extends BaseInterceptor
 
             subentry = subentryCache.getSubentry( newNormName );
 
-            ExprNode filter = new PresenceNode( oidRegistry.getOid( "objectclass" ) );
+            ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[] { "+", "*" } );
@@ -819,7 +819,7 @@ public class SubentryService extends BaseInterceptor
     public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
     {
         Attributes entry = nexus.lookup( oriChildName );
-        Attribute objectClasses = entry.get( "objectClass" );
+        Attribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
         {
@@ -839,7 +839,7 @@ public class SubentryService extends BaseInterceptor
 
             subentry = subentryCache.getSubentry( newNormName );
 
-            ExprNode filter = new PresenceNode( "objectclass" );
+            ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -890,7 +890,7 @@ public class SubentryService extends BaseInterceptor
     
     private int getSubentryTypes( Attributes subentry, int modOp, Attributes mods ) throws NamingException
     {
-        if ( mods.get( "objectClass" ) == null )
+        if ( mods.get( SchemaConstants.OBJECT_CLASS_AT ) == null )
         {
             return getSubentryTypes( subentry );
         }
@@ -902,8 +902,8 @@ public class SubentryService extends BaseInterceptor
             return getSubentryTypes( mods );
         }
         
-        Attribute ocChanges = mods.get( "objectClass" );
-        Attribute ocFinalState = ( Attribute ) subentry.get( "objectClass" ).clone();
+        Attribute ocChanges = mods.get( SchemaConstants.OBJECT_CLASS_AT );
+        Attribute ocFinalState = ( Attribute ) subentry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
         if ( modOp == DirContext.ADD_ATTRIBUTE )
         {
             for ( int ii = 0; ii < ocChanges.size(); ii++ )
@@ -927,10 +927,10 @@ public class SubentryService extends BaseInterceptor
 
     private int getSubentryTypes( Attributes entry, ModificationItemImpl[] mods ) throws NamingException
     {
-        Attribute ocFinalState = ( Attribute ) entry.get( "objectClass" ).clone();
+        Attribute ocFinalState = ( Attribute ) entry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            if ( mods[ii].getAttribute().getID().equalsIgnoreCase( "objectClass" ) )
+            if ( mods[ii].getAttribute().getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
             {
                 switch ( mods[ii].getModificationOp() )
                 {
@@ -989,7 +989,7 @@ public class SubentryService extends BaseInterceptor
             apName.remove( apName.size() - 1 );
             LdapDN oldBaseDn = ( LdapDN ) apName.clone();
             oldBaseDn.addAll( ssOld.getBase() );
-            ExprNode filter = new PresenceNode( oidRegistry.getOid( "objectClass" ) );
+            ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -1086,7 +1086,7 @@ public class SubentryService extends BaseInterceptor
             apName.remove( apName.size() - 1 );
             LdapDN oldBaseDn = ( LdapDN ) apName.clone();
             oldBaseDn.addAll( ssOld.getBase() );
-            ExprNode filter = new PresenceNode( oidRegistry.getOid( "objectClass" ) );
+            ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -1388,7 +1388,7 @@ public class SubentryService extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            Attribute objectClasses = result.getAttributes().get( "objectClass" );
+            Attribute objectClasses = result.getAttributes().get( SchemaConstants.OBJECT_CLASS_AT );
             if ( objectClasses != null )
             {
                 if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
@@ -1449,7 +1449,7 @@ public class SubentryService extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            Attribute objectClasses = result.getAttributes().get( "objectClass" );
+            Attribute objectClasses = result.getAttributes().get( SchemaConstants.OBJECT_CLASS_AT );
             if ( objectClasses != null )
             {
                 if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )

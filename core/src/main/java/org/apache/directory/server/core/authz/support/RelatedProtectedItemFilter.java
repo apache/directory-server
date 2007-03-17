@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -183,7 +184,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             else if ( item instanceof ProtectedItem.Classes )
             {
                 ProtectedItem.Classes c = ( ProtectedItem.Classes ) item;
-                if ( refinementEvaluator.evaluate( c.getClasses(), entry.get( "objectClass" ) ) )
+                if ( refinementEvaluator.evaluate( c.getClasses(), entry.get( SchemaConstants.OBJECT_CLASS_AT ) ) )
                 {
                     return true;
                 }

@@ -43,6 +43,7 @@ import org.apache.directory.server.core.configuration.MutableStartupConfiguratio
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -191,7 +192,7 @@ public class ServerSystemPreferences extends AbstractPreferences
     private void setUpNode( String name ) throws NamingException
     {
         Attributes attrs = new AttributesImpl();
-        Attribute attr = new AttributeImpl( "objectClass" );
+        Attribute attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         attr.add( "top" );
         attr.add( "prefNode" );
         attr.add( "extensibleObject" );
@@ -316,7 +317,7 @@ public class ServerSystemPreferences extends AbstractPreferences
             while ( ids.hasMore() )
             {
                 String id = ( String ) ids.next();
-                if ( id.equals( "objectClass" ) || id.equals( "prefNodeName" ) )
+                if ( id.equals( SchemaConstants.OBJECT_CLASS_AT ) || id.equals( "prefNodeName" ) )
                 {
                     continue;
                 }

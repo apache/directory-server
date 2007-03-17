@@ -51,6 +51,7 @@ import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -301,8 +302,8 @@ public abstract class ServerContext implements EventContext
         LdapDN target = buildTarget( name );
         injectRdnAttributeValues( target, attributes );
         
-        attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.JCONTAINER_ATTR );
-        attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.TOP_ATTR );
+        attributes.put( SchemaConstants.OBJECT_CLASS_AT, JavaLdapSupport.JCONTAINER_ATTR );
+        attributes.put( SchemaConstants.OBJECT_CLASS_AT, JavaLdapSupport.TOP_ATTR );
 
         /*
          * Add the new context to the server which as a side effect adds 
@@ -710,7 +711,7 @@ public abstract class ServerContext implements EventContext
     {
         // Conduct a special one level search at base for all objects
         LdapDN base = buildTarget( name );
-        PresenceNode filter = new PresenceNode( "objectClass" );
+        PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         return nexusProxy.search( base, getEnvironment(), filter, ctls );
@@ -784,7 +785,7 @@ public abstract class ServerContext implements EventContext
 
     public void addNamingListener( Name name, int scope, NamingListener namingListener ) throws NamingException
     {
-        ExprNode filter = new PresenceNode( "objectClass" );
+        ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( scope );
         ( ( PartitionNexusProxy ) this.nexusProxy ).addNamingListener( this, buildTarget( name ), filter,

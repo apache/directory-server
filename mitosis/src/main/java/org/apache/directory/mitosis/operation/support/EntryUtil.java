@@ -26,6 +26,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -113,7 +114,7 @@ public class EntryUtil
         entry.put( rdnAttribute, rdnValue );
         
         //// Add objectClass attribute. 
-        Attribute objectClassAttr = new AttributeImpl( "objectClass" );
+        Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         objectClassAttr.add( "top" );
         objectClassAttr.add( "extensibleObject" );
         entry.put( objectClassAttr );

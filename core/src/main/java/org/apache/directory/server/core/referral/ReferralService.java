@@ -58,6 +58,7 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
@@ -90,7 +91,6 @@ public class ReferralService extends BaseInterceptor
     private static final String THROW = "throw";
     private static final String FOLLOW = "follow";
     private static final String REFERRAL_OC = "referral";
-    private static final String OBJCLASS_ATTR = "objectClass";
     private static final Collection<String> SEARCH_BYPASS;
     private static final String REF_ATTR = "ref";
 
@@ -145,7 +145,7 @@ public class ReferralService extends BaseInterceptor
 
     static boolean isReferral( Attributes entry ) throws NamingException
     {
-        Attribute oc = entry.get( OBJCLASS_ATTR );
+        Attribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         if ( oc == null )
         {
             log.warn( "could not find objectClass attribute in entry: " + entry );
@@ -612,8 +612,8 @@ public class ReferralService extends BaseInterceptor
         // -------------------------------------------------------------------
 
         boolean isTargetReferral = lut.isReferral( name );
-        boolean isOcChange = mods.get( OBJCLASS_ATTR ) != null;
-        boolean modsOcHasReferral = hasValue( mods.get( OBJCLASS_ATTR ), REFERRAL_OC );
+        boolean isOcChange = mods.get( SchemaConstants.OBJECT_CLASS_AT ) != null;
+        boolean modsOcHasReferral = hasValue( mods.get( SchemaConstants.OBJECT_CLASS_AT ), REFERRAL_OC );
         if ( isOcChange )
         {
             switch ( modOp )
@@ -713,7 +713,7 @@ public class ReferralService extends BaseInterceptor
 
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            if ( mods[ii].getAttribute().getID().equalsIgnoreCase( OBJCLASS_ATTR ) )
+            if ( mods[ii].getAttribute().getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
             {
                 boolean modsOcHasReferral = hasValue( mods[ii].getAttribute(), REFERRAL_OC );
 
@@ -809,7 +809,7 @@ public class ReferralService extends BaseInterceptor
 
     static ExprNode getReferralFilter()
     {
-        return new SimpleNode( OBJCLASS_ATTR, REFERRAL_OC, AssertionEnum.EQUALITY );
+        return new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, REFERRAL_OC, AssertionEnum.EQUALITY );
     }
 
 

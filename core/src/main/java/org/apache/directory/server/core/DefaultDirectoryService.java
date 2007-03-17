@@ -63,6 +63,7 @@ import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
@@ -455,7 +456,7 @@ class DefaultDirectoryService extends DirectoryService
             firstStart = true;
 
             Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( "objectClass" );
+            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( "top" );
             objectClass.add( "person" );
             objectClass.add( "organizationalPerson" );
@@ -488,7 +489,7 @@ class DefaultDirectoryService extends DirectoryService
             firstStart = true;
 
             Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( "objectClass" );
+            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -512,7 +513,7 @@ class DefaultDirectoryService extends DirectoryService
             firstStart = true;
 
             Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( "objectClass" );
+            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -537,7 +538,7 @@ class DefaultDirectoryService extends DirectoryService
             firstStart = true;
 
             Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( "objectClass" );
+            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( "top" );
             objectClass.add( "groupOfUniqueNames" );
             attributes.put( objectClass );
@@ -581,7 +582,7 @@ class DefaultDirectoryService extends DirectoryService
             firstStart = true;
 
             Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( "objectClass" );
+            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -605,7 +606,7 @@ class DefaultDirectoryService extends DirectoryService
             firstStart = true;
 
             Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( "objectClass" );
+            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -629,7 +630,7 @@ class DefaultDirectoryService extends DirectoryService
             firstStart = true;
 
             Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( "objectClass" );
+            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -653,7 +654,7 @@ class DefaultDirectoryService extends DirectoryService
             firstStart = true;
 
             Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( "objectClass" );
+            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
@@ -677,12 +678,12 @@ class DefaultDirectoryService extends DirectoryService
             firstStart = true;
 
             Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( "objectClass" );
+            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( "top" );
             objectClass.add( "organizationalUnit" );
             attributes.put( objectClass );
 
-            attributes.put( "objectClass", "extensibleObject" );
+            attributes.put( SchemaConstants.OBJECT_CLASS_AT, "extensibleObject" );
             attributes.put( "prefNodeName", "sysPrefRoot" );
             attributes.put( "creatorsName", PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
@@ -830,8 +831,8 @@ class DefaultDirectoryService extends DirectoryService
         schemaPartitionConfig.setSuffix( "ou=schema" );
         
         Attributes entry = new AttributesImpl();
-        entry.put( "objectClass", "top" );
-        entry.get( "objectClass" ).add( "organizationalUnit" );
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
         entry.put( "ou", "schema" );
         schemaPartitionConfig.setContextEntry( entry );
         JdbmPartition schemaPartition = new JdbmPartition();

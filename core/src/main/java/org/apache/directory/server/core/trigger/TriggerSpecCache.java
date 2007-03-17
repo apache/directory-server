@@ -40,6 +40,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
@@ -65,8 +66,6 @@ public class TriggerSpecCache
 {
     /** the attribute id for prescriptive trigger: prescriptiveTrigger */
     private static final String PRESCRIPTIVE_TRIGGER_ATTR = "prescriptiveTriggerSpecification";
-    /** the attribute id for an object class: objectClass */
-    private static final String OC_ATTR = "objectClass";
     /** the object class for trigger subentries: triggerExecutionSubentry */
     private static final String TRIGGER_SUBENTRY_OC = "triggerExecutionSubentry";
 
@@ -116,7 +115,7 @@ public class TriggerSpecCache
         {
             String suffix = ( String ) suffixes.next();
             LdapDN baseDn = new LdapDN( suffix );
-            ExprNode filter = new SimpleNode( OC_ATTR, TRIGGER_SUBENTRY_OC, AssertionEnum.EQUALITY );
+            ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, TRIGGER_SUBENTRY_OC, AssertionEnum.EQUALITY );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration results = nexus.search( baseDn, env, filter, ctls );

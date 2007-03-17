@@ -50,6 +50,7 @@ import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -358,7 +359,7 @@ public class JdbmStore
         oidRegistry = config.getOidRegistry();
         attributeTypeRegistry = config.getAttributeTypeRegistry();
 
-        OBJECT_CLASS_AT = attributeTypeRegistry.lookup( "objectClass" );
+        OBJECT_CLASS_AT = attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
         ALIAS_AT = attributeTypeRegistry.lookup( ALIAS_ATTRIBUTE );
         
         this.upSuffix = new LdapDN( config.getSuffixDn() );

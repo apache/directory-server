@@ -38,6 +38,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
@@ -133,7 +134,7 @@ public class ExceptionService extends BaseInterceptor
             throw e2;
         }
         
-        Attribute objectClass = attrs.get( "objectClass" );
+        Attribute objectClass = attrs.get( SchemaConstants.OBJECT_CLASS_AT );
         if ( objectClass.contains( "alias" ) )
         {
             String msg = "Attempt to add entry to alias '" + normName.getUpName() + "' not allowed.";

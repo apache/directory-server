@@ -45,6 +45,7 @@ import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -189,7 +190,7 @@ public class SchemaManager
         this.loader = loader;
         this.globalRegistries = globalRegistries;
         this.objectClassAT = this.globalRegistries.getAttributeTypeRegistry()
-            .lookup( SystemSchemaConstants.SYSTEM_OBJECT_CLASS_AT );
+            .lookup( SchemaConstants.OBJECT_CLASS_AT );
         
         this.metaSchemaHandler = new MetaSchemaHandler( this.globalRegistries, this.loader );
         

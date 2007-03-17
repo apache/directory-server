@@ -22,6 +22,7 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
@@ -75,7 +76,7 @@ public class SchemaChecker
             return;
         }
 
-        if ( !"objectclass".equalsIgnoreCase( attribute.getID() ) )
+        if ( !SchemaConstants.OBJECT_CLASS_AT.equalsIgnoreCase( attribute.getID() ) )
         {
             return;
         }
@@ -134,7 +135,7 @@ public class SchemaChecker
             return;
         }
 
-        Attribute objectClass = attributes.get( "objectClass" );
+        Attribute objectClass = attributes.get( SchemaConstants.OBJECT_CLASS_AT );
         if ( objectClass == null )
         {
             return;
@@ -195,7 +196,7 @@ public class SchemaChecker
             return;
         }
 
-        if ( !"objectclass".equalsIgnoreCase( attribute.getID() ) )
+        if ( !SchemaConstants.OBJECT_CLASS_AT.equalsIgnoreCase( attribute.getID() ) )
         {
             return;
         }
@@ -276,7 +277,7 @@ public class SchemaChecker
             return;
         }
 
-        Attribute objectClass = attributes.get( "objectClass" );
+        Attribute objectClass = attributes.get( SchemaConstants.OBJECT_CLASS_AT );
         if ( objectClass == null )
         {
             return;

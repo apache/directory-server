@@ -52,6 +52,7 @@ import org.apache.directory.server.ntp.NtpConfiguration;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -220,8 +221,8 @@ public class ServerContextFactory extends CoreContextFactory
     private void ensureLdifFileBase( DirContext root )
     {
         Attributes entry = new AttributesImpl( "ou", "loadedLdifFiles", true );
-        entry.put( "objectClass", "top" );
-        entry.get( "objectClass" ).add( "organizationalUnit" );
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
         try
         {
             root.createSubcontext( LDIF_FILES_DN, entry );
@@ -251,8 +252,8 @@ public class ServerContextFactory extends CoreContextFactory
         buf.append( LDIF_FILES_DN );
 
         Attributes entry = new AttributesImpl( rdnAttr, getCanonical( ldif ), true );
-        entry.put( "objectClass", "top" );
-        entry.get( "objectClass" ).add( oc );
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( oc );
         root.createSubcontext( buf.toString(), entry );
     }
 

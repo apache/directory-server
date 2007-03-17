@@ -45,6 +45,7 @@ import javax.naming.spi.DirectoryManager;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -504,7 +505,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         // If matchingAttributes is null/empty use a match for everything filter
         if ( null == matchingAttributes || matchingAttributes.size() <= 0 )
         {
-            PresenceNode filter = new PresenceNode( "objectClass" );
+            PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
             return getNexusProxy().search( target, getEnvironment(), filter, ctls );
         }
 

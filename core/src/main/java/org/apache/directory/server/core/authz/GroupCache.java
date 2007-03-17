@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
@@ -58,8 +59,6 @@ import javax.naming.directory.SearchResult;
  */
 public class GroupCache
 {
-    /** the attribute id for an object class: objectClass */
-    private static final String OC_ATTR = "objectClass";
     /** the member attribute for a groupOfNames: member */
     private static final String MEMBER_ATTR = "member";
     /** the member attribute for a groupOfUniqueNames: uniqueMember */
@@ -122,8 +121,8 @@ public class GroupCache
         // normalized sets of members to cache within the map
 
         BranchNode filter = new BranchNode( AssertionEnum.OR );
-        filter.addNode( new SimpleNode( OC_ATTR, GROUPOFNAMES_OC, AssertionEnum.EQUALITY ) );
-        filter.addNode( new SimpleNode( OC_ATTR, GROUPOFUNIQUENAMES_OC, AssertionEnum.EQUALITY ) );
+        filter.addNode( new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, GROUPOFNAMES_OC, AssertionEnum.EQUALITY ) );
+        filter.addNode( new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, GROUPOFUNIQUENAMES_OC, AssertionEnum.EQUALITY ) );
 
         Iterator suffixes = nexus.listSuffixes();
         while ( suffixes.hasNext() )
@@ -171,7 +170,7 @@ public class GroupCache
      */
     private Attribute getMemberAttribute( Attributes entry )
     {
-        Attribute oc = entry.get( OC_ATTR );
+        Attribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( oc == null )
         {
@@ -358,7 +357,7 @@ public class GroupCache
     {
         Attribute members = null;
         String memberAttrId = null;
-        Attribute oc = entry.get( OC_ATTR );
+        Attribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( AttributeUtils.containsValueCaseIgnore( oc, GROUPOFNAMES_OC ) )
         {

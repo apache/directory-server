@@ -50,6 +50,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -155,7 +156,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         attr.add( SubentriesControl.CONTROL_OID );
         attr.add( ManageDsaITControl.CONTROL_OID );
 
-        attr = new AttributeImpl( "objectClass" );
+        attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         rootDSE.put( attr );
         attr.add( "top" );
         attr.add( "extensibleObject" );
@@ -253,10 +254,10 @@ public class DefaultPartitionNexus extends PartitionNexus
             // ---------------------------------------------------------------
             
             Attributes systemEntry = systemCfg.getContextEntry();
-            Attribute objectClassAttr = systemEntry.get( "objectClass" );
+            Attribute objectClassAttr = systemEntry.get( SchemaConstants.OBJECT_CLASS_AT );
             if ( objectClassAttr == null )
             {
-                objectClassAttr = new AttributeImpl(  "objectClass" );
+                objectClassAttr = new AttributeImpl(  SchemaConstants.OBJECT_CLASS_AT );
                 systemEntry.put( objectClassAttr );
             }
             objectClassAttr.add( "top" );
@@ -322,12 +323,12 @@ public class DefaultPartitionNexus extends PartitionNexus
                 indices.add( Oid.UPDN );
             }
             
-            if ( ! indexOids.contains( registry.getOid( "objectClass" ) ) )
+            if ( ! indexOids.contains( registry.getOid( SchemaConstants.OBJECT_CLASS_AT ) ) )
             {
                 log.warn( "CAUTION: You have not included objectClass as an indexed attribute" +
                         "in the system partition configuration.  This will lead to poor " +
                         "performance.  The server is automatically adding this index for you." );
-                indices.add( "objectClass" );
+                indices.add( SchemaConstants.OBJECT_CLASS_AT );
             }
         }
         else
@@ -349,12 +350,12 @@ public class DefaultPartitionNexus extends PartitionNexus
             indexedSystemAttrs.add( Oid.ONEALIAS );
             indexedSystemAttrs.add( Oid.SUBALIAS );
             indexedSystemAttrs.add( Oid.UPDN );
-            indexedSystemAttrs.add( "objectClass" );
+            indexedSystemAttrs.add( SchemaConstants.OBJECT_CLASS_AT );
             systemCfg.setIndexedAttributes( indexedSystemAttrs );
     
             // Add context entry for system partition
             Attributes systemEntry = new AttributesImpl();
-            Attribute objectClassAttr = new AttributeImpl( "objectClass" );
+            Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClassAttr.add( "top" );
             objectClassAttr.add( "organizationalUnit" );
             objectClassAttr.add( "extensibleObject" );

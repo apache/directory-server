@@ -722,9 +722,9 @@ public class SchemaService extends BaseInterceptor
         }
 
         // add the objectClass attribute
-        if ( set.contains( "*" ) || set.contains( "objectclass" ) || set.size() == minSetSize )
+        if ( set.contains( "*" ) || set.contains( SchemaConstants.OBJECT_CLASS_AT ) || set.size() == minSetSize )
         {
-            attr = new AttributeImpl( "objectClass" );
+            attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             attr.add( "top" );
             attr.add( "subschema" );
             attr.add( SchemaConstants.SUBENTRY_OC );
@@ -923,7 +923,7 @@ public class SchemaService extends BaseInterceptor
     {
         if ( ( changes == null ) && ( existing == null ) )
         {
-            return new AttributeImpl( "objectClass" );
+            return new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         }
 
         if ( changes == null )
@@ -1028,7 +1028,7 @@ public class SchemaService extends BaseInterceptor
         Set<String> allowed = new HashSet<String>( must );
 
         // Add the 'ObjectClass' attribute ID
-        allowed.add( registries.getOidRegistry().getOid( "ObjectClass" ) );
+        allowed.add( registries.getOidRegistry().getOid( SchemaConstants.OBJECT_CLASS_AT ) );
 
         // Loop on all objectclasses
         while ( objectClasses.hasMoreElements() )
@@ -1157,7 +1157,7 @@ public class SchemaService extends BaseInterceptor
             throw new LdapNameNotFoundException( "The entry which name is " + name + " is not found." );
         }
         
-        Attribute objectClass = getResultantObjectClasses( modOp, mods.get( "objectClass" ), entry.get( "objectClass" ) );
+        Attribute objectClass = getResultantObjectClasses( modOp, mods.get( SchemaConstants.OBJECT_CLASS_AT ), entry.get( SchemaConstants.OBJECT_CLASS_AT ) );
         ObjectClassRegistry ocRegistry = this.registries.getObjectClassRegistry();
         AttributeTypeRegistry atRegistry = this.registries.getAttributeTypeRegistry();
 
@@ -1221,14 +1221,14 @@ public class SchemaService extends BaseInterceptor
 
         // let's figure out if we need to add or take away from mods to maintain 
         // the objectClass attribute with it's hierarchy of ancestors 
-        if ( mods.get( "objectClass" ) != null )
+        if ( mods.get( SchemaConstants.OBJECT_CLASS_AT ) != null )
         {
             Attribute alteredObjectClass = ( Attribute ) objectClass.clone();
             alterObjectClasses( alteredObjectClass );
 
             if ( !alteredObjectClass.equals( objectClass ) )
             {
-                Attribute ocMods = mods.get( "objectClass" );
+                Attribute ocMods = mods.get( SchemaConstants.OBJECT_CLASS_AT );
                 
                 switch ( modOp )
                 {
@@ -1369,7 +1369,7 @@ public class SchemaService extends BaseInterceptor
         // @TODO : check if we can remove this test.
         for ( ModificationItemImpl mod:mods )
         {
-            if ( mod.getAttribute().getID().equalsIgnoreCase( "objectclass" ) )
+            if ( mod.getAttribute().getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
             {
                 objectClassMod = mod;
             }
@@ -1406,12 +1406,12 @@ public class SchemaService extends BaseInterceptor
 
         if ( objectClassMod == null )
         {
-            objectClass = entry.get( "objectClass" );
+            objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         }
         else
         {
             objectClass = getResultantObjectClasses( objectClassMod.getModificationOp(), objectClassMod.getAttribute(),
-                entry.get( "objectClass" ) );
+                entry.get( SchemaConstants.OBJECT_CLASS_AT ) );
         }
 
         ObjectClassRegistry ocRegistry = this.registries.getObjectClassRegistry();
@@ -1642,15 +1642,15 @@ public class SchemaService extends BaseInterceptor
     private void filterObjectClass( Attributes entry ) throws NamingException
     {
         List<ObjectClass> objectClasses = new ArrayList<ObjectClass>();
-        Attribute oc = entry.get( "objectClass" );
+        Attribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         
         if ( oc != null )
         {
             getObjectClasses( oc, objectClasses );
 
-            entry.remove( "objectClass" );
+            entry.remove( SchemaConstants.OBJECT_CLASS_AT );
 
-            Attribute newOc = new AttributeImpl( "ObjectClass" );
+            Attribute newOc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
 
             for ( Object currentOC:objectClasses )
             {
@@ -1781,7 +1781,7 @@ public class SchemaService extends BaseInterceptor
         // 3-1) Except if the extensibleObject ObjectClass is used
         // 3-2) or if the AttributeType is COLLECTIVE
         // 4) We also check that for H-R attributes, we have a valid String in the values
-        Attribute objectClassAttr = entry.get( "objectClass" );
+        Attribute objectClassAttr = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         List<ObjectClass> ocs = new ArrayList<ObjectClass>();
 
         alterObjectClasses( objectClassAttr );
@@ -1832,7 +1832,7 @@ public class SchemaService extends BaseInterceptor
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
-        Attribute objectClass = attributes.get( "objectClass" );
+        Attribute objectClass = attributes.get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( AttributeUtils.containsValueCaseIgnore( objectClass, "extensibleObject" ) )
         {
