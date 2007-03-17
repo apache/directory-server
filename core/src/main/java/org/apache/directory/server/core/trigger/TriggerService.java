@@ -57,6 +57,7 @@ import org.apache.directory.shared.ldap.trigger.ActionTime;
 import org.apache.directory.shared.ldap.trigger.LdapOperation;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
+import org.apache.directory.shared.ldap.trigger.TriggerSpecification.SPSpec;
 import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -583,22 +584,27 @@ public class TriggerService extends BaseInterceptor
 
     private Object executeTrigger( TriggerSpecification tsec, StoredProcedureParameterInjector injector, ServerLdapContext callerRootCtx ) throws NamingException
     {
-        List arguments = new ArrayList();
-        arguments.addAll( injector.getArgumentsToInject( tsec.getStoredProcedureParameters() ) );
-        List typeList = new ArrayList();
-        typeList.addAll( getTypesFromValues( arguments ) );
+    	List returnValues = new ArrayList();
+    	List<SPSpec> spSpecs = tsec.getSPSpecs();
+        for (SPSpec spSpec : spSpecs) {
+        	List arguments = new ArrayList();
+        	arguments.addAll( injector.getArgumentsToInject( spSpec.getParameters() ) );
+        	List<Class> typeList = new ArrayList<Class>();
+            typeList.addAll( getTypesFromValues( arguments ) );
+            Class[] types = getTypesFromValues( arguments ).toArray( EMPTY_CLASS_ARRAY );
+            Object[] values = arguments.toArray();
+            Object returnValue = executeProcedure( callerRootCtx, spSpec.getName(), types, values );
+            returnValues.add(returnValue);
+		}
         
-        Class[] types = ( Class[] ) ( getTypesFromValues( arguments ).toArray( EMPTY_CLASS_ARRAY ) );
-        Object[] values = arguments.toArray();
-        
-        return executeProcedure( callerRootCtx, tsec.getStoredProcedureName(), types, values );
+        return returnValues; 
     }
     
     private static Class[] EMPTY_CLASS_ARRAY = new Class[ 0 ];
     
-    private List getTypesFromValues( List objects )
+    private List<Class> getTypesFromValues( List objects )
     {
-        List types = new ArrayList();
+        List<Class> types = new ArrayList<Class>();
         
         Iterator it = objects.iterator();
         

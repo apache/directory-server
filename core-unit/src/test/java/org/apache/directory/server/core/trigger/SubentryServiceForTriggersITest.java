@@ -71,7 +71,7 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         objectClass.add( "triggerExecutionSubentry" );
         subentry.put( objectClass );
         subentry.put( "subtreeSpecification", "{ base \"ou=configuration\" }" );
-        subentry.put( "prescriptiveTriggerSpecification", "AFTER Delete CALL \"LogUtils.logDelete\"($name)" );
+        subentry.put( "prescriptiveTriggerSpecification", "AFTER Delete CALL \"LogUtils.logDelete\"($name);" );
         subentry.put( "cn", "testsubentry" );
         return subentry;
     }
@@ -86,7 +86,7 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         subentry.put( objectClass );
         String spec = "{ base \"ou=configuration\", specificExclusions { chopBefore:\"cn=unmarked\" } }";
         subentry.put( "subtreeSpecification", spec );
-        subentry.put( "prescriptiveTriggerSpecification", "AFTER Delete CALL \"LogUtils.logDelete\"($name)" );
+        subentry.put( "prescriptiveTriggerSpecification", "AFTER Delete CALL \"LogUtils.logDelete\"($name);" );
         subentry.put( "cn", "testsubentry" );
         return subentry;
     }
