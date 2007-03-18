@@ -774,9 +774,9 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || set.contains( "modifiersname" ) )
+        if ( returnAllOperationalAttributes || set.contains( SchemaConstants.MODIFIERS_NAME_AT ) )
         {
-            attr = new AttributeImpl( "modifiersName" );
+            attr = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
             AttributeType schemaModifiersNameAT = registries.
                 getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
             Attribute schemaModifiersName = 

@@ -35,7 +35,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -175,7 +174,7 @@ public class OperationalAttributeService extends BaseInterceptor
         
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
@@ -198,7 +197,7 @@ public class OperationalAttributeService extends BaseInterceptor
         
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
@@ -217,7 +216,7 @@ public class OperationalAttributeService extends BaseInterceptor
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
@@ -239,7 +238,7 @@ public class OperationalAttributeService extends BaseInterceptor
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
@@ -258,7 +257,7 @@ public class OperationalAttributeService extends BaseInterceptor
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
@@ -408,7 +407,7 @@ public class OperationalAttributeService extends BaseInterceptor
             }
             
             type = null;
-            type = registry.lookup( SystemSchemaConstants.MODIFIERS_NAME_AT );
+            type = registry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
             attr = null;
             attr = AttributeUtils.getAttribute( entry, type );
             

@@ -656,7 +656,7 @@ public class BootstrapPlugin extends AbstractMojo
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.TOP_OC );
         
         entry.put( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, ADMIN_NORM_NAME );
-        entry.put( SystemSchemaConstants.MODIFIERS_NAME_AT, ADMIN_NORM_NAME );
+        entry.put( SchemaConstants.MODIFIERS_NAME_AT, ADMIN_NORM_NAME );
         entry.put( SchemaConstants.CREATORS_NAME_AT, ADMIN_NORM_NAME );
         
         entry.put( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );

@@ -566,7 +566,7 @@ public class SchemaPartitionDao
         mods[0] = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, 
             new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT ) );
         mods[1] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
-            new AttributeImpl( SystemSchemaConstants.MODIFIERS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL ) );
+            new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL ) );
         mods[2] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
             new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) );
         
