@@ -40,9 +40,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
@@ -205,7 +203,7 @@ public class BootstrapPlugin extends AbstractMojo
 
         try
         {
-            LdapDN dn = new LdapDN( CoreSchemaConstants.OU_AT + "=schema" );
+            LdapDN dn = new LdapDN( SchemaConstants.OU_AT + "=schema" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
 
             if ( !hasEntry( dn ) )
@@ -213,7 +211,7 @@ public class BootstrapPlugin extends AbstractMojo
                 Attributes entry = new AttributesImpl();
                 entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
                 entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-                entry.put( CoreSchemaConstants.OU_AT, "schema" );
+                entry.put( SchemaConstants.OU_AT, "schema" );
                 store.add( dn, entry );
             }
 
@@ -333,8 +331,8 @@ public class BootstrapPlugin extends AbstractMojo
 
     private void createSchemaAndContainers( Schema schema ) throws NamingException
     {
-        LdapDN dn = new LdapDN( SystemSchemaConstants.CN_AT + "=" 
-            + schema.getSchemaName() + "," + CoreSchemaConstants.OU_AT + "=schema" );
+        LdapDN dn = new LdapDN( SchemaConstants.CN_AT + "=" 
+            + schema.getSchemaName() + "," + SchemaConstants.OU_AT + "=schema" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
 
         if ( hasEntry( dn ) )
@@ -345,57 +343,57 @@ public class BootstrapPlugin extends AbstractMojo
         Attributes entry = attributesFactory.getAttributes( schema );
         store.add( dn, entry );
         
-        dn.add( CoreSchemaConstants.OU_AT + "=comparators" );
+        dn.add( SchemaConstants.OU_AT + "=comparators" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         checkCreateContainer( dn );
         
         dn.remove( dn.size() - 1 );
-        dn.add( CoreSchemaConstants.OU_AT + "=normalizers" );
+        dn.add( SchemaConstants.OU_AT + "=normalizers" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         checkCreateContainer( dn );
         
         dn.remove( dn.size() - 1 );
-        dn.add( CoreSchemaConstants.OU_AT + "=syntaxCheckers" );
+        dn.add( SchemaConstants.OU_AT + "=syntaxCheckers" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         checkCreateContainer( dn );
         
         dn.remove( dn.size() - 1 );
-        dn.add( CoreSchemaConstants.OU_AT + "=syntaxes" );
+        dn.add( SchemaConstants.OU_AT + "=syntaxes" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         checkCreateContainer( dn );
         
         dn.remove( dn.size() - 1 );
-        dn.add( CoreSchemaConstants.OU_AT + "=matchingRules" );
+        dn.add( SchemaConstants.OU_AT + "=matchingRules" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         checkCreateContainer( dn );
         
         dn.remove( dn.size() - 1 );
-        dn.add( CoreSchemaConstants.OU_AT + "=attributeTypes" );
+        dn.add( SchemaConstants.OU_AT + "=attributeTypes" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         checkCreateContainer( dn );
         
         dn.remove( dn.size() - 1 );
-        dn.add( CoreSchemaConstants.OU_AT + "=objectClasses" );
+        dn.add( SchemaConstants.OU_AT + "=objectClasses" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         checkCreateContainer( dn );
         
         dn.remove( dn.size() - 1 );
-        dn.add( CoreSchemaConstants.OU_AT + "=nameForms" );
+        dn.add( SchemaConstants.OU_AT + "=nameForms" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         checkCreateContainer( dn );
         
         dn.remove( dn.size() - 1 );
-        dn.add( CoreSchemaConstants.OU_AT + "=ditStructureRules" );
+        dn.add( SchemaConstants.OU_AT + "=ditStructureRules" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         checkCreateContainer( dn );
         
         dn.remove( dn.size() - 1 );
-        dn.add( CoreSchemaConstants.OU_AT + "=ditContentRules" );
+        dn.add( SchemaConstants.OU_AT + "=ditContentRules" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         checkCreateContainer( dn );
         
         dn.remove( dn.size() - 1 );
-        dn.add( CoreSchemaConstants.OU_AT + "=matchingRuleUse" );
+        dn.add( SchemaConstants.OU_AT + "=matchingRuleUse" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         checkCreateContainer( dn );
     }
@@ -417,7 +415,7 @@ public class BootstrapPlugin extends AbstractMojo
             Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( at ) );
             LdapDN dn = checkCreateSchema( schemaName );
-            dn.add( CoreSchemaConstants.OU_AT + "=attributeTypes" );
+            dn.add( SchemaConstants.OU_AT + "=attributeTypes" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
             Attributes entry = attributesFactory.getAttributes( at, schema );
@@ -445,7 +443,7 @@ public class BootstrapPlugin extends AbstractMojo
             Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( oc ) );
             LdapDN dn = checkCreateSchema( schemaName );
-            dn.add( CoreSchemaConstants.OU_AT + "=objectClasses" );
+            dn.add( SchemaConstants.OU_AT + "=objectClasses" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
             Attributes entry = attributesFactory.getAttributes( oc, schema );
@@ -473,7 +471,7 @@ public class BootstrapPlugin extends AbstractMojo
             Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( mr ) );
             LdapDN dn = checkCreateSchema( schemaName );
-            dn.add( CoreSchemaConstants.OU_AT + "=matchingRules" );
+            dn.add( SchemaConstants.OU_AT + "=matchingRules" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
             Attributes entry = attributesFactory.getAttributes( mr, schema );
@@ -501,7 +499,7 @@ public class BootstrapPlugin extends AbstractMojo
             Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + oid );
             LdapDN dn = checkCreateSchema( schemaName );
-            dn.add( CoreSchemaConstants.OU_AT + "=comparators" );
+            dn.add( SchemaConstants.OU_AT + "=comparators" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
             Attributes entry = attributesFactory.getAttributes( oid, comparatorRegistry.lookup( oid ), schema );
@@ -529,7 +527,7 @@ public class BootstrapPlugin extends AbstractMojo
             Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + oid );
             LdapDN dn = checkCreateSchema( schemaName );
-            dn.add( CoreSchemaConstants.OU_AT + "=normalizers" );
+            dn.add( SchemaConstants.OU_AT + "=normalizers" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
             Attributes entry = attributesFactory.getAttributes( oid, normalizerRegistry.lookup( oid ), schema );
@@ -556,7 +554,7 @@ public class BootstrapPlugin extends AbstractMojo
             getLog().info( "\t\t o [" + syntax.getSchema() + "] - " + getNameOrNumericoid( syntax ) );
             LdapDN dn = checkCreateSchema( syntax.getSchema() );
             Schema schema = ( Schema ) registries.getLoadedSchemas().get( syntax.getSchema() );
-            dn.add( CoreSchemaConstants.OU_AT + "=syntaxes" );
+            dn.add( SchemaConstants.OU_AT + "=syntaxes" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
             Attributes entry = attributesFactory.getAttributes( syntax, schema );
@@ -584,7 +582,7 @@ public class BootstrapPlugin extends AbstractMojo
             Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + syntaxChecker.getSyntaxOid() );
             LdapDN dn = checkCreateSchema( schemaName );
-            dn.add( CoreSchemaConstants.OU_AT + "=syntaxCheckers" );
+            dn.add( SchemaConstants.OU_AT + "=syntaxCheckers" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
             Attributes entry = attributesFactory.getAttributes( syntaxChecker, schema );
@@ -610,7 +608,7 @@ public class BootstrapPlugin extends AbstractMojo
         storeConfig.setEnableOptimizer( false );
         storeConfig.setName( "schema" );
         storeConfig.setOidRegistry( registries.getOidRegistry() );
-        storeConfig.setSuffixDn( CoreSchemaConstants.OU_AT + "=schema" );
+        storeConfig.setSuffixDn( SchemaConstants.OU_AT + "=schema" );
         storeConfig.setSyncOnWrite( false );
         storeConfig.setWorkingDirectory( workingDirectory );
 
@@ -624,7 +622,7 @@ public class BootstrapPlugin extends AbstractMojo
 
         Attributes rootEntry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, 
             SchemaConstants.ORGANIZATIONAL_UNIT_OC, true );
-        rootEntry.put( CoreSchemaConstants.OU_AT, "schema" );
+        rootEntry.put( SchemaConstants.OU_AT, "schema" );
         storeConfig.setContextEntry( rootEntry );
 
         try
@@ -663,7 +661,7 @@ public class BootstrapPlugin extends AbstractMojo
         entry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         
-        entry.put( SystemSchemaConstants.CN_AT, "schemaModifications" );
+        entry.put( SchemaConstants.CN_AT, "schemaModifications" );
         entry.put( ApacheSchemaConstants.SUBSCHEMA_SUBENTRY_NAME_AT, "cn=schema" );
         
         LdapDN normName = new LdapDN( "cn=schemaModifications,ou=schema" );
@@ -776,7 +774,7 @@ public class BootstrapPlugin extends AbstractMojo
         Attributes entry = new AttributesImpl();
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-        entry.put( CoreSchemaConstants.OU_AT, dn.getRdn().getValue() );
+        entry.put( SchemaConstants.OU_AT, dn.getRdn().getValue() );
         store.add( dn, entry );
     }
 
@@ -784,8 +782,8 @@ public class BootstrapPlugin extends AbstractMojo
     private LdapDN checkCreateSchema( String schemaName ) throws NamingException
     {
         Schema schema = ( Schema ) schemas.get( schemaName );
-        LdapDN dn = new LdapDN( SystemSchemaConstants.CN_AT + "="
-                + schemaName + "," + CoreSchemaConstants.OU_AT + "=schema" );
+        LdapDN dn = new LdapDN( SchemaConstants.CN_AT + "="
+                + schemaName + "," + SchemaConstants.OU_AT + "=schema" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
 
         if ( hasEntry( dn ) )
@@ -801,8 +799,8 @@ public class BootstrapPlugin extends AbstractMojo
 
     private void disableSchema( String schemaName ) throws NamingException
     {
-        LdapDN dn = new LdapDN( SystemSchemaConstants.CN_AT + "=" + schemaName
-                + "," + CoreSchemaConstants.OU_AT + "=schema" );
+        LdapDN dn = new LdapDN( SchemaConstants.CN_AT + "=" + schemaName
+                + "," + SchemaConstants.OU_AT + "=schema" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         ModificationItemImpl mod = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
                 new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT, "TRUE" ) );

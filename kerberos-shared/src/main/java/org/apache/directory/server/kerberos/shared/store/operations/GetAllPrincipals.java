@@ -38,6 +38,7 @@ import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 
 /**
@@ -103,7 +104,7 @@ public class GetAllPrincipals implements ContextOperation
         String encryptionType = ( String ) attrs.get( KerberosAttribute.TYPE ).get();
         String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.VERSION ).get();
 
-        String commonName = ( String ) attrs.get( "cn" ).get();
+        String commonName = ( String ) attrs.get( SchemaConstants.CN_AT ).get();
 
         if ( attrs.get( "apacheSamType" ) != null )
         {

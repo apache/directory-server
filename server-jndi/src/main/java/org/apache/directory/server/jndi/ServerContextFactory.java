@@ -220,7 +220,7 @@ public class ServerContextFactory extends CoreContextFactory
 
     private void ensureLdifFileBase( DirContext root )
     {
-        Attributes entry = new AttributesImpl( "ou", "loadedLdifFiles", true );
+        Attributes entry = new AttributesImpl( SchemaConstants.OU_AT, "loadedLdifFiles", true );
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         try

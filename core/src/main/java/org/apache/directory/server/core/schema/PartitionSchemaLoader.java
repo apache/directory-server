@@ -40,13 +40,13 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AbstractSchemaLoader;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SchemaLoader;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -96,7 +96,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         this.dao = new SchemaPartitionDao( this.partition, bootstrapRegistries );
         this.mOidAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
         this.mNameAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_NAME_AT );
-        this.cnAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( SystemSchemaConstants.CN_AT );
+        this.cnAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( SchemaConstants.CN_AT );
         this.byteCodeAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
         this.descAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DESCRIPTION_AT );
         this.fqcnAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_FQCN_AT );

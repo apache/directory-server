@@ -466,7 +466,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( "uid", PartitionNexus.ADMIN_UID );
             attributes.put( "userPassword", PartitionNexus.ADMIN_PASSWORD );
             attributes.put( "displayName", "Directory Superuser" );
-            attributes.put( "cn", "system administrator" );
+            attributes.put( SchemaConstants.CN_AT, "system administrator" );
             attributes.put( "sn", "administrator" );
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
@@ -494,7 +494,7 @@ class DefaultDirectoryService extends DirectoryService
             objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
-            attributes.put( "ou", "users" );
+            attributes.put( SchemaConstants.OU_AT, "users" );
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -518,7 +518,7 @@ class DefaultDirectoryService extends DirectoryService
             objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
-            attributes.put( "ou", "groups" );
+            attributes.put( SchemaConstants.OU_AT, "groups" );
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -542,7 +542,7 @@ class DefaultDirectoryService extends DirectoryService
             objectClass.add( SchemaConstants.TOP_OC );
             objectClass.add( "groupOfUniqueNames" );
             attributes.put( objectClass );
-            attributes.put( "cn", "Administrators" );
+            attributes.put( SchemaConstants.CN_AT, "Administrators" );
             attributes.put( "uniqueMember", PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
@@ -587,7 +587,7 @@ class DefaultDirectoryService extends DirectoryService
             objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
-            attributes.put( "ou", "configuration" );
+            attributes.put( SchemaConstants.OU_AT, "configuration" );
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -611,7 +611,7 @@ class DefaultDirectoryService extends DirectoryService
             objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
-            attributes.put( "ou", "partitions" );
+            attributes.put( SchemaConstants.OU_AT, "partitions" );
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -635,7 +635,7 @@ class DefaultDirectoryService extends DirectoryService
             objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
-            attributes.put( "ou", "services" );
+            attributes.put( SchemaConstants.OU_AT, "services" );
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -659,7 +659,7 @@ class DefaultDirectoryService extends DirectoryService
             objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             attributes.put( objectClass );
 
-            attributes.put( "ou", "interceptors" );
+            attributes.put( SchemaConstants.OU_AT, "interceptors" );
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -833,7 +833,7 @@ class DefaultDirectoryService extends DirectoryService
         Attributes entry = new AttributesImpl();
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-        entry.put( "ou", "schema" );
+        entry.put( SchemaConstants.OU_AT, "schema" );
         schemaPartitionConfig.setContextEntry( entry );
         JdbmPartition schemaPartition = new JdbmPartition();
         schemaPartition.init( configuration, schemaPartitionConfig );

@@ -54,7 +54,7 @@ public class PrincipalObjectFactory implements DirObjectFactory
         PrincipalStoreEntryModifier modifier = new PrincipalStoreEntryModifier();
 
         modifier.setUserId( ( String ) attrs.get( "uid" ).get() );
-        modifier.setCommonName( ( String ) attrs.get( "cn" ).get() );
+        modifier.setCommonName( ( String ) attrs.get( SchemaConstants.CN_AT ).get() );
 
         KerberosPrincipal principal = new KerberosPrincipal( ( String ) attrs.get( KerberosAttribute.PRINCIPAL ).get() );
         modifier.setPrincipal( principal );

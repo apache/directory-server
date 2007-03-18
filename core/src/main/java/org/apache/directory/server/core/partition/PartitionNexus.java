@@ -31,6 +31,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -73,11 +74,6 @@ public abstract class PartitionNexus implements Partition
     private static final String UID_ATTRIBUTE_ALIAS = "userid";
     private static final String UID_ATTRIBUTE_OID = "0.9.2342.19200300.100.1.1";
     
-    /** OU attribute names and OID **/
-    private static final String OU_ATTRIBUTE = "ou";
-    private static final String OU_ATTRIBUTE_ALIAS = "organizationalUnitName";
-    private static final String OU_ATTRIBUTE_OID = "2.5.4.11";
-
     /**
      * System partition suffix constant.  Should be kept down to a single Dn name 
      * component or the default constructor will have to parse it instead of 
@@ -113,9 +109,9 @@ public abstract class PartitionNexus implements Partition
         	oidsMap.put( UID_ATTRIBUTE_ALIAS, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );
         	oidsMap.put( UID_ATTRIBUTE_OID, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );
         	
-        	oidsMap.put( OU_ATTRIBUTE, new OidNormalizer( OU_ATTRIBUTE_OID, new NoOpNormalizer()  ) );
-        	oidsMap.put( OU_ATTRIBUTE_ALIAS, new OidNormalizer( OU_ATTRIBUTE_OID, new NoOpNormalizer()  ) );
-        	oidsMap.put( OU_ATTRIBUTE_OID, new OidNormalizer( OU_ATTRIBUTE_OID, new NoOpNormalizer()  ) );
+        	oidsMap.put( SchemaConstants.OU_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
+        	oidsMap.put( SchemaConstants.ORGANIZATIONAL_UNIT_NAME_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
+        	oidsMap.put( SchemaConstants.OU_AT_OID, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
 
             adminDn.normalize( oidsMap );
         }

@@ -434,7 +434,7 @@ public class SubentryService extends BaseInterceptor
             LdapDN baseDn = ( LdapDN ) apName.clone();
             baseDn.addAll( ss.getBase() );
 
-            ExprNode filter = new PresenceNode( "2.5.4.0" ); // (objectClass=*)
+            ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ); // (objectClass=*)
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]

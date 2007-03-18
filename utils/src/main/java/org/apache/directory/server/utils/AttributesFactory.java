@@ -98,7 +98,7 @@ public class AttributesFactory
     {
         Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        entry.put( SystemSchemaConstants.CN_AT, schema.getSchemaName() );
+        entry.put( SchemaConstants.CN_AT, schema.getSchemaName() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         

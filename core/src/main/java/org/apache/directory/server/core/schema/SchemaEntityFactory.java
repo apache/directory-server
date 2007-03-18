@@ -33,7 +33,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -98,11 +97,11 @@ public class SchemaEntityFactory
             throw new NullPointerException( "entry cannot be null" );
         }
         
-        if ( entry.get( SystemSchemaConstants.CN_AT ) == null )
+        if ( entry.get( SchemaConstants.CN_AT ) == null )
         {
             throw new NullPointerException( "entry must have a valid cn attribute" );
         }
-        name = ( String ) entry.get( SystemSchemaConstants.CN_AT ).get();
+        name = ( String ) entry.get( SchemaConstants.CN_AT ).get();
         
         if ( entry.get( SchemaConstants.CREATORS_NAME_AT ) == null )
         {

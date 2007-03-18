@@ -29,6 +29,4 @@ package org.apache.directory.server.constants;
 public interface SystemSchemaConstants
 {
     String SCHEMA_NAME = "system";
-
-    String CN_AT = "cn";
 }

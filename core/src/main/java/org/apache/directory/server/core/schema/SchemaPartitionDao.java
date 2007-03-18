@@ -35,7 +35,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.bootstrap.Schema;
@@ -87,7 +86,11 @@ public class SchemaPartitionDao
     private final static Logger log = LoggerFactory.getLogger( SchemaPartitionDao.class );
     private final static NumericOidSyntaxChecker NUMERIC_OID_CHECKER = new NumericOidSyntaxChecker();
     private static final String[] SCHEMA_ATTRIBUTES = new String[] { 
-        SchemaConstants.CREATORS_NAME_AT, "m-dependencies", SchemaConstants.OBJECT_CLASS_AT, "cn", "m-disabled" };
+        SchemaConstants.CREATORS_NAME_AT, 
+        "m-dependencies", 
+        SchemaConstants.OBJECT_CLASS_AT, 
+        SchemaConstants.CN_AT,
+        "m-disabled" };
 
 
     private final Partition partition;
@@ -130,7 +133,7 @@ public class SchemaPartitionDao
         this.attrRegistry = this.bootstrapRegistries.getAttributeTypeRegistry();
         
         this.M_NAME_OID = oidRegistry.getOid( MetaSchemaConstants.M_NAME_AT );
-        this.CN_OID = oidRegistry.getOid( SystemSchemaConstants.CN_AT );
+        this.CN_OID = oidRegistry.getOid( SchemaConstants.CN_AT );
         this.disabledAttributeType = attrRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT );
         this.M_OID_OID = oidRegistry.getOid( MetaSchemaConstants.M_OID_AT );
         this.OBJECTCLASS_OID = oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT );
@@ -170,7 +173,7 @@ public class SchemaPartitionDao
         while( list.hasMore() )
         {
             SearchResult sr = ( SearchResult ) list.next();
-            schemaNames.add( ( String ) sr.getAttributes().get( "cn" ).get() );
+            schemaNames.add( ( String ) sr.getAttributes().get( SchemaConstants.CN_AT ).get() );
         }
         
         return schemaNames;

@@ -103,7 +103,7 @@ public class PrincipalStateFactory implements DirStateFactory
 
                 // TODO - look into adding sn, gn, and cn to ServerProfiles
                 outAttrs.put( "sn", p.getUserId() );
-                outAttrs.put( "cn", p.getCommonName() );
+                outAttrs.put( SchemaConstants.CN_AT, p.getCommonName() );
             }
 
             if ( !oc.contains( "organizationalPerson" ) )

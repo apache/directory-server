@@ -392,7 +392,8 @@ public class DescriptionParsers
             {
                 for ( String superior : desc.getSuperiorObjectClasses() )
                 {
-                    if ( superior.equals( "2.5.6.0" ) || superior.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
+                    if ( superior.equals( SchemaConstants.TOP_OC_OID ) || 
+                        superior.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
                     {
                         continue;
                     }

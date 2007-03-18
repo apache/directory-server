@@ -34,6 +34,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -273,7 +274,7 @@ public class OperationFactory
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration e = nexus.search( oldName, environment, new PresenceNode( Constants.OBJECT_CLASS_OID ), ctrl );
+        NamingEnumeration e = nexus.search( oldName, environment, new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl );
 
         while ( e.hasMore() )
         {

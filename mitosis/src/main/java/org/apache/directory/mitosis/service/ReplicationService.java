@@ -59,6 +59,7 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -483,7 +484,7 @@ public class ReplicationService extends BaseInterceptor
         DirContext ctx = ( DirContext ) InvocationStack.getInstance().peek().getCaller();
         NamingEnumeration e = nextInterceptor.search(
                 baseName, ctx.getEnvironment(),
-                new PresenceNode( Constants.OBJECT_CLASS_OID ),
+                new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
                 new SearchControls() );
 
         return new SearchResultFilteringEnumeration( e, new SearchControls(), InvocationStack.getInstance().peek(),

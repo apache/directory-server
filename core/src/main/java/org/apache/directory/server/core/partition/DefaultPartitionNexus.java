@@ -742,7 +742,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
             
             // test for (objectClass=*)
-            boolean isSearchAll = ( ( PresenceNode ) filter ).getAttribute().equalsIgnoreCase( "2.5.4.0" );
+            boolean isSearchAll = ( ( PresenceNode ) filter ).getAttribute().equals( SchemaConstants.OBJECT_CLASS_AT_OID );
 
             /*
              * if basedn is "", filter is "(objectclass=*)" and scope is object
