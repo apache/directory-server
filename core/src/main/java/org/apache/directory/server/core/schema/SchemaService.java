@@ -627,9 +627,9 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || set.contains( "matchingruleuse" ) )
+        if ( returnAllOperationalAttributes || set.contains( SchemaConstants.MATCHING_RULE_USE_AT ) )
         {
-            attr = new AttributeImpl( "matchingRuleUse" );
+            attr = new AttributeImpl( SchemaConstants.MATCHING_RULE_USE_AT );
             Iterator list = registries.getMatchingRuleUseRegistry().iterator();
             
             while ( list.hasNext() )

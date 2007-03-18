@@ -104,7 +104,7 @@ public class SchemaManager
         SchemaConstants.MATCHING_RULES_AT,
         "attributeTypes",
         SchemaConstants.OBJECT_CLASSES_AT,
-        "matchingRuleUse",
+        SchemaConstants.MATCHING_RULE_USE_AT,
         "dITStructureRules",
         "dITContentRules",
         "nameForms"
@@ -162,7 +162,7 @@ public class SchemaManager
         VALID_OU_VALUES.add( "syntaxcheckers" );
         VALID_OU_VALUES.add( "syntaxes" );
         VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULES_AT );
-        VALID_OU_VALUES.add( "matchingruleuse" );
+        VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULE_USE_AT );
         VALID_OU_VALUES.add( "attributetypes" );
         VALID_OU_VALUES.add( "objectclasses" );
         VALID_OU_VALUES.add( "nameforms" );
