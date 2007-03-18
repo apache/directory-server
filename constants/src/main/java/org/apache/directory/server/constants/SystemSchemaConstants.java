@@ -31,7 +31,6 @@ public interface SystemSchemaConstants
     String SCHEMA_NAME = "system";
 
     String CN_AT = "cn";
-    String MODIFY_TIMESTAMP_AT = "modifyTimestamp";
     String MODIFIERS_NAME_AT = "modifiersName";
 
     String LDAP_SYNTAXES_AT = "ldapSyntaxes";

@@ -568,7 +568,7 @@ public class SchemaPartitionDao
         mods[1] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
             new AttributeImpl( SystemSchemaConstants.MODIFIERS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL ) );
         mods[2] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
-            new AttributeImpl( SystemSchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) );
+            new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) );
         
         partition.modify( dn, mods );
     }

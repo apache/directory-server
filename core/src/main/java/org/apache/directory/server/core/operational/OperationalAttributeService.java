@@ -179,7 +179,7 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
@@ -202,7 +202,7 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
@@ -221,7 +221,7 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
@@ -243,7 +243,7 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
@@ -262,7 +262,7 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 

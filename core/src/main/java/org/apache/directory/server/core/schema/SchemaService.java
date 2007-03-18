@@ -765,7 +765,7 @@ public class SchemaService extends BaseInterceptor
         
         if ( returnAllOperationalAttributes || set.contains( "modifytimestamp" ) )
         {
-            attr = new AttributeImpl( "modifyTimestamp" );
+            attr = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
             AttributeType schemaModifyTimestampAT = registries.
                 getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT );
             Attribute schemaModifyTimestamp = 
