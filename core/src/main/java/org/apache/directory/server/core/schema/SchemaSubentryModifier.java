@@ -99,7 +99,7 @@ public class SchemaSubentryModifier
         }
         else if ( obj instanceof AttributeType )
         {
-            buf.append( "attributeTypes" );
+            buf.append( SchemaConstants.ATTRIBUTE_TYPES_AT );
         }
         else if ( obj instanceof ObjectClass )
         {
@@ -107,19 +107,19 @@ public class SchemaSubentryModifier
         }
         else if ( obj instanceof MatchingRuleUse )
         {
-            buf.append( "matchingRuleUses" );
+            buf.append( SchemaConstants.MATCHING_RULE_USE_AT );
         }
         else if ( obj instanceof DITStructureRule )
         {
-            buf.append( "ditStructureRules" );
+            buf.append( SchemaConstants.DIT_STRUCTURE_RULES_AT );
         }
         else if ( obj instanceof DITContentRule )
         {
-            buf.append( "ditContentRules" );
+            buf.append( SchemaConstants.DIT_CONTENT_RULES_AT );
         }
         else if ( obj instanceof NameForm )
         {
-            buf.append( "nameForms" );
+            buf.append( SchemaConstants.NAME_FORMS_AT );
         }
 
         buf.append( ",cn=" ).append( obj.getSchema() ).append( ",ou=schema" );

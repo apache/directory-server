@@ -395,14 +395,18 @@ public class SchemaService extends BaseInterceptor
                 continue;
             }
             
-            if ( registries.getAttributeTypeRegistry().hasAttributeType( attribute ) )
+            try
             {
                 String oid = registries.getOidRegistry().getOid( attribute );
-                
+    
                 if ( !filteredAttrs.containsKey( oid ) )
                 {
                     filteredAttrs.put( oid, attribute );
                 }
+            }
+            catch ( NamingException ne )
+            {
+                /* Do nothing, the attribute does not exist */
             }
         }
         
@@ -478,12 +482,19 @@ public class SchemaService extends BaseInterceptor
                 
                 if ( registries.getObjectClassRegistry().hasObjectClass( objectClass ) )
                 {
-                    objectClassOid = registries.getObjectClassRegistry().lookup( objectClass ).getName();
+                    objectClassOid = registries.getObjectClassRegistry().lookup( objectClass ).getOid();
+                }
+                else
+                {
+                    return new EmptyEnumeration();
                 }
                 
+                String nodeOid = registries.getOidRegistry().getOid( node.getAttribute() );
+                
                 // see if node attribute is objectClass
-                if ( node.getAttribute().equalsIgnoreCase( "2.5.4.0" )
-                    && ( SchemaConstants.TOP_OC.equalsIgnoreCase( objectClassOid ) || "subschema".equalsIgnoreCase( objectClassOid ) )
+                if ( nodeOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID )
+                    && ( objectClassOid.equals( SchemaConstants.TOP_OC_OID ) || 
+                        objectClassOid.equals( SchemaConstants.SUBSCHEMA_OC_OID ) )
                     && ( node.getAssertionType() == AssertionEnum.EQUALITY ) )
                 {
                     // call.setBypass( true );
@@ -532,15 +543,27 @@ public class SchemaService extends BaseInterceptor
         Set<String> set = new HashSet<String>();
         AttributesImpl attrs = new AttributesImpl();
         AttributeImpl attr;
+        boolean returnAllOperationalAttributes = false;
 
+        // Transform the attributes to their OID counterpart
         for ( String id:ids )
         {
-            set.add( id.toLowerCase() );
+            // Check whether the set contains a plus, and use it below to include all
+            // operational attributes.  Due to RFC 3673, and issue DIREVE-228 in JIRA
+            if ( "+".equals( id ) )
+            {
+                // set.add( "+" );
+                returnAllOperationalAttributes = true;
+            }
+            else if ( "*".equals(  id ) )
+            {
+                set.add( id );
+            }
+            else
+            {
+                set.add( registries.getOidRegistry().getOid( id ) );
+            }
         }
-
-        // Check whether the set contains a plus, and use it below to include all
-        // operational attributes.  Due to RFC 3673, and issue DIREVE-228 in JIRA
-        boolean returnAllOperationalAttributes = set.contains( "+" );
 
         if ( returnAllOperationalAttributes || set.contains( "comparators" ) )
         {
@@ -585,7 +608,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || set.contains( "objectclasses" ) )
+        if ( returnAllOperationalAttributes || set.contains( SchemaConstants.OBJECT_CLASSES_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.OBJECT_CLASSES_AT );
             Iterator<ObjectClass> list = registries.getObjectClassRegistry().iterator();
@@ -599,9 +622,9 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || set.contains( "attributetypes" ) )
+        if ( returnAllOperationalAttributes || set.contains( SchemaConstants.ATTRIBUTE_TYPES_AT ) )
         {
-            attr = new AttributeImpl( "attributeTypes" );
+            attr = new AttributeImpl( SchemaConstants.ATTRIBUTE_TYPES_AT );
             Iterator<AttributeType> list = registries.getAttributeTypeRegistry().iterator();
             
             while ( list.hasNext() )
@@ -655,9 +678,9 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || set.contains( "ditcontentrules" ) )
+        if ( returnAllOperationalAttributes || set.contains( SchemaConstants.DIT_CONTENT_RULES_AT ) )
         {
-            attr = new AttributeImpl( "dITContentRules" );
+            attr = new AttributeImpl( SchemaConstants.DIT_CONTENT_RULES_AT );
             Iterator<DITContentRule> list = registries.getDitContentRuleRegistry().iterator();
             
             while ( list.hasNext() )
@@ -669,9 +692,9 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || set.contains( "ditstructurerules" ) )
+        if ( returnAllOperationalAttributes || set.contains( SchemaConstants.DIT_STRUCTURE_RULES_AT ) )
         {
-            attr = new AttributeImpl( "dITStructureRules" );
+            attr = new AttributeImpl( SchemaConstants.DIT_STRUCTURE_RULES_AT );
             Iterator list = registries.getDitStructureRuleRegistry().iterator();
             
             while ( list.hasNext() )
@@ -683,9 +706,9 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || set.contains( "nameforms" ) )
+        if ( returnAllOperationalAttributes || set.contains( SchemaConstants.NAME_FORMS_AT_OID ) )
         {
-            attr = new AttributeImpl( "nameForms" );
+            attr = new AttributeImpl( SchemaConstants.NAME_FORMS_AT );
             Iterator list = registries.getNameFormRegistry().iterator();
             
             while ( list.hasNext() )
@@ -748,7 +771,7 @@ public class SchemaService extends BaseInterceptor
         
         if ( returnAllOperationalAttributes || set.contains( SchemaConstants.CREATE_TIMESTAMP_AT ) )
         {
-            attr = new AttributeImpl( "createTimestamp" );
+            attr = new AttributeImpl( SchemaConstants.CREATE_TIMESTAMP_AT );
             AttributeType createTimestampAT = registries.
                 getAttributeTypeRegistry().lookup( SchemaConstants.CREATE_TIMESTAMP_AT );
             Attribute createTimestamp = AttributeUtils.getAttribute( modificationAttributes, createTimestampAT );
@@ -763,7 +786,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
         
-        if ( returnAllOperationalAttributes || set.contains( "modifytimestamp" ) )
+        if ( returnAllOperationalAttributes || set.contains( SchemaConstants.MODIFY_TIMESTAMP_AT ) )
         {
             attr = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
             AttributeType schemaModifyTimestampAT = registries.

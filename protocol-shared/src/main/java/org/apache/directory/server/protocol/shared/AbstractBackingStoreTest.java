@@ -59,6 +59,7 @@ import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.schema.bootstrap.CosineSchema;
 import org.apache.directory.server.schema.bootstrap.InetorgpersonSchema;
 import org.apache.directory.server.schema.bootstrap.Krb5kdcSchema;
+import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.ldif.Entry;
@@ -148,7 +149,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
     {
         config = new MutableStartupConfiguration();
 
-        Set schemas = new HashSet();
+        Set<Schema> schemas = new HashSet<Schema>();
         schemas.add( new CoreSchema() );
         schemas.add( new CosineSchema() );
         schemas.add( new ApacheSchema() );
@@ -164,7 +165,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         
         //config.setBootstrapSchemas( schemas );
 
-        Set partitions = new HashSet();
+        Set<PartitionConfiguration> partitions = new HashSet<PartitionConfiguration>();
         partitions.add( getExamplePartition() );
         partitions.add( getApachePartition() );
 
@@ -179,7 +180,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         MutablePartitionConfiguration partConfig = new MutablePartitionConfiguration();
         partConfig.setName( "example" );
 
-        HashSet indices = new HashSet();
+        Set<Object> indices = new HashSet<Object>();
         indices.add( "dc" );
         indices.add( "ou" );
         indices.add( SchemaConstants.OBJECT_CLASS_AT );
@@ -191,7 +192,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
 
         AttributesImpl attrs = new AttributesImpl();
         AttributeImpl objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        objectClass.add( "top" );
+        objectClass.add( SchemaConstants.TOP_OC );
         objectClass.add( "domain" );
         attrs.put( objectClass );
         attrs.put( "dc", "example" );
@@ -206,7 +207,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
         MutablePartitionConfiguration partConfig = new MutablePartitionConfiguration();
         partConfig.setName( "apache" );
 
-        HashSet indices = new HashSet();
+        Set<Object> indices = new HashSet<Object>();
         indices.add( "dc" );
         indices.add( "ou" );
         indices.add( SchemaConstants.OBJECT_CLASS_AT );
@@ -218,7 +219,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
 
         AttributesImpl attrs = new AttributesImpl();
         AttributeImpl objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        objectClass.add( "top" );
+        objectClass.add( SchemaConstants.TOP_OC );
         objectClass.add( "domain" );
         attrs.put( objectClass );
         attrs.put( "dc", "apache" );

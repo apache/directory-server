@@ -102,12 +102,12 @@ public class SchemaManager
         "syntaxCheckers",
         SchemaConstants.LDAP_SYNTAXES_AT,
         SchemaConstants.MATCHING_RULES_AT,
-        "attributeTypes",
+        SchemaConstants.ATTRIBUTE_TYPES_AT,
         SchemaConstants.OBJECT_CLASSES_AT,
         SchemaConstants.MATCHING_RULE_USE_AT,
-        "dITStructureRules",
-        "dITContentRules",
-        "nameForms"
+        SchemaConstants.DIT_STRUCTURE_RULES_AT,
+        SchemaConstants.DIT_CONTENT_RULES_AT,
+        SchemaConstants.NAME_FORMS_AT
     };
     private static final String[] metaObjectClasses = new String[] {
         "metaComparator",
@@ -163,11 +163,11 @@ public class SchemaManager
         VALID_OU_VALUES.add( "syntaxes" );
         VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULES_AT );
         VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULE_USE_AT );
-        VALID_OU_VALUES.add( "attributetypes" );
-        VALID_OU_VALUES.add( "objectclasses" );
-        VALID_OU_VALUES.add( "nameforms" );
-        VALID_OU_VALUES.add( "ditcontentrules" );
-        VALID_OU_VALUES.add( "ditstructurerules" );
+        VALID_OU_VALUES.add( SchemaConstants.ATTRIBUTE_TYPES_AT );
+        VALID_OU_VALUES.add( SchemaConstants.OBJECT_CLASSES_AT );
+        VALID_OU_VALUES.add( SchemaConstants.NAME_FORMS_AT );
+        VALID_OU_VALUES.add( SchemaConstants.DIT_CONTENT_RULES_AT );
+        VALID_OU_VALUES.add( SchemaConstants.DIT_STRUCTURE_RULES_AT );
         
         HashSet<String> set = new HashSet<String>();
         set.add( "normalizationService" );

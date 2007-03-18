@@ -271,7 +271,7 @@ public class ServerContextFactory extends CoreContextFactory
         try
         {
             return root.getAttributes( buf.toString(), new String[]
-                { "createTimestamp" } );
+                { SchemaConstants.CREATE_TIMESTAMP_AT } );
         }
         catch ( NamingException e )
         {
@@ -333,7 +333,7 @@ public class ServerContextFactory extends CoreContextFactory
             Attributes fileEntry = getLdifFileEntry( root, cfg.getLdifDirectory() );
             if ( fileEntry != null )
             {
-                String time = ( String ) fileEntry.get( "createTimestamp" ).get();
+                String time = ( String ) fileEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).get();
                 log.info( "Load of LDIF file '" + getCanonical( cfg.getLdifDirectory() )
                     + "' skipped.  It has already been loaded on " + time + "." );
                 return;
@@ -369,7 +369,7 @@ public class ServerContextFactory extends CoreContextFactory
             Attributes fileEntry = getLdifFileEntry( root, ldifFiles[ii] );
             if ( fileEntry != null )
             {
-                String time = ( String ) fileEntry.get( "createTimestamp" ).get();
+                String time = ( String ) fileEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).get();
                 log.info( "Load of LDIF file '" + getCanonical( ldifFiles[ii] )
                     + "' skipped.  It has already been loaded on " + time + "." );
                 continue;

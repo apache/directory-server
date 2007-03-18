@@ -154,7 +154,7 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( principal );
         entry.put( attribute );
 
-        attribute = new AttributeImpl( "createTimestamp" );
+        attribute = new AttributeImpl( SchemaConstants.CREATE_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
         entry.put( attribute );
 

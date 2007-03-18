@@ -155,12 +155,14 @@ public class TriggerSpecCache
     {
         // only do something if the entry contains prescriptiveTrigger
         Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
-        if ( !hasPrescriptiveTrigger( entry ) )
+        
+        if ( triggerSpec == null )
         {
             return;
         }
         
         List subentryTriggerSpecs = new ArrayList();
+        
         for ( int ii = 0; ii < triggerSpec.size(); ii++ )
         {
             TriggerSpecification item = null;
@@ -177,6 +179,7 @@ public class TriggerSpecCache
 
             subentryTriggerSpecs.add( item );
         }
+        
         triggerSpecs.put( normName.toString(), subentryTriggerSpecs );
     }
 
