@@ -101,7 +101,7 @@ public class SchemaManager
         "normalizers",
         "syntaxCheckers",
         SchemaConstants.LDAP_SYNTAXES_AT,
-        "matchingRules",
+        SchemaConstants.MATCHING_RULES_AT,
         "attributeTypes",
         SchemaConstants.OBJECT_CLASSES_AT,
         "matchingRuleUse",
@@ -161,7 +161,7 @@ public class SchemaManager
         VALID_OU_VALUES.add( "comparators" );
         VALID_OU_VALUES.add( "syntaxcheckers" );
         VALID_OU_VALUES.add( "syntaxes" );
-        VALID_OU_VALUES.add( "matchingrules" );
+        VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULES_AT );
         VALID_OU_VALUES.add( "matchingruleuse" );
         VALID_OU_VALUES.add( "attributetypes" );
         VALID_OU_VALUES.add( "objectclasses" );

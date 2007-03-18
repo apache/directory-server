@@ -95,7 +95,7 @@ public class SchemaSubentryModifier
         }
         else if ( obj instanceof MatchingRule )
         {
-            buf.append( "matchingRules" );
+            buf.append( SchemaConstants.MATCHING_RULES_AT );
         }
         else if ( obj instanceof AttributeType )
         {
