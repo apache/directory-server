@@ -51,6 +51,7 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.util.NoDuplicateKeysMap;
 import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1213,7 +1214,7 @@ item returns [ LeafNode node ]
     :
     ID_item ( SP )* COLON ( SP )* l_oid=oid
     {
-        node = new SimpleNode( "objectClass" , l_oid , AssertionEnum.EQUALITY );
+        node = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT , l_oid , AssertionEnum.EQUALITY );
     }
     ;
 
