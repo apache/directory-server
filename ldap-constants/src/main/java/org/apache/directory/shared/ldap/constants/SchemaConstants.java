@@ -40,5 +40,5 @@ public class SchemaConstants
     public static final String CREATORS_NAME_AT = "creatorsName";
     public static final String CREATE_TIMESTAMP_AT = "createTimestamp";
     public static final String OBJECT_CLASSES_AT = "objectClasses";
-
+    public static final String MODIFY_TIMESTAMP_AT = "modifyTimestamp";
 }
