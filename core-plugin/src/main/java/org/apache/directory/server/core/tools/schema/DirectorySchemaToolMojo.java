@@ -34,6 +34,7 @@ import java.util.List;
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapSchema;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchema;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -266,7 +267,7 @@ public class DirectorySchemaToolMojo extends AbstractMojo
         context.put( "schemaDepCount", new Integer( schema.getDependencies().length ) );
         context.put( "schemaDeps", new String[]
             { "dep1", "dep2" } );
-        context.put( "objectClasses", objectClasses );
+        context.put( SchemaConstants.OBJECT_CLASSES_AT, objectClasses );
         runVelocity( schema.getPackageName(), schema.getUnqualifiedClassName( type ), context,
             "ObjectClasses.template", type );
     }

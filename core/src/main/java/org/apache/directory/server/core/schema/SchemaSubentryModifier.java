@@ -103,7 +103,7 @@ public class SchemaSubentryModifier
         }
         else if ( obj instanceof ObjectClass )
         {
-            buf.append( "objectClasses" );
+            buf.append( SchemaConstants.OBJECT_CLASSES_AT );
         }
         else if ( obj instanceof MatchingRuleUse )
         {

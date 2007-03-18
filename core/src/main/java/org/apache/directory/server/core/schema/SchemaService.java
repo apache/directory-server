@@ -587,7 +587,7 @@ public class SchemaService extends BaseInterceptor
 
         if ( returnAllOperationalAttributes || set.contains( "objectclasses" ) )
         {
-            attr = new AttributeImpl( "objectClasses" );
+            attr = new AttributeImpl( SchemaConstants.OBJECT_CLASSES_AT );
             Iterator<ObjectClass> list = registries.getObjectClassRegistry().iterator();
             
             while ( list.hasNext() )
@@ -936,7 +936,7 @@ public class SchemaService extends BaseInterceptor
         }
         else if ( existing == null )
         {
-            return new AttributeImpl( "objectClasses" );
+            return new AttributeImpl( SchemaConstants.OBJECT_CLASSES_AT );
         }
 
         switch ( modOp )

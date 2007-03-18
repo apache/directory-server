@@ -37,7 +37,6 @@ public interface SystemSchemaConstants
     String LDAP_SYNTAXES_AT = "ldapSyntaxes";
     String MATCHING_RULES_AT = "matchingRules";
     String ATTRIBUTE_TYPES_AT = "attributeTypes";
-    String OBJECT_CLASSES_AT = "objectClasses";
     String MATCHING_RULE_USE_AT = "matchingRuleUse";
     String DIT_STRUCTURE_RULES_AT = "ditStructureRules";
     String DIT_CONTENT_RULES_AT = "ditContentRules";

@@ -104,7 +104,7 @@ public class SchemaManager
         "ldapSyntaxes",
         "matchingRules",
         "attributeTypes",
-        "objectClasses",
+        SchemaConstants.OBJECT_CLASSES_AT,
         "matchingRuleUse",
         "dITStructureRules",
         "dITContentRules",
@@ -228,7 +228,7 @@ public class SchemaManager
         attributeTypesOid = oidRegistry.getOid( SystemSchemaConstants.ATTRIBUTE_TYPES_AT );
         opAttr2handlerIndex.put( attributeTypesOid, new Integer( ATTRIBUTE_TYPE_INDEX ) );
 
-        objectClassesOid = oidRegistry.getOid( SystemSchemaConstants.OBJECT_CLASSES_AT );
+        objectClassesOid = oidRegistry.getOid( SchemaConstants.OBJECT_CLASSES_AT );
         opAttr2handlerIndex.put( objectClassesOid, new Integer( OBJECT_CLASS_INDEX ) );
         
         matchingRuleUseOid = oidRegistry.getOid( SystemSchemaConstants.MATCHING_RULE_USE_AT );
