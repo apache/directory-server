@@ -68,7 +68,7 @@ public class TriggerUtils
         String subtreeSpec,
         String prescriptiveTriggerSpec ) throws NamingException
     {
-        Attributes subentry = new AttributesImpl( "cn", subentryCN, true );
+        Attributes subentry = new AttributesImpl( SchemaConstants.CN_AT, subentryCN, true );
         Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         subentry.put( objectClass );
         objectClass.add( SchemaConstants.TOP_OC );
