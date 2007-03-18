@@ -641,9 +641,9 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || set.contains( "ldapsyntaxes" ) )
+        if ( returnAllOperationalAttributes || set.contains( SchemaConstants.LDAP_SYNTAXES_AT ) )
         {
-            attr = new AttributeImpl( "ldapSyntaxes" );
+            attr = new AttributeImpl( SchemaConstants.LDAP_SYNTAXES_AT );
             Iterator<Syntax> list = registries.getSyntaxRegistry().iterator();
             
             while ( list.hasNext() )

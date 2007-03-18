@@ -35,7 +35,6 @@ import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -101,7 +100,7 @@ public class SchemaManager
         "comparators",
         "normalizers",
         "syntaxCheckers",
-        "ldapSyntaxes",
+        SchemaConstants.LDAP_SYNTAXES_AT,
         "matchingRules",
         "attributeTypes",
         SchemaConstants.OBJECT_CLASSES_AT,
@@ -219,28 +218,28 @@ public class SchemaManager
         syntaxCheckersOid = oidRegistry.getOid( ApacheSchemaConstants.SYNTAX_CHECKERS_AT );
         opAttr2handlerIndex.put( syntaxCheckersOid, new Integer( SYNTAX_CHECKER_INDEX ) );
         
-        ldapSyntaxesOid = oidRegistry.getOid( SystemSchemaConstants.LDAP_SYNTAXES_AT );
+        ldapSyntaxesOid = oidRegistry.getOid( SchemaConstants.LDAP_SYNTAXES_AT );
         opAttr2handlerIndex.put( ldapSyntaxesOid, new Integer( SYNTAX_INDEX ) );
         
-        matchingRulesOid = oidRegistry.getOid( SystemSchemaConstants.MATCHING_RULES_AT );
+        matchingRulesOid = oidRegistry.getOid( SchemaConstants.MATCHING_RULES_AT );
         opAttr2handlerIndex.put( matchingRulesOid, new Integer( MATCHING_RULE_INDEX ) );
 
-        attributeTypesOid = oidRegistry.getOid( SystemSchemaConstants.ATTRIBUTE_TYPES_AT );
+        attributeTypesOid = oidRegistry.getOid( SchemaConstants.ATTRIBUTE_TYPES_AT );
         opAttr2handlerIndex.put( attributeTypesOid, new Integer( ATTRIBUTE_TYPE_INDEX ) );
 
         objectClassesOid = oidRegistry.getOid( SchemaConstants.OBJECT_CLASSES_AT );
         opAttr2handlerIndex.put( objectClassesOid, new Integer( OBJECT_CLASS_INDEX ) );
         
-        matchingRuleUseOid = oidRegistry.getOid( SystemSchemaConstants.MATCHING_RULE_USE_AT );
+        matchingRuleUseOid = oidRegistry.getOid( SchemaConstants.MATCHING_RULE_USE_AT );
         opAttr2handlerIndex.put( matchingRuleUseOid, new Integer( MATCHING_RULE_USE_INDEX ) );
 
-        ditStructureRulesOid = oidRegistry.getOid( SystemSchemaConstants.DIT_STRUCTURE_RULES_AT );
+        ditStructureRulesOid = oidRegistry.getOid( SchemaConstants.DIT_STRUCTURE_RULES_AT );
         opAttr2handlerIndex.put( ditStructureRulesOid, new Integer( DIT_STRUCTURE_RULE_INDEX ) );
 
-        ditContentRulesOid = oidRegistry.getOid( SystemSchemaConstants.DIT_CONTENT_RULES_AT );
+        ditContentRulesOid = oidRegistry.getOid( SchemaConstants.DIT_CONTENT_RULES_AT );
         opAttr2handlerIndex.put( ditContentRulesOid, new Integer( DIT_CONTENT_RULE_INDEX ) );
 
-        nameFormsOid = oidRegistry.getOid( SystemSchemaConstants.NAME_FORMS_AT );
+        nameFormsOid = oidRegistry.getOid( SchemaConstants.NAME_FORMS_AT );
         opAttr2handlerIndex.put( nameFormsOid, new Integer( NAME_FORM_INDEX ) );
         
         initHandlerMaps();
