@@ -30,6 +30,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 /**
  * A utility class for working with Triggers Execution Administrative Points
@@ -52,7 +53,8 @@ public class TriggerUtils
     {
         Attributes ap = apCtx.getAttributes( "", new String[] { ADMINISTRATIVE_ROLE_ATTR } );
         Attribute administrativeRole = ap.get( ADMINISTRATIVE_ROLE_ATTR );
-        if ( administrativeRole == null || !administrativeRole.contains( TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE ) )
+        if ( administrativeRole == null || 
+            !AttributeUtils.containsValueCaseIgnore( administrativeRole, TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE ) )
         {
             Attributes changes = new AttributesImpl( ADMINISTRATIVE_ROLE_ATTR, TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE, true );
             apCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
