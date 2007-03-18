@@ -50,23 +50,17 @@ import org.apache.directory.server.protocol.shared.store.ContextOperation;
 class SingleBaseSearch implements PrincipalStore
 {
     private DirContext ctx;
+    private Hashtable<String, String> env;
+    private InitialContextFactory factory;
 
 
-    SingleBaseSearch(ServiceConfiguration config, InitialContextFactory factory)
+    SingleBaseSearch( ServiceConfiguration config, InitialContextFactory factory )
     {
-        Hashtable env = new Hashtable( config.toJndiEnvironment() );
+        env = new Hashtable<String, String>( config.toJndiEnvironment() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
         env.put( Context.PROVIDER_URL, config.getEntryBaseDn() );
 
-        try
-        {
-            ctx = ( DirContext ) factory.getInitialContext( env );
-        }
-        catch ( NamingException ne )
-        {
-            String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
-            throw new ConfigurationException( message, ne );
-        }
+        this.factory = factory;
     }
 
 
@@ -102,6 +96,20 @@ class SingleBaseSearch implements PrincipalStore
 
     private Object execute( ContextOperation operation ) throws Exception
     {
+        if ( ctx == null )
+        {
+            try
+            {
+                ctx = ( DirContext ) factory.getInitialContext( env );
+            }
+            catch ( NamingException ne )
+            {
+                ne.printStackTrace();
+                String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
+                throw new ConfigurationException( message, ne );
+            }
+        }
+
         return operation.execute( ctx, null );
     }
 }
