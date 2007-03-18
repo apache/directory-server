@@ -20,10 +20,10 @@
 package org.apache.directory.server.ldap.support;
 
 
-import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.ldap.support.bind.BindHandlerChain;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
+import org.apache.mina.handler.demux.MessageHandler;
 
 
 /**
@@ -34,7 +34,7 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BindHandler implements LdapMessageHandler
+public class BindHandler implements MessageHandler
 {
     private IoHandlerCommand bindHandler;
 
@@ -51,10 +51,5 @@ public class BindHandler implements LdapMessageHandler
     public void messageReceived( IoSession session, Object message ) throws Exception
     {
         bindHandler.execute( null, session, message );
-    }
-
-
-    public void init( StartupConfiguration cfg )
-    {
     }
 }

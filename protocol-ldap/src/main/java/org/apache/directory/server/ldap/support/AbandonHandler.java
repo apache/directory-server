@@ -20,13 +20,12 @@
 package org.apache.directory.server.ldap.support;
 
 
-import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.message.Request;
 import org.apache.mina.common.IoSession;
-
+import org.apache.mina.handler.demux.MessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbandonHandler implements LdapMessageHandler
+public class AbandonHandler implements MessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( AbandonHandler.class );
 
@@ -88,10 +87,5 @@ public class AbandonHandler implements LdapMessageHandler
                 log.debug( "Abandoned request: " + req );
             }
         }
-    }
-
-
-    public void init( StartupConfiguration cfg )
-    {
     }
 }
