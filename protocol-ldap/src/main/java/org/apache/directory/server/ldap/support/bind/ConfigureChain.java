@@ -20,8 +20,11 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,11 +33,10 @@ import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.Sasl;
 
+import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,58 +45,101 @@ import org.slf4j.LoggerFactory;
  */
 public class ConfigureChain implements IoHandlerCommand
 {
-    private static final Logger log = LoggerFactory.getLogger( ConfigureChain.class );
-
-
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        /**
-         * TODO - Take intersection of supported mechanisms and mechanisms enabled in configuration.
-         */
-        Set<String> supportedMechanisms = new HashSet<String>();
-        supportedMechanisms.add( SupportedSASLMechanisms.SIMPLE );
-        supportedMechanisms.add( SupportedSASLMechanisms.CRAM_MD5 );
-        supportedMechanisms.add( SupportedSASLMechanisms.DIGEST_MD5 );
-        supportedMechanisms.add( SupportedSASLMechanisms.GSSAPI );
-        session.setAttribute( "supportedMechanisms", supportedMechanisms );
-
-        /**
-         * TODO - Take host from configuration.
-         */
-        String saslHost = "localhost";
-        session.setAttribute( "saslHost", saslHost );
+        LdapConfiguration config = ( LdapConfiguration ) session.getAttribute( LdapConfiguration.class.toString() );
 
         Map<String, String> saslProps = new HashMap<String, String>();
-
-        /**
-         * TODO - Take service principal name from configuration.
-         * TODO - Create Subject with key material from directory.
-         */
-        String servicePrincipalName = "ldap/" + saslHost + "@EXAMPLE.COM";
-        session.setAttribute( "saslSubject", getSubject( servicePrincipalName ) );
-
-        /**
-         * TODO - Take QoP props from configuration.
-         */
-        saslProps.put( Sasl.QOP, "auth,auth-int,auth-conf" );
-
-        /**
-         * TODO - Take realms from configuration.
-         */
-        saslProps.put( "com.sun.security.sasl.digest.realm", "example.com apache.org" );
-
+        saslProps.put( Sasl.QOP, getActiveQop( config ) );
+        saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( config ) );
         session.setAttribute( "saslProps", saslProps );
 
-        /**
-         * TODO - Get one or more base DN's for user lookups.
-         * TODO - Make decision on base DN lookup vs. regex mapping.
-         */
-        session.setAttribute( "baseDn", "ou=users,dc=example,dc=com" );
+        session.setAttribute( "supportedMechanisms", getActiveMechanisms( config ) );
+        session.setAttribute( "saslHost", config.getSaslHost() );
+        session.setAttribute( "saslSubject", getSubject( config.getSaslPrincipal() ) );
+        session.setAttribute( "baseDn", config.getSaslBaseDn() );
 
         next.execute( session, message );
     }
 
 
+    private Set getActiveMechanisms( LdapConfiguration config )
+    {
+        List<String> supportedMechanisms = new ArrayList<String>();
+        supportedMechanisms.add( SupportedSASLMechanisms.SIMPLE );
+        supportedMechanisms.add( SupportedSASLMechanisms.CRAM_MD5 );
+        supportedMechanisms.add( SupportedSASLMechanisms.DIGEST_MD5 );
+        supportedMechanisms.add( SupportedSASLMechanisms.GSSAPI );
+
+        Set<String> activeMechanisms = new HashSet<String>();
+
+        Iterator it = config.getSupportedMechanisms().iterator();
+        while ( it.hasNext() )
+        {
+            String desiredMechanism = ( String ) it.next();
+            if ( supportedMechanisms.contains( desiredMechanism ) )
+            {
+                activeMechanisms.add( desiredMechanism );
+            }
+        }
+
+        return activeMechanisms;
+    }
+
+
+    private String getActiveQop( LdapConfiguration config )
+    {
+        List<String> supportedQop = new ArrayList<String>();
+        supportedQop.add( "auth" );
+        supportedQop.add( "auth-int" );
+        supportedQop.add( "auth-conf" );
+
+        StringBuilder saslQop = new StringBuilder();
+
+        Iterator it = config.getSaslQop().iterator();
+        while ( it.hasNext() )
+        {
+            String desiredQopLevel = ( String ) it.next();
+            if ( supportedQop.contains( desiredQopLevel ) )
+            {
+                saslQop.append( desiredQopLevel );
+            }
+
+            if ( it.hasNext() )
+            {
+                // QOP is comma-delimited
+                saslQop.append( "," );
+            }
+        }
+
+        return saslQop.toString();
+    }
+
+
+    private String getActiveRealms( LdapConfiguration config )
+    {
+        StringBuilder realms = new StringBuilder();
+
+        Iterator it = config.getSaslRealms().iterator();
+        while ( it.hasNext() )
+        {
+            String realm = ( String ) it.next();
+            realms.append( realm );
+
+            if ( it.hasNext() )
+            {
+                // realms are space-delimited
+                realms.append( " " );
+            }
+        }
+
+        return realms.toString();
+    }
+
+
+    /**
+     * TODO - Create Subject with key material from directory.
+     */
     private Subject getSubject( String servicePrincipalName )
     {
         KerberosPrincipal servicePrincipal = new KerberosPrincipal( servicePrincipalName );
