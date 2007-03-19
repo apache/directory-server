@@ -107,7 +107,6 @@ class SingleBaseSearch implements PrincipalStore
             }
             catch ( NamingException ne )
             {
-                ne.printStackTrace();
                 String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
                 throw new ConfigurationException( message, ne );
             }
