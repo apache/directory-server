@@ -51,24 +51,20 @@ public class SingleBaseSearch implements SearchStrategy
     private static final Logger log = LoggerFactory.getLogger( SingleBaseSearch.class );
 
     private DirContext ctx;
+    private Hashtable<String, Object> env;
+    private InitialContextFactory factory;
 
 
-    SingleBaseSearch(DnsConfiguration config, InitialContextFactory factory)
+    SingleBaseSearch( DnsConfiguration config, InitialContextFactory factory )
     {
-        Hashtable env = new Hashtable( config.toJndiEnvironment() );
+        env = new Hashtable<String, Object>( config.toJndiEnvironment() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
-        env.put( Context.PROVIDER_URL, config.getEntryBaseDn() );
+        env.put( Context.PROVIDER_URL, config.getSearchBaseDn() );
+        env.put( Context.SECURITY_AUTHENTICATION, config.getSecurityAuthentication() );
+        env.put( Context.SECURITY_CREDENTIALS, config.getSecurityCredentials() );
+        env.put( Context.SECURITY_PRINCIPAL, config.getSecurityPrincipal() );
 
-        try
-        {
-            ctx = ( DirContext ) factory.getInitialContext( env );
-        }
-        catch ( NamingException ne )
-        {
-            log.error( ne.getMessage(), ne );
-            String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
-            throw new ConfigurationException( message, ne );
-        }
+        this.factory = factory;
     }
 
 
@@ -80,6 +76,20 @@ public class SingleBaseSearch implements SearchStrategy
 
     private Object execute( ContextOperation operation ) throws Exception
     {
+        if ( ctx == null )
+        {
+            try
+            {
+                ctx = ( DirContext ) factory.getInitialContext( env );
+            }
+            catch ( NamingException ne )
+            {
+                log.error( ne.getMessage(), ne );
+                String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
+                throw new ConfigurationException( message, ne );
+            }
+        }
+
         return operation.execute( ctx, null );
     }
 }
