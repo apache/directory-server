@@ -130,7 +130,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
 
             KerberosException ke = ( KerberosException ) e;
 
-            ErrorMessage errorMessage = getErrorMessage( config.getChangepwPrincipal(), ke );
+            ErrorMessage errorMessage = getErrorMessage( config.getServicePrincipal(), ke );
 
             ChangePasswordErrorModifier modifier = new ChangePasswordErrorModifier();
             modifier.setErrorMessage( errorMessage );

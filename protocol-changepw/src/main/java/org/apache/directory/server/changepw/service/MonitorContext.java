@@ -61,7 +61,7 @@ public class MonitorContext implements IoHandlerCommand
                 ApplicationRequest authHeader = changepwContext.getAuthHeader();
                 Ticket ticket = changepwContext.getTicket();
                 ReplayCache replayCache = changepwContext.getReplayCache();
-                long clockSkew = changepwContext.getConfig().getClockSkew();
+                long clockSkew = changepwContext.getConfig().getAllowableClockSkew();
 
                 Authenticator authenticator = changepwContext.getAuthenticator();
                 KerberosPrincipal clientPrincipal = authenticator.getClientPrincipal();

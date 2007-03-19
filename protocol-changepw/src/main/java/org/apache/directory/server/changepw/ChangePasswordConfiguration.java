@@ -21,21 +21,17 @@ package org.apache.directory.server.changepw;
 
 
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.configuration.ConfigurationException;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 
 
 /**
+ * Contains the configuration parameters for the Change Password protocol provider.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -43,303 +39,179 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 {
     private static final long serialVersionUID = 3509208713288140629L;
 
-    /** the prop key const for changepw.principal */
-    private static final String PRINCIPAL_KEY = "principal";
+    /** The default change password principal. */
+    private static final String SERVICE_PRINCIPAL_DEFAULT = "kadmin/changepw@EXAMPLE.COM";
 
-    /** the default change password principal */
-    private static final String DEFAULT_PRINCIPAL = "kadmin/changepw@EXAMPLE.COM";
+    /** The default change password base DN. */
+    public static final String SEARCH_BASEDN_DEFAULT = "ou=users,dc=example,dc=com";
 
-    /** the default change password base DN */
-    public static final String CHANGEPW_ENTRY_BASEDN = "ou=users,dc=example,dc=com";
+    /** The default change password realm. */
+    private static final String REALM_DEFAULT = "EXAMPLE.COM";
 
-    /** the prop key const for primary.realm */
-    private static final String REALM_KEY = "realm";
+    /** The default change password port. */
+    private static final int IP_PORT_DEFAULT = 464;
 
-    /** the default change password realm */
-    private static final String DEFAULT_REALM = "EXAMPLE.COM";
-
-    /** the default change password port */
-    private static final String DEFAULT_IP_PORT = "464";
-
-    /** the prop key const for encryption.types */
-    private static final String ENCRYPTION_TYPES_KEY = "encryption.types";
-
-    /** the default encryption types */
-    public static final String[] DEFAULT_ENCRYPTION_TYPES = new String[]
+    /** The default encryption types. */
+    public static final String[] ENCRYPTION_TYPES_DEFAULT = new String[]
         { "des-cbc-md5" };
 
-    /** the prop key const for allowable.clockskew */
-    private static final String ALLOWABLE_CLOCKSKEW_KEY = "allowable.clockskew";
-
-    /** the default changepw buffer size */
+    /** The default changepw buffer size. */
     private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * MINUTE;
 
-    /** the prop key const for empty.addresses.allowed */
-    private static final String EMPTY_ADDRESSES_ALLOWED_KEY = "empty.addresses.allowed";
-
-    /** the default empty addresses */
+    /** The default empty addresses. */
     private static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
 
-    /** the prop key constants for password policy */
-    public static final String PASSWORD_LENGTH_KEY = "password.length";
-    public static final String CATEGORY_COUNT_KEY = "category.count";
-    public static final String TOKEN_SIZE_KEY = "token.size";
-
-    /** the default change password password policies */
+    /** The default change password password policy for password length. */
     public static final int DEFAULT_PASSWORD_LENGTH = 6;
+
+    /** The default change password password policy for category count. */
     public static final int DEFAULT_CATEGORY_COUNT = 3;
+
+    /** The default change password password policy for token size. */
     public static final int DEFAULT_TOKEN_SIZE = 3;
 
-    private static final String DEFAULT_PID = "org.apache.changepw";
-    private static final String DEFAULT_NAME = "Apache Change Password Service";
-    private static final String DEFAULT_PREFIX = "changepw.";
+    /** The default service PID. */
+    private static final String SERVICE_PID_DEFAULT = "org.apache.changepw";
 
+    /** The default service name. */
+    private static final String SERVICE_NAME_DEFAULT = "Apache Change Password Service";
+
+    /** The encryption types. */
     private EncryptionType[] encryptionTypes;
+
+    /** The primare realm. */
+    private String primaryRealm = REALM_DEFAULT;
+
+    /** The service principal. */
+    private String servicePrincipal = SERVICE_PRINCIPAL_DEFAULT;
+
+    /** The allowable clock skew. */
+    private long allowableClockSkew = DEFAULT_ALLOWABLE_CLOCKSKEW;
+
+    /** Whether empty addresses are allowed. */
+    private boolean isEmptyAddressesAllowed = DEFAULT_EMPTY_ADDRESSES_ALLOWED;
+
+    /** The policy for password length. */
+    private int policyPasswordLength;
+
+    /** The policy for category count. */
+    private int policyCategoryCount;
+
+    /** The policy for token size. */
+    private int policyTokenSize;
 
 
     /**
-     * Creates a new instance with default settings.
+     * Creates a new instance of ChangePasswordConfiguration.
      */
     public ChangePasswordConfiguration()
     {
-        this( getDefaultConfig(), LoadStrategy.LDAP );
-    }
-
-
-    /**
-     * Creates a new instance with default settings that operates on the
-     * {@link DirectoryService} with the specified ID.
-     */
-    public ChangePasswordConfiguration(String instanceId)
-    {
-        this( getDefaultConfig(), LoadStrategy.LDAP );
-        setInstanceId( instanceId );
-    }
-
-
-    public ChangePasswordConfiguration( Map<String, String> properties )
-    {
-        this( properties, LoadStrategy.LDAP );
-    }
-
-
-    public ChangePasswordConfiguration( Map<String, String> properties, int strategy )
-    {
-        if ( properties == null )
-        {
-            configuration = getDefaultConfig();
-        }
-        else
-        {
-            loadProperties( DEFAULT_PREFIX, properties, strategy );
-        }
-
-        int port = getPort();
-
-        if ( port < 1 || port > 0xFFFF )
-        {
-            throw new ConfigurationException( "Invalid value:  " + IP_PORT_KEY + "=" + port );
-        }
+        super.setServiceName( SERVICE_NAME_DEFAULT );
+        super.setIpPort( IP_PORT_DEFAULT );
+        super.setServicePid( SERVICE_PID_DEFAULT );
+        super.setSearchBaseDn( SEARCH_BASEDN_DEFAULT );
 
         prepareEncryptionTypes();
     }
 
 
-    public static Map<String, String> getDefaultConfig()
-    {
-        Map<String, String> defaults = new HashMap<String, String>();
-
-        defaults.put( SERVICE_PID, DEFAULT_PID );
-        defaults.put( IP_PORT_KEY, DEFAULT_IP_PORT );
-
-        return defaults;
-    }
-
-
-    public boolean isDifferent( Dictionary config )
-    {
-        int port = getPort();
-
-        if ( port == Integer.parseInt( ( String ) config.get( IP_PORT_KEY ) ) )
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-
-    public String getName()
-    {
-        return DEFAULT_NAME;
-    }
-
-
-    public int getPort()
-    {
-        String key = IP_PORT_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return Integer.parseInt( get( key ) );
-        }
-
-        return Integer.parseInt( DEFAULT_IP_PORT );
-    }
-
-
+    /**
+     * Returns the primary realm.
+     *
+     * @return The primary realm.
+     */
     public String getPrimaryRealm()
     {
-        String key = REALM_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return get( key );
-        }
-
-        return DEFAULT_REALM;
+        return primaryRealm;
     }
 
 
+    /**
+     * Returns the encryption types.
+     *
+     * @return The encryption types.
+     */
     public EncryptionType[] getEncryptionTypes()
     {
         return encryptionTypes;
     }
 
 
-    public Map<String, String> getProperties()
+    /**
+     * Returns the allowable clock skew.
+     *
+     * @return The allowable clock skew.
+     */
+    public long getAllowableClockSkew()
     {
-        // Request that the krb5key value be returned as binary
-        configuration.put( "java.naming.ldap.attributes.binary", "krb5Key" );
-
-        return configuration;
+        return allowableClockSkew;
     }
 
 
-    public long getClockSkew()
+    /**
+     * Returns the Change Password service principal.
+     *
+     * @return The Change Password service principal.
+     */
+    public KerberosPrincipal getServicePrincipal()
     {
-        String key = ALLOWABLE_CLOCKSKEW_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return MINUTE * Long.parseLong( get( key ) );
-        }
-
-        return DEFAULT_ALLOWABLE_CLOCKSKEW;
+        return new KerberosPrincipal( servicePrincipal );
     }
 
 
-    public int getBufferSize()
-    {
-        String key = BUFFER_SIZE_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return Integer.parseInt( get( key ) );
-        }
-
-        return DEFAULT_BUFFER_SIZE;
-    }
-
-
-    public KerberosPrincipal getChangepwPrincipal()
-    {
-        String key = PRINCIPAL_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return new KerberosPrincipal( get( key ) );
-        }
-
-        return new KerberosPrincipal( DEFAULT_PRINCIPAL );
-    }
-
-
-    public String getEntryBaseDn()
-    {
-        String key = ENTRY_BASEDN_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return get( key );
-        }
-
-        return CHANGEPW_ENTRY_BASEDN;
-    }
-
-
+    /**
+     * Returns whether empty addresses are allowed.
+     *
+     * @return Whether empty addresses are allowed.
+     */
     public boolean isEmptyAddressesAllowed()
     {
-        String key = EMPTY_ADDRESSES_ALLOWED_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return "true".equalsIgnoreCase( get( key ) );
-        }
-
-        return DEFAULT_EMPTY_ADDRESSES_ALLOWED;
+        return isEmptyAddressesAllowed;
     }
 
 
+    /**
+     * Returns the password length.
+     *
+     * @return The password length.
+     */
     public int getPasswordLengthPolicy()
     {
-        String key = PASSWORD_LENGTH_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return Integer.parseInt( get( key ) );
-        }
-
-        return DEFAULT_PASSWORD_LENGTH;
+        return policyPasswordLength;
     }
 
 
+    /**
+     * Returns the category count.
+     *
+     * @return The category count.
+     */
     public int getCategoryCountPolicy()
     {
-        String key = CATEGORY_COUNT_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return Integer.parseInt( get( key ) );
-        }
-
-        return DEFAULT_CATEGORY_COUNT;
+        return policyCategoryCount;
     }
 
 
+    /**
+     * Returns the token size.
+     *
+     * @return The token size.
+     */
     public int getTokenSizePolicy()
     {
-        String key = TOKEN_SIZE_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return Integer.parseInt( get( key ) );
-        }
-
-        return DEFAULT_TOKEN_SIZE;
+        return policyTokenSize;
     }
 
 
     private void prepareEncryptionTypes()
     {
-        String[] encryptionTypeStrings = null;
-
-        String key = ENCRYPTION_TYPES_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            encryptionTypeStrings = ( get( key ) ).split( "\\s" );
-        }
-        else
-        {
-            encryptionTypeStrings = DEFAULT_ENCRYPTION_TYPES;
-        }
+        String[] encryptionTypeStrings = ENCRYPTION_TYPES_DEFAULT;
 
         List<EncryptionType> encTypes = new ArrayList<EncryptionType>();
 
-        for ( String enc:encryptionTypeStrings )
+        for ( String enc : encryptionTypeStrings )
         {
-            for ( EncryptionType type:EncryptionType.VALUES )
+            for ( EncryptionType type : EncryptionType.VALUES )
             {
                 if ( type.toString().equalsIgnoreCase( enc ) )
                 {
