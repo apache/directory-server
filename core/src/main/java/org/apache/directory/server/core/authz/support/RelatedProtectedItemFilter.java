@@ -250,7 +250,10 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     {
                         AttributeType attrType = attrRegistry.lookup( oid );
                         Attribute attr = AttributeUtils.getAttribute( entry, attrType );
-                        if ( attr != null && ( ( attr.contains( userName.toNormName() ) || attr.contains( userName.getUpName() ) ) ) )
+                        
+                        if ( ( attr != null ) && 
+                             ( ( AttributeUtils.containsValue( attr, userName.toNormName(), attrType ) || 
+                               ( AttributeUtils.containsValue( attr, userName.getUpName(), attrType ) ) ) ) )
                         {
                             return true;
                         }

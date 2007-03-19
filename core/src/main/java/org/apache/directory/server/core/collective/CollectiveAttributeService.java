@@ -47,6 +47,7 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -134,7 +135,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         
         if ( collectiveExclusions != null )
         {
-            if ( collectiveExclusions.contains( EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID )
+            if ( AttributeUtils.containsValueCaseIgnore( collectiveExclusions, EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID )
                 || collectiveExclusions.contains( EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES ) )
             {
                 /*

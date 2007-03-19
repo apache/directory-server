@@ -308,7 +308,7 @@ public class AuthorizationService extends BaseInterceptor
         throws NamingException
     {
         // only perform this for subentries
-        if ( !entry.get( SchemaConstants.OBJECT_CLASS_AT ).contains( SchemaConstants.SUBENTRY_OC ) )
+        if ( !AttributeUtils.containsValueCaseIgnore( entry.get( SchemaConstants.OBJECT_CLASS_AT ), SchemaConstants.SUBENTRY_OC ) )
         {
             return;
         }
