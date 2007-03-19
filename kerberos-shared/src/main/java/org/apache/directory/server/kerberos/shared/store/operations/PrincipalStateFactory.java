@@ -36,6 +36,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -71,19 +72,20 @@ public class PrincipalStateFactory implements DirStateFactory
                 outAttrs.put( oc );
             }
 
-            if ( !oc.contains( SchemaConstants.TOP_OC ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.TOP_OC ) )
             {
                 oc.add( SchemaConstants.TOP_OC );
             }
 
             PrincipalStoreEntry p = ( PrincipalStoreEntry ) obj;
 
-            if ( !oc.contains( "uidObject" ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.UID_OBJECT_AT ) )
             {
-                oc.add( "uidObject" );
+                oc.add( SchemaConstants.UID_OBJECT_AT );
+                
                 if ( p.getUserId() != null )
                 {
-                    outAttrs.put( "uid", p.getUserId() );
+                    outAttrs.put( SchemaConstants.UID_AT, p.getUserId() );
                 }
                 else
                 {
@@ -91,29 +93,32 @@ public class PrincipalStateFactory implements DirStateFactory
                 }
             }
 
-            if ( !oc.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
             {
                 oc.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
                 outAttrs.put( "apacheSamType", "7" );
             }
 
-            if ( !oc.contains( "person" ) )
+            if ( ! ( AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.PERSON_OC ) ||
+                     oc.contains( SchemaConstants.PERSON_OC_OID ) ) )
             {
-                oc.add( "person" );
+                oc.add( SchemaConstants.PERSON_OC );
 
                 // TODO - look into adding sn, gn, and cn to ServerProfiles
-                outAttrs.put( "sn", p.getUserId() );
+                outAttrs.put( SchemaConstants.SN_AT, p.getUserId() );
                 outAttrs.put( SchemaConstants.CN_AT, p.getCommonName() );
             }
 
-            if ( !oc.contains( "organizationalPerson" ) )
+            if ( ! ( AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.ORGANIZATIONAL_PERSON_OC ) ||
+                oc.contains( SchemaConstants.ORGANIZATIONAL_PERSON_OC_OID ) ) )
             {
-                oc.add( "organizationalPerson" );
+                oc.add( SchemaConstants.ORGANIZATIONAL_PERSON_OC );
             }
 
-            if ( !oc.contains( "inetOrgPerson" ) )
+            if ( ! ( AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.INET_ORG_PERSON_OC ) ||
+                oc.contains( SchemaConstants.INET_ORG_PERSON_OC_OID ) ) )
             {
-                oc.add( "inetOrgPerson" );
+                oc.add( SchemaConstants.INET_ORG_PERSON_OC );
             }
 
             if ( !oc.contains( "krb5Principal" ) )
