@@ -60,7 +60,7 @@ public class MonitorContext implements IoHandlerCommand
                 PrincipalStore store = tgsContext.getStore();
                 ApplicationRequest authHeader = tgsContext.getAuthHeader();
                 Ticket tgt = tgsContext.getTgt();
-                long clockSkew = tgsContext.getConfig().getClockSkew();
+                long clockSkew = tgsContext.getConfig().getAllowableClockSkew();
                 ReplayCache replayCache = tgsContext.getReplayCache();
                 ChecksumType checksumType = tgsContext.getAuthenticator().getChecksum().getChecksumType();
                 InetAddress clientAddress = tgsContext.getClientAddress();

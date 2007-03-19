@@ -176,7 +176,7 @@ public class KerberosProtocolHandler implements IoHandler
 
             KerberosException ke = ( KerberosException ) e;
 
-            session.write( getErrorMessage( config.getKdcPrincipal(), ke ) );
+            session.write( getErrorMessage( config.getServicePrincipal(), ke ) );
         }
     }
 

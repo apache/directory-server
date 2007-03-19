@@ -53,14 +53,23 @@ public class KerberosServer
     private IoHandler handler;
 
 
-    public KerberosServer( KdcConfiguration config, IoAcceptor acceptor, IoServiceConfig serviceConfig, PrincipalStore store )
+    /**
+     * Creates a new instance of KerberosServer.
+     *
+     * @param config
+     * @param acceptor
+     * @param serviceConfig
+     * @param store
+     */
+    public KerberosServer( KdcConfiguration config, IoAcceptor acceptor, IoServiceConfig serviceConfig,
+        PrincipalStore store )
     {
         this.config = config;
         this.acceptor = acceptor;
         this.store = store;
 
-        String name = config.getName();
-        int port = config.getPort();
+        String name = config.getServiceName();
+        int port = config.getIpPort();
 
         try
         {
@@ -77,19 +86,29 @@ public class KerberosServer
     }
 
 
+    /**
+     * Compares whether a {@link Dictionary} of configuration is different
+     * from the currently used configuration.
+     *
+     * @param newConfig
+     * @return <code>True</true> if the configuration is different.
+     */
     public boolean isDifferent( Dictionary newConfig )
     {
         return config.isDifferent( newConfig );
     }
 
 
+    /**
+     * Destroys this instance of the service.
+     */
     public void destroy()
     {
-        acceptor.unbind( new InetSocketAddress( config.getPort() ) );
+        acceptor.unbind( new InetSocketAddress( config.getIpPort() ) );
 
         acceptor = null;
         handler = null;
 
-        log.debug( config.getName() + " has stopped listening on port " + config.getPort() );
+        log.debug( config.getServiceName() + " has stopped listening on port " + config.getIpPort() );
     }
 }

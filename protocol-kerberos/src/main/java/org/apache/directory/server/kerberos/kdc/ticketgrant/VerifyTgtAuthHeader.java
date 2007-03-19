@@ -45,7 +45,7 @@ public class VerifyTgtAuthHeader extends VerifyAuthHeader
         ApplicationRequest authHeader = tgsContext.getAuthHeader();
         Ticket tgt = tgsContext.getTgt();
         EncryptionKey serverKey = tgsContext.getTicketPrincipalEntry().getEncryptionKey();
-        long clockSkew = tgsContext.getConfig().getClockSkew();
+        long clockSkew = tgsContext.getConfig().getAllowableClockSkew();
         ReplayCache replayCache = tgsContext.getReplayCache();
         boolean emptyAddressesAllowed = tgsContext.getConfig().isEmptyAddressesAllowed();
         InetAddress clientAddress = tgsContext.getClientAddress();

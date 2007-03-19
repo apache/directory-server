@@ -123,7 +123,7 @@ public class VerifyEncryptedTimestamp extends VerifierBase
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError() );
                 }
 
-                if ( !timestamp.getTimeStamp().isInClockSkew( config.getClockSkew() ) )
+                if ( !timestamp.getTimeStamp().isInClockSkew( config.getAllowableClockSkew() ) )
                 {
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_FAILED );
                 }
