@@ -56,6 +56,9 @@ public abstract class AbstractServerTest extends TestCase
     /** the context root for the system partition */
     protected LdapContext sysRoot;
 
+    /** the context root for the schema partition */
+    protected LdapContext schemaRoot;
+
     /** the context root for the rootDSE */
     protected LdapContext rootDSE;
 
@@ -79,7 +82,7 @@ public abstract class AbstractServerTest extends TestCase
 
         doDelete( configuration.getWorkingDirectory() );
         port = AvailablePortFinder.getNextAvailable( 1024 );
-        configuration.setLdapPort( port );
+        configuration.getLdapConfiguration().setIpPort( port );
         configuration.setShutdownHookEnabled( false );
         setContexts( "uid=admin,ou=system", "secret" );
     }
@@ -136,9 +139,12 @@ public abstract class AbstractServerTest extends TestCase
         Hashtable<String, Object> envFinal = new Hashtable<String, Object>( env );
         envFinal.put( Context.PROVIDER_URL, "ou=system" );
         sysRoot = new InitialLdapContext( envFinal, null );
-        
+
         envFinal.put( Context.PROVIDER_URL, "" );
         rootDSE = new InitialLdapContext( envFinal, null );
+
+        envFinal.put( Context.PROVIDER_URL, "ou=schema" );
+        schemaRoot = new InitialLdapContext( envFinal, null );
     }
 
 
@@ -184,10 +190,10 @@ public abstract class AbstractServerTest extends TestCase
         try
         {
             Iterator iterator = new LdifReader( in );
-            
+
             while ( iterator.hasNext() )
             {
-                Entry entry = ( Entry) iterator.next();
+                Entry entry = ( Entry ) iterator.next();
                 LdapDN dn = new LdapDN( entry.getDn() );
                 rootDSE.createSubcontext( dn, entry.getAttributes() );
             }
