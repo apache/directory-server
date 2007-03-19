@@ -33,8 +33,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.directory.server.core.configuration.Configuration;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
@@ -62,6 +60,9 @@ public class SessionRegistry
     /** the properties associated with this SessionRegistry */
     private Hashtable env;
 
+    /** the configuration associated with this SessionRegistry */
+    private LdapConfiguration cfg;
+
 
     /**
      * Gets the singleton instance for this SessionRegistry.  If the singleton
@@ -73,7 +74,7 @@ public class SessionRegistry
     {
         if ( s_singleton == null )
         {
-            s_singleton = new SessionRegistry( new Hashtable() );
+            s_singleton = new SessionRegistry( new LdapConfiguration(), new Hashtable() );
         }
 
         return s_singleton;
@@ -91,7 +92,7 @@ public class SessionRegistry
      *
      * @param env the properties associated with this SessionRegistry
      */
-    SessionRegistry( Hashtable env )
+    SessionRegistry( LdapConfiguration cfg, Hashtable env )
     {
         if ( s_singleton == null )
         {
@@ -99,7 +100,7 @@ public class SessionRegistry
         }
         else
         {
-            throw new IllegalStateException( "there can only be one singlton" );
+            throw new IllegalStateException( "There can only be one singleton." );
         }
 
         if ( env == null )
@@ -112,6 +113,15 @@ public class SessionRegistry
         {
             this.env = env;
             this.env.put( Context.PROVIDER_URL, "" );
+        }
+
+        if ( cfg == null )
+        {
+            this.cfg = new LdapConfiguration();
+        }
+        else
+        {
+            this.cfg = cfg;
         }
     }
 
@@ -268,10 +278,8 @@ public class SessionRegistry
         // there is no context so its an implicit bind, no bind operation is being performed
         if ( ctx == null && allowAnonymous )
         {
-            // if configuration says disable anonymous binds we throw exection
-            StartupConfiguration config = ( StartupConfiguration ) Configuration.toConfiguration( env );
-            
-            if ( ! config.isAllowAnonymousAccess() )
+            // if configuration says disable anonymous binds we throw exception
+            if ( !cfg.isAllowAnonymousAccess() )
             {
                 throw new LdapNoPermissionException( "Anonymous binds have been disabled!" );
             }
@@ -309,7 +317,6 @@ public class SessionRegistry
                 slc = ( ServerLdapContext ) ctx;
             }
             boolean isAnonymousUser = slc.getPrincipal().getName().trim().equals( "" );
-            StartupConfiguration cfg = ( StartupConfiguration ) Configuration.toConfiguration( env );
 
             // if the user principal is anonymous and the configuration does not allow anonymous binds we
             // prevent the operation by blowing a NoPermissionsException
