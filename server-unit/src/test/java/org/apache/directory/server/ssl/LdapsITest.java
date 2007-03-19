@@ -30,6 +30,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
+import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ssl.support.SSLSocketFactory;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -59,15 +60,17 @@ public class LdapsITest extends AbstractServerTest
         doDelete( configuration.getWorkingDirectory() );
 
         int ldapsPort = AvailablePortFinder.getNextAvailable( 8192 );
-        configuration.setEnableLdaps( true );
-        configuration.setLdapsCertificatePassword( "boguspw" );
-        configuration.setLdapsPort( ldapsPort );
+        
+        LdapConfiguration ldapsCfg = configuration.getLdapsConfiguration();
+        ldapsCfg.setEnableLdaps( true );
+        ldapsCfg.setLdapsCertificatePassword( "boguspw" );
+        ldapsCfg.setIpPort( ldapsPort );
 
         // Copy the bogus certificate to the certificates directory.
         InputStream in = getClass().getResourceAsStream( "/bogus.cert" );
-        configuration.getLdapsCertificateFile().getParentFile().mkdirs();
+        ldapsCfg.getLdapsCertificateFile().getParentFile().mkdirs();
 
-        FileOutputStream out = new FileOutputStream( configuration.getLdapsCertificateFile() );
+        FileOutputStream out = new FileOutputStream( ldapsCfg.getLdapsCertificateFile() );
 
         for ( ;; )
         {
@@ -86,7 +89,7 @@ public class LdapsITest extends AbstractServerTest
         super.setUp();
         doDelete = true;
 
-        Hashtable env = new Hashtable();
+        Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + ldapsPort + "/ou=system" );
         env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
@@ -111,6 +114,8 @@ public class LdapsITest extends AbstractServerTest
 
     /**
      * Just a little test to check if the connection is made successfully.
+     * 
+     * @throws NamingException
      */
     public void testSetUpTearDown() throws NamingException
     {

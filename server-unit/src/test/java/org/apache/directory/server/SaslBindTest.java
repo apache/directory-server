@@ -58,6 +58,7 @@ public class SaslBindTest extends AbstractServerTest
     public void setUp() throws Exception
     {
         configuration.setAllowAnonymousAccess( false );
+        configuration.getLdapConfiguration().setSaslHost( "localhost" );
 
         Attributes attrs;
         Set<PartitionConfiguration> pcfgs = new HashSet<PartitionConfiguration>();
@@ -404,7 +405,7 @@ public class SaslBindTest extends AbstractServerTest
         }
         catch ( NamingException e )
         {
-            assertTrue( e.getCause().getMessage().contains( "Error acquiring realm" ) );
+            assertTrue( e.getMessage().contains( "Nonexistent realm" ) );
         }
     }
 

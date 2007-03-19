@@ -29,6 +29,7 @@ import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcedureUtils;
@@ -45,10 +46,11 @@ public class StoredProcedureTest extends AbstractServerTest
     
     public void setUp() throws Exception
     {
-        Set handlers = new HashSet( super.configuration.getExtendedOperationHandlers() );
+        LdapConfiguration ldapCfg = super.configuration.getLdapConfiguration();
+        Set handlers = new HashSet( ldapCfg.getExtendedOperationHandlers() );
         handlers.add( new StoredProcedureExtendedOperationHandler() );
-        super.configuration.setExtendedOperationHandlers( handlers );
-        
+        ldapCfg.setExtendedOperationHandlers( handlers );
+
         super.setUp();
 
         Hashtable env = new Hashtable();
