@@ -18,14 +18,18 @@
  *  
  */
 package org.apache.directory.server.configuration;
- 
+
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.ldap.LdapConfiguration;
+import org.apache.directory.server.ntp.NtpConfiguration;
+
 
 /**
  * A mutable version of {@link ServerStartupConfiguration}.
@@ -38,46 +42,44 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     private static final long serialVersionUID = 515104910980600099L;
 
 
+    /**
+     * Creates a new instance of MutableServerStartupConfiguration.
+     */
     public MutableServerStartupConfiguration()
     {
         super();
     }
-    
+
+
+    /**
+     * Creates a new instance of MutableServerStartupConfiguration.
+     *
+     * @param instanceId
+     */
     public MutableServerStartupConfiguration( String instanceId )
     {
-    	super( instanceId );
+        super( instanceId );
     }
+
 
     public void setSystemPartitionConfiguration( PartitionConfiguration systemPartitionConfiguration )
     {
         super.setSystemPartitionConfiguration( systemPartitionConfiguration );
     }
-    
-    
+
+
     public void setMaxThreads( int maxThreads )
     {
         super.setMaxThreads( maxThreads );
     }
-    
-    
-    public void setMaxTimeLimit( int maxTimeLimit )
-    {
-        super.setMaxTimeLimit( maxTimeLimit );
-    }
-    
-    
-    public void setMaxSizeLimit( int maxSizeLimit )
-    {
-        super.setMaxSizeLimit( maxSizeLimit );
-    }
-    
+
 
     public void setSynchPeriodMillis( long synchPeriodMillis )
     {
         super.setSynchPeriodMillis( synchPeriodMillis );
     }
-    
-    
+
+
     public void setAccessControlEnabled( boolean accessControlEnabled )
     {
         super.setAccessControlEnabled( accessControlEnabled );
@@ -87,14 +89,15 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     public void setAllowAnonymousAccess( boolean arg0 )
     {
         super.setAllowAnonymousAccess( arg0 );
+        getLdapConfiguration().setAllowAnonymousAccess( arg0 );
     }
 
-    
+
     public void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
     {
         super.setDenormalizeOpAttrsEnabled( denormalizeOpAttrsEnabled );
     }
-    
+
 
     public void setAuthenticatorConfigurations( Set arg0 )
     {
@@ -126,42 +129,6 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     }
 
 
-    public void setEnableKerberos( boolean enableKerberos )
-    {
-        super.setEnableKerberos( enableKerberos );
-    }
-
-
-    public void setEnableChangePassword( boolean enableChangePassword )
-    {
-        super.setEnableChangePassword( enableChangePassword );
-    }
-
-
-    public void setEnableNtp( boolean enableNtp )
-    {
-        super.setEnableNtp( enableNtp );
-    }
-
-
-    public void setLdapPort( int ldapPort )
-    {
-        super.setLdapPort( ldapPort );
-    }
-
-
-    public void setLdapsPort( int ldapsPort )
-    {
-        super.setLdapsPort( ldapsPort );
-    }
-
-
-    public void setExtendedOperationHandlers( Collection handlers )
-    {
-        super.setExtendedOperationHandlers( handlers );
-    }
-
-
     public void setLdifDirectory( File ldifDirectory )
     {
         super.setLdifDirectory( ldifDirectory );
@@ -174,24 +141,6 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     }
 
 
-    public void setEnableLdaps( boolean enableLdaps )
-    {
-        super.setEnableLdaps( enableLdaps );
-    }
-
-
-    public void setLdapsCertificateFile( File ldapsCertificateFile )
-    {
-        super.setLdapsCertificateFile( ldapsCertificateFile );
-    }
-
-
-    public void setLdapsCertificatePassword( String ldapsCertificatePassword )
-    {
-        super.setLdapsCertificatePassword( ldapsCertificatePassword );
-    }
-
-
     public void setShutdownHookEnabled( boolean shutdownHookEnabled )
     {
         super.setShutdownHookEnabled( shutdownHookEnabled );
@@ -201,5 +150,35 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     public void setExitVmOnShutdown( boolean exitVmOnShutdown )
     {
         super.setExitVmOnShutdown( exitVmOnShutdown );
+    }
+
+
+    public void setKdcConfiguration( KdcConfiguration kdcConfiguration )
+    {
+        super.setKdcConfiguration( kdcConfiguration );
+    }
+
+
+    public void setLdapConfiguration( LdapConfiguration ldapConfiguration )
+    {
+        super.setLdapConfiguration( ldapConfiguration );
+    }
+
+
+    public void setLdapsConfiguration( LdapConfiguration ldapsConfiguration )
+    {
+        super.setLdapsConfiguration( ldapsConfiguration );
+    }
+
+
+    public void setNtpConfiguration( NtpConfiguration ntpConfiguration )
+    {
+        super.setNtpConfiguration( ntpConfiguration );
+    }
+
+
+    public void setChangePasswordConfiguration( ChangePasswordConfiguration changePasswordConfiguration )
+    {
+        super.setChangePasswordConfiguration( changePasswordConfiguration );
     }
 }

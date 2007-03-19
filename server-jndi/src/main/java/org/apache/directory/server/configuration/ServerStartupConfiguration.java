@@ -20,16 +20,15 @@
 package org.apache.directory.server.configuration;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.directory.server.core.configuration.ConfigurationException;
-import org.apache.directory.server.core.configuration.ConfigurationUtil;
+import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
-import org.apache.directory.server.ldap.ExtendedOperationHandler;
+import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.ldap.LdapConfiguration;
+import org.apache.directory.server.ntp.NtpConfiguration;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 
 
@@ -45,30 +44,30 @@ public class ServerStartupConfiguration extends StartupConfiguration
 
     private static final long DEFAULT_SYNC_PERIOD_MILLIS = 20000;
 
-    private boolean enableNetworking = true;
     private long synchPeriodMillis = DEFAULT_SYNC_PERIOD_MILLIS;
-    private int ldapPort = 389;
-    private int ldapsPort = 636;
-    private File ldapsCertificateFile = new File( this.getWorkingDirectory().getPath() + File.separator
-        + "certificates" + File.separator + "server.cert" );
-    private String ldapsCertificatePassword = "changeit";
-    private boolean enableLdaps = false;
-    private boolean enableKerberos = false;
-    private boolean enableChangePassword = false;
-    private boolean enableNtp = false;
-    private final Collection extendedOperationHandlers = new ArrayList();
+
+    private boolean enableNetworking = true;
+
     private File ldifDirectory = null;
     private final List ldifFilters = new ArrayList();
+
+    private KdcConfiguration kdcConfiguration = new KdcConfiguration();
+    private LdapConfiguration ldapConfiguration = new LdapConfiguration();
+    private LdapConfiguration ldapsConfiguration = new LdapConfiguration();
+    private ChangePasswordConfiguration changePasswordConfiguration = new ChangePasswordConfiguration();
+    private NtpConfiguration ntpConfiguration = new NtpConfiguration();
 
 
     protected ServerStartupConfiguration()
     {
     }
 
+
     protected ServerStartupConfiguration( String instanceId )
     {
-    	super( instanceId );
+        super( instanceId );
     }
+
 
     /**
      * Returns <tt>true</tt> if networking (LDAP, LDAPS, and Kerberos) is enabled.
@@ -85,188 +84,6 @@ public class ServerStartupConfiguration extends StartupConfiguration
     public void setEnableNetworking( boolean enableNetworking )
     {
         this.enableNetworking = enableNetworking;
-    }
-
-
-    /**
-     * Returns <tt>true</tt> if Kerberos support is enabled.
-     */
-    public boolean isEnableKerberos()
-    {
-        return enableKerberos;
-    }
-
-
-    /**
-     * Returns <tt>true</tt> if Change Password support is enabled.
-     */
-    public boolean isEnableChangePassword()
-    {
-        return enableChangePassword;
-    }
-
-
-    /**
-     * Returns <tt>true</tt> if Kerberos support is enabled.
-     */
-    public boolean isEnableNtp()
-    {
-        return enableNtp;
-    }
-
-
-    /**
-     * Sets whether to enable Kerberos support or not.
-     */
-    protected void setEnableKerberos( boolean enableKerberos )
-    {
-        this.enableKerberos = enableKerberos;
-    }
-
-
-    /**
-     * Sets whether to enable Change Password support or not.
-     */
-    protected void setEnableChangePassword( boolean enableChangePassword )
-    {
-        this.enableChangePassword = enableChangePassword;
-    }
-
-
-    /**
-     * Sets whether to enable Ntp support or not.
-     */
-    protected void setEnableNtp( boolean enableNtp )
-    {
-        this.enableNtp = enableNtp;
-    }
-
-
-    /**
-     * Returns LDAP TCP/IP port number to listen to.
-     */
-    public int getLdapPort()
-    {
-        return ldapPort;
-    }
-
-
-    /**
-     * Sets LDAP TCP/IP port number to listen to.
-     */
-    protected void setLdapPort( int ldapPort )
-    {
-        ConfigurationUtil.validatePortNumber( ldapPort );
-        this.ldapPort = ldapPort;
-    }
-
-
-    /**
-     * Returns LDAPS TCP/IP port number to listen to.
-     */
-    public int getLdapsPort()
-    {
-        return ldapsPort;
-    }
-
-
-    /**
-     * Sets LDAPS TCP/IP port number to listen to.
-     */
-    protected void setLdapsPort( int ldapsPort )
-    {
-        ConfigurationUtil.validatePortNumber( ldapsPort );
-        this.ldapsPort = ldapsPort;
-    }
-
-
-    /**
-     * Returns <tt>true</tt> if LDAPS is enabled.
-     */
-    public boolean isEnableLdaps()
-    {
-        return enableLdaps;
-    }
-
-
-    /**
-     * Sets if LDAPS is enabled or not.
-     */
-    protected void setEnableLdaps( boolean enableLdaps )
-    {
-        this.enableLdaps = enableLdaps;
-    }
-
-
-    /**
-     * Returns the path of the X509 (or JKS) certificate file for LDAPS.
-     * The default value is <tt>"&lt;WORKDIR&gt;/certificates/server.cert"</tt>. 
-     */
-    public File getLdapsCertificateFile()
-    {
-        return ldapsCertificateFile;
-    }
-
-
-    /**
-     * Sets the path of the SunX509 certificate file (either PKCS12 or JKS format)
-     * for LDAPS.
-     */
-    protected void setLdapsCertificateFile( File ldapsCertificateFile )
-    {
-        if ( ldapsCertificateFile == null )
-        {
-            throw new ConfigurationException( "LdapsCertificateFile cannot be null." );
-        }
-        this.ldapsCertificateFile = ldapsCertificateFile;
-    }
-
-
-    /**
-     * Returns the password which is used to load the the SunX509 certificate file
-     * (either PKCS12 or JKS format).
-     * The default value is <tt>"changeit"</tt>.  This is the same value with what
-     * <a href="http://jakarta.apache.org/tomcat/">Apache Jakarta Tomcat</a> uses by
-     * default.
-     */
-    public String getLdapsCertificatePassword()
-    {
-        return ldapsCertificatePassword;
-    }
-
-
-    /**
-     * Sets the password which is used to load the LDAPS certificate file.
-     */
-    protected void setLdapsCertificatePassword( String ldapsCertificatePassword )
-    {
-        if ( ldapsCertificatePassword == null )
-        {
-            throw new ConfigurationException( "LdapsCertificatePassword cannot be null." );
-        }
-        this.ldapsCertificatePassword = ldapsCertificatePassword;
-    }
-
-
-    public Collection getExtendedOperationHandlers()
-    {
-        return new ArrayList( extendedOperationHandlers );
-    }
-
-
-    protected void setExtendedOperationHandlers( Collection handlers )
-    {
-        for ( Iterator i = handlers.iterator(); i.hasNext(); )
-        {
-            if ( !( i.next() instanceof ExtendedOperationHandler ) )
-            {
-                throw new IllegalArgumentException(
-                    "The specified handler collection contains an element which is not an ExtendedOperationHandler." );
-            }
-        }
-
-        this.extendedOperationHandlers.clear();
-        this.extendedOperationHandlers.addAll( handlers );
     }
 
 
@@ -313,5 +130,65 @@ public class ServerStartupConfiguration extends StartupConfiguration
     public long getSynchPeriodMillis()
     {
         return synchPeriodMillis;
+    }
+
+
+    protected void setKdcConfiguration( KdcConfiguration kdcConfiguration )
+    {
+        this.kdcConfiguration = kdcConfiguration;
+    }
+
+
+    public KdcConfiguration getKdcConfiguration()
+    {
+        return kdcConfiguration;
+    }
+
+
+    protected void setLdapConfiguration( LdapConfiguration ldapConfiguration )
+    {
+        this.ldapConfiguration = ldapConfiguration;
+    }
+
+
+    public LdapConfiguration getLdapConfiguration()
+    {
+        return ldapConfiguration;
+    }
+
+
+    protected void setLdapsConfiguration( LdapConfiguration ldapsConfiguration )
+    {
+        this.ldapsConfiguration = ldapsConfiguration;
+    }
+
+
+    public LdapConfiguration getLdapsConfiguration()
+    {
+        return ldapsConfiguration;
+    }
+
+
+    protected void setNtpConfiguration( NtpConfiguration ntpConfiguration )
+    {
+        this.ntpConfiguration = ntpConfiguration;
+    }
+
+
+    public NtpConfiguration getNtpConfiguration()
+    {
+        return ntpConfiguration;
+    }
+
+
+    protected void setChangePasswordConfiguration( ChangePasswordConfiguration changePasswordConfiguration )
+    {
+        this.changePasswordConfiguration = changePasswordConfiguration;
+    }
+
+
+    public ChangePasswordConfiguration getChangePasswordConfiguration()
+    {
+        return changePasswordConfiguration;
     }
 }
