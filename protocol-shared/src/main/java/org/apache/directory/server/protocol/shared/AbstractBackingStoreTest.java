@@ -320,7 +320,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
 
                 if ( attributes.get( SchemaConstants.OBJECT_CLASS_AT ).contains( "krb5KDCEntry" ) )
                 {
-                    String pw = ( String ) attributes.get( "userpassword" ).get();
+                    String pw = ( String ) attributes.get( SchemaConstants.USER_PASSWORD_AT ).get();
                     String krbPrincipal = ( String ) attributes.get( KerberosAttribute.PRINCIPAL ).get();
 
                     KerberosPrincipal principal = new KerberosPrincipal( krbPrincipal );

@@ -45,7 +45,7 @@ public class Krb5KdcEntryFilter implements LdifLoadFilter
     private static final Logger log = LoggerFactory.getLogger( Krb5KdcEntryFilter.class );
     private static final String KEY_TYPE = "DES";
     private static final String KRB5KDCENTRY_OC = "krb5KDCEntry";
-    private static final String PASSWORD_ATTR = "userPassword";
+    private static final String PASSWORD_ATTR = SchemaConstants.USER_PASSWORD_AT;
 
 
     /**
