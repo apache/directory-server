@@ -33,6 +33,7 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -55,8 +56,6 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
  */
 public class MetaComparatorHandler implements SchemaChangeHandler
 {
-    private static final String OU_OID = "2.5.4.11";
-
     private final PartitionSchemaLoader loader;
     private final SchemaEntityFactory factory;
     private final Registries targetRegistries;
@@ -318,7 +317,7 @@ public class MetaComparatorHandler implements SchemaChangeHandler
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( OU_OID ) )
+        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a comparator should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );

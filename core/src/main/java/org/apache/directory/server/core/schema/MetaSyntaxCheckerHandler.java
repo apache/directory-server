@@ -32,6 +32,7 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -56,8 +57,6 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
  */
 public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
 {
-    private static final String OU_OID = "2.5.4.11";
-
     private final PartitionSchemaLoader loader;
     private final SchemaEntityFactory factory;
     private final Registries targetRegistries;
@@ -325,7 +324,7 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( OU_OID ) )
+        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a syntaxChecker should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );

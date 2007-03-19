@@ -458,19 +458,19 @@ class DefaultDirectoryService extends DirectoryService
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( "person" );
-            objectClass.add( "organizationalPerson" );
-            objectClass.add( "inetOrgPerson" );
+            objectClass.add( SchemaConstants.PERSON_OC );
+            objectClass.add( SchemaConstants.ORGANIZATIONAL_PERSON_OC );
+            objectClass.add( SchemaConstants.INET_ORG_PERSON_OC );
             attributes.put( objectClass );
 
-            attributes.put( "uid", PartitionNexus.ADMIN_UID );
-            attributes.put( "userPassword", PartitionNexus.ADMIN_PASSWORD );
-            attributes.put( "displayName", "Directory Superuser" );
+            attributes.put( SchemaConstants.UID_AT, PartitionNexus.ADMIN_UID );
+            attributes.put( SchemaConstants.USER_PASSWORD_AT, PartitionNexus.ADMIN_PASSWORD );
+            attributes.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
             attributes.put( SchemaConstants.CN_AT, "system administrator" );
-            attributes.put( "sn", "administrator" );
+            attributes.put( SchemaConstants.SN_AT, "administrator" );
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            attributes.put( "displayName", "Directory Superuser" );
+            attributes.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
 
             partitionNexus.add(PartitionNexus.getAdminName(),
                 attributes );
@@ -707,7 +707,7 @@ class DefaultDirectoryService extends DirectoryService
         adminDn.normalize( configuration.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         
         Attributes adminEntry = partitionNexus.lookup( adminDn );
-        Object userPassword = adminEntry.get( "userPassword" ).get();
+        Object userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
         if ( userPassword instanceof byte[] )
         {
             needToChangeAdminPassword = PartitionNexus.ADMIN_PASSWORD.equals( new String(

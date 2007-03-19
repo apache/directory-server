@@ -40,6 +40,7 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
@@ -263,7 +264,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         try
         {
             userEntry = proxy.lookup( principalDn, new String[]
-                { "userPassword" }, USERLOOKUP_BYPASS );
+                { SchemaConstants.USER_PASSWORD_AT }, USERLOOKUP_BYPASS );
 
             if ( userEntry == null )
             {
@@ -280,7 +281,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         Object userPassword;
 
-        Attribute userPasswordAttr = userEntry.get( "userPassword" );
+        Attribute userPasswordAttr = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
 
         // ---- assert that credentials match
         if ( userPasswordAttr == null )

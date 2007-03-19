@@ -46,8 +46,6 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  */
 public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
 {
-    protected static final String OU_OID = "2.5.4.11";
-
     protected final Registries targetRegistries;
     protected final PartitionSchemaLoader loader;
     protected final AttributeType m_oidAT;

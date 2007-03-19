@@ -83,8 +83,6 @@ public class SubentryService extends BaseInterceptor
 {
     /** the subentry control OID */
     private static final String SUBENTRY_CONTROL = SubentriesControl.CONTROL_OID;
-    /** the objectClass OID for a subentry */
-    private static final String SUBENTRY_OBJECTCLASS_OID = "2.5.17.0";
 
     public static final String AC_AREA = "accessControlSpecificArea";
     public static final String AC_INNERAREA = "accessControlInnerArea";
@@ -1396,7 +1394,7 @@ public class SubentryService extends BaseInterceptor
                     return false;
                 }
 
-                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SUBENTRY_OBJECTCLASS_OID ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC_OID ) )
                 {
                     return false;
                 }
@@ -1457,7 +1455,7 @@ public class SubentryService extends BaseInterceptor
                     return true;
                 }
 
-                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SUBENTRY_OBJECTCLASS_OID ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC_OID ) )
                 {
                     return true;
                 }

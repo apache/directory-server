@@ -69,11 +69,6 @@ public abstract class PartitionNexus implements Partition
     /** the base dn under which all groups reside */
     public final static String GROUPS_BASE_NAME = "ou=groups,ou=system";
 
-    /** UID attribute name and OID */
-    private static final String UID_ATTRIBUTE = "uid";
-    private static final String UID_ATTRIBUTE_ALIAS = "userid";
-    private static final String UID_ATTRIBUTE_OID = "0.9.2342.19200300.100.1.1";
-    
     /**
      * System partition suffix constant.  Should be kept down to a single Dn name 
      * component or the default constructor will have to parse it instead of 
@@ -105,9 +100,9 @@ public abstract class PartitionNexus implements Partition
         {
         	Map<String, OidNormalizer> oidsMap = new HashMap<String, OidNormalizer>();
         	
-        	oidsMap.put( UID_ATTRIBUTE, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );
-        	oidsMap.put( UID_ATTRIBUTE_ALIAS, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );
-        	oidsMap.put( UID_ATTRIBUTE_OID, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );
+        	oidsMap.put( SchemaConstants.UID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
+        	oidsMap.put( SchemaConstants.USER_ID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
+        	oidsMap.put( SchemaConstants.UID_AT_OID, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
         	
         	oidsMap.put( SchemaConstants.OU_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
         	oidsMap.put( SchemaConstants.ORGANIZATIONAL_UNIT_NAME_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
