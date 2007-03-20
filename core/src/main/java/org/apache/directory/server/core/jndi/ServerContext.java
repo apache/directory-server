@@ -252,7 +252,7 @@ public abstract class ServerContext implements EventContext
      */
     public String getNameInNamespace() throws NamingException
     {
-        return dn.toString();
+        return dn.getUpName();
     }
 
 
