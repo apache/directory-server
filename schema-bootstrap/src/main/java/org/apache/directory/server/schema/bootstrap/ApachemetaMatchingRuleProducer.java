@@ -117,7 +117,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
 
         public String getDescription()
         {
-            return "Don't know Emmanuel needs to define what this is for.";
+            return "Rule identifier of this DIT structure rule";
         }
 
         public String getName()
