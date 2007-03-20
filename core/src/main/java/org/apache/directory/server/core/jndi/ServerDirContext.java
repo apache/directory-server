@@ -727,7 +727,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     // EventDirContext implementations
     // ------------------------------------------------------------------------
 
-    FilterParserImpl filterParser = new FilterParserImpl();
+    private static final FilterParserImpl filterParser = new FilterParserImpl();
 
 
     public void addNamingListener( Name name, String filterStr, SearchControls searchControls,
