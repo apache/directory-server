@@ -378,7 +378,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         partitions.put( key, system );
 
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.add( system.getUpSuffix().toString() );
+        namingContexts.add( system.getUpSuffix().getUpName() );
 
         return systemCfg;
     }
@@ -543,21 +543,21 @@ public class DefaultPartitionNexus extends PartitionNexus
         partitions.put( partition.getSuffix().toString(), partition );
 
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.add( partition.getUpSuffix().toString() );
+        namingContexts.add( partition.getUpSuffix().getUpName() );
     }
 
 
     public synchronized void removeContextPartition( LdapDN suffix ) throws NamingException
     {
         String key = suffix.toString();
-        Partition partition = ( Partition ) partitions.get( key );
+        Partition partition = partitions.get( key );
         if ( partition == null )
         {
             throw new NameNotFoundException( "No partition with suffix: " + key );
         }
 
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.remove( partition.getUpSuffix().toString() );
+        namingContexts.remove( partition.getUpSuffix().getUpName() );
         partitions.remove( key );
 
         partition.sync();
@@ -651,7 +651,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     private void unregister( Partition partition ) throws NamingException
     {
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.remove( partition.getSuffix().toString() );
+        namingContexts.remove( partition.getSuffix().getUpName() );
         partitions.remove( partition.getSuffix().toString() );
     }
 
@@ -991,7 +991,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             if ( partitions.containsKey( clonedDn.toString() ) )
             {
-                return ( Partition ) partitions.get( clonedDn.toString() );
+                return partitions.get( clonedDn.toString() );
             }
 
             clonedDn.remove( clonedDn.size() - 1 );
@@ -1016,7 +1016,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
         for ( Iterator oids = extensionOids.iterator(); oids.hasNext(); )
         {
-            supportedExtension.add( ( String ) oids.next() );
+            supportedExtension.add( oids.next() );
         }
     }
 }
