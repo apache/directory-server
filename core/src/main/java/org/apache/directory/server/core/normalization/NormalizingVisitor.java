@@ -58,8 +58,10 @@ public class NormalizingVisitor implements FilterVisitor
 {
     /** logger used by this class */
     private final static Logger log = LoggerFactory.getLogger( NormalizingVisitor.class );
+    
     /** the name component normalizer used by this visitor */
     private final NameComponentNormalizer ncn;
+    
     /** the oid registry used to resolve OIDs for attributeType ids */
     private final OidRegistry registry;
 
