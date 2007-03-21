@@ -37,8 +37,15 @@
   <bean id="ntpConfiguration" class="org.apache.directory.server.ntp.NtpConfiguration">
     <!-- Whether to enable the NTP protocol.                                -->
     <property name="enabled" value="true" />
-    <!-- The port to run the Kerberos protocol on.                          -->
+    <!-- The port to run the NTP protocol on.                               -->
     <property name="ipPort" value="123" />
+  </bean>
+  
+  <bean id="dnsConfiguration" class="org.apache.directory.server.dns.DnsConfiguration">
+    <!-- Whether to enable the DNS protocol.                                -->
+    <property name="enabled" value="true" />
+    <!-- The port to run the DNS protocol on.                               -->
+    <property name="ipPort" value="53" />
   </bean>
   
   <bean id="kdcConfiguration" class="org.apache.directory.server.kerberos.kdc.KdcConfiguration">
@@ -166,6 +173,7 @@
     <property name="denormalizeOpAttrsEnabled" value="false" />
 
     <property name="ntpConfiguration" ref="ntpConfiguration" />
+    <property name="dnsConfiguration" ref="dnsConfiguration" />
     <property name="changePasswordConfiguration" ref="changePasswordConfiguration" />
     <property name="kdcConfiguration" ref="kdcConfiguration" />
     <property name="ldapConfiguration" ref="ldapConfiguration" />
