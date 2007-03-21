@@ -583,7 +583,7 @@ public class OID implements Serializable
         }
 
         // We must have a dot
-        if ( bytes[pos++] != '.' )
+        if ( ( pos + 1 >= bytes.length ) || ( bytes[++pos] != '.' ) )
         {
             return false;
         }
@@ -630,6 +630,6 @@ public class OID implements Serializable
             }
         }
 
-        return true;
+        return !dotSeen;
     }
 }

@@ -262,99 +262,16 @@ public class OIDTest extends TestCase
      */
     public void testOidStringBad()
     {
-
-        OID oid = new OID();
-
-        try
-        {
-            oid.setOID( "0" );
-        }
-        catch ( DecoderException de )
-        {
-            Assert.assertTrue( true );
-        }
-
-        try
-        {
-            oid.setOID( "0." );
-        }
-        catch ( DecoderException de )
-        {
-            Assert.assertTrue( true );
-        }
-
-        try
-        {
-            oid.setOID( "." );
-        }
-        catch ( DecoderException de )
-        {
-            Assert.assertTrue( true );
-        }
-
-        try
-        {
-            oid.setOID( "0.1.2." );
-        }
-        catch ( DecoderException de )
-        {
-            Assert.assertTrue( true );
-        }
-
-        try
-        {
-            oid.setOID( "3.1" );
-        }
-        catch ( DecoderException de )
-        {
-            Assert.assertTrue( true );
-        }
-
-        try
-        {
-            oid.setOID( "0..1" );
-        }
-        catch ( DecoderException de )
-        {
-            Assert.assertTrue( true );
-        }
-
-        try
-        {
-            oid.setOID( "0..12" );
-        }
-        catch ( DecoderException de )
-        {
-            Assert.assertTrue( true );
-        }
-
-        try
-        {
-            oid.setOID( "0.a.2" );
-        }
-        catch ( DecoderException de )
-        {
-            Assert.assertTrue( true );
-        }
-
-        try
-        {
-            oid.setOID( "0.123456" );
-        }
-        catch ( DecoderException de )
-        {
-            Assert.assertTrue( true );
-        }
-
-        try
-        {
-            oid.setOID( "1.123456" );
-        }
-        catch ( DecoderException de )
-        {
-            Assert.assertTrue( true );
-        }
-
+        assertFalse( OID.isOID( "0" ) );
+        assertFalse( OID.isOID( "0." ) );
+        assertFalse( OID.isOID( "." ) );
+        assertFalse( OID.isOID( "0.1.2." ) );
+        assertFalse( OID.isOID( "3.1" ) );
+        assertFalse( OID.isOID( "0..1" ) );
+        assertFalse( OID.isOID( "0..12" ) );
+        assertFalse( OID.isOID( "0.a.2" ) );
+        assertFalse( OID.isOID( "0.123456" ) );
+        assertFalse( OID.isOID( "1.123456" ) );
     }
 
 
