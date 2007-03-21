@@ -86,6 +86,13 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private final AttributeType descAT;
     private final AttributeType fqcnAT;
 
+    private static Map<String, LdapDN> staticAttributeTypeDNs = new HashMap<String, LdapDN>();
+    private static Map<String, LdapDN> staticMatchingRulesDNs = new HashMap<String, LdapDN>();
+    private static Map<String, LdapDN> staticObjectClassesDNs = new HashMap<String, LdapDN>();
+    private static Map<String, LdapDN> staticComparatorsDNs = new HashMap<String, LdapDN>();
+    private static Map<String, LdapDN> staticNormalizersDNs = new HashMap<String, LdapDN>();
+    private static Map<String, LdapDN> staticSyntaxCheckersDNs = new HashMap<String, LdapDN>();
+    private static Map<String, LdapDN> staticSyntaxesDNs = new HashMap<String, LdapDN>();
     
     public PartitionSchemaLoader( Partition partition, Registries bootstrapRegistries ) throws NamingException
     {
@@ -100,8 +107,57 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         this.byteCodeAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
         this.descAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DESCRIPTION_AT );
         this.fqcnAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_FQCN_AT );
+        
+        initStaticDNs( "system" );
+        initStaticDNs( "core" );
+        initStaticDNs( "apache" );
+        initStaticDNs( "apachemeta" );
+        initStaticDNs( "other" );
+        initStaticDNs( "collective" );
+        initStaticDNs( "java" );
+        initStaticDNs( "cosine" );
+        initStaticDNs( "inetorgperson" );
     }
     
+    private void initStaticDNs( String schemaName ) throws NamingException
+    {
+        
+        // Initialize AttributeType Dns
+        LdapDN dn = new LdapDN( "ou=attributeTypes,cn=" + schemaName + ",ou=schema" );
+        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        staticAttributeTypeDNs.put( schemaName, dn );
+
+        // Initialize ObjectClasses Dns
+        dn = new LdapDN( "ou=objectClasses,cn=" + schemaName + ",ou=schema" );
+        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        staticObjectClassesDNs.put( schemaName, dn );
+
+        // Initialize MatchingRules Dns
+        dn = new LdapDN( "ou=matchingRules,cn=" + schemaName + ",ou=schema" );
+        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        staticMatchingRulesDNs.put( schemaName, dn );
+
+        // Initialize Comparators Dns
+        dn = new LdapDN( "ou=comparators,cn=" + schemaName + ",ou=schema" );
+        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        staticComparatorsDNs.put( schemaName, dn );
+        
+        // Initialize Normalizers Dns
+        dn = new LdapDN( "ou=normalizers,cn=" + schemaName + ",ou=schema" );
+        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        staticNormalizersDNs.put( schemaName, dn );
+
+        // Initialize SyntaxCheckers Dns
+        dn = new LdapDN( "ou=syntaxCheckers,cn=" + schemaName + ",ou=schema" );
+        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        staticSyntaxCheckersDNs.put( schemaName, dn );
+
+        // Initialize Syntaxes Dns
+        dn = new LdapDN( "ou=syntaxes,cn=" + schemaName + ",ou=schema" );
+        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        staticSyntaxesDNs.put( schemaName, dn );
+
+    }
     
     /**
      * Utility method to load all enabled schemas into this registry.
@@ -340,8 +396,15 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
          * the loader we will defer the registration of elements until later.
          */
         LinkedList<ObjectClass> deferred = new LinkedList<ObjectClass>();
-        LdapDN dn = new LdapDN( "ou=objectClasses,cn=" + schema.getSchemaName() + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+
+        LdapDN dn = staticObjectClassesDNs.get( schema.getSchemaName() );
+        
+        if ( dn == null )
+        {
+            dn = new LdapDN( "ou=objectClasses,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            staticObjectClassesDNs.put( schema.getSchemaName(), dn );
+        }
         
         if ( ! partition.hasEntry( dn ) )
         {
@@ -433,8 +496,15 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private void loadAttributeTypes( Schema schema, Registries targetRegistries ) throws NamingException
     {
         LinkedList<AttributeType> deferred = new LinkedList<AttributeType>();
-        LdapDN dn = new LdapDN( "ou=attributeTypes,cn=" + schema.getSchemaName() + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        
+        LdapDN dn = staticAttributeTypeDNs.get( schema.getSchemaName() );
+        
+        if ( dn == null )
+        {
+            dn = new LdapDN( "ou=attributeTypes,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            staticAttributeTypeDNs.put( schema.getSchemaName(), dn );
+        }
         
         if ( ! partition.hasEntry( dn ) )
         {
@@ -524,8 +594,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
     private void loadMatchingRules( Schema schema, Registries targetRegistries ) throws NamingException
     {
-        LdapDN dn = new LdapDN( "ou=matchingRules,cn=" + schema.getSchemaName() + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        LdapDN dn = staticMatchingRulesDNs.get( schema.getSchemaName() );
+        
+        if ( dn == null )
+        {
+            dn = new LdapDN( "ou=matchingRules,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            staticMatchingRulesDNs.put( schema.getSchemaName(), dn );
+        }
         
         if ( ! partition.hasEntry( dn ) )
         {
@@ -550,8 +626,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
     private void loadSyntaxes( Schema schema, Registries targetRegistries ) throws NamingException
     {
-        LdapDN dn = new LdapDN( "ou=syntaxes,cn=" + schema.getSchemaName() + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        LdapDN dn = staticSyntaxesDNs.get( schema.getSchemaName() );
+        
+        if ( dn == null )
+        {
+            dn = new LdapDN( "ou=syntaxes,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            staticSyntaxesDNs.put( schema.getSchemaName(), dn );
+        }
         
         if ( ! partition.hasEntry( dn ) )
         {
@@ -575,8 +657,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
     private void loadSyntaxCheckers( Schema schema, Registries targetRegistries ) throws NamingException
     {
-        LdapDN dn = new LdapDN( "ou=syntaxCheckers,cn=" + schema.getSchemaName() + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        LdapDN dn = staticSyntaxCheckersDNs.get( schema.getSchemaName() );
+        
+        if ( dn == null )
+        {
+            dn = new LdapDN( "ou=syntaxCheckers,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            staticSyntaxCheckersDNs.put( schema.getSchemaName(), dn );
+        }
         
         if ( ! partition.hasEntry( dn ) )
         {
@@ -602,8 +690,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
     private void loadNormalizers( Schema schema, Registries targetRegistries ) throws NamingException
     {
-        LdapDN dn = new LdapDN( "ou=normalizers,cn=" + schema.getSchemaName() + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        LdapDN dn = staticNormalizersDNs.get( schema.getSchemaName() );
+        
+        if ( dn == null )
+        {
+            dn = new LdapDN( "ou=normalizers,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            staticNormalizersDNs.put( schema.getSchemaName(), dn );
+        }
         
         if ( ! partition.hasEntry( dn ) )
         {
@@ -665,8 +759,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     
     private void loadComparators( Schema schema, Registries targetRegistries ) throws NamingException
     {
-        LdapDN dn = new LdapDN( "ou=comparators,cn=" + schema.getSchemaName() + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        LdapDN dn = staticComparatorsDNs.get( schema.getSchemaName() );
+        
+        if ( dn == null )
+        {
+            dn = new LdapDN( "ou=comparators,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            staticComparatorsDNs.put( schema.getSchemaName(), dn );
+        }
 
         if ( ! partition.hasEntry( dn ) )
         {
