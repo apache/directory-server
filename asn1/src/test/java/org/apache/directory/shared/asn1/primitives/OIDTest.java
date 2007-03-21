@@ -270,8 +270,8 @@ public class OIDTest extends TestCase
         assertFalse( OID.isOID( "0..1" ) );
         assertFalse( OID.isOID( "0..12" ) );
         assertFalse( OID.isOID( "0.a.2" ) );
-        assertFalse( OID.isOID( "0.123456" ) );
-        assertFalse( OID.isOID( "1.123456" ) );
+        assertTrue( OID.isOID( "0.123456" ) );
+        assertTrue( OID.isOID( "1.123456" ) );
     }
 
 
