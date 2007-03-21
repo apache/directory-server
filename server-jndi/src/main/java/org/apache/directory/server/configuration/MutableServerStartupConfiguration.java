@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ntp.NtpConfiguration;
@@ -180,5 +181,11 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     public void setChangePasswordConfiguration( ChangePasswordConfiguration changePasswordConfiguration )
     {
         super.setChangePasswordConfiguration( changePasswordConfiguration );
+    }
+
+
+    public void setDnsConfiguration( DnsConfiguration dnsConfiguration )
+    {
+        super.setDnsConfiguration( dnsConfiguration );
     }
 }

@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
+import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ntp.NtpConfiguration;
@@ -56,6 +57,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
     private LdapConfiguration ldapsConfiguration = new LdapConfiguration();
     private ChangePasswordConfiguration changePasswordConfiguration = new ChangePasswordConfiguration();
     private NtpConfiguration ntpConfiguration = new NtpConfiguration();
+    private DnsConfiguration dnsConfiguration = new DnsConfiguration();
 
 
     protected ServerStartupConfiguration()
@@ -190,5 +192,17 @@ public class ServerStartupConfiguration extends StartupConfiguration
     public ChangePasswordConfiguration getChangePasswordConfiguration()
     {
         return changePasswordConfiguration;
+    }
+
+
+    protected void setDnsConfiguration( DnsConfiguration dnsConfiguration )
+    {
+        this.dnsConfiguration = dnsConfiguration;
+    }
+
+
+    public DnsConfiguration getDnsConfiguration()
+    {
+        return dnsConfiguration;
     }
 }

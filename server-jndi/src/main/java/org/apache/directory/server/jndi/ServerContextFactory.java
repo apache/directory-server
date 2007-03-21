@@ -41,6 +41,10 @@ import org.apache.directory.server.configuration.ServerStartupConfiguration;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.dns.DnsConfiguration;
+import org.apache.directory.server.dns.DnsServer;
+import org.apache.directory.server.dns.store.JndiRecordStoreImpl;
+import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.kdc.KerberosServer;
 import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
@@ -102,6 +106,7 @@ public class ServerContextFactory extends CoreContextFactory
     private static ChangePasswordServer udpChangePasswordServer;
     private static NtpServer tcpNtpServer;
     private static NtpServer udpNtpServer;
+    private static DnsServer udpDnsServer;
     private DirectoryService directoryService;
 
 
@@ -198,6 +203,16 @@ public class ServerContextFactory extends CoreContextFactory
             }
             udpNtpServer = null;
         }
+
+        if ( udpDnsServer != null )
+        {
+            udpDnsServer.destroy();
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "Unbind of DNS Service complete: " + udpDnsServer );
+            }
+            udpDnsServer = null;
+        }
     }
 
 
@@ -224,6 +239,7 @@ public class ServerContextFactory extends CoreContextFactory
             startKerberos( cfg.getKdcConfiguration() );
             startChangePassword( cfg.getChangePasswordConfiguration() );
             startNTP( cfg.getNtpConfiguration() );
+            startDNS( cfg.getDnsConfiguration() );
         }
     }
 
@@ -571,6 +587,30 @@ public class ServerContextFactory extends CoreContextFactory
         catch ( Throwable t )
         {
             log.error( "Failed to start the NTP service", t );
+        }
+    }
+
+
+    private void startDNS( DnsConfiguration dnsConfig )
+    {
+        // Skip if disabled
+        if ( !dnsConfig.isEnabled() )
+        {
+            return;
+        }
+
+        try
+        {
+            RecordStore store = new JndiRecordStoreImpl( dnsConfig, this );
+
+            DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
+            udpConfig.setThreadModel( threadModel );
+
+            udpDnsServer = new DnsServer( dnsConfig, udpAcceptor, udpConfig, store );
+        }
+        catch ( Throwable t )
+        {
+            log.error( "Failed to start the DNS service", t );
         }
     }
 
