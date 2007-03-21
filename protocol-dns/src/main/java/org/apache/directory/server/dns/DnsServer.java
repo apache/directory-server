@@ -29,6 +29,7 @@ import org.apache.directory.server.dns.protocol.DnsProtocolHandler;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoHandler;
+import org.apache.mina.common.IoServiceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +60,7 @@ public class DnsServer
      * @param acceptor
      * @param store
      */
-    public DnsServer( DnsConfiguration config, IoAcceptor acceptor, RecordStore store )
+    public DnsServer( DnsConfiguration config, IoAcceptor acceptor, IoServiceConfig serviceConfig, RecordStore store )
     {
         this.config = config;
         this.acceptor = acceptor;
@@ -72,7 +73,7 @@ public class DnsServer
         {
             handler = new DnsProtocolHandler( config, this.store );
 
-            acceptor.bind( new InetSocketAddress( port ), handler );
+            acceptor.bind( new InetSocketAddress( port ), handler, serviceConfig );
 
             log.debug( "{} listening on port {}", name, new Integer( port ) );
         }
