@@ -13,7 +13,7 @@ Class-Path: logger.jar daemon.jar bootstrapper.jar
  ../lib/apacheds-server-jndi-1.5.0-SNAPSHOT.jar 
  ../lib/apacheds-server-main-1.5.0-SNAPSHOT.jar 
  ../lib/commons-collections-3.0.jar 
- ../lib/commons-lang-2.0.jar 
+ ../lib/commons-lang-2.1.jar 
  ../lib/commons-logging-1.0.4.jar 
  ../lib/commons-cli-1.0.jar 
  ../lib/jdbm-1.0.jar 
