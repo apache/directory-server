@@ -23,8 +23,6 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 import java.util.Map;
 
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.Crc32Checksum;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.RsaMd4Checksum;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.RsaMd5Checksum;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.Sha1Checksum;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
@@ -53,8 +51,6 @@ public class ConfigureAuthenticationChain implements IoHandlerCommand
         authContext.setLockBox( lockBox );
 
         Map checksumEngines = authContext.getChecksumEngines();
-        checksumEngines.put( ChecksumType.CRC32, new Crc32Checksum() );
-        checksumEngines.put( ChecksumType.RSA_MD4, new RsaMd4Checksum() );
         checksumEngines.put( ChecksumType.RSA_MD5, new RsaMd5Checksum() );
         checksumEngines.put( ChecksumType.SHA1, new Sha1Checksum() );
 
