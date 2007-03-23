@@ -20,8 +20,9 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import org.bouncycastle.crypto.BlockCipher;
-import org.bouncycastle.crypto.engines.DESEngine;
+import java.security.GeneralSecurityException;
+
+import javax.crypto.Cipher;
 
 
 /**
@@ -30,9 +31,9 @@ import org.bouncycastle.crypto.engines.DESEngine;
  */
 public abstract class DesCbcEncryption extends EncryptionEngine
 {
-    public BlockCipher getBlockCipher()
+    public Cipher getCipher() throws GeneralSecurityException
     {
-        return new DESEngine();
+        return Cipher.getInstance( "DES/CBC/NoPadding" );
     }
 
 

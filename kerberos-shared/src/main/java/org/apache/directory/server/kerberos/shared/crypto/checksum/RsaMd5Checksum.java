@@ -20,9 +20,10 @@
 package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
-import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.digests.MD5Digest;
 
 
 /**
@@ -31,9 +32,9 @@ import org.bouncycastle.crypto.digests.MD5Digest;
  */
 public class RsaMd5Checksum extends ChecksumEngine
 {
-    public Digest getDigest()
+    public MessageDigest getDigest() throws NoSuchAlgorithmException
     {
-        return new MD5Digest();
+        return MessageDigest.getInstance( "MD5" );
     }
 
 

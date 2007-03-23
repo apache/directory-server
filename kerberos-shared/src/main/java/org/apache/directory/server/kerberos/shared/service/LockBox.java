@@ -28,8 +28,6 @@ import java.util.Map;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.Des3CbcMd5Encryption;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.Des3CbcSha1Encryption;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.DesCbcCrcEncryption;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.DesCbcMd4Encryption;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.DesCbcMd5Encryption;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionEngine;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
@@ -81,7 +79,7 @@ public class LockBox
 
     static
     {
-        Map map = new HashMap();
+        Map<Class, Class> map = new HashMap<Class, Class>();
 
         map.put( EncTicketPart.class, EncTicketPartEncoder.class );
         map.put( AuthenticationReply.class, EncAsRepPartEncoder.class );
@@ -94,7 +92,7 @@ public class LockBox
 
     static
     {
-        Map map = new HashMap();
+        Map<Class, Class> map = new HashMap<Class, Class>();
 
         map.put( EncTicketPart.class, EncTicketPartDecoder.class );
         map.put( Authenticator.class, AuthenticatorDecoder.class );
@@ -107,10 +105,8 @@ public class LockBox
 
     static
     {
-        Map map = new HashMap();
+        Map<EncryptionType, Class> map = new HashMap<EncryptionType, Class>();
 
-        map.put( EncryptionType.DES_CBC_CRC, DesCbcCrcEncryption.class );
-        map.put( EncryptionType.DES_CBC_MD4, DesCbcMd4Encryption.class );
         map.put( EncryptionType.DES_CBC_MD5, DesCbcMd5Encryption.class );
         map.put( EncryptionType.DES3_CBC_MD5, Des3CbcMd5Encryption.class );
         map.put( EncryptionType.DES3_CBC_SHA1, Des3CbcSha1Encryption.class );
@@ -119,6 +115,14 @@ public class LockBox
     }
 
 
+    /**
+     * Performs an encode and an encrypt.
+     *
+     * @param key The key to use for encrypting.
+     * @param encodable The Kerberos object to encode.
+     * @return The Kerberos EncryptedData.
+     * @throws KerberosException
+     */
     public EncryptedData seal( EncryptionKey key, Encodable encodable ) throws KerberosException
     {
         try
@@ -136,6 +140,15 @@ public class LockBox
     }
 
 
+    /**
+     * Perform a decrypt and a decode.
+     *
+     * @param hint The class the encrypted data is expected to contain.
+     * @param key The key to use for decryption.
+     * @param data The data to decrypt.
+     * @return The Kerberos object resulting from a successful decrypt and decode.
+     * @throws KerberosException
+     */
     public Encodable unseal( Class hint, EncryptionKey key, EncryptedData data ) throws KerberosException
     {
         try
