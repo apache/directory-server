@@ -14,10 +14,6 @@
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
-      <groupId>bouncycastle</groupId>
-      <artifactId>lcrypto-jdk14</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
     </dependency>
