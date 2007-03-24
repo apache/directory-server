@@ -35,7 +35,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticat
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.server.protocol.shared.chain.Context;
+import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,13 +46,13 @@ public class VerifyEncryptedTimestamp extends VerifierBase
     private static final Logger log = LoggerFactory.getLogger( VerifyEncryptedTimestamp.class );
 
 
-    public boolean execute( Context ctx ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        AuthenticationContext authContext = ( AuthenticationContext ) ctx;
+        AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
 
         if ( authContext.getClientKey() != null )
         {
-            return CONTINUE_CHAIN;
+            next.execute( session, message );
         }
 
         log.debug( "Verifying using encrypted timestamp." );
@@ -123,14 +123,6 @@ public class VerifyEncryptedTimestamp extends VerifierBase
                 {
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_FAILED );
                 }
-
-                /*
-                 if(decrypted_enc_timestamp and usec is replay)
-                 error_out(KDC_ERR_PREAUTH_FAILED);
-                 endif
-
-                 add decrypted_enc_timestamp and usec to replay cache;
-                 */
             }
         }
 
@@ -141,6 +133,6 @@ public class VerifyEncryptedTimestamp extends VerifierBase
             log.debug( "Pre-authentication by encrypted timestamp successful for " + clientName + "." );
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
     }
 }

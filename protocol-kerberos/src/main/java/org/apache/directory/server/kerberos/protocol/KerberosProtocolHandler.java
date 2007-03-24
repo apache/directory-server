@@ -31,11 +31,11 @@ import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingServic
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.server.protocol.shared.chain.Command;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,8 +54,8 @@ public class KerberosProtocolHandler implements IoHandler
     private KdcConfiguration config;
     private PrincipalStore store;
 
-    private Command authService;
-    private Command tgsService;
+    private IoHandlerCommand authService;
+    private IoHandlerCommand tgsService;
 
 
     public KerberosProtocolHandler(KdcConfiguration config, PrincipalStore store)
@@ -137,7 +137,7 @@ public class KerberosProtocolHandler implements IoHandler
                     authContext.setClientAddress( clientAddress );
                     authContext.setRequest( request );
 
-                    authService.execute( authContext );
+                    authService.execute( null, session, message );
 
                     session.write( authContext.getReply() );
                     break;
@@ -149,7 +149,7 @@ public class KerberosProtocolHandler implements IoHandler
                     tgsContext.setClientAddress( clientAddress );
                     tgsContext.setRequest( request );
 
-                    tgsService.execute( tgsContext );
+                    tgsService.execute( null, session, message );
 
                     session.write( tgsContext.getReply() );
                     break;

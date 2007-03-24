@@ -24,15 +24,21 @@ import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-public class SealReply extends CommandBase
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
+public class SealReply implements IoHandlerCommand
 {
-    public boolean execute( Context context ) throws Exception
+    private String contextKey = "context";
+
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        AuthenticationContext authContext = ( AuthenticationContext ) context;
+        AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
 
         AuthenticationReply reply = ( AuthenticationReply ) authContext.getReply();
         EncryptionKey clientKey = authContext.getClientKey();
@@ -41,6 +47,12 @@ public class SealReply extends CommandBase
         EncryptedData encryptedData = lockBox.seal( clientKey, reply );
         reply.setEncPart( encryptedData );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

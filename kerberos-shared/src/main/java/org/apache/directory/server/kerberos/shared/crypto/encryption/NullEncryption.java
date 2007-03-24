@@ -20,14 +20,15 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
+import javax.crypto.Cipher;
+
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
-import org.bouncycastle.crypto.BlockCipher;
 
 
 public class NullEncryption extends EncryptionEngine
 {
-    public BlockCipher getBlockCipher()
+    public Cipher getCipher() 
     {
         return null;
     }
@@ -87,7 +88,7 @@ public class NullEncryption extends EncryptionEngine
     }
 
 
-    protected byte[] processBlockCipher( boolean encrypt, byte[] data, byte[] key, byte[] ivec )
+    protected byte[] processCipher( boolean encrypt, byte[] data, byte[] key, byte[] ivec )
     {
         return data;
     }

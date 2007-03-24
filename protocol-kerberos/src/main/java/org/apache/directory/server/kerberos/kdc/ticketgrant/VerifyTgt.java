@@ -25,14 +25,18 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.service.VerifyTicket;
-import org.apache.directory.server.protocol.shared.chain.Context;
+import org.apache.mina.common.IoSession;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class VerifyTgt extends VerifyTicket
 {
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
         KdcConfiguration config = tgsContext.getConfig();
         Ticket tgt = tgsContext.getTgt();
         String primaryRealm = config.getPrimaryRealm();
@@ -40,6 +44,6 @@ public class VerifyTgt extends VerifyTicket
 
         verifyTicket( tgt, primaryRealm, serverPrincipal );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
     }
 }

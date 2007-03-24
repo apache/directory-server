@@ -20,15 +20,17 @@
 package org.apache.directory.server.kerberos.kdc.preauthentication;
 
 
-import org.apache.directory.server.protocol.shared.chain.impl.ChainBase;
+import org.apache.mina.handler.chain.IoHandlerChain;
 
-
-public class PreAuthenticationChain extends ChainBase
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
+public class PreAuthenticationChain extends IoHandlerChain
 {
     public PreAuthenticationChain()
     {
-        super();
-        addCommand( new VerifySam() );
-        addCommand( new VerifyEncryptedTimestamp() );
+        addLast( "verifySam", new VerifySam() );
+        addLast( "verifyEncryptedTimestamp", new VerifyEncryptedTimestamp() );
     }
 }

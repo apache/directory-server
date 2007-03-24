@@ -36,21 +36,25 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-public class GenerateTicket extends CommandBase
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
+public class GenerateTicket implements IoHandlerCommand
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( GenerateTicket.class );
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        AuthenticationContext authContext = ( AuthenticationContext ) context;
+        AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
 
         KdcRequest request = authContext.getRequest();
         LockBox lockBox = authContext.getLockBox();
@@ -94,22 +98,25 @@ public class GenerateTicket extends CommandBase
         {
             // TODO - possibly allow req.from range
             if ( !config.isPostdateAllowed() )
+            {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+            
             newTicketBody.setFlag( TicketFlags.INVALID );
             newTicketBody.setStartTime( request.getFrom() );
         }
 
         long till = 0;
+        
         if ( request.getTill().getTime() == 0 )
+        {
             till = Long.MAX_VALUE;
+        }
         else
+        {
             till = request.getTill().getTime();
-        /*
-         new_tkt.endtime := min(till,
-         new_tkt.starttime+client.max_life,
-         new_tkt.starttime+server.max_life,
-         new_tkt.starttime+max_life_for_realm);
-         */
+        }
+        
         long endTime = Math.min( now.getTime() + config.getMaximumTicketLifetime(), till );
         KerberosTime kerberosEndTime = new KerberosTime( endTime );
         newTicketBody.setEndTime( kerberosEndTime );
@@ -120,18 +127,6 @@ public class GenerateTicket extends CommandBase
             request.getKdcOptions().set( KdcOptions.RENEWABLE );
             tempRtime = request.getTill().getTime();
         }
-
-        /*
-         if (req.kdc-options.RENEWABLE is set) then
-         set new_tkt.flags.RENEWABLE;
-         new_tkt.renew-till := min(rtime,
-         new_tkt.starttime+client.max_rlife,
-         new_tkt.starttime+server.max_rlife,
-         new_tkt.starttime+max_rlife_for_realm);
-         else
-         omit new_tkt.renew-till;
-         endif
-         */
 
         if ( tempRtime == 0 )
         {
@@ -179,6 +174,11 @@ public class GenerateTicket extends CommandBase
 
         authContext.setTicket( newTicket );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

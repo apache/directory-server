@@ -22,21 +22,22 @@ package org.apache.directory.server.kerberos.kdc;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class MonitorRequest extends CommandBase
+public class MonitorRequest implements IoHandlerCommand
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorRequest.class );
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        KdcContext kdcContext = ( KdcContext ) context;
+        KdcContext kdcContext = ( KdcContext ) session.getAttribute( getContextKey() );
         KdcRequest request = kdcContext.getRequest();
         String clientAddress = kdcContext.getClientAddress().getHostAddress();
 
@@ -53,7 +54,7 @@ public class MonitorRequest extends CommandBase
                 + request.getProtocolVersionNumber() + "\n\ttill:                  " + request.getTill() );
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
     }
 
 
@@ -74,5 +75,10 @@ public class MonitorRequest extends CommandBase
         }
 
         return sb.toString();
+    }
+    
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

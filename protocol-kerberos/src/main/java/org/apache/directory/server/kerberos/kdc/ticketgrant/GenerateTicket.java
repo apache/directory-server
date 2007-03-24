@@ -41,15 +41,21 @@ import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-public class GenerateTicket extends CommandBase
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
+public class GenerateTicket implements IoHandlerCommand
 {
-    public boolean execute( Context context ) throws Exception
+    private String contextKey = "context";
+
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        TicketGrantingContext tgsContext = ( TicketGrantingContext ) context;
+        TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
 
         KdcRequest request = tgsContext.getRequest();
         Ticket tgt = tgsContext.getTgt();
@@ -85,17 +91,6 @@ public class GenerateTicket extends CommandBase
 
         if ( request.getOption( KdcOptions.ENC_TKT_IN_SKEY ) )
         {
-            /*
-             if (server not specified) then
-             server = req.second_ticket.client;
-             endif
-             if ((req.second_ticket is not a TGT) or
-             (req.second_ticket.client != server)) then
-             error_out(KDC_ERR_POLICY);
-             endif
-             new_tkt.enc-part := encrypt OCTET STRING
-             using etype_for_key(second-ticket.key), second-ticket.key;
-             */
             throw new KerberosException( ErrorType.KDC_ERR_SVC_UNAVAILABLE );
         }
 
@@ -106,9 +101,14 @@ public class GenerateTicket extends CommandBase
 
         tgsContext.setNewTicket( newTicket );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
     }
 
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
+    }
 
     private void processFlags( KdcConfiguration config, KdcRequest request, Ticket tgt,
         EncTicketPartModifier newTicketBody ) throws KerberosException

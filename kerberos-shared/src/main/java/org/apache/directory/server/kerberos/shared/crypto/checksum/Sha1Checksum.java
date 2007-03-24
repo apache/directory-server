@@ -20,16 +20,17 @@
 package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
-import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.digests.SHA1Digest;
 
 
 public class Sha1Checksum extends ChecksumEngine
 {
-    public Digest getDigest()
+    public MessageDigest getDigest() throws NoSuchAlgorithmException
     {
-        return new SHA1Digest();
+        return MessageDigest.getInstance( "SHA1" );
     }
 
 

@@ -38,21 +38,26 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class BuildReply extends CommandBase
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
+public class BuildReply implements IoHandlerCommand
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( BuildReply.class );
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
         Authenticator authenticator = changepwContext.getAuthenticator();
         Ticket ticket = changepwContext.getTicket();
@@ -117,6 +122,12 @@ public class BuildReply extends CommandBase
 
         changepwContext.setReply( replyModifier.getChangePasswordReply() );
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

@@ -35,10 +35,6 @@ public class EncryptionEngineFactory
         {
             case 0:
                 return new NullEncryption();
-            case 1:
-                return new DesCbcCrcEncryption();
-            case 2:
-                return new DesCbcMd4Encryption();
             case 3:
                 return new DesCbcMd5Encryption();
             case 5:

@@ -34,7 +34,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.server.protocol.shared.chain.Context;
+import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,10 +51,10 @@ public class VerifySam extends VerifierBase
     }
 
 
-    public boolean execute( Context ctx ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         log.debug( "Verifying using SAM subsystem." );
-        AuthenticationContext authContext = ( AuthenticationContext ) ctx;
+        AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
         KdcRequest request = authContext.getRequest();
         PrincipalStoreEntry clientEntry = authContext.getClientEntry();
         String clientName = clientEntry.getPrincipal().getName();
@@ -102,6 +102,6 @@ public class VerifySam extends VerifierBase
             }
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
     }
 }

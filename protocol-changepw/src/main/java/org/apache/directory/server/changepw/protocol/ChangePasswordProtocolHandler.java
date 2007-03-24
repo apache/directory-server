@@ -29,11 +29,11 @@ import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.service.ChangePasswordChain;
 import org.apache.directory.server.changepw.service.ChangePasswordContext;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.server.protocol.shared.chain.Command;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,8 @@ public class ChangePasswordProtocolHandler implements IoHandler
     private ChangePasswordConfiguration config;
     private PrincipalStore store;
 
-    private Command changepwService;
+    private IoHandlerCommand changepwService;
+    private String contextKey = "context";
 
 
     public ChangePasswordProtocolHandler(ChangePasswordConfiguration config, PrincipalStore store)
@@ -106,7 +107,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
             changepwContext.setClientAddress( clientAddress );
             changepwContext.setRequest( request );
 
-            changepwService.execute( changepwContext );
+            changepwService.execute( null, session, message );
 
             session.write( changepwContext.getReply() );
         }
@@ -124,4 +125,10 @@ public class ChangePasswordProtocolHandler implements IoHandler
             log.debug( "{} SENT: {}", session.getRemoteAddress(), message );
         }
     }
+    
+    public String getContextKey()
+    {
+        return ( this.contextKey );
+    }
+
 }

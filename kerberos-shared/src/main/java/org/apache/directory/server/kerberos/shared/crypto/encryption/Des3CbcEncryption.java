@@ -19,16 +19,15 @@
  */
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
+import java.security.GeneralSecurityException;
 
-import org.bouncycastle.crypto.BlockCipher;
-import org.bouncycastle.crypto.engines.DESedeEngine;
-
+import javax.crypto.Cipher;
 
 public abstract class Des3CbcEncryption extends EncryptionEngine
 {
-    public BlockCipher getBlockCipher()
+    public Cipher getCipher() throws GeneralSecurityException
     {
-        return new DESedeEngine();
+        return Cipher.getInstance( "DESede/CBC/NoPadding" );
     }
 
 

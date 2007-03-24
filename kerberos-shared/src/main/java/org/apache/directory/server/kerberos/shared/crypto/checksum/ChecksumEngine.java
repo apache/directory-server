@@ -20,15 +20,16 @@
 package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
-import org.bouncycastle.crypto.Digest;
 
 
 public abstract class ChecksumEngine
 {
-    public abstract Digest getDigest();
-
-
+    public abstract MessageDigest getDigest() throws NoSuchAlgorithmException;
+    
     public abstract ChecksumType checksumType();
 
 
@@ -55,12 +56,14 @@ public abstract class ChecksumEngine
 
     public byte[] calculateChecksum( byte[] data )
     {
-        Digest digester = getDigest();
-
-        digester.reset();
-        digester.update( data, 0, data.length );
-        byte[] returnValue = new byte[digester.getDigestSize()];
-        digester.doFinal( returnValue, 0 );
-        return returnValue;
+        try
+        {
+            MessageDigest digester = getDigest();
+            return digester.digest( data );
+        }
+        catch ( NoSuchAlgorithmException nsae )
+        {
+            return null;
+        }
     }
 }

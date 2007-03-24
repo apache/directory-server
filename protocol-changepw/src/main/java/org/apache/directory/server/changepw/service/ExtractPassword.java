@@ -34,21 +34,26 @@ import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPri
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.service.LockBox;
-import org.apache.directory.server.protocol.shared.chain.Context;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class ExtractPassword extends CommandBase
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
+public class ExtractPassword implements IoHandlerCommand
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( ExtractPassword.class );
 
+    private String contextKey = "context";
 
-    public boolean execute( Context context ) throws Exception
+    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        ChangePasswordContext changepwContext = ( ChangePasswordContext ) context;
+        ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
         ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
         Authenticator authenticator = changepwContext.getAuthenticator();
@@ -103,6 +108,12 @@ public class ExtractPassword extends CommandBase
             throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR );
         }
 
-        return CONTINUE_CHAIN;
+        next.execute( session, message );
+    }
+
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

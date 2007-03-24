@@ -35,14 +35,19 @@ import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
-import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
-/*
- * Shared by TGS and Changepw
+/**
+ * Shared by TGS and Changepw.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
-public abstract class VerifyAuthHeader extends CommandBase
+public abstract class VerifyAuthHeader implements IoHandlerCommand
 {
+    private String contextKey = "context";
+
     // RFC 1510 A.10.  KRB_AP_REQ verification
     public Authenticator verifyAuthHeader( ApplicationRequest authHeader, Ticket ticket, EncryptionKey serverKey,
         long clockSkew, ReplayCache replayCache, boolean emptyAddressesAllowed, InetAddress clientAddress,
@@ -139,5 +144,10 @@ public abstract class VerifyAuthHeader extends CommandBase
         authHeader.setOption( ApOptions.MUTUAL_REQUIRED );
 
         return authenticator;
+    }
+
+    public String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

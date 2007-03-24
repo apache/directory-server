@@ -20,16 +20,22 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
+import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.security.spec.AlgorithmParameterSpec;
+import java.util.Arrays;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.bouncycastle.crypto.BlockCipher;
-import org.bouncycastle.crypto.modes.CBCBlockCipher;
-import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.crypto.params.ParametersWithIV;
 
 
 public abstract class EncryptionEngine
@@ -40,7 +46,7 @@ public abstract class EncryptionEngine
     public abstract ChecksumEngine getChecksumEngine();
 
 
-    public abstract BlockCipher getBlockCipher();
+    public abstract Cipher getCipher() throws GeneralSecurityException;
 
 
     public abstract EncryptionType encryptionType();
@@ -67,9 +73,28 @@ public abstract class EncryptionEngine
     public abstract int keySize();
 
 
-    public byte[] getDecryptedData( EncryptionKey key, EncryptedData data )
+    public byte[] getDecryptedData( EncryptionKey key, EncryptedData data ) throws KerberosException
     {
         byte[] decryptedData = decrypt( data.getCipherText(), key.getKeyValue() );
+
+        // extract the old checksum
+        byte[] oldChecksum = new byte[checksumSize()];
+        System.arraycopy( decryptedData, confounderSize(), oldChecksum, 0, oldChecksum.length );
+
+        // zero out the old checksum in the cipher text
+        for ( int i = confounderSize(); i < confounderSize() + checksumSize(); i++ )
+        {
+            decryptedData[i] = 0;
+        }
+
+        // calculate a new checksum
+        byte[] newChecksum = calculateChecksum( decryptedData );
+
+        // compare checksums
+        if ( !Arrays.equals( oldChecksum, newChecksum ) )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
+        }
 
         return removeBytes( decryptedData, confounderSize(), checksumSize() );
     }
@@ -98,13 +123,13 @@ public abstract class EncryptionEngine
 
     private byte[] encrypt( byte[] data, byte[] key )
     {
-        return processBlockCipher( true, data, key, null );
+        return processCipher( true, data, key );
     }
 
 
     private byte[] decrypt( byte[] data, byte[] key )
     {
-        return processBlockCipher( false, data, key, null );
+        return processCipher( false, data, key );
     }
 
 
@@ -190,39 +215,33 @@ public abstract class EncryptionEngine
     }
 
 
-    private byte[] processBlockCipher( boolean encrypt, byte[] data, byte[] key, byte[] ivec )
+    private byte[] processCipher( boolean encrypt, byte[] data, byte[] keyBytes )
     {
-        byte[] returnData = new byte[data.length];
-        CBCBlockCipher cbcCipher = new CBCBlockCipher( getBlockCipher() );
-        KeyParameter keyParameter = new KeyParameter( key );
-
-        if ( ivec != null )
+        try
         {
-            ParametersWithIV kpWithIV = new ParametersWithIV( keyParameter, ivec );
-            cbcCipher.init( encrypt, kpWithIV );
-        }
-        else
-        {
-            cbcCipher.init( encrypt, keyParameter );
-        }
+            Cipher cipher = getCipher();
+            SecretKey key = new SecretKeySpec( keyBytes, "DES" );
+            
+            byte[] iv = new byte[]
+                { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
+                    ( byte ) 0x00, ( byte ) 0x00 };
+            AlgorithmParameterSpec paramSpec = new IvParameterSpec( iv );
 
-        int offset = 0;
-        int processedBytesLength = 0;
-
-        while ( offset < returnData.length )
-        {
-            try
+            if ( encrypt )
             {
-                processedBytesLength = cbcCipher.processBlock( data, offset, returnData, offset );
-                offset += processedBytesLength;
+                cipher.init( Cipher.ENCRYPT_MODE, key, paramSpec );
             }
-            catch ( Exception e )
+            else
             {
-                e.printStackTrace();
-                break;
+                cipher.init( Cipher.DECRYPT_MODE, key, paramSpec );
             }
-        }
+            byte[] finalBytes = cipher.doFinal( data );
 
-        return returnData;
+            return finalBytes;
+        }
+        catch ( GeneralSecurityException nsae )
+        {
+            return null;
+        }
     }
 }
