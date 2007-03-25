@@ -52,7 +52,6 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.LdapProtocolProvider;
-import org.apache.directory.server.ldap.support.bind.SaslFilter;
 import org.apache.directory.server.ldap.support.ssl.LdapsInitializer;
 import org.apache.directory.server.ntp.NtpConfiguration;
 import org.apache.directory.server.ntp.NtpServer;
@@ -425,7 +424,6 @@ public class ServerContextFactory extends CoreContextFactory
         }
 
         DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();
-        chain.addLast( "SASL", new SaslFilter() );
 
         startLDAP0( ldapConfig, env, ldapConfig.getIpPort(), chain );
     }

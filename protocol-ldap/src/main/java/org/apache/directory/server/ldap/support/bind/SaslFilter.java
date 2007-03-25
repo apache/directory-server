@@ -32,8 +32,12 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * An {@link IoFilterAdapter} that handles privacy and confidentiality protection
- * for a SASL bound session.
+ * An {@link IoFilterAdapter} that handles integrity and confidentiality protection
+ * for a SASL bound session.  The SaslFilter must be constructed with a SASL
+ * context that has completed SASL negotiation.  Some SASL mechanisms, such as
+ * CRAM-MD5, only support authentication and thus do not need this filter.  DIGEST-MD5
+ * and GSSAPI do support message integrity and confidentiality and, therefore,
+ * do need this filter.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -42,8 +46,37 @@ public class SaslFilter extends IoFilterAdapter
 {
     private static final Logger log = LoggerFactory.getLogger( SaslFilter.class );
 
-    private static final String SASL_CONTEXT = "saslContext";
-    private static final String SASL_STATE = "saslState";
+    /**
+     * A session attribute key that makes next one write request bypass
+     * this filter (not adding a security layer).  This is a marker attribute,
+     * which means that you can put whatever as its value. ({@link Boolean#TRUE}
+     * is preferred.)  The attribute is automatically removed from the session
+     * attribute map as soon as {@link IoSession#write(Object)} is invoked,
+     * and therefore should be put again if you want to make more messages
+     * bypass this filter.
+     */
+    public static final String DISABLE_SECURITY_LAYER_ONCE = SaslFilter.class.getName() + ".DisableSecurityLayerOnce";
+
+    private SaslServer context;
+
+
+    /**
+     * Creates a new instance of SaslFilter.  The SaslFilter must be constructed
+     * with a SASL context that has completed SASL negotiation.  The SASL context
+     * will be used to provide message integrity and, optionally, message
+     * confidentiality.
+     *
+     * @param context The initialized SASL context.
+     */
+    public SaslFilter( SaslServer context )
+    {
+        if ( context == null )
+        {
+            throw new IllegalStateException();
+        }
+
+        this.context = context;
+    }
 
 
     public void messageReceived( NextFilter nextFilter, IoSession session, Object message ) throws SaslException
@@ -51,21 +84,8 @@ public class SaslFilter extends IoFilterAdapter
         log.debug( "Message received:  " + message );
 
         /*
-         * Guard clause:  check if in SASL bound mode.
-         */
-        Boolean useSasl = ( Boolean ) session.getAttribute( SASL_STATE );
-
-        if ( useSasl == null || !useSasl.booleanValue() )
-        {
-            log.debug( "Will not use SASL on received message." );
-            nextFilter.messageReceived( session, message );
-            return;
-        }
-
-        /*
          * Unwrap the data for mechanisms that support QoP (DIGEST-MD5, GSSAPI).
          */
-        SaslServer context = getContext( session );
         String qop = ( String ) context.getNegotiatedProperty( Sasl.QOP );
         boolean hasSecurityLayer = ( qop != null && ( qop.equals( "auth-int" ) || qop.equals( "auth-conf" ) ) );
 
@@ -96,13 +116,13 @@ public class SaslFilter extends IoFilterAdapter
         log.debug( "Filtering write request:  " + writeRequest );
 
         /*
-         * Guard clause:  check if in SASL bound mode.
+         * Check if security layer processing should be disabled once.
          */
-        Boolean useSasl = ( Boolean ) session.getAttribute( SASL_STATE );
-
-        if ( useSasl == null || !useSasl.booleanValue() )
+        if ( session.containsAttribute( DISABLE_SECURITY_LAYER_ONCE ) )
         {
-            log.debug( "Will not use SASL on write request." );
+            // Remove the marker attribute because it is temporary.
+            log.debug( "Disabling SaslFilter once; will not use SASL on write request." );
+            session.removeAttribute( DISABLE_SECURITY_LAYER_ONCE );
             nextFilter.filterWrite( session, writeRequest );
             return;
         }
@@ -110,7 +130,6 @@ public class SaslFilter extends IoFilterAdapter
         /*
          * Wrap the data for mechanisms that support QoP (DIGEST-MD5, GSSAPI).
          */
-        SaslServer context = getContext( session );
         String qop = ( String ) context.getNegotiatedProperty( Sasl.QOP );
         boolean hasSecurityLayer = ( qop != null && ( qop.equals( "auth-int" ) || qop.equals( "auth-conf" ) ) );
 
@@ -147,29 +166,5 @@ public class SaslFilter extends IoFilterAdapter
             log.debug( "Will not use SASL on write request." );
             nextFilter.filterWrite( session, writeRequest );
         }
-    }
-
-
-    /**
-     * Helper method to get the {@link SaslServer} and perform basic checks.
-     *  
-     * @param session The {@link IoSession}
-     * @return {@link SaslServer} The {@link SaslServer} stored in the session.
-     */
-    private SaslServer getContext( IoSession session )
-    {
-        SaslServer context = null;
-
-        if ( session.containsAttribute( SASL_CONTEXT ) )
-        {
-            context = ( SaslServer ) session.getAttribute( SASL_CONTEXT );
-        }
-
-        if ( context == null )
-        {
-            throw new IllegalStateException();
-        }
-
-        return context;
     }
 }

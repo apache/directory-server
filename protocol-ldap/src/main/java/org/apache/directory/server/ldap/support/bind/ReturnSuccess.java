@@ -20,10 +20,13 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
+import javax.security.sasl.SaslServer;
+
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -31,6 +34,14 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * An {@link IoHandlerCommand} for finalizing a successful bind.  A successful bind
+ * will require both authentication and LDAP context acquisition.  If the LDAP client
+ * is both authenticated and able to acquire an LDAP context, an LDAP SUCCESS message
+ * is returned.  If the authentication mechanism was either DIGEST-MD5 or GSSAPI, a
+ * {@link SaslFilter} is constructed with the initialized {@link SaslServer} context
+ * and the {@link SaslFilter} is inserted into the {@link IoFilterChain} for this
+ * instance of the LDAP protocol.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -38,10 +49,7 @@ public class ReturnSuccess implements IoHandlerCommand
 {
     private static final Logger log = LoggerFactory.getLogger( ReturnSuccess.class );
 
-    private static final String SASL_STATE = "saslState";
-
-    // Server has bound, specifically the bind requires QoP processing on all messages (similar to SSL).
-    private static final Boolean SASL_STATE_BOUND = true;
+    private static final String SASL_CONTEXT = "saslContext";
 
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
@@ -58,20 +66,32 @@ public class ReturnSuccess implements IoHandlerCommand
         result.setResultCode( ResultCodeEnum.SUCCESS );
         BindResponse response = ( BindResponse ) request.getResultResponse();
         response.setServerSaslCreds( tokenBytes );
-        session.write( response );
-
-        log.debug( "Returned SUCCESS message." );
 
         String sessionMechanism = ( String ) session.getAttribute( "sessionMechanism" );
 
         /*
-         * This is how we tell the SaslFilter to turn on.
+         * If the SASL mechanism is DIGEST-MD5 or GSSAPI, we insert a SASLFilter.
          */
         if ( sessionMechanism.equals( "DIGEST-MD5" ) || sessionMechanism.equals( "GSSAPI" ) )
         {
-            log.debug( "Enabling SaslFilter to engage negotiated security layer." );
-            session.setAttribute( SASL_STATE, SASL_STATE_BOUND );
+            log.debug( "Inserting SaslFilter to engage negotiated security layer." );
+
+            IoFilterChain chain = session.getFilterChain();
+            if ( !chain.contains( "SASL" ) )
+            {
+                SaslServer saslContext = ( SaslServer ) session.getAttribute( SASL_CONTEXT );
+                chain.addBefore( "codec", "SASL", new SaslFilter( saslContext ) );
+            }
+
+            /*
+             * We disable the SASL security layer once, to write the outbound SUCCESS
+             * message without SASL security layer processing.
+             */
+            session.setAttribute( SaslFilter.DISABLE_SECURITY_LAYER_ONCE, Boolean.TRUE );
         }
+
+        session.write( response );
+        log.debug( "Returned SUCCESS message." );
 
         next.execute( session, message );
     }
