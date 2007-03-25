@@ -86,9 +86,6 @@ public class LdapConfiguration extends ServiceConfiguration
     /** The list of realms serviced by this host. */
     private List<String> saslRealms;
 
-    /** The search base DN for users to authenticate. */
-    private String saslBaseDn = "ou=users,dc=example,dc=com";
-
 
     /**
      * Creates a new instance of LdapConfiguration.
@@ -289,28 +286,6 @@ public class LdapConfiguration extends ServiceConfiguration
 
         this.extendedOperationHandlers.clear();
         this.extendedOperationHandlers.addAll( handlers );
-    }
-
-
-    /**
-     * Returns the base DN containing users that can be SASL authenticated.
-     * 
-     * @return The base DN containing users that can be SASL authenticated.
-     */
-    public String getSaslBaseDn()
-    {
-        return saslBaseDn;
-    }
-
-
-    /**
-     * Sets the base DN containing users that can be SASL authenticated.
-     * 
-     * @param saslBaseDn The base DN containing users that can be SASL authenticated.
-     */
-    public void setSaslBaseDn( String saslBaseDn )
-    {
-        this.saslBaseDn = saslBaseDn;
     }
 
 

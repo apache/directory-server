@@ -102,7 +102,7 @@
     </property>
     
     <!-- The base DN containing users that can be SASL authenticated.       -->
-    <property name="saslBaseDn" value="ou=users,dc=example,dc=com" />
+    <property name="searchBaseDn" value="ou=users,dc=example,dc=com" />
     
     <!-- SSL CONFIG CAN GO HERE-->
     
