@@ -23,20 +23,31 @@ package org.apache.directory.server.ldap.support.bind;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.ldap.InitialLdapContext;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.Sasl;
 
+import org.apache.directory.server.core.configuration.ConfigurationException;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
+import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,6 +56,11 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
  */
 public class ConfigureChain implements IoHandlerCommand
 {
+    private static final Logger log = LoggerFactory.getLogger( ConfigureChain.class );
+
+    private DirContext ctx;
+
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         LdapConfiguration config = ( LdapConfiguration ) session.getAttribute( LdapConfiguration.class.toString() );
@@ -54,10 +70,26 @@ public class ConfigureChain implements IoHandlerCommand
         saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( config ) );
         session.setAttribute( "saslProps", saslProps );
 
-        session.setAttribute( "supportedMechanisms", getActiveMechanisms( config ) );
         session.setAttribute( "saslHost", config.getSaslHost() );
-        session.setAttribute( "saslSubject", getSubject( config.getSaslPrincipal() ) );
-        session.setAttribute( "baseDn", config.getSaslBaseDn() );
+        session.setAttribute( "baseDn", config.getSearchBaseDn() );
+
+        Set activeMechanisms = getActiveMechanisms( config );
+
+        if ( activeMechanisms.contains( "GSSAPI" ) )
+        {
+            try
+            {
+                Subject saslSubject = getSubject( config );
+                session.setAttribute( "saslSubject", saslSubject );
+            }
+            catch ( ConfigurationException ce )
+            {
+                activeMechanisms.remove( "GSSAPI" );
+                log.warn( ce.getMessage(), ce );
+            }
+        }
+
+        session.setAttribute( "supportedMechanisms", activeMechanisms );
 
         next.execute( session, message );
     }
@@ -137,17 +169,76 @@ public class ConfigureChain implements IoHandlerCommand
     }
 
 
-    /**
-     * TODO - Create Subject with key material from directory.
-     */
-    private Subject getSubject( String servicePrincipalName )
+    private Subject getSubject( LdapConfiguration config ) throws ConfigurationException
     {
+        String servicePrincipalName = config.getSaslPrincipal();
+
         KerberosPrincipal servicePrincipal = new KerberosPrincipal( servicePrincipalName );
-        char[] password = new String( "randall" ).toCharArray();
-        KerberosKey serviceKey = new KerberosKey( servicePrincipal, password, "DES" );
+        GetPrincipal getPrincipal = new GetPrincipal( servicePrincipal );
+
+        PrincipalStoreEntry entry;
+
+        try
+        {
+            entry = ( PrincipalStoreEntry ) execute( config, getPrincipal );
+        }
+        catch ( Exception e )
+        {
+            String message = "Service principal " + servicePrincipalName + " not found at search base DN "
+                + config.getSearchBaseDn() + ".";
+            throw new ConfigurationException( message, e );
+        }
+
+        if ( entry == null )
+        {
+            String message = "Service principal " + servicePrincipalName + " not found at search base DN "
+                + config.getSearchBaseDn() + ".";
+            throw new ConfigurationException( message );
+        }
+
+        EncryptionKey key = entry.getEncryptionKey();
+        byte[] keyBytes = key.getKeyValue();
+        int type = key.getKeyType().getOrdinal();
+        int kvno = key.getKeyVersion();
+
+        KerberosKey serviceKey = new KerberosKey( servicePrincipal, keyBytes, type, kvno );
         Subject subject = new Subject();
         subject.getPrivateCredentials().add( serviceKey );
 
         return subject;
+    }
+
+
+    private Object execute( LdapConfiguration config, ContextOperation operation ) throws Exception
+    {
+        Hashtable<String, Object> env = getEnvironment( config );
+
+        if ( ctx == null )
+        {
+            try
+            {
+                ctx = new InitialLdapContext( env, null );
+            }
+            catch ( NamingException ne )
+            {
+                String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
+                throw new ConfigurationException( message, ne );
+            }
+        }
+
+        return operation.execute( ctx, null );
+    }
+
+
+    private Hashtable<String, Object> getEnvironment( LdapConfiguration config )
+    {
+        Hashtable<String, Object> env = new Hashtable<String, Object>( config.toJndiEnvironment() );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
+        env.put( Context.PROVIDER_URL, config.getSearchBaseDn() );
+        env.put( Context.SECURITY_AUTHENTICATION, config.getSecurityAuthentication() );
+        env.put( Context.SECURITY_CREDENTIALS, config.getSecurityCredentials() );
+        env.put( Context.SECURITY_PRINCIPAL, config.getSecurityPrincipal() );
+
+        return env;
     }
 }
