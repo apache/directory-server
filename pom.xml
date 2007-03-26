@@ -147,11 +147,6 @@
         <version>3.8.1</version>
       </dependency>
       <dependency>
-        <groupId>bouncycastle</groupId>
-        <artifactId>lcrypto-jdk14</artifactId>
-        <version>131</version>
-      </dependency>
-      <dependency>
         <groupId>quartz</groupId>
         <artifactId>quartz</artifactId>
         <version>1.5.2</version>
