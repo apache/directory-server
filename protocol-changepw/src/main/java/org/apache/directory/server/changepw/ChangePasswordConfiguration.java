@@ -39,7 +39,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 {
     private static final long serialVersionUID = 3509208713288140629L;
 
-    /** The default change password principal. */
+    /** The default change password principal name. */
     private static final String SERVICE_PRINCIPAL_DEFAULT = "kadmin/changepw@EXAMPLE.COM";
 
     /** The default change password base DN. */
@@ -79,10 +79,10 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
     /** The encryption types. */
     private EncryptionType[] encryptionTypes;
 
-    /** The primare realm. */
+    /** The primary realm. */
     private String primaryRealm = REALM_DEFAULT;
 
-    /** The service principal. */
+    /** The service principal name. */
     private String servicePrincipal = SERVICE_PRINCIPAL_DEFAULT;
 
     /** The allowable clock skew. */
