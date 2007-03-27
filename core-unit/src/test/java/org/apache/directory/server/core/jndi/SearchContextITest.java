@@ -381,7 +381,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         catch ( LdapTimeLimitExceededException e )
         {
         }
-        assertEquals( "Expected number of results returned was incorrect", 2, map.size() );
+        assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
     }
     
     
