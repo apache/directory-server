@@ -128,7 +128,7 @@ public class SchemaService extends BaseInterceptor
      */
     private Registries registries;
 
-    private Set binaries;
+    private Set<String> binaries;
 
     /**
      * subschemaSubentry attribute's value from Root DSE
@@ -179,7 +179,14 @@ public class SchemaService extends BaseInterceptor
         topFilter = new TopFilter();
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
-        binaries = ( Set ) factoryCfg.getEnvironment().get( BINARY_KEY );
+        binaries = ( Set<String> ) factoryCfg.getEnvironment().get( BINARY_KEY );
+        
+        if ( binaries == null )
+        {
+            binaries = new HashSet<String>();
+        }
+            
+            
 
         schemaBaseDN = new LdapDN( "ou=schema" );
         schemaBaseDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
@@ -1722,6 +1729,7 @@ public class SchemaService extends BaseInterceptor
             }
 
             asBinary = !type.getSyntax().isHumanReadible();
+            asBinary = asBinary || ( ( binaries != null ) && ( binaries.contains( type ) ) );
             asBinary = asBinary || binaries.contains( type );
 
             if ( asBinary )
