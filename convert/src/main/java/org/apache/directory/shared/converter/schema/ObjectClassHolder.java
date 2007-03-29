@@ -24,7 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 
 
@@ -39,15 +45,16 @@ public class ObjectClassHolder extends SchemaElementImpl
 {
     /** The list of superiors */
     private List<String> superiors = new ArrayList<String>();
-    
+
     /** The list of mandatory attributes */
     private List<String> must = new ArrayList<String>();
-    
+
     /** The list of optional attributes */
     private List<String> may = new ArrayList<String>();
 
     /** The ObjectClass type */
     private ObjectClassTypeEnum classType = ObjectClassTypeEnum.STRUCTURAL;
+
 
     /**
      * Create an instance of ObjectClass element
@@ -56,6 +63,7 @@ public class ObjectClassHolder extends SchemaElementImpl
     {
         this.oid = oid;
     }
+
 
     /**
      * Get the list of superior for this objectClass
@@ -66,6 +74,7 @@ public class ObjectClassHolder extends SchemaElementImpl
         return superiors;
     }
 
+
     /**
      * Set the list of inherited objectClasses
      * @param superiors The list of inherited objectClasses
@@ -75,6 +84,7 @@ public class ObjectClassHolder extends SchemaElementImpl
         this.superiors = superiors;
     }
 
+
     /**
      * @return The list of mandatory attributes
      */
@@ -82,6 +92,7 @@ public class ObjectClassHolder extends SchemaElementImpl
     {
         return must;
     }
+
 
     /**
      * Set the list of mandatory attributes
@@ -92,6 +103,7 @@ public class ObjectClassHolder extends SchemaElementImpl
         this.must = must;
     }
 
+
     /**
      * @return The list of optional attributes
      */
@@ -99,6 +111,7 @@ public class ObjectClassHolder extends SchemaElementImpl
     {
         return may;
     }
+
 
     /**
      * Set the list of optional attributes
@@ -109,6 +122,7 @@ public class ObjectClassHolder extends SchemaElementImpl
         this.may = may;
     }
 
+
     /**
      * @return The objectClass type
      */
@@ -116,6 +130,7 @@ public class ObjectClassHolder extends SchemaElementImpl
     {
         return classType;
     }
+
 
     /**
      * Set the objectClass type. 
@@ -126,6 +141,7 @@ public class ObjectClassHolder extends SchemaElementImpl
         this.classType = classType;
     }
 
+
     /**
      * Convert this objectClass to a Ldif string
      * 
@@ -135,28 +151,28 @@ public class ObjectClassHolder extends SchemaElementImpl
     public String toLdif( String schemaName ) throws NamingException
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( schemaToLdif( schemaName, "metaObjectclass" ) );
-        
+
         // The superiors
         if ( superiors.size() != 0 )
         {
-            for ( String superior:superiors )
+            for ( String superior : superiors )
             {
                 sb.append( "m-supObjectClass: " ).append( superior ).append( '\n' );
             }
         }
-        
+
         // The kind of class
         if ( classType != ObjectClassTypeEnum.STRUCTURAL )
         {
             sb.append( "m-typeObjectClass: " ).append( classType ).append( '\n' );
         }
-        
+
         // The 'must'
         if ( must.size() != 0 )
         {
-            for ( String attr:must )
+            for ( String attr : must )
             {
                 sb.append( "m-must: " ).append( attr ).append( '\n' );
             }
@@ -165,12 +181,12 @@ public class ObjectClassHolder extends SchemaElementImpl
         // The 'may'
         if ( may.size() != 0 )
         {
-            for ( String attr:may )
+            for ( String attr : may )
             {
                 sb.append( "m-may: " ).append( attr ).append( '\n' );
             }
         }
-        
+
         // The extensions
         if ( extensions.size() != 0 )
         {
@@ -180,11 +196,32 @@ public class ObjectClassHolder extends SchemaElementImpl
         return sb.toString();
     }
 
+
     /**
      * Return a String representing this ObjectClass.
      */
     public String toString()
     {
         return getOid();
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.shared.converter.schema.SchemaElementImpl#dnToLdif(java.lang.String)
+     */
+    public String dnToLdif( String schemaName ) throws NamingException
+    {
+        StringBuilder sb = new StringBuilder();
+
+        String dn = "m-oid=" + oid + ", ou=objectClasses" + ", cn=" + Rdn.escapeValue( schemaName ) + ", ou=schema";
+
+        // First dump the DN only
+        Attributes attributes = new AttributesImpl();
+        Attribute attribute = new AttributeImpl( "dn", dn );
+
+        attributes.put( attribute );
+        sb.append( LdifUtils.convertToLdif( attributes ) );
+
+        return sb.toString();
     }
 }

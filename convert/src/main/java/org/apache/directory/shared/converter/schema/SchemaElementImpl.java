@@ -29,7 +29,6 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
@@ -183,35 +182,7 @@ public abstract class SchemaElementImpl implements SchemaElement
     /**
      * @return The dn as a ldif line
      */
-    private String dnToLdif( String schemaName ) throws NamingException
-    {
-        StringBuilder sb = new StringBuilder();
-        
-        String name = null;
-
-        // We may have no names. In this case, we use the OID
-        if ( names.size() == 0 )
-        {
-            name = oid;
-        }
-        else
-        {
-            name = names.get( 0 );
-        }
-
-        String dn = "m-name=" + Rdn.escapeValue( name ) + 
-                    ", ou=" + Rdn.escapeValue( schemaName ) + 
-                    ", ou=schema";
-
-        // First dump the DN only
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "dn", dn );
-
-        attributes.put( attribute );
-        sb.append( LdifUtils.convertToLdif( attributes ) );
-        
-        return sb.toString();
-    }
+    public abstract String dnToLdif( String schemaName ) throws NamingException;
     
     /**
      * Return the extensions formated as Ldif lines
