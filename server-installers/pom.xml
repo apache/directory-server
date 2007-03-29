@@ -85,7 +85,7 @@
             <exclude>ant:ant</exclude>
             <exclude>aopalliance:aopalliance</exclude>
             <exclude>xerces:xerces</exclude>
-            <exclude>commons-pool:commons-pool</exclude>
+            <!--exclude>commons-pool:commons-pool</exclude-->
             <exclude>xml-apis:xml-apis</exclude>
             <exclude>aspectwerkz:aspectwerkz-core</exclude>
             <exclude>velocity:velocity</exclude>
