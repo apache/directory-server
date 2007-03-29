@@ -209,12 +209,13 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         {
             if ( ! schema.isDisabled() )
             {
-                log.info( "will attempt to load enabled schema: {}", schema.getSchemaName() );
+                log.debug( "will attempt to load enabled schema: {}", schema.getSchemaName() );
+                    
                 enabledSchemaSet.add( schema );
             }
             else
             {
-                log.info( "will NOT attempt to load disabled schema: {}", schema.getSchemaName() );
+                log.debug( "will NOT attempt to load disabled schema: {}", schema.getSchemaName() );
             }
         }
 
@@ -339,7 +340,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.info( "loading {} schema ...", schema.getSchemaName() );
+        log.debug( "loading {} schema ...", schema.getSchemaName() );
         
         loadComparators( schema, targetRegistries );
         loadNormalizers( schema, targetRegistries );
@@ -411,7 +412,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.info( "{} schema: loading objectClasses", schema.getSchemaName() );
+        log.debug( "{} schema: loading objectClasses", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( dn );
         while ( list.hasMore() )
@@ -511,7 +512,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.info( "{} schema: loading attributeTypes", schema.getSchemaName() );
+        log.debug( "{} schema: loading attributeTypes", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( dn );
         while ( list.hasMore() )
@@ -608,7 +609,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.info( "{} schema: loading matchingRules", schema.getSchemaName() );
+        log.debug( "{} schema: loading matchingRules", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( dn );
         while ( list.hasMore() )
@@ -640,7 +641,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.info( "{} schema: loading syntaxes", schema.getSchemaName() );
+        log.debug( "{} schema: loading syntaxes", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( dn );
         while ( list.hasMore() )
@@ -671,7 +672,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.info( "{} schema: loading syntaxCheckers", schema.getSchemaName() );
+        log.debug( "{} schema: loading syntaxCheckers", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( dn );
         while ( list.hasMore() )
@@ -704,7 +705,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.info( "{} schema: loading normalizers", schema.getSchemaName() );
+        log.debug( "{} schema: loading normalizers", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( dn );
         while ( list.hasMore() )
@@ -773,7 +774,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.info( "{} schema: loading comparators", schema.getSchemaName() );
+        log.debug( "{} schema: loading comparators", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( dn );
         while ( list.hasMore() )
