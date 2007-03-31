@@ -114,7 +114,8 @@ public class ServerContextFactory extends CoreContextFactory
         threadModel.setExecutor( threadPoolExecutor );
         
         udpAcceptor = new DatagramAcceptor();
-        tcpAcceptor = new SocketAcceptor();
+        tcpAcceptor = new SocketAcceptor(
+            Runtime.getRuntime().availableProcessors(), threadPoolExecutor );
 
         this.directoryService = service;
     }
