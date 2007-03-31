@@ -157,17 +157,17 @@ public class SchemaManager
     
     static 
     {
-        VALID_OU_VALUES.add( "normalizers" );
-        VALID_OU_VALUES.add( "comparators" );
-        VALID_OU_VALUES.add( "syntaxcheckers" );
-        VALID_OU_VALUES.add( "syntaxes" );
-        VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULES_AT );
-        VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULE_USE_AT );
-        VALID_OU_VALUES.add( SchemaConstants.ATTRIBUTE_TYPES_AT );
-        VALID_OU_VALUES.add( SchemaConstants.OBJECT_CLASSES_AT );
-        VALID_OU_VALUES.add( SchemaConstants.NAME_FORMS_AT );
-        VALID_OU_VALUES.add( SchemaConstants.DIT_CONTENT_RULES_AT );
-        VALID_OU_VALUES.add( SchemaConstants.DIT_STRUCTURE_RULES_AT );
+        VALID_OU_VALUES.add( "normalizers".toLowerCase() );
+        VALID_OU_VALUES.add( "comparators".toLowerCase() );
+        VALID_OU_VALUES.add( "syntaxcheckers".toLowerCase() );
+        VALID_OU_VALUES.add( "syntaxes".toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULES_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULE_USE_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.ATTRIBUTE_TYPES_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.OBJECT_CLASSES_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.NAME_FORMS_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.DIT_CONTENT_RULES_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.DIT_STRUCTURE_RULES_AT.toLowerCase() );
         
         HashSet<String> set = new HashSet<String>();
         set.add( "normalizationService" );
