@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.shared</groupId>
     <artifactId>build</artifactId>
-    <version>0.9.6-SNAPSHOT</version>
+    <version>0.9.7-SNAPSHOT</version>
   </parent>
   <artifactId>shared-converter</artifactId>
   <name>Apache Directory Protocol Ldap Converters</name>
