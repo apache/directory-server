@@ -131,7 +131,7 @@
             http://svn.apache.org/repos/asf/directory/apacheds/branches/1.0
           </svnBaseUrl>
           <packageSources>true</packageSources>
-          <packageDocs>true</packageDocs>
+          <!--packageDocs>true</packageDocs-->
           <applicationClass>
             org.apache.ldap.server.Service
           </applicationClass>
