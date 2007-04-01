@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.0</version>
   </parent>
   <artifactId>apacheds-server-installers</artifactId>
   <name>ApacheDS Server Installers</name>
@@ -106,7 +106,7 @@
             <name>apacheds</name>
             <version>${pom.version}</version>
             <copyrightYear>2006</copyrightYear>
-            <minimumJavaVersion>1.4</minimumJavaVersion>
+            <minimumJavaVersion>1.5</minimumJavaVersion>
             <url>http://directory.apache.org/subprojects/apacheds</url>
             <email>users@directory.apache.org</email>
             <description>Apache Directory Server</description>

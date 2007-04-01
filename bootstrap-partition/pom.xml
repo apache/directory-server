@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.0</version>
   </parent>
   <artifactId>apacheds-bootstrap-partition</artifactId>
   <name>ApacheDS Bootstrap Partition</name>
