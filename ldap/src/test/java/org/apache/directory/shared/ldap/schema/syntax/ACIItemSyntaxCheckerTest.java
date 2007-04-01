@@ -237,4 +237,49 @@ public class ACIItemSyntaxCheckerTest extends TestCase
 
         assertTrue( checker.isValidSyntax( spec ) );
     }
+    
+//    /**
+//     * Test case for DIRSERVER-891
+//     */
+//    public void testInvalidAttributeValue()
+//    {
+//        String spec;
+//        
+//        // no name-value-pair
+//        spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
+//            + "itemOrUserFirst userFirst:  { userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue { must_be_a_name_value_pair } , "
+//            + "rangeOfValues (cn=ErsinEr) }  , grantsAndDenials { grantBrowse } } }, userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
+//            + "subtree {{ minimum 7, maximum 9, base \"ou=system\" }, { base \"ou=ORGANIZATIONUNIT\","
+//            + " maximum   2, minimum  1 } } }  }  }   ";
+//        assertFalse( checker.isValidSyntax( spec ) );
+//        
+//        // no name-value-pair
+//        spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
+//            + "itemOrUserFirst userFirst:  { userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue { x=y,m=n,k=l,x } , "
+//            + "rangeOfValues (cn=ErsinEr) }  , grantsAndDenials { grantBrowse } } }, userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
+//            + "subtree {{ minimum 7, maximum 9, base \"ou=system\" }, { base \"ou=ORGANIZATIONUNIT\","
+//            + " maximum   2, minimum  1 } } }  }  }   ";
+//        assertFalse( checker.isValidSyntax( spec ) );
+//    }
+//    
+//    /**
+//     * Test case for DIRSERVER-891
+//     */
+//    public void testIncomplete()
+//    {
+//        String spec;
+//        
+//        spec = "{ }";
+//        assertFalse( checker.isValidSyntax( spec ) );
+//        
+//        spec = "{ identificationTag \"id2\" }";
+//        assertFalse( checker.isValidSyntax( spec ) );
+//        
+//        spec = "{ identificationTag \"id2\", precedence 14 } ";
+//        assertFalse( checker.isValidSyntax( spec ) );
+//        
+//        spec = "{ identificationTag \"id2\", precedence 14, authenticationLevel none } ";
+//        assertFalse( checker.isValidSyntax( spec ) );
+//    }
+    
 }
