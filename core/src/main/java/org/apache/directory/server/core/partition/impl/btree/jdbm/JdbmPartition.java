@@ -30,6 +30,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartitionConfiguration;
@@ -402,6 +403,15 @@ public class JdbmPartition extends BTreePartition
 
 
     public final void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+    {
+        // does nothing
+        throw new LdapAuthenticationNotSupportedException(
+            "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n"
+                + "Check to see if you have correctly configured authenticators for the server.",
+            ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+    }
+
+    public final void bind( ServiceContext bindContext ) throws NamingException
     {
         // does nothing
         throw new LdapAuthenticationNotSupportedException(
