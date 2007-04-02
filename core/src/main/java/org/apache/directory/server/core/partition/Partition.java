@@ -32,6 +32,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -289,15 +290,10 @@ public interface Partition
      * need not support this operation.  This operation is here to enable those
      * interested in implementing virtual directories with ApacheDS.
      * 
-     * @param bindDn the normalized dn of the principal
-     * @param credentials the credentials of the principal
-     * @param mechanisms the mechanisms requested by the JNDI caller or a single
-     * mechanism representing the SASL bind mechanism used by a networked client (Strings)
-     * @param saslAuthId the SASL authentication (may be null)
+     * @param bindContext the bind context, containing all the needed informations to bind
      * @throws NamingException if something goes wrong
      */
-    void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException;
-
+    void bind( ServiceContext bindContext ) throws NamingException;
 
     /**
      * Represents an unbind operation issued by an authenticated client.  Partitions
