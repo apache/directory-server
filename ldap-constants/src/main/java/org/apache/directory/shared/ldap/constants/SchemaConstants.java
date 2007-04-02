@@ -102,6 +102,10 @@ public class SchemaConstants
     // ModifiersName
     public static final String MODIFIERS_NAME_AT = "modifiersName";
     public static final String MODIFIERS_NAME_AT_OID = "2.5.18.4";
+    
+    // SubtreeSpecification
+    public static final String SUBTREE_SPECIFICATION_AT = "subtreeSpecification";
+    public static final String SUBTREE_SPECIFICATION_AT_OID = "2.5.18.6";
 
     // DitStructureRules
     public static final String DIT_STRUCTURE_RULES_AT = "ditStructureRules";
