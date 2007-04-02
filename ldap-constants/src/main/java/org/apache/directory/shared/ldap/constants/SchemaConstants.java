@@ -148,6 +148,18 @@ public class SchemaConstants
     public static final String LDAP_SYNTAXES_AT = "ldapSyntaxes";
     public static final String LDAP_SYNTAXES_AT_OID = "1.3.6.1.4.1.1466.101.120.16";
 
+    // Comparators
+    public static final String COMPARATORS_AT = "comparators";
+    public static final String COMPARATORS_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.32";
+    
+    // Normalizers
+    public static final String NORMALIZERS_AT = "normalizers";
+    public static final String NORMALIZERS_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.33";
+
+    // SyntaxCheckers
+    public static final String SYNTAX_CHECKERS_AT = "syntaxCheckers";
+    public static final String SYNTAX_CHECKERS_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.34";
+
     // DisplayName
     public static final String DISPLAY_NAME_AT = "displayName";
     public static final String DISPLAY_NAME_AT_OID = "2.16.840.1.113730.3.1.241";
