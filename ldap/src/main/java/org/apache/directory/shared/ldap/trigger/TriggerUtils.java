@@ -41,7 +41,6 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  */
 public class TriggerUtils
 {
-    public static final String SUBTREE_SPECIFICATION_ATTR = "subtreeSpecification";
     public static final String ADMINISTRATIVE_ROLE_ATTR = "administrativeRole";
     public static final String TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE = "triggerExecutionSpecificArea";
     public static final String TRIGGER_EXECUTION_SUBENTRY_OC = "triggerExecutionSubentry";
@@ -74,7 +73,7 @@ public class TriggerUtils
         objectClass.add( SchemaConstants.TOP_OC );
         objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( TRIGGER_EXECUTION_SUBENTRY_OC );
-        subentry.put( SUBTREE_SPECIFICATION_ATTR, subtreeSpec );
+        subentry.put( SchemaConstants.SUBTREE_SPECIFICATION_AT, subtreeSpec );
         subentry.put( PRESCRIPTIVE_TRIGGER_SPECIFICATION_ATTR, prescriptiveTriggerSpec );
         apCtx.createSubcontext( "cn=" + subentryCN, subentry );
     }
