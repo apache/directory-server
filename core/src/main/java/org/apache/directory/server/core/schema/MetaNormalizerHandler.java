@@ -323,7 +323,7 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
                 ResultCodeEnum.NAMING_VIOLATION );
         }
         
-        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( "normalizers" ) )
+        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( SchemaConstants.NORMALIZERS_AT ) )
         {
             throw new LdapInvalidNameException( 
                 "The parent entry of a normalizer should have a relative name of ou=normalizers.", 
