@@ -33,6 +33,7 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -323,7 +324,7 @@ public class MetaComparatorHandler implements SchemaChangeHandler
                 ResultCodeEnum.NAMING_VIOLATION );
         }
         
-        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( "comparators" ) )
+        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( SchemaConstants.COMPARATORS_AT ) )
         {
             throw new LdapInvalidNameException( 
                 "The parent entry of a comparator should have a relative name of ou=comparators.", 
