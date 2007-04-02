@@ -330,7 +330,7 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
                 ResultCodeEnum.NAMING_VIOLATION );
         }
         
-        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( "syntaxCheckers" ) )
+        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( SchemaConstants.SYNTAX_CHECKERS_AT ) )
         {
             throw new LdapInvalidNameException( 
                 "The parent entry of a normalizer should have a relative name of ou=syntaxCheckers.", 
