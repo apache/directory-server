@@ -37,6 +37,7 @@ import org.apache.directory.server.core.DirectoryServiceListener;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.DeadContext;
@@ -432,11 +433,11 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId )
-            throws NamingException
+        public void bind( NextInterceptor next, ServiceContext bindContext )
+        throws NamingException
         {
             interceptors.add( this );
-            next.bind( bindDn, credentials, mechanisms, saslAuthId );
+            next.bind( bindContext );
         }
 
 
