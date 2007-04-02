@@ -21,7 +21,6 @@ package org.apache.directory.server.core.interceptor;
 
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingEnumeration;
@@ -32,6 +31,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -239,13 +239,11 @@ public interface Interceptor
     void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName, String newRn, boolean deleteOldRn )
         throws NamingException;
 
-
     /**
      * Filters {@link Partition#bind(org.apache.directory.shared.ldap.name.LdapDN,byte[],java.util.List,String)} call.
      */
-    void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
+    void bind( NextInterceptor next, ServiceContext bindContext )
         throws NamingException;
-
 
     /**
      * Filters {@link Partition#unbind(org.apache.directory.shared.ldap.name.LdapDN)} call.

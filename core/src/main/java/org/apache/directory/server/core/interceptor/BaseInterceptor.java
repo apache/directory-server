@@ -21,7 +21,6 @@ package org.apache.directory.server.core.interceptor;
 
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
@@ -35,6 +34,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -221,10 +221,10 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
-        throws NamingException
+    public void bind( NextInterceptor next, ServiceContext bindContext )
+    throws NamingException
     {
-        next.bind( bindDn, credentials, mechanisms, saslAuthId );
+        next.bind( bindContext );
     }
 
 

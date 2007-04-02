@@ -37,6 +37,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -202,10 +203,9 @@ public class InterceptorChain
         }
 
 
-        public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
-            throws NamingException
+        public void bind( NextInterceptor next, ServiceContext bindContext )  throws NamingException
         {
-            nexus.bind( bindDn, credentials, mechanisms, saslAuthId );
+            nexus.bind( bindContext );
         }
 
 
@@ -721,14 +721,14 @@ public class InterceptorChain
     }
 
 
-    public void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException
+    public void bind( ServiceContext bindContext ) throws NamingException
     {
         Entry node = getStartingEntry();
         Interceptor head = node.configuration.getInterceptor();
         NextInterceptor next = node.nextInterceptor;
         try
         {
-            head.bind( next, bindDn, credentials, mechanisms, saslAuthId );
+            head.bind( next, bindContext );
         }
         catch ( NamingException ne )
         {
@@ -1424,15 +1424,14 @@ public class InterceptorChain
                 }
 
 
-                public void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
-                    throws NamingException
+                public void bind( ServiceContext bindContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
-
+    
                     try
                     {
-                        interceptor.bind( next.nextInterceptor, bindDn, credentials, mechanisms, saslAuthId );
+                        interceptor.bind( next.nextInterceptor, bindContext );
                     }
                     catch ( NamingException ne )
                     {
