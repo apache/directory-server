@@ -28,10 +28,6 @@ package org.apache.directory.server.constants;
  */
 public interface ApacheSchemaConstants
 {
-    String COMPARATORS_AT = "comparators";
-    String NORMALIZERS_AT = "normalizers";
-    String SYNTAX_CHECKERS_AT = "syntaxCheckers";
-
     String SCHEMA_MODIFIERS_NAME_AT = "schemaModifiersName";
     String SCHEMA_MODIFY_TIMESTAMP_AT = "schemaModifyTimestamp";
     String SUBSCHEMA_SUBENTRY_NAME_AT = "subschemaSubentryName";
