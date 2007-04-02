@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,6 +40,8 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.BindServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -456,19 +457,22 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
-        throws NamingException
-    {
+    public void bind( NextInterceptor next, ServiceContext bindContext )
+    throws NamingException
+    {   
+        BindServiceContext bindCtx = (BindServiceContext)bindContext;
+        LdapDN normBindDn = bindCtx.getNormalizedBindDn();
+        String bindUpDn = bindCtx.getBindDn().getUpName();
         
         if ( IS_DEBUG )
         {
-            log.debug( "Bind operation. bindDn: " + bindDn );
+            log.debug( "Bind operation. bindDn: " + bindUpDn );
         }
         
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
         ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-
+    
         if ( IS_DEBUG )
         {
             log.debug( "bind: principal: " + ctx.getPrincipal() );
@@ -483,34 +487,38 @@ public class AuthenticationService extends BaseInterceptor
             
             return;
         }
-
+    
         // pick the first matching authenticator type
         Collection<Authenticator> authenticators = null;
         
-        for ( String mechanism:mechanisms )
+        for ( String mechanism:bindCtx.getMechanisms() )
         {
             authenticators = getAuthenticators( mechanism );
-
+    
             if ( authenticators != null )
             {
                 break;
             }
         }
-
+    
         if ( authenticators == null )
         {
             log.debug( "No authenticators found, delegating bind to the nexus." );
+            
             // as a last resort try binding via the nexus
-            next.bind( bindDn, credentials, mechanisms, saslAuthId );
+            next.bind( bindCtx );
+            
             log.debug( "Nexus succeeded on bind operation." );
+            
             // bind succeeded if we got this far 
-            ctx.setPrincipal( new TrustedPrincipalWrapper( new LdapPrincipal( bindDn, LdapJndiProperties
+            ctx.setPrincipal( new TrustedPrincipalWrapper( new LdapPrincipal( normBindDn, LdapJndiProperties
                 .getAuthenticationLevel( ctx.getEnvironment() ) ) ) );
+            
             // remove creds so there is no security risk
             ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
             return;
         }
-
+    
         // TODO : we should refactor that.
         // try each authenticators
         for ( Authenticator authenticator:authenticators )
@@ -518,11 +526,14 @@ public class AuthenticationService extends BaseInterceptor
             try
             {
                 // perform the authentication
-                LdapPrincipal authorizationId = authenticator.authenticate( bindDn, ctx );
+                LdapPrincipal authorizationId = authenticator.authenticate( normBindDn, ctx );
+                
                 // authentication was successful
                 ctx.setPrincipal( new TrustedPrincipalWrapper( authorizationId ) );
+                
                 // remove creds so there is no security risk
                 ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
+                
                 return;
             }
             catch ( LdapAuthenticationException e )
@@ -530,7 +541,7 @@ public class AuthenticationService extends BaseInterceptor
                 // authentication failed, try the next authenticator
                 if ( log.isInfoEnabled() )
                 {
-                    log.info( "Authenticator " + authenticator.getClass() + " failed to authenticate " + bindDn );
+                    log.info( "Authenticator " + authenticator.getClass() + " failed to authenticate " + bindUpDn );
                 }
             }
             catch ( Exception e )
@@ -538,11 +549,11 @@ public class AuthenticationService extends BaseInterceptor
                 // Log other exceptions than LdapAuthenticationException
                 if ( log.isWarnEnabled() )
                 {
-                    log.warn( "Unexpected exception from " + authenticator.getClass() + " for principal " + bindDn, e );
+                    log.warn( "Unexpected exception from " + authenticator.getClass() + " for principal " + bindUpDn, e );
                 }
             }
         }
-
+    
         if ( log.isInfoEnabled() )
         {
             log.info( "Cannot bind to the server " );
