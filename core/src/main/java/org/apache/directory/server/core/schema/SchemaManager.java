@@ -97,9 +97,9 @@ public class SchemaManager
 
     private static final Set<String> VALID_OU_VALUES = new HashSet<String>();
     private static final String[] opAttrs = new String[] {
-        "comparators",
-        "normalizers",
-        "syntaxCheckers",
+        SchemaConstants.COMPARATORS_AT,
+        SchemaConstants.NORMALIZERS_AT,
+        SchemaConstants.SYNTAX_CHECKERS_AT,
         SchemaConstants.LDAP_SYNTAXES_AT,
         SchemaConstants.MATCHING_RULES_AT,
         SchemaConstants.ATTRIBUTE_TYPES_AT,
@@ -157,9 +157,9 @@ public class SchemaManager
     
     static 
     {
-        VALID_OU_VALUES.add( "normalizers".toLowerCase() );
-        VALID_OU_VALUES.add( "comparators".toLowerCase() );
-        VALID_OU_VALUES.add( "syntaxcheckers".toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.NORMALIZERS_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.COMPARATORS_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.SYNTAX_CHECKERS_AT.toLowerCase() );
         VALID_OU_VALUES.add( "syntaxes".toLowerCase() );
         VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULES_AT.toLowerCase() );
         VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULE_USE_AT.toLowerCase() );
@@ -209,13 +209,13 @@ public class SchemaManager
         
         OidRegistry oidRegistry = globalRegistries.getOidRegistry();
         
-        comparatorsOid = oidRegistry.getOid( ApacheSchemaConstants.COMPARATORS_AT );
+        comparatorsOid = oidRegistry.getOid( SchemaConstants.COMPARATORS_AT );
         opAttr2handlerIndex.put( comparatorsOid, new Integer( COMPARATOR_INDEX ) );
         
-        normalizersOid = oidRegistry.getOid( ApacheSchemaConstants.NORMALIZERS_AT );
+        normalizersOid = oidRegistry.getOid( SchemaConstants.NORMALIZERS_AT );
         opAttr2handlerIndex.put( normalizersOid, new Integer( NORMALIZER_INDEX ) );
         
-        syntaxCheckersOid = oidRegistry.getOid( ApacheSchemaConstants.SYNTAX_CHECKERS_AT );
+        syntaxCheckersOid = oidRegistry.getOid( SchemaConstants.SYNTAX_CHECKERS_AT );
         opAttr2handlerIndex.put( syntaxCheckersOid, new Integer( SYNTAX_CHECKER_INDEX ) );
         
         ldapSyntaxesOid = oidRegistry.getOid( SchemaConstants.LDAP_SYNTAXES_AT );
