@@ -49,6 +49,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.interceptor.context.BindServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -122,10 +123,15 @@ public abstract class ServerContext implements EventContext
         this.env.putAll( env );
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
         dn = props.getProviderDn();
+        
+        BindServiceContext bindContext = new BindServiceContext();
+        bindContext.setBindDn( props.getBindDn() );
+        bindContext.setCredentials( props.getCredentials() );
+        bindContext.setMechanisms( props.getAuthenticationMechanisms() );
+        bindContext.setSaslAuthId( props.getSaslAuthId() );
 
         // need to issue a bind operation here
-        this.nexusProxy.bind( props.getBindDn(), props.getCredentials(), props.getAuthenticationMechanisms(), props
-            .getSaslAuthId() );
+        this.nexusProxy.bind( bindContext ); 
 
         if ( ! nexusProxy.hasEntry( dn ) )
         {
