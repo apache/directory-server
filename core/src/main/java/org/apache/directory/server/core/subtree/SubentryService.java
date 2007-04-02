@@ -142,7 +142,7 @@ public class SubentryService extends BaseInterceptor
         ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC, AssertionEnum.EQUALITY );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[] { "subtreeSpecification", SchemaConstants.OBJECT_CLASS_AT } );
+        controls.setReturningAttributes( new String[] { SchemaConstants.SUBTREE_SPECIFICATION_AT, SchemaConstants.OBJECT_CLASS_AT } );
 
         // search each namingContext for subentries
         while ( suffixes.hasNext() )
@@ -156,7 +156,7 @@ public class SubentryService extends BaseInterceptor
                 SearchResult result = ( SearchResult ) subentries.next();
                 Attributes subentry = result.getAttributes();
                 String dn = result.getName();
-                String subtree = ( String ) subentry.get( "subtreeSpecification" ).get();
+                String subtree = ( String ) subentry.get( SchemaConstants.SUBTREE_SPECIFICATION_AT ).get();
                 SubtreeSpecification ss;
 
                 try
@@ -406,7 +406,7 @@ public class SubentryService extends BaseInterceptor
              * to modify the subentry operational attributes of.
              * ----------------------------------------------------------------
              */
-            String subtree = ( String ) entry.get( "subtreeSpecification" ).get();
+            String subtree = ( String ) entry.get( SchemaConstants.SUBTREE_SPECIFICATION_AT ).get();
             SubtreeSpecification ss;
             try
             {
@@ -963,14 +963,14 @@ public class SubentryService extends BaseInterceptor
         Attributes oldEntry = (Attributes) entry.clone();
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC )  && mods.get( "subtreeSpecification" ) != null )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC )  && mods.get( SchemaConstants.SUBTREE_SPECIFICATION_AT ) != null )
         {
             SubtreeSpecification ssOld = subentryCache.removeSubentry( name.toNormName() ).getSubtreeSpecification();
             SubtreeSpecification ssNew;
 
             try
             {
-                ssNew = ssParser.parse( ( String ) mods.get( "subtreeSpecification" ).get() );
+                ssNew = ssParser.parse( ( String ) mods.get( SchemaConstants.SUBTREE_SPECIFICATION_AT ).get() );
             }
             catch ( Exception e )
             {
@@ -1053,7 +1053,7 @@ public class SubentryService extends BaseInterceptor
 
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            if ( "subtreeSpecification".equalsIgnoreCase( mods[ii].getAttribute().getID() ) )
+            if ( SchemaConstants.SUBTREE_SPECIFICATION_AT.equalsIgnoreCase( mods[ii].getAttribute().getID() ) )
             {
                 isSubtreeSpecificationModification = true;
                 subtreeMod = mods[ii];
