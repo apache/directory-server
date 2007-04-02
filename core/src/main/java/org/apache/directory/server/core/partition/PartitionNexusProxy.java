@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,6 +47,7 @@ import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
@@ -671,26 +671,25 @@ public class PartitionNexusProxy extends PartitionNexus
      * @param bypass
      * @throws NamingException
      */
-    public void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId, Collection bypass )
+    public void bind( ServiceContext bindContext, Collection bypass )
         throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         Object[] args = new Object[]
-            { bindDn, credentials, mechanisms, saslAuthId };
+            { bindContext };
         
         stack.push( new Invocation( this, caller, "bind", args, bypass ) );
         
         try
         {
-            this.configuration.getInterceptorChain().bind( bindDn, credentials, mechanisms, saslAuthId );
+            configuration.getInterceptorChain().bind( bindContext );
         }
         finally
         {
             stack.pop();
         }
     }
-
 
     public void unbind( LdapDN bindDn, Collection bypass ) throws NamingException
     {
@@ -710,9 +709,9 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException
+    public void bind( ServiceContext bindContext ) throws NamingException
     {
-        bind( bindDn, credentials, mechanisms, saslAuthId, null );
+        bind( bindContext, null );
     }
 
 

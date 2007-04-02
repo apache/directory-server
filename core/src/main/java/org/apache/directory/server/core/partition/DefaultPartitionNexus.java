@@ -44,6 +44,8 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.BindServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -659,13 +661,11 @@ public class DefaultPartitionNexus extends PartitionNexus
     // ------------------------------------------------------------------------
     // DirectoryPartition Interface Method Implementations
     // ------------------------------------------------------------------------
-
-    public void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException
+    public void bind( ServiceContext bindContext ) throws NamingException
     {
-        Partition partition = getBackend( bindDn );
-        partition.bind( bindDn, credentials, mechanisms, saslAuthId );
+        Partition partition = getBackend( ((BindServiceContext)bindContext).getNormalizedBindDn() );
+        partition.bind( bindContext );
     }
-
 
     public void unbind( LdapDN bindDn ) throws NamingException
     {
