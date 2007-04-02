@@ -572,9 +572,9 @@ public class SchemaService extends BaseInterceptor
             }
         }
         
-        if ( returnAllOperationalAttributes || setOids.contains( "comparators" ) )
+        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.COMPARATORS_AT_OID ) )
         {
-            attr = new AttributeImpl( "comparators" );
+            attr = new AttributeImpl( SchemaConstants.COMPARATORS_AT );
             Iterator<ComparatorDescription> list = registries.getComparatorRegistry().comparatorDescriptionIterator();
             
             while ( list.hasNext() )
@@ -586,9 +586,9 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
         
-        if ( returnAllOperationalAttributes || setOids.contains( "normalizers" ) )
+        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.NORMALIZERS_AT_OID ) )
         {
-            attr = new AttributeImpl( "normalizers" );
+            attr = new AttributeImpl( SchemaConstants.NORMALIZERS_AT );
             Iterator<NormalizerDescription> list = registries.getNormalizerRegistry().normalizerDescriptionIterator();
             
             while ( list.hasNext() )
@@ -600,9 +600,9 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || setOids.contains( "syntaxCheckers" ) )
+        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.SYNTAX_CHECKERS_AT_OID ) )
         {
-            attr = new AttributeImpl( "syntaxCheckers" );
+            attr = new AttributeImpl( SchemaConstants.SYNTAX_CHECKERS_AT );
             Iterator<SyntaxCheckerDescription> list = 
                 registries.getSyntaxCheckerRegistry().syntaxCheckerDescriptionIterator();
             
@@ -657,7 +657,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MATCHING_RULE_USE_AT ) )
+        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MATCHING_RULE_USE_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.MATCHING_RULE_USE_AT );
             Iterator list = registries.getMatchingRuleUseRegistry().iterator();
@@ -671,7 +671,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.LDAP_SYNTAXES_AT ) )
+        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.LDAP_SYNTAXES_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.LDAP_SYNTAXES_AT );
             Iterator<Syntax> list = registries.getSyntaxRegistry().iterator();
@@ -685,7 +685,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.DIT_CONTENT_RULES_AT ) )
+        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.DIT_CONTENT_RULES_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.DIT_CONTENT_RULES_AT );
             Iterator<DITContentRule> list = registries.getDitContentRuleRegistry().iterator();
@@ -699,7 +699,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.DIT_STRUCTURE_RULES_AT ) )
+        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.DIT_STRUCTURE_RULES_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.DIT_STRUCTURE_RULES_AT );
             Iterator list = registries.getDitStructureRuleRegistry().iterator();
@@ -727,9 +727,9 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || setOids.contains( "subtreespecification" ) )
+        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.SUBTREE_SPECIFICATION_AT_OID ) )
         {
-            attr = new AttributeImpl( "subtreeSpecification", "{}" );
+            attr = new AttributeImpl( SchemaConstants.SUBTREE_SPECIFICATION_AT, "{}" );
             attrs.put( attr );
         }
         
