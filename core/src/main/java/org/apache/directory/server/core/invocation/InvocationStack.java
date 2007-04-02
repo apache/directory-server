@@ -21,6 +21,7 @@ package org.apache.directory.server.core.invocation;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +46,11 @@ public final class InvocationStack
     // I didn't use ThreadLocal to release contexts explicitly.
     // It seems like JDK 1.5 supports explicit release by introducing
     // <tt>ThreadLocal.remove()</tt>, but we're still targetting 1.4.
-    private static final Map stacks = new IdentityHashMap();
+    private static final Map<Thread, InvocationStack> stacks = 
+        Collections.synchronizedMap( new IdentityHashMap<Thread, InvocationStack>() );
 
+    private final Thread thread;
+    private final List<Invocation> stack = new ArrayList<Invocation>();
 
     /**
      * Returns the invocation stack of current thread.
@@ -55,26 +59,19 @@ public final class InvocationStack
     {
         Thread currentThread = Thread.currentThread();
         InvocationStack ctx;
-        synchronized ( stacks )
+        ctx = stacks.get( currentThread );
+
+        if ( ctx == null )
         {
-            ctx = ( InvocationStack ) stacks.get( currentThread );
-            if ( ctx == null )
-            {
-                ctx = new InvocationStack();
-            }
+            ctx = new InvocationStack( currentThread );
         }
+
         return ctx;
     }
 
-    private final Thread thread;
-    private final List stack = new ArrayList();
-
-
-    private InvocationStack()
+    private InvocationStack( Thread currentThread )
     {
-        Thread currentThread = Thread.currentThread();
-        this.thread = currentThread;
-        // This operation is already synchronized from getInstance()
+        thread = currentThread;
         stacks.put( currentThread, this );
     }
 
@@ -86,7 +83,7 @@ public final class InvocationStack
     public Invocation[] toArray()
     {
         Invocation[] result = new Invocation[stack.size()];
-        result = ( Invocation[] ) stack.toArray( result );
+        result = stack.toArray( result );
         return result;
     }
 
@@ -96,7 +93,7 @@ public final class InvocationStack
      */
     public Invocation peek()
     {
-        return ( Invocation ) this.stack.get( 0 );
+        return stack.get( 0 );
     }
 
 
@@ -105,7 +102,7 @@ public final class InvocationStack
      */
     public boolean isEmpty()
     {
-        return this.stack.isEmpty();
+        return stack.isEmpty();
     }
 
 
@@ -114,7 +111,7 @@ public final class InvocationStack
      */
     public void push( Invocation invocation )
     {
-        this.stack.add( 0, invocation );
+        stack.add( 0, invocation );
     }
 
 
@@ -124,13 +121,11 @@ public final class InvocationStack
      */
     public Invocation pop()
     {
-        Invocation invocation = ( Invocation ) this.stack.remove( 0 );
-        if ( this.stack.size() == 0 )
+        Invocation invocation = stack.remove( 0 );
+        
+        if ( stack.size() == 0 )
         {
-            synchronized ( stacks )
-            {
-                stacks.remove( thread );
-            }
+            stacks.remove( thread );
         }
 
         return invocation;
