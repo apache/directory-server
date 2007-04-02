@@ -21,7 +21,6 @@ package org.apache.directory.server.core.normalization;
 
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingEnumeration;
@@ -34,6 +33,8 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.BindServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -402,11 +403,11 @@ public class NormalizationService extends BaseInterceptor
     }
     
     
-    public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) 
-        throws NamingException
+    public void bind( NextInterceptor next, ServiceContext ctx )  throws NamingException
     {
-        bindDn = LdapDN.normalize( bindDn, attrNormalizers );
-        next.bind( bindDn, credentials, mechanisms, saslAuthId );
+        BindServiceContext bindContext = (BindServiceContext)ctx;
+        bindContext.setNormalizedBindDn( LdapDN.normalize( bindContext.getBindDn(), attrNormalizers ) );
+        next.bind( bindContext );
     }
 
 
