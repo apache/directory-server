@@ -43,6 +43,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.configuration.Configuration;
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
+import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -217,6 +218,17 @@ public abstract class AbstractTestCase extends TestCase
         registries = DirectoryService.getInstance().getConfiguration().getRegistries();
     }
 
+    
+    /**
+     * Restarts the server without loading data when it has been shutdown.
+     */
+    protected void restart() throws NamingException
+    {
+        configuration = new MutableStartupConfiguration();
+        configuration.setShutdownHookEnabled( false );
+        setContextRoots( username, password, configuration );
+    }
+    
 
     /**
      * Deletes the Eve working directory.
@@ -310,14 +322,10 @@ public abstract class AbstractTestCase extends TestCase
 
 
     /**
-     * Sets the system context root to null.
-     *
-     * @see junit.framework.TestCase#tearDown()
+     * Issues a shutdown request to the server.
      */
-    protected void tearDown() throws Exception
+    protected void shutdown()
     {
-        super.tearDown();
-
         Hashtable<String,Object> env = new Hashtable<String,Object>();
 
         env.put( Context.PROVIDER_URL, "ou=system" );
@@ -333,9 +341,45 @@ public abstract class AbstractTestCase extends TestCase
         }
         catch ( Exception e )
         {
-        }
+        } 
         sysRoot = null;
         Runtime.getRuntime().gc();
+    }
+
+
+    /**
+     * Issues a sync request to the server.
+     */
+    protected void sync()
+    {
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+
+        env.put( Context.PROVIDER_URL, "ou=system" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        env.putAll( new SyncConfiguration().toJndiEnvironment() );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+
+        try
+        {
+            new InitialContext( env );
+        }
+        catch ( Exception e )
+        {
+        } 
+    }
+
+    
+    /**
+     * Sets the system context root to null.
+     *
+     * @see junit.framework.TestCase#tearDown()
+     */
+    protected void tearDown() throws Exception
+    {
+        super.tearDown();
+        shutdown();
         testEntries.clear();
         ldifPath = null;
         loadClass = null;
