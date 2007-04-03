@@ -421,7 +421,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void unbind( LdapDN bindDn ) throws NamingException
+    public final void unbind( ServiceContext unbindContext ) throws NamingException
     {
     }
 }

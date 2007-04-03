@@ -228,8 +228,8 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void unbind( NextInterceptor next, LdapDN bindDn ) throws NamingException
+    public void unbind( NextInterceptor next, ServiceContext unbindContext ) throws NamingException
     {
-        next.unbind( bindDn );
+        next.unbind( unbindContext );
     }
 }

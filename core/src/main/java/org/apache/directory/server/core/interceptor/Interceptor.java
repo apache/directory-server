@@ -240,13 +240,13 @@ public interface Interceptor
         throws NamingException;
 
     /**
-     * Filters {@link Partition#bind(org.apache.directory.shared.ldap.name.LdapDN,byte[],java.util.List,String)} call.
+     * Filters {@link Partition#bind(ServiceContext)} call.
      */
     void bind( NextInterceptor next, ServiceContext bindContext )
         throws NamingException;
 
     /**
-     * Filters {@link Partition#unbind(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link Partition#unbind(ServiceContext)} call.
      */
-    void unbind( NextInterceptor next, LdapDN bindDn ) throws NamingException;
+    void unbind( NextInterceptor next, ServiceContext unbindContext ) throws NamingException;
 }

@@ -461,7 +461,9 @@ public class AuthenticationService extends BaseInterceptor
     throws NamingException
     {   
         BindServiceContext bindCtx = (BindServiceContext)bindContext;
-        LdapDN normBindDn = bindCtx.getNormalizedBindDn();
+        
+        // The DN is always normalized here
+        LdapDN normBindDn = bindCtx.getBindDn();
         String bindUpDn = bindCtx.getBindDn().getUpName();
         
         if ( IS_DEBUG )

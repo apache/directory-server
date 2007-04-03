@@ -21,13 +21,13 @@ package org.apache.directory.server.core.interceptor;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -65,7 +65,7 @@ public class InterceptorChainTest extends TestCase
         { new MockInterceptor( "0" ), new MockInterceptor( "1" ), new MockInterceptor( "2" ),
             new MockInterceptor( "3" ), new MockInterceptor( "4" ) };
     private InterceptorChain chain;
-    private List interceptors = new ArrayList( interceptorArray.length );
+    private List<Interceptor> interceptors = new ArrayList<Interceptor>( interceptorArray.length );
 
 
     protected void setUp() throws Exception
@@ -151,7 +151,7 @@ public class InterceptorChainTest extends TestCase
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
-        Collection bypass = new HashSet();
+        Set<String> bypass = new HashSet<String>();
         bypass.add( "0" );
         bypass.add( "1" );
         Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
@@ -185,7 +185,7 @@ public class InterceptorChainTest extends TestCase
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
-        Collection bypass = new HashSet();
+        Set<String> bypass = new HashSet<String>();
         bypass.add( "0" );
         bypass.add( "4" );
         Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
@@ -215,7 +215,7 @@ public class InterceptorChainTest extends TestCase
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
-        Collection bypass = new HashSet();
+        Set<String> bypass = new HashSet<String>();
         bypass.add( "1" );
         bypass.add( "3" );
         Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
@@ -441,10 +441,10 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void unbind( NextInterceptor next, LdapDN bindDn ) throws NamingException
+        public void unbind( NextInterceptor next, ServiceContext unbindContext ) throws NamingException
         {
             interceptors.add( this );
-            next.unbind( bindDn );
+            next.unbind( unbindContext );
         }
     }
 

@@ -173,7 +173,7 @@ public interface NextInterceptor
     void bind( ServiceContext bindContext ) throws NamingException;
 
     /**
-     * Calls the next interceptor's {@link Interceptor#unbind(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}
+     * Calls the next interceptor's {@link Interceptor#unbind(NextInterceptor, ServiceContext))}
      */
-    void unbind( LdapDN bindDn ) throws NamingException;
+    void unbind( ServiceContext unbindContext ) throws NamingException;
 }

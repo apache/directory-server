@@ -691,16 +691,16 @@ public class PartitionNexusProxy extends PartitionNexus
         }
     }
 
-    public void unbind( LdapDN bindDn, Collection bypass ) throws NamingException
+    public void unbind( ServiceContext unbindContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         Object[] args = new Object[]
-            { bindDn };
+            { unbindContext };
         stack.push( new Invocation( this, caller, "unbind", args, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().unbind( bindDn );
+            this.configuration.getInterceptorChain().unbind( unbindContext );
         }
         finally
         {
@@ -715,9 +715,9 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void unbind( LdapDN bindDn ) throws NamingException
+    public void unbind( ServiceContext unbindContext ) throws NamingException
     {
-        unbind( bindDn, null );
+        unbind( unbindContext, null );
     }
 
 

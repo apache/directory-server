@@ -209,9 +209,9 @@ public class InterceptorChain
         }
 
 
-        public void unbind( NextInterceptor next, LdapDN bindDn ) throws NamingException
+        public void unbind( NextInterceptor next, ServiceContext unbindContext ) throws NamingException
         {
-            nexus.unbind( bindDn );
+            nexus.unbind( unbindContext );
         }
     };
 
@@ -741,14 +741,15 @@ public class InterceptorChain
     }
 
 
-    public void unbind( LdapDN bindDn ) throws NamingException
+    public void unbind( ServiceContext unbindContext ) throws NamingException
     {
         Entry node = getStartingEntry();
         Interceptor head = node.configuration.getInterceptor();
         NextInterceptor next = node.nextInterceptor;
+        
         try
         {
-            head.unbind( next, bindDn );
+            head.unbind( next, unbindContext );
         }
         catch ( NamingException ne )
         {
@@ -1444,14 +1445,14 @@ public class InterceptorChain
                 }
 
 
-                public void unbind( LdapDN bindDn ) throws NamingException
+                public void unbind( ServiceContext unbindContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.unbind( next.nextInterceptor, bindDn );
+                        interceptor.unbind( next.nextInterceptor, unbindContext );
                     }
                     catch ( NamingException ne )
                     {

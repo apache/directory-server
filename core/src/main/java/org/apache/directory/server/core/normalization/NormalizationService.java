@@ -405,9 +405,8 @@ public class NormalizationService extends BaseInterceptor
     
     public void bind( NextInterceptor next, ServiceContext ctx )  throws NamingException
     {
-        BindServiceContext bindContext = (BindServiceContext)ctx;
-        bindContext.setNormalizedBindDn( LdapDN.normalize( bindContext.getBindDn(), attrNormalizers ) );
-        next.bind( bindContext );
+        LdapDN.normalize( ((BindServiceContext)ctx).getBindDn(), attrNormalizers );
+        next.bind( ctx );
     }
 
 

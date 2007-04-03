@@ -32,32 +32,39 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class BindServiceContext implements ServiceContext
 {
+    /** The principal DN */
     private LdapDN bindDn;
-    private LdapDN normalizedBindDn;
+
+    /** The list of supported mechanisms */
     private List<String> mechanisms;
+    
+    /** The password */
     private byte[] credentials;
+    
+    /** The SASL identifier */
     private String saslAuthId;
     
+    /**
+     * @return The Principal's DN
+     */
     public LdapDN getBindDn()
     {
         return bindDn;
     }
     
+    /**
+     * Set the principal's DN.
+     *
+     * @param bindDn The principal's DN
+     */
     public void setBindDn( LdapDN bindDn )
     {
         this.bindDn = bindDn;
     }
 
-    public LdapDN getNormalizedBindDn()
-    {
-        return normalizedBindDn;
-    }
-
-    public void setNormalizedBindDn( LdapDN normalizedBindDn )
-    {
-        this.normalizedBindDn = normalizedBindDn;
-    }
-
+    /**
+     * @return The list of supported mechanisms
+     */
     public List<String> getMechanisms()
     {
         return mechanisms;
@@ -68,6 +75,9 @@ public class BindServiceContext implements ServiceContext
         this.mechanisms = mechanisms;
     }
 
+    /**
+     * @return The principal password
+     */
     public byte[] getCredentials()
     {
         return credentials;
@@ -78,6 +88,9 @@ public class BindServiceContext implements ServiceContext
         this.credentials = credentials;
     }
 
+    /**
+     * @return The SASL authentication ID
+     */
     public String getSaslAuthId()
     {
         return saslAuthId;
@@ -87,5 +100,4 @@ public class BindServiceContext implements ServiceContext
     {
         this.saslAuthId = saslAuthId;
     }
-    
 }

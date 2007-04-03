@@ -46,6 +46,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.UnbindServiceContext;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -663,14 +664,14 @@ public class DefaultPartitionNexus extends PartitionNexus
     // ------------------------------------------------------------------------
     public void bind( ServiceContext bindContext ) throws NamingException
     {
-        Partition partition = getBackend( ((BindServiceContext)bindContext).getNormalizedBindDn() );
+        Partition partition = getBackend( ((BindServiceContext)bindContext).getBindDn() );
         partition.bind( bindContext );
     }
 
-    public void unbind( LdapDN bindDn ) throws NamingException
+    public void unbind( ServiceContext unbindContext ) throws NamingException
     {
-        Partition partition = getBackend( bindDn );
-        partition.unbind( bindDn );
+        Partition partition = getBackend( ((UnbindServiceContext)unbindContext).getUnbindDn() );
+        partition.unbind( unbindContext );
     }
 
 
@@ -987,6 +988,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     private Partition getBackend( LdapDN dn ) throws NamingException
     {
         LdapDN clonedDn = ( LdapDN ) dn.clone();
+        
         while ( clonedDn.size() > 0 )
         {
             if ( partitions.containsKey( clonedDn.toString() ) )
@@ -996,6 +998,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
             clonedDn.remove( clonedDn.size() - 1 );
         }
+        
         throw new LdapNameNotFoundException( dn.getUpName() );
     }
 

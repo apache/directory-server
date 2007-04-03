@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition;
 
 
-import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
@@ -300,8 +299,8 @@ public interface Partition
      * need not support this operation.  This operation is here to enable those
      * interested in implementing virtual directories with ApacheDS.
      * 
-     * @param bindDn the normalized dn of the principal attempting to unbind
+     * @param unbindContext the context used to unbind
      * @throws NamingException if something goes wrong
      */
-    void unbind( LdapDN bindDn ) throws NamingException;
+    void unbind( ServiceContext unbindContext ) throws NamingException;
 }
