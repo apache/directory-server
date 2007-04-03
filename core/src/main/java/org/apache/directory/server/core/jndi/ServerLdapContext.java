@@ -31,6 +31,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.interceptor.context.UnbindServiceContext;
 import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -178,7 +179,10 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public void ldapUnbind() throws NamingException
     {
         String bindDn = ( String ) getEnvironment().get( Context.SECURITY_PRINCIPAL );
-        super.getNexusProxy().unbind( new LdapDN( bindDn ) );
+        UnbindServiceContext unbindContext = new UnbindServiceContext();
+        unbindContext.setBindDn( new LdapDN( bindDn ) );
+        
+        super.getNexusProxy().unbind( unbindContext );
     }
 
 
