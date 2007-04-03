@@ -20,6 +20,7 @@
 package org.apache.directory.server.core;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -57,6 +58,7 @@ import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
@@ -66,6 +68,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -806,17 +809,21 @@ class DefaultDirectoryService extends DirectoryService
         // If not present extract schema partition from jar
         // --------------------------------------------------------------------
 
-        SchemaPartitionExtractor extractor = null; 
-        try
+        File schemaDirectory = new File( startupConfiguration.getWorkingDirectory(), "schema" );
+        SchemaPartitionExtractor extractor = null;
+        if ( ! schemaDirectory.exists() )
         {
-            extractor = new SchemaPartitionExtractor( startupConfiguration.getWorkingDirectory() );
-            extractor.extract();
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException( "Failed to extract pre-loaded schema partition." );
-            ne.setRootCause( e );
-            throw ne;
+            try
+            {
+                extractor = new SchemaPartitionExtractor( startupConfiguration.getWorkingDirectory() );
+                extractor.extract();
+            }
+            catch ( IOException e )
+            {
+                NamingException ne = new NamingException( "Failed to extract pre-loaded schema partition." );
+                ne.setRootCause( e );
+                throw ne;
+            }
         }
         
         // --------------------------------------------------------------------
@@ -826,7 +833,19 @@ class DefaultDirectoryService extends DirectoryService
         MutablePartitionConfiguration schemaPartitionConfig = new MutablePartitionConfiguration();
         schemaPartitionConfig.setName( "schema" );
         schemaPartitionConfig.setCacheSize( 1000 );
-        schemaPartitionConfig.setIndexedAttributes( extractor.getDbFileListing().getIndexedAttributes() );
+        
+        DbFileListing listing = null;
+        try 
+        {
+            listing = new DbFileListing();
+        }
+        catch( IOException e )
+        {
+            throw new LdapNamingException( "Got IOException while trying to read DBFileListing: " + e.getMessage(), 
+                ResultCodeEnum.OTHER );
+        }
+        
+        schemaPartitionConfig.setIndexedAttributes( listing.getIndexedAttributes() );
         schemaPartitionConfig.setOptimizerEnabled( true );
         schemaPartitionConfig.setSuffix( "ou=schema" );
         

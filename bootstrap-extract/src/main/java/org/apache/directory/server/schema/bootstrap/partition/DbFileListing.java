@@ -42,7 +42,8 @@ import java.net.URL;
 public class DbFileListing
 {
     Map<String, DbFileType> name2type = new HashMap<String, DbFileType>();
-    private static final String BASE_PATH = DbFileListing.class.getName().substring( 0, DbFileListing.class.getName().lastIndexOf( "." ) + 1 ).replace( '.', '/' );
+    private static final String BASE_PATH = DbFileListing.class.getName()
+        .substring( 0, DbFileListing.class.getName().lastIndexOf( "." ) + 1 ).replace( '.', '/' );
 
 
     public DbFileListing() throws IOException
