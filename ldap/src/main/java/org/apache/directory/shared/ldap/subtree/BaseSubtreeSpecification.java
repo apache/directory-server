@@ -276,7 +276,8 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
             buffer.append( ',' );
         }
         
-        if(!chopBefore.isEmpty() || !chopAfter.isEmpty()) {
+        if ( !chopBefore.isEmpty() || !chopAfter.isEmpty() ) 
+        {
             buffer.append( ' ' );
             buffer.append( "specificExclusions" );
             buffer.append( ' ' );
@@ -298,6 +299,12 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
                     buffer.append( ',' );
                     buffer.append( ' ' );
                 }
+            }
+            
+            if ( !chopBefore.isEmpty() && !chopAfter.isEmpty() )
+            {
+                buffer.append( ',' );
+                buffer.append( ' ' );
             }
             
             for ( Iterator it = chopAfter.iterator(); it.hasNext(); )
