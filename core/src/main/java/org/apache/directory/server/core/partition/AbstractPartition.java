@@ -32,6 +32,8 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -200,7 +202,7 @@ public abstract class AbstractPartition implements Partition
     {
         try
         {
-            return lookup( name ) != null;
+            return lookup( new LookupServiceContext( name ) ) != null;
         }
         catch ( NameNotFoundException e )
         {
@@ -214,9 +216,10 @@ public abstract class AbstractPartition implements Partition
      * with null <tt>attributeIds</tt> by default.  Please override
      * this method if there is more effective way for your implementation.
      */
-    public Attributes lookup( LdapDN name ) throws NamingException
+    public Attributes lookup( ServiceContext lookupContext ) throws NamingException
     {
-        return lookup( name, null );
+        return null;
+        //return lookup( lookupContext );
     }
 
 

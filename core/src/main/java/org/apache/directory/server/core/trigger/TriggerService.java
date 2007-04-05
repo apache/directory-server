@@ -40,6 +40,7 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -130,7 +131,7 @@ public class TriggerService extends BaseInterceptor
         {
             LdapDN parentDn = ( LdapDN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
-            entry = proxy.lookup( parentDn, PartitionNexusProxy.LOOKUP_BYPASS );
+            entry = proxy.lookup( new LookupServiceContext( parentDn ), PartitionNexusProxy.LOOKUP_BYPASS );
         }
 
         Attribute subentries = entry.get( TRIGGER_SUBENTRIES_ATTR );
@@ -276,7 +277,7 @@ public class TriggerService extends BaseInterceptor
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes deletedEntry = proxy.lookup( normName, PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes deletedEntry = proxy.lookup( new LookupServiceContext( normName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( invocation, normName );
 
@@ -308,7 +309,7 @@ public class TriggerService extends BaseInterceptor
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes modifiedEntry = proxy.lookup( normName, PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes modifiedEntry = proxy.lookup( new LookupServiceContext( normName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, normName, modOp, mods );
 
@@ -341,7 +342,7 @@ public class TriggerService extends BaseInterceptor
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes modifiedEntry = proxy.lookup( normName, PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes modifiedEntry = proxy.lookup( new LookupServiceContext( normName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, normName, mods );
 
@@ -374,7 +375,7 @@ public class TriggerService extends BaseInterceptor
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes renamedEntry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes renamedEntry = proxy.lookup( new LookupServiceContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( name.getRdn().getUpName() );
@@ -417,7 +418,7 @@ public class TriggerService extends BaseInterceptor
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes movedEntry = proxy.lookup( oriChildName, PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes movedEntry = proxy.lookup( new LookupServiceContext( oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
@@ -442,7 +443,7 @@ public class TriggerService extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryService,
         // but after this service.
-        Attributes importedEntry = proxy.lookup( oriChildName, PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Attributes importedEntry = proxy.lookup( new LookupServiceContext( oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
         // we need to construct an entry to represent it
@@ -490,7 +491,7 @@ public class TriggerService extends BaseInterceptor
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes movedEntry = proxy.lookup( oriChildName, PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes movedEntry = proxy.lookup( new LookupServiceContext( oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
@@ -515,7 +516,7 @@ public class TriggerService extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryService,
         // but after this service.
-        Attributes importedEntry = proxy.lookup( oriChildName, PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Attributes importedEntry = proxy.lookup( new LookupServiceContext( oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
         // we need to construct an entry to represent it

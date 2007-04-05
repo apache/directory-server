@@ -22,6 +22,7 @@ package org.apache.directory.server.core.operational;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +43,8 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -269,27 +272,24 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, ServiceContext lookupContext ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( name );
-        if ( result == null )
-        {
-            return null;
-        }
-        filter( result );
-        return result;
-    }
-
-
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
-    {
-        Attributes result = nextInterceptor.lookup( name, attrIds );
+        Attributes result = nextInterceptor.lookup( lookupContext );
+        
         if ( result == null )
         {
             return null;
         }
 
-        filter( name, result, attrIds );
+        if ( ((LookupServiceContext)lookupContext).getAttrsId() == null )
+        {
+            filter( result );
+        }
+        else
+        {
+            filter( lookupContext, result );
+        }
+        
         return result;
     }
 
@@ -352,18 +352,21 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    private void filter( Name dn, Attributes entry, String[] ids ) throws NamingException
+    private void filter( ServiceContext lookupContext, Attributes entry ) throws NamingException
     {
+        LdapDN dn = ((LookupServiceContext)lookupContext).getDn();
+        List<String> ids = ((LookupServiceContext)lookupContext).getAttrsId();
+        
         // still need to protect against returning op attrs when ids is null
         if ( ids == null )
         {
-            OperationalAttributeService.this.filter( entry );
+            filter( entry );
             return;
         }
 
         if ( dn.size() == 0 )
         {
-            Set<String> idsSet = new HashSet<String>( ids.length );
+            Set<String> idsSet = new HashSet<String>( ids.size() );
 
             for ( String id:ids  )
             {

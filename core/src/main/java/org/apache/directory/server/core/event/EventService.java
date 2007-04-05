@@ -33,6 +33,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.normalization.NormalizingVisitor;
@@ -257,7 +258,7 @@ public class EventService extends BaseInterceptor
 
     public void delete( NextInterceptor next, LdapDN name ) throws NamingException
     {
-        Attributes entry = nexus.lookup( name );
+        Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
         super.delete( next, name );
         Set selecting = getSelectingSources( name, entry );
         if ( selecting.isEmpty() )
@@ -284,7 +285,7 @@ public class EventService extends BaseInterceptor
 
     private void notifyOnModify( LdapDN name, ModificationItemImpl[] mods, Attributes oriEntry ) throws NamingException
     {
-        Attributes entry = nexus.lookup( name );
+        Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
         Set selecting = getSelectingSources( name, entry );
         if ( selecting.isEmpty() )
         {
@@ -313,7 +314,7 @@ public class EventService extends BaseInterceptor
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes oriEntry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes oriEntry = proxy.lookup( new LookupServiceContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
         super.modify( next, name, modOp, mods );
 
         // package modifications in ModItem format for event delivery
@@ -331,7 +332,7 @@ public class EventService extends BaseInterceptor
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes oriEntry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes oriEntry = proxy.lookup( new LookupServiceContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
         super.modify( next, name, mods );
         notifyOnModify( name, mods, oriEntry );
     }
@@ -339,7 +340,7 @@ public class EventService extends BaseInterceptor
 
     private void notifyOnNameChange( LdapDN oldName, LdapDN newName ) throws NamingException
     {
-        Attributes entry = nexus.lookup( newName );
+        Attributes entry = nexus.lookup( new LookupServiceContext( newName ) );
         Set selecting = getSelectingSources( oldName, entry );
         if ( selecting.isEmpty() )
         {

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,6 +42,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
@@ -48,6 +50,7 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -305,29 +308,28 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
+    public Attributes lookup( NextInterceptor next, ServiceContext lookupContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Lookup name = '" + dn.toString() + "', attributes = " + attrIds );
+            LookupServiceContext ctx = (LookupServiceContext)lookupContext;
+            
+            List<String> attrIds = ctx.getAttrsId();
+            
+            if ( ( attrIds != null ) && ( attrIds.size() != 0 ) )
+            {
+                String attrs = StringTools.listToString( attrIds );
+                log.debug( "Lookup name = '" + ctx.getDn().getUpName() + "', attributes = " + attrs );
+            }
+            else
+            {
+                log.debug( "Lookup name = '" + ctx.getDn().getUpName() + "', no attributes " );
+            }
         }
 
         checkAuthenticated();
-        return next.lookup( dn, attrIds );
+        return next.lookup( lookupContext );
     }
-
-
-    public Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException
-    {
-        if ( IS_DEBUG )
-        {
-            log.debug( "Lookup name = '" + name.toString() + "'" );
-        }
-
-        checkAuthenticated();
-        return next.lookup( name );
-    }
-
 
     private void invalidateAuthenticatorCaches( LdapDN principalDn )
     {

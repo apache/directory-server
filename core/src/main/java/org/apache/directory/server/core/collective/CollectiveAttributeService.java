@@ -38,6 +38,8 @@ import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -112,7 +114,7 @@ public class CollectiveAttributeService extends BaseInterceptor
      */
     private void addCollectiveAttributes( LdapDN normName, Attributes entry, String[] retAttrs ) throws NamingException
     {
-        Attributes entryWithCAS = nexus.lookup( normName, new String[] { COLLECTIVE_ATTRIBUTE_SUBENTRIES } );
+        Attributes entryWithCAS = nexus.lookup( new LookupServiceContext( normName, new String[] { COLLECTIVE_ATTRIBUTE_SUBENTRIES } ) );
         Attribute caSubentries = entryWithCAS.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
 
         /*
@@ -183,7 +185,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         {
             String subentryDnStr = ( String ) caSubentries.get( ii );
             LdapDN subentryDn = new LdapDN( subentryDnStr );
-            Attributes subentry = nexus.lookup( subentryDn );
+            Attributes subentry = nexus.lookup( new LookupServiceContext( subentryDn ) );
             NamingEnumeration attrIds = subentry.getIDs();
             
             while ( attrIds.hasMore() )
@@ -277,31 +279,26 @@ public class CollectiveAttributeService extends BaseInterceptor
     // ------------------------------------------------------------------------
     // Interceptor Method Overrides
     // ------------------------------------------------------------------------
-
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, ServiceContext lookupContext ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( name );
+        Attributes result = nextInterceptor.lookup( lookupContext );
         
         if ( result == null )
         {
             return null;
         }
         
-        addCollectiveAttributes( name, result, new String[] { "*" } );
-        return result;
-    }
-    
-
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
-    {
-        Attributes result = nextInterceptor.lookup( name, attrIds );
+        LookupServiceContext ctx = (LookupServiceContext)lookupContext;
         
-        if ( result == null )
+        if ( ( ctx.getAttrsId() == null ) || ( ctx.getAttrsId().size() == 0 ) ) 
         {
-            return null;
+            addCollectiveAttributes( ctx.getDn(), result, new String[] { "*" } );
         }
-        
-        addCollectiveAttributes( name, result, attrIds );
+        else
+        {
+            addCollectiveAttributes( ctx.getDn(), result, ctx.getAttrsIdArray() );
+        }
+
         return result;
     }
 

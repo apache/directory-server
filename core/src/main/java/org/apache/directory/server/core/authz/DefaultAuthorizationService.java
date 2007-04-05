@@ -41,6 +41,8 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -126,7 +128,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
-        Attributes adminGroup = nexus.lookup( ADMIN_GROUP_DN_NORMALIZED );
+        Attributes adminGroup = nexus.lookup( new LookupServiceContext( ADMIN_GROUP_DN_NORMALIZED ) );
         
         if ( adminGroup == null )
         {
@@ -414,28 +416,16 @@ public class DefaultAuthorizationService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, ServiceContext lookupContext ) throws NamingException
     {
-        Attributes attributes = nextInterceptor.lookup( name );
+        Attributes attributes = nextInterceptor.lookup( lookupContext );
+        
         if ( !enabled || attributes == null )
         {
             return attributes;
         }
 
-        protectLookUp( name );
-        return attributes;
-    }
-
-
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
-    {
-        Attributes attributes = nextInterceptor.lookup( name, attrIds );
-        if ( !enabled || attributes == null )
-        {
-            return attributes;
-        }
-
-        protectLookUp( name );
+        protectLookUp( ((LookupServiceContext)lookupContext).getDn() );
         return attributes;
     }
 

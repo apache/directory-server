@@ -192,27 +192,15 @@ public interface Partition
      * Looks up an entry by distinguished/absolute name.  This is a simplified
      * version of the search operation used to point read an entry used for
      * convenience.
+     * 
+     * Depending on the context parameters, we my look for a simple entry,
+     * or for a restricted set of attributes for this entry
      *
-     * @param name the normalized distinguished name of the object to lookup
+     * @param lookupContext The context containing the parameters
      * @return an Attributes object representing the entry
      * @throws NamingException if there are any problems
      */
-    Attributes lookup( LdapDN name ) throws NamingException;
-
-
-    /**
-     * Looks up an entry by distinguished/absolute name.  This is a simplified
-     * version of the search operation used to point read an entry used for
-     * convenience with a set of attributes to return.  If the attributes is
-     * null or empty, the returned entry will contain all attributes.
-     *
-     * @param name the normalized distinguished name of the object to lookup
-     * @param attrIds the set of attributes to return
-     * @return an Attributes object representing the entry
-     * @throws NamingException if there are any problems
-     */
-    Attributes lookup( LdapDN name, String[] attrIds ) throws NamingException;
-
+    Attributes lookup( ServiceContext lookupContext ) throws NamingException;
 
     /**
      * Fast operation to check and see if a particular entry exists.

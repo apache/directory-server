@@ -34,6 +34,8 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
@@ -432,25 +434,22 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public Attributes lookup( LdapDN dn ) throws NamingException
+    public Attributes lookup( ServiceContext lookupContext ) throws NamingException
     {
-        return lookup( getEntryId( dn.getNormName() ) );
-    }
+        LookupServiceContext ctx = (LookupServiceContext)lookupContext;
+        
+        Attributes entry = lookup( getEntryId( ctx.getDn().getNormName() ) );
 
-
-    public Attributes lookup( LdapDN dn, String[] attrIds ) throws NamingException
-    {
-        if ( attrIds == null || attrIds.length == 0 )
+        if ( ( ctx.getAttrsId() == null ) || ( ctx.getAttrsId().size() == 0 ) )
         {
-            return lookup( dn );
+            return entry;
         }
 
-        Attributes entry = lookup( dn );
         Attributes retval = new AttributesImpl();
 
-        for ( int ii = 0; ii < attrIds.length; ii++ )
+        for ( String attrId:ctx.getAttrsId() )
         {
-            Attribute attr = entry.get( attrIds[ii] );
+            Attribute attr = entry.get( attrId );
 
             if ( attr != null )
             {

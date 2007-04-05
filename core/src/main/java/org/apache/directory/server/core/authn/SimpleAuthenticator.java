@@ -34,6 +34,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -96,13 +97,15 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     {
         Set<String> c = new HashSet<String>();
         c.add( "normalizationService" );
-        c.add( "collectiveAttributeService" );
         c.add( "authenticationService" );
+        c.add( "referralService" );
         c.add( "authorizationService" );
         c.add( "defaultAuthorizationService" );
+        c.add( "exceptionService" );
+        c.add( "operationalAttributeService" );
         c.add( "schemaService" );
         c.add( "subentryService" );
-        c.add( "operationalAttributeService" );
+        c.add( "collectiveAttributeService" );
         c.add( "eventService" );
         c.add( TriggerService.SERVICE_NAME );
         USERLOOKUP_BYPASS = Collections.unmodifiableCollection( c );
@@ -263,8 +266,10 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         try
         {
-            userEntry = proxy.lookup( principalDn, new String[]
-                { SchemaConstants.USER_PASSWORD_AT }, USERLOOKUP_BYPASS );
+            LookupServiceContext lookupContex  = new LookupServiceContext( new String[] { SchemaConstants.USER_PASSWORD_AT } );
+            lookupContex.setDn( principalDn );
+            
+            userEntry = proxy.lookup( lookupContex, USERLOOKUP_BYPASS );
 
             if ( userEntry == null )
             {

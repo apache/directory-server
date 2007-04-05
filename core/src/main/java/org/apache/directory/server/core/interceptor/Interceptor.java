@@ -198,15 +198,9 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link Partition#lookup(ServiceContext)} call.
      */
-    Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException;
-
-
-    /**
-     * Filters {@link Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])} call.
-     */
-    Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException;
+    Attributes lookup( NextInterceptor next, ServiceContext lookupContext ) throws NamingException;
 
 
     /**

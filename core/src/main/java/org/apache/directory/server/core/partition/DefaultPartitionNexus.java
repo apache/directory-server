@@ -45,6 +45,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.interceptor.context.UnbindServiceContext;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
@@ -474,7 +475,8 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         AttributeType attrType = registry.lookup( oid );
-        Attribute attr = partition.lookup( name ).get( attrType.getName() );
+        
+        Attribute attr = partition.lookup( new LookupServiceContext( name ) ).get( attrType.getName() );
 
         // complain if the attribute being compared does not exist in the entry
         if ( attr == null )
@@ -878,40 +880,47 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN)
-     */
-    public Attributes lookup( LdapDN dn ) throws NamingException
-    {
-        if ( dn.size() == 0 )
-        {
-            return ( Attributes ) rootDSE.clone();
-        }
-
-        Partition backend = getBackend( dn );
-        return backend.lookup( dn );
-    }
-
-
-    /**
      * @see Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])
      */
-    public Attributes lookup( LdapDN dn, String[] attrIds ) throws NamingException
+    public Attributes lookup( ServiceContext lookupContext ) throws NamingException
     {
+        LookupServiceContext ctx = (LookupServiceContext)lookupContext;
+        LdapDN dn = ctx.getDn();
+        
         if ( dn.size() == 0 )
         {
             Attributes retval = new AttributesImpl();
             NamingEnumeration list = rootDSE.getIDs();
-            while ( list.hasMore() )
+     
+            if ( ctx.getAttrsId() != null )
             {
-                String id = ( String ) list.next();
-                Attribute attr = rootDSE.get( id );
-                retval.put( ( Attribute ) attr.clone() );
+                while ( list.hasMore() )
+                {
+                    String id = ( String ) list.next();
+                    
+                    if ( ctx.getAttrsId().contains( id ) )
+                    {
+                        Attribute attr = rootDSE.get( id );
+                        retval.put( ( Attribute ) attr.clone() );
+                    }
+                }
             }
+            else
+            {
+                while ( list.hasMore() )
+                {
+                    String id = ( String ) list.next();
+                    
+                    Attribute attr = rootDSE.get( id );
+                    retval.put( ( Attribute ) attr.clone() );
+                }
+            }
+            
             return retval;
         }
 
         Partition backend = getBackend( dn );
-        return backend.lookup( dn, attrIds );
+        return backend.lookup( ctx );
     }
 
 

@@ -126,15 +126,9 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#lookup(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link Interceptor#lookup(NextInterceptor,ServiceContext)}.
      */
-    Attributes lookup( LdapDN name ) throws NamingException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#lookup(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,String[])}.
-     */
-    Attributes lookup( LdapDN name, String[] attrIds ) throws NamingException;
+    Attributes lookup( ServiceContext lookupContext ) throws NamingException;
 
 
     /**

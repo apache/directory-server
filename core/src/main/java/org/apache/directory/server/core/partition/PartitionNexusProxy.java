@@ -498,51 +498,27 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Attributes lookup( LdapDN name ) throws NamingException
+    public Attributes lookup( ServiceContext lookupContext ) throws NamingException
     {
-        return lookup( name, ( Collection ) null );
+        return lookup( lookupContext, ( Collection ) null );
     }
 
 
-    public Attributes lookup( LdapDN name, Collection bypass ) throws NamingException
+    public Attributes lookup( ServiceContext lookupContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation( this, caller, "lookup", new Object[]
-            { name }, bypass ) );
+            { lookupContext }, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().lookup( name );
+            return this.configuration.getInterceptorChain().lookup( lookupContext );
         }
         finally
         {
             stack.pop();
         }
     }
-
-
-    public Attributes lookup( LdapDN dn, String[] attrIds ) throws NamingException
-    {
-        return lookup( dn, attrIds, null );
-    }
-
-
-    public Attributes lookup( LdapDN dn, String[] attrIds, Collection bypass ) throws NamingException
-    {
-        ensureStarted();
-        InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation( this, caller, "lookup", new Object[]
-            { dn, attrIds }, bypass ) );
-        try
-        {
-            return this.configuration.getInterceptorChain().lookup( dn, attrIds );
-        }
-        finally
-        {
-            stack.pop();
-        }
-    }
-
 
     public boolean hasEntry( LdapDN name ) throws NamingException
     {

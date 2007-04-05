@@ -146,15 +146,9 @@ public class InterceptorChain
         }
 
 
-        public Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException
+        public Attributes lookup( NextInterceptor next, ServiceContext lookupContext ) throws NamingException
         {
-            return ( Attributes ) nexus.lookup( name ).clone();
-        }
-
-
-        public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
-        {
-            return ( Attributes ) nexus.lookup( dn, attrIds ).clone();
+            return ( Attributes ) nexus.lookup( lookupContext ).clone();
         }
 
 
@@ -845,35 +839,14 @@ public class InterceptorChain
     }
 
 
-    public Attributes lookup( LdapDN name ) throws NamingException
+    public Attributes lookup( ServiceContext lookupContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            return head.lookup( next, name );
-        }
-        catch ( NamingException ne )
-        {
-            throw ne;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-            throw new InternalError(); // Should be unreachable
-        }
-    }
-
-
-    public Attributes lookup( LdapDN dn, String[] attrIds ) throws NamingException
-    {
-        Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
-        NextInterceptor next = entry.nextInterceptor;
-        try
-        {
-            return head.lookup( next, dn, attrIds );
+            return head.lookup( next, lookupContext );
         }
         catch ( NamingException ne )
         {
@@ -1280,35 +1253,14 @@ public class InterceptorChain
                 }
 
 
-                public Attributes lookup( LdapDN name ) throws NamingException
+                public Attributes lookup( ServiceContext lookupContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.lookup( next.nextInterceptor, name );
-                    }
-                    catch ( NamingException ne )
-                    {
-                        throw ne;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                        throw new InternalError(); // Should be unreachable
-                    }
-                }
-
-
-                public Attributes lookup( LdapDN dn, String[] attrIds ) throws NamingException
-                {
-                    Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
-
-                    try
-                    {
-                        return interceptor.lookup( next.nextInterceptor, dn, attrIds );
+                        return interceptor.lookup( next.nextInterceptor, lookupContext );
                     }
                     catch ( NamingException ne )
                     {

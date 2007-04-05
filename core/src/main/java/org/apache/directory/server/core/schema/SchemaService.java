@@ -47,6 +47,8 @@ import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -778,7 +780,7 @@ public class SchemaService extends BaseInterceptor
         // look up cn=schemaModifications,ou=schema and get values for the 
         // modifiers and creators operational information
 
-        Attributes modificationAttributes = nexus.lookup( schemaModificationAttributesDN );
+        Attributes modificationAttributes = nexus.lookup( new LookupServiceContext( schemaModificationAttributesDN ) );
         
         if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.CREATE_TIMESTAMP_AT ) )
         {
@@ -826,20 +828,9 @@ public class SchemaService extends BaseInterceptor
     /**
      * Search for an entry, using its DN. Binary attributes and ObjectClass attribute are removed.
      */
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, ServiceContext lookupContext ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( name );
-        filterBinaryAttributes( result );
-        filterObjectClass( result );
-        return result;
-    }
-
-    /**
-     * 
-     */
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
-    {
-        Attributes result = nextInterceptor.lookup( name, attrIds );
+        Attributes result = nextInterceptor.lookup( lookupContext );
         
         if ( result == null )
         {
@@ -1098,9 +1089,11 @@ public class SchemaService extends BaseInterceptor
     private void alterObjectClasses( Attribute objectClassAttr ) throws NamingException
     {
         Set<String> objectClasses = new HashSet<String>();
+        Set<String> objectClassesUP = new HashSet<String>();
 
         // Init the objectClass list with 'top'
         objectClasses.add( SchemaConstants.TOP_OC );
+        objectClassesUP.add( SchemaConstants.TOP_OC );
         
         // Construct the new list of ObjectClasses
         NamingEnumeration ocList = objectClassAttr.getAll();
@@ -1118,6 +1111,7 @@ public class SchemaService extends BaseInterceptor
                 if ( !objectClasses.contains( ocLowerName ) )
                 {
                     objectClasses.add( ocLowerName );
+                    objectClassesUP.add( ocName );
                 }
 
                 List<ObjectClass> ocSuperiors = superiors.get( objectClass.getOid() );
@@ -1129,6 +1123,7 @@ public class SchemaService extends BaseInterceptor
                         if ( !objectClasses.contains( oc.getName().toLowerCase() ) )
                         {
                             objectClasses.add( oc.getName() );
+                            objectClassesUP.add( oc.getName() );
                         }
                     }
                 }
@@ -1138,7 +1133,7 @@ public class SchemaService extends BaseInterceptor
         // Now, reset the ObjectClass attribute and put the new list into it
         objectClassAttr.clear();
 
-        for ( String attribute:objectClasses )
+        for ( String attribute:objectClassesUP )
         {
             objectClassAttr.add( attribute );
         }
@@ -1179,7 +1174,7 @@ public class SchemaService extends BaseInterceptor
         }
         else
         {
-            entry = nexus.lookup( name );
+            entry = nexus.lookup( new LookupServiceContext( name ) );
         }
 
         Attributes targetEntry = SchemaUtils.getTargetEntry( modOp, mods, entry );
@@ -1327,7 +1322,7 @@ public class SchemaService extends BaseInterceptor
     public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
         throws NamingException
     {
-        Attributes entry = nexus.lookup( oriChildName );
+        Attributes entry = nexus.lookup( new LookupServiceContext( oriChildName ) );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
@@ -1340,7 +1335,7 @@ public class SchemaService extends BaseInterceptor
 
     public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
     {
-        Attributes entry = nexus.lookup( oriChildName );
+        Attributes entry = nexus.lookup( new LookupServiceContext( oriChildName ) );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
@@ -1353,7 +1348,7 @@ public class SchemaService extends BaseInterceptor
 
     public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        Attributes entry = nexus.lookup( name );
+        Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
 
         if ( name.startsWith( schemaBaseDN ) )
         {
@@ -1377,7 +1372,7 @@ public class SchemaService extends BaseInterceptor
         }
         else
         {
-            entry = nexus.lookup( name );
+            entry = nexus.lookup( new LookupServiceContext( name ) );
         }
         
         // First, we get the entry from the backend. If it does not exist, then we throw an exception
@@ -1900,7 +1895,7 @@ public class SchemaService extends BaseInterceptor
     
     public void delete( NextInterceptor next, LdapDN normName ) throws NamingException
     {
-        Attributes entry = nexus.lookup( normName );
+        Attributes entry = nexus.lookup( new LookupServiceContext( normName ) );
         
         if ( normName.startsWith( schemaBaseDN ) )
         {

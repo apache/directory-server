@@ -33,6 +33,8 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.Partition;
@@ -124,7 +126,7 @@ public class ExceptionService extends BaseInterceptor
         
         try
         {
-            attrs = nextInterceptor.lookup( parentDn );
+            attrs = nextInterceptor.lookup( new LookupServiceContext( parentDn ) );
         }
         catch ( Exception e )
         {
@@ -206,37 +208,22 @@ public class ExceptionService extends BaseInterceptor
 
 
     /**
-     * Checks to make sure the entry being looked up exists other wise throws the appropriate LdapException.
-     */
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
-    {
-        if ( name.getNormName().equals( subschemSubentryDn.getNormName() ) )
-        {
-            return nexus.getRootDSE();
-        }
-        
-        String msg = "Attempt to lookup non-existant entry: ";
-        assertHasEntry( nextInterceptor, msg, name );
-
-        return nextInterceptor.lookup( name );
-    }
-
-
-    /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, ServiceContext lookupContext ) throws NamingException
     {
-        if ( name.getNormName().equals( subschemSubentryDn.getNormName() ) )
+        LookupServiceContext ctx = (LookupServiceContext)lookupContext;
+        
+        if ( ctx.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
             return nexus.getRootDSE();
         }
         
         // check if entry to lookup exists
         String msg = "Attempt to lookup non-existant entry: ";
-        assertHasEntry( nextInterceptor, msg, name );
+        assertHasEntry( nextInterceptor, msg, ctx.getDn() );
 
-        return nextInterceptor.lookup( name, attrIds );
+        return nextInterceptor.lookup( lookupContext );
     }
 
 
@@ -259,7 +246,7 @@ public class ExceptionService extends BaseInterceptor
         
         assertHasEntry( nextInterceptor, msg, name );
 
-        Attributes entry = nexus.lookup( name );
+        Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
         NamingEnumeration attrIds = attrs.getIDs();
         while ( attrIds.hasMore() )
         {
@@ -304,7 +291,7 @@ public class ExceptionService extends BaseInterceptor
         
         assertHasEntry( nextInterceptor, msg, name );
 
-        Attributes entry = nexus.lookup( name );
+        Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
         for ( int ii = 0; ii < items.length; ii++ )
         {
             if ( items[ii].getModificationOp() == DirContext.ADD_ATTRIBUTE )

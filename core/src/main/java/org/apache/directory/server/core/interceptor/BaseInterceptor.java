@@ -153,18 +153,12 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
+    public Attributes lookup( NextInterceptor next, ServiceContext lookupContext ) throws NamingException
     {
-        return next.lookup( dn, attrIds );
+        return next.lookup( lookupContext );
     }
 
-
-    public Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException
-    {
-        return next.lookup( name );
-    }
-
-
+    
     public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         next.modify( name, modOp, mods );
