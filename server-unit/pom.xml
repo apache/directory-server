@@ -27,6 +27,7 @@
       <groupId>ldapsdk</groupId>
       <artifactId>ldapsdk</artifactId>
       <version>4.1</version>
+      <scope>test</scope>
     </dependency>  
     <dependency>
       <groupId>org.apache.directory.server</groupId>

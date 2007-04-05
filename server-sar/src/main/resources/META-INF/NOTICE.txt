@@ -21,12 +21,6 @@ This product includes forked classes from the Legion of the Bouncy Castle
 This product includes a distribution of Spring Framework 
 (http://www.springframework.org).
 
-This product includes a distribution of Izpack Installer
-(http://www.izforge.com/izpack/).
-
-This product includes a distribution of Inno Setup Installer
-(http://www.jrsoftware.org/isinfo.php).
-
 This product includes derivatives of forked schema files from OpenLDAP
 (http://openldap.org)
 
