@@ -44,6 +44,7 @@ import javax.naming.spi.DirectoryManager;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
@@ -117,7 +118,9 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public Attributes getAttributes( Name name ) throws NamingException
     {
-        return getNexusProxy().lookup( buildTarget( name ) );
+        LookupServiceContext lookupContext = new LookupServiceContext( buildTarget( name ) );
+
+        return getNexusProxy().lookup( lookupContext );
     }
 
 
@@ -137,7 +140,9 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public Attributes getAttributes( Name name, String[] attrIds ) throws NamingException
     {
-        return getNexusProxy().lookup( buildTarget( name ), attrIds );
+        LookupServiceContext lookupContext = new LookupServiceContext( buildTarget( name ), attrIds );
+        
+        return getNexusProxy().lookup( lookupContext );
     }
 
 
