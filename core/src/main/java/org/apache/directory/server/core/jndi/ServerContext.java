@@ -50,6 +50,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -136,11 +137,6 @@ public abstract class ServerContext implements EventContext
         if ( ! nexusProxy.hasEntry( dn ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
-        }
-
-        if ( dn.size() == 0 )
-        {
-            return;
         }
     }
 
@@ -583,7 +579,8 @@ public abstract class ServerContext implements EventContext
     {
         Object obj;
         LdapDN target = buildTarget( name );
-        Attributes attributes = nexusProxy.lookup( target );
+        
+        Attributes attributes = nexusProxy.lookup( new LookupServiceContext( target ) );
 
         try
         {
