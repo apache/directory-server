@@ -31,6 +31,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.referral.ReferralLut;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -175,7 +176,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration
         {
             LdapDN prefetchedDn = new LdapDN( prefetched.getName() );
             prefetchedDn.normalize( normalizerMap );
-            refs = nexus.lookup( prefetchedDn ).get( REF_ATTR );
+            refs = nexus.lookup( new LookupServiceContext( prefetchedDn ) ).get( REF_ATTR );
         }
 
         if ( refs == null )
