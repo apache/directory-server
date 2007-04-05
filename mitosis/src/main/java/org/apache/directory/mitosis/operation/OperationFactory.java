@@ -33,6 +33,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -325,7 +326,7 @@ public class OperationFactory
     {
         if ( nexus.hasEntry( newEntryName ) )
         {
-            Attributes entry = nexus.lookup( newEntryName );
+            Attributes entry = nexus.lookup( new LookupServiceContext( newEntryName ) );
             Attribute deleted = entry.get( Constants.ENTRY_DELETED );
             Object value = deleted == null ? null : deleted.get();
 

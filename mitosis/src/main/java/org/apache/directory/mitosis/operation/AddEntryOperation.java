@@ -28,6 +28,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -77,10 +78,12 @@ public class AddEntryOperation extends Operation
         {
             return;
         }
+        
         EntryUtil.createGlueEntries( nexus, normalizedName, false );
 
         // Replace the entry if an entry with the same name exists.
-        Attributes oldEntry = nexus.lookup( normalizedName );
+        Attributes oldEntry = nexus.lookup( new LookupServiceContext( normalizedName ) );
+        
         if ( oldEntry != null )
         {
             recursiveDelete( nexus, normalizedName, registry );

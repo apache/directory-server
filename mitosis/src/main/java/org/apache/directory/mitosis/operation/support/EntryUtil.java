@@ -25,6 +25,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -41,7 +42,7 @@ public class EntryUtil
     @SuppressWarnings("unchecked")
     public static boolean isEntryUpdatable( PartitionNexus nexus, LdapDN name, CSN newCSN ) throws NamingException
     {
-        Attributes entry = nexus.lookup( name );
+        Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
 
         if ( entry == null )
         {
