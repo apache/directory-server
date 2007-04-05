@@ -35,6 +35,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.bootstrap.Schema;
@@ -196,7 +197,7 @@ public class SchemaPartitionDao
     {
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
         dn.normalize( attrRegistry.getNormalizerMapping() );
-        return factory.getSchema( partition.lookup( dn ) );
+        return factory.getSchema( partition.lookup( new LookupServiceContext( dn ) ) );
     }
 
 
@@ -549,7 +550,7 @@ public class SchemaPartitionDao
     {
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
         dn.normalize( attrRegistry.getNormalizerMapping() );
-        Attributes entry = partition.lookup( dn );
+        Attributes entry = partition.lookup( new LookupServiceContext( dn ) );
         Attribute disabledAttr = AttributeUtils.getAttribute( entry, disabledAttributeType );
         ModificationItemImpl[] mods = new ModificationItemImpl[3];
         
