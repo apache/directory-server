@@ -56,6 +56,8 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -354,7 +356,7 @@ public class ReplicationService extends BaseInterceptor
             LdapDN name = it.next();
             try
             {
-                Attributes entry = nexus.lookup( name );
+                Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
                 log.info( "Purge: " + name + " (" + entry + ')' );
                 nexus.delete( name );
             }
@@ -428,7 +430,7 @@ public class ReplicationService extends BaseInterceptor
             // Check DELETED attribute.
             try
             {
-                Attributes entry = nextInterceptor.lookup( name );
+                Attributes entry = nextInterceptor.lookup( new LookupServiceContext( name ) );
                 hasEntry = !isDeleted( entry );
             }
             catch ( NameNotFoundException e )
@@ -442,39 +444,38 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, ServiceContext lookupContext ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( name );
-        ensureNotDeleted( name, result );
-        return result;
-    }
-
-
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
-    {
-        boolean found = false;
+        LookupServiceContext ctx = ((LookupServiceContext)lookupContext);
         
-        // Look for 'entryDeleted' attribute is in attrIds.
-        for ( int i = 0; i < attrIds.length; i++ )
+        if ( ctx.getAttrsId() != null )
         {
-            if ( Constants.ENTRY_DELETED.equals( attrIds[i] ) )
+            boolean found = false;
+            
+            String[] attrIds = ctx.getAttrsIdArray();
+            
+            // Look for 'entryDeleted' attribute is in attrIds.
+            for ( String attrId:attrIds )
             {
-                found = true;
-                break;
+                if ( Constants.ENTRY_DELETED.equals( attrId ) )
+                {
+                    found = true;
+                    break;
+                }
+            }
+    
+            // If not exists, add one.
+            if ( !found )
+            {
+                String[] newAttrIds = new String[attrIds.length + 1];
+                System.arraycopy( attrIds, 0, newAttrIds, 0, attrIds.length );
+                newAttrIds[attrIds.length] = Constants.ENTRY_DELETED;
+                ctx.setAttrsId( newAttrIds );
             }
         }
-
-        // If not exists, add one.
-        if ( !found )
-        {
-            String[] newAttrIds = new String[attrIds.length + 1];
-            System.arraycopy( attrIds, 0, newAttrIds, 0, attrIds.length );
-            newAttrIds[attrIds.length] = Constants.ENTRY_DELETED;
-            attrIds = newAttrIds;
-        }
-
-        Attributes result = nextInterceptor.lookup( name, attrIds );
-        ensureNotDeleted( name, result );
+        
+        Attributes result = nextInterceptor.lookup( lookupContext );
+        ensureNotDeleted( ctx.getDn(), result );
         return result;
     }
 
