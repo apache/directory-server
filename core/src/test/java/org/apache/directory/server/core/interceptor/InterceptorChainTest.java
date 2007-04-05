@@ -37,6 +37,7 @@ import org.apache.directory.server.core.DirectoryServiceListener;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -101,7 +102,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( dn );
+            chain.lookup( new LookupServiceContext( dn ) );
         }
         catch ( Exception e )
         {
@@ -127,7 +128,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( dn );
+            chain.lookup( new LookupServiceContext( dn ) );
         }
         catch ( Exception e )
         {
@@ -160,7 +161,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( dn );
+            chain.lookup( new LookupServiceContext( dn ) );
         }
         catch ( Exception e )
         {
@@ -194,7 +195,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( dn );
+            chain.lookup( new LookupServiceContext( dn ) );
         }
         catch ( Exception e )
         {
@@ -224,7 +225,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( dn );
+            chain.lookup( new LookupServiceContext( dn ) );
         }
         catch ( Exception e )
         {
@@ -251,7 +252,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( dn );
+            chain.lookup( new LookupServiceContext( dn ) );
         }
         catch ( Exception e )
         {
@@ -382,17 +383,10 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException
+        public Attributes lookup( NextInterceptor next, ServiceContext lookupContext ) throws NamingException
         {
             interceptors.add( this );
-            return next.lookup( name );
-        }
-
-
-        public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
-        {
-            interceptors.add( this );
-            return next.lookup( dn, attrIds );
+            return next.lookup( lookupContext );
         }
 
 
