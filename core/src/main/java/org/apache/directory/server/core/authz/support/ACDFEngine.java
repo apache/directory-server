@@ -31,6 +31,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
@@ -164,7 +165,7 @@ public class ACDFEngine
             throw new NullPointerException( "entryName" );
         }
 
-        Attributes userEntry = proxy.lookup( userName, USER_LOOKUP_BYPASS );
+        Attributes userEntry = proxy.lookup( new LookupServiceContext( userName ), USER_LOOKUP_BYPASS );
 
         // Determine the scope of the requested operation.
         OperationScope scope;
