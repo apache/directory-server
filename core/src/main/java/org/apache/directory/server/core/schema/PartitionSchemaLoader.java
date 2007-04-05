@@ -40,6 +40,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AbstractSchemaLoader;
@@ -420,7 +421,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = ( SearchResult ) list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( resultDN );
+            Attributes attrs = partition.lookup( new LookupServiceContext( resultDN ) );
             ObjectClass oc = factory.getObjectClass( attrs, targetRegistries, schema.getSchemaName() );
             
             try
@@ -520,7 +521,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = ( SearchResult ) list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( resultDN );
+            Attributes attrs = partition.lookup( new LookupServiceContext( resultDN ) );
             AttributeType at = factory.getAttributeType( attrs, targetRegistries, schema.getSchemaName() );
             try
             {
@@ -617,7 +618,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = ( SearchResult ) list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( resultDN );
+            Attributes attrs = partition.lookup( new LookupServiceContext( resultDN ) );
             MatchingRule mrule = factory.getMatchingRule( attrs, targetRegistries, schema.getSchemaName() );
             targetRegistries.getMatchingRuleRegistry().register( mrule );
 
@@ -649,7 +650,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = ( SearchResult ) list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( resultDN );
+            Attributes attrs = partition.lookup( new LookupServiceContext( resultDN ) );
             Syntax syntax = factory.getSyntax( attrs, targetRegistries, schema.getSchemaName() );
             targetRegistries.getSyntaxRegistry().register( syntax );
         }
@@ -680,7 +681,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = ( SearchResult ) list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( resultDN );
+            Attributes attrs = partition.lookup( new LookupServiceContext( resultDN ) );
             SyntaxChecker sc = factory.getSyntaxChecker( attrs, targetRegistries );
             SyntaxCheckerDescription syntaxCheckerDescription = 
                 getSyntaxCheckerDescription( schema.getSchemaName(), attrs );
@@ -713,7 +714,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = ( SearchResult ) list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( resultDN );
+            Attributes attrs = partition.lookup( new LookupServiceContext( resultDN ) );
             Normalizer normalizer = factory.getNormalizer( attrs, targetRegistries );
             NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), attrs );
             targetRegistries.getNormalizerRegistry().register( normalizerDescription, normalizer );
@@ -782,7 +783,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = ( SearchResult ) list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( resultDN );
+            Attributes attrs = partition.lookup( new LookupServiceContext( resultDN ) );
             Comparator comparator = factory.getComparator( attrs, targetRegistries );
             ComparatorDescription comparatorDescription = getComparatorDescription( schema.getSchemaName(), attrs );
             targetRegistries.getComparatorRegistry().register( comparatorDescription, comparator );
