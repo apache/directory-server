@@ -44,9 +44,6 @@ public class LookupServiceContext implements ServiceContext
     /** The list of attributes OIDs for attributes to be returned */
     private List<String> attrsOid;
     
-    /** An empty array to avoid returning an Object[] */
-    private static final String[] EMPTY_ARRAY = new String[]{};
-
     /**
      * 
      * Creates a new instance of LookupServiceContext.
@@ -109,12 +106,20 @@ public class LookupServiceContext implements ServiceContext
         this.dn = dn;
     }
 
+    /**
+     * @return Get the attribute ids as a String array
+     */
     public String[] getAttrsIdArray()
     {
         String[] attrs = new String[ attrsId.size()];
         return attrsId.toArray( attrs );
     }
 
+    /**
+     * Set the attribute Ids
+     *
+     * @param attrsId The String array containing all the attribute IDs
+     */
     public void setAttrsId( String[] attrsId )
     {
         if ( attrsId == null )
@@ -127,12 +132,20 @@ public class LookupServiceContext implements ServiceContext
         }
     }
 
+    /**
+     * @return Get the attribute oids as a String array
+     */
     public String[] getAttrsOidArray()
     {
         String[] attrs = new String[ attrsId.size()];
         return attrsOid.toArray( attrs );
     }
 
+    /**
+     * Set the attribute oIds
+     *
+     * @param attrsId The String array containing all the attribute OIDs
+     */
     public void setAttrsOid( String[] attrsOid )
     {
         if ( attrsOid == null )
@@ -145,32 +158,77 @@ public class LookupServiceContext implements ServiceContext
         }
     }
     
+    /**
+     * Add an attribute OID to the current list, creating the list if necessary
+     *
+     * @param attrOid The oid to add
+     */
     public void addAttrsOid( String attrOid )
     {
+        if ( attrsOid == null )
+        {
+            attrsOid = new ArrayList<String>(); 
+        }
+        
         attrsOid.add( attrOid );
     }
 
+    /**
+     * Add an attribute ID to the current list, creating the list if necessary
+     *
+     * @param attrId the Id to add
+     */
     public void addAttrsId( String attrId )
     {
+        if ( attrsId == null )
+        {
+            attrsId = new ArrayList<String>(); 
+        }
+        
         attrsId.add( attrId );
     }
 
+    /**
+     * Add an attribute ID and OID to the current lists, creating the lists if necessary
+     *
+     * @param attrId the Id to add
+     * @param attrOid The oid to add
+     */
     public void addAttrs( String attrId, String attrOid )
     {
+        if ( attrsId == null )
+        {
+            attrsId = new ArrayList<String>(); 
+        }
+        
+        if ( attrsOid == null )
+        {
+            attrsOid = new ArrayList<String>(); 
+        }
+        
         attrsId.add( attrId );
         attrsOid.add( attrOid );
     }
 
+    /**
+     * @return The attribute IDs list
+     */
     public List<String> getAttrsId()
     {
         return attrsId;
     }
 
+    /**
+     * @return The attribute OIDs list
+     */
     public List<String> getAttrsOid()
     {
         return attrsOid;
     }
     
+    /**
+     * @see Object#toString()
+     */
     public String toString()
     {
         return "LookupContext for DN '" + dn.getUpName() + "'" + ( ( attrsId != null ) ? ", attributes : <" + StringTools.listToString( attrsId ) + ">" : "" );
