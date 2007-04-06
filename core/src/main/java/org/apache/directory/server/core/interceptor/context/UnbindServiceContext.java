@@ -34,6 +34,16 @@ public class UnbindServiceContext implements ServiceContext
     private LdapDN unbindDn;
 
     /**
+     * Creates a new instance of UnbindServiceContext.
+     *
+     * @param unbindDn The principal DN to unbind
+     */
+    public UnbindServiceContext( LdapDN unbindDn )
+    {
+        this.unbindDn = unbindDn;
+    }
+    
+    /**
      * @return The Principal's DN
      */
     public LdapDN getUnbindDn()
@@ -49,5 +59,13 @@ public class UnbindServiceContext implements ServiceContext
     public void setBindDn( LdapDN unbindDn )
     {
         this.unbindDn = unbindDn;
+    }
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "UnbindContext for DN '" + unbindDn.getUpName() + "'";
     }
 }
