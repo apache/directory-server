@@ -80,6 +80,7 @@ import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.filter.LoggingFilter;
 import org.apache.mina.filter.SSLFilter;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -98,6 +99,10 @@ import org.apache.mina.util.SessionLog;
  */
 public class LdapProtocolProvider
 {
+    //TM private static long cumul = 0L;
+    //TM private static long count = 0;
+    //TM private static Object lock = new Object();
+
     /** the constant service name of this ldap protocol provider **/
     public static final String SERVICE_NAME = "ldap";
     /** a map of the default request object class name to the handler class name */
@@ -330,7 +335,26 @@ public class LdapProtocolProvider
 
         public ProtocolDecoder getDecoder()
         {
-            return new Asn1CodecDecoder( new MessageDecoder( env ) );
+            //TM long t0 = System.nanoTime();
+            
+            ProtocolDecoder decoder = new Asn1CodecDecoder( new MessageDecoder( env ) );
+            
+            //TM long t1 = System.nanoTime();
+            //TM System.out.println( "New Asn1Decoder cost : " + (t1-t0) );
+
+            //TM synchronized (lock)
+            //TM {
+            //TM     cumul += (t1 - t0);
+            //TM     count++;
+            //TM    
+            //TM     if ( count % 1000L == 0)
+            //TM     {
+            //TM         System.out.println( "New Asn1Decoder cost : " + (cumul/count) );
+            //TM         cumul = 0L;
+            //TM     }
+            //TM }
+
+            return decoder;
         }
     }
 
@@ -344,7 +368,7 @@ public class LdapProtocolProvider
             // TODO : The filter is logging too much information.
             // Right now, I have commented it, but it may be 
             // used with some parameter to disable it
-            //filters.addLast( "logger", new LoggingFilter() );
+            filters.addLast( "logger", new LoggingFilter() );
         }
 
 
