@@ -129,7 +129,7 @@
             </packagedFile>
           </packagedFiles>
           <svnBaseUrl>
-            http://svn.apache.org/repos/asf/directory/apacheds/branches/1.5-pre-release
+            http://svn.apache.org/repos/asf/directory/apacheds/releases/1.5.0
           </svnBaseUrl>
           <packageSources>true</packageSources>
           <packageDocs>true</packageDocs>
