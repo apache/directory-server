@@ -69,6 +69,10 @@ import org.slf4j.LoggerFactory;
  */
 public class SearchHandler implements LdapMessageHandler
 {
+    //TM private static long cumul = 0L;
+    //TM private static long count = 0;
+    //TM private static Object lock = new Object();
+
     private static final Logger log = LoggerFactory.getLogger( SearchHandler.class );
     private static final String DEREFALIASES_KEY = "java.naming.ldap.derefAliases";
     private StartupConfiguration cfg;
@@ -145,6 +149,7 @@ public class SearchHandler implements LdapMessageHandler
      */
     public void messageReceived( IoSession session, Object request ) throws Exception
     {
+        //TM long t0 = System.nanoTime();
     	if ( IS_DEBUG )
     	{
     		log.debug( "Message received : " + request.toString() );
@@ -232,6 +237,19 @@ public class SearchHandler implements LdapMessageHandler
                 String msg = "Bind failure: Anonymous binds have been disabled!";
                 result.setErrorMessage( msg );
                 session.write( req.getResultResponse() );
+                //TM long t1 = System.nanoTime();
+                //TM
+                //TM synchronized (lock)
+                //TM {
+                //TM     cumul += (t1 - t0);
+                //TM     count++;
+                //TM    
+                //TM     if ( count % 1000L == 0)
+                //TM     {
+                //TM         System.out.println( "Search cost : " + (cumul/count) );
+                //TM         cumul = 0L;
+                //TM     }
+                //TM }
                 return;
             }
 
@@ -290,6 +308,20 @@ public class SearchHandler implements LdapMessageHandler
                                 if ( rcode != ResultCodeEnum.SUCCESS )
                                 {
                                     session.write( resp );
+                                    //TM long t1 = System.nanoTime();
+                                    //TM  
+                                    //TM synchronized( lock )
+                                    //TM {
+                                    //TM     cumul += (t1 - t0);
+                                    //TM     count++;
+                                    //TM     
+                                    //TM     if ( count % 1000L == 0)
+                                    //TM     {
+                                    //TM         System.out.println( "Search cost : " + (cumul/count) );
+                                    //TM         cumul = 0L;
+                                    //TM     }
+                                    //TM }
+                                    
                                     return;
                                 }
                                 // if search was fine then we returned all entries so now
@@ -312,6 +344,18 @@ public class SearchHandler implements LdapMessageHandler
                 StringBuffer buf = new StringBuffer();
                 req.getFilter().printToBuffer( buf );
                 ctx.addNamingListener( req.getBase(), buf.toString(), controls, handler );
+                //TM long t1 = System.nanoTime();
+                //TM synchronized( lock )
+                //TM {
+                //TM     cumul += (t1 - t0);
+                //TM     count++;
+                //TM     
+                //TM     if ( count % 1000L == 0)
+                //TM     {
+                //TM         System.out.println( "Search cost : " + (cumul/count) );
+                //TM         cumul = 0L;
+                //TM     }
+                //TM }
                 return;
             }
 
@@ -336,6 +380,18 @@ public class SearchHandler implements LdapMessageHandler
                 {
                     session.write( it.next() );
                 }
+                //TM long t1 = System.nanoTime();
+                //TM synchronized( lock )
+                //TM {
+                //TM     cumul += (t1 - t0);
+                //TM     count++;
+                //TM     
+                //TM     if ( count % 1000L == 0)
+                //TM     {
+                //TM         System.out.println( "Search cost : " + (cumul/count) );
+                //TM         cumul = 0L;
+                //TM     }
+                //TM }
 
                 return;
             }
@@ -348,6 +404,19 @@ public class SearchHandler implements LdapMessageHandler
                 {
                     session.write( it.next() );
                 }
+                //TM long t1 = System.nanoTime();
+                //TM synchronized( lock )
+                //TM {
+                //TM     cumul += (t1 - t0);
+                //TM     count++;
+                //TM     
+                //TM     if ( count % 1000L == 0)
+                //TM     {
+                //TM         System.out.println( "Search cost : " + (cumul/count) );
+                //TM         cumul = 0L;
+                //TM     }
+                //TM }
+
                 return;
             }
         }
@@ -367,6 +436,19 @@ public class SearchHandler implements LdapMessageHandler
             while ( e.skipReferral() );
             session.write( req.getResultResponse() );
             SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
+            //TM long t1 = System.nanoTime();
+            //TM synchronized( lock )
+            //TM {
+            //TM    cumul += (t1 - t0);
+            //TM    count++;
+            //TM     
+            //TM     if ( count % 1000L == 0)
+            //TM     {
+            //TM         System.out.println( "Search cost : " + (cumul/count) );
+            //TM         cumul = 0L;
+            //TM     }
+            //TM }
+
             return;
         }
         catch ( NamingException e )
@@ -385,6 +467,19 @@ public class SearchHandler implements LdapMessageHandler
              */
             if ( e instanceof OperationAbandonedException )
             {
+                //TM long t1 = System.nanoTime();
+                //TM synchronized( lock )
+                //TM {
+                //TM     cumul += (t1 - t0);
+                //TM     count++;
+                //TM     
+                //TM     if ( count % 1000L == 0)
+                //TM     {
+                //TM         System.out.println( "Search cost : " + (cumul/count) );
+                //TM         cumul = 0L;
+                //TM     }
+                //TM }
+
                 return;
             }
 
