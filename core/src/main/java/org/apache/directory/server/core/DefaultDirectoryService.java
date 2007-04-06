@@ -41,6 +41,7 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
+import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.jndi.PropertyKeys;
@@ -709,7 +710,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN adminDn = new LdapDN( PartitionNexus.ADMIN_PRINCIPAL );
         adminDn.normalize( configuration.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         
-        Attributes adminEntry = partitionNexus.lookup( adminDn );
+        Attributes adminEntry = partitionNexus.lookup( new LookupServiceContext( adminDn ) );
         Object userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
         if ( userPassword instanceof byte[] )
         {
