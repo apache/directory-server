@@ -543,21 +543,21 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public boolean isSuffix( LdapDN name ) throws NamingException
+    public boolean isSuffix( ServiceContext suffixContext ) throws NamingException
     {
-        return isSuffix( name, null );
+        return isSuffix( suffixContext, null );
     }
 
 
-    public boolean isSuffix( LdapDN name, Collection bypass ) throws NamingException
+    public boolean isSuffix( ServiceContext suffixContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation( this, caller, "isSuffix", new Object[]
-            { name }, bypass ) );
+            { suffixContext }, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().isSuffix( name );
+            return this.configuration.getInterceptorChain().isSuffix( suffixContext );
         }
         finally
         {

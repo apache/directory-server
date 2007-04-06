@@ -44,6 +44,7 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.SuffixServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -272,15 +273,15 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public boolean isSuffix( NextInterceptor next, LdapDN name ) throws NamingException
+    public boolean isSuffix( NextInterceptor next, ServiceContext suffixContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Testing suffix for name = '" + name.toString() + "'" );
+            log.debug( "Testing suffix for name = '" + ((SuffixServiceContext)suffixContext).getSuffixDn().getUpName() + "'" );
         }
 
         checkAuthenticated();
-        return next.isSuffix( name );
+        return next.isSuffix( suffixContext );
     }
 
 

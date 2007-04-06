@@ -158,9 +158,9 @@ public class InterceptorChain
         }
 
 
-        public boolean isSuffix( NextInterceptor next, LdapDN name ) throws NamingException
+        public boolean isSuffix( NextInterceptor next, ServiceContext suffixContext ) throws NamingException
         {
-            return nexus.isSuffix( name );
+            return nexus.isSuffix( suffixContext );
         }
 
 
@@ -881,14 +881,14 @@ public class InterceptorChain
     }
 
 
-    public boolean isSuffix( LdapDN name ) throws NamingException
+    public boolean isSuffix( ServiceContext suffixContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            return head.isSuffix( next, name );
+            return head.isSuffix( next, suffixContext );
         }
         catch ( NamingException ne )
         {
@@ -1295,14 +1295,14 @@ public class InterceptorChain
                 }
 
 
-                public boolean isSuffix( LdapDN name ) throws NamingException
+                public boolean isSuffix( ServiceContext suffixContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.isSuffix( next.nextInterceptor, name );
+                        return interceptor.isSuffix( next.nextInterceptor, suffixContext );
                     }
                     catch ( NamingException ne )
                     {

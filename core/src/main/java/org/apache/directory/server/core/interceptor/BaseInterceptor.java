@@ -135,9 +135,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public boolean isSuffix( NextInterceptor next, LdapDN name ) throws NamingException
+    public boolean isSuffix( NextInterceptor next, ServiceContext suffixContext ) throws NamingException
     {
-        return next.isSuffix( name );
+        return next.isSuffix( suffixContext );
     }
 
 

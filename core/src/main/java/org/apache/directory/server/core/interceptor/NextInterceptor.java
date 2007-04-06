@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-
 /**
  * Represents the next {@link Interceptor} in the interceptor chain.
  *
@@ -138,9 +137,9 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#isSuffix(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link Interceptor#isSuffix(NextInterceptor, ServiceContext)}.
      */
-    boolean isSuffix( LdapDN name ) throws NamingException;
+    boolean isSuffix( ServiceContext suffixContext ) throws NamingException;
 
 
     /**

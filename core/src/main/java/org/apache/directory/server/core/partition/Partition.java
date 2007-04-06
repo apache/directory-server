@@ -216,11 +216,11 @@ public interface Partition
     /**
      * Checks to see if name is a context suffix.
      *
-     * @param name the normalized distinguished/absolute name of the context
+     * @param suffixContext the context associated with the isSuffix operation
      * @return true if the name is a context suffix, false if it is not.
      * @throws NamingException if there are any problems
      */
-    boolean isSuffix( LdapDN name ) throws NamingException;
+    boolean isSuffix( ServiceContext suffixContext ) throws NamingException;
 
 
     /**
