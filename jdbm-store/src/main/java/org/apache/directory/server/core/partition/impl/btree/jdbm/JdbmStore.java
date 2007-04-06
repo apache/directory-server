@@ -183,7 +183,7 @@ public class JdbmStore
             if ( nextObject instanceof String ) 
             {
                 name = ( String ) nextObject;
-                log.warn( "Using default cache size of {} for index on attribute {}", 
+                log.debug( "Using default cache size of {} for index on attribute {}", 
                     new Integer( cacheSize ), name );
             }
             // custom cache size is used
@@ -285,7 +285,7 @@ public class JdbmStore
             if ( ! customAddedSystemIndices.contains( systemIndexName ) )
             {
                 AttributeType type = attributeTypeRegistry.lookup( systemIndexName );
-                log.warn( "Using default cache size of {} for index on attribute {}", 
+                log.debug( "Using default cache size of {} for index on attribute {}", 
                     new Integer( IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE ), systemIndexName );
                 if ( systemIndexName.equals( Oid.EXISTANCE ) )
                 {
@@ -378,12 +378,12 @@ public class JdbmStore
             if ( cacheSize < 0 )
             {
                 cacheSize = DEFAULT_CACHE_SIZE;
-                log.warn( "Using the default entry cache size of {} for {} partition", 
+                log.debug( "Using the default entry cache size of {} for {} partition", 
                     new Integer( cacheSize ), config.getName() );
             }
             else
             {
-                log.info( "Using the custom configured cache size of {} for {} partition", 
+                log.debug( "Using the custom configured cache size of {} for {} partition", 
                     new Integer( cacheSize ), config.getName() );
             }
             recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
