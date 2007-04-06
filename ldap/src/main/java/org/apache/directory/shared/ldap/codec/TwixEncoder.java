@@ -46,6 +46,10 @@ import java.nio.channels.WritableByteChannel;
  */
 public class TwixEncoder implements ProviderEncoder
 {
+    //TM private static long cumul = 0L;
+    //TM private static long count = 0L;
+    //TM private Object lock = new Object();
+
     /** The logger */
     private static Logger log = LoggerFactory.getLogger( TwixEncoder.class );
 
@@ -192,8 +196,23 @@ public class TwixEncoder implements ProviderEncoder
      */
     public void encode( Object obj ) throws EncoderException
     {
+        //TM long t0 = System.nanoTime();
         ByteBuffer encoded = encodeBlocking( obj );
         encodeCallback.encodeOccurred( null, encoded );
+        //TM long t1 = System.nanoTime();
+        
+        //TM synchronized (lock)
+        //TM {
+        //TM     cumul += (t1 - t0);
+        //TM     count++;
+        //TM    
+        //TM
+        //TM     if ( count % 1000L == 0)
+        //TM     {
+        //TM         System.out.println( "Encode cost : " + (cumul/count) );
+        //TM         cumul = 0L;
+        //TM     }
+        //TM }
     }
 
 

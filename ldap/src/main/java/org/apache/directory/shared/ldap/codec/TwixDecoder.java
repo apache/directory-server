@@ -46,6 +46,10 @@ import org.slf4j.LoggerFactory;
  */
 public class TwixDecoder implements ProviderDecoder
 {
+    //TM private static long cumul = 0L;
+    //TM private static long count = 0L;
+    //TM private Object lock = new Object();
+
     /** The logger */
     private static Logger log = LoggerFactory.getLogger( TwixDecoder.class );
 
@@ -87,6 +91,7 @@ public class TwixDecoder implements ProviderDecoder
      */
     public void decode( Object encoded ) throws DecoderException
     {
+        //TM long t0 = System.nanoTime();
         ByteBuffer buf;
         int position = 0;
 
@@ -138,7 +143,23 @@ public class TwixDecoder implements ProviderDecoder
                     }
     
                     decoderCallback.decodeOccurred( null, ldapMessageContainer.getLdapMessage() );
+
                     ldapMessageContainer.clean();
+                    //TM long t1 = System.nanoTime();
+                    //TM
+                    //TM synchronized (lock)
+                    //TM {
+                    //TM     cumul += (t1 - t0);
+                    //TM     count++;
+                    //TM    
+                    //TM
+                    //TM     if ( count % 1000L == 0)
+                    //TM     {
+                    //TM         System.out.println( "Decode cost : " + (cumul/count) );
+                    //TM         cumul = 0L;
+                    //TM     }
+                    //TM }
+                    
                 }
                 else
                 {
