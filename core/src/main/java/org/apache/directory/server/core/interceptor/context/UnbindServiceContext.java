@@ -35,6 +35,13 @@ public class UnbindServiceContext implements ServiceContext
 
     /**
      * Creates a new instance of UnbindServiceContext.
+     */
+    public UnbindServiceContext()
+    {
+    }
+    
+    /**
+     * Creates a new instance of UnbindServiceContext.
      *
      * @param unbindDn The principal DN to unbind
      */
