@@ -47,7 +47,6 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
-import org.apache.directory.server.core.interceptor.context.SuffixServiceContext;
 import org.apache.directory.server.core.interceptor.context.UnbindServiceContext;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -942,15 +941,6 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         Partition backend = getBackend( dn );
         return backend.hasEntry( dn );
-    }
-
-
-    /**
-     * @see Partition#isSuffix(org.apache.directory.shared.ldap.name.LdapDN)
-     */
-    public boolean isSuffix( ServiceContext suffixContext )
-    {
-        return partitions.containsKey( ((SuffixServiceContext)suffixContext).getSuffixDn().getNormName() );
     }
 
 

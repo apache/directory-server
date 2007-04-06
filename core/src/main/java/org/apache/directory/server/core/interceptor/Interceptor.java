@@ -210,12 +210,6 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link Partition#isSuffix(ServiceContext)} call.
-     */
-    boolean isSuffix( NextInterceptor next, ServiceContext suffixContext ) throws NamingException;
-
-
-    /**
      * Filters {@link Partition#modifyRn(org.apache.directory.shared.ldap.name.LdapDN,String,boolean)} call.
      */
     void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException;

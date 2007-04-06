@@ -543,29 +543,6 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public boolean isSuffix( ServiceContext suffixContext ) throws NamingException
-    {
-        return isSuffix( suffixContext, null );
-    }
-
-
-    public boolean isSuffix( ServiceContext suffixContext, Collection bypass ) throws NamingException
-    {
-        ensureStarted();
-        InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation( this, caller, "isSuffix", new Object[]
-            { suffixContext }, bypass ) );
-        try
-        {
-            return this.configuration.getInterceptorChain().isSuffix( suffixContext );
-        }
-        finally
-        {
-            stack.pop();
-        }
-    }
-
-
     public void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
     {
         modifyRn( name, newRn, deleteOldRn, null );

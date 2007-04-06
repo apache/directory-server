@@ -137,12 +137,6 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#isSuffix(NextInterceptor, ServiceContext)}.
-     */
-    boolean isSuffix( ServiceContext suffixContext ) throws NamingException;
-
-
-    /**
      * Calls the next interceptor's {@link Interceptor#modifyRn(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,String,boolean)}.
      */
     void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException;

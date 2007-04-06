@@ -397,13 +397,6 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public boolean isSuffix( NextInterceptor next, ServiceContext suffixContext ) throws NamingException
-        {
-            interceptors.add( this );
-            return next.isSuffix( suffixContext );
-        }
-
-
         public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn )
             throws NamingException
         {

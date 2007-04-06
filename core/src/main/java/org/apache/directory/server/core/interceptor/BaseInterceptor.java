@@ -135,12 +135,6 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public boolean isSuffix( NextInterceptor next, ServiceContext suffixContext ) throws NamingException
-    {
-        return next.isSuffix( suffixContext );
-    }
-
-
     public NamingEnumeration list( NextInterceptor next, LdapDN base ) throws NamingException
     {
         return next.list( base );

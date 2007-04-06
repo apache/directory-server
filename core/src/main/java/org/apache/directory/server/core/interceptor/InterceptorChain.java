@@ -158,12 +158,6 @@ public class InterceptorChain
         }
 
 
-        public boolean isSuffix( NextInterceptor next, ServiceContext suffixContext ) throws NamingException
-        {
-            return nexus.isSuffix( suffixContext );
-        }
-
-
         public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn )
             throws NamingException
         {
@@ -881,27 +875,6 @@ public class InterceptorChain
     }
 
 
-    public boolean isSuffix( ServiceContext suffixContext ) throws NamingException
-    {
-        Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
-        NextInterceptor next = entry.nextInterceptor;
-        try
-        {
-            return head.isSuffix( next, suffixContext );
-        }
-        catch ( NamingException ne )
-        {
-            throw ne;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-            throw new InternalError(); // Should be unreachable
-        }
-    }
-
-
     public void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
     {
         Entry entry = getStartingEntry();
@@ -1282,27 +1255,6 @@ public class InterceptorChain
                     try
                     {
                         return interceptor.hasEntry( next.nextInterceptor, name );
-                    }
-                    catch ( NamingException ne )
-                    {
-                        throw ne;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                        throw new InternalError(); // Should be unreachable
-                    }
-                }
-
-
-                public boolean isSuffix( ServiceContext suffixContext ) throws NamingException
-                {
-                    Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
-
-                    try
-                    {
-                        return interceptor.isSuffix( next.nextInterceptor, suffixContext );
                     }
                     catch ( NamingException ne )
                     {

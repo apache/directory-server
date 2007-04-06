@@ -212,17 +212,6 @@ public interface Partition
      */
     boolean hasEntry( LdapDN name ) throws NamingException;
 
-
-    /**
-     * Checks to see if name is a context suffix.
-     *
-     * @param suffixContext the context associated with the isSuffix operation
-     * @return true if the name is a context suffix, false if it is not.
-     * @throws NamingException if there are any problems
-     */
-    boolean isSuffix( ServiceContext suffixContext ) throws NamingException;
-
-
     /**
      * Modifies an entry by changing its relative name. Optionally attributes
      * associated with the old relative name can be removed from the entry.

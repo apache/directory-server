@@ -36,7 +36,6 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
-import org.apache.directory.server.core.interceptor.context.SuffixServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -349,13 +348,6 @@ public class NormalizationService extends BaseInterceptor
     {
         name = LdapDN.normalize( name, attrNormalizers );
         return nextInterceptor.hasEntry( name );
-    }
-
-
-    public boolean isSuffix( NextInterceptor nextInterceptor, ServiceContext suffixContext ) throws NamingException
-    {
-        LdapDN.normalize( ((SuffixServiceContext)suffixContext).getSuffixDn(), attrNormalizers );
-        return nextInterceptor.isSuffix( suffixContext );
     }
 
 

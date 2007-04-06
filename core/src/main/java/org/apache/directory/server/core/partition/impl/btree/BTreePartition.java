@@ -36,7 +36,6 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
-import org.apache.directory.server.core.interceptor.context.SuffixServiceContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
@@ -485,12 +484,6 @@ public abstract class BTreePartition implements Partition
 
 
     public abstract boolean isInitialized();
-
-
-    public boolean isSuffix( ServiceContext suffixContext ) throws NamingException
-    {
-        return getSuffix().equals( ((SuffixServiceContext)suffixContext).getSuffixDn() );
-    }
 
 
     public void inspect() throws Exception

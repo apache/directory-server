@@ -34,7 +34,6 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
-import org.apache.directory.server.core.interceptor.context.SuffixServiceContext;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -177,12 +176,6 @@ public abstract class AbstractPartition implements Partition
         }
 
         return suffixDn;
-    }
-
-
-    public final boolean isSuffix( ServiceContext suffixContext ) throws NamingException
-    {
-        return getSuffix().equals( ((SuffixServiceContext)suffixContext).getSuffixDn() );
     }
 
 
