@@ -127,7 +127,7 @@ public abstract class ServerContext implements EventContext
         dn = props.getProviderDn();
         
         BindServiceContext bindContext = new BindServiceContext();
-        bindContext.setBindDn( props.getBindDn() );
+        bindContext.setDn( props.getBindDn() );
         bindContext.setCredentials( props.getCredentials() );
         bindContext.setMechanisms( props.getAuthenticationMechanisms() );
         bindContext.setSaslAuthId( props.getSaslAuthId() );

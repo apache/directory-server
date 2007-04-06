@@ -21,7 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import java.util.List;
 
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
  * A Bind context used for Interceptors. It contains all the informations
@@ -30,11 +30,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BindServiceContext implements ServiceContext
+public class BindServiceContext extends AbstractServiceContext
 {
-    /** The principal DN */
-    private LdapDN bindDn;
-
     /** The list of supported mechanisms */
     private List<String> mechanisms;
     
@@ -44,24 +41,6 @@ public class BindServiceContext implements ServiceContext
     /** The SASL identifier */
     private String saslAuthId;
     
-    /**
-     * @return The Principal's DN
-     */
-    public LdapDN getBindDn()
-    {
-        return bindDn;
-    }
-    
-    /**
-     * Set the principal's DN.
-     *
-     * @param bindDn The principal's DN
-     */
-    public void setBindDn( LdapDN bindDn )
-    {
-        this.bindDn = bindDn;
-    }
-
     /**
      * @return The list of supported mechanisms
      */
@@ -99,5 +78,16 @@ public class BindServiceContext implements ServiceContext
     public void setSaslAuthId( String saslAuthId )
     {
         this.saslAuthId = saslAuthId;
+    }
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "BindContext for DN '" + getDn().getUpName() + "', credentials <" +
+            ( credentials != null ? StringTools.dumpBytes( credentials ) : "" ) + ">" +
+            ( ( mechanisms != null ) ? ", mechanisms : <" + StringTools.listToString( mechanisms ) + ">" : "" ) +
+            ( saslAuthId != null ? ", saslAuthId <" + saslAuthId + ">" : "" );
     }
 }

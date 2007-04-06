@@ -347,7 +347,7 @@ public class NormalizationService extends BaseInterceptor
 
     public boolean hasEntry( NextInterceptor nextInterceptor, ServiceContext entryContext ) throws NamingException
     {
-        LdapDN.normalize( ((EntryServiceContext)entryContext).getEntryDn(), attrNormalizers );
+        LdapDN.normalize( entryContext.getDn(), attrNormalizers );
         return nextInterceptor.hasEntry( entryContext );
     }
 
@@ -393,7 +393,7 @@ public class NormalizationService extends BaseInterceptor
     
     public void bind( NextInterceptor next, ServiceContext ctx )  throws NamingException
     {
-        LdapDN.normalize( ((BindServiceContext)ctx).getBindDn(), attrNormalizers );
+        LdapDN.normalize(ctx.getDn(), attrNormalizers );
         next.bind( ctx );
     }
 

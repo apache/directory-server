@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LookupServiceContext implements ServiceContext
+public class LookupServiceContext  extends AbstractServiceContext
 {
     /** The entry DN */
     private LdapDN dn;

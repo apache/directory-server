@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 /**
  * This interface represent the context passed as an argument to each interceptor.
  * It will contain data used by all the operations.
@@ -28,5 +30,16 @@ package org.apache.directory.server.core.interceptor.context;
  */
 public interface ServiceContext
 {
+    /**
+     * @return The associated DN
+     */
+    LdapDN getDn();
+    
+    /**
+     * Set the context DN
+     *
+     * @param dn The DN to set
+     */
+    void setDn( LdapDN dn );
 
 }

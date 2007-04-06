@@ -667,13 +667,13 @@ public class DefaultPartitionNexus extends PartitionNexus
     // ------------------------------------------------------------------------
     public void bind( ServiceContext bindContext ) throws NamingException
     {
-        Partition partition = getBackend( ((BindServiceContext)bindContext).getBindDn() );
+        Partition partition = getBackend( bindContext.getDn() );
         partition.bind( bindContext );
     }
 
     public void unbind( ServiceContext unbindContext ) throws NamingException
     {
-        Partition partition = getBackend( ((UnbindServiceContext)unbindContext).getUnbindDn() );
+        Partition partition = getBackend( unbindContext.getDn() );
         partition.unbind( unbindContext );
     }
 
@@ -930,7 +930,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     public boolean hasEntry( ServiceContext entryContext ) throws NamingException
     {
-        LdapDN dn = ((EntryServiceContext)entryContext).getEntryDn();
+        LdapDN dn = entryContext.getDn();
         
         if ( IS_DEBUG )
         {

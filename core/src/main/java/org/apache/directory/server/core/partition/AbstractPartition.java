@@ -196,7 +196,7 @@ public abstract class AbstractPartition implements Partition
     {
         try
         {
-            return lookup( new LookupServiceContext( ((EntryServiceContext)entryContext).getEntryDn() ) ) != null;
+            return lookup( new LookupServiceContext( entryContext.getDn() ) ) != null;
         }
         catch ( NameNotFoundException e )
         {

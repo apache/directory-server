@@ -464,7 +464,7 @@ public abstract class BTreePartition implements Partition
 
     public boolean hasEntry( ServiceContext entryContext ) throws NamingException
     {
-        return null != getEntryId( ((EntryServiceContext)entryContext).getEntryDn().getNormName() );
+        return null != getEntryId( entryContext.getDn().getNormName() );
     }
 
 

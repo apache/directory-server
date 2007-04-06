@@ -22,37 +22,52 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * A Unbind context used for Interceptors. It contains all the informations
- * needed for the unbind operation, and used by all the interceptors
+ * This abstract class stores common context elements, like the DN, which is used
+ * in all the contexts.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class UnbindServiceContext  extends AbstractServiceContext
+public class AbstractServiceContext implements ServiceContext
 {
-    /**
-     * Creates a new instance of UnbindServiceContext.
-     */
-    public UnbindServiceContext()
-    {
-        super();
-    }
+    /** The DN associated with the context */
+    private LdapDN dn;
     
     /**
-     * Creates a new instance of UnbindServiceContext.
+     * 
+     * Creates a new instance of AbstractServiceContext.
      *
-     * @param unbindDn The principal DN to unbind
      */
-    public UnbindServiceContext( LdapDN unbindDn )
+    public AbstractServiceContext()
     {
-        super( unbindDn );
     }
-    
+
     /**
-     * @see Object#toString()
+     * 
+     * Creates a new instance of AbstractServiceContext.
+     *
+     * @param dn The associated DN
      */
-    public String toString()
+    public AbstractServiceContext( LdapDN dn )
     {
-        return "UnbindContext for DN '" + getDn().getUpName() + "'";
+        this.dn = dn;
+    }
+
+    /**
+     * @return The associated DN
+     */
+    public LdapDN getDn()
+    {
+        return dn;
+    }
+
+    /**
+     * Set the context DN
+     *
+     * @param dn The DN to set
+     */
+    public void setDn( LdapDN dn )
+    {
+        this.dn = dn;
     }
 }

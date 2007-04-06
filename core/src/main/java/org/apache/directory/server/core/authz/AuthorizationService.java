@@ -610,7 +610,7 @@ public class AuthorizationService extends BaseInterceptor
 
     public boolean hasEntry( NextInterceptor next, ServiceContext entryContext ) throws NamingException
     {
-        LdapDN name = ((EntryServiceContext)entryContext).getEntryDn();
+        LdapDN name = entryContext.getDn();
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( new LookupServiceContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );

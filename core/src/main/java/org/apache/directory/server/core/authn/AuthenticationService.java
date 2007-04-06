@@ -265,7 +265,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Testing if entry name = '" + ((EntryServiceContext)entryContext).getEntryDn().getUpName() + "' exists" );
+            log.debug( "Testing if entry name = '" + entryContext.getDn().getUpName() + "' exists" );
         }
 
         checkAuthenticated();
@@ -451,11 +451,9 @@ public class AuthenticationService extends BaseInterceptor
     public void bind( NextInterceptor next, ServiceContext bindContext )
     throws NamingException
     {   
-        BindServiceContext bindCtx = (BindServiceContext)bindContext;
-        
         // The DN is always normalized here
-        LdapDN normBindDn = bindCtx.getBindDn();
-        String bindUpDn = bindCtx.getBindDn().getUpName();
+        LdapDN normBindDn = bindContext.getDn();
+        String bindUpDn = bindContext.getDn().getUpName();
         
         if ( IS_DEBUG )
         {
@@ -484,7 +482,7 @@ public class AuthenticationService extends BaseInterceptor
         // pick the first matching authenticator type
         Collection<Authenticator> authenticators = null;
         
-        for ( String mechanism:bindCtx.getMechanisms() )
+        for ( String mechanism:((BindServiceContext)bindContext).getMechanisms() )
         {
             authenticators = getAuthenticators( mechanism );
     
@@ -499,7 +497,7 @@ public class AuthenticationService extends BaseInterceptor
             log.debug( "No authenticators found, delegating bind to the nexus." );
             
             // as a last resort try binding via the nexus
-            next.bind( bindCtx );
+            next.bind( bindContext );
             
             log.debug( "Nexus succeeded on bind operation." );
             

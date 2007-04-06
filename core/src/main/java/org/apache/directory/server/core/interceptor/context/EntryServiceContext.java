@@ -28,11 +28,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class EntryServiceContext implements ServiceContext
+public class EntryServiceContext  extends AbstractServiceContext
 {
-    /** The entry DN */
-    private LdapDN entryDn;
-
     /**
      * Creates a new instance of EntryServiceContext.
      */
@@ -47,25 +44,7 @@ public class EntryServiceContext implements ServiceContext
      */
     public EntryServiceContext( LdapDN entryDn )
     {
-        this.entryDn = entryDn;
-    }
-    
-    /**
-     * @return The Entry DN
-     */
-    public LdapDN getEntryDn()
-    {
-        return entryDn;
-    }
-    
-    /**
-     * Set the Entry DN.
-     *
-     * @param entryDn The Entry DN
-     */
-    public void setEntryDn( LdapDN entryDn )
-    {
-        this.entryDn = entryDn;
+        super( entryDn );
     }
     
     /**
@@ -73,6 +52,6 @@ public class EntryServiceContext implements ServiceContext
      */
     public String toString()
     {
-        return "EntryContext for DN '" + entryDn.getUpName() + "'";
+        return "EntryContext for DN '" + getDn().getUpName() + "'";
     }
 }
