@@ -22,50 +22,50 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * A Unbind context used for Interceptors. It contains all the informations
- * needed for the unbind operation, and used by all the interceptors
+ * A Entry context used for Interceptors. It contains all the informations
+ * needed for the hasEntry operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class UnbindServiceContext implements ServiceContext
+public class EntryServiceContext implements ServiceContext
 {
-    /** The principal DN */
-    private LdapDN unbindDn;
+    /** The entry DN */
+    private LdapDN entryDn;
 
     /**
-     * Creates a new instance of UnbindServiceContext.
+     * Creates a new instance of EntryServiceContext.
      */
-    public UnbindServiceContext()
+    public EntryServiceContext()
     {
     }
     
     /**
-     * Creates a new instance of UnbindServiceContext.
+     * Creates a new instance of EntryServiceContext.
      *
-     * @param unbindDn The principal DN to unbind
+     * @param entryDn The Entry DN to unbind
      */
-    public UnbindServiceContext( LdapDN unbindDn )
+    public EntryServiceContext( LdapDN entryDn )
     {
-        this.unbindDn = unbindDn;
+        this.entryDn = entryDn;
     }
     
     /**
-     * @return The Principal's DN
+     * @return The Entry DN
      */
-    public LdapDN getUnbindDn()
+    public LdapDN getEntryDn()
     {
-        return unbindDn;
+        return entryDn;
     }
     
     /**
-     * Set the principal's DN.
+     * Set the Entry DN.
      *
-     * @param unbindDn The principal's DN
+     * @param entryDn The Entry DN
      */
-    public void setUnbindDn( LdapDN unbindDn )
+    public void setEntryDn( LdapDN entryDn )
     {
-        this.unbindDn = unbindDn;
+        this.entryDn = entryDn;
     }
     
     /**
@@ -73,6 +73,6 @@ public class UnbindServiceContext implements ServiceContext
      */
     public String toString()
     {
-        return "UnbindContext for DN '" + unbindDn.getUpName() + "'";
+        return "EntryContext for DN '" + entryDn.getUpName() + "'";
     }
 }
