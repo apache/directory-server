@@ -431,7 +431,7 @@ public class ReplicationService extends BaseInterceptor
             // Check DELETED attribute.
             try
             {
-                Attributes entry = nextInterceptor.lookup( new LookupServiceContext( ((EntryServiceContext)entryContext).getEntryDn() ) );
+                Attributes entry = nextInterceptor.lookup( new LookupServiceContext( entryContext.getDn() ) );
                 hasEntry = !isDeleted( entry );
             }
             catch ( NameNotFoundException e )
