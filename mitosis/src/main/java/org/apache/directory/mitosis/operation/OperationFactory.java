@@ -33,6 +33,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -324,7 +325,7 @@ public class OperationFactory
      */
     private void checkBeforeAdd( LdapDN newEntryName ) throws NamingException
     {
-        if ( nexus.hasEntry( newEntryName ) )
+        if ( nexus.hasEntry( new EntryServiceContext( newEntryName ) ) )
         {
             Attributes entry = nexus.lookup( new LookupServiceContext( newEntryName ) );
             Attribute deleted = entry.get( Constants.ENTRY_DELETED );

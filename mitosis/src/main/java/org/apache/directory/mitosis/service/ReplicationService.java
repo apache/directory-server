@@ -56,6 +56,7 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -419,10 +420,10 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public boolean hasEntry( NextInterceptor nextInterceptor, ServiceContext entryContext ) throws NamingException
     {
         // Ask others first.
-        boolean hasEntry = nextInterceptor.hasEntry( name );
+        boolean hasEntry = nextInterceptor.hasEntry( entryContext );
 
         // If the entry exists,
         if ( hasEntry )
@@ -430,7 +431,7 @@ public class ReplicationService extends BaseInterceptor
             // Check DELETED attribute.
             try
             {
-                Attributes entry = nextInterceptor.lookup( new LookupServiceContext( name ) );
+                Attributes entry = nextInterceptor.lookup( new LookupServiceContext( ((EntryServiceContext)entryContext).getEntryDn() ) );
                 hasEntry = !isDeleted( entry );
             }
             catch ( NameNotFoundException e )
