@@ -71,6 +71,8 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public abstract class AbstractContextFactory implements InitialContextFactory, DirectoryServiceListener
 {
+    //TM private static long cumul = 0L;
+    //TM private static long count = 0;
     // ------------------------------------------------------------------------
     // Members
     // ------------------------------------------------------------------------
@@ -85,6 +87,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
 
     public final synchronized Context getInitialContext( Hashtable env ) throws NamingException
     {
+        //TM long t0 = System.nanoTime();
         Configuration cfg = Configuration.toConfiguration( env );
         env = ( Hashtable ) env.clone();
         
@@ -135,7 +138,17 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
             throw new NamingException( "Unknown configuration: " + cfg );
         }
 
-        return service.getJndiContext( principalDn, principal, credential, authentication, providerUrl );
+        Context context = service.getJndiContext( principalDn, principal, credential, authentication, providerUrl );
+        //TM long t1 = System.nanoTime();
+        //TM cumul += (t1 - t0)/1000;
+        //TM count++;
+        
+        //TM if ( count % 1000 == 0)
+        //TM {
+        //TM     System.out.println( "getInitialContext cost : " + (cumul/count) );
+        //TM }
+        
+        return context;
     }
 
 
