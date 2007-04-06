@@ -105,9 +105,9 @@
           <application>
             <name>apacheds</name>
             <version>${pom.version}</version>
-            <copyrightYear>2006</copyrightYear>
+            <copyrightYear>2007</copyrightYear>
             <minimumJavaVersion>1.5</minimumJavaVersion>
-            <url>http://directory.apache.org/subprojects/apacheds</url>
+            <url>http://directory.apache.org</url>
             <email>users@directory.apache.org</email>
             <description>Apache Directory Server</description>
             <authors>
@@ -120,7 +120,7 @@
               <author>oersoy@apache.org</author>
               <author>pamarcelot@apache.org</author>
               <author>szoerner@apache.org</author>
-              <author>sseelmann@apache.org</author>
+              <author>seelmann@apache.org</author>
               <author>trustin@apache.org</author>
             </authors>
           </application>
