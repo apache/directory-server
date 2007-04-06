@@ -217,7 +217,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
                 
                 if ( matchingRule == null )
                 {
-                    log.warn( "Attribute " + type.getName() + " does not have normalizer : using NoopNormalizer" );
+                    log.debug( "Attribute " + type.getName() + " does not have normalizer : using NoopNormalizer" );
                     oidNormalizer = new OidNormalizer( type.getOid(), new NoOpNormalizer() );
                 }
                 else
